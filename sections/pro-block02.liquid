@@ -1,0 +1,209 @@
+<style>
+	.shane-pro-b2{
+		width: 100%; background-color: #fff; padding: 7.5vw 0 5vw; 
+	}
+	.pro-b2-1{
+		width:94%; margin: auto; display: flex; justify-content: space-between; align-items: flex-end;
+	}
+	.pro-b2-1 .context{
+		width: 60%;
+	}
+	.pro-b2-1 .context .title{
+		font-size: 2.8vw; line-height:3.4vw; margin-bottom: 0.6vw; 
+	}
+	.pro-b2-1 .context .subtitle{
+		font-size: 1.1vw
+	}
+	.shane-np{
+		width:fit-content; display: flex; justify-content: space-between;
+	}
+	.shane-np>div{
+		width: 40px; height: 40px; border-radius: 50%; border:1px solid #000; color: #000; display: flex; justify-content: center; align-items: center; margin-left: 10px; cursor: pointer; font-size: 18px;
+	}
+	.shane-np>div:hover{
+		border:1px solid #FF6100; color: #ffffff; background-color: #FF6100;
+	}
+	.shane-np .swiper-button-disabled{
+		opacity: 0.4; cursor:auto;
+	}
+	.pro-b2-2{
+		width:100%; margin-top: 2vw; padding-left: 3%;
+	}
+	.proImgSwiper .swiper-slide>div{
+		width: 100%;
+	}
+	.proImgSwiper .slide-img{
+		position: relative;
+	}
+	.proImgSwiper .slide-img>div{
+		width: 100%; height: 100%; position: absolute; left: 0; top: 0; background-color: #000000; opacity: 0; transition: 0.2s;
+	}
+	.proImgSwiper .swiper-slide img{
+		width: 100%;
+	}
+	.proImgSwiper .slide-hr{
+		height: 2vw; padding-top: 1vw;
+	}
+	.proImgSwiper .slide-hr div{
+		width: 0; height: 1px; border: 1px solid #FF6100; margin: 0; transition: 0.2s; display: none;
+	}
+	.proImgSwiper .swiper-slide .num{
+		font-size: 2.2vw; font-weight: 600; line-height: 2.6vw;
+	}
+	.proImgSwiper .swiper-slide .title{
+		font-size: 1.4vw; font-weight: 600; margin: 0.5vw 0 0.6vw; line-height: 1.8vw; 
+	}
+	.proImgSwiper .swiper-slide .text{
+		font-size: 0.9vw; opacity: 0.65; line-height: 1.2vw;
+	}
+	.proImgSwiper .swiper-slide.active .slide-img>div{
+		opacity: 0;
+	}
+	.proImgSwiper .swiper-slide.active .slide-hr div{
+		width: 100%; display: block;
+	}
+@media (max-width: 768px){
+	.shane-pro-b2{
+		padding: 7.5vw 0 5vw;
+	}
+	.pro-b2-1{
+		display: block;
+	}
+	.pro-b2-1 .context{
+		width: 100%;
+	}
+	.pro-b2-1 .context .title{
+		font-size: 7.2vw; margin-bottom: 2vw; line-height:8vw;
+	}
+	.pro-b2-1 .context .subtitle{
+		font-size: 4.6vw; line-height:5.4vw;
+	}
+	.shane-np{
+		width:fit-content; display: flex; justify-content: space-between; margin-left: auto; margin-right: 0;
+	}
+	.shane-np>div{
+		width: 30px; height: 30px; font-size: 14px;
+	}
+	.pro-b2-2{
+		margin-top: 4vw;
+	}
+	.proImgSwiper .slide-hr{
+		height: 6vw; padding-top: 3vw;
+	}
+	.proImgSwiper .swiper-slide .num{
+		font-size: 7vw;  line-height:8vw;
+	}
+	.proImgSwiper .swiper-slide .title{
+		font-size: 5.6vw; margin: 1.5vw 0 2vw; line-height: 6vw;
+	}
+	.proImgSwiper .swiper-slide .text{
+		font-size: 4.6vw; line-height:5.4vw;
+	}
+}
+</style>
+
+	<div class="pro-b2-1">
+		<div class="context">
+			<h2 class="title">{{ section.settings.heading }}</h2>
+			<div class="subtitle">{{ section.settings.text }}</div>
+		</div>
+		<div class="shane-np">
+			<div class="shane-next"><span class="fa fa-long-arrow-left"></span></div>
+			<div class="shane-prev"><span class="fa fa-long-arrow-right"></span></div>
+		</div>
+	</div>
+	<div class="pro-b2-2">
+		<div class="swiper proImgSwiper">
+			<div class="swiper-wrapper">
+              {%- assign my_variable = 0 -%} 
+              {%- for block in section.blocks -%}
+                {%- assign my_variable = my_variable | plus: 1 -%} 
+				<div class="swiper-slide {% if my_variable==1 %}active{% endif %}">
+					<div class="slide-img">
+						<img src="{{ block.settings.image | image_url }}" alt="{{ block.settings.image.alt }}">
+						<div></div>
+					</div>
+					<div class="slide-hr">
+						<div></div>
+					</div>
+					<div class="context">
+						<div class="num">{{ block.settings.slidenum }}</div>
+						<h3 class="title">{{ block.settings.slidetitle }}</h3>
+						<div class="text">{{ block.settings.slidetext }}</div>
+					</div>
+				</div>
+              {% endfor %}
+			</div>
+		</div>
+	</div>
+	<script>
+		var proImgSwiper = new Swiper(".proImgSwiper", {
+		  slidesPerView: 1,
+		  spaceBetween: 10,
+		  navigation: {
+			nextEl: ".shane-pro-b2 .shane-prev",
+			prevEl: ".shane-pro-b2 .shane-next",
+		  },
+		  breakpoints: {
+			768: {
+			  slidesPerView: 4.2,
+			  spaceBetween: 30,
+			},
+		  },
+		});		
+	</script>
+{% schema %}
+  {
+    "name": "Pro block02",
+    "class": "shane-pro-b2",
+    "settings": [
+      {
+        "type": "text",
+        "id": "heading",
+        "label": "Heading"
+	  },
+      {
+        "type": "textarea",
+        "id": "text",
+        "label": "Text",
+        "default": "text"
+      }
+    ],
+    "blocks": [
+       {
+         "type": "item",
+         "name": "item",
+         "settings": [
+            {
+              "type": "image_picker",
+              "id": "image",
+              "label": "Image"
+            },
+           {
+              "type": "text",
+              "id": "slidenum",
+              "label": "Slide Num",
+              "default": "01"
+			},
+            {
+              "type": "text",
+              "id": "slidetitle",
+              "label": "Slide title",
+              "default": "Add a title"
+			},
+            {
+              "type": "textarea",
+              "id": "slidetext",
+              "label": "Slide Text"
+			}
+         ]
+       }
+    ],
+    "presets": [
+       {
+        "name": "Pro block02"
+          
+       }
+    ]
+  }
+{% endschema %}

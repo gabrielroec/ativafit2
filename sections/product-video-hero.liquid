@@ -1,0 +1,425 @@
+{%- comment -%} 
+        Product Video Hero Section
+        Shows a YouTube video with text overlay and play/pause controls 
+{%- endcomment -%}
+
+<div class="product-video-hero">
+  <h2 class="video-title">
+    {{ section.settings.video_title_start }}
+    <span class="highlight-text">{{ section.settings.video_title_highlight }}</span>
+    {{ section.settings.video_title_middle }}
+    <span class="progress-highlight">{{ section.settings.video_title_end }}</span>
+  </h2>
+  <div class="video-container">
+    <div id="youtube-player"></div>
+    <div class="video-overlay">
+      <div class="video-controls">
+        <button
+          class="video-control-button"
+          id="playPauseButton"
+          aria-label="{{ section.settings.pause_button_label }}">
+          <span class="pause-icon">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <rect
+                x="6"
+                y="4"
+                width="4"
+                height="16"
+                rx="1"
+                fill="white" />
+              <rect
+                x="14"
+                y="4"
+                width="4"
+                height="16"
+                rx="1"
+                fill="white" />
+            </svg>
+          </span>
+          <span class="play-icon" style="display: none;">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 5V19L19 12L8 5Z" fill="white" />
+            </svg>
+          </span>
+        </button>
+        <button
+          class="video-control-button"
+          id="muteButton"
+          aria-label="{{ section.settings.mute_button_label }}">
+          <span class="mute-icon">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <path d="M11 5L6 9H2V15H6L11 19V5Z" fill="white" />
+              <path
+                d="M23 9L17 15"
+                stroke="white"
+                stroke-width="2"
+                stroke-linecap="round" />
+              <path
+                d="M17 9L23 15"
+                stroke="white"
+                stroke-width="2"
+                stroke-linecap="round" />
+            </svg>
+          </span>
+          <span class="unmute-icon" style="display: none;">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <path d="M11 5L6 9H2V15H6L11 19V5Z" fill="white" />
+              <path
+                d="M15.54 8.46C16.4774 9.39764 17.0039 10.6692 17.0039 11.995C17.0039 13.3208 16.4774 14.5924 15.54 15.53"
+                stroke="white"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round" />
+              <path
+                d="M19.07 5.93C20.9447 7.80528 21.9979 10.3447 21.9979 13C21.9979 15.6553 20.9447 18.1947 19.07 20.07"
+                stroke="white"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .product-video-hero {
+    position: relative;
+    width: 100%;
+
+    margin: 0 auto 80px;
+    overflow: hidden;
+  }
+
+  .video-title {
+    color: #212121;
+    font-size: 40px;
+    max-width: 1370px;
+    margin: 0 auto 20px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: left;
+    padding: 0 40px;
+  }
+
+  .video-container {
+    position: relative;
+    width: 100%;
+
+    height: 0;
+    padding-bottom: 56.25%;
+    /* 16:9 aspect ratio */
+    background-color: #000;
+    border-radius: 20px;
+  }
+
+  #youtube-player {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+  }
+
+  .video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 60px;
+    border-radius: 20px;
+    z-index: 2;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.1) 100%);
+  }
+
+  .highlight-text {
+    display: inline;
+    color: {{ section.settings.highlighted_text_color | default: '#FF7E53' }};
+  }
+
+  .progress-highlight {
+    color: {{ section.settings.highlighted_text_color | default: '#FF7E53' }};
+  }
+
+  .video-controls {
+    display: flex;
+    justify-content: flex-end;
+    padding-bottom: 40px;
+    gap: 15px;
+  }
+
+  .video-control-button {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.6);
+    border: 2px solid white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+
+  .video-control-button:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+    transform: scale(1.05);
+  }
+
+  @media screen and (max-width: 1024px) {
+    .video-overlay {
+      padding: 40px;
+    }
+
+    .video-title {
+      font-size: 32px;
+    }
+
+    .video-control-button {
+      width: 50px;
+      height: 50px;
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    .video-container {
+      height: 500px;
+    }
+    .video-overlay {
+      padding: 30px 20px;
+    }
+
+    .video-title {
+      font-size: 22px;
+    }
+
+    .video-control-button {
+      width: 40px;
+      height: 40px;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Carregar API do YouTube
+    const tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    
+    let player;
+    
+    // Função chamada pela API do YouTube quando estiver pronta
+    window.onYouTubeIframeAPIReady = function() {
+      player = new YT.Player('youtube-player', {
+        videoId: '{{ section.settings.youtube_video_id }}', // ID do vídeo específico
+        playerVars: {
+          autoplay: 1,
+          mute: 1, // Mudo por padrão (exigência de muitos navegadores)
+          controls: 0,
+          showinfo: 0,
+          rel: 0,
+          modestbranding: 1,
+          loop: 1,
+          playlist: '{{ section.settings.youtube_video_id }}' // Necessário para loop
+        },
+        events: {
+          'onReady': onPlayerReady,
+          'onStateChange': onPlayerStateChange
+        }
+      });
+    };
+  
+    // Quando o player estiver pronto
+    function onPlayerReady(event) {
+      // Tenta iniciar o vídeo
+      event.target.playVideo();
+      
+      // Atualiza o estado do botão de mudo
+      updateMuteButton(true);
+    }
+  
+    function onPlayerStateChange(event) {
+      // Atualiza o ícone do botão quando o estado do player muda
+      updatePlayPauseButton(event.data === YT.PlayerState.PLAYING);
+    }
+  
+    // Controle de play/pause
+    const playPauseButton = document.getElementById('playPauseButton');
+    const pauseIcon = document.querySelector('.pause-icon');
+    const playIcon = document.querySelector('.play-icon');
+    
+    // Controle de mudo/volume
+    const muteButton = document.getElementById('muteButton');
+    const muteIcon = document.querySelector('.mute-icon');
+    const unmuteIcon = document.querySelector('.unmute-icon');
+  
+    function updatePlayPauseButton(isPlaying) {
+      if (isPlaying) {
+        pauseIcon.style.display = '';
+        playIcon.style.display = 'none';
+        playPauseButton.setAttribute('aria-label', '{{ section.settings.play_button_label }}');
+      } else {
+        pauseIcon.style.display = 'none';
+        playIcon.style.display = '';
+        playPauseButton.setAttribute('aria-label', '{{ section.settings.pause_button_label }}');
+      }
+    }
+    
+    function updateMuteButton(isMuted) {
+      if (isMuted) {
+        muteIcon.style.display = '';
+        unmuteIcon.style.display = 'none';
+        muteButton.setAttribute('aria-label', '{{ section.settings.mute_button_label }}');
+      } else {
+        muteIcon.style.display = 'none';
+        unmuteIcon.style.display = '';
+        muteButton.setAttribute('aria-label', '{{ section.settings.unmute_button_label }}');
+      }
+    }
+  
+    playPauseButton.addEventListener('click', function() {
+      if (player && typeof player.getPlayerState === 'function') {
+        const state = player.getPlayerState();
+        if (state === YT.PlayerState.PLAYING) {
+          player.pauseVideo();
+          playPauseButton.setAttribute('aria-label', '{{ section.settings.play_button_label }}');
+        } else {
+          player.playVideo();
+          playPauseButton.setAttribute('aria-label', '{{ section.settings.pause_button_label }}');
+        }
+      }
+    });
+    
+    muteButton.addEventListener('click', function() {
+      if (player && typeof player.isMuted === 'function') {
+        if (player.isMuted()) {
+          player.unMute();
+          updateMuteButton(false);
+          muteButton.setAttribute('aria-label', '{{ section.settings.mute_button_label }}');
+        } else {
+          player.mute();
+          updateMuteButton(true);
+          muteButton.setAttribute('aria-label', '{{ section.settings.unmute_button_label }}');
+        }
+      }
+    });
+  });
+</script>
+
+{% schema %}
+  {
+    "name": "Product Video Hero",
+    "tag": "section",
+    "class": "product-section",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Video Settings"
+      },
+      {
+        "type": "text",
+        "id": "youtube_video_id",
+        "label": "YouTube Video ID",
+        "default": "NgIlbGa9qS0",
+        "info": "The video ID is the part after v= in the YouTube URL"
+      },
+      {
+        "type": "header",
+        "content": "Text Settings"
+      },
+      {
+        "type": "text",
+        "id": "video_title_start",
+        "label": "Title Start",
+        "default": "Fast track to the finish line with the"
+      },
+      {
+        "type": "text",
+        "id": "video_title_highlight",
+        "label": "Highlighted Text",
+        "default": "Ativafit 66 lb adjustable dumbbell 66 lbs"
+      },
+      {
+        "type": "text",
+        "id": "video_title_middle",
+        "label": "Title Middle",
+        "default": "in under 3 seconds and keep every rep on point for"
+      },
+      {
+        "type": "text",
+        "id": "video_title_end",
+        "label": "Title End",
+        "default": "nonstop progress."
+      },
+      {
+        "type": "header",
+        "content": "Button Settings"
+      },
+      {
+        "type": "text",
+        "id": "play_button_label",
+        "label": "Play Button Text",
+        "default": "Play video"
+      },
+      {
+        "type": "text",
+        "id": "pause_button_label",
+        "label": "Pause Button Text",
+        "default": "Pause video"
+      },
+      {
+        "type": "text",
+        "id": "mute_button_label",
+        "label": "Mute Button Text",
+        "default": "Mute video"
+      },
+      {
+        "type": "text",
+        "id": "unmute_button_label",
+        "label": "Unmute Button Text",
+        "default": "Unmute video"
+      },
+      {
+        "type": "color",
+        "id": "highlighted_text_color",
+        "label": "Highlighted Text Color",
+        "default": "#FF7E53"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Product Video Hero",
+        "category": "Product"
+      }
+    ]
+  }
+{% endschema %}

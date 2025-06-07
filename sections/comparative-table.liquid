@@ -1,0 +1,123 @@
+<div class="content">
+  <div class="container text-light">
+    <div class="row table-responsive ">
+      <table
+        class="table table-dark text-center rounded-2 overflow-hidden align-middle"
+        style="--bs-table-bg: #3C3C3C;"
+      >
+        <thead class="lh-lg">
+          <tr>
+            <th scope="col"></th>
+            {% for block in section.blocks %}
+              <th scope="col">
+                <div>
+                  <img src="{{block.settings.image | image_url: width: 500 }}" class="img-fluid w-100">
+                </div>
+                <p>
+                  <b>{{ block.settings.item }}</b>
+                </p>
+              </th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th class="text-start" scope="row">Quick View</th>
+            {% for block in section.blocks %}
+              <td>{{ block.settings.desc }}</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <th class="text-start" scope="row">Measurement</th>
+            {% for block in section.blocks %}
+              <td>{{ block.settings.desc_2 }}</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <th class="text-start" scope="row">Weigh Shifting System</th>
+            {% for block in section.blocks %}
+              <td>{{ block.settings.desc_3 }}</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <th class="text-start" scope="row">Pricing</th>
+            {% for block in section.blocks %}
+              <td class="">
+                <div>
+                  <a class="btn btn-primary mt-4" href="{{block.settings.button_link}}" target="_blank"> Shop now </a>
+                </div>
+                {% if block.settings.price != blank %}
+                  <p class="mb-4 mt-3">
+                    <b>{{ block.settings.price -}}</b>
+                    {% if block.settings.price_before != blank -%}
+                      <s class="ps-2">{{ block.settings.price_before }}</s>
+                    {%- endif %}
+                  </p>
+                {% endif %}
+              </td>
+            {% endfor %}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% schema %}
+{
+  "name": "Comparative table",
+  "settings": [],
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Item",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image item"
+        },
+        {
+          "type": "text",
+          "id": "item",
+          "label": "Item name"
+        },
+        {
+          "type": "richtext",
+          "id": "desc",
+          "label": "Quick view description"
+        },
+        {
+          "type": "richtext",
+          "id": "desc_2",
+          "label": "Measurement description"
+        },
+        {
+          "type": "richtext",
+          "id": "desc_3",
+          "label": "Weigh system description"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        },
+        {
+          "type": "text",
+          "id": "price",
+          "label": "Price"
+        },
+        {
+          "type": "text",
+          "id": "price_before",
+          "label": "Price before"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Comparative table"
+    }
+  ]
+}
+{% endschema %}

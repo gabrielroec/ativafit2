@@ -1,0 +1,110 @@
+<style>
+	.shane-pro-faq{
+		width: 100%; padding: 0 5% 5vw; display: flex; justify-content: space-between; align-items: flex-start; 
+	}
+	.shane-pro-faq .faq-left{
+		 font-size: 2.8vw; width: 30%;
+	}
+	.shane-pro-faq .faq-right{
+		font-size: 0.8vw; width: 70%; color: #321E1E; border-top:1px solid #dddddd; line-height: 1vw;
+	}
+	.shane-pro-faq .faq-list{
+		padding: 0.8vw 0; border-bottom:1px solid #dddddd; cursor: pointer; 
+	}
+	.shane-pro-faq .faq-question{
+		display: flex; justify-content: space-between; align-items: center;
+	}
+    .shane-pro-faq .faq-question span{
+        
+    }
+	.shane-pro-faq .faq-question .shane-change{
+		width: 30px; height: 30px; border-radius: 50%; background-color: #E5E5E5; font-size: 24px; transition: 0.4s; line-height: 28px; text-align: center;
+	}
+	.shane-pro-faq .faq-answer{
+		opacity: 0.8; padding-top: 1.5vw; width: 70%; padding-bottom: 0.5vw; display: none; overflow: hidden; transition: 0.4s;
+	}
+	.shane-pro-faq .active .shane-change{
+		background-color: #000000; color: #fff; transform: rotate(45deg);
+	}
+	.shane-pro-faq .active .faq-answer{
+		display:block;
+	}
+@media (max-width: 768px){
+	.shane-pro-faq{
+		padding: 0 5% 8vw; display: block;
+	}
+	.shane-pro-faq .faq-left{
+		font-size: 7.2vw; width: 100%; margin-bottom: 4vw;
+	}
+	.shane-pro-faq .faq-right{
+		font-size: 3.2vw; width: 100%; line-height:4.2vw;
+	}
+	.shane-pro-faq .faq-list{
+		padding: 2vw 0;
+	}
+	.shane-pro-faq .faq-question>span{
+		width: 85%;
+	}
+	.shane-pro-faq .faq-answer{
+		padding-top: 3vw; width: 100%; padding-bottom: 2vw;
+	}
+}
+</style>
+	<h2 class="faq-left">{{ section.settings.heading }}</h2>
+	<div class="faq-right">
+        {%- assign my_variable = 0 -%}
+        {%- for block in section.blocks -%}
+          {%- assign my_variable = my_variable | plus: 1 -%} 
+		<div class="faq-list {% if my_variable==1 %}active{% endif %}">
+			<div class="faq-question">
+				<span>{{ my_variable }}. {{ block.settings.question }}</span>
+				<div class="shane-change"><span>＋</span></div>
+			</div>
+			<div class="faq-answer">{{ block.settings.answer }}</div>
+		</div>
+        {% endfor %}
+	</div>
+	<script>
+		$(".shane-pro-faq .faq-list").click(function(){
+			$(".shane-pro-faq .faq-list").removeClass("active");
+			$(this).addClass("active");			
+		});
+	</script>
+ {% schema %}
+  {
+    "name": "Pro FAQ",
+    "class": "shane-pro-faq",
+    "settings": [
+      {
+        "type": "text",
+        "id": "heading",
+        "label": "Heading"
+	  }
+    ],
+    "blocks": [
+       {
+         "type": "item",
+         "name": "item",
+         "settings": [            
+            {
+              "type": "text",
+              "id": "question",
+              "label": "Question",
+              "default": "Add a question"
+			},
+            {
+              "type": "textarea",
+              "id": "answer",
+              "label": "Answer"
+			}
+         ]
+       }
+    ],
+    "presets": [
+       {
+        "name": "Pro FAQ"
+          
+       }
+    ]
+  }
+{% endschema %}

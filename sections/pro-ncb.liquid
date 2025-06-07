@@ -1,0 +1,92 @@
+<style>
+	.shane-pro-ncb{
+		width: 100%; overflow: hidden; font-size: 0.7vw; text-align: center; padding-bottom: 5vw; line-height: 1vw;
+	}
+	.proncbSwiper{
+		width: 100%;
+	}
+	.shane-pro-ncb .swiper-slide img{
+		width: 40%; max-width: 140px; 
+	}
+	.shane-pro-ncb .swiper-slide>div{
+		margin: 1vw auto 0; width: 90%; opacity: 0.85;
+	}
+@media (max-width: 768px){
+	.shane-pro-ncb{
+		font-size: 3vw; padding-bottom: 10vw; padding-top: 10vw; line-height:4vw;
+	}
+	.shane-pro-ncb .swiper-slide img{
+		width: 60%;
+	}
+	.shane-pro-ncb .swiper-slide>div{
+		margin: 5vw auto 0;
+	}
+}
+</style>
+
+	<div class="swiper proncbSwiper">
+		<div class="swiper-wrapper">
+          {%- for block in section.blocks -%}
+			<div class="swiper-slide">
+				<img src="{{ block.settings.image | image_url }}" alt="{{ block.settings.image.alt }}">
+				<div>{{ block.settings.slidetext }}</div>
+			</div>
+          {% endfor %}
+          {%- for block in section.blocks -%}
+			<div class="swiper-slide">
+				<img src="{{ block.settings.image | image_url }}" alt="{{ block.settings.image.alt }}">
+				<div>{{ block.settings.slidetext }}</div>
+			</div>
+          {% endfor %}
+		</div>
+	</div>
+	<script>
+		var proncbSwiper = new Swiper(".proncbSwiper", {
+		  slidesPerView: 2,
+      	  spaceBetween: 20,
+		  loop: true,
+	  	  autoplay: {
+			delay: 2000,
+			disableOnInteraction: false,
+		  },
+		  breakpoints: {
+			768: {
+			  slidesPerView: 7,
+      	  	  spaceBetween: 20,
+			},
+		  },
+		});
+	</script>
+{% schema %}
+  {
+    "name": "Pro ncb",
+    "class": "shane-pro-ncb",
+    "settings": [
+
+    ],
+    "blocks": [
+       {
+         "type": "item",
+         "name": "item",
+         "settings": [
+            {
+              "type": "image_picker",
+              "id": "image",
+              "label": "Image"
+            },           
+            {
+              "type": "textarea",
+              "id": "slidetext",
+              "label": "Slide Text"
+			}
+         ]
+       }
+    ],
+    "presets": [
+       {
+        "name": "Pro ncb"
+          
+       }
+    ]
+  }
+{% endschema %}

@@ -1,0 +1,268 @@
+<div class="content py-5" id="{{section.settings.title | downcase | remove: " "}}">
+  <div class="container text-light py-5">
+    <div class="row">
+      {% if section.settings.title != blank %}
+        <h3 class="border-bottom border-white text-start mb-5 ps-0 pb-2">{{ section.settings.title }}</h3>
+      {% endif %}
+      {% for block in section.blocks %}
+        {%- case block.type -%}
+          {%- when 'content' -%}
+            <div class="row {% if block.settings.column_position != 'image_first' %}flex-row-reverse{% endif %}">
+              <div class="col-12 col-md-6 p-0">
+                <img
+                  class="img-fluid w-100"
+                  src="{{block.settings.image | image_url: width: 1000 }}"
+                  alt="space-saving"
+                >
+              </div>
+              <div class="col-12 col-md-6 p-0 d-flex align-items-center justify-content-center flex-column">
+                <div class="p-3">
+                  <h5 class="text-center">{{ block.settings.title }}</h5>
+                  {{ block.settings.paragraph }}
+                </div>
+              </div>
+            </div>
+          {%- when 'content_with_img' -%}
+            <div
+              class="row {% if block.settings.column_position != 'image_first' %}flex-row-reverse{% endif %}"
+            >
+              <div class="col-12 col-md-6 p-0">
+                <img
+                  class="img-fluid w-100"
+                  src="{{block.settings.image | image_url: width: 1000 }}"
+                  alt="space-saving"
+                >
+              </div>
+              <div
+                class="col-12 col-md-6  p-0 d-flex align-items-center justify-content-center flex-column"
+                style="background: {{block.settings.col_bg}}; color: {{block.settings.col_text}}"
+              >
+                <div class="p-3 d-flex flex-column {% if block.settings.image_position != 'image_top'%}flex-column-reverse{% endif %}">
+                  <div>
+                    <img
+                      class="img-fluid d-flex m-auto"
+                      src="{{block.settings.image_2 | image_url: width: 1000 }}"
+                      alt="space-saving"
+                    >
+                  </div>
+                  <div class="px-4 py-2">
+                    <h5 class="text-center">{{ block.settings.title }}</h5>
+                    {{ block.settings.paragraph }}
+                  </div>
+                </div>
+              </div>
+            </div>
+        {% endcase %}
+      {% endfor %}
+
+      {% for block in section.blocks %}
+        {%- case block.type -%}
+          {%- when 'icons' -%}
+            {% if block.settings.icon != blank or block.settings.icon_2 != blank or block.settings.icon_3 != blank %}
+              <div class="row d-flex justify-content-center text-center mt-5">
+                {% if block.settings.icon and block.settings.icon != blank %}
+                  <div class="col-6 col-md-2 mx-4">
+                    <img
+                      class=""
+                      src="{{block.settings.icon | image_url: width: 100 }}"
+                      alt="space-saving"
+                      width="64px"
+                      height="69px"
+                      style="object-fit:contain;width:64px;height:69px"
+                    >
+                    <h5 class="mt-3">{{ block.settings.icon_title }}</h5>
+                  </div>
+                {% endif %}
+                {% if block.settings.icon_2 and block.settings.icon_2 != blank %}
+                  <div class="col-6 col-md-2 mx-4 mt-4 mt-0">
+                    <img
+                      class=""
+                      src="{{block.settings.icon_2 | image_url: width: 100 }}"
+                      alt="space-saving"
+                      width="64px"
+                      height="69px"
+                      style="object-fit:contain;width:64px;height:69px"
+                    >
+                    <h5 class="mt-3">{{ block.settings.icon_title_2 }}</h5>
+                  </div>
+                {% endif %}
+                {% if block.settings.icon_3 and block.settings.icon_3 != blank %}
+                  <div class="col-6 col-md-2 mx-4 mt-4 mt-0">
+                    <img
+                      class=""
+                      src="{{block.settings.icon_3 | image_url: width: 100 }}"
+                      alt="space-saving"
+                      width="64px"
+                      height="69px"
+                      style="object-fit:contain;width:64px;height:69px"
+                    >
+                    <h5 class="mt-3">{{ block.settings.icon_title_3 }}</h5>
+                  </div>
+                {% endif %}
+              </div>
+            {% endif %}
+        {% endcase %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% schema %}
+{
+  "name": "Multicolumn with icons",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Section name"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "content",
+      "name": "Content",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "select",
+          "id": "column_position",
+          "label": "Column position",
+          "options": [
+            {
+              "value": "image_first",
+              "label": "Image first"
+            },
+            {
+              "value": "text_first",
+              "label": "Text first"
+            }
+          ],
+          "default": "image_first"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading"
+        },
+        {
+          "type": "richtext",
+          "id": "paragraph",
+          "label": "Paragraph"
+        }
+      ]
+    },
+    {
+      "type": "content_with_img",
+      "name": "Content with image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "select",
+          "id": "column_position",
+          "label": "Column position",
+          "options": [
+            {
+              "value": "image_first",
+              "label": "Image first"
+            },
+            {
+              "value": "text_first",
+              "label": "Text first"
+            }
+          ],
+          "default": "image_first"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading"
+        },
+        {
+          "type": "richtext",
+          "id": "paragraph",
+          "label": "Paragraph"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_2",
+          "label": "Image"
+        },
+        {
+          "type": "select",
+          "id": "image_position",
+          "label": "Image position",
+          "options": [
+            {
+              "value": "image_top",
+              "label": "Image top"
+            },
+            {
+              "value": "image_bottom",
+              "label": "Image bottom"
+            }
+          ],
+          "default": "image_top"
+        },
+        {
+          "type": "color",
+          "id": "col_bg",
+          "label": "Column background"
+        },
+        {
+          "type": "color",
+          "id": "col_text",
+          "label": "Column text color"
+        }
+      ]
+    },
+    {
+      "type": "icons",
+      "name": "Icons",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "Icon"
+        },
+        {
+          "type": "text",
+          "id": "icon_title",
+          "label": "Icon title 1"
+        },
+        {
+          "type": "image_picker",
+          "id": "icon_2",
+          "label": "Icon 2"
+        },
+        {
+          "type": "text",
+          "id": "icon_title_2",
+          "label": "Icon title 2"
+        },
+        {
+          "type": "image_picker",
+          "id": "icon_3",
+          "label": "Icon 3"
+        },
+        {
+          "type": "text",
+          "id": "icon_title_3",
+          "label": "Icon title 3"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Multicolumn with icons"
+    }
+  ]
+}
+{% endschema %}

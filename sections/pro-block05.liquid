@@ -1,0 +1,337 @@
+<style>
+	.shane-pro-b5{
+		width: 100%; padding: 0 5% 5vw; display: flex; justify-content: space-between; 
+	}
+	.pro-b5-left{
+		width: 40%; display: flex; justify-content: flex-start; align-content: space-between; flex-wrap: wrap;
+	}
+	.pro-b5-left>div{
+		width: 100%; padding-right: 2vw;
+	}
+	.pro-b5-left .subtitle{
+		width: fit-content; font-size: 1vw; background: linear-gradient(49deg, #3EABAC 0%, #FCD402 100%); -webkit-background-clip: text; color: transparent; display: flex; align-items: center;
+	}
+	.pro-b5-left .subtitle span{
+		font-size: 0.6vw; margin-right: 0.5vw;
+	}
+	.pro-b5-left h2{
+		margin: 0.5vw 0; font-size: 2.4vw; font-weight: 400; line-height:3vw;
+	}
+	.b5-text{
+		font-size: 0.8vw; opacity: 0.8; margin-bottom: 0.5vw; line-height:1.2vw;
+	}
+	.b5-line{
+		height: 1vw; margin-top: 0.8vw; width: 80%; position: relative; overflow: hidden;
+	}
+	.b5-hr1{
+		margin: 0; border:0; border-top: 1px solid #BFBFBF;
+	}
+	.b5-hr2{
+		margin: 0; border:0; border-top: 1px solid #000000; position: absolute; left: 0; top: 0; width: 0%; animation: b5ani 5s linear;
+	}
+	.b5-hr3{
+		margin: 0; border:0; border-top: 1px solid #000000; position: absolute; left: 0; top: 0; width: 0%;
+	}
+	@keyframes b5ani
+	{
+		from {width: 0%;}
+		to {width: 100%;}
+	}
+	.reviews-context {
+		width: 80%; margin: 0;
+	}
+	.reviews-context .reviews-star{
+		color: #FF6100; font-size: 0.6vw;
+	}
+	.reviews-title{
+		font-size: 1vw; margin: 1vw 0; line-height:1.2vw
+	}
+	.reviews-text{
+		font-size: 0.9vw; opacity: 0.65; min-height: 7vw; line-height: 1.2vw;
+	}
+	.reviews-footer{
+		display: flex; justify-content: space-between; align-items: flex-end; font-size: 0.7vw;
+	}
+	.reviews-footer .reviewed{
+		display: flex; justify-content: space-between; align-items: center; font-size: 0.8vw; font-weight: 400;
+	}
+	.reviews-footer .reviewed span{
+		 font-size: 0.7vw; opacity: 0.8;
+	}
+	.reviews-footer .reviewed a{
+		color:#000;
+	}
+	.reviews-footer .reviewed img {
+		width: 2.4vw; margin-right: 1vw;
+	}
+	.b5-link{
+		width: fit-content; padding: 0.5vw 1.5vw; border:1px solid #000; border-radius: 3vw; text-align: center; font-size: 0.8vw; color: #000000; text-decoration: none;
+	}
+	.pro-b5-right{
+		width: 60%;
+	}
+@media (max-width: 768px){
+	.shane-pro-b5{
+		padding: 0 5% 7vw; display: block;
+	}
+	.pro-b5-left{
+		width: 100%;
+	}
+	.pro-b5-left>div{
+		width: 100%; padding-right: 0;
+	}
+	.pro-b5-left .subtitle{
+		font-size: 6vw;
+	}
+	.pro-b5-left .subtitle span{
+		font-size: 2vw; margin-right: 2vw;
+	}
+	.pro-b5-left h2{
+		margin: 2vw 0; font-size: 7.2vw; line-height:8vw;
+	}
+	.b5-text{
+		font-size: 3.4vw; margin-bottom: 1.5vw; line-height:4.4vw;
+	}
+	.b5-line{
+		height: 4vw; margin-top: 3vw; width: 100%; position: relative; overflow: hidden;
+	}
+	.reviews-context {
+		width: 100%;
+	}
+	.reviews-context .reviews-star{
+		font-size: 3vw;
+	}
+	.reviews-title{
+		font-size: 5.6vw; margin: 3vw 0;line-height: 6.6vw;
+	}
+	.reviews-text{
+		font-size: 3.6vw; min-height: 25vw; line-height:4.6vw;
+	}
+	.reviews-footer{
+		font-size: 3vw;
+	}
+	.reviews-footer .reviewed{
+		font-size: 3.4vw;
+	}
+	.reviews-footer .reviewed span{
+		 font-size: 3vw;
+	}
+	.reviews-footer .reviewed img {
+		width: 8vw; margin-right: 3vw;
+	}
+	.b5-link{
+		display: none;
+	}
+	.pro-b5-right{
+		width: 100%; margin-top: 5vw;
+	}
+}
+</style>
+	<div class="pro-b5-left">
+		<div>
+			{% if section.settings.subheading != blank  %}<div class="subtitle"><span class="fa fa-circle"></span> {{ section.settings.subheading }}</div>{% endif %}
+			<h2>{{ section.settings.heading }}</h2>
+			<div class="b5-text">{{ section.settings.text }}</div>
+			<div class="b5-line">
+				<hr class="b5-hr1" />
+				<hr class="b5-hr2" />
+				<hr class="b5-hr3" />
+			</div>
+			<div class="swiper reviewsSwiper reviews-context">
+				<div class="swiper-wrapper">
+                    {%- for block in section.blocks -%}
+                    {%- liquid
+                      assign num = block.settings.star_num | plus: 0
+            		-%} 
+					<div class="swiper-slide">
+						<div class="reviews-star">
+							{% if num>1 %}<span class="fa fa-star"></span>{% endif %}
+							{% if num>2 %}<span class="fa fa-star"></span>{% endif %}
+							{% if num>3 %}<span class="fa fa-star"></span>{% endif %}
+							{% if num>4 %}<span class="fa fa-star"></span>{% endif %}
+							{% if num==5 %}<span class="fa fa-star"></span>{% endif %}
+						</div>
+						<div class="reviews-title">{{ block.settings.slidetitle }}</div>
+						<div class="reviews-text">{{ block.settings.slidetext }}</div>
+						<div class="reviews-footer">
+							<div>{{ block.settings.author }}</div>
+                          {% if section.settings.is_reviewed == "yes" %}
+							<div class="reviewed">
+								<img src="https://cdn.shopify.com/s/files/1/2623/4904/files/icon01.png?v=1707185003">
+								<div>
+									<span>reviewed</span><br>
+									<a href="{{ block.settings.reviewed_link }}">{{ block.settings.reviewed_text }}</a>
+								</div>
+							</div>
+                          {% endif %}
+						</div>
+					</div>
+                    {% endfor %}
+
+				</div>
+			</div>
+		</div>
+		<div>
+			<a href="{{ section.settings.link }}" class="b5-link">{{ section.settings.linktext }}</a>
+		</div>
+	</div>
+	<div class="swiper reviewsSwiper02 pro-b5-right">
+		<div class="swiper-wrapper">
+          {%- for block in section.blocks -%}
+			<div class="swiper-slide">
+				<img src="{{ block.settings.image | image_url }}" alt="{{ block.settings.image.alt }}" style="width: 100%;">
+			</div>
+          {% endfor %}
+		</div>
+	</div>
+	<script>
+		var reviewsSwiper = new Swiper(".reviewsSwiper", {
+		  allowTouchMove: false,
+		  slidesPerView: 1,
+		  loop: true,
+		  autoplay: {
+			delay: 5000,
+			disableOnInteraction: false,
+		  },
+		  on:{
+			autoplay:function(){
+				$(".b5-hr2").css("display","none");
+				$(".b5-hr3").css("width","0");
+				$(".b5-hr3").animate({ width: "100%"}, 5000);
+			},
+		  }
+		});
+		var reviewsSwiper02 = new Swiper(".reviewsSwiper02", {
+		  allowTouchMove: false,
+		  slidesPerView: 1,
+		  loop: true,
+		  autoplay: {
+			delay: 5000,
+			disableOnInteraction: false,
+		  },	  
+		});
+	</script>
+{% schema %}
+  {
+    "name": "Pro block05",
+    "class": "shane-pro-b5",
+    "settings": [
+      {
+        "type": "text",
+        "id": "heading",
+        "label": "Heading"
+	  },
+      {
+        "type": "text",
+        "id": "subheading",
+        "label": "Subheading"
+	  },
+      {
+        "type": "textarea",
+        "id": "text",
+        "label": "Text",
+        "default": "text"
+      },
+      {
+        "id": "link",
+        "type": "url",
+        "label": "link"
+      },
+      {
+        "id": "linktext",
+        "type": "text",
+        "label": "Link text",
+        "default" : "Read All Reviews"
+      },
+      {
+        "id": "is_reviewed",
+        "type": "radio",
+        "label": "Whether to display reviewed",
+        "options": [
+          {
+            "value": "yes",
+            "label": "Yes"
+          },
+          {
+            "value": "no",
+            "label": "No"
+          }
+        ],
+        "default" : "yes"
+      }      
+    ],
+    "blocks": [
+       {
+         "type": "item",
+         "name": "item",
+         "settings": [
+            {
+              "type": "image_picker",
+              "id": "image",
+              "label": "Image"
+            },
+           {
+              "type": "select",
+              "id": "star_num",
+              "options": [
+                {
+                  "value": "1",
+                  "label": "1"
+                },
+                {
+                  "value": "2",
+                  "label": "2"
+                },
+                {
+                  "value": "3",
+                  "label": "3"
+                },
+                {
+                  "value": "4",
+                  "label": "4"
+                },
+                {
+                  "value": "5",
+                  "label": "5"
+                }
+              ],
+              "default": "5",
+              "label": "Star Num"
+            },
+            {
+              "type": "text",
+              "id": "slidetitle",
+              "label": "Slide title",
+              "default": "Add a title"
+			},
+            {
+              "type": "textarea",
+              "id": "slidetext",
+              "label": "Slide Text"
+			},
+            {
+              "type": "text",
+              "id": "author",
+              "label": "Author"
+			},
+            {
+              "type": "text",
+              "id": "reviewed_text",
+              "label": "Reviewed text"
+			},
+            {
+              "type": "url",
+              "id": "reviewed_link",
+              "label": "Reviewed URL"
+			}
+         ]
+       }
+    ],
+    "presets": [
+       {
+        "name": "Pro block05"
+          
+       }
+    ]
+  }
+{% endschema %}

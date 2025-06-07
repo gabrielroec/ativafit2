@@ -1,0 +1,175 @@
+<style>
+	.shane-pro-b3{
+		width: 100%; background-color: #000; color: #fff;  padding: 2vw 5%;
+	}
+	.shane-pro-b3 h2{
+		margin:0; width: fit-content; font-size: 1.8vw; background: linear-gradient(49deg, #3EABAC 0%, #FCD402 100%); -webkit-background-clip: text; color: transparent; display: flex; align-items: center; font-weight: 400;
+	}
+    .shane-pro-b3 h4{
+      margin:0;
+    }
+	.shane-pro-b3 h2 span{
+		font-size: 0.6vw; display: block; margin-right: 0.5vw;
+	}
+	.shane-pro-b3>div{
+		display: flex; align-items: flex-start; justify-content: space-between; align-items: center;
+	}
+	.b3-left{
+		width: 50%; text-align: center;
+	}
+	.b3-left img{
+		width: 85%;
+	}
+	.b3-right{
+		width: 50%; padding-left: 5%;
+	}
+	.b3-right>div{
+		border-bottom:1px solid #191919; padding: 0.3vw 0.5vw; font-size: 0.8vw; display: flex; justify-content: flex-start;
+	}
+	.b3-right .title{
+		font-size: 1vw; font-weight: 600; border-bottom:1px solid #191919; padding: 0.3vw 0.5vw; display: flex; justify-content: flex-start;
+	}
+	.margintop2{
+		margin-top: 1.6vw;
+	}
+	.b3-right .text-left{
+		width: 35%;
+	}
+	.b3-right .text-right{
+		width: 65%; opacity: 0.75;
+	}
+@media (max-width: 768px){
+	.shane-pro-b3{
+		padding: 5vw 5% 10vw;
+	}
+	.shane-pro-b3 h2{
+		font-size: 7vw;
+	}
+	.shane-pro-b3 h2 span{
+		font-size: 3vw; margin-right: 1vw;
+	}
+	.shane-pro-b3>div{
+		display: block;
+	}
+	.b3-left{
+		width: 100%; text-align: center;
+	}
+	.b3-left img{
+		width: 85%;
+	}
+	.b3-right{
+		width: 100%; padding-left: 0%; margin-top: 5vw;
+	}
+	.b3-right>div{
+		padding: 1.3vw 1.5vw; font-size: 3.6vw; line-height:4.6vw;
+	}
+	.b3-right .title{
+		font-size: 4.6vw; font-weight: 600;  line-height:6vw;
+	}
+	.margintop2{
+		margin-top: 8vw;
+	}
+
+}
+</style>
+	<h2><span class="fa fa-circle"></span> {{ section.settings.heading }}</h2>
+	<div>
+		<div class="b3-left">
+			<img src="{{ section.settings.image | image_url }}" alt="{{ section.settings.image.alt }}">
+		</div>
+		<div class="b3-right">
+          {%- for block in section.blocks -%}
+            {%- if block.settings.class_type == "1" -%}
+			<h4 class="title {%- if block.settings.is_margin == "2" -%}{{ ' ' | append: 'margintop2' }}{% endif %}">{{ block.settings.title }}</h4>
+              {% elsif block.settings.class_type == "2"  %}
+			<div>
+				<div class="text-left">{{ block.settings.title }}</div>
+				<div class="text-right">{{ block.settings.slidetext }}</div>
+			</div>
+            {% else %}
+            <div>
+				{{ block.settings.title }}
+			</div>
+            {% endif %}
+            {% endfor %}
+		</div>
+	</div>
+
+{% schema %}
+  {
+    "name": "Pro block03",
+    "class": "shane-pro-b3",
+    "settings": [
+      {
+        "type": "text",
+        "id": "heading",
+        "label": "Heading"
+	  },
+      {
+        "type": "image_picker",
+        "id": "image",
+        "label": "Image"
+      }
+    ],
+    "blocks": [
+       {
+         "type": "item",
+         "name": "item",
+         "settings": [
+           {
+              "type": "select",
+              "id": "class_type",
+              "options": [
+                {
+                  "value": "1",
+                  "label": "Title"
+                },
+                {
+                  "value": "2",
+                  "label": "Left and right"
+                },
+                {
+                  "value": "3",
+                  "label": "Full"
+                }
+              ],
+              "default": "1",
+              "label": "Type"
+            },
+           {
+              "type": "select",
+              "id": "is_margin",
+              "options": [
+                {
+                  "value": "1",
+                  "label": "No"
+                },
+                {
+                  "value": "2",
+                  "label": "Yes"
+                }
+              ],
+              "default": "1",
+              "label": "Margin Top"
+            },
+           {
+              "type": "text",
+              "id": "title",
+              "label": "Title"
+			},
+            {
+              "type": "textarea",
+              "id": "slidetext",
+              "label": "Slide Text"
+			}
+         ]
+       }
+    ],
+    "presets": [
+       {
+        "name": "Pro block03"
+          
+       }
+    ]
+  }
+{% endschema %}

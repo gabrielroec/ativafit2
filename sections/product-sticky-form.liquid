@@ -1,0 +1,482 @@
+{% comment %}sections/product-sticky-form.liquid{% endcomment %}
+
+<product-sticky-form class="product-sticky-form">
+  <div class="product-sticky-form__container">
+    <div class="product-sticky-form__image">
+      <img
+        src="{{ product.featured_image | image_url: width: 80 }}"
+        alt="{{ product.title }}"
+        width="80"
+        height="80"
+        loading="lazy">
+    </div>
+
+    <div class="product-sticky-form__info">
+      <h3 class="product-sticky-form__title">{{ product.title }}</h3>
+      {% if section.settings.show_variant and product.has_only_default_variant == false %}
+        <p class="product-sticky-form__variant">{{ product.selected_or_first_available_variant.title }}</p>
+      {% endif %}
+    </div>
+
+    <div class="product-sticky-form__price">
+      <span class="price">{{ product.price | money }}</span>
+      {% if product.compare_at_price > product.price %}
+        <span class="compare-price">{{ product.compare_at_price | money }}</span>
+      {% endif %}
+    </div>
+
+    <form
+      method="post"
+      action="/cart/add"
+      class="product-sticky-form__actions">
+      <input
+        type="hidden"
+        name="id"
+        value="{{ product.selected_or_first_available_variant.id }}">
+      {% if section.settings.show_quantity %}
+        <div class="quantity-selector-lp">
+          <button type="button" class="qty-btn qty-decrease">–</button>
+          <input
+            type="number"
+            name="quantity"
+            value="1"
+            min="1"
+            class="qty-input"
+            aria-label="Quantidade">
+          <button type="button" class="qty-btn qty-increase">+</button>
+        </div>
+      {% endif %}
+      <button type="submit" class="product-sticky-form__submit">
+        {{ section.settings.button_text }}
+      </button>
+    </form>
+  </div>
+</product-sticky-form>
+
+{% style %}
+  .product-sticky-form {
+    position: fixed;
+    bottom: -100%;
+    left: 0;
+    right: 0;
+    background: {{ section.settings.background_color }};
+    padding: {{ section.settings.padding }}px;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+    transition: bottom 0.3s ease-in-out;
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .product-sticky-form.is-visible {
+    bottom: 0;
+    opacity: 1;
+    visibility: visible;
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    border-radius: 20 pxx;
+    -webkit-box-shadow: 0 0 92px -22px rgba(0, 0, 0, 0.5);
+    -moz-box-shadow: 0 0 92px -22px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 92px -22px rgba(0, 0, 0, 0.5);
+  }
+
+  .product-sticky-form__container {
+    max-width: {{ section.settings.max_width }}px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .product-sticky-form__image {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+  }
+
+  .product-sticky-form__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: {{ section.settings.image_radius }}px;
+  }
+
+  .product-sticky-form__info {
+    flex-grow: 1;
+  }
+
+  .product-sticky-form__title {
+    margin: 0;
+    font-size: {{ section.settings.title_size }}px;
+    color: {{ section.settings.title_color }};
+    font-weight: {{ section.settings.title_weight }};
+  }
+
+  .product-sticky-form__variant {
+    margin: 4px 0 0;
+    font-size: 14px;
+    color: #666;
+  }
+
+  .product-sticky-form__price {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+
+  .product-sticky-form__price .price {
+    font-size: {{ section.settings.price_size }}px;
+    color: {{ section.settings.price_color }};
+    font-weight: bold;
+  }
+
+  .product-sticky-form__price .compare-price {
+    font-size: 14px;
+    color: #666;
+    text-decoration: line-through;
+  }
+
+  .product-sticky-form__actions {
+    display: flex;
+    align-items: stretched;
+    gap: 12px;
+  }
+
+  .quantity-selector {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+
+  .qty-btn {
+    padding: 8px 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  .qty-input {
+    width: 40px;
+    text-align: center;
+    border: none;
+    -moz-appearance: textfield;
+    background-color: transparent;
+  }
+
+  .qty-input::-webkit-outer-spin-button,
+  .qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .product-sticky-form__submit {
+    padding: {{ section.settings.button_padding_vertical }}px{{ section.settings.button_padding_horizontal }}px;
+    background: #ff5722;
+    color: #fff;
+    border: none;
+    border-radius: {{ section.settings.button_radius }}px;
+    font-size: {{ section.settings.button_text_size }}px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    width: 200px;
+  }
+
+  .product-sticky-form__submit:hover {
+    opacity: 0.9;
+  }
+
+  @media screen and (max-width: 768px) {
+    .product-sticky-form__container {
+      flex-wrap: wrap;
+    }
+
+    .product-sticky-form__info {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .product-sticky-form__actions {
+      width: 100%;
+      justify-content: space-between;
+      margin-top: 12px;
+    }
+  }
+{% endstyle %}
+
+<script>
+  class ProductStickyForm extends HTMLElement {
+    constructor() {
+      super();
+      this.header = document.querySelector('header');
+      this.productForm = document.querySelector('.product-info__form, form[action="/cart/add"]');
+      this.defaultThreshold = {{ section.settings.scroll_threshold }};
+      this.mobileThreshold = {{ section.settings.scroll_threshold | times: 2 }};
+      this.updateThreshold();
+      
+      if (this.productForm) {
+        window.addEventListener('scroll', this.onScroll.bind(this));
+        window.addEventListener('resize', this.updateThreshold.bind(this));
+        
+        // Sincronizar quantidade
+        const qtyInputs = document.querySelectorAll('.qty-input');
+        qtyInputs.forEach(input => {
+          input.addEventListener('change', (e) => {
+            qtyInputs.forEach(otherInput => {
+              if (otherInput !== e.target) {
+                otherInput.value = e.target.value;
+              }
+            });
+          });
+        });
+
+        // Sincronizar botões de quantidade
+        const qtyButtons = document.querySelectorAll('.qty-btn');
+        qtyButtons.forEach(button => {
+          button.addEventListener('click', (e) => {
+            const isDecrease = button.classList.contains('qty-decrease');
+            const input = button.parentElement.querySelector('.qty-input');
+            const currentValue = parseInt(input.value);
+            
+            if (isDecrease && currentValue > 1) {
+              qtyInputs.forEach(input => input.value = currentValue - 1);
+            } else if (!isDecrease) {
+              qtyInputs.forEach(input => input.value = currentValue + 1);
+            }
+          });
+        });
+      }
+    }
+
+    updateThreshold() {
+      // Define um threshold maior para telas menores que 1024px
+      this.threshold = window.innerWidth < 1024 ? this.mobileThreshold : this.defaultThreshold;
+    }
+
+    onScroll() {
+      if (!this.productForm) return;
+      
+      const formRect = this.productForm.getBoundingClientRect();
+      const headerHeight = this.header ? this.header.offsetHeight : 0;
+      const windowHeight = window.innerHeight;
+      const scrollY = window.scrollY;
+      
+      // Usa o threshold diferente baseado no tamanho da tela
+      if ((formRect.bottom < headerHeight || formRect.top > windowHeight) && scrollY > this.threshold) {
+        this.classList.add('is-visible');
+      } else {
+        this.classList.remove('is-visible');
+      }
+    }
+  }
+
+  customElements.define('product-sticky-form', ProductStickyForm);
+</script>
+
+{% schema %}
+  {
+    "name": "Sticky Add to Cart",
+    "tag": "section",
+    "class": "section",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Layout"
+      },
+      {
+        "type": "range",
+        "id": "max_width",
+        "min": 800,
+        "max": 1600,
+        "step": 50,
+        "unit": "px",
+        "label": "Largura máxima",
+        "default": 1200
+      },
+      {
+        "type": "range",
+        "id": "padding",
+        "min": 10,
+        "max": 40,
+        "step": 5,
+        "unit": "px",
+        "label": "Padding",
+        "default": 20
+      },
+      {
+        "type": "color",
+        "id": "background_color",
+        "label": "Cor de fundo",
+        "default": "#ffffff"
+      },
+      {
+        "type": "header",
+        "content": "Imagem"
+      },
+      {
+        "type": "range",
+        "id": "image_radius",
+        "min": 0,
+        "max": 20,
+        "step": 1,
+        "unit": "px",
+        "label": "Raio da imagem",
+        "default": 8
+      },
+      {
+        "type": "header",
+        "content": "Título"
+      },
+      {
+        "type": "range",
+        "id": "title_size",
+        "min": 12,
+        "max": 28,
+        "step": 1,
+        "unit": "px",
+        "label": "Tamanho do título",
+        "default": 16
+      },
+      {
+        "type": "color",
+        "id": "title_color",
+        "label": "Cor do título",
+        "default": "#000000"
+      },
+      {
+        "type": "select",
+        "id": "title_weight",
+        "label": "Peso da fonte do título",
+        "options": [
+          {
+            "value": "400",
+            "label": "Normal"
+          },
+          {
+            "value": "500",
+            "label": "Medium"
+          },
+          {
+            "value": "600",
+            "label": "Semi Bold"
+          },
+          {
+            "value": "700",
+            "label": "Bold"
+          }
+        ],
+        "default": "600"
+      },
+      {
+        "type": "header",
+        "content": "Preço"
+      },
+      {
+        "type": "range",
+        "id": "price_size",
+        "min": 12,
+        "max": 28,
+        "step": 1,
+        "unit": "px",
+        "label": "Tamanho do preço",
+        "default": 18
+      },
+      {
+        "type": "color",
+        "id": "price_color",
+        "label": "Cor do preço",
+        "default": "#000000"
+      },
+      {
+        "type": "header",
+        "content": "Botão"
+      },
+      {
+        "type": "text",
+        "id": "button_text",
+        "label": "Texto do botão",
+        "default": "BUY IT NOW"
+      },
+      {
+        "type": "range",
+        "id": "button_text_size",
+        "min": 12,
+        "max": 24,
+        "step": 1,
+        "unit": "px",
+        "label": "Tamanho do texto do botão",
+        "default": 16
+      },
+      {
+        "type": "range",
+        "id": "button_padding_vertical",
+        "min": 8,
+        "max": 30,
+        "step": 1,
+        "unit": "px",
+        "label": "Padding vertical do botão",
+        "default": 12
+      },
+      {
+        "type": "range",
+        "id": "button_padding_horizontal",
+        "min": 15,
+        "max": 50,
+        "step": 1,
+        "unit": "px",
+        "label": "Padding horizontal do botão",
+        "default": 24
+      },
+      {
+        "type": "range",
+        "id": "button_radius",
+        "min": 0,
+        "max": 40,
+        "step": 1,
+        "unit": "px",
+        "label": "Raio do botão",
+        "default": 8
+      },
+      {
+        "type": "color",
+        "id": "button_background",
+        "label": "Cor de fundo do botão",
+        "default": "#000000"
+      },
+      {
+        "type": "color",
+        "id": "button_text_color",
+        "label": "Cor do texto do botão",
+        "default": "#ffffff"
+      },
+      {
+        "type": "header",
+        "content": "Funcionalidades"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_quantity",
+        "label": "Mostrar seletor de quantidade",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "show_variant",
+        "label": "Mostrar variante selecionada",
+        "default": true
+      },
+      {
+        "type": "range",
+        "id": "scroll_threshold",
+        "min": 100,
+        "max": 1000,
+        "step": 50,
+        "unit": "px",
+        "label": "Distância de scroll para aparecer",
+        "default": 400
+      }
+    ]
+  }
+{% endschema %}

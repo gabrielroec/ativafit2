@@ -1,0 +1,84 @@
+{% schema %}
+  {
+    "name": "LP Review Highlight",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "review_image",
+        "label": "Review Image"
+      },
+      {
+        "type": "text",
+        "id": "rating_text",
+        "label": "Rating Text",
+        "default": "4.9/5 BASED ON 800+ REVIEWS"
+      },
+      {
+        "type": "text",
+        "id": "headline",
+        "label": "Headline",
+        "default": "Trusted by Fitness Enthusiasts Everywhere!"
+      },
+      {
+        "type": "textarea",
+        "id": "review_text",
+        "label": "Review Text",
+        "default": "\u201CThe best adjustable dumbbells for heavy lifting, beginners, for your money, and more\u201D"
+      },
+      {
+        "type": "text",
+        "id": "review_source",
+        "label": "Review Source",
+        "default": "BARBEND.COM"
+      }
+    ],
+    "presets": [
+      {
+        "name": "LP Review Highlight"
+      }
+    ]
+  }
+{% endschema %}
+
+<div class="review-highlight-section bg-white text-black p-[16px] md:p-[32px] flex flex-col items-center text-center py-[20px] md:py-[80px]">
+  <div class="md:flex space-x-[4px] mb-[8px] hidden">
+    {% for i in (1..5) %}
+      <span class="text-[24px]">
+        <svg xmlns="http://www.w3.org/2000/svg" width="78" height="73" viewBox="0 0 78 73" fill="none">
+        <path d="M39.2643 0L49.9616 25.5406L77.5579 27.8219L56.573 45.8882L62.931 72.8388L39.2643 58.4637L15.5975 72.8388L21.9556 45.8882L0.970673 27.8219L28.5669 25.5406L39.2643 0Z" fill="#E97130"/>
+        </svg>
+    </span>
+    {% endfor %}
+  </div>
+  <div class="flex space-x-[4px] mb-[8px] md:hidden">
+    {% for i in (1..5) %}
+      <span class="text-[24px]">
+        <svg xmlns="http://www.w3.org/2000/svg" width="34" height="32" viewBox="0 0 34 32" fill="none">
+            <path d="M17.2584 0L21.8436 10.9474L33.6721 11.9253L24.6774 19.669L27.4027 31.2208L17.2584 25.0592L7.11417 31.2208L9.83941 19.669L0.844687 11.9253L12.6732 10.9474L17.2584 0Z" fill="#E97130"/>
+        </svg>
+    </span>
+    {% endfor %}
+  </div>
+  <p class="md:text-[26px] text-[16px] mb-[16px] text-[#070B11]">{{ section.settings.rating_text }}</p>
+  <h2 class="md:text-[38px] text-[24px] font-bold mb-[24px] text-[#070B11]">{{ section.settings.headline }}</h2>
+  <div class="flex flex-col md:flex-row items-center md:items-center text-left gap-[20px] max-w-[1110px] mx-auto">
+    <div class="max-w-[340px] h-auto md:w-[100%] md:h-auto flex-shrink-0 mb-[16px] md:mb-0 md:mr-[16px]">
+      {% if section.settings.review_image %}
+        <img src="{{ section.settings.review_image | img_url: 'master' }}" alt="Review Image" class="w-full h-full object-cover">
+      {% endif %}
+    </div>
+    <div class="flex flex-col">
+      <div class="flex space-x-[2px] mb-[8px]">
+        {% for i in (1..5) %}
+          <span class="text-[#FF6B00] text-[16px]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="34" height="32" viewBox="0 0 34 32" fill="none">
+                <path d="M17.2584 0L21.8436 10.9474L33.6721 11.9253L24.6774 19.669L27.4027 31.2208L17.2584 25.0592L7.11417 31.2208L9.83941 19.669L0.844687 11.9253L12.6732 10.9474L17.2584 0Z" fill="#E97130"/>
+            </svg>
+          </span>
+        {% endfor %}
+      </div>
+      <p class="md:text-[32px] text-[18px] md:leading-[40px] leading-[28px] mb-[4px] text-[#070B11] uppercase">{{ section.settings.review_text }}</p>
+      <span class="md:text-[24px] text-[12px] text-[#070B11] uppercase">{{ section.settings.review_source }}</span>
+    </div>
+  </div>
+</div>

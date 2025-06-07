@@ -1,0 +1,1919 @@
+{%- comment -%}
+  Product Reviews Section
+  Displays customer testimonials in a modern iOS-inspired style
+{%- endcomment -%}
+
+<div class="product-reviews-section">
+  <div class="section-container">
+    <h2 class="section-title">{{ section.settings.title | default: 'What our customers say' }}</h2>
+
+    <div class="reviews-container">
+      <div class="reviews-grid">
+        <!-- Reviews content will be loaded dynamically via JavaScript -->
+      </div>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="reviews-pagination">
+      <button
+        class="pagination-arrow prev"
+        aria-label="Previous page"
+        disabled>
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 12 12"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M7.5 2L3.5 6L7.5 10"
+            stroke="#999"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+      </button>
+      <div class="pagination-numbers">
+        <button
+          class="pagination-number active"
+          aria-current="page"
+          data-page="1">1</button>
+        <button class="pagination-number" data-page="2">2</button>
+        <button class="pagination-number" data-page="3">3</button>
+      </div>
+      <button class="pagination-arrow next" aria-label="Next page">
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 12 12"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M4.5 2L8.5 6L4.5 10"
+            stroke="#333"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<style>
+  .product-reviews-section {
+    padding: 60px 0;
+    background-color: #fff;
+    margin-bottom: 80px;
+  }
+
+  .section-container {
+    max-width: 1370px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .section-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: #1d1d1f;
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .reviews-container {
+    width: 100%;
+    margin-bottom: 40px;
+  }
+
+  .reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: 1fr;
+    gap: 24px;
+    grid-template-rows: repeat(3, auto);
+  }
+
+  .review-card {
+    background-color: #ffffff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s ease
+    , box-shadow 0.2s ease;
+    position: relative;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0;
+  }
+
+  .review-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .review-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #FF6B00, #FF9A4D);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .review-card:hover::before {
+    opacity: 1;
+  }
+
+  .review-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .reviewer-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    margin-right: 12px;
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 2px solid #ffffff;
+  }
+
+  .reviewer-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #FF6B00, #FF9A4D);
+    color: white;
+    font-weight: 600;
+    font-size: 18px;
+  }
+
+  .reviewer-info {
+    flex-grow: 1;
+  }
+
+  .reviewer-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1d1d1f;
+    margin: 0;
+  }
+
+  .review-date {
+    font-size: 14px;
+    color: #86868b;
+    margin-top: 2px;
+  }
+
+  .review-rating {
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+  }
+
+  .star {
+    color: #d1d1d6;
+    font-size: 18px;
+    margin-right: 1px;
+    line-height: 1;
+  }
+
+  .star.filled {
+    color: #FF6B00;
+  }
+
+  .review-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1d1d1f;
+    margin: 0 0 8px;
+  }
+
+  .review-content {
+    font-size: 15px;
+    line-height: 1.5;
+    color: #1d1d1f;
+    margin-bottom: 16px;
+    flex-grow: 1;
+  }
+
+  .verified-purchase {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0;
+    font-size: 14px;
+    color: #FF6B00;
+    font-weight: 500;
+    margin-top: auto;
+  }
+
+  .verified-purchase svg {
+    margin-right: 6px;
+  }
+
+  .verified-purchase svg path {
+    fill: #FF6B00;
+  }
+
+  /* Pagination Styles */
+  .reviews-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 40px;
+  }
+
+  .pagination-arrow {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: white;
+    border: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .pagination-arrow:hover:not([disabled]) {
+    background: #f5f5f5;
+    transform: translateY(-2px);
+  }
+
+  .pagination-arrow[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .pagination-numbers {
+    display: flex;
+    margin: 0 16px;
+  }
+
+  .pagination-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 0 8px;
+    background: white;
+    border: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+  }
+
+  .pagination-number:hover:not(.active) {
+    background: #f5f5f5;
+    transform: translateY(-2px);
+  }
+
+  .pagination-number.active {
+    background: #FF6B00;
+    color: white;
+    border-color: #FF6B00;
+  }
+
+  @media screen and (min-width: 1024px) and(max-width: 1200px) {
+    .reviews-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media screen and (min-width: 768px) and(max-width: 1023px) {
+    .reviews-grid {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(5, auto);
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    .product-reviews-section {
+      padding: 40px 0;
+    }
+
+    .section-title {
+      font-size: 28px;
+      margin-bottom: 30px;
+    }
+
+    .reviews-grid {
+      grid-template-columns: 1fr;
+      grid-template-rows: repeat(9, auto);
+      gap: 16px;
+    }
+
+    .review-card {
+      padding: 20px;
+    }
+
+    .pagination-numbers {
+      margin: 0 8px;
+    }
+
+    .pagination-number {
+      width: 36px;
+      height: 36px;
+      margin: 0 4px;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Reviews data from section settings
+    const allReviews = [
+      // Page 1 (reviews 1-9)
+      [
+        {
+          initial: "{{ section.settings.review1_name | slice: 0 }}",
+          name: "{{ section.settings.review1_name }}",
+          date: "{{ section.settings.review1_date }}",
+          rating: {{ section.settings.review1_rating }},
+          title: "{{ section.settings.review1_title }}",
+          content: "{{ section.settings.review1_content }}",
+          recommended: {{ section.settings.review1_recommends }}
+        },
+        {
+          initial: "{{ section.settings.review2_name | slice: 0 }}",
+          name: "{{ section.settings.review2_name }}",
+          date: "{{ section.settings.review2_date }}",
+          rating: {{ section.settings.review2_rating }},
+          title: "{{ section.settings.review2_title }}",
+          content: "{{ section.settings.review2_content }}",
+          recommended: {{ section.settings.review2_recommends }}
+        },
+        {
+          initial: "{{ section.settings.review3_name | slice: 0 }}",
+          name: "{{ section.settings.review3_name }}",
+          date: "{{ section.settings.review3_date }}",
+          rating: {{ section.settings.review3_rating }},
+          title: "{{ section.settings.review3_title }}",
+          content: "{{ section.settings.review3_content }}",
+          recommended: {{ section.settings.review3_recommends }}
+        },
+        {
+          initial: "{{ section.settings.review4_name | slice: 0 }}",
+          name: "{{ section.settings.review4_name }}",
+          date: "{{ section.settings.review4_date }}",
+          rating: {{ section.settings.review4_rating }},
+          title: "{{ section.settings.review4_title }}",
+          content: "{{ section.settings.review4_content }}",
+          recommended: {{ section.settings.review4_recommends }}
+        },
+        {
+          initial: "{{ section.settings.review5_name | slice: 0 }}",
+          name: "{{ section.settings.review5_name }}",
+          date: "{{ section.settings.review5_date }}",
+          rating: {{ section.settings.review5_rating }},
+          title: "{{ section.settings.review5_title }}",
+          content: "{{ section.settings.review5_content }}",
+          recommended: {{ section.settings.review5_recommends }}
+        },
+        {
+          initial: "{{ section.settings.review6_name | slice: 0 }}",
+          name: "{{ section.settings.review6_name }}",
+          date: "{{ section.settings.review6_date }}",
+          rating: {{ section.settings.review6_rating }},
+          title: "{{ section.settings.review6_title }}",
+          content: "{{ section.settings.review6_content }}",
+          recommended: {{ section.settings.review6_recommends }}
+        },
+        {
+          initial: "{{ section.settings.review7_name | slice: 0 }}",
+          name: "{{ section.settings.review7_name }}",
+          date: "{{ section.settings.review7_date }}",
+          rating: {{ section.settings.review7_rating }},
+          title: "{{ section.settings.review7_title }}",
+          content: "{{ section.settings.review7_content }}",
+          recommended: {{ section.settings.review7_recommends }}
+        },
+        {
+          initial: "{{ section.settings.review8_name | slice: 0 }}",
+          name: "{{ section.settings.review8_name }}",
+          date: "{{ section.settings.review8_date }}",
+          rating: {{ section.settings.review8_rating }},
+          title: "{{ section.settings.review8_title }}",
+          content: "{{ section.settings.review8_content }}",
+          recommended: {{ section.settings.review8_recommends }}
+        },
+        {
+          initial: "{{ section.settings.review9_name | slice: 0 }}",
+          name: "{{ section.settings.review9_name }}",
+          date: "{{ section.settings.review9_date }}",
+          rating: {{ section.settings.review9_rating }},
+          title: "{{ section.settings.review9_title }}",
+          content: "{{ section.settings.review9_content }}",
+          recommended: {{ section.settings.review9_recommends }}
+        }
+      ],
+      // Page 2 (reviews 10-18)
+      [
+        {
+          initial: "{{ section.settings.review10_name | slice: 0 }}",
+          name: "{{ section.settings.review10_name }}",
+          date: "{{ section.settings.review10_date }}",
+          rating: {{ section.settings.review10_rating }},
+          title: "{{ section.settings.review10_title }}",
+          content: "{{ section.settings.review10_content }}",
+          recommended: {{ section.settings.review10_recommends }}
+        },
+        {
+          initial: "{{ section.settings.review11_name | slice: 0 }}",
+          name: "{{ section.settings.review11_name }}",
+          date: "{{ section.settings.review11_date }}",
+          rating: {{ section.settings.review11_rating }},
+          title: "{{ section.settings.review11_title }}",
+          content: "{{ section.settings.review11_content }}",
+          recommended: {{ section.settings.review11_recommends }}
+        },
+        {
+          initial: "{{ section.settings.review12_name | slice: 0 }}",
+          name: "{{ section.settings.review12_name }}",
+          date: "{{ section.settings.review12_date }}",
+          rating: {{ section.settings.review12_rating }},
+          title: "{{ section.settings.review12_title }}",
+          content: "{{ section.settings.review12_content }}",
+          recommended: {{ section.settings.review12_recommends }}
+        },
+        {
+          initial: "{{ section.settings.review13_name | slice: 0 }}",
+          name: "{{ section.settings.review13_name }}",
+          date: "{{ section.settings.review13_date }}",
+          rating: {{ section.settings.review13_rating }},
+          title: "{{ section.settings.review13_title }}",
+          content: "{{ section.settings.review13_content }}",
+          recommended: {{ section.settings.review13_recommends }}
+        },
+        {
+          initial: "{{ section.settings.review14_name | slice: 0 }}",
+          name: "{{ section.settings.review14_name }}",
+          date: "{{ section.settings.review14_date }}",
+          rating: {{ section.settings.review14_rating }},
+          title: "{{ section.settings.review14_title }}",
+          content: "{{ section.settings.review14_content }}",
+          recommended: {{ section.settings.review14_recommends }}
+        },
+        {
+          initial: "{{ section.settings.review15_name | slice: 0 }}",
+          name: "{{ section.settings.review15_name }}",
+          date: "{{ section.settings.review15_date }}",
+          rating: {{ section.settings.review15_rating }},
+          title: "{{ section.settings.review15_title }}",
+          content: "{{ section.settings.review15_content }}",
+          recommended: {{ section.settings.review15_recommends }}
+        },
+        {
+          initial: "{{ section.settings.review16_name | slice: 0 }}",
+          name: "{{ section.settings.review16_name }}",
+          date: "{{ section.settings.review16_date }}",
+          rating: {{ section.settings.review16_rating }},
+          title: "{{ section.settings.review16_title }}",
+          content: "{{ section.settings.review16_content }}",
+          recommended: {{ section.settings.review16_recommends }}
+        },
+        {
+          initial: "{{ section.settings.review17_name | slice: 0 }}",
+          name: "{{ section.settings.review17_name }}",
+          date: "{{ section.settings.review17_date }}",
+          rating: {{ section.settings.review17_rating }},
+          title: "{{ section.settings.review17_title }}",
+          content: "{{ section.settings.review17_content }}",
+          recommended: {{ section.settings.review17_recommends }}
+        },
+        {
+          initial: "{{ section.settings.review18_name | slice: 0 }}",
+          name: "{{ section.settings.review18_name }}",
+          date: "{{ section.settings.review18_date }}",
+          rating: {{ section.settings.review18_rating }},
+          title: "{{ section.settings.review18_title }}",
+          content: "{{ section.settings.review18_content }}",
+          recommended: {{ section.settings.review18_recommends }}
+        }
+      ],
+      // Page 3 (reviews 19-27)
+      [
+        {
+          initial: "{{ section.settings.review19_name | slice: 0 }}",
+          name: "{{ section.settings.review19_name }}",
+          date: "{{ section.settings.review19_date }}",
+          rating: {{ section.settings.review19_rating }},
+          title: "{{ section.settings.review19_title }}",
+          content: "{{ section.settings.review19_content }}",
+          recommended: {{ section.settings.review19_recommends }}
+        },
+        {
+          initial: "{{ section.settings.review20_name | slice: 0 }}",
+          name: "{{ section.settings.review20_name }}",
+          date: "{{ section.settings.review20_date }}",
+          rating: {{ section.settings.review20_rating }},
+          title: "{{ section.settings.review20_title }}",
+          content: "{{ section.settings.review20_content }}",
+          recommended: {{ section.settings.review20_recommends }}
+        },
+        {
+          initial: "{{ section.settings.review21_name | slice: 0 }}",
+          name: "{{ section.settings.review21_name }}",
+          date: "{{ section.settings.review21_date }}",
+          rating: {{ section.settings.review21_rating }},
+          title: "{{ section.settings.review21_title }}",
+          content: "{{ section.settings.review21_content }}",
+          recommended: {{ section.settings.review21_recommends }}
+        },
+        {
+          initial: "{{ section.settings.review22_name | slice: 0 }}",
+          name: "{{ section.settings.review22_name }}",
+          date: "{{ section.settings.review22_date }}",
+          rating: {{ section.settings.review22_rating }},
+          title: "{{ section.settings.review22_title }}",
+          content: "{{ section.settings.review22_content }}",
+          recommended: {{ section.settings.review22_recommends }}
+        },
+        {
+          initial: "{{ section.settings.review23_name | slice: 0 }}",
+          name: "{{ section.settings.review23_name }}",
+          date: "{{ section.settings.review23_date }}",
+          rating: {{ section.settings.review23_rating }},
+          title: "{{ section.settings.review23_title }}",
+          content: "{{ section.settings.review23_content }}",
+          recommended: {{ section.settings.review23_recommends }}
+        },
+        {
+          initial: "{{ section.settings.review24_name | slice: 0 }}",
+          name: "{{ section.settings.review24_name }}",
+          date: "{{ section.settings.review24_date }}",
+          rating: {{ section.settings.review24_rating }},
+          title: "{{ section.settings.review24_title }}",
+          content: "{{ section.settings.review24_content }}",
+          recommended: {{ section.settings.review24_recommends }}
+        },
+        {
+          initial: "{{ section.settings.review25_name | slice: 0 }}",
+          name: "{{ section.settings.review25_name }}",
+          date: "{{ section.settings.review25_date }}",
+          rating: {{ section.settings.review25_rating }},
+          title: "{{ section.settings.review25_title }}",
+          content: "{{ section.settings.review25_content }}",
+          recommended: {{ section.settings.review25_recommends }}
+        },
+        {
+          initial: "{{ section.settings.review26_name | slice: 0 }}",
+          name: "{{ section.settings.review26_name }}",
+          date: "{{ section.settings.review26_date }}",
+          rating: {{ section.settings.review26_rating }},
+          title: "{{ section.settings.review26_title }}",
+          content: "{{ section.settings.review26_content }}",
+          recommended: {{ section.settings.review26_recommends }}
+        },
+        {
+          initial: "{{ section.settings.review27_name | slice: 0 }}",
+          name: "{{ section.settings.review27_name }}",
+          date: "{{ section.settings.review27_date }}",
+          rating: {{ section.settings.review27_rating }},
+          title: "{{ section.settings.review27_title }}",
+          content: "{{ section.settings.review27_content }}",
+          recommended: {{ section.settings.review27_recommends }}
+        }
+      ]
+    ];
+
+    const paginationNumbers = document.querySelectorAll('.pagination-number');
+    const prevButton = document.querySelector('.pagination-arrow.prev');
+    const nextButton = document.querySelector('.pagination-arrow.next');
+    const totalPages = 3;
+    let currentPage = 1;
+    
+    // Function to generate star rating HTML
+    function generateStars(rating) {
+      let starsHTML = '';
+      for (let i = 1; i <= 5; i++) {
+        starsHTML += `<span class="star${i <= rating ? ' filled' : ''}">★</span>`;
+      }
+      return starsHTML;
+    }
+    
+    // Function to generate review card HTML
+    function generateReviewCard(review) {
+      return `
+        <div class="review-card">
+          <div class="review-header">
+            <div class="reviewer-avatar no-image">
+              <div class="avatar-placeholder">${review.initial}</div>
+            </div>
+            <div class="reviewer-info">
+              <h3 class="reviewer-name">${review.name}</h3>
+              <div class="review-date">${review.date}</div>
+            </div>
+          </div>
+
+          <div class="review-rating">
+            ${generateStars(review.rating)}
+          </div>
+
+          ${review.title ? `<h4 class="review-title">${review.title}</h4>` : ''}
+
+          <div class="review-content">
+            <p>${review.content}</p>
+          </div>
+
+          ${review.recommended ? `
+          <div class="verified-purchase">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 0C3.6 0 0 3.6 0 8C0 12.4 3.6 16 8 16C12.4 16 16 12.4 16 8C16 3.6 12.4 0 8 0ZM6.6 11.8L3 8.2L4.4 6.8L6.6 9L11.6 4L13 5.4L6.6 11.8Z" fill="#FF6B00" />
+            </svg>
+            <span>I recommend this product</span>
+          </div>
+          ` : ''}
+        </div>
+      `;
+    }
+    
+    // Function to update pagination UI
+    function updatePagination() {
+      // Update page number buttons
+      paginationNumbers.forEach(button => {
+        const pageNum = parseInt(button.dataset.page);
+        if (pageNum === currentPage) {
+          button.classList.add('active');
+          button.setAttribute('aria-current', 'page');
+        } else {
+          button.classList.remove('active');
+          button.removeAttribute('aria-current');
+        }
+      });
+      
+      // Update prev/next buttons
+      prevButton.disabled = currentPage === 1;
+      nextButton.disabled = currentPage === totalPages;
+    }
+    
+    // Function to load review page content
+    function loadReviewPage(page) {
+      const reviewsGrid = document.querySelector('.reviews-grid');
+      const pageIndex = page - 1;
+      
+      if (reviewsGrid && allReviews[pageIndex] && allReviews[pageIndex].length > 0) {
+        // Clear current reviews
+        reviewsGrid.innerHTML = '';
+        
+        // Add new reviews for this page
+        allReviews[pageIndex].forEach(review => {
+          reviewsGrid.innerHTML += generateReviewCard(review);
+        });
+        
+        // Scroll to the top of reviews section only when navigation buttons are clicked
+        // not on initial page load
+        if (page !== 1 || window.reviewNavigationClicked) {
+          const reviewsSection = document.querySelector('.product-reviews-section');
+          if (reviewsSection) {
+            reviewsSection.scrollIntoView({ behavior: 'smooth' });
+          }
+        }
+      }
+    }
+    
+    // Add click events to pagination controls
+    paginationNumbers.forEach(button => {
+      button.addEventListener('click', function() {
+        window.reviewNavigationClicked = true;
+        currentPage = parseInt(this.dataset.page);
+        updatePagination();
+        loadReviewPage(currentPage);
+      });
+    });
+    
+    prevButton.addEventListener('click', function() {
+      if (currentPage > 1) {
+        window.reviewNavigationClicked = true;
+        currentPage--;
+        updatePagination();
+        loadReviewPage(currentPage);
+      }
+    });
+    
+    nextButton.addEventListener('click', function() {
+      if (currentPage < totalPages) {
+        window.reviewNavigationClicked = true;
+        currentPage++;
+        updatePagination();
+        loadReviewPage(currentPage);
+      }
+    });
+    
+    // Initialize the flag
+    window.reviewNavigationClicked = false;
+    
+    // Load first page on initial load
+    loadReviewPage(1);
+  });
+</script>
+
+{% schema %}
+  {
+    "name": "Product Reviews",
+    "tag": "section",
+    "class": "product-section",
+    "settings": [
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Section Title",
+        "default": "What our customers say"
+      },
+      {
+        "type": "header",
+        "content": "Review 1"
+      },
+      {
+        "type": "text",
+        "id": "review1_name",
+        "label": "Reviewer Name",
+        "default": "Rob Schmidt"
+      },
+      {
+        "type": "text",
+        "id": "review1_date",
+        "label": "Review Date",
+        "default": "July 5, 2024"
+      },
+      {
+        "type": "range",
+        "id": "review1_rating",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Rating",
+        "default": 4
+      },
+      {
+        "type": "text",
+        "id": "review1_title",
+        "label": "Review Title",
+        "default": "Solid & well priced"
+      },
+      {
+        "type": "textarea",
+        "id": "review1_content",
+        "label": "Review Content",
+        "default": "I've been using the 66 lb adjustable dumbbells for a few weeks now and found they are terrific for the home gym. Easy to adjust and well-made. Highly recommend!"
+      },
+      {
+        "type": "checkbox",
+        "id": "review1_recommends",
+        "label": "Recommends Product",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Review 2"
+      },
+      {
+        "type": "text",
+        "id": "review2_name",
+        "label": "Reviewer Name",
+        "default": "Andrew"
+      },
+      {
+        "type": "text",
+        "id": "review2_date",
+        "label": "Review Date",
+        "default": "May 22, 2024"
+      },
+      {
+        "type": "range",
+        "id": "review2_rating",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Rating",
+        "default": 4
+      },
+      {
+        "type": "text",
+        "id": "review2_title",
+        "label": "Review Title",
+        "default": "Great Customer Service"
+      },
+      {
+        "type": "textarea",
+        "id": "review2_content",
+        "label": "Review Content",
+        "default": "Initially there wasn't any update or communication on their end with my order. Being a first time customer, I was skeptical. But after contacting customer service, they were helpful and my product arrived shortly after. Very satisfied with the dumbbells themselves."
+      },
+      {
+        "type": "checkbox",
+        "id": "review2_recommends",
+        "label": "Recommends Product",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Review 3"
+      },
+      {
+        "type": "text",
+        "id": "review3_name",
+        "label": "Reviewer Name",
+        "default": "Kimberly"
+      },
+      {
+        "type": "text",
+        "id": "review3_date",
+        "label": "Review Date",
+        "default": "January 18, 2024"
+      },
+      {
+        "type": "range",
+        "id": "review3_rating",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Rating",
+        "default": 5
+      },
+      {
+        "type": "text",
+        "id": "review3_title",
+        "label": "Review Title",
+        "default": "Great quality and efficient product"
+      },
+      {
+        "type": "textarea",
+        "id": "review3_content",
+        "label": "Review Content",
+        "default": "This product is so efficient, perfect for minimalistic lifestyle, and is of great quality. Really satisfied with my purchase!"
+      },
+      {
+        "type": "checkbox",
+        "id": "review3_recommends",
+        "label": "Recommends Product",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Review 4"
+      },
+      {
+        "type": "text",
+        "id": "review4_name",
+        "label": "Reviewer Name",
+        "default": "Yavuz"
+      },
+      {
+        "type": "text",
+        "id": "review4_date",
+        "label": "Review Date",
+        "default": "October 5, 2023"
+      },
+      {
+        "type": "range",
+        "id": "review4_rating",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Rating",
+        "default": 5
+      },
+      {
+        "type": "text",
+        "id": "review4_title",
+        "label": "Review Title",
+        "default": "Easy to engage weights"
+      },
+      {
+        "type": "textarea",
+        "id": "review4_content",
+        "label": "Review Content",
+        "default": "The product is innovatively designed, it is very easy to engage and disengage the weights. My son is very pleased with his workout progress."
+      },
+      {
+        "type": "checkbox",
+        "id": "review4_recommends",
+        "label": "Recommends Product",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Review 5"
+      },
+      {
+        "type": "text",
+        "id": "review5_name",
+        "label": "Reviewer Name",
+        "default": "Andrew Ford"
+      },
+      {
+        "type": "text",
+        "id": "review5_date",
+        "label": "Review Date",
+        "default": "September 19, 2023"
+      },
+      {
+        "type": "range",
+        "id": "review5_rating",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Rating",
+        "default": 4
+      },
+      {
+        "type": "text",
+        "id": "review5_title",
+        "label": "Review Title",
+        "default": "So far so good"
+      },
+      {
+        "type": "textarea",
+        "id": "review5_content",
+        "label": "Review Content",
+        "default": "Picked this up for 13 year old teenager and so far they have been used. Simple and easy to understand adjustments. Looking forward to continued use."
+      },
+      {
+        "type": "checkbox",
+        "id": "review5_recommends",
+        "label": "Recommends Product",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Review 6"
+      },
+      {
+        "type": "text",
+        "id": "review6_name",
+        "label": "Reviewer Name",
+        "default": "Jennifer"
+      },
+      {
+        "type": "text",
+        "id": "review6_date",
+        "label": "Review Date",
+        "default": "September 15, 2023"
+      },
+      {
+        "type": "range",
+        "id": "review6_rating",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Rating",
+        "default": 5
+      },
+      {
+        "type": "text",
+        "id": "review6_title",
+        "label": "Review Title",
+        "default": "Easy to adjust"
+      },
+      {
+        "type": "textarea",
+        "id": "review6_content",
+        "label": "Review Content",
+        "default": "Great set of adjustable dumbbells. Easily adjusts to your desired weight between 11 & 66lbs."
+      },
+      {
+        "type": "checkbox",
+        "id": "review6_recommends",
+        "label": "Recommends Product",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Review 7"
+      },
+      {
+        "type": "text",
+        "id": "review7_name",
+        "label": "Reviewer Name",
+        "default": "Virgil"
+      },
+      {
+        "type": "text",
+        "id": "review7_date",
+        "label": "Review Date",
+        "default": "September 12, 2023"
+      },
+      {
+        "type": "range",
+        "id": "review7_rating",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Rating",
+        "default": 5
+      },
+      {
+        "type": "text",
+        "id": "review7_title",
+        "label": "Review Title",
+        "default": "Love them"
+      },
+      {
+        "type": "textarea",
+        "id": "review7_content",
+        "label": "Review Content",
+        "default": "I just got them today, love at first sight, from 11 lb to 66lb they are good and top tier quality. Perfect for home workouts!"
+      },
+      {
+        "type": "checkbox",
+        "id": "review7_recommends",
+        "label": "Recommends Product",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Review 8"
+      },
+      {
+        "type": "text",
+        "id": "review8_name",
+        "label": "Reviewer Name",
+        "default": "Dean Yoshimura"
+      },
+      {
+        "type": "text",
+        "id": "review8_date",
+        "label": "Review Date",
+        "default": "August 22, 2023"
+      },
+      {
+        "type": "range",
+        "id": "review8_rating",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Rating",
+        "default": 5
+      },
+      {
+        "type": "text",
+        "id": "review8_title",
+        "label": "Review Title",
+        "default": "Adjustable Dumbbells"
+      },
+      {
+        "type": "textarea",
+        "id": "review8_content",
+        "label": "Review Content",
+        "default": "I bought these during the pandemic and they really helped me to try and stay in shape. I used them almost every day and they're still working perfectly."
+      },
+      {
+        "type": "checkbox",
+        "id": "review8_recommends",
+        "label": "Recommends Product",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Review 9"
+      },
+      {
+        "type": "text",
+        "id": "review9_name",
+        "label": "Reviewer Name",
+        "default": "Phien Tran"
+      },
+      {
+        "type": "text",
+        "id": "review9_date",
+        "label": "Review Date",
+        "default": "August 21, 2023"
+      },
+      {
+        "type": "range",
+        "id": "review9_rating",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Rating",
+        "default": 4
+      },
+      {
+        "type": "text",
+        "id": "review9_title",
+        "label": "Review Title",
+        "default": "Great"
+      },
+      {
+        "type": "textarea",
+        "id": "review9_content",
+        "label": "Review Content",
+        "default": "Only feel little shaking when bicep curl. Other exercise is perfect. Very satisfied with the quality for the price."
+      },
+      {
+        "type": "checkbox",
+        "id": "review9_recommends",
+        "label": "Recommends Product",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Review 10"
+      },
+      {
+        "type": "text",
+        "id": "review10_name",
+        "label": "Reviewer Name",
+        "default": "Cal Carter"
+      },
+      {
+        "type": "text",
+        "id": "review10_date",
+        "label": "Review Date",
+        "default": "June 5, 2023"
+      },
+      {
+        "type": "range",
+        "id": "review10_rating",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Rating",
+        "default": 5
+      },
+      {
+        "type": "text",
+        "id": "review10_title",
+        "label": "Review Title",
+        "default": "Adjustable hand weights"
+      },
+      {
+        "type": "textarea",
+        "id": "review10_content",
+        "label": "Review Content",
+        "default": "One set of hand weights instead of multiples. Mechanism works nicely and has nice storage base. Very convenient for home workouts."
+      },
+      {
+        "type": "checkbox",
+        "id": "review10_recommends",
+        "label": "Recommends Product",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Review 11"
+      },
+      {
+        "type": "text",
+        "id": "review11_name",
+        "label": "Reviewer Name",
+        "default": "JC"
+      },
+      {
+        "type": "text",
+        "id": "review11_date",
+        "label": "Review Date",
+        "default": "May 6, 2023"
+      },
+      {
+        "type": "range",
+        "id": "review11_rating",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Rating",
+        "default": 4
+      },
+      {
+        "type": "text",
+        "id": "review11_title",
+        "label": "Review Title",
+        "default": "This was delivered as a set of 2 dumbbells"
+      },
+      {
+        "type": "textarea",
+        "id": "review11_content",
+        "label": "Review Content",
+        "default": "I was mostly concerned whether I would receive 1 or 2 dumbbells and I was relieved when it was a set. Quality is good and the adjustment mechanism is smooth."
+      },
+      {
+        "type": "checkbox",
+        "id": "review11_recommends",
+        "label": "Recommends Product",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Review 12"
+      },
+      {
+        "type": "text",
+        "id": "review12_name",
+        "label": "Reviewer Name",
+        "default": "Wes Wilke"
+      },
+      {
+        "type": "text",
+        "id": "review12_date",
+        "label": "Review Date",
+        "default": "April 22, 2023"
+      },
+      {
+        "type": "range",
+        "id": "review12_rating",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Rating",
+        "default": 5
+      },
+      {
+        "type": "text",
+        "id": "review12_title",
+        "label": "Review Title",
+        "default": "Impressive!"
+      },
+      {
+        "type": "textarea",
+        "id": "review12_content",
+        "label": "Review Content",
+        "default": "These are really great dumbbells. I've felt a few at the big box stores, but none that went past 55lbs like these do. The quality is outstanding!"
+      },
+      {
+        "type": "checkbox",
+        "id": "review12_recommends",
+        "label": "Recommends Product",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Review 13"
+      },
+      {
+        "type": "text",
+        "id": "review13_name",
+        "label": "Reviewer Name",
+        "default": "Edward Kappus"
+      },
+      {
+        "type": "text",
+        "id": "review13_date",
+        "label": "Review Date",
+        "default": "April 21, 2023"
+      },
+      {
+        "type": "range",
+        "id": "review13_rating",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Rating",
+        "default": 3
+      },
+      {
+        "type": "text",
+        "id": "review13_title",
+        "label": "Review Title",
+        "default": "Nice dumbbells, but not as pictured"
+      },
+      {
+        "type": "textarea",
+        "id": "review13_content",
+        "label": "Review Content",
+        "default": "The dumbbells feel nice and sturdy. It is disappointing that the handle grip is a different texture than shown in the pictures, but they work great."
+      },
+      {
+        "type": "checkbox",
+        "id": "review13_recommends",
+        "label": "Recommends Product",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Review 14"
+      },
+      {
+        "type": "text",
+        "id": "review14_name",
+        "label": "Reviewer Name",
+        "default": "Matthew Eisen"
+      },
+      {
+        "type": "text",
+        "id": "review14_date",
+        "label": "Review Date",
+        "default": "April 20, 2023"
+      },
+      {
+        "type": "range",
+        "id": "review14_rating",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Rating",
+        "default": 4
+      },
+      {
+        "type": "text",
+        "id": "review14_title",
+        "label": "Review Title",
+        "default": "Adjustable dumbbells"
+      },
+      {
+        "type": "textarea",
+        "id": "review14_content",
+        "label": "Review Content",
+        "default": "So far so good. Only had them for about a month so I cannot comment on longevity, yet the desired weight adjustment feature works perfectly."
+      },
+      {
+        "type": "checkbox",
+        "id": "review14_recommends",
+        "label": "Recommends Product",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Review 15"
+      },
+      {
+        "type": "text",
+        "id": "review15_name",
+        "label": "Reviewer Name",
+        "default": "Sean Arresto"
+      },
+      {
+        "type": "text",
+        "id": "review15_date",
+        "label": "Review Date",
+        "default": "April 19, 2023"
+      },
+      {
+        "type": "range",
+        "id": "review15_rating",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Rating",
+        "default": 5
+      },
+      {
+        "type": "text",
+        "id": "review15_title",
+        "label": "Review Title",
+        "default": "Wow!"
+      },
+      {
+        "type": "textarea",
+        "id": "review15_content",
+        "label": "Review Content",
+        "default": "Amazing quality and design! The adjustment mechanism is smooth and the weights feel solid. Exactly what I needed for my home gym setup."
+      },
+      {
+        "type": "checkbox",
+        "id": "review15_recommends",
+        "label": "Recommends Product",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Review 16"
+      },
+      {
+        "type": "text",
+        "id": "review16_name",
+        "label": "Reviewer Name",
+        "default": "Scott Lepley"
+      },
+      {
+        "type": "text",
+        "id": "review16_date",
+        "label": "Review Date",
+        "default": "April 18, 2023"
+      },
+      {
+        "type": "range",
+        "id": "review16_rating",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Rating",
+        "default": 5
+      },
+      {
+        "type": "text",
+        "id": "review16_title",
+        "label": "Review Title",
+        "default": "High Quality Weights"
+      },
+      {
+        "type": "textarea",
+        "id": "review16_content",
+        "label": "Review Content",
+        "default": "These dumbbells are excellent quality and really versatile for my home gym setup. I use them daily and love how compact they are."
+      },
+      {
+        "type": "checkbox",
+        "id": "review16_recommends",
+        "label": "Recommends Product",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Review 17"
+      },
+      {
+        "type": "text",
+        "id": "review17_name",
+        "label": "Reviewer Name",
+        "default": "Aimee F."
+      },
+      {
+        "type": "text",
+        "id": "review17_date",
+        "label": "Review Date",
+        "default": "April 17, 2023"
+      },
+      {
+        "type": "range",
+        "id": "review17_rating",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Rating",
+        "default": 5
+      },
+      {
+        "type": "text",
+        "id": "review17_title",
+        "label": "Review Title",
+        "default": "Great Addition to Home Gym"
+      },
+      {
+        "type": "textarea",
+        "id": "review17_content",
+        "label": "Review Content",
+        "default": "Range of adjustment provides full workout for beginners to advanced. Easy to use and great design. Perfect purchase for home workouts."
+      },
+      {
+        "type": "checkbox",
+        "id": "review17_recommends",
+        "label": "Recommends Product",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Review 18"
+      },
+      {
+        "type": "text",
+        "id": "review18_name",
+        "label": "Reviewer Name",
+        "default": "Nur Sattar"
+      },
+      {
+        "type": "text",
+        "id": "review18_date",
+        "label": "Review Date",
+        "default": "April 16, 2023"
+      },
+      {
+        "type": "range",
+        "id": "review18_rating",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Rating",
+        "default": 5
+      },
+      {
+        "type": "text",
+        "id": "review18_title",
+        "label": "Review Title",
+        "default": "Best Price and Quality"
+      },
+      {
+        "type": "textarea",
+        "id": "review18_content",
+        "label": "Review Content",
+        "default": "Really like the dumbbells, Easy to use and so effective and convenient during this time. Best price point compared to other adjustable dumbbells."
+      },
+      {
+        "type": "checkbox",
+        "id": "review18_recommends",
+        "label": "Recommends Product",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Review 19"
+      },
+      {
+        "type": "text",
+        "id": "review19_name",
+        "label": "Reviewer Name",
+        "default": "Yoshiyuki Saruta"
+      },
+      {
+        "type": "text",
+        "id": "review19_date",
+        "label": "Review Date",
+        "default": "April 15, 2023"
+      },
+      {
+        "type": "range",
+        "id": "review19_rating",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Rating",
+        "default": 5
+      },
+      {
+        "type": "text",
+        "id": "review19_title",
+        "label": "Review Title",
+        "default": "Good"
+      },
+      {
+        "type": "textarea",
+        "id": "review19_content",
+        "label": "Review Content",
+        "default": "Oh it's perfect. It doesn't take space and adjusts easily to different weights. I can do a complete workout with just these dumbbells."
+      },
+      {
+        "type": "checkbox",
+        "id": "review19_recommends",
+        "label": "Recommends Product",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Review 20"
+      },
+      {
+        "type": "text",
+        "id": "review20_name",
+        "label": "Reviewer Name",
+        "default": "Curtis Lee"
+      },
+      {
+        "type": "text",
+        "id": "review20_date",
+        "label": "Review Date",
+        "default": "April 13, 2023"
+      },
+      {
+        "type": "range",
+        "id": "review20_rating",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Rating",
+        "default": 4
+      },
+      {
+        "type": "text",
+        "id": "review20_title",
+        "label": "Review Title",
+        "default": "Good adjustable weights"
+      },
+      {
+        "type": "textarea",
+        "id": "review20_content",
+        "label": "Review Content",
+        "default": "These weights were what I expected from a design and price perspective. The mechanism is easy to use and weights feel solid during workouts."
+      },
+      {
+        "type": "checkbox",
+        "id": "review20_recommends",
+        "label": "Recommends Product",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Review 21"
+      },
+      {
+        "type": "text",
+        "id": "review21_name",
+        "label": "Reviewer Name",
+        "default": "Thomas Wilson"
+      },
+      {
+        "type": "text",
+        "id": "review21_date",
+        "label": "Review Date",
+        "default": "April 12, 2023"
+      },
+      {
+        "type": "range",
+        "id": "review21_rating",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Rating",
+        "default": 5
+      },
+      {
+        "type": "text",
+        "id": "review21_title",
+        "label": "Review Title",
+        "default": "Excellent for Home Gym"
+      },
+      {
+        "type": "textarea",
+        "id": "review21_content",
+        "label": "Review Content",
+        "default": "These dumbbells have completely transformed my home workouts. The adjustment mechanism is smooth and I can change weights in seconds."
+      },
+      {
+        "type": "checkbox",
+        "id": "review21_recommends",
+        "label": "Recommends Product",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Review 22"
+      },
+      {
+        "type": "text",
+        "id": "review22_name",
+        "label": "Reviewer Name",
+        "default": "Lisa Johnson"
+      },
+      {
+        "type": "text",
+        "id": "review22_date",
+        "label": "Review Date",
+        "default": "April 10, 2023"
+      },
+      {
+        "type": "range",
+        "id": "review22_rating",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Rating",
+        "default": 5
+      },
+      {
+        "type": "text",
+        "id": "review22_title",
+        "label": "Review Title",
+        "default": "Perfect Solution"
+      },
+      {
+        "type": "textarea",
+        "id": "review22_content",
+        "label": "Review Content",
+        "default": "Instead of having multiple sets of dumbbells taking up space, these adjustable ones are the perfect solution. High quality and easy to use!"
+      },
+      {
+        "type": "checkbox",
+        "id": "review22_recommends",
+        "label": "Recommends Product",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Review 23"
+      },
+      {
+        "type": "text",
+        "id": "review23_name",
+        "label": "Reviewer Name",
+        "default": "Brian Adams"
+      },
+      {
+        "type": "text",
+        "id": "review23_date",
+        "label": "Review Date",
+        "default": "April 8, 2023"
+      },
+      {
+        "type": "range",
+        "id": "review23_rating",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Rating",
+        "default": 4
+      },
+      {
+        "type": "text",
+        "id": "review23_title",
+        "label": "Review Title",
+        "default": "Great Value"
+      },
+      {
+        "type": "textarea",
+        "id": "review23_content",
+        "label": "Review Content",
+        "default": "For the price, these dumbbells offer excellent value. They're well made, adjust easily, and provide all the weight options I need for my workouts."
+      },
+      {
+        "type": "checkbox",
+        "id": "review23_recommends",
+        "label": "Recommends Product",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Review 24"
+      },
+      {
+        "type": "text",
+        "id": "review24_name",
+        "label": "Reviewer Name",
+        "default": "Rachel Thompson"
+      },
+      {
+        "type": "text",
+        "id": "review24_date",
+        "label": "Review Date",
+        "default": "April 5, 2023"
+      },
+      {
+        "type": "range",
+        "id": "review24_rating",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Rating",
+        "default": 5
+      },
+      {
+        "type": "text",
+        "id": "review24_title",
+        "label": "Review Title",
+        "default": "Game Changer"
+      },
+      {
+        "type": "textarea",
+        "id": "review24_content",
+        "label": "Review Content",
+        "default": "These adjustable dumbbells have been a game changer for my home workouts. Easy to use and they take up so little space compared to multiple dumbbell sets."
+      },
+      {
+        "type": "checkbox",
+        "id": "review24_recommends",
+        "label": "Recommends Product",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Review 25"
+      },
+      {
+        "type": "text",
+        "id": "review25_name",
+        "label": "Reviewer Name",
+        "default": "Michael Clark"
+      },
+      {
+        "type": "text",
+        "id": "review25_date",
+        "label": "Review Date",
+        "default": "April 3, 2023"
+      },
+      {
+        "type": "range",
+        "id": "review25_rating",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Rating",
+        "default": 4
+      },
+      {
+        "type": "text",
+        "id": "review25_title",
+        "label": "Review Title",
+        "default": "Solid Construction"
+      },
+      {
+        "type": "textarea",
+        "id": "review25_content",
+        "label": "Review Content",
+        "default": "The build quality is excellent. The adjustment mechanism works smoothly and the weights feel secure during various exercises."
+      },
+      {
+        "type": "checkbox",
+        "id": "review25_recommends",
+        "label": "Recommends Product",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Review 26"
+      },
+      {
+        "type": "text",
+        "id": "review26_name",
+        "label": "Reviewer Name",
+        "default": "Jessica Martinez"
+      },
+      {
+        "type": "text",
+        "id": "review26_date",
+        "label": "Review Date",
+        "default": "March 30, 2023"
+      },
+      {
+        "type": "range",
+        "id": "review26_rating",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Rating",
+        "default": 5
+      },
+      {
+        "type": "text",
+        "id": "review26_title",
+        "label": "Review Title",
+        "default": "Compact and Effective"
+      },
+      {
+        "type": "textarea",
+        "id": "review26_content",
+        "label": "Review Content",
+        "default": "I love how these dumbbells save space while providing a wide range of weight options. Perfect for apartments or small home gyms."
+      },
+      {
+        "type": "checkbox",
+        "id": "review26_recommends",
+        "label": "Recommends Product",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Review 27"
+      },
+      {
+        "type": "text",
+        "id": "review27_name",
+        "label": "Reviewer Name",
+        "default": "David Chen"
+      },
+      {
+        "type": "text",
+        "id": "review27_date",
+        "label": "Review Date",
+        "default": "March 28, 2023"
+      },
+      {
+        "type": "range",
+        "id": "review27_rating",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Rating",
+        "default": 5
+      },
+      {
+        "type": "text",
+        "id": "review27_title",
+        "label": "Review Title",
+        "default": "Worth Every Penny"
+      },
+      {
+        "type": "textarea",
+        "id": "review27_content",
+        "label": "Review Content",
+        "default": "I researched various adjustable dumbbells before purchasing these, and I couldn't be happier with my choice. Smooth adjustment and solid feel during workouts."
+      },
+      {
+        "type": "checkbox",
+        "id": "review27_recommends",
+        "label": "Recommends Product",
+        "default": true
+      }
+    ],
+    "presets": [
+      {
+        "name": "Product Reviews",
+        "category": "Product"
+      }
+    ]
+  }
+{% endschema %}

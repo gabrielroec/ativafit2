@@ -1,0 +1,59 @@
+{% schema %}
+{
+  "name": "Home Workout Banner",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "READY TO TRANSFORM YOUR HOME WORKOUTS?"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button Label",
+      "default": "Add to Cart"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button Link"
+    },
+    {
+      "type": "text",
+      "id": "financing_text",
+      "label": "Financing Text",
+      "default": "Learn More About Financing Options"
+    },
+    {
+      "type": "url",
+      "id": "financing_link",
+      "label": "Financing Link"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background Image"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Home Workout Banner"
+    }
+  ]
+}
+{% endschema %}
+
+<section class="relative bg-cover bg-center text-white py-[40px] md:py-[150px] px-[16px] text-center" style="background-image: url('{{ section.settings.background_image | image_url }}');">
+  <div class="max-w-[650px] mr-auto flex flex-col items-center">
+    <h2 class="md:text-[54px] font-bold text-[28px]">{{ section.settings.heading }}</h2>
+    <button id="wknd-atc" href="{{ section.settings.button_link }}" class="mt-[20px] md:mt-[64px] h-[68px] inline-block bg-[#eb7122] text-white font-semibold rounded-[70px] shadow-md hover:bg-orange-600 flex items-center justify-center w-[500px] max-w-full text-[24px] wknd-cta">{{ section.settings.button_label }}</button>
+    <a href="{{ section.settings.financing_link }}" class="md:mt-[48px] mt-[20px] block text-[#eb7122] underline italic">{{ section.settings.financing_text }}</a>
+  </div>
+</section>
+<script>
+  document.getElementById('wknd-atc').addEventListener('click', function() {
+    console.log('klik klik')
+    document.querySelector('.product-form__add-button').click();
+});
+</script>

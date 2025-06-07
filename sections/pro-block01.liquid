@@ -1,0 +1,165 @@
+<style>
+	.shane-pro-b1{
+		width: 100%; position: relative; 
+	}
+    .shane-pro-b1>img{
+      width:100%;
+    }
+	.pro-b1-1{
+		position: absolute; width: 12vw; height: 20vw; left: 5%; top: 50%; margin-top: -10vw; color: #FFF; display: flex; justify-content: flex-start; align-content: space-between; flex-wrap: wrap; border-left: 1px solid #fff; padding-left: 15px;
+	}
+	.pro-b1-1>div{
+		width:100%; font-size: 0.9vw; color: #DBDBDC; line-height: 1vw;
+	}
+	.pro-b1-1>div span{
+		font-size: 1.6vw; line-height: 2vw; display: block; font-weight: 600; color: #fff; 
+	}
+	.pro-b1-2{
+		position: absolute; width: 35vw; height: 10vw; right: 5%; top: 50%; margin-top: -4vw; text-align: right; color: #fff; font-size: 1vw;
+	}
+	.pro-b1-2 h2{
+		font-size: 2.8vw; line-height:3.6vw; font-weight: 400; margin: 0 0 1vw; background: linear-gradient(49deg, #3EABAC 0%, #FCD402 100%); -webkit-background-clip: text; color: transparent;
+	}
+	.pro-video{
+		display: block;
+	}
+	.pro-video-m{
+		display: none;
+	}
+@media (max-width: 768px){
+	.pro-video{
+		display: none;
+	}
+	.pro-video-m{
+		display: block;
+	}
+	.pro-b1-1{
+		width: 40vw; height: 50%; top: 25%; margin-top: 0; padding-left: 15px;
+	}
+	.pro-b1-1>div{
+		width:100%; font-size: 3.2vw; line-height: 3.6vw;
+	}
+	.pro-b1-1>div span{
+		font-size: 4.2vw; line-height: 6vw;
+	}
+	.pro-b1-2{
+		width: 50vw; height: 30vw; margin-top: -15vw;font-size: 3.2vw;
+	}
+	.pro-b1-2 h2{
+		font-size: 4.6vw; margin: 0 0 4vw; line-height:5vw;
+	}
+}
+</style>
+    {% if section.settings.video != blank %}
+	<video class="pro-video" autoplay loop muted style="width: 100%;">  
+		<source src="{{ section.settings.video }}" type="video/mp4" >
+	</video>
+	<video class="pro-video-m" autoplay loop muted style="width: 100%;">  
+		<source src="{{ section.settings.video_mobile }}" type="video/mp4" >
+	</video>
+    {% elsif section.settings.image != blank %}
+      <img src="{{ section.settings.image | image_url }}" class="pro-video" alt="{{ section.settings.image.alt }}">
+      <img src="{{ section.settings.image_m | image_url }}" class="pro-video-m" alt="{{ section.settings.image_m.alt }}">
+    {% endif %}
+	<div class="pro-b1-1">
+		<div>
+			<span>{{ section.settings.span1 }}</span>
+			{{ section.settings.span_b1 }}
+		</div>
+		<div>
+			<span>{{ section.settings.span2 }}</span>
+			{{ section.settings.span_b2 }}
+		</div>
+		<div>
+			<span>{{ section.settings.span3 }}</span>
+			{{ section.settings.span_b3 }}
+		</div>
+	</div>
+	<div class="pro-b1-2">
+		<h2>{{ section.settings.heading }}</h2>
+		{{ section.settings.context }}
+	</div>
+{% schema %}
+  {
+    "name": "Pro block01",
+    "class": "shane-pro-b1",
+    "settings": [
+      {
+        "type": "text",
+        "id": "video",
+        "label": "Video url"
+      },
+      {
+        "type": "text",
+        "id": "video_mobile",
+        "label": "Video Mobile url"
+      },
+      {
+        "type": "image_picker",
+        "id": "image",
+        "label": "Image",
+        "info": "视频和图片2选1，如果都有数据，视频优先"
+      },
+      {
+        "type": "image_picker",
+        "id": "image_m",
+        "label": "Image Mobile",
+        "info": "视频和图片2选1，如果都有数据，视频优先"
+      },
+      {
+        "type": "text",
+        "id": "heading",
+        "label": "Heading",
+        "default": "Strength. Flexibility.<br>Endurance. All in one."
+	  },
+      {
+        "type": "textarea",
+        "id": "context",
+        "label": "Text",
+        "default": "- The ultimate home gym in a box."
+      },
+      {
+        "type": "text",
+        "id": "span1",
+        "label": "title1",
+        "default": "66LBS"
+	  },
+      {
+        "type": "text",
+        "id": "span_b1",
+        "label": "text1",
+        "default": "Adjusts from 11 lbs - 66 lbs"
+	  },
+      {
+        "type": "text",
+        "id": "span2",
+        "label": "title2",
+        "default": "Adjustable"
+	  },
+      {
+        "type": "text",
+        "id": "span_b2",
+        "label": "text2",
+        "default": "5 lb. increment"
+	  },
+      {
+        "type": "text",
+        "id": "span3",
+        "label": "title3",
+        "default": "Dial Tech"
+	  },
+      {
+        "type": "text",
+        "id": "span_b3",
+        "label": "text3",
+        "default": "Dial Tech: Quick and precise weight adjustments"
+	  }    
+    ],    
+    "presets": [
+       {
+        "name": "Pro block01"
+          
+       }
+    ]
+  }
+{% endschema %}

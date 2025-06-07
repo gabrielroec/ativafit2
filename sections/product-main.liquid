@@ -1,0 +1,1530 @@
+{%- assign current_product = product -%}
+{%- assign first_media = current_product.featured_media -%}
+
+{% comment %} PRODUCT MAIN {% endcomment %}
+<div class="hero-section">
+  <div class="hero-section__product_info">
+    <h1 class="product-title">{{ current_product.title }}</h1>
+    
+    <div class="product-pricing">
+      <div class="price-container">
+        {% if current_product.compare_at_price > current_product.price %}
+          <span class="price-current">{{ current_product.price | money }}</span>
+          <span class="price-original">{{ current_product.compare_at_price | money }}</span>
+          
+          {% assign discount_amount = current_product.compare_at_price | minus: current_product.price %}
+          {% assign discount_percentage = discount_amount | times: 100.0 | divided_by: current_product.compare_at_price | round %}
+          
+          <div class="discount-tag">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 15L15 9M9.5 10C9.5 9.72386 9.27614 9.5 9 9.5C8.72386 9.5 8.5 9.72386 8.5 10C8.5 10.2761 8.72386 10.5 9 10.5C9.27614 10.5 9.5 10.2761 9.5 10ZM15.5 14C15.5 13.7239 15.2761 13.5 15 13.5C14.7239 13.5 14.5 13.7239 14.5 14C14.5 14.2761 14.7239 14.5 15 14.5C15.2761 14.5 15.5 14.2761 15.5 14ZM21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>{{ discount_percentage }}% OFF</span>
+          </div>
+        {% else %}
+          <span class="price-current price-current--only">{{ current_product.price | money }}</span>
+        {% endif %}
+      </div>
+    </div>
+    
+    <div class="product-description">{{ section.settings.custom_description }}</div>
+    
+    {% if current_product.has_only_default_variant == false %}
+      <div class="product-variants">
+        {% for option in current_product.options_with_values %}
+          <div class="variant-group">
+            <label class="variant-label">{{ option.name }}</label>
+            <div class="variant-options">
+              {% assign sorted_values = option.values | sort: 'price' %}
+              {% for value in option.values %}
+                {% assign is_highest_price = false %}
+                {% for variant in current_product.variants %}
+                  {% if variant.options contains value and variant.price == current_product.price_max %}
+                    {% assign is_highest_price = true %}
+                  {% endif %}
+                {% endfor %}
+                <div class="variant-option {% if is_highest_price %}highest-price{% endif %}" data-option="{{ option.name | handleize }}" data-value="{{ value | handleize }}">
+                  <input 
+                    type="radio" 
+                    name="{{ option.name | handleize }}" 
+                    id="{{ option.name | handleize }}-{{ value | handleize }}"
+                    value="{{ value | escape }}"
+                    {% if is_highest_price %}checked{% endif %}
+                  >
+                  <label for="{{ option.name | handleize }}-{{ value | handleize }}">
+                    {{ value }}
+                    <span class="check-animation">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </span>
+                  </label>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    
+    <div class="buy-button-container">
+      <form method="post" action="/cart/add" id="product-form" accept-charset="UTF-8" class="product-form">
+        <input type="hidden" name="form_type" value="product">
+        <input type="hidden" name="utf8" value="✓">
+        <input type="hidden" name="id" value="{{ current_product.selected_or_first_available_variant.id }}">
+        
+        {% if section.settings.show_quantity_selector %}
+          <div class="form-container">
+            <button 
+              type="submit" 
+              name="add" 
+              class="buy-button" 
+              {% unless current_product.available %} disabled{% endunless %}
+            >
+              {% if current_product.available %}
+                {{ section.settings.add_to_cart_text | default: 'Buy it now' }}
+              {% else %}
+                {{ 'products.product.sold_out' | t }}
+              {% endif %}
+            </button>
+            
+            <div class="quantity-selector">
+              <button type="button" class="quantity-button minus" aria-label="Decrease quantity">-</button>
+              <input type="number" id="Quantity" name="quantity" value="1" min="1" class="quantity-value">
+              <button type="button" class="quantity-button plus" aria-label="Increase quantity">+</button>
+            </div>
+          </div>
+        {% else %}
+          <button 
+            type="submit" 
+            name="add" 
+            class="buy-button buy-button--full-width" 
+            {% unless current_product.available %} disabled{% endunless %}
+          >
+            {% if current_product.available %}
+              {{ section.settings.add_to_cart_text | default: 'Buy it now' }}
+            {% else %}
+              {{ 'products.product.sold_out' | t }}
+            {% endif %}
+          </button>
+        {% endif %}
+      </form>
+    </div>
+    
+    <!-- Feedback Slider Section -->
+    <div class="product-feedback-slider">
+      <div class="feedback-title">{{ section.settings.feedback_title }}</div>
+      <div class="feedback-slider-container">
+        <div class="feedback-slider">
+          {% for block in section.blocks %}
+            {% if block.type == 'feedback_item' %}
+              <div class="feedback-item" {{ block.shopify_attributes }}>
+                <div class="feedback-content">
+                  <div class="feedback-stars">
+                    {% assign rating = block.settings.rating | floor %}
+                    {% for i in (1..5) %}
+                      {% if i <= rating %}
+                        <svg class="star-filled" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#FF7E53" stroke="#FF7E53" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      {% else %}
+                        <svg class="star-empty" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="#FF7E53" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                  <div class="feedback-name">{{ block.settings.customer_name }}</div>
+                  <div class="feedback-text">{{ block.settings.feedback_text }}</div>
+                  
+                  {% if block.settings.product_images.size > 0 %}
+                    <div class="feedback-product-images">
+                      {% for image in block.settings.product_images %}
+                        <div class="feedback-product-image">
+                          <img src="{{ image | img_url: '200x200', crop: 'center' }}" alt="Product image by {{ block.settings.customer_name }}" loading="lazy">
+                        </div>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                </div>
+                
+                {% if block.settings.customer_image != blank %}
+                  <div class="feedback-customer-image">
+                    <img src="{{ block.settings.customer_image | img_url: '100x100', crop: 'center' }}" alt="{{ block.settings.customer_name }}" loading="lazy">
+                  </div>
+                {% endif %}
+              </div>
+            {% endif %}
+          {% endfor %}
+          
+          {% if section.blocks.size == 0 %}
+            <!-- Feedback predefinidos se não houver blocos -->
+            <div class="feedback-item">
+              <div class="feedback-content">
+                <div class="feedback-stars">
+                  {% for i in (1..5) %}
+                    <svg class="star-filled" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#FF7E53" stroke="#FF7E53" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  {% endfor %}
+                </div>
+                <div class="feedback-name">John</div>
+                <div class="feedback-text">Great product, home dumbbell set all in one. The adjustability on this product is great. I can use it for all kinds of exercises for my biceps, triceps and shoulders.</div>
+              </div>
+            </div>
+            
+            <div class="feedback-item">
+              <div class="feedback-content">
+                <div class="feedback-stars">
+                  {% for i in (1..5) %}
+                    <svg class="star-filled" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#FF7E53" stroke="#FF7E53" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  {% endfor %}
+                </div>
+                <div class="feedback-name">MG</div>
+                <div class="feedback-text">Works for everyone in the house! We are enjoying these dumbbells, we bought two of them and the range of the weight is perfect for everyone in our family.</div>
+              </div>
+            </div>
+            
+            <div class="feedback-item">
+              <div class="feedback-content">
+                <div class="feedback-stars">
+                  {% for i in (1..5) %}
+                    <svg class="star-filled" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#FF7E53" stroke="#FF7E53" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  {% endfor %}
+                </div>
+                <div class="feedback-name">Jonny Katter</div>
+                <div class="feedback-text">Fantastic buy. I can take them on work trips and not miss a workout. Worth every penny!</div>
+              </div>
+            </div>
+            
+            <div class="feedback-item">
+              <div class="feedback-content">
+                <div class="feedback-stars">
+                  {% for i in (1..5) %}
+                    <svg class="star-filled" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#FF7E53" stroke="#FF7E53" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  {% endfor %}
+                </div>
+                <div class="feedback-name">Benjamin</div>
+                <div class="feedback-text">Very Durable. I LOVE these. Very durable, easy to use, easy to hold and can get decent weight for a good home workout. Highly recommend!</div>
+              </div>
+            </div>
+            
+            <div class="feedback-item">
+              <div class="feedback-content">
+                <div class="feedback-stars">
+                  {% for i in (1..5) %}
+                    <svg class="star-filled" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#FF7E53" stroke="#FF7E53" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  {% endfor %}
+                </div>
+                <div class="feedback-name">BrianKwiz8</div>
+                <div class="feedback-text">Competes with Bowflex, at a much cheaper price. These weights are amazing, absolutely blew me away! I've used Bowflex adjustable weights and these are just as good.</div>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+        <button class="feedback-nav prev" aria-label="Previous feedback">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15 6L9 12L15 18" stroke="#FF7E53" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button class="feedback-nav next" aria-label="Next feedback">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 18L15 12L9 6" stroke="#FF7E53" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="feedback-dots"></div>
+      </div>
+    </div>
+    
+    <div class="product-features">
+      <div class="feature">
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+          </svg>
+        </div>
+        <div class="feature-text">
+          <span>{{ section.settings.feature_1_heading }}</span>
+          <span>{{ section.settings.feature_1_text }}</span>
+        </div>
+      </div>
+      
+      <div class="feature">
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+        </div>
+        <div class="feature-text">
+          <span>{{ section.settings.feature_2_heading }}</span>
+          <span>{{ section.settings.feature_2_text }}</span>
+        </div>
+      </div>
+      
+      <div class="feature">
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </div>
+        <div class="feature-text">
+          <span>{{ section.settings.feature_3_heading }}</span>
+          <span>{{ section.settings.feature_3_text }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-section__product_image">
+    {% if current_product.compare_at_price > current_product.price %}
+      {% assign saving_amount = current_product.compare_at_price | minus: current_product.price %}
+      <div class="saving-badge">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 8V12M12 16H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span>{{ section.settings.saving_text | default: 'You are saving' }} {{ saving_amount | money }}</span>
+      </div>
+    {% endif %}
+    <div class="image-container">
+      {% for media in current_product.media %}
+        <img 
+          src="{{ media | img_url: section.settings.image_size }}" 
+          width="697px" 
+          alt="{{ media.alt | escape }}" 
+          class="product-image {% if forloop.first %}active{% endif %}" 
+          data-index="{{ forloop.index }}"
+          loading="{{ forloop.first | ternary: 'eager', 'lazy' }}"
+        >
+      {% endfor %}
+      </div>
+   
+    <!-- Thumbnails para versão móvel/tablet -->
+    <div class="product-thumbnails">
+      {% for media in current_product.media %}
+        <div class="product-thumbnail {% if forloop.first %}active{% endif %}" data-index="{{ forloop.index }}">
+          <img 
+            src="{{ media | img_url: '100x100', crop: 'center' }}" 
+            alt="{{ media.alt | escape }}"
+            loading="{{ forloop.first | ternary: 'eager', 'lazy' }}"
+          >
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+   <div class="image-navigation">
+      <button class="nav-button prev">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15 6L9 12L15 18" stroke="#FF7E53" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <span class="nav-indicator">1/{{ current_product.media.size }}</span>
+      <button class="nav-button next">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 18L15 12L9 6" stroke="#FF7E53" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+</div>
+
+<style>
+  .hero-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: {{ section.settings.background_color }};
+    padding: 20px 40px;
+    font-family: Arial, sans-serif;
+    width: 100%;
+    max-width: 1370px;
+    margin: 20px auto;
+    border-radius: 20px;
+    position: relative;
+  }
+  
+  /* Esconde a seção text-with-icons */
+  #shopify-section-sections--25107716931921__text-with-icons {
+    display: none !important;
+  }
+  
+  .hero-section__product_info {
+    width: 70%;
+    padding: 20px;
+  }
+  
+  .product-title {
+    font-size: 48px;
+    margin-bottom: 15px;
+    line-height: 1.2;
+    width: 100%;
+    color: {{ section.settings.title_color }};
+  }
+  
+  .product-pricing {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  
+  .price-container {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  
+  .price-original {
+    font-size: 20px;
+    color: #777;
+    text-decoration: line-through;
+  }
+  
+  .price-current {
+    font-size: 28px;
+    color: {{ section.settings.price_color | default: section.settings.button_color }};
+  }
+  
+  .price-current--only {
+    font-size: 28px;
+  }
+  
+  .discount-tag {
+    display: flex;
+    align-items: center;
+    background-color: {{ section.settings.discount_tag_bg | default: section.settings.button_color }};
+    color: white;
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-size: 14px;
+    margin-left: 10px;
+    gap: 5px;
+  }
+  
+  .discount-tag svg {
+    color: white;
+  }
+  
+  .saving-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    background-color: {{ section.settings.saving_badge_bg | default: '#28a745' }};
+    color: white;
+    padding: 8px 15px;
+    border-radius: 100px;
+    font-size: 14px;
+    
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    gap: 5px;
+  }
+  
+  .saving-badge svg {
+    color: white;
+  }
+  
+  .product-description {
+    font-size: 16px;
+    color: {{ section.settings.text_color }};
+    margin-bottom: 20px;
+    line-height: 1.4;
+  }
+  
+  .buy-button-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+    gap: 10px;
+  }
+  
+  .form-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+  }
+  .product-form{
+    width: 100%;
+  }
+  .buy-button {
+    background-color: {{ section.settings.button_color }};
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    flex-grow: 1;
+    font-size: 16px;
+    transition: background-color 0.1s ease;
+  }
+  
+  .buy-button--full-width {
+    width: 100%;
+  }
+
+  .buy-button:hover {
+    background-color: {{ section.settings.button_hover_color }};
+  }
+  
+  .buy-button[disabled] {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+  
+  .quantity-selector {
+    display: flex;
+    align-items: center;
+    border: 1px solid {{ section.settings.button_color }};
+    height: 52px;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  
+  .quantity-button {
+    background: none;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 16px;
+    color: {{ section.settings.button_color }};
+  }
+  
+  .quantity-value {
+    padding: 0 10px;
+    font-size: 16px;
+    color: {{ section.settings.button_color }};
+    width: 40px;
+    text-align: center;
+    -moz-appearance: textfield;
+    border: none;
+    background: transparent;
+  }
+  
+  .quantity-value::-webkit-outer-spin-button,
+  .quantity-value::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  
+  .product-features {
+    display: flex;
+    justify-content: space-between;
+    background-color: {{ section.settings.features_background_color }};
+    padding: 18px;
+    border-radius: 10px;
+  }
+  
+  .feature {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 33%;
+  }
+  
+  .feature-icon {
+    color: {{ section.settings.icon_color }};
+    margin-bottom: 5px;
+  }
+  
+  .feature-text {
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+    line-height: 1.3;
+    color: {{ section.settings.text_color }};
+  }
+  
+  .hero-section__product_image {
+    position: relative;
+    width: 50%;
+  }
+  
+  .image-container {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: auto;
+    overflow: hidden;
+  }
+  
+  .product-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    opacity: 0;
+    transform: translateX(30px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  
+  .product-image.active {
+    opacity: 1;
+    transform: translateX(0);
+    position: relative;
+    z-index: 1;
+  }
+  
+  .product-image.next-enter {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  
+  .product-image.prev-enter {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+    
+  .image-navigation {
+    position: absolute;
+    bottom: 50px;
+    right: 50px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.71);
+    backdrop-filter: blur(10px);
+    padding: 8px 15px;
+    border-radius: 1000px;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .nav-button {
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: {{ section.settings.button_color }};
+    cursor: pointer;
+    padding: 0 5px;
+  }
+  
+  .nav-indicator {
+    margin: 0 10px;
+    font-size: 14px;
+    color: {{ section.settings.button_color }};
+  }
+  
+  /* Estilos para thumbnails da galeria */
+  .product-thumbnails {
+    display: none;
+    margin-top: 15px;
+    width: 100%;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .product-thumbnail {
+    width: 70px;
+    height: 70px;
+    border-radius: 5px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+  }
+  
+  .product-thumbnail.active {
+    opacity: 1;
+    border-color: {{ section.settings.button_color }};
+  }
+  
+  .product-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  /* Media Queries para responsividade */
+  @media screen and (max-width: 1024px) {
+    /* Tablet */
+    .hero-section {
+      padding: 20px;
+      flex-direction: column;
+    }
+    
+    .hero-section__product_info {
+      width: 100%;
+      order: 2;
+    }
+    
+    .hero-section__product_image {
+      width: 100%;
+      max-width: 100%;
+      margin: 0 auto 30px;
+      order: 1;
+      position: relative;
+    }
+    
+    .saving-badge {
+      top: 15px;
+      right: 15px;
+      font-size: 13px;
+      padding: 6px 12px;
+    }
+    
+    .image-container {
+      aspect-ratio: 1/1;
+      height: 500px;
+    }
+    
+    .product-image.active {
+      opacity: 1;
+      transform: translateX(0);
+      position: relative;
+      z-index: 1;
+      height: 500px;
+      width: 500px;
+      object-fit: contain;
+    }
+    
+    .product-title {
+      font-size: 36px;
+      text-align: left;
+    }
+    
+    .product-description {
+      text-align: left;
+    }
+    
+    .price-current {
+      font-size: 24px;
+    }
+    
+    .price-original {
+      font-size: 18px;
+    }
+    
+    .discount-tag {
+      margin-left: 0;
+      margin-top: 5px;
+    }
+    
+    .product-thumbnails {
+      display: flex;
+    }
+    
+    .image-navigation {
+      display: none;
+    }
+  }
+  
+  @media screen and (max-width: 767px) {
+    /* Mobile */
+    .hero-section {
+      padding: 15px;
+      border-radius: 15px;
+    }
+    
+    .hero-section__product_info {
+      order: 2;
+      padding: 15px 0 0 0;
+    }
+    
+    .hero-section__product_image {
+      width: 100%;
+      max-width: 100%;
+      margin: 0 auto 10px;
+      order: 1;
+    }
+    
+    .saving-badge {
+      top: 10px;
+      right: 10px;
+      font-size: 11px;
+      padding: 5px 10px;
+    }
+    
+    .image-container {
+      aspect-ratio: 1/1;
+    }
+    
+    .product-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    
+    .product-title {
+      font-size: 28px;
+    }
+    
+    .price-container {
+      flex-wrap: wrap;
+    }
+    
+    .price-current {
+      font-size: 22px;
+    }
+    
+    .price-original {
+      font-size: 16px;
+    }
+    
+    .discount-tag {
+      font-size: 12px;
+      margin-top: 5px;
+    }
+    
+    .buy-button-container {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .buy-button {
+      flex-grow: 1;
+      margin-right: 10px;
+    }
+    
+    .product-features {
+      padding: 12px;
+    }
+    
+    .feature-text {
+      font-size: 10px;
+    }
+    
+    .product-thumbnails {
+      gap: 8px;
+      margin-top: 10px;
+      justify-content: center;
+      display: flex;
+    }
+    
+    .product-thumbnail {
+      width: 60px;
+      height: 60px;
+      border-radius: 5px;
+    }
+    
+    .image-navigation {
+      display: none; /* Esconder botões de navegação no mobile */
+    }
+  }
+  
+  /* Estilos para o feedback slider */
+  .product-feedback-slider {
+    margin-bottom: 25px;
+    border-radius: 16px;
+    background-color: {{ section.settings.feedback_bg_color | default: '#ffffff' }};
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .feedback-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: {{ section.settings.title_color }};
+  }
+  
+  .feedback-slider-container {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .feedback-slider {
+    display: flex;
+    transition: transform 0.5s ease;
+  }
+  
+  .feedback-item {
+    flex: 0 0 100%;
+    min-width: 100%;
+    padding: 5px;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    align-items: flex-start;
+    box-sizing: border-box;
+  }
+  
+  .feedback-customer-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 2px solid {{ section.settings.button_color }};
+  }
+  
+  .feedback-customer-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .feedback-content {
+    flex-grow: 1;
+    padding-right: 15px;
+  }
+  
+  .feedback-stars {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+  
+  .feedback-name {
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 5px;
+    color: {{ section.settings.title_color }};
+  }
+  
+  .feedback-text {
+    font-size: 14px;
+    line-height: 1.4;
+    margin-bottom: 10px;
+    color: {{ section.settings.text_color }};
+  }
+  
+  .feedback-product-images {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    margin-top: 10px;
+    scrollbar-width: none; /* Firefox */
+  }
+  
+  .feedback-product-images::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
+  }
+  
+  .feedback-product-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  
+  .feedback-product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .feedback-nav {
+    position: absolute;
+    top: 90%;
+    transform: translateY(-50%);
+    z-index: 2;
+    background-color: white;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: {{ section.settings.button_color }};
+  }
+  
+  .feedback-nav.prev {
+    left: 10px;
+  }
+  
+  .feedback-nav.next {
+    right: 10px;
+  }
+  
+  .feedback-dots {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 15px;
+  }
+  
+  .feedback-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #ddd;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .feedback-dot.active {
+    background-color: {{ section.settings.button_color }};
+    width: 20px;
+    border-radius: 4px;
+  }
+
+  /* Estilos para as variantes */
+  .product-variants {
+    margin-bottom: 20px;
+  }
+
+  .variant-group {
+    margin-bottom: 15px;
+  }
+
+  .variant-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: {{ section.settings.title_color }};
+  }
+
+  .variant-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .variant-option.highest-price {
+    order: 1; /* Garante que a variante mais cara apareça por último */
+  }
+
+  .variant-option {
+    position: relative;
+  }
+
+  .variant-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .variant-option label {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    border: 2px solid {{ section.settings.button_color }};
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: {{ section.settings.button_color }};
+    background: transparent;
+  }
+
+  .variant-option input[type="radio"]:checked + label {
+    background-color: {{ section.settings.button_color }};
+    color: white;
+  }
+
+  .check-animation {
+    margin-left: 8px;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.3s ease;
+  }
+
+  .variant-option input[type="radio"]:checked + label .check-animation {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .discount-message {
+    position: absolute;
+    right: -220px;
+    top: 0;
+    background: linear-gradient(45deg, #FF7E53, #FF6B6B);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0;
+    pointer-events: none;
+    white-space: nowrap;
+    box-shadow: 0 4px 15px rgba(255, 126, 83, 0.3);
+    animation: slideIn 0.5s ease forwards;
+  }
+
+  .discount-message::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-style: solid;
+    border-width: 8px 8px 8px 0;
+    border-color: transparent #FF7E53 transparent transparent;
+  }
+
+  @keyframes slideIn {
+    0% {
+      opacity: 0;
+      transform: translate(20px, -50%);
+    }
+    100% {
+      opacity: 1;
+      transform: translate(0, -50%);
+    }
+  }
+
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .discount-message.highlight {
+    animation: slideIn 0.5s ease forwards, pulse 1s ease infinite;
+  }
+
+  @media screen and (max-width: 767px) {
+    .discount-message {
+      position: static;
+      transform: none;
+      margin-top: 8px;
+      width: 100%;
+      text-align: center;
+      animation: slideUp 0.5s ease forwards;
+    }
+
+    .discount-message::before {
+      display: none;
+    }
+
+    @keyframes slideUp {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const prevButton = document.querySelector('.nav-button.prev');
+    const nextButton = document.querySelector('.nav-button.next');
+    const navIndicator = document.querySelector('.nav-indicator');
+    const productImages = document.querySelectorAll('.product-image');
+    const imageContainer = document.querySelector('.image-container');
+    const thumbnails = document.querySelectorAll('.product-thumbnail');
+    const quantityInput = document.querySelector('input.quantity-value');
+    const quantityPlus = document.querySelector('.quantity-button.plus');
+    const quantityMinus = document.querySelector('.quantity-button.minus');
+
+    // Esconder a seção text-with-icons
+    const textWithIconsSection = document.getElementById('shopify-section-sections--25107716931921__text-with-icons');
+    if (textWithIconsSection) {
+      textWithIconsSection.style.display = 'none';
+    }
+
+    const firstImage = document.querySelector('.product-image[data-index="1"]');
+    if (firstImage) {
+      firstImage.onload = () => {
+        const h = firstImage.offsetHeight;
+        if (h > 0 && window.innerWidth > 767) {
+          imageContainer.style.minHeight = h + 'px';
+        }
+      };
+      if (firstImage.complete) {
+        const h = firstImage.offsetHeight;
+        if (h > 0 && window.innerWidth > 767) {
+          imageContainer.style.minHeight = h + 'px';
+        }
+      }
+    }
+
+    // Ajustar o container quando a janela é redimensionada
+    window.addEventListener('resize', () => {
+      if (window.innerWidth <= 767) {
+        imageContainer.style.minHeight = 'auto';
+      } else {
+        const currentImg = document.querySelector('.product-image.active');
+        if (currentImg && currentImg.offsetHeight > 0) {
+          imageContainer.style.minHeight = currentImg.offsetHeight + 'px';
+        }
+      }
+    });
+
+    let currentIndex = 1;
+    const totalImages = productImages.length;
+    let isAnimating = false;
+
+    function updateNavIndicator() {
+      if (navIndicator) {
+        navIndicator.textContent = `${currentIndex}/${totalImages}`;
+      }
+      
+      // Atualizar thumbnails ativos
+      thumbnails.forEach(thumb => {
+        if (parseInt(thumb.dataset.index) === currentIndex) {
+          thumb.classList.add('active');
+        } else {
+          thumb.classList.remove('active');
+        }
+      });
+    }
+
+    function goToImage(index) {
+      if (isAnimating || !productImages.length) return;
+      isAnimating = true;
+
+      if (index < 1) index = totalImages;
+      if (index > totalImages) index = 1;
+
+      const currentImage = document.querySelector('.product-image.active');
+      const nextImage = document.querySelector(`.product-image[data-index="${index}"]`);
+      if (!nextImage) {
+        isAnimating = false;
+        return;
+      }
+
+      nextImage.classList.add('next-enter');
+      void nextImage.offsetWidth;
+
+      setTimeout(() => {
+        nextImage.classList.remove('next-enter');
+        nextImage.classList.add('active');
+
+        if (currentImage) {
+          currentImage.addEventListener('transitionend', function handler(e) {
+            if (e.propertyName === 'opacity') {
+              currentImage.classList.remove('active');
+              currentImage.removeEventListener('transitionend', handler);
+              isAnimating = false;
+            }
+          });
+          currentImage.classList.remove('active');
+        } else {
+          isAnimating = false;
+        }
+      }, 20);
+
+      currentIndex = index;
+      updateNavIndicator();
+    }
+
+    // Eventos de navegação
+    if (prevButton && nextButton) {
+      nextButton.addEventListener('click', () => goToImage(currentIndex + 1));
+      prevButton.addEventListener('click', () => goToImage(currentIndex - 1));
+    }
+    
+    // Eventos para thumbnails
+    thumbnails.forEach(thumb => {
+      thumb.addEventListener('click', () => {
+        const index = parseInt(thumb.dataset.index);
+        if (index !== currentIndex) {
+          goToImage(index);
+        }
+      });
+    });
+    
+    // Funcionalidade para botões de quantidade
+    if (quantityPlus && quantityMinus && quantityInput) {
+      quantityPlus.addEventListener('click', () => {
+        let qty = parseInt(quantityInput.value);
+        quantityInput.value = qty + 1;
+      });
+      
+      quantityMinus.addEventListener('click', () => {
+        let qty = parseInt(quantityInput.value);
+        if (qty > 1) {
+          quantityInput.value = qty - 1;
+        }
+      });
+    }
+    
+    // Adicionar suporte a swipe para dispositivos móveis
+    if (imageContainer) {
+      let touchStartX = 0;
+      
+      imageContainer.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+      }, { passive: true });
+      
+      imageContainer.addEventListener('touchend', (e) => {
+        if (window.innerWidth > 767) {
+          const touchEndX = e.changedTouches[0].clientX;
+          const diff = touchStartX - touchEndX;
+          
+          if (Math.abs(diff) > 50) {
+            if (diff > 0) {
+              goToImage(currentIndex + 1);
+            } else {
+              goToImage(currentIndex - 1);
+            }
+          }
+        }
+      }, { passive: true });
+    }
+    
+    // Inicializar
+    updateNavIndicator();
+
+    // Slider de feedback
+    const feedbackSlider = document.querySelector('.feedback-slider');
+    const feedbackItems = document.querySelectorAll('.feedback-item');
+    const feedbackPrev = document.querySelector('.feedback-nav.prev');
+    const feedbackNext = document.querySelector('.feedback-nav.next');
+    const feedbackDotsContainer = document.querySelector('.feedback-dots');
+    
+    if (feedbackSlider && feedbackItems.length > 0) {
+      let feedbackCurrentIndex = 0;
+      const feedbackTotalItems = feedbackItems.length;
+      
+      // Criar dots para navegação
+      feedbackItems.forEach((_, index) => {
+        const dot = document.createElement('div');
+        dot.classList.add('feedback-dot');
+        if (index === 0) dot.classList.add('active');
+        dot.addEventListener('click', () => goToFeedback(index));
+        feedbackDotsContainer.appendChild(dot);
+      });
+      
+      const feedbackDots = document.querySelectorAll('.feedback-dot');
+      
+      function updateFeedbackDots() {
+        feedbackDots.forEach((dot, index) => {
+          if (index === feedbackCurrentIndex) {
+            dot.classList.add('active');
+          } else {
+            dot.classList.remove('active');
+          }
+        });
+      }
+      
+      function goToFeedback(index) {
+        if (index < 0) index = feedbackTotalItems - 1;
+        if (index >= feedbackTotalItems) index = 0;
+        
+        feedbackSlider.style.transform = `translateX(-${index * 100}%)`;
+        feedbackCurrentIndex = index;
+        updateFeedbackDots();
+      }
+      
+      if (feedbackPrev && feedbackNext) {
+        feedbackPrev.addEventListener('click', () => goToFeedback(feedbackCurrentIndex - 1));
+        feedbackNext.addEventListener('click', () => goToFeedback(feedbackCurrentIndex + 1));
+      }
+      
+      // Suporte para swipe
+      let feedbackTouchStartX = 0;
+      
+      feedbackSlider.addEventListener('touchstart', (e) => {
+        feedbackTouchStartX = e.touches[0].clientX;
+      }, { passive: true });
+      
+      feedbackSlider.addEventListener('touchend', (e) => {
+        const touchEndX = e.changedTouches[0].clientX;
+        const diff = feedbackTouchStartX - touchEndX;
+        
+        if (Math.abs(diff) > 50) {
+          if (diff > 0) {
+            goToFeedback(feedbackCurrentIndex + 1);
+          } else {
+            goToFeedback(feedbackCurrentIndex - 1);
+          }
+        }
+      }, { passive: true });
+    }
+
+    // Variant Selection
+    const variantInputs = document.querySelectorAll('.variant-option input[type="radio"]');
+    const productForm = document.getElementById('product-form');
+    const variantIdInput = productForm.querySelector('input[name="id"]');
+    
+    function updateVariantId() {
+      const selectedOptions = {};
+      
+      variantInputs.forEach(input => {
+        if (input.checked) {
+          selectedOptions[input.name] = input.value;
+        }
+      });
+      
+      const variants = {{ current_product.variants | json }};
+      const selectedVariant = variants.find(variant => {
+        return variant.options.every((option, index) => {
+          const optionName = {{ current_product.options | json }}[index].toLowerCase().replace(/\s+/g, '-');
+          return variant.options[index] === selectedOptions[optionName];
+        });
+      });
+      
+      // Remover mensagens de desconto anteriores
+      document.querySelectorAll('.discount-message').forEach(msg => msg.remove());
+      
+      if (selectedVariant) {
+        variantIdInput.value = selectedVariant.id;
+        
+        // Atualizar preço
+        const priceContainer = document.querySelector('.price-container');
+        if (priceContainer) {
+          const currentPrice = selectedVariant.price;
+          const comparePrice = selectedVariant.compare_at_price;
+          
+          if (comparePrice > currentPrice) {
+            const discountAmount = comparePrice - currentPrice;
+            const discountPercentage = Math.round((discountAmount * 100) / comparePrice);
+            
+            // Se a variante selecionada for a de maior valor e tiver desconto
+            if (selectedVariant.price === {{ current_product.price_max }}) {
+              const variantOption = document.querySelector(`.variant-option input[type="radio"]:checked`).closest('.variant-option');
+              const discountMessage = document.createElement('div');
+              discountMessage.className = 'discount-message highlight';
+              discountMessage.innerHTML = `
+                <span>Buy more, save ${discountPercentage}%!</span>
+              `;
+              variantOption.appendChild(discountMessage);
+            }
+            
+            priceContainer.innerHTML = `
+              <span class="price-current">${formatMoney(currentPrice)}</span>
+              <span class="price-original">${formatMoney(comparePrice)}</span>
+              <div class="discount-tag">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9 15L15 9M9.5 10C9.5 9.72386 9.27614 9.5 9 9.5C8.72386 9.5 8.5 9.72386 8.5 10C8.5 10.2761 8.72386 10.5 9 10.5C9.27614 10.5 9.5 10.2761 9.5 10ZM15.5 14C15.5 13.7239 15.2761 13.5 15 13.5C14.7239 13.5 14.5 13.7239 14.5 14C14.5 14.2761 14.7239 14.5 15 14.5C15.2761 14.5 15.5 14.2761 15.5 14ZM21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>${discountPercentage}% OFF</span>
+              </div>
+            `;
+          } else {
+            priceContainer.innerHTML = `
+              <span class="price-current price-current--only">${formatMoney(currentPrice)}</span>
+            `;
+          }
+        }
+      }
+    }
+    
+    function formatMoney(cents) {
+      return (cents / 100).toLocaleString('en-US', {
+        style: 'currency',
+        currency: 'USD'
+      });
+    }
+    
+    variantInputs.forEach(input => {
+      input.addEventListener('change', updateVariantId);
+    });
+    
+    // Inicializar com a primeira variante
+    updateVariantId();
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Product Main",
+  "tag": "section",
+  "class": "product-section",
+  "settings": [
+    { "type": "header", "content": "Layout" },
+    { "type": "select", "id": "image_size", "label": "Image size", "options": [ { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }, { "value": "2048x2048", "label": "Extra Large" } ], "default": "large" },
+    { "type": "header", "content": "Product Content" },
+    { "type": "textarea", "id": "custom_description", "label": "Product Description", "default": "Adjustable dumbbells that replace 15 sets of weights. Compact, easy to use, and perfect for home workouts. Save space and money with our premium quality product." },
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "background_color", "label": "Background color", "default": "#f5f5f5" },
+    { "type": "color", "id": "title_color", "label": "Title color", "default": "#000000" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    { "type": "color", "id": "price_color", "label": "Price color", "default": "#FF7E53" },
+    { "type": "color", "id": "discount_tag_bg", "label": "Discount tag background", "default": "#FF7E53" },
+    { "type": "color", "id": "saving_badge_bg", "label": "Saving badge background", "default": "#28a745" },
+    { "type": "text", "id": "saving_text", "label": "Saving badge text", "default": "You are saving" },
+    { "type": "color", "id": "button_color", "label": "Button color", "default": "#FF7E53" },
+    { "type": "color", "id": "button_hover_color", "label": "Button hover color", "default": "#bb5635" },
+    { "type": "color", "id": "features_background_color", "label": "Features background color", "default": "#E7E7E7" },
+    { "type": "color", "id": "icon_color", "label": "Icon color", "default": "#e74c3c" },
+    { "type": "header", "content": "Buy Button" },
+    { "type": "checkbox", "id": "show_quantity_selector", "label": "Show quantity selector", "default": true },
+    { "type": "text", "id": "add_to_cart_text", "label": "Add to cart text", "default": "Buy it now" },
+    { "type": "header", "content": "Features" },
+    { "type": "text", "id": "feature_1_heading", "label": "Feature 1 heading", "default": "Free ship:" },
+    { "type": "text", "id": "feature_1_text", "label": "Feature 1 text", "default": "3-7 days" },
+    { "type": "text", "id": "feature_2_heading", "label": "Feature 2 heading", "default": "Price Match" },
+    { "type": "text", "id": "feature_2_text", "label": "Feature 2 text", "default": "Guarantee" },
+    { "type": "text", "id": "feature_3_heading", "label": "Feature 3 heading", "default": "2 years" },
+    { "type": "text", "id": "feature_3_text", "label": "Feature 3 text", "default": "Warranty" },
+    { "type": "header", "content": "Feedback Settings" },
+    { "type": "text", "id": "feedback_title", "label": "Feedback title", "default": "Why you can trust us" },
+    { "type": "color", "id": "feedback_bg_color", "label": "Feedback background color", "default": "#ffffff" }
+  ],
+  "blocks": [
+    {
+      "type": "feedback_item",
+      "name": "Customer Feedback",
+      "settings": [
+        { "type": "image_picker", "id": "customer_image", "label": "Customer photo" },
+        { "type": "text", "id": "customer_name", "label": "Customer name", "default": "Customer Name" },
+        { "type": "range", "id": "rating", "min": 1, "max": 5, "step": 1, "label": "Rating", "default": 5 },
+        { "type": "textarea", "id": "feedback_text", "label": "Feedback text", "default": "This product is amazing! I love it." },
+        { "type": "image_picker", "id": "product_images", "label": "Customer product photos", "info": "Photos taken by the customer of the product in use" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Main", 
+      "category": "Product",
+      "blocks": [
+        {
+          "type": "feedback_item",
+          "settings": {
+            "customer_name": "John",
+            "rating": 5,
+            "feedback_text": "Great product, home dumbbell set all in one. The adjustability on this product is great. I can use it for all kinds of exercises for my biceps, triceps and shoulders."
+          }
+        },
+        {
+          "type": "feedback_item",
+          "settings": {
+            "customer_name": "MG",
+            "rating": 5,
+            "feedback_text": "Works for everyone in the house! We are enjoying these dumbbells, we bought two of them and the range of the weight is perfect for everyone in our family."
+          }
+        },
+        {
+          "type": "feedback_item",
+          "settings": {
+            "customer_name": "Jonny Katter",
+            "rating": 5,
+            "feedback_text": "Fantastic buy. I can take them on work trips and not miss a workout. Worth every penny!"
+          }
+        },
+        {
+          "type": "feedback_item",
+          "settings": {
+            "customer_name": "Benjamin",
+            "rating": 5,
+            "feedback_text": "Very Durable. I LOVE these. Very durable, easy to use, easy to hold and can get decent weight for a good home workout. Highly recommend!"
+          }
+        },
+        {
+          "type": "feedback_item",
+          "settings": {
+            "customer_name": "BrianKwiz8",
+            "rating": 5,
+            "feedback_text": "Competes with Bowflex, at a much cheaper price. These weights are amazing, absolutely blew me away! I've used Bowflex adjustable weights and these are just as good."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %} 

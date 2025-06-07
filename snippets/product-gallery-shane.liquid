@@ -1,0 +1,38 @@
+{%- if product.media.size > 0 -%}
+{%- for media in product.media -%}              
+  <div class="product-gallery-shane__carousel-item">
+    {%- case media.media_type -%}
+      {%- when 'image' -%}
+      <div class="product-gallery__size-limiter" style="max-width: {{ media.width }}px">
+        {%- assign data_zoom_url = media | image_url: width: 1800 -%}
+        {%- assign data_zoom_width = 1800 | at_most: media.width -%}
+
+        <div class="aspect-ratio" style="padding-bottom: {{ 100.0 | divided_by: media.aspect_ratio }}%">
+          {{- media | image_url: width: media.width | image_tag: loading: 'lazy', widths: '400,500,600,700,800,900,1000,1100,1200', class: 'product-gallery__image', data-zoom: data_zoom_url, data-zoom-width: data_zoom_width -}}
+        </div>
+      </div>
+
+      {%- when 'model' -%}
+      <div class="product-gallery__model">
+        <div class="model-wrapper">
+          {{- media | model_viewer_tag: image_size: '1024x', reveal: 'interaction', toggleable: true -}}
+        </div>
+      </div>
+
+      {%- when 'external_video' -%}
+      <div class="product-gallery__external-video">
+        <div class="video-wrapper">
+          {{- media | external_video_tag: image_size: '1024x', loop: section.settings.enable_video_looping -}}
+        </div>
+      </div>
+
+      {%- when 'video' -%}
+      <div class="product-gallery__video">
+        <div class="video-wrapper video-wrapper--native" style="padding-bottom: {{ 100.0 | divided_by: media.aspect_ratio }}%">
+          {{- media | video_tag: image_size: '1024x', controls: true -}}
+        </div>
+      </div>
+    {%- endcase -%}
+  </div>
+{%- endfor -%}
+{%- endif -%}

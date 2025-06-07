@@ -1,0 +1,110 @@
+{% schema %}
+{
+  "name": "Countdown Offer",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "UPGRADE YOUR HOME GYM TODAY"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "LIMITED TIME OFFER!"
+    },
+    {
+      "type": "text",
+      "id": "discount_text",
+      "label": "Discount Text",
+      "default": "FIRST ORDER 10% OFF"
+    },
+    {
+      "type": "text",
+      "id": "shipping_text",
+      "label": "Shipping Text",
+      "default": "+ FREE SHIPPING TODAY ONLY!"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button Label",
+      "default": "Claim Your Discount"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button Link"
+    },
+    {
+      "type": "text",
+      "id": "countdown_date",
+      "label": "Countdown End Date (YYYY-MM-DDTHH:MM:SS)",
+      "default": "2025-12-31T23:59:59"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Countdown Offer"
+    }
+  ]
+}
+{% endschema %}
+
+<section class="bg-black text-white text-center md:py-[50px] py-[20px] px-[20px]">
+  <h2 class="text-[28px] md:text-[63px] font-bold">{{ section.settings.heading }}</h2>
+  <p class="text-[16px] md:text-[40px] mt-[5px]">{{ section.settings.subheading }}</p>
+
+  <div class="flex justify-center md:gap-[10px] md:mt-[20px] mt-[10px] md:text-[70px] text-[32px] font-bold items-center" id="countdown">
+    <div class="p-[10px] text-white" id="hours">00</div>:
+    <div class="p-[10px] text-white" id="minutes">00</div>:
+    <div class="p-[10px] text-white" id="seconds">00</div>
+  </div>
+
+  <p class="text-[28px] md:text-[96px] text-orange-500 font-bold md:mt-[20px] mt-[10px]">{{ section.settings.discount_text }}</p>
+  <p class="text-[16px] md:text-[40px] mt-[5px]">{{ section.settings.shipping_text }}</p>
+
+  <button id="add-me" class="mt-[20px] md:mt-[64px] h-[68px] inline-block bg-[#eb7122] text-white font-semibold rounded-[70px] shadow-md hover:bg-orange-600 flex items-center justify-center w-[500px] max-w-full text-[24px] mx-auto wknd-cta">{{ section.settings.button_label }}</button>
+</section>
+
+<script>
+  function startFakeCountdown() {
+    const initialHours = 2;
+    const initialMinutes = 58;
+    const initialSeconds = 14;
+    let fakeTimeLeft = (initialHours * 60 * 60) + (initialMinutes * 60) + initialSeconds;
+
+    function updateFakeCountdown() {
+      if (fakeTimeLeft <= 0) {
+        fakeTimeLeft = (initialHours * 60 * 60) + (initialMinutes * 60) + initialSeconds; // Reset
+      }
+
+      const hours = Math.floor(fakeTimeLeft / 3600);
+      const minutes = Math.floor((fakeTimeLeft % 3600) / 60);
+      const seconds = fakeTimeLeft % 60;
+
+      document.getElementById("hours").innerText = String(hours).padStart(2, "0");
+      document.getElementById("minutes").innerText = String(minutes).padStart(2, "0");
+      document.getElementById("seconds").innerText = String(seconds).padStart(2, "0");
+
+      fakeTimeLeft--;
+    }
+
+    updateFakeCountdown();
+    setInterval(updateFakeCountdown, 1000);
+  }
+
+  document.addEventListener("DOMContentLoaded", startFakeCountdown);
+
+  document.getElementById('add-me').addEventListener('click', function() {
+    console.log('klik klik');
+    document.querySelector('.product-form__add-button').click();
+  });
+
+</script>
+<style>
+  .wknd-cta {
+    font-family: IBMPlexMonoSemiBold;
+  }
+</style>

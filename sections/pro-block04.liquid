@@ -1,0 +1,337 @@
+<style>
+	.shane-pro-b4{
+		width: 100%; padding: 5vw 5%;;
+	}
+	.shane-pro-b4 h2{
+		margin: 0; text-align: center; font-size: 2.4vw; font-weight: 400; line-height:3.2vw;
+	}
+	.shane-pro-b4>.text{
+		font-size: 14px; opacity: 0.6; width: 40%; margin:0.6vw auto 1vw; text-align: center; line-height:20px;
+	}
+	.b4-viewing{
+		display: flex; width: 100%; justify-content: space-between; align-items: flex-start;
+	}
+	.b4-viewing-left{
+		width: 22%; font-size: 0.9vw; line-height: 2.4vw;
+	}
+	.b4-viewing-left>div:first-child{
+		margin-top: 15.8vw;
+	}
+	.b4-viewing-right{
+		width: 78%; text-align: center; font-size: 0.8vw; display: flex; justify-content: space-between; align-items: flex-start;
+	}
+	.b4-viewing-right>div{
+		width: 33.3%; border:1px solid #ffffff;
+	}
+	.b4-viewing-right .active{
+		border:1px solid #FF6100;
+	}
+	.b4-viewing-right>div>div{
+		line-height: 2.4vw;
+	}
+	.viewing-head{
+		font-size: 1.1vw; color: #fff; background-color: #ffffff; text-transform: uppercase; line-height: 2.8vw;
+	}
+	.viewing-img{
+		height: 13vw; display: flex; align-items: center; justify-content: center;
+	}
+	.viewing-img img {
+		height: 80%;
+	}
+	.viewing-title{
+		font-size: 1vw; font-weight: 600;
+	}
+	.viewing-price{
+		font-size: 1.1vw; font-weight: 600;
+	}
+	.viewing-cart{
+		height: 2.8vw;
+	}
+	.viewing-cart .viewing-button{
+		width: 100%; height: 100%; line-height: 2.8vw; background-color: #FF6100; color: #fff; font-size: 1.1vw; border: 0; margin: 0; padding: 0; cursor: pointer; display: none;
+	}
+	.b4-viewing-right .active{
+		border:1px solid #FF6100;
+	}
+	.b4-viewing-right .active .viewing-head{
+		background-color: #FF6100;
+	}
+	.b4-viewing-right .active .viewing-button{
+		display: block;
+	}
+@media (max-width: 768px){
+	.shane-pro-b4{
+		padding: 10vw 5% 7vw;
+	}
+	.shane-pro-b4 h2{
+		font-size: 7.2vw; line-height:8vw; width: 90%; margin: auto;
+	}
+	.shane-pro-b4>.text{
+		width: 100%; margin:2vw auto 4vw; font-size: 4.6vw; line-height:5.4vw;
+	}
+	.b4-viewing-left{
+		width: 45%; font-size: 3.2vw; line-height: 8vw;
+	}
+	.b4-viewing-left>div:first-child{
+		margin-top: 38vw;
+	}
+	.b4-viewing-right{
+		width: 53%; font-size: 3.0vw; overflow-y: hidden;
+	}
+	.b4-viewing-right>div{
+		width: 100%; flex-shrink: 0; 
+	}
+	.b4-viewing-right .active{
+		border:1px solid #FF6100;
+	}
+	.b4-viewing-right>div>div{
+		line-height: 3.4vw; height:8vw; display: flex; justify-content: center; align-items: center;
+	}
+	.viewing-head{
+		font-size: 3.4vw;line-height: 8vw;
+	}
+	.b4-viewing-right>div>div.viewing-img{
+		height: 30vw;
+	}
+	.viewing-img img {
+		height: 80%;
+	}
+	.viewing-title{
+		font-size: 3.2vw;
+	}
+	.viewing-price{
+		font-size: 3.2vw;
+	}
+	.viewing-cart{
+		height: 8vw;
+	}
+    .viewing-cart a{
+		width:100%;
+	}
+	.viewing-cart .viewing-button{
+		line-height: 8vw; font-size: 3.2vw; width:100%;
+	}
+
+}
+</style>
+	<h2>{{ section.settings.heading }}</h2>
+	<div class="text">
+		{{ section.settings.text }}
+	</div>
+	<div class="b4-viewing">
+		<div class="b4-viewing-left">
+			{% if section.settings.model1 != blank %}
+				<div>{{section.settings.model1 }}</div>
+			{% endif %}
+			{% if section.settings.weight != blank %}
+				<div>{{ section.settings.weight }}</div>
+			{% endif %}
+			{% if section.settings.increment != blank %}
+				<div>{{ section.settings.increment }}</div>
+			{% endif %}
+			{% if section.settings.dimension != blank %}
+				<div>{{ section.settings.dimension }}</div>
+			{% endif %}
+			{% if section.settings.package != blank %}
+				<div>{{ section.settings.package }}</div>
+			{% endif %}
+			{% if section.settings.material != blank %}
+				<div>{{ section.settings.material }}</div>
+			{% endif %}
+			{% if section.settings.handle1 != blank %}
+				<div>{{ section.settings.handle1 }}</div>
+			{% endif %}
+			{% if section.settings.mechanism != blank %}
+				<div>{{ section.settings.mechanism }}</div>
+			{% endif %}
+			{% if section.settings.price != blank %}
+				<div>{{ section.settings.price }}</div>
+			{% endif %}
+			{% if section.settings.user != blank %}
+				<div>{{ section.settings.user }}</div>
+			{% endif %}
+		</div>
+		<div class="b4-viewing-right">
+          {%- assign my_variable = 0 -%} 
+          {%- for block in section.blocks -%}
+            {%- assign my_variable = my_variable | plus: 1 -%} 
+			<div class="{% if my_variable==1 %}active{% endif %}">
+				<div class="viewing-head">you are viewing</div>
+				<div class="viewing-img"><img src="{{ block.settings.image | image_url }}" alt="{{ block.settings.image.alt }}"></div>
+				{% if section.settings.model1 != blank %}<div class="viewing-title">{{ block.settings.text01 }}</div>{% endif %}
+				{% if section.settings.weight != blank %}<div>{{ block.settings.text02 }}</div>{% endif %}
+				{% if section.settings.increment != blank %}<div>{{ block.settings.text03 }}</div>{% endif %}
+				{% if section.settings.dimension != blank %}<div>{{ block.settings.text04 }}</div>{% endif %}
+				{% if section.settings.package != blank %}<div>{{ block.settings.text05 }}</div>{% endif %}
+				{% if section.settings.material != blank %}<div>{{ block.settings.text06 }}</div>{% endif %}
+				{% if section.settings.handle1 != blank %}<div>{{ block.settings.text07 }}</div>{% endif %}
+				{% if section.settings.mechanism != blank %}<div>{{ block.settings.text08 }}</div>{% endif %}
+				{% if section.settings.price != blank %}
+					<div class="viewing-price">{{ block.settings.text09 }}</div>
+				{% endif %}
+				{% if section.settings.user != blank %}
+					<div>{{ block.settings.text10 }}</div>
+				{% endif %}
+				<div class="viewing-cart">
+					<a href="{{ block.settings.link }}"><input type="button" class="viewing-button" value="View More"></a>
+				</div>
+			</div>
+          {% endfor %}
+		</div>
+	</div>
+	<script>
+		$(".b4-viewing-right>div").mouseenter(function(){
+			$(".b4-viewing-right>div").removeClass("active");
+			$(this).addClass("active");			
+		});
+	</script>
+{% schema %}
+  {
+    "name": "Pro block04",
+    "class": "shane-pro-b4",
+    "settings": [
+      {
+        "type": "text",
+        "id": "heading",
+        "label": "Heading"
+	  },
+      {
+        "type": "textarea",
+        "id": "text",
+        "label": "Text",
+        "default": "text"
+      },{
+			"type": "text",
+			"id": "model1",
+			"label": "Model",
+			"default": "Feature/Model "
+		},{
+			"type": "text",
+			"id": "weight",
+			"label": "Weight Range",
+			"default": "Weight Range"
+		},{
+			"type": "text",
+			"id": "increment",
+			"label": "Incremental",
+			"default": "Increments"
+		},
+		{
+			"type": "text",
+			"id": "dimension",
+			"label": "Dimensions",
+			"default": "Dimensions (L x W x H)"
+		},
+		{
+			"type": "text",
+			"id": "package",
+			"label": "Package Weight",
+			"default": "Package Weight"
+		},
+		{
+			"type": "text",
+			"id": "material",
+			"label": "Material",
+			"default": "Material and Construction"
+		},
+		{
+			"type": "text",
+			"id": "handle1",
+			"label": "Handle",
+			"default": "Handle Design"
+		},
+		{
+			"type": "text",
+			"id": "mechanism",
+			"label": "Mechanism",
+			"default": "Adjustment Mechanism"
+		},
+		{
+			"type": "text",
+			"id": "price",
+			"label": "Price",
+			"default": "Price"
+		},
+		{
+			"type": "text",
+			"id": "user",
+			"label": "User",
+			"default": "Target User Group"
+		}
+    ],
+    "blocks": [
+       {
+         "type": "item",
+         "name": "item",
+         "settings": [
+            {
+              "type": "image_picker",
+              "id": "image",
+              "label": "Image"
+            },
+            {
+              "type": "text",
+              "id": "text01",
+              "label": "Feature/Model"
+			},
+            {
+              "type": "text",
+              "id": "text02",
+              "label": "Weight Range"
+			},
+            {
+              "type": "text",
+              "id": "text03",
+              "label": "Incremental Adjustments"
+			},
+            {
+              "type": "text",
+              "id": "text04",
+              "label": "Dimensions (L x W x H)"
+			},
+            {
+              "type": "text",
+              "id": "text05",
+              "label": "Package Weight"
+			},
+            {
+              "type": "text",
+              "id": "text06",
+              "label": "Material and Construction"
+			},
+            {
+              "type": "text",
+              "id": "text07",
+              "label": "Handle Design"
+			},
+            {
+              "type": "text",
+              "id": "text08",
+              "label": "Adjustment Mechanism"
+			},
+            {
+              "type": "text",
+              "id": "text09",
+              "label": "Price"
+			},
+            {
+              "type": "text",
+              "id": "text10",
+              "label": "Target User Group"
+			},            
+            {
+              "type": "url",
+              "id": "link",
+              "label": "Link"
+			}
+         ]
+       }
+    ],
+    "presets": [
+       {
+        "name": "Pro block04"
+          
+       }
+    ]
+  }
+{% endschema %}

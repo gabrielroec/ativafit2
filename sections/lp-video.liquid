@@ -1,0 +1,54 @@
+<script src="https://cdn.tailwindcss.com"></script>
+{% schema %}
+{
+  "name": "Video Section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "SEE IT IN ACTION!"
+    },
+    {
+      "type": "image_picker",
+      "id": "thumbnail",
+      "label": "Video Thumbnail"
+    },
+    {
+      "type": "text",
+      "id": "video_url",
+      "label": "YouTube Video URL",
+      "default": "https://www.youtube.com/embed/dQw4w9WgXcQ"
+    }
+  ],
+  "presets": [
+    {
+      "name": "LP Video Section"
+    }
+  ]
+}
+{% endschema %}
+<div class="bg-black py-[10px] text-left px-[10px] text-white" style="border-bottom:1px solid white;">
+    <h2 class="md:text-[32px] text-[28px] font-bold mb-[20px] uppercase tracking-wide text-white max-w-[900px] mx-auto">{{ section.settings.heading }}</h2>
+</div>
+<section class="bg-black text-white text-center md:py-[50px] py-[20px] px-[20px]">
+    <div class="relative max-w-[900px] mx-auto">
+      <div id="videoContainer" class="relative w-full bg-black rounded-[10px] overflow-hidden">
+        <img src="{{ section.settings.thumbnail | image_url }}" alt="Video Thumbnail" class="w-full cursor-pointer" onclick="replaceWithVideo()">
+        <div class="absolute inset-0 flex justify-center items-center">
+          <button onclick="replaceWithVideo()" class="bg-white p-[15px] rounded-full shadow-lg">
+            <svg class="w-[60px] h-[60px] text-black" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M6.5 5.5l7 4.5-7 4.5V5.5z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    function replaceWithVideo() {
+      const videoContainer = document.getElementById('videoContainer');
+      videoContainer.innerHTML = `<iframe class='w-full h-[500px] rounded-[10px]' src='{{ section.settings.video_url }}?autoplay=1&mute=1' frameborder='0' allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+    }
+  </script>

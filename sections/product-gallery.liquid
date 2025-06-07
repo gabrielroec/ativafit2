@@ -1,0 +1,334 @@
+{%- comment -%} sections/product-detail.liquid {%- endcomment -%}
+
+{{ 'product-gallery.css' | asset_url | stylesheet_tag }}
+
+
+{%- style -%}
+  /* Responsivo e header oculto */
+  @media screen and (max-width: 1397px) {
+    .product-detail {
+      padding: 1rem;
+    }
+  }
+  /* header, .announcement-bar-section { display: none!important; } */
+
+  /* Accordion */.accordion {
+    border-top: 1px solid #ddd;
+    margin-top: 2rem;
+  }
+  .accordion__item {
+    border-bottom: 1px solid #ddd;
+  }
+  .accordion__toggle {
+    width: 100%;
+    padding: 1rem;
+    text-align: left;
+    background: none;
+    border: none;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+  }
+  .accordion__icon {
+    transition: transform 0.3s ease;
+    font-size: 20px;
+  }
+  .accordion__item.active .accordion__icon {
+    transform: rotate(45deg);
+  }
+  .accordion__content {
+    display: none;
+    height: 0;
+    padding: 0 1rem;
+    line-height: 1.4;
+    overflow: hidden;
+    transition: height 0.3s ease-in-out;
+  }
+  .accordion__item.active .accordion__content {
+    display: block;
+    height: auto;
+    padding: 1rem;
+  }
+
+  .overlay,
+  .text-content {
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+  }
+
+  .video-text-section.visible .overlay,
+  .video-text-section.visible .text-content {
+    opacity: 1;
+  }
+{%- endstyle -%}
+
+<section class="product-detail section-{{ section.id }}">
+  <!-- GALERIA -->
+  <div class="product-detail__gallery">
+    <div class="gallery-main">
+      <img
+        class="product-detail__gallery-main-image"
+        src="{{ product.featured_image | image_url: width:1024, height:1024 }}"
+        alt="{{ product.title }}"
+        width="1024"
+        height="1024" />
+    </div>
+    <div class="gallery-thumbs">
+      {% for img in product.images %}
+        <div class="thumb{% if forloop.first %} active{% endif %}" data-src="{{ img | image_url: width:1024, height:1024 }}">
+          <img
+            src="{{ img | image_url: width:223, height:223 }}"
+            alt="{{ product.title }} thumb {{ forloop.index }}"
+            width="200"
+            height="200" />
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- INFORMAÇÕES -->
+  <div class="product-detail__info">
+    <div class="product-info__brand">{{ product.vendor }}</div>
+    <h1 class="product-info__title">{{ product.title }}</h1>
+    <div class="product-info__pricing">
+      {% if product.compare_at_price > product.price %}
+        <span class="product-info__price--current">{{ product.price | money }}</span>
+        <span class="product-info__price--compare">{{ product.compare_at_price | money }}</span>
+      {% else %}
+        <span class="product-info__price--current">{{ product.price | money }}</span>
+      {% endif %}
+      <span class="product-info__rating">
+        ★ {{ product.metafields.reviews.rating.value | default: '5.0' }}
+      </span>
+    </div>
+    <div class="product-info__excerpt">{{ section.settings.description }}</div>
+
+    <!-- QUANTITY + BOTÃO -->
+    <form
+      method="post"
+      action="/cart/add"
+      class="product-info__form">
+      <input
+        type="hidden"
+        name="id"
+        value="{{ product.selected_or_first_available_variant.id }}">
+      <div class="quantity-selector-lp">
+        <button type="button" class="qty-btn qty-decrease">–</button>
+        <input
+          type="number"
+          name="quantity"
+          value="1"
+          min="1"
+          class="qty-input"
+          aria-label="Quantidade">
+        <button type="button" class="qty-btn qty-increase">+</button>
+      </div>
+      <button type="submit" class="product-info__buy">{{ section.settings.button_label }}</button>
+  </form>
+
+    <!-- Benefits Bar -->
+    {% render 'benefits-bar' %}
+
+    <!-- ACCORDION fixo (5 items) -->
+    <div class="accordion">
+      <!-- Accordion 1 -->
+      <div class="accordion__item">
+        <button type="button" class="accordion__toggle">
+          {{ section.settings.accordion1_heading }}
+          <span class="accordion__icon">+</span>
+        </button>
+        <div class="accordion__content" style="display: none; height: 0;">
+          {{ section.settings.accordion1_content }}
+        </div>
+      </div>
+
+      <!-- Accordion 2 -->
+      <div class="accordion__item">
+        <button type="button" class="accordion__toggle">
+          {{ section.settings.accordion2_heading }}
+          <span class="accordion__icon">+</span>
+        </button>
+        <div class="accordion__content" style="display: none; height: 0;">
+          {{ section.settings.accordion2_content }}
+        </div>
+      </div>
+
+      <!-- Accordion 3 -->
+      <div class="accordion__item">
+        <button type="button" class="accordion__toggle">
+          {{ section.settings.accordion3_heading }}
+          <span class="accordion__icon">+</span>
+        </button>
+        <div class="accordion__content" style="display: none; height: 0;">
+          {{ section.settings.accordion3_content }}
+        </div>
+      </div>
+
+      <!-- Accordion 4 -->
+      <div class="accordion__item">
+        <button type="button" class="accordion__toggle">
+          {{ section.settings.accordion4_heading }}
+          <span class="accordion__icon">+</span>
+        </button>
+        <div class="accordion__content" style="display: none; height: 0;">
+          {{ section.settings.accordion4_content }}
+        </div>
+      </div>
+
+      <!-- Accordion 5 -->
+      <div class="accordion__item">
+        <button type="button" class="accordion__toggle">
+          {{ section.settings.accordion5_heading }}
+          <span class="accordion__icon">+</span>
+        </button>
+        <div class="accordion__content" style="display: none; height: 0;">
+          {{ section.settings.accordion5_content }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de produtos relacionados -->
+
+    <div class="product-list">
+      <h2 class="title-pairs-well-with">Pairs well with</h2>
+      {% for block in section.blocks %}
+        {% if block.type == 'product_list' %}
+          {% assign product = all_products[block.settings.product] %}
+          {% if product %}
+            {% render 'product-card'
+              , product: product %}
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+
+</section>
+
+<script src="{{ 'product-gallery.js'   | asset_url }}" defer></script>
+<script src="{{ 'accordion.js'         | asset_url }}" defer></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+  const videoSection = document.querySelector('.video-text-section');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        // Adiciona a classe para fade-in
+        videoSection.classList.add('visible');
+      } else {
+        // Remove a classe para fade-out
+        videoSection.classList.remove('visible');
+      }
+    });
+  }, { threshold: 0.5 });
+
+  observer.observe(videoSection);
+  });
+</script>
+
+{% schema %}
+  {
+    "name": "Product Detail",
+    "settings": [
+      {
+        "type": "text",
+        "id": "button_label",
+        "label": "Button Text",
+        "default": "Buy it now"
+      },
+      {
+        "type": "text",
+        "id": "description",
+        "label": "Description",
+        "default": "Elevate Your Home Gym - Customizable, Compact, Flexible, Engineered for Peak Performance."
+      },
+      {
+        "type": "header",
+        "content": "Accordions"
+      },
+      {
+        "type": "text",
+        "id": "accordion1_heading",
+        "label": "Accordion 1 - Title",
+        "default": "Key Features"
+      },
+      {
+        "type": "richtext",
+        "id": "accordion1_content",
+        "label": "Accordion 1 - Content",
+        "default": "<ul><li>11 to 88 lbs per adjustable dumbbell</li><li>Space Efficiency: Replaces up to 12 sets of weights, freeing up your workout space.</li><li>Rapid Weight Adjustment: Weights can be adjusted simultaneously from either side with the innovative Dial Tech system.</li><li>Durability Guaranteed: Constructed with laser-cut steel plates and a reinforced base for lasting use.</li></ul>"
+      },
+      {
+        "type": "text",
+        "id": "accordion2_heading",
+        "label": "Accordion 2 - Title",
+        "default": "Product Specifications"
+      },
+      {
+        "type": "richtext",
+        "id": "accordion2_content",
+        "label": "Accordion 2 - Content",
+        "default": "<p><strong>Dimensions (Per Dumbbell):</strong></p><p>Length: 15.9 inches (40.4 cm)<br>Width: 9 inches (22.9 cm)<br>Height: 9.4 inches (23.9 cm)</p><p><strong>Weight Settings:</strong></p><p>Adjustable Range: 11 to 88 lbs<br>Increments: 7 lbs<br>Available weights: 11, 18, 25, 32, 39, 46, 53, 60, 67, 74, 81, 88 pounds.</p><p><strong>Material Composition:</strong></p><p>High-quality steel for weight plates and plate-holding inner discs.<br>Reinforced plastic for a durable and stable base.<br>Laser-cut steel plates, precision-engineered for a premium feel and performance.</p>"
+      },
+      {
+        "type": "text",
+        "id": "accordion3_heading",
+        "label": "Accordion 3 - Title",
+        "default": "Product Care & Guide"
+      },
+      {
+        "type": "richtext",
+        "id": "accordion3_content",
+        "label": "Accordion 3 - Content",
+        "default": "<ul><li>Please adjust weights on the trays for safety.</li><li>Hold down the red safety button to unlock the weights. Meanwhile, adjust the dial until the arrow points exactly to the desired weight number to complete the weight switch process.</li><li>Make sure the red button fully bounces up to lock the weights before lifting the dumbbell.</li><li>Please do not drop or throw the dumbbells after use.</li></ul><p><strong>Include Items:</strong></p><ul><li>2x 88lbs Adjustable Dumbbells</li><li>2x Trays</li><li>1x Specification & Fitness Map</li></ul>"
+      },
+      {
+        "type": "text",
+        "id": "accordion4_heading",
+        "label": "Accordion 4 - Title",
+        "default": "Warranty & Shipping"
+      },
+      {
+        "type": "richtext",
+        "id": "accordion4_content",
+        "label": "Accordion 4 - Content",
+        "default": "<p><strong>Shipping Info:</strong></p><p>In-stock orders are processed within 24 hours, with delivery typically taking 3-7 business days. Please note, we do not accept returns but offer replacements for defective products.</p><p><strong>2-Year Warranty:</strong></p><p>Our comprehensive 2-year warranty safeguards against manufacturing defects and functional issues with the dumbbells, ensuring your investment is protected. It excludes wear and tear and damage from misuse, focusing on keeping your workouts consistent and worry-free.</p><p><strong>Protection Plan:</strong></p><p>We've partnered with Liberty Insurance to provide coverage for injuries resulting from product defects or malfunctions during training, up to 4 million. (Coverage applies only to dumbbell products purchased directly from the Ativafit website.)</p>"
+      },
+      {
+        "type": "text",
+        "id": "accordion5_heading",
+        "label": "Accordion 5 - Title",
+        "default": "Frequently Asked Questions"
+      },
+      {
+        "type": "richtext",
+        "id": "accordion5_content",
+        "label": "Accordion 5 - Content",
+        "default": "<p><strong>1. What is the weight range of the Ativafit 88lbs dumbbells?</strong><br>The Ativafit 88lbs dumbbells boast an expansive weight range from 11 to 88lbs, making them the ideal choice for both budding enthusiasts and seasoned athletes looking to push their limits.</p><p><strong>2. How can I adjust the weight on the Ativafit 88lbs dumbbells?</strong><br>Adjusting the weight on the Ativafit 88lbs dumbbells is straightforward with the innovative Dial Tech system. Simply rotate the dial to your desired weight setting, allowing for swift transitions and a seamless workout experience.</p><p><strong>3. Can I count on the durability of the Ativafit 88lbs dumbbells?</strong><br>Absolutely. The Ativafit 88lbs dumbbells are constructed with premium steel and a sturdy, reinforced base, ensuring they can endure rigorous workouts. The ergonomic handles are designed for comfort and secure grip, enhancing your training sessions.</p><p><strong>4. What should I do if my dumbbells arrive damaged?</strong><br>If your dumbbells arrive in less than perfect condition, contact our customer support within 12 hours of delivery. We are committed to resolving any issues promptly, providing replacements or refunds as needed. Be sure to include photos of the damage for quicker resolution.</p>"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "product_list",
+        "name": "Product List",
+        "settings": [
+          {
+            "type": "product",
+            "id": "product",
+            "label": "Related product"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Product Detail"
+      }
+    ]
+  }
+{% endschema %}

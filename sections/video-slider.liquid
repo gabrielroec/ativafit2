@@ -1,0 +1,200 @@
+<style>
+  video {
+    width: 100%;
+  }
+
+  .videoSwiper video {
+    border-top-left-radius: 18rem;
+  }
+
+  .swiper-navs {
+    width: 120px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    border-radius: 30px;
+    top: 16rem;
+    left: 14rem;
+    z-index: 10;
+    color: #222;
+  }
+
+  .swiper-pagination-fraction {
+    text-align: center;
+  }
+
+  .swiper-next svg,
+  .swiper-prev svg {
+    fill: #222;
+  }
+
+  .player {
+    border-top-left-radius: 18rem;
+    overflow: hidden;
+    z-index: 1;
+    height: 500px;
+    width: 100%;
+  }
+
+  .player iframe {
+    width: 1000px;
+    height: 600px;
+  }
+
+  @media screen and (max-width: 749px) {
+    .videoSwiper video {
+      border-top-left-radius: 10rem;
+    }
+
+    .swiper-navs {
+      top: 3rem;
+      right: 1rem;
+      left: unset;
+    }
+
+    .player {
+      border-top-left-radius: 0;
+      height: 200px;
+      width: 100%;
+    }
+
+    .player iframe {
+      width: 400px;
+      height: 200px;
+    }
+  }
+</style>
+
+<div class="content py-5" id="videos">
+  <div class="container text-light py-5">
+    <div class="row position-relative">
+      {% if section.settings.title != blank %}
+        <h3 class="border-bottom border-white text-start mb-5 ps-0 pb-2">{{ section.settings.title }}</h3>
+      {% endif %}
+    </div>
+    <div class="row">
+      <div class="swiper videoSwiper">
+        <div class="swiper-navs position-absolute">
+          <div class="swiper-prev">
+            <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M18.7499 12.227C18.7499 12.4259 18.6676 12.6167 18.521 12.7574C18.3745 12.898 18.1758 12.977 17.9686 12.977H8.91706L12.2717 16.196C12.3444 16.2658 12.402 16.3485 12.4413 16.4396C12.4806 16.5308 12.5009 16.6284 12.5009 16.727C12.5009 16.8256 12.4806 16.9233 12.4413 17.0144C12.402 17.1055 12.3444 17.1883 12.2717 17.258C12.1991 17.3278 12.1129 17.3831 12.018 17.4208C11.9231 17.4585 11.8213 17.478 11.7186 17.478C11.6159 17.478 11.5142 17.4585 11.4193 17.4208C11.3244 17.3831 11.2381 17.3278 11.1655 17.258L6.478 12.758C6.40524 12.6884 6.34752 12.6056 6.30813 12.5145C6.26875 12.4234 6.24847 12.3257 6.24847 12.227C6.24847 12.1284 6.26875 12.0307 6.30813 11.9396C6.34752 11.8485 6.40524 11.7657 6.478 11.696L11.1655 7.19602C11.3122 7.05519 11.5112 6.97607 11.7186 6.97607C11.9261 6.97607 12.125 7.05519 12.2717 7.19602C12.4184 7.33685 12.5009 7.52786 12.5009 7.72702C12.5009 7.92619 12.4184 8.11719 12.2717 8.25802L8.91706 11.477H17.9686C18.1758 11.477 18.3745 11.556 18.521 11.6967C18.6676 11.8373 18.7499 12.0281 18.7499 12.227Z"/>
+            </svg>
+          </div>
+          <div class="swiper-pagination-2"></div>
+          <div class="swiper-next">
+            <svg width="26" height="25" viewBox="0 0 26 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M6.50013 12.227C6.50013 12.4259 6.58574 12.6167 6.73811 12.7574C6.89048 12.898 7.09715 12.977 7.31263 12.977H16.7263L13.2374 16.196C13.1618 16.2658 13.1019 16.3485 13.061 16.4396C13.0202 16.5308 12.9991 16.6284 12.9991 16.727C12.9991 16.8256 13.0202 16.9233 13.061 17.0144C13.1019 17.1055 13.1618 17.1883 13.2374 17.258C13.3129 17.3278 13.4026 17.3831 13.5013 17.4208C13.6 17.4585 13.7058 17.478 13.8126 17.478C13.9195 17.478 14.0253 17.4585 14.124 17.4208C14.2227 17.3831 14.3123 17.3278 14.3879 17.258L19.2629 12.758C19.3385 12.6884 19.3986 12.6056 19.4395 12.5145C19.4805 12.4234 19.5016 12.3257 19.5016 12.227C19.5016 12.1284 19.4805 12.0307 19.4395 11.9396C19.3986 11.8485 19.3385 11.7657 19.2629 11.696L14.3879 7.19602C14.2353 7.05519 14.0284 6.97607 13.8126 6.97607C13.5969 6.97607 13.39 7.05519 13.2374 7.19602C13.0848 7.33685 12.9991 7.52786 12.9991 7.72702C12.9991 7.92619 13.0848 8.11719 13.2374 8.25802L16.7263 11.477H7.31263C7.09715 11.477 6.89048 11.556 6.73811 11.6967C6.58574 11.8373 6.50013 12.0281 6.50013 12.227Z"/>
+            </svg>
+          </div>
+        </div>
+        <div class="swiper-wrapper">
+          {% for block in section.blocks %}
+            <div class="swiper-slide">
+              <div class="row p-5 rounded-3">
+                <div class="m-auto text-start col-12 col-md-3">
+                  <div class="border-bottom pb-4 pe-5 me-5">
+                    <h5 class="pe-5">{{ block.settings.title }}</h5>
+                  </div>
+                  {{ block.settings.paragraph }}
+                </div>
+                <div class="col-12 col-md-9">
+                  {% if block.settings.video != blank %}
+                    <video
+                      src="{{block.settings.video.sources[1].url}}"
+                      playsinline
+                      controls
+                    ></video>
+                  {% else %}
+                    <div class="player">
+                      <iframe
+                        src="{{block.settings.youtube_video}}?controls=0"
+                        frameborder="0"
+                        gesture="media"
+                        allow="encrypted-media"
+                        allowfullscreen
+                      ></iframe>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="swiper-pagination"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  var vidSwiper = new Swiper('.videoSwiper', {
+    slidesPerView: 1,
+    spaceBetween: 0,
+    pagination: {
+      el: '.swiper-pagination',
+      clickable: true,
+    },
+    navigation: {
+      nextEl: '.swiper-next',
+      prevEl: '.swiper-prev',
+    },
+  });
+
+  var pagingSwiper = new Swiper('.videoSwiper', {
+    pagination: {
+      el: '.swiper-pagination-2',
+      type: 'fraction',
+    },
+  });
+
+  vidSwiper.controller.control = pagingSwiper;
+</script>
+
+{% schema %}
+{
+  "name": "Video slider",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Section name"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "content",
+      "name": "Content",
+      "settings": [
+        {
+          "type": "video",
+          "id": "video",
+          "label": "A Shopify-hosted video"
+        },
+        {
+          "type": "url",
+          "id": "youtube_video",
+          "label": "Youtube video embed link"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading"
+        },
+        {
+          "type": "richtext",
+          "id": "paragraph",
+          "label": "Paragraph"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Video slider"
+    }
+  ]
+}
+{% endschema %}

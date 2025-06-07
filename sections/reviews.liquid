@@ -1,0 +1,216 @@
+<style>
+  html,
+  body {
+    position: relative;
+    height: 100%;
+  }
+
+  body {
+    background: #eee;
+    font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    color: #000;
+    margin: 0;
+    padding: 0;
+  }
+
+  .swiper {
+    width: 100%;
+    height: 100%;
+  }
+
+  .swiper-slide {
+    text-align: center;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .swiper-slide .item {
+    background: #000;
+    color: #fff;
+    text-align: left;
+  }
+
+  .swiper-slide-active .item {
+    background: #eb701f;
+  }
+
+  .reviews-container {
+    margin-left: 13.5rem;
+  }
+
+  .swiper-button-next::after,
+  .swiper-button-prev::after {
+    content: '' !important;
+  }
+
+  .swiper-nav .swiper-button-disabled {
+    background: #fff !important;
+    opacity: 1 !important;
+  }
+
+  .swiper-nav .swiper-button-disabled svg {
+    fill: grey !important;
+  }
+
+  .swiper-pagination-bullet {
+    width: 20px !important;
+    height: 3px !important;
+    border-radius: 0 !important;
+    background: lightgrey !important;
+  }
+
+  .swiper-pagination-bullet-active {
+    background: gray !important;
+  }
+
+  .swiper-nav {
+    width: 120px;
+    z-index: 0;
+  }
+
+  .swiper-button-next,
+  .swiper-button-prev {
+    background: #eb701f;
+    border-radius: 50px;
+    width: 45px !important;
+    height: 45px !important;
+  }
+
+  .swiper-button-next svg,
+  .swiper-button-prev svg {
+    width: 30px !important;
+    height: auto !important;
+    fill: #fff;
+  }
+
+  @media screen and (max-width: 749px) {
+    .reviews-container {
+      margin-left: 2rem;
+    }
+  }
+</style>
+
+<div class="content py-5 my-5" id="reviews">
+  <div class="container text-light py-5">
+    <div class="row position-relative">
+      <h3>{{ section.settings.title }}</h3>
+      <div class="d-flex align-items-center gap-3 border-bottom border-white text-start mb-5">
+        <h3>{{ section.settings.review_star }}</h3>
+        {% render 'star-rating', review_star: section.settings.review_star %}
+        <span class="text-black-10"
+          ><u>{{ section.settings.total_reviews }} reviews</u></span
+        >
+      </div>
+      <div class="swiper-nav position-absolute top-0 end-0">
+        <div class="swiper-button-prev">
+          <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M18.7499 12.227C18.7499 12.4259 18.6676 12.6167 18.521 12.7574C18.3745 12.898 18.1758 12.977 17.9686 12.977H8.91706L12.2717 16.196C12.3444 16.2658 12.402 16.3485 12.4413 16.4396C12.4806 16.5308 12.5009 16.6284 12.5009 16.727C12.5009 16.8256 12.4806 16.9233 12.4413 17.0144C12.402 17.1055 12.3444 17.1883 12.2717 17.258C12.1991 17.3278 12.1129 17.3831 12.018 17.4208C11.9231 17.4585 11.8213 17.478 11.7186 17.478C11.6159 17.478 11.5142 17.4585 11.4193 17.4208C11.3244 17.3831 11.2381 17.3278 11.1655 17.258L6.478 12.758C6.40524 12.6884 6.34752 12.6056 6.30813 12.5145C6.26875 12.4234 6.24847 12.3257 6.24847 12.227C6.24847 12.1284 6.26875 12.0307 6.30813 11.9396C6.34752 11.8485 6.40524 11.7657 6.478 11.696L11.1655 7.19602C11.3122 7.05519 11.5112 6.97607 11.7186 6.97607C11.9261 6.97607 12.125 7.05519 12.2717 7.19602C12.4184 7.33685 12.5009 7.52786 12.5009 7.72702C12.5009 7.92619 12.4184 8.11719 12.2717 8.25802L8.91706 11.477H17.9686C18.1758 11.477 18.3745 11.556 18.521 11.6967C18.6676 11.8373 18.7499 12.0281 18.7499 12.227Z"/>
+          </svg>
+        </div>
+        <div class="swiper-button-next">
+          <svg width="26" height="25" viewBox="0 0 26 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M6.50013 12.227C6.50013 12.4259 6.58574 12.6167 6.73811 12.7574C6.89048 12.898 7.09715 12.977 7.31263 12.977H16.7263L13.2374 16.196C13.1618 16.2658 13.1019 16.3485 13.061 16.4396C13.0202 16.5308 12.9991 16.6284 12.9991 16.727C12.9991 16.8256 13.0202 16.9233 13.061 17.0144C13.1019 17.1055 13.1618 17.1883 13.2374 17.258C13.3129 17.3278 13.4026 17.3831 13.5013 17.4208C13.6 17.4585 13.7058 17.478 13.8126 17.478C13.9195 17.478 14.0253 17.4585 14.124 17.4208C14.2227 17.3831 14.3123 17.3278 14.3879 17.258L19.2629 12.758C19.3385 12.6884 19.3986 12.6056 19.4395 12.5145C19.4805 12.4234 19.5016 12.3257 19.5016 12.227C19.5016 12.1284 19.4805 12.0307 19.4395 11.9396C19.3986 11.8485 19.3385 11.7657 19.2629 11.696L14.3879 7.19602C14.2353 7.05519 14.0284 6.97607 13.8126 6.97607C13.5969 6.97607 13.39 7.05519 13.2374 7.19602C13.0848 7.33685 12.9991 7.52786 12.9991 7.72702C12.9991 7.92619 13.0848 8.11719 13.2374 8.25802L16.7263 11.477H7.31263C7.09715 11.477 6.89048 11.556 6.73811 11.6967C6.58574 11.8373 6.50013 12.0281 6.50013 12.227Z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="reviews-container text-light">
+    <div class="row">
+      <div class="swiper mySwiper">
+        <div class="swiper-wrapper">
+          {% for block in section.blocks %}
+            <div class="swiper-slide">
+              <div class="item p-3 p-md-5 rounded-3">
+                <h5>{{ block.settings.author }}</h5>
+                {% render 'star-rating', review_star: block.settings.review_star %}
+                {{ block.settings.paragraph }}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="swiper-paginations text-center"></div>
+  </div>
+</div>
+
+<script>
+  var swiper = new Swiper('.mySwiper', {
+    pagination: {
+      el: '.swiper-paginations',
+      clickable: true,
+    },
+    navigation: {
+      nextEl: '.swiper-button-next',
+      prevEl: '.swiper-button-prev',
+    },
+    breakpoints: {
+      640: {
+        slidesPerView: 2.5,
+        spaceBetween: 30,
+      },
+      320: {
+        slidesPerView: 1.2,
+        spaceBetween: 10,
+      },
+    },
+  });
+</script>
+{% schema %}
+{
+  "name": "Reviews",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Section name"
+    },
+    {
+      "type": "text",
+      "id": "review_star",
+      "label": "Star rating",
+      "info": "1 to 5"
+    },
+    {
+      "type": "text",
+      "id": "total_reviews",
+      "label": "Total reviews"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "review",
+      "name": "Review",
+      "settings": [
+        {
+          "type": "text",
+          "id": "author",
+          "label": "Author"
+        },
+        {
+          "type": "richtext",
+          "id": "paragraph",
+          "label": "Paragraph"
+        },
+        {
+          "type": "number",
+          "id": "review_star",
+          "label": "Star rating",
+          "info": "1 to 5"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Reviews"
+    }
+  ]
+}
+{% endschema %}

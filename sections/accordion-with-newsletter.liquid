@@ -1,0 +1,141 @@
+<style>
+  .accordion-button::after {
+    background-image: unset;
+    content: '+';
+    background: #eb701f;
+    border-radius: 50px;
+    text-align: center;
+    color: #222;
+  }
+
+  .accordion-button:not(.collapsed)::after {
+    background-image: unset;
+    content: '-';
+  }
+</style>
+
+<div class="content my-5 py-5">
+  <div class="container text-light py-5">
+    <div class="row">
+      <div class="col-12 col-md-7">
+        <div
+          class="accordion"
+          id="accordionNewsletter"
+          style="
+            --bs-accordion-bg: #222;
+            --bs-accordion-color: white;
+            --bs-accordion-btn-color: #fff;
+            --bs-accordion-border-color: #000;
+          "
+        >
+          {% for block in section.blocks %}
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button
+                  class="accordion-button collapsed"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapse-{{ forloop.index }}"
+                  aria-expanded="false"
+                  aria-controls="collapse-{{ forloop.index }}"
+                >
+                  {{ block.settings.title }}
+                </button>
+              </h2>
+              <div
+                id="collapse-{{ forloop.index }}"
+                class="accordion-collapse collapse"
+                data-bs-parent="#accordionNewsletter"
+              >
+                <div class="accordion-body">
+                  {{ block.settings.paragraph }}
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="d-none d-md-block col-md-1"></div>
+      <div class="col-12 col-md-4">
+        <div class="text-start">
+          <h4>How We Can Help You?</h4>
+          <p>Follow our newsletter. We will regulary update our latest products.</p>
+          <div class="klaviyo-form-X7Fx3K"></div>
+          <a href="/pages/faqs" target="_blank" class="link-offset-2" style="color:#eb701f"
+            >More FAQ
+            <svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M0 7.12981C0 6.88237 0.0982978 6.64506 0.273269 6.47009C0.44824 6.29512 0.685551 6.19682 0.932997 6.19682H11.7427L7.73641 2.19239C7.56122 2.0172 7.4628 1.77959 7.4628 1.53183C7.4628 1.28407 7.56122 1.04646 7.73641 0.87127C7.9116 0.696078 8.14921 0.597656 8.39697 0.597656C8.64473 0.597656 8.88234 0.696078 9.05754 0.87127L14.6555 6.46925C14.7424 6.55592 14.8113 6.65888 14.8584 6.77223C14.9054 6.88558 14.9296 7.00709 14.9296 7.12981C14.9296 7.25254 14.9054 7.37405 14.8584 7.4874C14.8113 7.60075 14.7424 7.70371 14.6555 7.79038L9.05754 13.3884C8.88234 13.5636 8.64473 13.662 8.39697 13.662C8.14921 13.662 7.9116 13.5636 7.73641 13.3884C7.56122 13.2132 7.4628 12.9756 7.4628 12.7278C7.4628 12.48 7.56122 12.2424 7.73641 12.0672L11.7427 8.06281H0.932997C0.685551 8.06281 0.44824 7.96451 0.273269 7.78954C0.0982978 7.61457 0 7.37726 0 7.12981Z" fill="#EB701F"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script async type="text/javascript" src="https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=MLdR5d"></script>
+{% schema %}
+{
+  "name": "Accordion with newsletter",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Section name"
+    },
+    {
+      "type": "image_picker",
+      "id": "icon",
+      "label": "Icon"
+    },
+    {
+      "type": "text",
+      "id": "icon_title",
+      "label": "Icon title 1"
+    },
+    {
+      "type": "image_picker",
+      "id": "icon_2",
+      "label": "Icon 2"
+    },
+    {
+      "type": "text",
+      "id": "icon_title_2",
+      "label": "Icon title 2"
+    },
+    {
+      "type": "image_picker",
+      "id": "icon_3",
+      "label": "Icon 3"
+    },
+    {
+      "type": "text",
+      "id": "icon_title_3",
+      "label": "Icon title 3"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "accoridon",
+      "name": "Accordion",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading"
+        },
+        {
+          "type": "richtext",
+          "id": "paragraph",
+          "label": "Paragraph"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Accordion with newsletter"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,206 @@
+<style>
+	.shane-pro-video{
+		width: 100%; color: #fff; position: relative;
+	}
+	.video-bg-pc{
+		width: 100%; display: block;
+	}
+	.video-bg-mobile{
+		display: none;
+	}
+	.shane-pro-video .context{
+		width: 94%; position: absolute; left: 3%; top: 3.4vw; text-align: center;
+		
+	}
+	.shane-pro-video .context h2{
+		font-size: 2.6vw; margin: 0; font-weight: 400; line-height:3.4vw;
+	}
+	.shane-pro-video .context .text{
+		font-size: 1vw; opacity: 0.8; margin: 0.6vw auto 0; font-weight: 200; line-height: 1.4vw; max-width:660px; 
+	}
+	.provideoSwiper{
+		width: 100%; left: 0; top: 12.7vw; position: absolute;
+	}
+	.provideoSwiper .swiper-slide{
+		position: relative;
+	}
+	.provideoSwiper .swiper-slide a{
+		position: absolute; width: 5vw; height: 3vw; font-size: 4vw; color: red; left: 50%; margin-left: -2.5vw; top: 50%; margin-top: -1.5vw; display: flex; justify-content: center; align-items: center; line-height: 3vw; overflow: hidden;
+	}
+	.provideoSwiper .swiper-slide .video-title{
+		position: absolute; width: 60%; bottom: 1.5vw; left: 2vw; font-size: 1.6vw; line-height: 2.2vw;
+	}
+	.provideoSwiper .shane-next, .provideoSwiper .shane-prev{
+		width: 56px; height: 56px; border-radius: 50%; border: 1px solid #E9FF00; background-color:#E9FF00;  color: #000; position: absolute; top: 50%; margin-top: -28px; display: flex; justify-content: center; align-items: center; font-size: 20px; cursor: pointer; z-index: 9;
+	}
+	.provideoSwiper .shane-next{
+		left:3%;
+	}
+	.provideoSwiper .shane-prev{
+		right:3%;
+	}
+    .provideoSwiper .swiper-button-disabled{
+		opacity: 0.4;
+	}
+	.shane-pro-video .progressbar{
+		width:60%; position: absolute; left: 20%; bottom: 5%; height: 2px; background-color: #bababa; overflow: hidden;
+	}
+	.progressbar div{
+		width: 0; height: 2px; background-color: #FF6100;
+	}
+	.progressbar .bar-1st{
+		animation: videoani 10s linear;
+	}
+	@keyframes videoani
+	{
+		from {width: 0%;}
+		to {width: 100%;}
+	}
+@media (max-width: 768px){
+	.video-bg-pc{
+		display: none;
+	}
+	.video-bg-mobile{
+		display: block; height: 110vw; width: 100%;
+	}
+	.shane-pro-video .context{
+		top: 11vw;		
+	}
+	.shane-pro-video .context h2{
+		font-size: 7.2vw; line-height:8vw; width: 90%; margin: auto;
+	}
+	.shane-pro-video .context .text{
+		font-size: 4.6vw; line-height:5.4vw;
+	}
+	.provideoSwiper{
+		top: 50vw;
+	}
+	.provideoSwiper .swiper-slide a{
+		width: 8vw; height: 5vw; font-size: 10vw; margin-left: -4vw; top: 50%; margin-top: -3vw; line-height: 5vw; overflow: visible;
+	}
+	.provideoSwiper .swiper-slide .video-title{
+		width: 80%; bottom: 1.5vw; left: 2vw; font-size: 3vw; line-height: 3.8vw;
+	}
+	.provideoSwiper .shane-next, .provideoSwiper .shane-prev{
+		width: 30px; height: 30px; top: 50%; margin-top: -15px;font-size: 14px;
+	}
+    .shane-pro-video .progressbar{
+		width:80%; left: 10%; bottom: 9%;
+	}
+}
+</style>
+	<img src="{{ section.settings.image | image_url }}" alt="{{ section.settings.image.alt }}" class="video-bg-pc">
+	<img src="{{ section.settings.image_m | image_url }}" alt="{{ section.settings.image_m.alt }}" class="video-bg-mobile">
+	<div class="context">
+		<h2>{{ section.settings.heading }}</h2>
+		<div class="text">{{ section.settings.text }}</div>
+	</div>
+	<div class="swiper provideoSwiper">
+		<div class="swiper-wrapper">
+          {%- for block in section.blocks -%}
+            <div class="swiper-slide">
+				<img src="{{ block.settings.slide_image | image_url }}" alt="{{ block.settings.slide_image.alt }}" style="width: 100%;">
+				<a href="{{ block.settings.link }}"><span class="fa fa-youtube-play"></span></a>
+				<div class="video-title">{{ block.settings.slidetitle }}</div>
+			</div>
+           {% endfor %}
+		</div>
+		<div class="shane-ani shane-next"><span class="fa fa-long-arrow-left"></span></div>
+		<div class="shane-ani shane-prev"><span class="fa fa-long-arrow-right"></span></div>
+	</div>
+	<div class="progressbar">
+		<div class="bar-1st"></div>
+		<div class="bar-2nd"></div>
+	</div>
+	<script>
+		var provideoSwiper = new Swiper(".provideoSwiper", {
+		  allowTouchMove: false,
+		  slidesPerView: 1.2,
+      	  spaceBetween: 30,
+	  	  centeredSlides: true,
+		  breakpoints: {
+			768: {
+			  slidesPerView: 1.8,
+			  spaceBetween: 30,
+			},
+		  },
+	  	  autoplay: {
+			delay: 10000,
+			disableOnInteraction: false,
+		  },
+		  navigation: {
+			nextEl: ".provideoSwiper .shane-prev",
+			prevEl: ".provideoSwiper .shane-next",
+		  },
+		  on:{
+			autoplay:function(){
+				$(".progressbar .bar-1st").css("display","none");
+				$(".progressbar .bar-2nd").css("width","0");
+				$(".progressbar .bar-2nd").stop().animate({ width: "100%"}, 10000);
+			},
+		  }
+		});
+		$('.provideoSwiper .shane-ani').click(function(){
+			$(".progressbar .bar-1st").css("display","none");
+			$(".progressbar .bar-2nd").css("width","0");
+			$(".progressbar .bar-2nd").stop().animate({ width: "100%"}, 10000);
+		});
+	</script>
+{% schema %}
+  {
+    "name": "Pro video",
+    "class": "shane-pro-video",
+    "settings": [
+      {
+        "type": "text",
+        "id": "heading",
+        "label": "Heading"
+	  },
+      {
+        "type": "textarea",
+        "id": "text",
+        "label": "Text"
+	  },
+      {
+        "type": "image_picker",
+        "id": "image",
+        "label": "image bg"
+      },
+      {
+        "type": "image_picker",
+        "id": "image_m",
+        "label": "image bg mobile"
+      }
+    ],
+    "blocks": [
+       {
+         "type": "item",
+         "name": "item",
+         "settings": [
+            {
+              "type": "image_picker",
+              "id": "slide_image",
+              "label": "Image"
+            },           
+            {
+              "type": "text",
+              "id": "slidetitle",
+              "label": "Slide title",
+              "default": "Add a title"
+			},            
+            {
+              "type": "url",
+              "id": "link",
+              "label": "Link"
+			}
+         ]
+       }
+    ],
+    "presets": [
+       {
+        "name": "Pro video"
+          
+       }
+    ]
+  }
+{% endschema %}

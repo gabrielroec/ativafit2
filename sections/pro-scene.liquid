@@ -1,0 +1,261 @@
+<style>
+	.shane-pro-scene{
+		width: 100%; padding: 5vw 5%; 
+	}	
+	.text-img{
+		width: 100%; display: flex; justify-content: space-between; align-items: center;
+	}
+	.scene-context{
+		width: 30%;
+	}
+	.text-img .title{
+		font-size: 2.6vw; line-height: 3vw; margin: 0.6vw 0 4vw;
+	}
+	.text-img .subtitle{
+		width: fit-content; font-size: 1vw; background: linear-gradient(49deg, #3EABAC 0%, #FCD402 100%); -webkit-background-clip: text; color: transparent; display: flex; align-items: center;
+	}
+	.text-img .subtitle span {
+    	font-size: 0.6vw; margin-right: 0.5vw;
+	}
+	.text-img .text{
+		font-size: 0.9vw; opacity: 0.75; font-weight: 200; min-height: 10vw; line-height: 1.4vw;
+	}
+	.text-img .text>span{
+		display:none; opacity: 0; transition: 0.4s;
+	}
+	.scene-img{
+		width: 60%;
+	}
+	.scene-img>img{
+		width: 100%; display: none; opacity: 0; transition: 0.4s;
+	}
+	.text-img .text .active{
+		display: block; opacity: 1;
+	}
+	.scene-img .active{
+		display: block; opacity: 1; 
+	}
+	.scene-menu{
+		width: 100%; margin-top: 2vw; display: flex; justify-content: space-between; align-items: flex-start;
+	}
+	.scene-menu>div{
+		width: 19%; cursor: pointer;
+	}
+	.scene-menu .menu-line{
+		width: 100%; height: 1px; background-color: #999999; margin-bottom: 0.4vw;
+	}
+	.scene-menu .menu-line>div{
+		width: 0%; height: 2px; background-color: #FF6100; transition: 0.4s;
+	}
+	.scene-menu>div:hover .menu-line>div{
+		width: 100%;
+	}
+	.menu-num{
+		font-size: 0.9vw;
+	}
+	.menu-title{
+		font-size: 1.1vw; line-height: 1.2vw;
+	}
+@media (max-width: 768px){
+	.shane-pro-scene{
+		padding: 10vw 5%;
+	}	
+	.text-img{
+		display: block;
+	}
+	.scene-context{
+		width: 100%;
+	}
+	.text-img .title{
+		font-size: 7.2vw; line-height: 7.6vw; margin: 1.5vw 0 4vw;
+	}
+	.text-img .subtitle{
+		font-size: 4.6vw;
+	}
+	.text-img .subtitle span {
+    	font-size: 2vw; margin-right: 1.5vw;
+	}
+	.text-img .text{
+		font-size: 3.4vw; margin-bottom: 4vw; line-height:4.4vw;
+	}
+	.scene-img{
+		width: 100%;
+	}
+	.scene-menu{
+		margin-top: 5vw;
+	}
+	.menu-num{
+		font-size: 4.6vw;
+	}
+	.menu-title{
+		font-size: 3.2vw; line-height:4.2vw;
+	}
+}
+</style>
+	<div class="text-img">
+		<div class="scene-context">
+			<div class="subtitle"><span class="fa fa-circle"></span> {{ section.settings.subheading }}</div>
+			<h2 class="title">{{ section.settings.heading }}</h2>
+			<div class="text">
+				<span class="scene-text-1 active">{{ section.settings.scene_text_01 }}</span>
+				<span class="scene-text-2">{{ section.settings.scene_text_02 }}</span>
+				<span class="scene-text-3">{{ section.settings.scene_text_03 }}</span>
+                <span class="scene-text-4">{{ section.settings.scene_text_04 }}</span>
+                <span class="scene-text-5">{{ section.settings.scene_text_05 }}</span>
+			</div>
+		</div>
+		<div class="scene-img">
+			<img src="{{ section.settings.image_1 | image_url }}" alt="{{ section.settings.image_1.alt }}" class="scene-img-1 active">
+			<img src="{{ section.settings.image_2 | image_url }}" alt="{{ section.settings.image_2.alt }}" class="scene-img-2">
+			<img src="{{ section.settings.image_3 | image_url }}" alt="{{ section.settings.image_3.alt }}" class="scene-img-3">
+			<img src="{{ section.settings.image_4 | image_url }}" alt="{{ section.settings.image_4.alt }}" class="scene-img-4">
+			<img src="{{ section.settings.image_5 | image_url }}" alt="{{ section.settings.image_5.alt }}" class="scene-img-5">
+		</div>
+	</div>
+	<div class="scene-menu">
+		<div title="1">
+			<div class="menu-line">
+				<div></div>
+			</div>
+			<div class="menu-num">01.</div>
+			<div class="menu-title">{{ section.settings.scene_title_01 }}</div>
+		</div>
+		<div title="2">
+			<div class="menu-line">
+				<div></div>
+			</div>
+			<div class="menu-num">02.</div>
+			<div class="menu-title">{{ section.settings.scene_title_02 }}</div>
+		</div>
+		<div title="3">
+			<div class="menu-line">
+				<div></div>
+			</div>
+			<div class="menu-num">03.</div>
+			<div class="menu-title">{{ section.settings.scene_title_03 }}</div>
+		</div>
+		<div title="4">
+			<div class="menu-line">
+				<div></div>
+			</div>
+			<div class="menu-num">04.</div>
+			<div class="menu-title">{{ section.settings.scene_title_04 }}</div>
+		</div>
+		<div title="5">
+			<div class="menu-line">
+				<div></div>
+			</div>
+			<div class="menu-num">05.</div>
+			<div class="menu-title">{{ section.settings.scene_title_05 }}</div>
+		</div>
+	</div>
+	<script>
+	$(document).ready(function() {
+		$(".scene-menu>div").mouseenter(function(){
+			var menuTitle = $(this).attr('title');
+			$(".text-img .text>span").removeClass("active");
+			$(".text-img .text .scene-text-" + menuTitle).addClass("active");
+			$(".text-img .scene-img>img").removeClass("active");
+			$(".text-img .scene-img .scene-img-" + menuTitle).addClass("active");	
+		});
+	})
+	</script>
+ {% schema %}
+  {
+    "name": "Pro Scene",
+    "class": "shane-pro-scene",
+    "settings": [
+      {
+        "type": "text",
+        "id": "heading",
+        "label": "Heading"
+	  },
+      {
+        "type": "text",
+        "id": "subheading",
+        "label": "Subheading"
+	  },
+      {
+        "type": "text",
+        "id": "scene_title_01",
+        "label": "Scene title 01"
+	  },
+      {
+        "type": "textarea",
+        "id": "scene_text_01",
+        "label": "Scene Text 01"
+      },
+      {
+        "id": "image_1",
+        "type": "image_picker",
+        "label": "Scene img 01"
+      },
+      {
+        "type": "text",
+        "id": "scene_title_02",
+        "label": "Scene title 02"
+	  },
+      {
+        "type": "textarea",
+        "id": "scene_text_02",
+        "label": "Scene Text 02"
+      },
+      {
+        "id": "image_2",
+        "type": "image_picker",
+        "label": "Scene img 02"
+      },
+      {
+        "type": "text",
+        "id": "scene_title_03",
+        "label": "Scene title 03"
+	  },
+      {
+        "type": "textarea",
+        "id": "scene_text_03",
+        "label": "Scene Text 03"
+      },
+      {
+        "id": "image_3",
+        "type": "image_picker",
+        "label": "Scene img 03"
+      },
+      {
+        "type": "text",
+        "id": "scene_title_04",
+        "label": "Scene title 04"
+	  },
+      {
+        "type": "textarea",
+        "id": "scene_text_04",
+        "label": "Scene Text 04"
+      },
+      {
+        "id": "image_4",
+        "type": "image_picker",
+        "label": "Scene img 04"
+      },
+      {
+        "type": "text",
+        "id": "scene_title_05",
+        "label": "Scene title 05"
+	  },
+      {
+        "type": "textarea",
+        "id": "scene_text_05",
+        "label": "Scene Text 05"
+      },
+      {
+        "id": "image_5",
+        "type": "image_picker",
+        "label": "Scene img 05"
+      }
+    ],    
+    "presets": [
+       {
+        "name": "Pro Scene"
+          
+       }
+    ]
+  }
+{% endschema %}

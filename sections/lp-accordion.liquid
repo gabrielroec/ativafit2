@@ -1,0 +1,96 @@
+{% schema %}
+  {
+    "name": "LP Accordion",
+    "settings": [
+      {
+        "type": "text",
+        "id": "section_title",
+        "label": "Section Title",
+        "default": "Why Choose Our Adjustable Dumbbells?"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "accordion_item",
+        "name": "Accordion Item",
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Title",
+            "default": "Feature Title"
+          },
+          {
+            "type": "textarea",
+            "id": "description",
+            "label": "Description",
+            "default": "Feature description text."
+          },
+          {
+            "type": "image_picker",
+            "id": "image",
+            "label": "Feature Image"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "LP Accordion"
+      }
+    ]
+  }
+{% endschema %}
+<div class="bg-black">
+    <div class="accordion-features-section bg-black text-white p-[16px] md:p-[32px] max-w-[1440px] mx-auto px-[10px]">
+    <h2 class="text-[18px] md:text-[42px] font-bold mb-[16px]">{{ section.settings.section_title }}</h2>
+
+    <div class="accordion-container">
+        {% for block in section.blocks %}
+        <div class="accordion-item border-t border-white" data-accordion-item>
+            <button class="accordion-header w-full flex justify-between items-center py-[12px] text-left" data-accordion-toggle>
+            <span class="text-[16px] md:text-[32px] uppercase font-bold">0{{ forloop.index }} {{ block.settings.title }}</span>
+            <span class="accordion-icon transition-transform duration-300" data-accordion-icon>
+                <svg xmlns="http://www.w3.org/2000/svg" width="27" height="17" viewBox="0 0 27 17" fill="none">
+                    <path d="M2 2L13.5 14L25 2" stroke="white" stroke-width="4" stroke-linecap="round"/>
+                </svg>
+            </span>
+            </button>
+            <div class="accordion-content hidden p-[12px]" data-accordion-content>
+            <p class="text-[16px] md:text-[30px] mb-[8px]">{{ block.settings.description }}</p>
+            {% if block.settings.image %}
+                <img src="{{ block.settings.image | img_url: 'master' }}" alt="{{ block.settings.title }}" class="w-full h-auto object-cover mb-[20px]">
+            {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    </div>
+</div>
+
+<script>
+  document.querySelectorAll('[data-accordion-toggle]').forEach(button => {
+    button.addEventListener('click', function () {
+      const item = this.closest('[data-accordion-item]');
+      const content = item.querySelector('[data-accordion-content]');
+      const icon = item.querySelector('[data-accordion-icon]');
+
+      document.querySelectorAll('[data-accordion-item]').forEach(otherItem => {
+        if (otherItem !== item) {
+          otherItem.querySelector('[data-accordion-content]').classList.add('hidden');
+          otherItem.querySelector('[data-accordion-icon]').style.transform = 'rotate(0deg)';
+        }
+      });
+
+      const isOpen = !content.classList.contains('hidden');
+
+      if (isOpen) {
+        content.classList.add('hidden');
+        icon.style.transform = 'rotate(0deg)';
+      } else {
+        content.classList.remove('hidden');
+        icon.style.transform = 'rotate(180deg)';
+      }
+    });
+  });
+</script>

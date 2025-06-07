@@ -1,0 +1,209 @@
+<div class="product-card-lp">
+  {% if product.featured_image != blank %}
+    <img
+      src="{{ product.featured_image | img_url: '300x300', crop: 'center' }}"
+      alt="{{ product.title }}"
+      class="product-card-lp__image"
+      width="80"
+      height="80"
+      loading="lazy">
+  {% else %}
+    <div class="product-card-lp__image-placeholder">
+      {{ 'product-1' | placeholder_svg_tag: 'product-card-lp__image' }}
+    </div>
+  {% endif %}
+
+  <div class="product-card-lp__info">
+    <h3 class="product-card-lp__title">{{ product.title }}</h3>
+    <p class="product-card-lp__price">{{ product.price | money }}</p>
+  </div>
+  <button
+    type="button"
+    class="product-card-lp__button"
+    data-product-id="{{ product.id }}"
+    data-variant-id="{{ product.selected_or_first_available_variant.id }}">
+    <span>+</span>
+  </button>
+</div>
+
+{% style %}
+  .title-pairs-well-with {
+    font-size: 24px;
+    font-weight: bold;
+    font-family: 'IBM Plex Mono'
+    , monospace;
+    margin: 0 0 10px;
+    padding: 0;
+  }
+
+  .product-card-lp {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    width: 100%;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+  }
+
+  .product-card-lp__image,
+  .product-card-lp__image-placeholder {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 10px;
+  }
+
+  .product-card-lp__image-placeholder {
+    background: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .product-card-lp__title {
+    font-size: 16px;
+    margin: 0;
+  }
+
+  .product-card-lp__price {
+    font-size: 14px;
+    color: #555;
+    margin: 0;
+  }
+
+  .product-card-lp__button {
+    background: linear-gradient(to right, #dd4d1e, #ff7e53);
+    border: none;
+    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.3s ease;
+
+  }
+
+  .product-card-lp__button:hover {
+    background: linear-gradient(to right, #ff7e53, #dd4d1e);
+  }
+{% endstyle %}
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.product-card-lp__button').forEach(button => {
+    button.addEventListener('click', async () => {
+      const variantId = button.getAttribute('data-variant-id');
+      
+      // Desabilita o botão durante a adição
+      button.disabled = true;
+      button.style.opacity = '0.7';
+      
+      try {
+        // Adiciona o produto ao carrinho usando a API do Shopify
+        const response = await fetch('/cart/add.js', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            items: [{
+              id: variantId,
+              quantity: 1
+            }]
+          })
+        });
+
+        if (!response.ok) throw new Error('Erro ao adicionar ao carrinho');
+        
+        // Atualiza o contador do carrinho no header
+        const cartData = await fetch('/cart.js').then(res => res.json());
+        document.querySelector('.header__cart-count').textContent = cartData.item_count;
+        
+        // Utiliza o mecanismo próprio do tema para abrir o mini-cart
+        toggleMiniCart();
+
+        // Feedback visual de sucesso
+        button.innerHTML = '✓';
+        button.style.background = 'linear-gradient(to right, #4CAF50, #45a049)';
+        
+        // Restaura o botão após 2 segundos
+        setTimeout(() => {
+          button.disabled = false;
+          button.innerHTML = '<span class="icon">+</span>';
+          button.style.background = '';
+          button.style.opacity = '1';
+        }, 2000);
+
+      } catch (error) {
+        console.error('Erro:', error);
+        
+        // Feedback visual de erro
+        button.innerHTML = '×';
+        button.style.background = 'linear-gradient(to right, #f44336, #d32f2f)';
+        
+        // Restaura o botão após 2 segundos
+        setTimeout(() => {
+          button.disabled = false;
+          button.innerHTML = '<span class="icon">+</span>';
+          button.style.background = '';
+          button.style.opacity = '1';
+        }, 2000);
+      }
+    });
+  });
+
+  // Função para abrir o mini-cart usando as funções nativas do tema
+  function toggleMiniCart() {
+    try {
+      // Primeiro tenta usar a função nativa do tema (se existir)
+      if (window.theme && window.theme.miniCart) {
+        window.theme.miniCart.open();
+        return;
+      }
+      
+      // Se não existir, tenta simular o comportamento nativo
+      const cartToggle = document.querySelector('.header__cart-toggle');
+      if (cartToggle) {
+        // Simula o clique no botão do carrinho
+        cartToggle.click();
+        return;
+      }
+      
+      // Fallback: tenta abrir manualmente
+      const miniCart = document.getElementById('mini-cart');
+      if (miniCart) {
+        miniCart.setAttribute('aria-hidden', 'false');
+        miniCart.classList.add('is-visible');
+        
+        // Adiciona o overlay para o fundo
+        let overlay = document.querySelector('.cart-overlay');
+        if (!overlay) {
+          overlay = document.createElement('div');
+          overlay.className = 'cart-overlay is-visible';
+          document.body.appendChild(overlay);
+        } else {
+          overlay.classList.add('is-visible');
+        }
+        
+        // Atualiza os ícones e estados
+        const cartIcon = document.querySelector('.header__cart-icon');
+        if (cartIcon) {
+          cartIcon.setAttribute('aria-expanded', 'true');
+        }
+        
+        // Impede o scroll
+        document.body.classList.add('no-scroll');
+      }
+    } catch (error) {
+      console.error('Erro ao abrir mini-cart:', error);
+    }
+  }
+  });
+</script>
