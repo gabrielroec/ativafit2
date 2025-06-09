@@ -1,0 +1,161 @@
+<link rel="stylesheet" href="{{ 'hero-banner.css' | asset_url }}">
+
+<section class="hero-banner" style="background-image: url({{ section.settings.background_image | image_url: width: 2000 }});">
+  <div class="hero-banner__overlay"></div>
+  <div class="hero-banner__content">
+    <div class="">
+      <h1 class="hero-banner__title">{{ section.settings.title }}</h1>
+      <p class="hero-banner__subtitle">{{ section.settings.subtitle }}</p>
+      <div class="hero-banner__buttons">
+        {%- if section.settings.button_1_text != blank and section.settings.button_1_link != blank -%}
+          <a
+            href="{{ section.settings.button_1_link }}"
+            class="hero-banner__button hero-banner__button--primary"
+            style="
+            color: {{ section.settings.button_1_text_color }};
+            border-color: {{ section.settings.button_1_border_color }};
+            background: {{ section.settings.button_1_bg_color }};
+          "
+            data-hover-bg="{{ section.settings.button_1_bg_color_hover }}"
+            data-hover-color="{{ section.settings.button_1_text_color_hover }}">
+            {{ section.settings.button_1_text }}
+          </a>
+        {%- endif -%}
+        {%- if section.settings.button_2_text != blank and section.settings.button_2_link != blank -%}
+          <a
+            href="{{ section.settings.button_2_link }}"
+            class="hero-banner__button hero-banner__button--secondary"
+            style="
+            color: {{ section.settings.button_2_text_color }};
+            border-color: {{ section.settings.button_2_border_color }};
+            background: {{ section.settings.button_2_bg_color }};
+          "
+            data-hover-bg="{{ section.settings.button_2_bg_color_hover }}"
+            data-hover-color="{{ section.settings.button_2_text_color_hover }}">
+            {{ section.settings.button_2_text }}
+          </a>
+        {%- endif -%}
+      </div>
+    </div>
+    {% if section.settings.product_handle != blank %}
+    {% assign selected_product = all_products[section.settings.product_handle] %}
+      {% comment %}Debug info{% endcomment %}
+      <!--
+        Product Handle: {{ section.settings.product_handle }}
+  Selected Product: {{ selected_product.title }}
+        Available: {{ selected_product.available }}
+        Price: {{ selected_product.price }}
+      -->
+      {% render 'product-card-custom'
+        , product: selected_product %}
+    {% endif %}
+  </div>
+</section>
+
+{% schema %}
+  {
+    "name": "Hero Banner",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "background_image",
+        "label": "Imagem de fundo"
+      },
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Título principal",
+        "default": "30% OFF STRENGTH COLLECTION"
+      },
+      {
+        "type": "text",
+        "id": "subtitle",
+        "label": "Subtítulo",
+        "default": "GET IT NOW FOR FATHER'S DAY"
+      },
+      {
+        "type": "text",
+        "id": "button_1_text",
+        "label": "Texto do Botão 1",
+        "default": "SHOP NOW"
+      }, {
+        "type": "url",
+        "id": "button_1_link",
+        "label": "Link do Botão 1"
+      }, {
+        "type": "color",
+        "id": "button_1_text_color",
+        "label": "Cor do texto do Botão 1",
+        "default": "#ffffff"
+      }, {
+        "type": "color",
+        "id": "button_1_border_color",
+        "label": "Cor da borda do Botão 1",
+        "default": "#ffffff"
+      }, {
+        "type": "color",
+        "id": "button_1_bg_color",
+        "label": "Cor de fundo do Botão 1",
+        "default": "rgba(0,0,0,0)"
+      }, {
+        "type": "color",
+        "id": "button_1_bg_color_hover",
+        "label": "Cor de fundo do Botão 1 (hover)",
+        "default": "#ffffff"
+      }, {
+        "type": "color",
+        "id": "button_1_text_color_hover",
+        "label": "Cor do texto do Botão 1 (hover)",
+        "default": "#111111"
+      }, {
+        "type": "text",
+        "id": "button_2_text",
+        "label": "Texto do Botão 2",
+        "default": "EXPLORE COLLECTION"
+      }, {
+        "type": "url",
+        "id": "button_2_link",
+        "label": "Link do Botão 2"
+      }, {
+        "type": "color",
+        "id": "button_2_text_color",
+        "label": "Cor do texto do Botão 2",
+        "default": "#ffffff"
+      }, {
+        "type": "color",
+        "id": "button_2_border_color",
+        "label": "Cor da borda do Botão 2",
+        "default": "#ffffff"
+      }, {
+        "type": "color",
+        "id": "button_2_bg_color",
+        "label": "Cor de fundo do Botão 2",
+        "default": "rgba(255,255,255,0.1)"
+      }, {
+        "type": "color",
+        "id": "button_2_bg_color_hover",
+        "label": "Cor de fundo do Botão 2 (hover)",
+        "default": "#ffffff"
+      }, {
+        "type": "color",
+        "id": "button_2_text_color_hover",
+        "label": "Cor do texto do Botão 2 (hover)",
+        "default": "#111111"
+      }, {
+        "type": "product",
+        "id": "product_handle",
+        "label": "Produto do Card"
+      }, {
+        "type": "text",
+        "id": "buy_btn_text",
+        "label": "Texto do botão comprar",
+        "default": "Comprar agora"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Hero Banner"
+      }
+    ]
+  }
+{% endschema %}

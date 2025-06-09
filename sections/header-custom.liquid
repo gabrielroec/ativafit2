@@ -1,0 +1,257 @@
+{%- style -%}
+  .header-wrapper {
+    background-color: #1a1a1a;
+    padding: 30px 20px;
+    position: relative;
+    z-index: 100;
+    border-bottom: 1px solid #515151;
+  }
+
+  .header-container {
+    max-width: 1750px !important;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .header-navigation {
+    display: flex;
+    gap: 30px;
+  }
+
+  .header-navigation__item {
+    position: relative;
+  }
+
+  .header-navigation__link {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    text-transform: uppercase;
+    transition: color 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'IBM Plex Mono'
+  }
+
+  .header-navigation__link:hover {
+    color: #eb7122;
+  }
+
+  .header-navigation__dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #1a1a1a;
+    min-width: 500px;
+    padding: 15px 0;
+    display: none;
+    z-index: 10;
+  }
+
+  .header-navigation__item:hover .header-navigation__dropdown {
+    display: block;
+  }
+
+  .header-navigation__dropdown-link {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 14px;
+    padding: 8px 25px;
+    display: block;
+    transition: color 0.3s ease;
+  }
+
+  .header-navigation__dropdown-link:hover {
+    color: #eb7122;
+  }
+
+  .icon-arrow {
+    width: 12px;
+    height: 12px;
+    fill: currentColor;
+  }
+
+  .header-logo {
+    max-width: {{ section.settings.logo_max_width }}px;
+  }
+
+  .header-logo img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  @media screen and (max-width: 641px) {
+    .header-logo {
+      max-width: {{ section.settings.mobile_logo_max_width }}px;
+    }
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+  }
+
+  .header-actions a {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 16px;
+    text-transform: uppercase;
+  }
+
+  .cart-count {
+    color: #ffffff;
+  }
+
+  @media screen and (max-width: 768px) {
+    .header-navigation {
+      display: none;
+    }
+  }
+  .header__logo {
+    margin: 0 !important;
+  }
+{%- endstyle -%}
+
+<div class="header-wrapper">
+  <div class="header-container">
+    <nav class="header-navigation">
+      {%- assign navigation_menu_handle = section.settings.navigation_menu | default: 'main-menu-new-0411' -%}
+      {%- assign navigation_menu = linklists[navigation_menu_handle] -%}
+
+      {%- for link in navigation_menu.links -%}
+        {%- assign display_title = "" -%}
+
+        {%- case link.title -%}
+          {%- when "Adjustable Dumbbells" -%}
+            {%- assign display_title = "DUMBBELLS" -%}
+          {%- when "Exercise Bikes" -%}
+            {%- assign display_title = "BIKES" -%}
+          {%- when "Trampolines For Kids" -%}
+            {%- assign display_title = "TRAMPOLINE" -%}
+          {%- when "Accessories" -%}
+            {%- assign display_title = "ACCESSORIES" -%}
+        {%- endcase -%}
+
+        {%- if display_title != "" -%}
+          <div class="header-navigation__item">
+            <a
+              href="{{ link.url }}"
+              class="header-navigation__link"
+              {% if link.links.size > 0 %}
+              aria-expanded="false"
+              aria-haspopup="true"
+              {% endif %}>
+              {{ display_title }}
+              {%- if link.links.size > 0 -%}
+                <svg class="icon-arrow" viewBox="0 0 12 8">
+                  <path
+                    d="M1 1l5 5 5-5"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2" />
+                </svg>
+              {%- endif -%}
+            </a>
+
+            {%- if link.links.size > 0 -%}
+              <div class="header-navigation__dropdown">
+                {%- for childlink in link.links -%}
+                  <a href="{{ childlink.url }}" class="header-navigation__dropdown-link">{{ childlink.title }}</a>
+                {%- endfor -%}
+              </div>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </nav>
+
+    {%- comment -%} Logo {%- endcomment -%}
+    <div class="header__logo">
+      <a href="{{ routes.root_url }}" class="header__logo-link">
+        <img
+          class="header__logo-image"
+          src="https://ativafit-tech.myshopify.com/cdn/shop/files/ativafit_logo_120x@2x.png?v=1614353361"
+          alt="{{ section.settings.logo.alt | default: shop.name | escape }}"
+          width="120"
+          height="120"
+          loading="lazy">
+
+      </a>
+    </div>
+
+    <div class="header-actions">
+      <a href="/search" class="header-search">SEARCH</a>
+      <a href="/account" class="header-account">ACCOUNT</a>
+      <a href="/cart" class="header-cart">
+        CART{% if cart.item_count > 0 %}
+          <span class="cart-count">[{{ cart.item_count }}]</span>
+        {% endif %}
+      </a>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+  {
+    "name": "Header Custom",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "logo",
+        "label": "Logo",
+        "info": "400 x 120px .png recommended"
+      },
+      {
+        "type": "range",
+        "id": "logo_max_width",
+        "min": 50,
+        "max": 300,
+        "step": 5,
+        "unit": "px",
+        "label": "Logo width",
+        "default": 120
+      },
+      {
+        "type": "range",
+        "id": "mobile_logo_max_width",
+        "min": 50,
+        "max": 170,
+        "step": 5,
+        "unit": "px",
+        "label": "Mobile logo width",
+        "default": 100
+      },
+      {
+        "type": "link_list",
+        "id": "navigation_menu",
+        "label": "Menu"
+      }, {
+        "type": "select",
+        "id": "desktop_navigation_open_trigger",
+        "label": "Open dropdown on...",
+        "options": [
+          {
+            "value": "hover",
+            "label": "Hover"
+          }, {
+            "value": "click",
+            "label": "Click"
+          }
+        ],
+        "default": "hover"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Header Custom",
+        "category": "Header"
+      }
+    ]
+  }
+{% endschema %}

@@ -1,0 +1,161 @@
+<link rel="stylesheet" href="{{ 'collection-categories.css' | asset_url }}">
+
+<div class="collection-categories">
+  <div class="collection-categories__grid">
+    {% for block in section.blocks %}
+      <div class="collection-category" {{ block.shopify_attributes }}>
+        <div class="collection-category__image-container">
+
+          <img
+            src="{{ block.settings.category_image | img_url: '800x' }}"
+            alt="{{ block.settings.category_title }}"
+            loading="lazy"
+            class="collection-category__image">
+          <div class="collection-category__overlay">
+            <a href="{{ block.settings.category_link }}" class="collection-category__button">
+              {{ block.settings.button_text | default: 'SHOP NOW' }}
+            </a>
+          </div>
+        </div>
+        <h3 class="collection-category__title">{{ block.settings.category_title }}</h3>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<style>
+  .collection-categories {}
+
+.collection-categories__grid {
+  width: 100%;
+  display: flex;
+}
+
+.collection-category {
+  text-align: center;
+  position: relative;
+  width: 100%;
+}
+
+.collection-category__image {
+  width: 100%;
+  height: 502px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.collection-category__image {
+  width: 100%;
+  height: 502px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+
+.collection-category__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.collection-category:hover .collection-category__overlay {
+  opacity: 1;
+}
+
+.collection-category__button {
+  background: #fff;
+  color: #000;
+  padding: 12px 24px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+.collection-category__button:hover {
+  background: #c23d12;
+  color: #fff
+}
+
+.collection-category__title {
+  margin-top: 16px;
+  font-size: 18px;
+  font-weight: bold;
+  font-family: "IBM Plex Mono"
+  , monospace;
+  color: #fff;
+  position: absolute;
+  bottom: 20px;
+  left: 20px
+}
+
+@media screen and (max-width: 768px) {
+  .collection-categories__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .collection-categories__grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+
+{% schema %}
+  {
+    "name": "Categorias",
+    "max_blocks": 4,
+    "blocks": [
+      {
+        "type": "category",
+        "name": "Categoria",
+        "settings": [
+          {
+            "type": "image_picker",
+            "id": "category_image",
+            "label": "Imagem da categoria"
+          }, {
+            "type": "text",
+            "id": "category_title",
+            "label": "Nome da categoria",
+            "default": "Nome da categoria"
+          }, {
+            "type": "url",
+            "id": "category_link",
+            "label": "Link da categoria"
+          }, {
+            "type": "text",
+            "id": "button_text",
+            "label": "Texto do botão",
+            "default": "SHOP NOW"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Categorias",
+        "blocks": [
+          {
+            "type": "category"
+          }, {
+            "type": "category"
+          }, {
+            "type": "category"
+          }, {
+            "type": "category"
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}

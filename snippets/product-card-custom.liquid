@@ -1,0 +1,212 @@
+{%- comment -%} 
+                Salve este arquivo como /snippets/product-card.liquid
+                Inclua na sua coleção ou em qualquer template assim: 
+                {% render 'product-card', product: product %} 
+{%- endcomment -%}
+
+{% comment %}Debug info{% endcomment %}
+<!--
+  Product Title: {{ product.title }}
+  Product Handle: {{ product.handle }}
+  Product Available: {{ product.available }}
+  Product Price: {{ product.price }}
+  Product Compare Price: {{ product.compare_at_price_max }}
+  Product Featured Image: {{ product.featured_image }}
+  Product First Available Variant: {{ product.selected_or_first_available_variant.id }}
+-->
+{% if product != blank %}
+  <div class="product-card">
+    {%- comment -%} — ESTILO (inline para simplificar) {%- endcomment -%}
+    <style>
+      .product-card {
+        position: relative;
+        width: 300px;
+        background: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s;
+        font-family: Arial
+        , sans-serif;
+      }
+      .product-card:hover {
+        transform: translateY(-5px);
+      }
+      .product-card img {
+        width: 100%;
+        height: 334px;
+        display: block;
+        object-fit: contain;
+      }
+      .discount-badge {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        background: #DD4D1E;
+        color: #fff;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: bold;
+      }
+      .controls {
+        display: none;
+        position: absolute;
+        bottom: 130px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100% - 32px);
+        background: #fff;
+        border: 2px solid #DD4D1E;
+        border-radius: 8px;
+        padding: 12px;
+        box-sizing: border-box;
+        justify-content: space-between;
+        align-items: stretch;
+        gap: 10px;
+      }
+      .product-card:hover .controls {
+        display: flex;
+        align-items: stretch;
+        gap: 10px;
+      }
+      .buy-btn {
+        background: #DD4D1E;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+        width: 100%;
+      }
+      .quantity {
+        font-size: 16px;
+        user-select: none;
+        color: #DD4D1E;
+        width: 100%;
+        border: 1px solid #DD4D1E;
+        display: flex;
+        align-items: center;
+        border-radius: 4px;
+        justify-content: center;
+      }
+      .quantity span {
+        cursor: pointer;
+        padding: 0 10px;
+      }
+      .quantity .qty {
+        width: 20px;
+        text-align: center;
+      }
+      .static-info {
+        padding: 16px;
+      }
+      .product-title {
+        font-size: 16px;
+        font-weight: bold;
+        color: #000;
+        margin-bottom: 8px;
+      }
+      .price {
+        font-size: 16px;
+      }
+      .current-price {
+        color: #DD4D1E;
+        font-weight: bold;
+        margin-right: 8px;
+      }
+      .old-price {
+        color: #999;
+        text-decoration: line-through;
+      }
+    </style>
+
+    {%- comment -%} — BADGE DE DESCONTO - Sempre calculado baseado na diferença entre preço original e atual {%- endcomment -%}
+    {% if product.compare_at_price_max > product.price %}
+      {% assign discount_amount = product.compare_at_price_max | minus: product.price %}
+      {% assign discount_percentage = discount_amount | times: 100.0 | divided_by: product.compare_at_price_max | round %}
+      <div class="discount-badge">{{ discount_percentage }}% OFF</div>
+    {% endif %}
+
+    {%- comment -%} — IMAGEM DO PRODUTO {%- endcomment -%}
+    {% if product.featured_image != blank %}
+      <img
+        src="{{ product.featured_image | img_url: '600x600' }}"
+        alt="{{ product.title }}"
+        width="600"
+        height="600"
+        loading="lazy">
+    {% else %}
+      <div style="width: 100%; height: 334px; background: #f4f4f4; display: flex; align-items: center; justify-content: center;">
+        <span style="color: #999;">Imagem não disponível</span>
+      </div>
+    {% endif %}
+
+    {%- comment -%} — CONTROLES DE COMPRA (hover) {%- endcomment -%}
+    {% if product.available and product.selected_or_first_available_variant != blank %}
+      <form
+        action="/cart/add"
+        method="post"
+        class="controls">
+        <input
+          type="hidden"
+          name="id"
+          value="{{ product.selected_or_first_available_variant.id }}"
+          class="quantity-input">
+        <input
+          type="hidden"
+          name="quantity"
+          value="1"
+          class="quantity-input">
+        <button type="submit" class="buy-btn">{{ section.settings.buy_btn_text | default: 'Comprar agora' }}</button>
+        <div class="quantity">
+          <span class="minus">-</span>
+          <span class="qty">1</span>
+          <span class="plus">+</span>
+        </div>
+      </form>
+    {% endif %}
+
+    {%- comment -%} — TÍTULO E PREÇOS (sempre visíveis) {%- endcomment -%}
+    <div class="static-info">
+      <h3 class="product-title">{{ product.title }}</h3>
+      <div class="price">
+        {% if product.price > 0 %}
+          <span class="current-price">{{ product.price | money }}</span>
+          {% if product.compare_at_price_max > product.price %}
+            <span class="old-price">{{ product.compare_at_price_max | money }}</span>
+          {% endif %}
+        {% else %}
+          <span class="current-price">Preço não disponível</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {%- comment -%} — JS PARA CONTADOR — mantém simples e isolado por produto {%- endcomment -%}
+  <script>
+      document.addEventListener('DOMContentLoaded', function(){
+    // pega todos os cards caso haja mais de um na página
+    document.querySelectorAll('.product-card').forEach(function(card){
+      var minus = card.querySelector('.minus');
+      var plus  = card.querySelector('.plus');
+      var qtyText = card.querySelector('.qty');
+      var qtyInput = card.querySelectorAll('input[name="quantity"]')[0];
+    
+      minus.addEventListener('click', function(){
+        var v = parseInt(qtyText.textContent, 10);
+        if(v > 1){
+          qtyText.textContent = v - 1;
+          qtyInput.value = v - 1;
+        }
+      });
+      plus.addEventListener('click', function(){
+        var v = parseInt(qtyText.textContent, 10);
+        qtyText.textContent = v + 1;
+        qtyInput.value = v + 1;
+      });
+    });
+      });
+  </script>
+{% endif %}
