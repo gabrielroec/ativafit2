@@ -4,6 +4,8 @@
 }
 {%- endcapture -%}
 
+{{ 'announcement-bar.css' | asset_url | stylesheet_tag }}
+
 <section data-section-id="{{ section.id }}" data-section-type="announcement-bar" data-section-settings='{{ section_settings }}'>
   {%- if section.settings.show_newsletter -%}
     <div id="announcement-bar-newsletter" class="announcement-bar__newsletter hidden-phone" aria-hidden="true">
@@ -64,11 +66,21 @@
   <div class="announcement-bar">
     <div class="container">
       <div class="announcement-bar__inner">
-        {%- if section.settings.link != blank -%}
-          <a href="{{ section.settings.link }}" class="announcement-bar__content announcement-bar__content--{{ section.settings.text_position }}">{{ section.settings.text | escape }}</a>
-        {%- else -%}
-          <p class="announcement-bar__content announcement-bar__content--{{ section.settings.text_position }}">{{ section.settings.text | escape }}</p>
-        {%- endif -%}
+        <div class="announcement-bar__ticker">
+          <div class="announcement-bar__ticker-content">
+            {%- if section.settings.link != blank -%}
+              <a href="{{ section.settings.link }}" class="announcement-bar__text">{{ section.settings.text | escape }}</a>
+            {%- else -%}
+              <span class="announcement-bar__text">{{ section.settings.text | escape }}</span>
+            {%- endif -%}
+            
+            {%- if section.settings.link != blank -%}
+              <a href="{{ section.settings.link }}" class="announcement-bar__text">{{ section.settings.text | escape }}</a>
+            {%- else -%}
+              <span class="announcement-bar__text">{{ section.settings.text | escape }}</span>
+            {%- endif -%}
+          </div>
+        </div>
 
         {%- if section.settings.show_newsletter -%}
           <button type="button" class="announcement-bar__button hidden-phone" data-action="toggle-newsletter" aria-expanded="false" aria-controls="announcement-bar-newsletter">
@@ -80,13 +92,6 @@
     </div>
   </div>
 </section>
-
-<style>
-  .announcement-bar {
-    background: {{ section.settings.background }};
-    color: {{ section.settings.text_color }};
-  }
-</style>
 
 <script>
   {%- if section.settings.show_newsletter -%}
@@ -103,39 +108,10 @@
   "name": "Announcement bar",
   "settings": [
     {
-      "type": "color",
-      "id": "background",
-      "label": "Background",
-      "default": "#1e2d7d"
-    },
-    {
-      "type": "color",
-      "id": "text_color",
-      "label": "Text",
-      "default": "#ffffff"
-    },
-    {
       "type": "text",
       "id": "text",
       "label": "Text",
-      "default": "Announce something here"
-    },
-    {
-      "type": "select",
-      "id": "text_position",
-      "label": "Text position",
-      "options": [
-        {
-          "value": "left",
-          "label": "Left"
-        },
-        {
-          "value": "center",
-          "label": "Center"
-        }
-      ],
-      "default": "left",
-      "info": "Text is always centered on mobile."
+      "default": "LIMITED-TIME OFFER: GET 10% OFF WITH COUPON ATIVAFIT10"
     },
     {
       "type": "url",
@@ -145,14 +121,6 @@
     {
       "type": "header",
       "content": "Newsletter"
-    },
-    {
-      "type": "paragraph",
-      "content": "Customers who subscribe will have their email address added to the \"accepts marketing\" [customer list](/admin/customers?query=&accepts_marketing=1)."
-    },
-    {
-      "type": "paragraph",
-      "content": "Only visible on desktop."
     },
     {
       "type": "checkbox",
