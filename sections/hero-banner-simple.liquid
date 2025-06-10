@@ -1,0 +1,223 @@
+<style>
+  .hero-banner-simple {
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    color: #ffffff;
+    margin-top: 70px;
+  }
+
+  .hero-banner-simple__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    /* Ajuste a opacidade conforme necessário */
+  }
+
+  .hero-banner-simple__content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    width: 100%;
+    max-width: 1750px;
+    padding: 0 20px;
+    margin: 0 auto;
+  }
+  .hero-banner-simple__content > div {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: start;
+  }
+  .hero-banner-simple__title {
+    font-size: 50px;
+    font-family: "IBM Plex Mono"
+    , monospace;
+    font-weight: 700;
+    max-width: 625px;
+    text-align: left;
+    line-height: 1.2;
+  }
+
+  .hero-banner-simple__subtitle {
+    font-size: 16px;
+    font-family: "IBM Plex Mono"
+    , monospace;
+    font-weight: 400;
+    margin: 0;
+  }
+
+  .hero-banner-simple__buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .hero-banner-simple__button {
+    padding: 0.75rem 1.5rem;
+    border: 2px solid;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background-color 0.3s
+    , color 0.3s;
+  }
+
+  .hero-banner-simple__button--primary {
+    background-color: rgba(0, 0, 0, 0);
+  }
+
+  .hero-banner-simple__button--secondary {
+    background-color: rgba(255, 255, 255, 0);
+  }
+
+  .hero-banner-simple__button:hover {
+    background-color: #DD4D1E !important;
+    color: #fff !important;
+  }
+</style>
+
+<section class="hero-banner-simple" style="background-image: url({{ section.settings.background_image | default: 'https://ativafit-tech.myshopify.com/cdn/shop/files/banner2.png?v=1749533065&width=2000' | image_url: width: 2000 }});">
+  <div class="hero-banner-simple__overlay"></div>
+  <div class="hero-banner-simple__content">
+    <div>
+      <p class="hero-banner-simple__subtitle">{{ section.settings.subtitle }}</p>
+      <h1 class="hero-banner-simple__title">{{ section.settings.title }}</h1>
+      <div class="hero-banner-simple__buttons">
+        {%- if section.settings.button_1_text != blank and section.settings.button_1_link != blank -%}
+          <a
+            href="{{ section.settings.button_1_link }}"
+            class="hero-banner-simple__button hero-banner-simple__button--primary"
+            style="
+            color: {{ section.settings.button_1_text_color }};
+            border-color: {{ section.settings.button_1_border_color }};
+            background: {{ section.settings.button_1_bg_color }};
+          "
+            data-hover-bg="{{ section.settings.button_1_bg_color_hover }}"
+            data-hover-color="{{ section.settings.button_1_text_color_hover }}">
+            {{ section.settings.button_1_text }}
+          </a>
+        {%- endif -%}
+        {%- if section.settings.button_2_text != blank and section.settings.button_2_link != blank -%}
+          <a
+            href="{{ section.settings.button_2_link }}"
+            class="hero-banner-simple__button hero-banner-simple__button--secondary"
+            style="
+            color: {{ section.settings.button_2_text_color }};
+            border-color: {{ section.settings.button_2_border_color }};
+            background: {{ section.settings.button_2_bg_color }};
+          "
+            data-hover-bg="{{ section.settings.button_2_bg_color_hover }}"
+            data-hover-color="{{ section.settings.button_2_text_color_hover }}">
+            {{ section.settings.button_2_text }}
+          </a>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+  {
+    "name": "Hero Banner Simples",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "background_image",
+        "label": "Imagem de fundo"
+      },
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Título principal",
+        "default": "PERFORMANCE, CONFORT AND STYLE."
+      },
+      {
+        "type": "text",
+        "id": "subtitle",
+        "label": "Subtítulo",
+        "default": "GET IT NOW FOR FATHER'S DAY"
+      },
+      {
+        "type": "text",
+        "id": "button_1_text",
+        "label": "Texto do Botão 1",
+        "default": "SHOP NOW"
+      }, {
+        "type": "url",
+        "id": "button_1_link",
+        "label": "Link do Botão 1"
+      }, {
+        "type": "color",
+        "id": "button_1_text_color",
+        "label": "Cor do texto do Botão 1",
+        "default": "#ffffff"
+      }, {
+        "type": "color",
+        "id": "button_1_border_color",
+        "label": "Cor da borda do Botão 1",
+        "default": "#ffffff"
+      }, {
+        "type": "color",
+        "id": "button_1_bg_color",
+        "label": "Cor de fundo do Botão 1",
+        "default": "rgba(0,0,0,0)"
+      }, {
+        "type": "color",
+        "id": "button_1_bg_color_hover",
+        "label": "Cor de fundo do Botão 1 (hover)",
+        "default": "#ffffff"
+      }, {
+        "type": "color",
+        "id": "button_1_text_color_hover",
+        "label": "Cor do texto do Botão 1 (hover)",
+        "default": "#111111"
+      }, {
+        "type": "text",
+        "id": "button_2_text",
+        "label": "Texto do Botão 2",
+        "default": "EXPLORE COLLECTION"
+      }, {
+        "type": "url",
+        "id": "button_2_link",
+        "label": "Link do Botão 2"
+      }, {
+        "type": "color",
+        "id": "button_2_text_color",
+        "label": "Cor do texto do Botão 2",
+        "default": "#ffffff"
+      }, {
+        "type": "color",
+        "id": "button_2_border_color",
+        "label": "Cor da borda do Botão 2",
+        "default": "#ffffff"
+      }, {
+        "type": "color",
+        "id": "button_2_bg_color",
+        "label": "Cor de fundo do Botão 2",
+        "default": "rgba(255,255,255,0.1)"
+      }, {
+        "type": "color",
+        "id": "button_2_bg_color_hover",
+        "label": "Cor de fundo do Botão 2 (hover)",
+        "default": "#ffffff"
+      }, {
+        "type": "color",
+        "id": "button_2_text_color_hover",
+        "label": "Cor do texto do Botão 2 (hover)",
+        "default": "#111111"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Hero Banner Simples"
+      }
+    ]
+  }
+{% endschema %}
