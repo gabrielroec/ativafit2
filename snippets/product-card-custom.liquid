@@ -1,7 +1,7 @@
 {%- comment -%} 
-                Salve este arquivo como /snippets/product-card.liquid
-                Inclua na sua coleção ou em qualquer template assim: 
-                {% render 'product-card', product: product %} 
+                          Salve este arquivo como /snippets/product-card.liquid
+                          Inclua na sua coleção ou em qualquer template assim: 
+                          {% render 'product-card', product: product %} 
 {%- endcomment -%}
 
 {% comment %}Debug info{% endcomment %}
@@ -22,12 +22,13 @@
         position: relative;
         width: 300px;
         background: #fff;
-        border-radius: 8px;
+        border-radius: 0;
+        border: 1px solid #D9D9D9;
+
         overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         transition: transform 0.3s;
-        font-family: Arial
-        , sans-serif;
+        font-family: "IBM Plex Mono"
+        , monospace;
       }
       .product-card:hover {
         transform: translateY(-5px);
@@ -37,6 +38,7 @@
         height: 334px;
         display: block;
         object-fit: contain;
+        background-image: linear-gradient(to top, #f9f9f9 0, #fff 100%);
       }
       .discount-badge {
         position: absolute;
@@ -47,7 +49,7 @@
         padding: 6px 12px;
         border-radius: 20px;
         font-size: 14px;
-        font-weight: bold;
+        font-weight: 400;
       }
       .controls {
         display: none;
@@ -57,9 +59,9 @@
         transform: translateX(-50%);
         width: calc(100% - 32px);
         background: #fff;
-        border: 2px solid #DD4D1E;
+        border: 1px solid #DD4D1E;
         border-radius: 8px;
-        padding: 12px;
+        padding: 4px;
         box-sizing: border-box;
         justify-content: space-between;
         align-items: stretch;
@@ -68,11 +70,12 @@
       .product-card:hover .controls {
         display: flex;
         align-items: stretch;
-        gap: 10px;
+        gap: 4px;
       }
       .buy-btn {
         background: #DD4D1E;
         color: #fff;
+        font-weight: 600;
         border: none;
         padding: 10px 20px;
         border-radius: 4px;
@@ -90,10 +93,11 @@
         align-items: center;
         border-radius: 4px;
         justify-content: center;
+        gap: 10px;
       }
       .quantity span {
         cursor: pointer;
-        padding: 0 10px;
+        padding: 0;
       }
       .quantity .qty {
         width: 20px;
@@ -186,27 +190,34 @@
 
   {%- comment -%} — JS PARA CONTADOR — mantém simples e isolado por produto {%- endcomment -%}
   <script>
-      document.addEventListener('DOMContentLoaded', function(){
-    // pega todos os cards caso haja mais de um na página
-    document.querySelectorAll('.product-card').forEach(function(card){
-      var minus = card.querySelector('.minus');
-      var plus  = card.querySelector('.plus');
-      var qtyText = card.querySelector('.qty');
-      var qtyInput = card.querySelectorAll('input[name="quantity"]')[0];
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.product-card').forEach(function(card) {
+        const minus = card.querySelector('.minus');
+        const plus = card.querySelector('.plus');
+        const qtyText = card.querySelector('.qty');
+        const qtyInput = card.querySelector('input[name="quantity"]');
     
-      minus.addEventListener('click', function(){
-        var v = parseInt(qtyText.textContent, 10);
-        if(v > 1){
-          qtyText.textContent = v - 1;
-          qtyInput.value = v - 1;
+        function updateQuantity(newValue) {
+          if (newValue >= 1) {
+            qtyText.textContent = newValue;
+            qtyInput.value = newValue;
+          }
         }
-      });
-      plus.addEventListener('click', function(){
-        var v = parseInt(qtyText.textContent, 10);
-        qtyText.textContent = v + 1;
-        qtyInput.value = v + 1;
+    
+        minus.addEventListener('click', function(e) {
+          e.preventDefault();
+          const currentValue = parseInt(qtyText.textContent, 10);
+          if (currentValue > 1) {
+            updateQuantity(currentValue - 1);
+          }
+        });
+    
+        plus.addEventListener('click', function(e) {
+          e.preventDefault();
+          const currentValue = parseInt(qtyText.textContent, 10);
+          updateQuantity(currentValue + 1);
+        });
       });
     });
-      });
   </script>
 {% endif %}
