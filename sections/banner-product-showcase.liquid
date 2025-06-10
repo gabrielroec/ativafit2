@@ -1,0 +1,233 @@
+{%- style -%}
+  .banner-product-showcase {
+    padding: 0 20px;
+    width: 100%;
+    max-width: 1750px;
+    margin: 70px auto 0;
+  }
+
+  .banner-product-showcase__grid {
+    display: flex;
+    gap: 40px;
+  }
+
+  .banner-product-showcase__banner {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    height: 951px;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f4f4f4;
+  }
+
+  .banner-product-showcase__banner-image {
+    width: 100%;
+    height: 951px;
+    max-width: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .banner-product-showcase__products-area {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    height: 100%;
+    justify-content: center;
+  }
+  .banner-product-showcase__product-row {
+    display: flex;
+    gap: 20px;
+  }
+  .banner-product-showcase__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+
+  .banner-product-showcase__title {
+    font-family: "Inter";
+    font-size: 50px;
+    font-weight: 900;
+    letter-spacing: -4px;
+    line-height: 100%;
+    margin: 0;
+  }
+
+  .banner-product-showcase__button {
+    display: inline-block;
+    background: #DD4D1E;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 16px;
+    transition: background 0.3s ease;
+  }
+
+  .banner-product-showcase__button:hover {
+    background: #c23d12;
+  }
+
+  .banner-product-showcase__products-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+  }
+
+
+  @media screen and (max-width: 1024px) {
+    .banner-product-showcase__banner {
+      min-height: 300px;
+    }
+
+    .banner-product-showcase__products-area {
+      width: 50%;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    .banner-product-showcase__grid {
+      flex-direction: column;
+    }
+
+    .banner-product-showcase__banner,
+    .banner-product-showcase__products-area {
+      width: 100%;
+      min-height: 250px;
+    }
+
+    .banner-product-showcase__products-grid {
+      grid-template-columns: 1fr;
+      grid-template-rows: repeat(4, 1fr);
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .banner-product-showcase__slide {
+      flex: 0 0 100%;
+    }
+  }
+{%- endstyle -%}
+
+<div class="banner-product-showcase">
+  <div class="banner-product-showcase__header">
+    <h2 class="banner-product-showcase__title">{{ section.settings.title }}</h2>
+    <a href="{{ section.settings.button_link }}" class="banner-product-showcase__button">
+      {{ section.settings.button_text }}
+    </a>
+  </div>
+  <div class="banner-product-showcase__grid">
+    <div class="banner-product-showcase__banner">
+      {% if section.settings.banner_image != blank %}
+        <img
+          src="{{ section.settings.banner_image | img_url: '1000x' }}"
+          alt="Banner"
+          width="1000"
+          height="700"
+          class="banner-product-showcase__banner-image">
+      {% else %}
+        <span style="color: #999;">Banner não disponível</span>
+      {% endif %}
+    </div>
+    <div class="banner-product-showcase__products-area">
+      <div class="banner-product-showcase__products-grid">
+        {% assign p1 = section.settings.product_1 %}
+        {% assign p2 = section.settings.product_2 %}
+        {% assign p3 = section.settings.product_3 %}
+        {% assign p4 = section.settings.product_4 %}
+        <div class="banner-product-showcase__product-row">
+
+          <div class="banner-product-showcase__product-cell">
+            {% if p1 != blank %}
+              {% assign product = all_products[p1] %}
+              {% render 'product-card-custom'
+                , product: product %}
+            {% endif %}
+          </div>
+          <div class="banner-product-showcase__product-cell">
+            {% if p2 != blank %}
+              {% assign product = all_products[p2] %}
+              {% render 'product-card-custom'
+                , product: product %}
+            {% endif %}
+          </div>
+        </div>
+        <div class="banner-product-showcase__product-row">
+          <div class="banner-product-showcase__product-cell">
+            {% if p3 != blank %}
+              {% assign product = all_products[p3] %}
+              {% render 'product-card-custom'
+                , product: product %}
+            {% endif %}
+          </div>
+          <div class="banner-product-showcase__product-cell">
+            {% if p4 != blank %}
+              {% assign product = all_products[p4] %}
+              {% render 'product-card-custom'
+                , product: product %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% schema %}
+  {
+    "name": "Banner com Produtos",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "banner_image",
+        "label": "Imagem do Banner"
+      },
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Título",
+        "default": "TRENDING"
+      },
+      {
+        "type": "text",
+        "id": "button_text",
+        "label": "Texto do Botão",
+        "default": "SHOP ALL TREND"
+      },
+      {
+        "type": "url",
+        "id": "button_link",
+        "label": "Link do Botão"
+      }, {
+        "type": "product",
+        "id": "product_1",
+        "label": "Produto 1"
+      }, {
+        "type": "product",
+        "id": "product_2",
+        "label": "Produto 2"
+      }, {
+        "type": "product",
+        "id": "product_3",
+        "label": "Produto 3"
+      }, {
+        "type": "product",
+        "id": "product_4",
+        "label": "Produto 4"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Banner com Produtos",
+        "settings": {}
+      }
+    ]
+  }
+{% endschema %}
