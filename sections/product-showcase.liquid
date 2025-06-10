@@ -3,12 +3,15 @@
     padding: 0 20px;
     width: 100%;
     max-width: 1750px;
-    margin: 40px auto 0;
+    margin: 70px auto 0;
   }
 
   .product-showcase__header {
     text-align: left;
     margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   .product-showcase__title {
@@ -16,6 +19,7 @@
     font-size: 50px;
     font-weight: 900;
     letter-spacing: -4px;
+    line-height: 100%;
     margin: 0;
   }
 
@@ -35,7 +39,7 @@
   }
 
   .product-showcase__navigation {
-    display: flex;
+    display: none !important;
     justify-content: flex-end;
     gap: 10px;
     padding: 20px;
@@ -64,9 +68,33 @@
     height: 20px;
   }
 
+  .product-showcase__view-all {
+    background: #DD4D1E;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 16px;
+    transition: background 0.3s ease;
+  }
+
+  .product-showcase__view-all:hover {
+    background: #c23d12;
+  }
+
   @media screen and (max-width: 768px) {
     .product-showcase__slide {
       width: calc(50% - 10px);
+    }
+
+    .product-showcase__header {
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .product-showcase__view-all {
+      align-self: flex-start;
     }
   }
 
@@ -80,6 +108,9 @@
 <div class="product-showcase">
   <div class="product-showcase__header">
     <h2 class="product-showcase__title">{{ section.settings.title | escape }}</h2>
+    <a href="{{ section.settings.view_all_link }}" class="product-showcase__view-all">
+      {{ section.settings.view_all_text | default: 'VIEW ALL' }}
+    </a>
   </div>
 
   <div class="product-showcase__slider">
@@ -145,6 +176,15 @@
         "type": "collection",
         "id": "collection",
         "label": "Coleção"
+      }, {
+        "type": "url",
+        "id": "view_all_link",
+        "label": "Link do botão View All"
+      }, {
+        "type": "text",
+        "id": "view_all_text",
+        "label": "Texto do botão View All",
+        "default": "VIEW ALL"
       }
     ],
     "presets": [
