@@ -1,17 +1,19 @@
 <style>
   .endorsement-slider-section {
     background: #fff;
-    padding: 40px 0;
+    padding: 70px 0 0;
     overflow: hidden;
   }
   .endorsement-slider-title {
+    font-family: "Inter";
     font-size: 50px;
-    font-family: "IBM Plex Mono", monospace;
-    font-weight: 700;
+    font-weight: 900;
+    letter-spacing: -4px;
+    line-height: 100%;
+    width: 100%;
     text-align: center;
-    margin-bottom: 40px;
-    line-height: 1.2;
-    letter-spacing: -2px;
+    margin: 0;
+    word-spacing: 10px;
   }
   .endorsement-slider-wrapper {
     width: 100%;
@@ -25,8 +27,12 @@
     will-change: transform;
   }
   @keyframes scrollSlider {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
   }
   .endorsement-slide {
     min-width: 320px;
@@ -45,34 +51,87 @@
   .endorsement-slide-text {
     font-size: 16px;
     color: #222;
-    font-family: "IBM Plex Mono", monospace;
+    font-family: "IBM Plex Mono"
+    , monospace;
     margin-bottom: 0;
   }
 </style>
 
 <section class="endorsement-slider-section">
   <div class="endorsement-slider-title">
-    ENDORSEMENTS FROM GLOBAL MEDIA
+    {{ section.settings.title }}
   </div>
   <div class="endorsement-slider-wrapper">
     <div class="endorsement-slider-track">
-      {% for i in (1..8) %}
-      <div class="endorsement-slide">
-        <img src="https://placehold.co/60x60?text=Logo" alt="Marca {{ i }}">
-        <div class="endorsement-slide-text">
-          “Texto de depoimento da marca {{ i }} sobre a loja.”
+      {% for block in section.blocks %}
+        <div class="endorsement-slide">
+          <img src="{{ block.settings.logo | image_url: width: 60 }}" alt="{{ block.settings.brand | escape }}">
+          <div class="endorsement-slide-text">
+            “{{ block.settings.text }}”
+          </div>
         </div>
-      </div>
       {% endfor %}
       <!-- Duplicando para efeito de loop infinito -->
-      {% for i in (1..8) %}
-      <div class="endorsement-slide">
-        <img src="https://placehold.co/60x60?text=Logo" alt="Marca {{ i }}">
-        <div class="endorsement-slide-text">
-          “Texto de depoimento da marca {{ i }} sobre a loja.”
+      {% for block in section.blocks %}
+        <div class="endorsement-slide">
+          <img src="{{ block.settings.logo | image_url: width: 60 }}" alt="{{ block.settings.brand | escape }}">
+          <div class="endorsement-slide-text">
+            “{{ block.settings.text }}”
+          </div>
         </div>
-      </div>
       {% endfor %}
     </div>
   </div>
 </section>
+
+{% schema %}
+  {
+    "name": "Endorsement Slider",
+    "settings": [
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Título",
+        "default": "ENDORSEMENTS FROM GLOBAL MEDIA"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "endorsement",
+        "name": "Depoimento",
+        "settings": [
+          {
+            "type": "image_picker",
+            "id": "logo",
+            "label": "Logo da Marca"
+          }, {
+            "type": "text",
+            "id": "brand",
+            "label": "Nome da Marca"
+          }, {
+            "type": "text",
+            "id": "text",
+            "label": "Texto do Depoimento",
+            "default": "Texto de depoimento da marca sobre a loja."
+          }
+        ]
+      }
+    ],
+    "max_blocks": 20,
+    "presets": [
+      {
+        "name": "Endorsement Slider",
+        "category": "Depoimentos",
+        "blocks": [
+          {
+            "type": "endorsement"
+          }, {
+            "type": "endorsement"
+          }, {
+            "type": "endorsement"
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}
