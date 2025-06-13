@@ -14,33 +14,27 @@
     text-align: center;
     margin: 0;
     word-spacing: 10px;
+    margin-bottom: 40px;
   }
   .endorsement-slider-wrapper {
     width: 100%;
     overflow: hidden;
     position: relative;
+    padding: 40px 0;
   }
   .endorsement-slider-track {
     display: flex;
     gap: 60px;
-    animation: scrollSlider 30s linear infinite;
-    will-change: transform;
-  }
-  @keyframes scrollSlider {
-    0% {
-      transform: translateX(0);
-    }
-    100% {
-      transform: translateX(-50%);
-    }
+    position: relative;
+    width: fit-content;
   }
   .endorsement-slide {
     min-width: 320px;
     max-width: 320px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
+    align-items: start;
+    text-align: left;
   }
   .endorsement-slide img {
     width: 60px;
@@ -51,38 +45,120 @@
   .endorsement-slide-text {
     font-size: 16px;
     color: #222;
-    font-family: "IBM Plex Mono"
-    , monospace;
+    font-family: "IBM Plex Mono", monospace;
     margin-bottom: 0;
   }
 </style>
 
-<section class="endorsement-slider-section">
+<section class="endorsement-slider-section" data-slider-container>
   <div class="endorsement-slider-title">
     {{ section.settings.title }}
   </div>
   <div class="endorsement-slider-wrapper">
-    <div class="endorsement-slider-track">
+    <div class="endorsement-slider-track" data-slider-track>
       {% for block in section.blocks %}
-        <div class="endorsement-slide">
-          <img src="{{ block.settings.logo | image_url: width: 60 }}" alt="{{ block.settings.brand | escape }}">
+        <div class="endorsement-slide" data-slide>
+          <img 
+            src="{{ block.settings.logo | image_url: width: 60 }}" 
+            alt="{{ block.settings.brand | escape }}"
+            width="60"
+            height="60"
+            loading="lazy">
           <div class="endorsement-slide-text">
-            “{{ block.settings.text }}”
-          </div>
-        </div>
-      {% endfor %}
-      <!-- Duplicando para efeito de loop infinito -->
-      {% for block in section.blocks %}
-        <div class="endorsement-slide">
-          <img src="{{ block.settings.logo | image_url: width: 60 }}" alt="{{ block.settings.brand | escape }}">
-          <div class="endorsement-slide-text">
-            “{{ block.settings.text }}”
+            "{{ block.settings.text }}"
           </div>
         </div>
       {% endfor %}
     </div>
   </div>
 </section>
+
+<script>
+  class EndorsementSlider {
+    constructor(container) {
+      this.container = container;
+      this.track = container.querySelector('[data-slider-track]');
+      this.slides = [...this.track.children];
+      this.position = 0;
+      this.slideWidth = 380; // 320px + 60px gap
+      this.isAnimating = false;
+      
+      this.init();
+    }
+
+    init() {
+      // Verificar se há slides suficientes
+      if (this.slides.length < 2) return;
+
+      // Clonar slides para criar o efeito infinito
+      // Vamos clonar o conjunto completo 3 vezes para garantir uma transição suave
+      for (let i = 0; i < 3; i++) {
+        this.slides.forEach(slide => {
+          const clone = slide.cloneNode(true);
+          this.track.appendChild(clone);
+        });
+      }
+
+      // Posicionar o track para começar do primeiro conjunto de slides
+      this.position = 0;
+      this.updatePosition();
+
+      // Iniciar animação
+      this.animate();
+
+      // Pausar no hover
+      this.container.addEventListener('mouseenter', () => this.pause());
+      this.container.addEventListener('mouseleave', () => this.animate());
+
+      // Observar visibilidade da página
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          this.pause();
+        } else {
+          this.animate();
+        }
+      });
+    }
+
+    updatePosition() {
+      this.track.style.transform = `translateX(${this.position}px)`;
+    }
+
+    animate() {
+      if (this.isAnimating) return;
+      this.isAnimating = true;
+
+      const move = () => {
+        if (!this.isAnimating) return;
+
+        this.position -= 0.5; // Reduzido de 1 para 0.5 para mover mais lentamente
+        this.updatePosition();
+
+        // Quando o primeiro conjunto completo de slides passar, 
+        // voltamos discretamente para o segundo conjunto
+        const firstSetWidth = this.slides.length * this.slideWidth;
+        if (Math.abs(this.position) >= firstSetWidth) {
+          this.position += firstSetWidth;
+          this.updatePosition();
+        }
+
+        requestAnimationFrame(move);
+      };
+
+      requestAnimationFrame(move);
+    }
+
+    pause() {
+      this.isAnimating = false;
+    }
+  }
+
+  // Inicializar todos os sliders na página
+  document.addEventListener('DOMContentLoaded', () => {
+    const sliders = document.querySelectorAll('[data-slider-container]');
+    sliders.forEach(slider => new EndorsementSlider(slider));
+  });
+</script>
 
 {% schema %}
   {
