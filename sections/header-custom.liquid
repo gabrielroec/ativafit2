@@ -11,7 +11,9 @@
     max-width: 1750px !important;
     margin: 0 auto;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    margin-top: 16px;
+    gap:16px;
     align-items: center;
   }
 
@@ -34,7 +36,7 @@
     display: flex;
     align-items: center;
     gap: 5px;
-    font-family: 'IBM Plex Mono'
+    font-family: 'IBMPlexMonoRegular'
   }
 
   .header-navigation__link:hover {
@@ -79,6 +81,12 @@
     max-width: {{ section.settings.logo_max_width }}px;
   }
 
+  .header__logo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
   .header-logo img {
     width: 100%;
     height: auto;
@@ -119,6 +127,28 @@
 {%- endstyle -%}
 
 <div class="header-wrapper">
+   {%- comment -%} Logo {%- endcomment -%}
+   <div class="header__logo">
+    <a href="{{ routes.root_url }}" class="header__logo-link">
+      <img
+        class="header__logo-image"
+        src="https://ativafit-tech.myshopify.com/cdn/shop/files/ativafit_logo_120x@2x.png?v=1614353361"
+        alt="{{ section.settings.logo.alt | default: shop.name | escape }}"
+        width="120"
+        height="120"
+        loading="lazy">
+
+    </a>
+    <div class="header-actions">
+      <a href="/search" class="header-search">SEARCH</a>
+      <a href="/account" class="header-account">ACCOUNT</a>
+      <a href="/cart" class="header-cart">
+        CART{% if cart.item_count > 0 %}
+          <span class="cart-count">[{{ cart.item_count }}]</span>
+        {% endif %}
+      </a>
+    </div>
+  </div>
   <div class="header-container">
     <nav class="header-navigation">
       {%- assign navigation_menu_handle = section.settings.navigation_menu | default: 'main-menu-new-0411' -%}
@@ -171,29 +201,9 @@
       {%- endfor -%}
     </nav>
 
-    {%- comment -%} Logo {%- endcomment -%}
-    <div class="header__logo">
-      <a href="{{ routes.root_url }}" class="header__logo-link">
-        <img
-          class="header__logo-image"
-          src="https://ativafit-tech.myshopify.com/cdn/shop/files/ativafit_logo_120x@2x.png?v=1614353361"
-          alt="{{ section.settings.logo.alt | default: shop.name | escape }}"
-          width="120"
-          height="120"
-          loading="lazy">
+   
 
-      </a>
-    </div>
-
-    <div class="header-actions">
-      <a href="/search" class="header-search">SEARCH</a>
-      <a href="/account" class="header-account">ACCOUNT</a>
-      <a href="/cart" class="header-cart">
-        CART{% if cart.item_count > 0 %}
-          <span class="cart-count">[{{ cart.item_count }}]</span>
-        {% endif %}
-      </a>
-    </div>
+    
   </div>
 </div>
 
