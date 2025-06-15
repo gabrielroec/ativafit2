@@ -12,7 +12,6 @@
     margin: 0 auto;
     display: flex;
     justify-content: center;
-    margin-top: 16px;
     gap:16px;
     align-items: center;
   }
@@ -139,6 +138,62 @@
         loading="lazy">
 
     </a>
+    <div class="header-container">
+      <nav class="header-navigation">
+        {%- assign navigation_menu_handle = section.settings.navigation_menu | default: 'main-menu-new-0411' -%}
+        {%- assign navigation_menu = linklists[navigation_menu_handle] -%}
+  
+        {%- for link in navigation_menu.links -%}
+          {%- assign display_title = "" -%}
+  
+          {%- case link.title -%}
+            {%- when "Adjustable Dumbbells" -%}
+              {%- assign display_title = "DUMBBELLS" -%}
+            {%- when "Exercise Bikes" -%}
+              {%- assign display_title = "BIKES" -%}
+            {%- when "Trampolines For Kids" -%}
+              {%- assign display_title = "TRAMPOLINE" -%}
+            {%- when "Accessories" -%}
+              {%- assign display_title = "ACCESSORIES" -%}
+          {%- endcase -%}
+  
+          {%- if display_title != "" -%}
+            <div class="header-navigation__item">
+              <a
+                href="{{ link.url }}"
+                class="header-navigation__link"
+                {% if link.links.size > 0 %}
+                aria-expanded="false"
+                aria-haspopup="true"
+                {% endif %}>
+                {{ display_title }}
+                {%- if link.links.size > 0 -%}
+                  <svg class="icon-arrow" viewBox="0 0 12 8">
+                    <path
+                      d="M1 1l5 5 5-5"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2" />
+                  </svg>
+                {%- endif -%}
+              </a>
+  
+              {%- if link.links.size > 0 -%}
+                <div class="header-navigation__dropdown">
+                  {%- for childlink in link.links -%}
+                    <a href="{{ childlink.url }}" class="header-navigation__dropdown-link">{{ childlink.title }}</a>
+                  {%- endfor -%}
+                </div>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </nav>
+  
+     
+  
+      
+    </div>
     <div class="header-actions">
       <a href="/search" class="header-search">SEARCH</a>
       <a href="/account" class="header-account">ACCOUNT</a>
@@ -149,62 +204,7 @@
       </a>
     </div>
   </div>
-  <div class="header-container">
-    <nav class="header-navigation">
-      {%- assign navigation_menu_handle = section.settings.navigation_menu | default: 'main-menu-new-0411' -%}
-      {%- assign navigation_menu = linklists[navigation_menu_handle] -%}
-
-      {%- for link in navigation_menu.links -%}
-        {%- assign display_title = "" -%}
-
-        {%- case link.title -%}
-          {%- when "Adjustable Dumbbells" -%}
-            {%- assign display_title = "DUMBBELLS" -%}
-          {%- when "Exercise Bikes" -%}
-            {%- assign display_title = "BIKES" -%}
-          {%- when "Trampolines For Kids" -%}
-            {%- assign display_title = "TRAMPOLINE" -%}
-          {%- when "Accessories" -%}
-            {%- assign display_title = "ACCESSORIES" -%}
-        {%- endcase -%}
-
-        {%- if display_title != "" -%}
-          <div class="header-navigation__item">
-            <a
-              href="{{ link.url }}"
-              class="header-navigation__link"
-              {% if link.links.size > 0 %}
-              aria-expanded="false"
-              aria-haspopup="true"
-              {% endif %}>
-              {{ display_title }}
-              {%- if link.links.size > 0 -%}
-                <svg class="icon-arrow" viewBox="0 0 12 8">
-                  <path
-                    d="M1 1l5 5 5-5"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2" />
-                </svg>
-              {%- endif -%}
-            </a>
-
-            {%- if link.links.size > 0 -%}
-              <div class="header-navigation__dropdown">
-                {%- for childlink in link.links -%}
-                  <a href="{{ childlink.url }}" class="header-navigation__dropdown-link">{{ childlink.title }}</a>
-                {%- endfor -%}
-              </div>
-            {%- endif -%}
-          </div>
-        {%- endif -%}
-      {%- endfor -%}
-    </nav>
-
-   
-
-    
-  </div>
+ 
 </div>
 
 {% schema %}
