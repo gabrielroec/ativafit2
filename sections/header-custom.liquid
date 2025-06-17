@@ -1,7 +1,7 @@
 {%- style -%}
   .header-wrapper {
     background-color: #1a1a1a;
-    padding: 30px 20px;
+    padding: 20px;
     position: relative;
     z-index: 100;
     border-bottom: 1px solid #515151;
@@ -10,9 +10,28 @@
   .header-container {
     max-width: 1750px !important;
     margin: 0 auto;
+  }
+
+  .header-logo-section {
     display: flex;
     justify-content: center;
-    gap:16px;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .header-logo {
+    max-width: {{ section.settings.logo_max_width }}px;
+  }
+
+  .header-logo img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .header-navigation-section {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
   }
 
@@ -76,28 +95,6 @@
     fill: currentColor;
   }
 
-  .header-logo {
-    max-width: {{ section.settings.logo_max_width }}px;
-  }
-
-  .header__logo {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-  .header-logo img {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-
-  @media screen and (max-width: 641px) {
-    .header-logo {
-      max-width: {{ section.settings.mobile_logo_max_width }}px;
-    }
-  }
-
   .header-actions {
     display: flex;
     gap: 40px;
@@ -115,30 +112,111 @@
     color: #ffffff;
   }
 
-  @media screen and (max-width: 768px) {
+  /* Mobile menu styles */
+  .header-mobile-menu-icon {
+    display: none;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 32px;
+    cursor: pointer;
+    margin-right: 20px;
+    z-index: 120;
+  }
+
+  .header-mobile-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 80vw;
+    max-width: 350px;
+    height: 100vh;
+    background: #1a1a1a;
+    box-shadow: 2px 0 16px rgba(0,0,0,0.2);
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    z-index: 200;
+    padding: 40px 24px 24px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .header-mobile-menu.open {
+    transform: translateX(0);
+  }
+  .header-mobile-menu-close {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 32px;
+    align-self: flex-end;
+    cursor: pointer;
+    margin-bottom: 24px;
+  }
+  .header-mobile-menu-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .header-mobile-menu-link {
+    color: #fff;
+    text-decoration: none;
+    font-size: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-family: 'IBMPlexMonoRegular';
+    transition: color 0.3s;
+  }
+  .header-mobile-menu-link:hover {
+    color: #eb7122;
+  }
+  .header-mobile-menu-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 150;
+  }
+  .header-mobile-menu-backdrop.open {
+    display: block;
+  }
+
+  @media screen and (max-width: 1080px) {
     .header-navigation {
       display: none;
     }
-  }
-  .header__logo {
-    margin: 0 !important;
+    .header-mobile-menu-icon {
+      display: block;
+    }
+    .header-navigation-section {
+      justify-content: space-between;
+      align-items: center;
+    }
   }
 {%- endstyle -%}
 
 <div class="header-wrapper">
-   {%- comment -%} Logo {%- endcomment -%}
-   <div class="header__logo">
-    <a href="{{ routes.root_url }}" class="header__logo-link">
-      <img
-        class="header__logo-image"
-        src="https://ativafit-tech.myshopify.com/cdn/shop/files/ativafit_logo_120x@2x.png?v=1614353361"
-        alt="{{ section.settings.logo.alt | default: shop.name | escape }}"
-        width="120"
-        height="120"
-        loading="lazy">
+  <div class="header-container">
+    <!-- Logo centralizada no topo -->
+    <div class="header-logo-section">
+      <a href="{{ routes.root_url }}" class="header-logo">
+        <img
+          class="header-logo-image"
+          src="https://ativafit-tech.myshopify.com/cdn/shop/files/ativafit_logo_120x@2x.png?v=1614353361"
+          alt="{{ section.settings.logo.alt | default: shop.name | escape }}"
+          width="120"
+          height="120"
+          loading="lazy">
+      </a>
+    </div>
 
-    </a>
-    <div class="header-container">
+    <!-- Menu e links nas laterais -->
+    <div class="header-navigation-section">
+      <!-- Ícone do menu mobile -->
+      <button class="header-mobile-menu-icon" id="header-mobile-menu-open" aria-label="Open menu">
+        &#9776;
+      </button>
+      <!-- Menu de navegação à esquerda (desktop) -->
       <nav class="header-navigation">
         {%- assign navigation_menu_handle = section.settings.navigation_menu | default: 'main-menu-new-0411' -%}
         {%- assign navigation_menu = linklists[navigation_menu_handle] -%}
@@ -155,6 +233,10 @@
               {%- assign display_title = "TRAMPOLINE" -%}
             {%- when "Accessories" -%}
               {%- assign display_title = "ACCESSORIES" -%}
+            {%- when "Community" -%}
+              {%- assign display_title = "COMMUNITY" -%}
+            {%- when "Support" -%}
+              {%- assign display_title = "SUPPORT" -%}
           {%- endcase -%}
   
           {%- if display_title != "" -%}
@@ -189,23 +271,77 @@
           {%- endif -%}
         {%- endfor -%}
       </nav>
-  
-     
-  
-      
-    </div>
-    <div class="header-actions">
-      <a href="/search" class="header-search">SEARCH</a>
-      <a href="/account" class="header-account">ACCOUNT</a>
-      <a href="/cart" class="header-cart">
-        CART{% if cart.item_count > 0 %}
-          <span class="cart-count">[{{ cart.item_count }}]</span>
-        {% endif %}
-      </a>
+
+      <!-- Links à direita -->
+      <div class="header-actions">
+        <a href="/search" class="header-search">SEARCH</a>
+        <a href="/account" class="header-account">ACCOUNT</a>
+        <a href="/cart" class="header-cart">
+          CART{% if cart.item_count > 0 %}
+            <span class="cart-count">[{{ cart.item_count }}]</span>
+          {% endif %}
+        </a>
+      </div>
     </div>
   </div>
- 
+
+  <!-- Mobile menu -->
+  <div class="header-mobile-menu-backdrop" id="header-mobile-menu-backdrop"></div>
+  <nav class="header-mobile-menu" id="header-mobile-menu" aria-label="Mobile menu">
+    <button class="header-mobile-menu-close" id="header-mobile-menu-close" aria-label="Close menu">&times;</button>
+    <div class="header-mobile-menu-nav">
+      {%- assign navigation_menu_handle = section.settings.navigation_menu | default: 'main-menu-new-0411' -%}
+      {%- assign navigation_menu = linklists[navigation_menu_handle] -%}
+      {%- for link in navigation_menu.links -%}
+        {%- assign display_title = "" -%}
+        {%- case link.title -%}
+          {%- when "Adjustable Dumbbells" -%}
+            {%- assign display_title = "DUMBBELLS" -%}
+          {%- when "Exercise Bikes" -%}
+            {%- assign display_title = "BIKES" -%}
+          {%- when "Trampolines For Kids" -%}
+            {%- assign display_title = "TRAMPOLINE" -%}
+          {%- when "Accessories" -%}
+            {%- assign display_title = "ACCESSORIES" -%}
+          {%- when "Community" -%}
+            {%- assign display_title = "COMMUNITY" -%}
+          {%- when "Support" -%}
+            {%- assign display_title = "SUPPORT" -%}
+        {%- endcase -%}
+        {%- if display_title != "" -%}
+          <a href="{{ link.url }}" class="header-mobile-menu-link">{{ display_title }}</a>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </nav>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const openBtn = document.getElementById('header-mobile-menu-open');
+    const closeBtn = document.getElementById('header-mobile-menu-close');
+    const mobileMenu = document.getElementById('header-mobile-menu');
+    const backdrop = document.getElementById('header-mobile-menu-backdrop');
+
+    function openMenu() {
+      mobileMenu.classList.add('open');
+      backdrop.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeMenu() {
+      mobileMenu.classList.remove('open');
+      backdrop.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    if (openBtn) openBtn.addEventListener('click', openMenu);
+    if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+    if (backdrop) backdrop.addEventListener('click', closeMenu);
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeMenu();
+    });
+  });
+</script>
 
 {% schema %}
   {
