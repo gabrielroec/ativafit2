@@ -193,6 +193,35 @@
       align-items: center;
     }
   }
+
+  .header-mobile-menu-item {
+    position: relative;
+  }
+  .header-mobile-menu-arrow {
+    margin-left: 10px;
+    font-size: 16px;
+    transition: transform 0.3s;
+    display: inline-block;
+  }
+  .header-mobile-menu-item.open > .header-mobile-menu-link .header-mobile-menu-arrow {
+    transform: rotate(180deg);
+  }
+  .header-mobile-menu-children {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    margin-left: 18px;
+    margin-top: 8px;
+  }
+  .header-mobile-menu-item.open > .header-mobile-menu-children {
+    display: flex;
+  }
+  .header-mobile-menu-link--child {
+    font-size: 16px;
+    font-weight: 400;
+    color: #ccc;
+    text-transform: none;
+  }
 {%- endstyle -%}
 
 <div class="header-wrapper">
@@ -309,7 +338,21 @@
             {%- assign display_title = "SUPPORT" -%}
         {%- endcase -%}
         {%- if display_title != "" -%}
-          <a href="{{ link.url }}" class="header-mobile-menu-link">{{ display_title }}</a>
+          <div class="header-mobile-menu-item{% if link.links.size > 0 %} has-children{% endif %}">
+            <a href="{{ link.url }}" class="header-mobile-menu-link" {% if link.links.size > 0 %}data-has-children="true"{% endif %}>
+              {{ display_title }}
+              {% if link.links.size > 0 %}
+                <span class="header-mobile-menu-arrow">&#9662;</span>
+              {% endif %}
+            </a>
+            {% if link.links.size > 0 %}
+              <div class="header-mobile-menu-children">
+                {% for childlink in link.links %}
+                  <a href="{{ childlink.url }}" class="header-mobile-menu-link header-mobile-menu-link--child">{{ childlink.title }}</a>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
         {%- endif -%}
       {%- endfor -%}
     </div>
@@ -339,6 +382,15 @@
     if (backdrop) backdrop.addEventListener('click', closeMenu);
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') closeMenu();
+    });
+
+    // Expansão de subitens no menu mobile
+    document.querySelectorAll('.header-mobile-menu-link[data-has-children]').forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        var item = link.parentElement;
+        item.classList.toggle('open');
+      });
     });
   });
 </script>
