@@ -12,9 +12,8 @@
     line-height: 100%;
     width: 100%;
     text-align: center;
-    margin: 0;
+    margin: 0 0 40px;
     word-spacing: 10px;
-    margin-bottom: 40px;
   }
   .endorsement-slider-wrapper {
     width: 100%;
@@ -33,18 +32,26 @@
     max-width: 320px;
     display: flex;
     flex-direction: column;
-    align-items: start;
-    text-align: left;
+    align-items: center;
+    text-align: center;
   }
   .endorsement-slide img {
-    width: 127px;
+    width: fit-content;
     object-fit: contain;
     margin-bottom: 16px;
+    filter: grayscale(100%);
+    /* Adiciona o filtro preto e branco */
+    transition: filter 0.3s ease;
+    /* Opcional: adiciona uma transição suave */
+  }
+
+  /* Opcional: remove o filtro no hover para dar mais interatividade */
+  .endorsement-slide img:hover {
+    filter: grayscale(0%);
   }
   .endorsement-slide-text {
     font-size: 16px;
     color: #222;
-    font-family: "IBM Plex Mono", monospace;
     margin-bottom: 0;
   }
 </style>
@@ -57,13 +64,15 @@
     <div class="endorsement-slider-track" data-slider-track>
       {% for block in section.blocks %}
         <div class="endorsement-slide" data-slide>
-          <img 
-            src="{{ block.settings.logo | image_url: width: 127 }}" 
+          <img
+            src="{{ block.settings.logo | image_url: width: 127 }}"
             alt="{{ block.settings.brand | escape }}"
             loading="lazy">
-          <div class="endorsement-slide-text">
-            "{{ block.settings.text }}"
-          </div>
+          {% if block.settings.text != blank %}
+            <div class="endorsement-slide-text">
+              "{{ block.settings.text }}"
+            </div>
+          {% endif %}
         </div>
       {% endfor %}
     </div>

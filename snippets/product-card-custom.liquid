@@ -152,12 +152,12 @@
       <form
         action="/cart/add"
         method="post"
-        class="controls">
+        class="controls"
+        data-product-id="{{ product.id }}">
         <input
           type="hidden"
           name="id"
-          value="{{ product.selected_or_first_available_variant.id }}"
-          class="quantity-input">
+          value="{{ product.selected_or_first_available_variant.id }}">
         <input
           type="hidden"
           name="quantity"
@@ -191,32 +191,37 @@
   {%- comment -%} — JS PARA CONTADOR — mantém simples e isolado por produto {%- endcomment -%}
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      document.querySelectorAll('.product-card').forEach(function(card) {
-        const minus = card.querySelector('.minus');
-        const plus = card.querySelector('.plus');
-        const qtyText = card.querySelector('.qty');
-        const qtyInput = card.querySelector('input[name="quantity"]');
-    
-        function updateQuantity(newValue) {
-          if (newValue >= 1) {
-            qtyText.textContent = newValue;
-            qtyInput.value = newValue;
+      const productCards = document.querySelectorAll('.product-card');
+      
+      productCards.forEach(card => {
+        const form = card.querySelector('form');
+        if (!form) return;
+        
+        const quantityInput = form.querySelector('input[name="quantity"]');
+        const qtyDisplay = form.querySelector('.qty');
+        const plusButton = form.querySelector('.plus');
+        const minusButton = form.querySelector('.minus');
+        
+        let quantity = 1;
+        
+        plusButton.addEventListener('click', (e) => {
+          e.preventDefault();
+          quantity++;
+          updateQuantity();
+        });
+        
+        minusButton.addEventListener('click', (e) => {
+          e.preventDefault();
+          if (quantity > 1) {
+            quantity--;
+            updateQuantity();
           }
+        });
+        
+        function updateQuantity() {
+          quantityInput.value = quantity;
+          qtyDisplay.textContent = quantity;
         }
-    
-        minus.addEventListener('click', function(e) {
-          e.preventDefault();
-          const currentValue = parseInt(qtyText.textContent, 10);
-          if (currentValue > 1) {
-            updateQuantity(currentValue - 1);
-          }
-        });
-    
-        plus.addEventListener('click', function(e) {
-          e.preventDefault();
-          const currentValue = parseInt(qtyText.textContent, 10);
-          updateQuantity(currentValue + 1);
-        });
       });
     });
   </script>
