@@ -4,7 +4,7 @@
     padding: 20px;
     position: relative;
     z-index: 100;
-    border-bottom: 1px solid cdcdcd;
+    border-bottom: 1px solid #cdcdcd;
   }
 
   .header-container {
@@ -16,7 +16,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 0 !important;
   }
 
   .header-logo {
@@ -123,6 +123,19 @@
 
 .cart-count {
   color: #ffffff;
+  background-color: #eb701f;
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  font-size: 12px;
+  font-family: 'Barlow';
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid #fff;
+  border-radius: 1000px;
 }
 
 /* Mobile menu styles */
@@ -177,7 +190,6 @@
   font-size: 20px;
   font-weight: 600;
   text-transform: uppercase;
-  font-family: 'IBMPlexMonoRegular';
   transition: color 0.3s;
 }
 .header-mobile-menu-link:hover {
@@ -270,6 +282,9 @@
   font-weight: 400;
   color: #ccc;
   text-transform: none;
+}
+.header-cart {
+  position: relative;
 }
 {%- endstyle -%}
 
@@ -441,7 +456,7 @@
           </svg>
 
           {% if cart.item_count > 0 %}
-            <span class="cart-count">[{{ cart.item_count }}]</span>
+            <span class="cart-count">{{ cart.item_count }}</span>
           {% endif %}
         </a>
       </div>
@@ -481,7 +496,7 @@
           <div class="header-mobile-menu-item{% if link.links.size > 0 %} has-children{% endif %}">
             <a
               href="{{ link.url }}"
-              class="header-mobile-menu-link"
+              class="header-mobile-menu-link bold"
               {% if link.links.size > 0 %}
               data-has-children="true"
               {% endif %}>
@@ -493,7 +508,7 @@
             {% if link.links.size > 0 %}
               <div class="header-mobile-menu-children">
                 {% for childlink in link.links %}
-                  <a href="{{ childlink.url }}" class="header-mobile-menu-link header-mobile-menu-link--child">{{ childlink.title }}</a>
+                  <a href="{{ childlink.url }}" class="header-mobile-menu-link header-mobile-menu-link--child bold">{{ childlink.title }}</a>
                 {% endfor %}
               </div>
             {% endif %}

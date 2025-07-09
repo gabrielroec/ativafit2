@@ -1,6 +1,9 @@
 <link rel="stylesheet" href="{{ 'hero-banner.css' | asset_url }}">
 
-<section class="hero-banner" style="background-image: url({{ section.settings.background_image | default: 'http://ativafit-tech.myshopify.com/cdn/shop/files/Untitled-1.png?v=1749446296&width=2000' | image_url: width: 2000 }});">
+<section
+  class="hero-banner"
+  data-desktop-bg="{{ section.settings.background_image | image_url: width: 2000 }}"
+  data-mobile-bg="{{ section.settings.background_image_mobile | default: section.settings.background_image | image_url: width: 1000 }}">
   <div class="hero-banner__overlay"></div>
   <div class="hero-banner__content">
     <div class="">
@@ -41,9 +44,7 @@
     {% assign selected_product = all_products[section.settings.product_handle] %}
       {% comment %}Debug info{% endcomment %}
       <!--
-        Product Handle: {{ section.settings.product_handle }}  Selected Product: {{ selected_product.title }}
-        Available: {{ selected_product.available }}
-        Price: {{ selected_product.price }}
+        Product Handle: {{ section.settings.product_handle }}  Selected Product: {{ selected_product.title }}  Available: {{ selected_product.available }}  Price: {{ selected_product.price }}
       -->
       {% render 'product-card-custom'
         , product: selected_product %}
@@ -51,28 +52,64 @@
   </div>
 </section>
 
+<script>
+  class HeroBanner {
+    constructor(element) {
+      this.banner = element;
+      this.desktopBg = this.banner.dataset.desktopBg;
+      this.mobileBg = this.banner.dataset.mobileBg;
+      
+      // Inicializar
+      this.checkScreenSize();
+      
+      // Adicionar listener para redimensionamento
+      window.addEventListener('resize', () => this.checkScreenSize());
+    }
+    
+    checkScreenSize() {
+      const isMobile = window.innerWidth <= 768;
+      this.banner.style.backgroundImage = `url(${isMobile ? this.mobileBg : this.desktopBg})`;
+    }
+  }
+
+  // Inicializar todos os banners na página
+  document.addEventListener('DOMContentLoaded', () => {
+    const banners = document.querySelectorAll('.hero-banner');
+    banners.forEach(banner => new HeroBanner(banner));
+  });
+</script>
+
 {% schema %}
   {
     "name": "Hero Banner",
     "settings": [
       {
+        "type": "header",
+        "content": "Banner Images"
+      },
+      {
         "type": "image_picker",
         "id": "background_image",
-        "label": "Background Image"
+        "label": "Desktop Background Image",
+        "info": "Recommended size: 2000x500px"
+      },
+      {
+        "type": "image_picker",
+        "id": "background_image_mobile",
+        "label": "Mobile Background Image",
+        "info": "Recommended size: 800x400px. If not set, will use desktop image"
       },
       {
         "type": "text",
         "id": "title",
         "label": "Main Title",
         "default": "30% OFF STRENGTH COLLECTION"
-      },
-      {
+      }, {
         "type": "text",
         "id": "subtitle",
         "label": "Subtitle",
         "default": "GET IT NOW FOR FATHER'S DAY"
-      },
-      {
+      }, {
         "type": "text",
         "id": "button_1_text",
         "label": "Button 1 Text",
