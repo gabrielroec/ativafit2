@@ -15,7 +15,7 @@
   Product First Available Variant: {{ product.selected_or_first_available_variant.id }}
 -->
 {% if product != blank %}
-  <div class="product-card">
+  <a href="{{ product.url }}" class="product-card">
     {%- comment -%} — ESTILO (inline para simplificar) {%- endcomment -%}
     <style>
       .product-card {
@@ -29,6 +29,8 @@
         transition: transform 0.3s;
         font-family: "IBM Plex Mono"
         , monospace;
+        text-decoration: none; /* Remove o sublinhado do link */
+        display: block; /* Faz o link ocupar todo o espaço do card */
       }
       .product-card:hover {
         transform: translateY(-5px);
@@ -153,7 +155,8 @@
         action="/cart/add"
         method="post"
         class="controls"
-        data-product-id="{{ product.id }}">
+        data-product-id="{{ product.id }}"
+        onclick="event.stopPropagation();">
         <input
           type="hidden"
           name="id"
@@ -186,7 +189,7 @@
         {% endif %}
       </div>
     </div>
-  </div>
+  </a>
 
   {%- comment -%} — JS PARA CONTADOR — mantém simples e isolado por produto {%- endcomment -%}
   <script>
@@ -197,6 +200,11 @@
         const form = card.querySelector('form');
         if (!form) return;
         
+        // Previne que o clique no formulário propague para o card
+        form.addEventListener('click', function(e) {
+          e.stopPropagation();
+        });
+        
         const quantityInput = form.querySelector('input[name="quantity"]');
         const qtyDisplay = form.querySelector('.qty');
         const plusButton = form.querySelector('.plus');
@@ -206,12 +214,14 @@
         
         plusButton.addEventListener('click', (e) => {
           e.preventDefault();
+          e.stopPropagation(); // Previne navegação ao clicar nos botões
           quantity++;
           updateQuantity();
         });
         
         minusButton.addEventListener('click', (e) => {
           e.preventDefault();
+          e.stopPropagation(); // Previne navegação ao clicar nos botões
           if (quantity > 1) {
             quantity--;
             updateQuantity();
