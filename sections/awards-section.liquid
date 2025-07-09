@@ -1,7 +1,6 @@
 {%- style -%}
   .awards-section {
     padding: 80px 20px;
-    background-color: #f8f8f8;
     text-align: center;
   }
 
@@ -22,51 +21,27 @@
   }
 
   .awards-section__title .highlight {
-    color: #C8A882;
+    background: linear-gradient(180deg, #A37E3B 0%, #F4CA7F 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
   }
 
   .awards-section__description {
     font-family: 'Barlow'
     , sans-serif;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 400;
-    line-height: 1.6;
-    color: #666;
-    max-width: 800px;
+    line-height: 1.2;
+    color: #000;
+    max-width: 850px;
     margin: 0 auto 60px;
-  }
-
-  .awards-section__logos {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 40px;
-    margin-bottom: 60px;
-    flex-wrap: wrap;
-  }
-
-  .awards-section__logo {
-    flex: 0 0 auto;
-    max-width: 300px;
-    height: 120px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid #C8A882;
-    padding: 20px;
-    background: #fff;
-  }
-
-  .awards-section__logo img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
   }
 
   .awards-section__button {
     display: inline-block;
-    background: #DD4D1E;
-    color: #fff;
+    color: #DD4D1E;
     padding: 16px 32px;
     border-radius: 8px;
     text-decoration: none;
@@ -75,16 +50,43 @@
     font-weight: 700;
     font-size: 16px;
     text-transform: uppercase;
+    text-decoration: underline;
     letter-spacing: 1px;
     transition: all 0.3s ease;
+    margin-top: 40px;
   }
 
   .awards-section__button:hover {
     background: #c23d12;
+    color: #fff;
     transform: translateY(-2px);
   }
 
-  /* Responsive */
+  .awards-section__images {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    flex-wrap: wrap;
+    margin: 0 auto;
+    max-width: 1000px;
+  }
+
+  .awards-section__image {
+    flex: 0 0 auto;
+    transition: transform 0.3s ease;
+  }
+
+  .awards-section__image:hover {
+    transform: translateY(-5px);
+  }
+
+  .awards-section__image img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
   @media screen and (max-width: 768px) {
     .awards-section {
       padding: 60px 20px;
@@ -100,14 +102,12 @@
       margin-bottom: 40px;
     }
 
-    .awards-section__logos {
+    .awards-section__images {
       gap: 20px;
-      margin-bottom: 40px;
     }
 
-    .awards-section__logo {
+    .awards-section__image {
       max-width: 250px;
-      height: 100px;
       padding: 15px;
     }
   }
@@ -117,14 +117,12 @@
       font-size: 28px;
     }
 
-    .awards-section__logos {
-      flex-direction: column;
+    .awards-section__images {
       gap: 15px;
     }
 
-    .awards-section__logo {
+    .awards-section__image {
       max-width: 100%;
-      height: 80px;
     }
   }
 {%- endstyle -%}
@@ -132,20 +130,20 @@
 <section class="awards-section">
   <div class="awards-section__container">
     <h2 class="awards-section__title black">
-      <span class="highlight">{{ section.settings.title_highlight }}</span>
+      <span class="highlight black">{{ section.settings.title_highlight }}</span>
       {{ section.settings.title_main }}</h2>
 
     <p class="awards-section__description">
       {{ section.settings.description }}
     </p>
 
-    <div class="awards-section__logos">
+    <div class="awards-section__images">
       {% for block in section.blocks %}
-        {% if block.type == 'award' and block.settings.logo != blank %}
-          <div class="awards-section__logo">
+        {% if block.type == 'award' and block.settings.award_image != blank %}
+          <div class="awards-section__image">
             <img
-              src="{{ block.settings.logo | image_url: width: 300 }}"
-              alt="{{ block.settings.alt_text | default: 'Award logo' | escape }}"
+              src="{{ block.settings.award_image | image_url: width: 300 }}"
+              alt="{{ block.settings.alt_text | escape }}"
               loading="lazy">
           </div>
         {% endif %}
@@ -180,7 +178,7 @@
         "type": "textarea",
         "id": "description",
         "label": "Description",
-        "default": "Award-winning Ativafit have been recognized for their original design, asthetic factors, fine product details, cutting-edges manufacture, and innovative technology, as well their intelligent, user-friendly operation."
+        "default": "Award-winning Ativafit have been recognized for their original design, aesthetic factors, fine product details, cutting-edge manufacture, and innovative technology, as well as their intelligent, user-friendly operation."
       },
       {
         "type": "text",
@@ -196,17 +194,18 @@
     "blocks": [
       {
         "type": "award",
-        "name": "Award Logo",
+        "name": "Award",
+        "limit": 6,
         "settings": [
           {
             "type": "image_picker",
-            "id": "logo",
-            "label": "Award Logo"
+            "id": "award_image",
+            "label": "Award Image"
           }, {
             "type": "text",
             "id": "alt_text",
             "label": "Alt Text",
-            "info": "Describe the award for accessibility"
+            "default": "Award Image"
           }
         ]
       }
@@ -214,7 +213,6 @@
     "presets": [
       {
         "name": "Awards Section",
-        "settings": {},
         "blocks": [
           {
             "type": "award"
