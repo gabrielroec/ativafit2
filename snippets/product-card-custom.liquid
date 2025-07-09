@@ -108,6 +108,7 @@
       }
       .product-title {
         font-size: 16px;
+        line-height: 1.2;
         font-weight: bold;
         color: #000;
         margin-bottom: 8px;
@@ -118,10 +119,9 @@
       .current-price {
         color: #DD4D1E;
         font-weight: bold;
-        margin-right: 8px;
       }
       .old-price {
-        color: #999;
+        color: #D9D9D9;
         text-decoration: line-through;
       }
     </style>
@@ -130,7 +130,7 @@
     {% if product.compare_at_price_max > product.price %}
       {% assign discount_amount = product.compare_at_price_max | minus: product.price %}
       {% assign discount_percentage = discount_amount | times: 100.0 | divided_by: product.compare_at_price_max | round %}
-      <div class="discount-badge">{{ discount_percentage }}% OFF</div>
+      <div class="discount-badge condensed-bold">{{ discount_percentage }}% OFF</div>
     {% endif %}
 
     {%- comment -%} — IMAGEM DO PRODUTO {%- endcomment -%}
@@ -174,12 +174,12 @@
 
     {%- comment -%} — TÍTULO E PREÇOS (sempre visíveis) {%- endcomment -%}
     <div class="static-info">
-      <h3 class="product-title">{{ product.title }}</h3>
+      <h3 class="product-title bold">{{ product.title }}</h3>
       <div class="price">
         {% if product.price > 0 %}
-          <span class="current-price">{{ product.price | money }}</span>
+          <span class="current-price bold">{{ product.price | money }}</span>
           {% if product.compare_at_price_max > product.price %}
-            <span class="old-price">{{ product.compare_at_price_max | money }}</span>
+            <span class="old-price bold">{{ product.compare_at_price_max | money }}</span>
           {% endif %}
         {% else %}
           <span class="current-price">Preço não disponível</span>
