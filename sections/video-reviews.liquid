@@ -3,7 +3,7 @@
     padding: 0 20px;
     width: 100%;
     max-width: 1750px;
-    margin: 70px auto 0 auto;
+    margin: 70px auto 0;
     background: #fff;
     overflow: hidden;
   }
@@ -33,21 +33,23 @@
   }
 
   .video-reviews__slide {
-    flex: 0 0 calc((100% - 48px) / 2.5); /* 2 slides completos + 0.5 do terceiro */
+    flex: 0 0 calc((100% - 48px) / 2.5);
+    /* 2 slides completos + 0.5 do terceiro */
     position: relative;
     overflow: hidden;
     background: #f5f5f5;
     transform-origin: center center;
     transition: all 0.3s ease;
     scroll-snap-align: start;
-    border-left: 20px solid #FF7E53;
-    border-bottom: 20px solid #FF7E53;
+    border-left: 20px solid #EB701F;
+    border-bottom: 20px solid #EB701F;
   }
 
   .video-reviews__thumbnail {
     position: relative;
     width: 100%;
-    padding-top: 56.25%; /* 16:9 Aspect Ratio */
+    padding-top: 56.25%;
+    /* 16:9 Aspect Ratio */
     background-size: cover;
     background-position: center;
   }
@@ -103,7 +105,8 @@
   }
 
   .video-reviews__nav {
-    display: none; /* Escondendo completamente a navegação */
+    display: none;
+    /* Escondendo completamente a navegação */
   }
 
   .video-reviews__nav-container {
@@ -116,7 +119,8 @@
 
   @media screen and (max-width: 990px) {
     .video-reviews__slide {
-      flex: 0 0 calc((100% - 24px) / 2); /* 2 slides completos */
+      flex: 0 0 calc((100% - 24px) / 2);
+      /* 2 slides completos */
     }
   }
 
@@ -132,31 +136,36 @@
     }
 
     .video-reviews__slide {
-      flex: 0 0 90%; /* 1 slide por vez em mobile */
+      flex: 0 0 90%;
+      /* 1 slide por vez em mobile */
     }
 
     .video-reviews__nav {
-      display: none; /* Esconde navegação em mobile, deixando apenas touch/swipe */
+      display: none;
+      /* Esconde navegação em mobile, deixando apenas touch/swipe */
     }
   }
 </style>
 
 <section class="video-reviews">
-  
-    <h2 class="video-reviews__title">{{ section.settings.title }}</h2>
-  
+
+  <h2 class="video-reviews__title">{{ section.settings.title }}</h2>
+
 
   <div class="video-reviews__slider" data-slider>
     <div class="video-reviews__track" data-track>
       {% for block in section.blocks %}
         {% assign video_id = block.settings.youtube_url | split: '=' | last %}
         {% assign thumbnail_url = "https://img.youtube.com/vi/" | append: video_id | append: "/maxresdefault.jpg" %}
-        
-        <div class="video-reviews__slide" {{ block.shopify_attributes }} data-slide>
+
+        <div
+          class="video-reviews__slide"
+          {{ block.shopify_attributes }}
+          data-slide>
           <div class="video-reviews__thumbnail" style="background-image: url({{ thumbnail_url }})">
             <div class="video-reviews__play" data-video-trigger="{{ video_id }}">
               <svg viewBox="0 0 24 24">
-                <path d="M8,5.14V19.14L19,12.14L8,5.14Z"/>
+                <path d="M8,5.14V19.14L19,12.14L8,5.14Z" />
               </svg>
             </div>
             <div class="video-reviews__title-text">{{ block.settings.title }}</div>
@@ -168,9 +177,18 @@
 </section>
 
 <!-- Modal do YouTube -->
-<div id="video-modal" class="video-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000;">
+<div
+  id="video-modal"
+  class="video-modal"
+  style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000;">
   <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 900px; aspect-ratio: 16/9;">
-    <iframe id="video-iframe" width="100%" height="100%" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <iframe
+      id="video-iframe"
+      width="100%"
+      height="100%"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen></iframe>
   </div>
   <button onclick="closeVideoModal()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: white; font-size: 30px; cursor: pointer; padding: 10px;">&times;</button>
 </div>
@@ -369,51 +387,48 @@
 </script>
 
 {% schema %}
-{
-  "name": "Video Reviews",
-  "settings": [
-    {
-      "type": "text",
-      "id": "title",
-      "label": "Título da Seção",
-      "default": "REAL REVIEWS, REAL PEOPLE"
-    }
-  ],
-  "blocks": [
-    {
-      "type": "video",
-      "name": "Vídeo Review",
-      "settings": [
-        {
-          "type": "text",
-          "id": "title",
-          "label": "Título do Vídeo",
-          "default": "Review Title"
-        },
-        {
-          "type": "text",
-          "id": "youtube_url",
-          "label": "URL do YouTube",
-          "info": "Cole aqui o link completo do vídeo do YouTube"
-        }
-      ]
-    }
-  ],
-  "presets": [
-    {
-      "name": "Video Reviews",
-      "blocks": [
-        {
-          "type": "video"
-        },
-        {
-          "type": "video"
-        },
-        {
-          "type": "video"
-        }
-      ]
-    }
-  ]
-}
-{% endschema %} 
+  {
+    "name": "Video Reviews",
+    "settings": [
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Título da Seção",
+        "default": "REAL REVIEWS, REAL PEOPLE"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "video",
+        "name": "Vídeo Review",
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Título do Vídeo",
+            "default": "Review Title"
+          }, {
+            "type": "text",
+            "id": "youtube_url",
+            "label": "URL do YouTube",
+            "info": "Cole aqui o link completo do vídeo do YouTube"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Video Reviews",
+        "blocks": [
+          {
+            "type": "video"
+          }, {
+            "type": "video"
+          }, {
+            "type": "video"
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}
