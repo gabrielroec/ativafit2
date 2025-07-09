@@ -276,13 +276,31 @@
     <!-- Logo centralizada no topo -->
     <div class="header-logo-section">
       <a href="{{ routes.root_url }}" class="header-logo">
-        <img
-          class="header-logo-image"
-          src="https://ativafit-tech.myshopify.com/cdn/shop/files/ativafit_logo_120x@2x.png?v=1614353361"
-          alt="{{ section.settings.logo.alt | default: shop.name | escape }}"
-          width="120"
-          height="120"
-          loading="lazy">
+        {% comment %} Usa a logo configurada no editor, ou fallback para logo-black.png {% endcomment %}
+        {% if section.settings.logo != blank %}
+          {% comment %} Logo configurada no editor do Shopify {% endcomment %}
+          {%- assign logo_alt = section.settings.logo.alt | default: shop.name | escape -%}
+          {%- assign logo_height = section.settings.logo.height -%}
+          {%- assign logo_width = section.settings.logo.width -%}
+          {{ section.settings.logo
+ | image_url: width: 300
+ | image_tag:
+ class: 'header-logo-image',
+ alt: logo_alt,
+ width: logo_width,
+ height: logo_height,
+ loading: 'lazy'
+          }}
+          {% else %}
+          {% comment %} Fallback para logo-black.png da pasta assets {% endcomment %}
+          <img
+            class="header-logo-image"
+            src="{{ 'logo-black.png' | asset_url }}"
+            alt="{{ shop.name | escape }}"
+            width="120"
+            height="120"
+            loading="lazy">
+        {% endif %}
       </a>
     </div>
 
