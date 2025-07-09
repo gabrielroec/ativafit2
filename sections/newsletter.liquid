@@ -1,15 +1,141 @@
 <style>
-  #shopify-section-{{ section.id }} {
-    background: {{ section.settings.background }};
-    color: {{ section.settings.text }};
+.section-wrapper {
+  background: #111;
+  width: 100%;
+}
+  .newsletter {
+    color: #fff;
+    padding: 100px 20px;
+  }
+
+  .newsletter__container {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    max-width: 1750px;
+    margin: 0 auto;
+  }
+
+  .newsletter__title {
+    font-family: "Inter";
+    font-size: 50px;
+    font-weight: 900;
+    letter-spacing: -4px;
+    line-height: 1;
+    text-align: left;
+    word-spacing: 10px;
+    margin: 0;
+    max-width: 650px;
+}
+
+  .newsletter__subtitle {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 16px;
+    line-height: 1.5;
+    margin: 0;
+    color: #fff;
+    text-transform: uppercase;
+    max-width: 600px;
+
+  }
+
+  .newsletter__form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .newsletter__form-wrapper {
+    display: flex;
+    width: 100%;
+    border: 1px solid #fff;
+  }
+
+  .newsletter__input {
+    flex: 1;
+    height: 60px;
+    padding: 0 20px;
+    border: none;
+    background: #fff;
+    color: #212121;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 16px;
+}
+
+
+
+  .newsletter__input::placeholder {
+    color: #212121;
+    text-transform: uppercase;
+  }
+
+  .newsletter__button {
+    width: 200px;
+    height: 60px;
+    background: #000;
+    border: none;
+    color: #fff;
+    font-family: "Inter";
+    font-weight: 600;
+    font-size: 16px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .newsletter__button:hover {
+    background: #333;
+  }
+
+  .newsletter__privacy {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 14px;
+    color: #fff;
+    text-transform: uppercase;
+  }
+
+  .newsletter__privacy a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .newsletter__privacy a:hover {
+    text-decoration: underline;
+  }
+
+  @media screen and (max-width: 990px) {
+    .newsletter__title {
+      font-size: 60px;
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    .newsletter {
+      padding: 60px 20px;
+    }
+
+    .newsletter__title {
+      font-size: 40px;
+    }
+
+    .newsletter__form-wrapper {
+      flex-direction: column;
+    }
+
+    .newsletter__input {
+      width: 100%;
+      border-bottom: 1px solid #fff;
+    }
+
+    .newsletter__button {
+      width: 100%;
+    }
   }
 </style>
 
-<section class="section {% if section.settings.background != settings.background %}section--isolated section--tight{% endif %} section--text-centered" data-section-id="{{ section.id }}" data-section-type="newsletter">
-  <div class="container container--giga-narrow">
-    {%- if section.settings.title != blank -%}
-      <h2 class="heading h3">{{ section.settings.title | escape }}</h2>
-    {%- endif -%}
+<section class="section-wrapper">
+  <div class="container">
 
     {%- if section.settings.content != blank -%}
       <div class="rte">
@@ -19,27 +145,39 @@
 
     {%- assign newsletter_id = 'newsletter-' | append: section.id -%}
 
-    <div class="newsletter newsletter--compact">
-      {%- form 'customer', id: newsletter_id, class: 'form newsletter__form' -%}
-        {%- if form.posted_successfully? -%}
-          <p class="alert alert--success">{{ 'home_page.newsletter.success' | t }}</p>
-        {%- else -%}
-          {%- if form.errors -%}
-            <p class="alert alert--error">{{ form.errors.messages['email'] }}</p>
-          {%- endif -%}
+    <div class="newsletter">
+      <div class="newsletter__container">
+        <div class="newsletter__content">
+          <h2 class="newsletter__title">{{ section.settings.title }}</h2>
+          <p class="newsletter__subtitle">{{ section.settings.subtitle }}</p>
+        </div>
 
-          <input type="hidden" name="contact[tags]" value="newsletter">
-
-          <div class="form__input-row">
-            <div class="form__input-wrapper form__input-wrapper--labelled">
-              <input type="email" id="newsletter[{{ section.id }}][contact][email]" name="contact[email]" class="form__field {% if section.settings.background != settings.background %}form__field--borderless{% endif %} form__field--text" required>
-              <label for="newsletter[{{ section.id }}][contact][email]" class="form__floating-label">{{ 'home_page.newsletter.input' | t }}</label>
+        <div class="newsletter__form">
+          {%- form 'customer', id: 'newsletter-form', class: 'newsletter__form' -%}
+            <input type="hidden" name="contact[tags]" value="newsletter">
+            
+            <div class="newsletter__form-wrapper">
+              <input
+                type="email"
+                name="contact[email]"
+                id="newsletter-email"
+                class="newsletter__input"
+                placeholder="{{ section.settings.placeholder }}"
+                required>
+              
+              <button type="submit" class="newsletter__button">
+                {{ section.settings.button_text }}
+              </button>
             </div>
 
-            <button type="submit" class="form__submit button button--primary">{{ 'home_page.newsletter.submit' | t }}</button>
-          </div>
-        {%- endif -%}
-      {%- endform -%}
+            <p class="newsletter__privacy">
+              {{ section.settings.privacy_text }} 
+              <a href="{{ section.settings.privacy_link }}">{{ section.settings.privacy_link_text }}</a>
+              {{ section.settings.privacy_text_after }}
+            </p>
+          {%- endform -%}
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -55,20 +193,49 @@
     {
       "type": "text",
       "id": "title",
-      "label": "Heading",
-      "default": "Newsletter"
+      "label": "Título",
+      "default": "GET THE LATEST\nWORKOUT DROPS FIRST"
     },
     {
-      "type": "richtext",
-      "id": "content",
-      "label": "Text",
-      "default": "<p>A short sentence describing what someone will receive by subscribing</p>"
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtítulo",
+      "default": "GET EXCLUSIVE EARLY ACCESS TO NOW DROPS, LIMITED-TIME DEALS, AND PROMOTIONS STRAIGHT TO YOUR INBOX."
     },
     {
-      "type": "color",
-      "id": "background",
-      "label": "Background",
-      "default": "#1e2d7d"
+      "type": "text",
+      "id": "placeholder",
+      "label": "Placeholder do Email",
+      "default": "ENTER YOUR EMAIL ADDRESS"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Texto do Botão",
+      "default": "SUBSCRIBE"
+    },
+    {
+      "type": "text",
+      "id": "privacy_text",
+      "label": "Texto de Privacidade (Antes do Link)",
+      "default": "WE RESPECT YOUR PRIVACY AND WON'T SPAM YOU. UNSUBSCRIBE ANYTIME. SEE OUR"
+    },
+    {
+      "type": "text",
+      "id": "privacy_link_text",
+      "label": "Texto do Link de Privacidade",
+      "default": "PRIVACY POLICY"
+    },
+    {
+      "type": "text",
+      "id": "privacy_text_after",
+      "label": "Texto de Privacidade (Depois do Link)",
+      "default": "FOR DETAILS."
+    },
+    {
+      "type": "url",
+      "id": "privacy_link",
+      "label": "Link da Política de Privacidade"
     },
     {
       "type": "color",

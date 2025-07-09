@@ -1,0 +1,419 @@
+<style>
+  .video-reviews {
+    padding: 0 20px;
+    width: 100%;
+    max-width: 1750px;
+    margin: 70px auto 0 auto;
+    background: #fff;
+    overflow: hidden;
+  }
+
+  .video-reviews__title {
+    font-family: "Inter";
+    font-size: 50px;
+    font-weight: 900;
+    letter-spacing: -4px;
+    line-height: 1;
+    text-align: left;
+    word-spacing: 10px;
+    margin-bottom: 40px;
+  }
+
+  .video-reviews__slider {
+    position: relative;
+    margin: 0 -20px;
+  }
+
+  .video-reviews__track {
+    display: flex;
+    gap: 24px;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0 20px;
+    scroll-snap-type: x mandatory;
+  }
+
+  .video-reviews__slide {
+    flex: 0 0 calc((100% - 48px) / 2.5); /* 2 slides completos + 0.5 do terceiro */
+    position: relative;
+    overflow: hidden;
+    background: #f5f5f5;
+    transform-origin: center center;
+    transition: all 0.3s ease;
+    scroll-snap-align: start;
+    border-left: 20px solid #FF7E53;
+    border-bottom: 20px solid #FF7E53;
+  }
+
+  .video-reviews__thumbnail {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%; /* 16:9 Aspect Ratio */
+    background-size: cover;
+    background-position: center;
+  }
+
+  .video-reviews__thumbnail::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 50%);
+    pointer-events: none;
+  }
+
+  .video-reviews__play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 68px;
+    height: 48px;
+    background: #FF0000;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+    transition: all 0.3s ease;
+  }
+
+  .video-reviews__play:hover {
+    background: #cc0000;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+
+  .video-reviews__play svg {
+    width: 24px;
+    height: 24px;
+    fill: #fff;
+    margin-left: 4px;
+  }
+
+  .video-reviews__title-text {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+    z-index: 1;
+  }
+
+  .video-reviews__nav {
+    display: none; /* Escondendo completamente a navegação */
+  }
+
+  .video-reviews__nav-container {
+    display: none;
+  }
+
+  .video-reviews__button {
+    display: none;
+  }
+
+  @media screen and (max-width: 990px) {
+    .video-reviews__slide {
+      flex: 0 0 calc((100% - 24px) / 2); /* 2 slides completos */
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    .video-reviews {
+      padding: 40px 0;
+    }
+
+    .video-reviews__title {
+      font-size: 36px;
+      letter-spacing: -2px;
+      margin-bottom: 30px;
+    }
+
+    .video-reviews__slide {
+      flex: 0 0 90%; /* 1 slide por vez em mobile */
+    }
+
+    .video-reviews__nav {
+      display: none; /* Esconde navegação em mobile, deixando apenas touch/swipe */
+    }
+  }
+</style>
+
+<section class="video-reviews">
+  
+    <h2 class="video-reviews__title">{{ section.settings.title }}</h2>
+  
+
+  <div class="video-reviews__slider" data-slider>
+    <div class="video-reviews__track" data-track>
+      {% for block in section.blocks %}
+        {% assign video_id = block.settings.youtube_url | split: '=' | last %}
+        {% assign thumbnail_url = "https://img.youtube.com/vi/" | append: video_id | append: "/maxresdefault.jpg" %}
+        
+        <div class="video-reviews__slide" {{ block.shopify_attributes }} data-slide>
+          <div class="video-reviews__thumbnail" style="background-image: url({{ thumbnail_url }})">
+            <div class="video-reviews__play" data-video-trigger="{{ video_id }}">
+              <svg viewBox="0 0 24 24">
+                <path d="M8,5.14V19.14L19,12.14L8,5.14Z"/>
+              </svg>
+            </div>
+            <div class="video-reviews__title-text">{{ block.settings.title }}</div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Modal do YouTube -->
+<div id="video-modal" class="video-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000;">
+  <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 900px; aspect-ratio: 16/9;">
+    <iframe id="video-iframe" width="100%" height="100%" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  </div>
+  <button onclick="closeVideoModal()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: white; font-size: 30px; cursor: pointer; padding: 10px;">&times;</button>
+</div>
+
+<script>
+  class VideoSlider {
+    constructor(element) {
+      this.slider = element;
+      this.track = this.slider.querySelector('[data-track]');
+      this.slides = [...this.slider.querySelectorAll('[data-slide]')];
+      
+      this.slideWidth = 0;
+      this.currentIndex = 0;
+      this.totalSlides = this.slides.length;
+      this.autoplayInterval = null;
+      
+      this.init();
+    }
+
+    init() {
+      this.bindEvents();
+      this.updateSlideWidth();
+      this.updatePosition();
+      this.startAutoplay();
+
+      // Observar mudanças no tamanho da tela
+      const resizeObserver = new ResizeObserver(() => {
+        this.updateSlideWidth();
+        this.updatePosition();
+      });
+      resizeObserver.observe(this.slider);
+    }
+
+    startAutoplay() {
+      this.autoplayInterval = setInterval(() => {
+        this.move('next');
+      }, 4000); // Muda a cada 4 segundos
+    }
+
+    stopAutoplay() {
+      if (this.autoplayInterval) {
+        clearInterval(this.autoplayInterval);
+        this.autoplayInterval = null;
+      }
+    }
+
+    bindEvents() {
+      // Touch events para mobile
+      let startX, moveX;
+      this.track.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        this.stopAutoplay();
+      }, { passive: true });
+
+      this.track.addEventListener('touchmove', (e) => {
+        if (!startX) return;
+        moveX = e.touches[0].clientX;
+        const diff = moveX - startX;
+        
+        if (Math.abs(diff) > 5) {
+          e.preventDefault();
+        }
+      }, { passive: false });
+
+      this.track.addEventListener('touchend', () => {
+        if (!startX || !moveX) return;
+        const diff = moveX - startX;
+        if (Math.abs(diff) > 50) {
+          this.move(diff > 0 ? 'prev' : 'next');
+        }
+        startX = moveX = null;
+        this.startAutoplay();
+      });
+
+      // Mouse drag events
+      let isDragging = false;
+      let startDragX;
+
+      this.track.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startDragX = e.clientX;
+        this.stopAutoplay();
+        this.track.style.cursor = 'grabbing';
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const diff = e.clientX - startDragX;
+        if (Math.abs(diff) > 50) {
+          this.move(diff > 0 ? 'prev' : 'next');
+          isDragging = false;
+          startDragX = null;
+          this.startAutoplay();
+          this.track.style.cursor = '';
+        }
+      });
+
+      document.addEventListener('mouseup', () => {
+        if (isDragging) {
+          isDragging = false;
+          this.startAutoplay();
+          this.track.style.cursor = '';
+        }
+      });
+    }
+
+    updateSlideWidth() {
+      const slide = this.slider.querySelector('[data-slide]');
+      if (slide) {
+        this.slideWidth = slide.offsetWidth + 24; // 24px é o gap
+      }
+    }
+
+    updatePosition(smooth = true) {
+      let x = -this.currentIndex * this.slideWidth;
+      
+      // Ajuste especial para o último grupo
+      if (this.currentIndex >= this.totalSlides - 2) {
+        x = -(this.totalSlides - 2.5) * this.slideWidth;
+      }
+      
+      this.track.style.transition = smooth ? 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)' : 'none';
+      this.track.style.transform = `translateX(${x}px)`;
+    }
+
+    move(direction) {
+      if (direction === 'next') {
+        if (this.currentIndex >= this.totalSlides - 2) {
+          // Se estiver no último grupo, volta para o início
+          this.currentIndex = 0;
+        } else {
+          this.currentIndex++;
+        }
+      } else {
+        if (this.currentIndex <= 0) {
+          // Se estiver no início, vai para o último grupo
+          this.currentIndex = this.totalSlides - 2;
+        } else {
+          this.currentIndex--;
+        }
+      }
+
+      this.updatePosition();
+    }
+  }
+
+  // Funções do Modal de Vídeo
+  function openVideoModal(videoId) {
+    const modal = document.getElementById('video-modal');
+    const iframe = document.getElementById('video-iframe');
+    
+    iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeVideoModal() {
+    const modal = document.getElementById('video-modal');
+    const iframe = document.getElementById('video-iframe');
+    
+    iframe.src = '';
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  // Inicialização
+  document.addEventListener('DOMContentLoaded', () => {
+    // Inicializar slider
+    const sliderElement = document.querySelector('[data-slider]');
+    if (sliderElement) {
+      new VideoSlider(sliderElement);
+    }
+
+    // Configurar triggers de vídeo
+    document.querySelectorAll('[data-video-trigger]').forEach(trigger => {
+      trigger.addEventListener('click', () => {
+        const videoId = trigger.getAttribute('data-video-trigger');
+        openVideoModal(videoId);
+      });
+    });
+
+    // Fechar modal ao clicar fora
+    document.getElementById('video-modal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) {
+        closeVideoModal();
+      }
+    });
+
+    // Fechar modal com tecla ESC
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeVideoModal();
+      }
+    });
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Video Reviews",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título da Seção",
+      "default": "REAL REVIEWS, REAL PEOPLE"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "video",
+      "name": "Vídeo Review",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Título do Vídeo",
+          "default": "Review Title"
+        },
+        {
+          "type": "text",
+          "id": "youtube_url",
+          "label": "URL do YouTube",
+          "info": "Cole aqui o link completo do vídeo do YouTube"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Video Reviews",
+      "blocks": [
+        {
+          "type": "video"
+        },
+        {
+          "type": "video"
+        },
+        {
+          "type": "video"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %} 

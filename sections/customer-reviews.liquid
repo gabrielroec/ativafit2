@@ -1,0 +1,296 @@
+<style>
+  .customer-reviews {
+    padding: 70px 0;
+    background: #fff;
+    overflow: hidden;
+  }
+
+  .customer-reviews__title {
+    font-family: "Inter";
+    font-size: 50px;
+    font-weight: 900;
+    letter-spacing: -4px;
+    line-height: 1;
+    text-align: center;
+    margin-bottom: 60px;
+  }
+
+  .customer-reviews__title span {
+    color: #FF7E53;
+  }
+
+  .customer-reviews__row {
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 30px;
+  }
+
+  .customer-reviews__track {
+    display: flex;
+    gap: 30px;
+    position: relative;
+    width: fit-content;
+  }
+
+  .customer-reviews__card {
+    min-width: 400px;
+    background: #fff;
+    border: 1px solid #E5E5E5;
+    padding: 24px;
+  }
+
+  .customer-reviews__header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .customer-reviews__name {
+    font-family: "Inter";
+    font-weight: 600;
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+
+  .customer-reviews__stars {
+    display: flex;
+    gap: 4px;
+    color: #FF7E53;
+  }
+
+  .customer-reviews__text {
+    font-size: 16px;
+    line-height: 1.5;
+    color: #222;
+  }
+</style>
+
+<section class="customer-reviews">
+  <h2 class="customer-reviews__title">
+    TRUSTED BY OVER <span>10,000</span> SATISFIED CUSTOMERS
+  </h2>
+
+  <div class="customer-reviews__row" data-direction="right">
+    <div class="customer-reviews__track">
+      {% assign half_size = section.blocks.size | divided_by: 2 %}
+      {% for block in section.blocks %}
+        {% if forloop.index <= half_size %}
+          <div class="customer-reviews__card" {{ block.shopify_attributes }}>
+            <div class="customer-reviews__header">
+              <div>
+                <div class="customer-reviews__name">{{ block.settings.name }}</div>
+                <div class="customer-reviews__stars">
+                  {% for i in (1..5) %}
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                      <path d="M8 0L9.79611 6.2139H16L11.1019 10.0722L12.8982 16L8 12.1417L3.10182 16L4.89811 10.0722L0 6.2139H6.20389L8 0Z"/>
+                    </svg>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+            <p class="customer-reviews__text">{{ block.settings.text }}</p>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="customer-reviews__row" data-direction="left">
+    <div class="customer-reviews__track">
+      {% assign half_size = section.blocks.size | divided_by: 2 %}
+      {% for block in section.blocks %}
+        {% if forloop.index > half_size %}
+          <div class="customer-reviews__card" {{ block.shopify_attributes }}>
+            <div class="customer-reviews__header">
+              <div>
+                <div class="customer-reviews__name">{{ block.settings.name }}</div>
+                <div class="customer-reviews__stars">
+                  {% for i in (1..5) %}
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                      <path d="M8 0L9.79611 6.2139H16L11.1019 10.0722L12.8982 16L8 12.1417L3.10182 16L4.89811 10.0722L0 6.2139H6.20389L8 0Z"/>
+                    </svg>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+            <p class="customer-reviews__text">{{ block.settings.text }}</p>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<script>
+  class CustomerReviews {
+    constructor(container) {
+      this.container = container;
+      this.rows = container.querySelectorAll('.customer-reviews__row');
+      this.animations = new Map();
+      
+      this.init();
+    }
+
+    init() {
+      this.rows.forEach(row => {
+        const track = row.querySelector('.customer-reviews__track');
+        const direction = row.dataset.direction;
+        const slides = [...track.children];
+        
+        if (slides.length < 2) return;
+
+        // Clonar slides para criar o efeito infinito
+        const slidesToClone = Math.ceil((row.offsetWidth * 3) / (slides[0].offsetWidth + 30));
+        
+        // Primeiro, adiciona clones no final
+        for (let i = 0; i < slidesToClone; i++) {
+          slides.forEach(slide => {
+            const clone = slide.cloneNode(true);
+            track.appendChild(clone);
+          });
+        }
+        
+        // Depois, adiciona clones no início
+        for (let i = slides.length - 1; i >= 0; i--) {
+          const clone = slides[i].cloneNode(true);
+          track.insertBefore(clone, track.firstChild);
+        }
+
+        // Configurar animação
+        const animation = {
+          track,
+          position: -slides[0].offsetWidth * slides.length, // Começa do primeiro conjunto real
+          slideWidth: slides[0].offsetWidth + 30, // width + gap
+          direction: direction === 'left' ? -1 : 1,
+          isAnimating: false,
+          originalSlidesCount: slides.length
+        };
+
+        this.animations.set(row, animation);
+        
+        // Posiciona inicialmente sem transição
+        track.style.transition = 'none';
+        track.style.transform = `translateX(${animation.position}px)`;
+        // Força reflow
+        track.offsetHeight;
+        track.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+        
+        this.animate(row);
+
+        // Pausar no hover
+        row.addEventListener('mouseenter', () => this.pause(row));
+        row.addEventListener('mouseleave', () => this.animate(row));
+      });
+
+      // Observar visibilidade da página
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          this.rows.forEach(row => this.pause(row));
+        } else {
+          this.rows.forEach(row => this.animate(row));
+        }
+      });
+    }
+
+    animate(row) {
+      const animation = this.animations.get(row);
+      if (!animation || animation.isAnimating) return;
+
+      animation.isAnimating = true;
+
+      const move = () => {
+        if (!animation.isAnimating) return;
+
+        animation.position += 0.5 * animation.direction;
+        animation.track.style.transform = `translateX(${animation.position}px)`;
+
+        // Verifica se precisa resetar a posição
+        const totalWidth = animation.slideWidth * animation.originalSlidesCount;
+        
+        if (animation.direction > 0 && animation.position >= 0) {
+          // Se movendo para direita e chegou no final dos clones iniciais
+          animation.position = -totalWidth;
+          animation.track.style.transition = 'none';
+          animation.track.style.transform = `translateX(${animation.position}px)`;
+          animation.track.offsetHeight; // Força reflow
+          animation.track.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+        } else if (animation.direction < 0 && animation.position <= -(totalWidth * 2)) {
+          // Se movendo para esquerda e chegou no final dos clones finais
+          animation.position = -totalWidth;
+          animation.track.style.transition = 'none';
+          animation.track.style.transform = `translateX(${animation.position}px)`;
+          animation.track.offsetHeight; // Força reflow
+          animation.track.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+        }
+
+        requestAnimationFrame(move);
+      };
+
+      requestAnimationFrame(move);
+    }
+
+    pause(row) {
+      const animation = this.animations.get(row);
+      if (animation) {
+        animation.isAnimating = false;
+      }
+    }
+  }
+
+  // Inicializar quando o DOM estiver pronto
+  document.addEventListener('DOMContentLoaded', () => {
+    new CustomerReviews(document.querySelector('.customer-reviews'));
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Customer Reviews",
+  "settings": [],
+  "blocks": [
+    {
+      "type": "review",
+      "name": "Review",
+      "settings": [
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Nome do Cliente",
+          "default": "Jonh Doe"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Texto do Review",
+          "default": "I've used other kits, but this one is the best. The attention to detail and usability are truly amazing."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Customer Reviews",
+      "blocks": [
+        {
+          "type": "review"
+        },
+        {
+          "type": "review"
+        },
+        {
+          "type": "review"
+        },
+        {
+          "type": "review"
+        },
+        {
+          "type": "review"
+        },
+        {
+          "type": "review"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %} 

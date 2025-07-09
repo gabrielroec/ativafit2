@@ -1,7 +1,7 @@
 {%- style -%}
   .header-wrapper {
-    background-color: #1a1a1a;
-    padding: 30px 20px;
+    background-color: #fff;
+    padding: 20px;
     position: relative;
     z-index: 100;
     border-bottom: 1px solid #515151;
@@ -10,6 +10,26 @@
   .header-container {
     max-width: 1750px !important;
     margin: 0 auto;
+  }
+
+  .header-logo-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .header-logo {
+    max-width: {{ section.settings.logo_max_width }}px;
+  }
+
+  .header-logo img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .header-navigation-section {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -25,16 +45,15 @@
   }
 
   .header-navigation__link {
-    color: #ffffff;
+    color: #222021;
     text-decoration: none;
     font-size: 16px;
     font-weight: 500;
-    text-transform: uppercase;
+    text-transform: capitalize !important;
     transition: color 0.3s ease;
     display: flex;
     align-items: center;
     gap: 5px;
-    font-family: 'IBM Plex Mono'
   }
 
   .header-navigation__link:hover {
@@ -75,58 +94,300 @@
     fill: currentColor;
   }
 
-  .header-logo {
-    max-width: {{ section.settings.logo_max_width }}px;
-  }
-
-  .header-logo img {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-
-  @media screen and (max-width: 641px) {
-    .header-logo {
-      max-width: {{ section.settings.mobile_logo_max_width }}px;
-    }
-  }
-
   .header-actions {
     display: flex;
-    gap: 40px;
+    gap: 9px;
     align-items: center;
-  }
-
-  .header-actions a {
-    color: #ffffff;
-    text-decoration: none;
-    font-size: 16px;
-    text-transform: uppercase;
   }
 
   .cart-count {
     color: #ffffff;
   }
 
-  @media screen and (max-width: 768px) {
+  /* Mobile menu styles */
+  .header-mobile-menu-icon {
+    display: none;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 32px;
+    cursor: pointer;
+    margin-right: 20px;
+    z-index: 120;
+  }
+
+  .header-mobile-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 80vw;
+    max-width: 350px;
+    height: 100vh;
+    background: #1a1a1a;
+    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.2);
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    z-index: 200;
+    padding: 40px 24px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .header-mobile-menu.open {
+    transform: translateX(0);
+  }
+  .header-mobile-menu-close {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 32px;
+    align-self: flex-end;
+    cursor: pointer;
+    margin-bottom: 24px;
+  }
+  .header-mobile-menu-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .header-mobile-menu-link {
+    color: #fff;
+    text-decoration: none;
+    font-size: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-family: 'IBMPlexMonoRegular';
+    transition: color 0.3s;
+  }
+  .header-mobile-menu-link:hover {
+    color: #eb7122;
+  }
+  .header-mobile-menu-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 150;
+  }
+  .header-mobile-menu-backdrop.open {
+    display: block;
+  }
+
+  @media screen and (max-width: 1080px) {
     .header-navigation {
       display: none;
     }
+    .header-mobile-menu-icon {
+      display: block;
+    }
+    .header-navigation-section {
+      justify-content: space-between;
+      align-items: center;
+    }
   }
-  .header__logo {
-    margin: 0 !important;
+
+  .header-mobile-menu-item {
+    position: relative;
+  }
+  .header-mobile-menu-arrow {
+    margin-left: 10px;
+    font-size: 16px;
+    transition: transform 0.3s;
+    display: inline-block;
+  }
+  .header-mobile-menu-item.open > .header-mobile-menu-link .header-mobile-menu-arrow {
+    transform: rotate(180deg);
+  }
+  .header-mobile-menu-children {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    margin-left: 18px;
+    margin-top: 8px;
+  }
+  .header-mobile-menu-item.open > .header-mobile-menu-children {
+    display: flex;
+  }
+  .header-mobile-menu-link--child {
+    font-size: 16px;
+    font-weight: 400;
+    color: #ccc;
+    text-transform: none;
   }
 {%- endstyle -%}
 
 <div class="header-wrapper">
   <div class="header-container">
-    <nav class="header-navigation">
+    <!-- Logo centralizada no topo -->
+    <div class="header-logo-section">
+      <a href="{{ routes.root_url }}" class="header-logo">
+        <img
+          class="header-logo-image"
+          src="https://ativafit-tech.myshopify.com/cdn/shop/files/ativafit_logo_120x@2x.png?v=1614353361"
+          alt="{{ section.settings.logo.alt | default: shop.name | escape }}"
+          width="120"
+          height="120"
+          loading="lazy">
+      </a>
+    </div>
+
+    <!-- Menu e links nas laterais -->
+    <div class="header-navigation-section">
+      <!-- Ícone do menu mobile -->
+      <button
+        class="header-mobile-menu-icon"
+        id="header-mobile-menu-open"
+        aria-label="Open menu">
+        &#9776;
+      </button>
+      <!-- Menu de navegação à esquerda (desktop) -->
+      <nav class="header-navigation">
+        {%- assign navigation_menu_handle = section.settings.navigation_menu | default: 'main-menu-new-0411' -%}
+        {%- assign navigation_menu = linklists[navigation_menu_handle] -%}
+
+        {%- for link in navigation_menu.links -%}
+          {%- assign display_title = "" -%}
+
+          {%- case link.title -%}
+            {%- when "Adjustable Dumbbells" -%}
+              {%- assign display_title = "DUMBBELLS" -%}
+            {%- when "Exercise Bikes" -%}
+              {%- assign display_title = "BIKES" -%}
+            {%- when "Trampolines For Kids" -%}
+              {%- assign display_title = "TRAMPOLINE" -%}
+            {%- when "Accessories" -%}
+              {%- assign display_title = "ACCESSORIES" -%}
+            {%- when "Community" -%}
+              {%- assign display_title = "COMMUNITY" -%}
+            {%- when "Support" -%}
+              {%- assign display_title = "SUPPORT" -%}
+          {%- endcase -%}
+
+          {%- if display_title != "" -%}
+            <div class="header-navigation__item">
+              <a
+                href="{{ link.url }}"
+                class="header-navigation__link"
+                {% if link.links.size > 0 %}
+                aria-expanded="false"
+                aria-haspopup="true"
+                {% endif %}>
+                {{ display_title }}
+                {%- if link.links.size > 0 -%}
+                  <svg class="icon-arrow" viewBox="0 0 12 8">
+                    <path
+                      d="M1 1l5 5 5-5"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2" />
+                  </svg>
+                {%- endif -%}
+              </a>
+
+              {%- if link.links.size > 0 -%}
+                <div class="header-navigation__dropdown">
+                  {%- for childlink in link.links -%}
+                    <a href="{{ childlink.url }}" class="header-navigation__dropdown-link">{{ childlink.title }}</a>
+                  {%- endfor -%}
+                </div>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </nav>
+
+      <!-- Links à direita -->
+      <div class="header-actions">
+        <a href="/search" class="header-search">
+          <svg
+            width="32"
+            height="32"
+            viewBox="0 0 32 32"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <rect
+              width="32"
+              height="32"
+              rx="16"
+              fill="#DD4D1E" />
+            <path d="M24.7264 23.3951L20.2891 18.9395C21.4304 17.6322 22.0559 15.9773 22.0551 14.2675C22.0551 10.2603 18.6782 7 14.5275 7C10.3769 7 7 10.2603 7 14.2675C7 18.2747 10.3769 21.535 14.5275 21.535C16.0857 21.535 17.5706 21.0812 18.8402 20.2199L23.3112 24.7093C23.4981 24.8967 23.7494 25 24.0188 25C24.2738 25 24.5156 24.9062 24.6992 24.7355C24.8866 24.5611 24.9947 24.322 24.9998 24.0708C25.0049 23.8195 24.9066 23.5765 24.7264 23.3951ZM14.5275 8.89587C17.5955 8.89587 20.0914 11.3055 20.0914 14.2675C20.0914 17.2295 17.5955 19.6391 14.5275 19.6391C11.4596 19.6391 8.96371 17.2295 8.96371 14.2675C8.96371 11.3055 11.4596 8.89587 14.5275 8.89587Z" fill="white" />
+          </svg>
+
+        </a>
+        <a href="/account" class="header-account">
+          <svg
+            width="32"
+            height="32"
+            viewBox="0 0 32 32"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <rect
+              width="32"
+              height="32"
+              rx="16"
+              fill="#DD4D1E" />
+            <g clip-path="url(#clip0_403_69)">
+              <path d="M15.9837 16.4778C14.0653 16.5848 12.2634 17.4489 10.9608 18.8864C9.65818 20.3238 8.95739 22.2216 9.00725 24.1765C8.9923 24.2782 8.99907 24.3819 9.0271 24.4807C9.05514 24.5795 9.10378 24.6709 9.1697 24.7488C9.23562 24.8267 9.31728 24.8892 9.40909 24.932C9.50091 24.9749 9.60072 24.9971 9.70172 24.9971C9.80273 24.9971 9.90254 24.9749 9.99435 24.932C10.0862 24.8892 10.1678 24.8267 10.2337 24.7488C10.2997 24.6709 10.3483 24.5795 10.3763 24.4807C10.4044 24.3819 10.4111 24.2782 10.3962 24.1765C10.342 22.5952 10.8949 21.0546 11.9379 19.8813C12.9808 18.708 14.4317 17.9943 15.9829 17.8915C17.5342 17.9943 18.9851 18.708 20.028 19.8813C21.0709 21.0546 21.6239 22.5952 21.5697 24.1765C21.5543 24.2783 21.5608 24.3823 21.5886 24.4814C21.6165 24.5804 21.665 24.6722 21.731 24.7503C21.7969 24.8285 21.8786 24.8912 21.9706 24.9343C22.0625 24.9773 22.1626 24.9995 22.2638 24.9995C22.365 24.9995 22.465 24.9773 22.557 24.9343C22.6489 24.8912 22.7307 24.8285 22.7966 24.7503C22.8625 24.6722 22.9111 24.5804 22.9389 24.4814C22.9667 24.3823 22.9732 24.2783 22.9579 24.1765C23.0078 22.2218 22.3072 20.3243 21.0049 18.8868C19.7025 17.4494 17.9018 16.5852 15.9837 16.4778Z" fill="white" />
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M18.9081 14.2525C18.5258 14.6479 18.0706 14.9628 17.5687 15.1791C17.0668 15.3954 16.5279 15.509 15.9828 15.5133C14.8825 15.5043 13.8308 15.0509 13.0589 14.2527C12.287 13.4545 11.8582 12.377 11.8668 11.257C11.8625 10.7023 11.9655 10.1522 12.17 9.63807C12.3745 9.12393 12.6766 8.65584 13.0589 8.26052C13.4412 7.86521 13.8962 7.55042 14.398 7.33414C14.8999 7.11786 15.4386 7.00432 15.9836 7C16.5285 7.00432 17.0673 7.11786 17.5691 7.33414C18.0709 7.55042 18.526 7.86521 18.9083 8.26052C19.2906 8.65584 19.5926 9.12393 19.7971 9.63807C20.0017 10.1522 20.1047 10.7023 20.1003 11.257C20.1088 12.3769 19.68 13.4544 18.9081 14.2525ZM17.9259 9.25975C17.4144 8.72652 16.7157 8.42194 15.9836 8.413C15.6209 8.41731 15.2627 8.4943 14.9293 8.63957C14.5959 8.78484 14.2938 8.99554 14.0405 9.25965C13.7871 9.52375 13.5873 9.83608 13.4525 10.1788C13.3178 10.5215 13.2507 10.8879 13.255 11.257C13.255 11.9935 13.5425 12.6998 14.0541 13.2205C14.5657 13.7413 15.2596 14.0339 15.9832 14.0339C16.7068 14.0339 17.4007 13.7413 17.9123 13.2205C18.4239 12.6998 18.7114 11.9935 18.7114 11.257C18.7157 10.8879 18.6486 10.5215 18.5138 10.1788C18.379 9.83615 18.1793 9.52384 17.9259 9.25975Z"
+                fill="white" />
+            </g>
+            <defs>
+              <clipPath id="clip0_403_69">
+                <rect
+                  width="14"
+                  height="18"
+                  fill="white"
+                  transform="translate(9 7)" />
+              </clipPath>
+            </defs>
+          </svg>
+
+        </a>
+        <a href="/cart" class="header-cart">
+          <svg
+            width="32"
+            height="32"
+            viewBox="0 0 32 32"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <rect
+              width="32"
+              height="32"
+              rx="16"
+              fill="#DD4D1E" />
+            <path
+              d="M12.5 22.1579C12.2033 22.1579 11.9133 22.2412 11.6666 22.3974C11.42 22.5535 11.2277 22.7755 11.1142 23.0351C11.0006 23.2948 10.9709 23.5805 11.0288 23.8562C11.0867 24.1318 11.2296 24.385 11.4393 24.5838C11.6491 24.7825 11.9164 24.9179 12.2074 24.9727C12.4983 25.0275 12.7999 24.9994 13.074 24.8918C13.3481 24.7843 13.5824 24.6021 13.7472 24.3684C13.912 24.1348 14 23.86 14 23.5789C14 23.2021 13.842 22.8406 13.5607 22.5741C13.2794 22.3076 12.8978 22.1579 12.5 22.1579ZM23 19.3158H11C10.7348 19.3158 10.4804 19.216 10.2929 19.0383C10.1054 18.8606 10 18.6197 10 18.3684C10 18.1172 10.1054 17.8762 10.2929 17.6985C10.4804 17.5209 10.7348 17.4211 11 17.4211H19.4912C20.1426 17.4191 20.7758 17.2171 21.2959 16.8455C21.816 16.4739 22.195 15.9526 22.376 15.3598L23.9614 10.1025C24.004 9.96154 24.0114 9.81312 23.9831 9.66895C23.9548 9.52478 23.8915 9.3888 23.7983 9.27172C23.7051 9.15464 23.5845 9.05966 23.446 8.99424C23.3075 8.92882 23.1548 8.89476 23 8.89474H10.7391C10.5321 8.34276 10.1504 7.86467 9.64622 7.52561C9.14201 7.18655 8.53971 7.00301 7.92139 7H7C6.73478 7 6.48043 7.09981 6.29289 7.27748C6.10536 7.45514 6 7.69611 6 7.94737C6 8.19863 6.10536 8.43959 6.29289 8.61726C6.48043 8.79492 6.73478 8.89474 7 8.89474H7.92139C8.13847 8.89546 8.34947 8.96277 8.52279 9.08661C8.6961 9.21044 8.82242 9.38413 8.88281 9.58167L9.03833 10.0977L9.03857 10.1025L10.6792 15.5425C9.91576 15.6203 9.21287 15.9725 8.71527 16.5265C8.21766 17.0805 7.96321 17.7942 8.00433 18.5205C8.04544 19.2469 8.37898 19.9307 8.93626 20.4312C9.49355 20.9316 10.2322 21.2105 11 21.2105H23C23.2652 21.2105 23.5196 21.1107 23.7071 20.933C23.8946 20.7554 24 20.5144 24 20.2632C24 20.0119 23.8946 19.7709 23.7071 19.5933C23.5196 19.4156 23.2652 19.3158 23 19.3158ZM21.6743 10.7895L20.4531 14.8389C20.3928 15.0366 20.2664 15.2105 20.093 15.3344C19.9196 15.4583 19.7084 15.5257 19.4912 15.5263H12.7544L12.4995 14.6811L11.3264 10.7895H21.6743ZM20.5 22.1579C20.2033 22.1579 19.9133 22.2412 19.6666 22.3974C19.42 22.5535 19.2277 22.7755 19.1142 23.0351C19.0006 23.2948 18.9709 23.5805 19.0288 23.8562C19.0867 24.1318 19.2296 24.385 19.4393 24.5838C19.6491 24.7825 19.9164 24.9179 20.2074 24.9727C20.4983 25.0275 20.7999 24.9994 21.074 24.8918C21.3481 24.7843 21.5824 24.6021 21.7472 24.3684C21.912 24.1348 22 23.86 22 23.5789C22 23.2021 21.842 22.8406 21.5607 22.5741C21.2794 22.3076 20.8978 22.1579 20.5 22.1579Z"
+              fill="white"
+              stroke="#DD4D1E"
+              stroke-width="0.5" />
+          </svg>
+
+          {% if cart.item_count > 0 %}
+            <span class="cart-count">[{{ cart.item_count }}]</span>
+          {% endif %}
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile menu -->
+  <div class="header-mobile-menu-backdrop" id="header-mobile-menu-backdrop"></div>
+  <nav
+    class="header-mobile-menu"
+    id="header-mobile-menu"
+    aria-label="Mobile menu">
+    <button
+      class="header-mobile-menu-close"
+      id="header-mobile-menu-close"
+      aria-label="Close menu">&times;</button>
+    <div class="header-mobile-menu-nav">
       {%- assign navigation_menu_handle = section.settings.navigation_menu | default: 'main-menu-new-0411' -%}
       {%- assign navigation_menu = linklists[navigation_menu_handle] -%}
-
       {%- for link in navigation_menu.links -%}
         {%- assign display_title = "" -%}
-
         {%- case link.title -%}
           {%- when "Adjustable Dumbbells" -%}
             {%- assign display_title = "DUMBBELLS" -%}
@@ -136,66 +397,73 @@
             {%- assign display_title = "TRAMPOLINE" -%}
           {%- when "Accessories" -%}
             {%- assign display_title = "ACCESSORIES" -%}
+          {%- when "Community" -%}
+            {%- assign display_title = "COMMUNITY" -%}
+          {%- when "Support" -%}
+            {%- assign display_title = "SUPPORT" -%}
         {%- endcase -%}
-
         {%- if display_title != "" -%}
-          <div class="header-navigation__item">
+          <div class="header-mobile-menu-item{% if link.links.size > 0 %} has-children{% endif %}">
             <a
               href="{{ link.url }}"
-              class="header-navigation__link"
+              class="header-mobile-menu-link"
               {% if link.links.size > 0 %}
-              aria-expanded="false"
-              aria-haspopup="true"
+              data-has-children="true"
               {% endif %}>
               {{ display_title }}
-              {%- if link.links.size > 0 -%}
-                <svg class="icon-arrow" viewBox="0 0 12 8">
-                  <path
-                    d="M1 1l5 5 5-5"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2" />
-                </svg>
-              {%- endif -%}
+              {% if link.links.size > 0 %}
+                <span class="header-mobile-menu-arrow">&#9662;</span>
+              {% endif %}
             </a>
-
-            {%- if link.links.size > 0 -%}
-              <div class="header-navigation__dropdown">
-                {%- for childlink in link.links -%}
-                  <a href="{{ childlink.url }}" class="header-navigation__dropdown-link">{{ childlink.title }}</a>
-                {%- endfor -%}
+            {% if link.links.size > 0 %}
+              <div class="header-mobile-menu-children">
+                {% for childlink in link.links %}
+                  <a href="{{ childlink.url }}" class="header-mobile-menu-link header-mobile-menu-link--child">{{ childlink.title }}</a>
+                {% endfor %}
               </div>
-            {%- endif -%}
+            {% endif %}
           </div>
         {%- endif -%}
       {%- endfor -%}
-    </nav>
-
-    {%- comment -%} Logo {%- endcomment -%}
-    <div class="header__logo">
-      <a href="{{ routes.root_url }}" class="header__logo-link">
-        <img
-          class="header__logo-image"
-          src="https://ativafit-tech.myshopify.com/cdn/shop/files/ativafit_logo_120x@2x.png?v=1614353361"
-          alt="{{ section.settings.logo.alt | default: shop.name | escape }}"
-          width="120"
-          height="120"
-          loading="lazy">
-
-      </a>
     </div>
-
-    <div class="header-actions">
-      <a href="/search" class="header-search">SEARCH</a>
-      <a href="/account" class="header-account">ACCOUNT</a>
-      <a href="/cart" class="header-cart">
-        CART{% if cart.item_count > 0 %}
-          <span class="cart-count">[{{ cart.item_count }}]</span>
-        {% endif %}
-      </a>
-    </div>
-  </div>
+  </nav>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const openBtn = document.getElementById('header-mobile-menu-open');
+    const closeBtn = document.getElementById('header-mobile-menu-close');
+    const mobileMenu = document.getElementById('header-mobile-menu');
+    const backdrop = document.getElementById('header-mobile-menu-backdrop');
+
+    function openMenu() {
+      mobileMenu.classList.add('open');
+      backdrop.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeMenu() {
+      mobileMenu.classList.remove('open');
+      backdrop.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    if (openBtn) openBtn.addEventListener('click', openMenu);
+    if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+    if (backdrop) backdrop.addEventListener('click', closeMenu);
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeMenu();
+    });
+
+    // Expansão de subitens no menu mobile
+    document.querySelectorAll('.header-mobile-menu-link[data-has-children]').forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        var item = link.parentElement;
+        item.classList.toggle('open');
+      });
+    });
+  });
+</script>
 
 {% schema %}
   {
