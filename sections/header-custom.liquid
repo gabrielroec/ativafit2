@@ -2,9 +2,47 @@
   .header-wrapper {
     background-color: #fff;
     padding: 20px;
-    position: relative;
-    z-index: 100;
+    position: fixed;
+    top: var(--announcement-height, 0px);
+    /* Usa variável CSS para altura dinâmica */
+    left: 0;
+    right: 0;
+    z-index: 99;
+    /* Menor que a announcement bar que geralmente é 100 */
     border-bottom: 1px solid #cdcdcd;
+    transform: translateY(0);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform
+    , padding
+    , background-color
+    , box-shadow;
+  }
+
+  .header-spacer {
+    height: 0;
+    transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .header-wrapper--sticky {
+    background-color: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    top: 0;
+  }
+
+  .header-wrapper--hidden {
+    transform: translateY(-0% !important);
+    padding: 10px 20px !important;
+
+  }
+
+  /* Adiciona um espaço quando o header está sticky para evitar "pulo" no conteúdo */
+  .header-spacer {
+    display: none;
+  }
+
+  .header-spacer--active {
+    display: block;
   }
 
   .header-container {
@@ -29,297 +67,271 @@
     display: block;
   }
 
-  .header-navigation-section {}
 
-.header-logo-section {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 20px;
-}
+  .header-logo-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+  }
 
-.header-logo {
-  max-width: {{ section.settings.logo_max_width }}px;
-}
+  .header-logo {
+    max-width: {{ section.settings.logo_max_width }}px;
+  }
 
-.header-logo img {
-  width: 100%;
-  height: auto;
-  display: block;
-}
+  .header-logo img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
 
-.header-navigation-section {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+  .header-navigation-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 
-.header-navigation {
-  display: flex;
-  gap: 30px;
-}
-
-.header-navigation__item {
-  position: relative;
-}
-
-.header-navigation__link {
-  color: #222021;
-  text-decoration: none;
-  font-size: 16px;
-  font-weight: 500;
-  text-transform: capitalize !important;
-  transition: color 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.header-navigation__link:hover {
-  color: #eb7122;
-}
-
-.header-navigation__dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background: #fff;
-  min-width: 500px;
-  padding: 15px 0;
-  display: none;
-  z-index: 10;
-}
-
-.header-navigation__item:hover .header-navigation__dropdown {
-  display: block;
-}
-
-.header-navigation__dropdown-link {
-  color: #000;
-  text-decoration: none;
-  font-size: 14px;
-  padding: 8px 25px;
-  display: flex;
-  gap: 10px;
-  transition: color 0.3s ease;
-
-}
-
-.header-navigation__dropdown-link:hover {
-  color: #eb7122;
-}
-
-.icon-arrow {
-  width: 12px;
-  height: 12px;
-  fill: currentColor;
-}
-
-.header-actions {
-  display: flex;
-  gap: 9px;
-  align-items: center;
-}
-
-.cart-count {
-  color: #ffffff;
-  background-color: #eb701f;
-  position: absolute;
-  top: -10px;
-  right: -10px;
-  font-size: 12px;
-  font-family: 'Barlow';
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 3px solid #fff;
-  border-radius: 1000px;
-}
-
-/* Mobile menu styles */
-.header-mobile-menu-icon {
-  display: none;
-  background: none;
-  border: none;
-  color: #000;
-  font-size: 32px;
-  cursor: pointer;
-  margin-right: 20px;
-  z-index: 120;
-}
-
-.header-mobile-menu {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 80vw;
-  max-width: 350px;
-  height: 100vh;
-  background: #1a1a1a;
-  box-shadow: 2px 0 16px rgba(0, 0, 0, 0.2);
-  transform: translateX(-100%);
-  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
-  z-index: 200;
-  padding: 40px 24px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-.header-mobile-menu.open {
-  transform: translateX(0);
-}
-.header-mobile-menu-close {
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 32px;
-  align-self: flex-end;
-  cursor: pointer;
-  margin-bottom: 24px;
-}
-.header-mobile-menu-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-.header-mobile-menu-link {
-  color: #fff;
-  text-decoration: none;
-  font-size: 20px;
-  font-weight: 600;
-  text-transform: uppercase;
-  transition: color 0.3s;
-}
-.header-mobile-menu-link:hover {
-  color: #eb7122;
-}
-.header-mobile-menu-backdrop {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 150;
-}
-.header-mobile-menu-backdrop.open {
-  display: block;
-}
-
-@media screen and (max-width: 1080px) {
   .header-navigation {
+    display: flex;
+    gap: 30px;
+    margin-top: 11px;
+  }
+
+  .header-navigation__item {
+    position: relative;
+  }
+
+  .header-navigation__link {
+    color: #222021;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: capitalize !important;
+    transition: color 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .header-navigation__link:hover {
+    color: #eb7122;
+  }
+
+  .header-navigation__dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #fff;
+    min-width: 500px;
+    padding: 15px 0;
     display: none;
+    z-index: 10;
   }
-  .header-mobile-menu-icon {
+
+  .header-navigation__item:hover .header-navigation__dropdown {
     display: block;
   }
-  .header-navigation-section {
-    justify-content: space-between;
+
+  .header-navigation__dropdown-link {
+    color: #000;
+    text-decoration: none;
+    font-size: 14px;
+    padding: 8px 25px;
+    display: flex;
+    gap: 10px;
+    transition: color 0.3s ease;
+
+  }
+
+  .header-navigation__dropdown-link:hover {
+    color: #eb7122;
+  }
+
+  .icon-arrow {
+    width: 12px;
+    height: 12px;
+    fill: currentColor;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 9px;
     align-items: center;
   }
-}
 
-.header-mobile-menu-item {
-  position: relative;
-}
-.header-mobile-menu-arrow {
-  margin-left: 10px;
-  font-size: 16px;
-  transition: transform 0.3s;
-  display: inline-block;
-}
-.header-mobile-menu-item.open > .header-mobile-menu-link .header-mobile-menu-arrow {
-  transform: rotate(180deg);
-}
-.header-mobile-menu-children {
-  display: none;
-  flex-direction: column;
-  gap: 12px;
-  margin-left: 18px;
-  margin-top: 8px;
-}
-.header-mobile-menu-item.open > .header-mobile-menu-children {
-  display: flex;
-}
-.header-mobile-menu-link--child {
-  font-size: 16px;
-  font-weight: 400;
-  color: #ccc;
-  text-transform: none;
+  .cart-count {
+    color: #ffffff;
+    background-color: #eb701f;
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    font-size: 12px;
+    font-family: 'Barlow';
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #fff;
+    border-radius: 1000px;
+  }
+
+  /* Mobile menu styles */
   .header-mobile-menu-icon {
+    display: none;
+    background: none;
+    border: none;
+    color: #000;
+    font-size: 32px;
+    cursor: pointer;
+    margin-right: 20px;
+    z-index: 120;
+  }
+
+  .header-mobile-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 80vw;
+    max-width: 350px;
+    height: 100vh;
+    background: #1a1a1a;
+    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.2);
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    z-index: 200;
+    padding: 40px 24px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .header-mobile-menu.open {
+    transform: translateX(0);
+  }
+  .header-mobile-menu-close {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 32px;
+    align-self: flex-end;
+    cursor: pointer;
+    margin-bottom: 24px;
+  }
+  .header-mobile-menu-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .header-mobile-menu-link {
+    color: #fff;
+    text-decoration: none;
+    font-size: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    transition: color 0.3s;
+  }
+  .header-mobile-menu-link:hover {
+    color: #eb7122;
+  }
+  .header-mobile-menu-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 150;
+  }
+  .header-mobile-menu-backdrop.open {
     display: block;
   }
-  .header-navigation-section {
-    justify-content: space-between;
-    align-items: center;
-  }
-}
 
-.header-mobile-menu-item {
-  position: relative;
-}
-.header-mobile-menu-arrow {
-  margin-left: 10px;
-  font-size: 16px;
-  transition: transform 0.3s;
-  display: inline-block;
-}
-.header-mobile-menu-item.open > .header-mobile-menu-link .header-mobile-menu-arrow {
-  transform: rotate(180deg);
-}
-.header-mobile-menu-children {
-  display: none;
-  flex-direction: column;
-  gap: 12px;
-  margin-left: 18px;
-  margin-top: 8px;
-}
-.header-mobile-menu-item.open > .header-mobile-menu-children {
-  display: flex;
-}
-.header-mobile-menu-link--child {
-  font-size: 16px;
-  font-weight: 400;
-  color: #ccc;
-  text-transform: none;
-}
-.header-cart {
-  position: relative;
-}
+  @media screen and (max-width: 1080px) {
+    .header-navigation {
+      display: none;
+    }
+    .header-mobile-menu-icon {
+      display: block;
+    }
+    .header-navigation-section {
+      justify-content: space-between;
+      align-items: center;
+    }
+  }
+
+  .header-mobile-menu-item {
+    position: relative;
+  }
+  .header-mobile-menu-arrow {
+    margin-left: 10px;
+    font-size: 16px;
+    transition: transform 0.3s;
+    display: inline-block;
+  }
+  .header-mobile-menu-item.open > .header-mobile-menu-link .header-mobile-menu-arrow {
+    transform: rotate(180deg);
+  }
+  .header-mobile-menu-children {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    margin-left: 18px;
+    margin-top: 8px;
+  }
+  .header-mobile-menu-item.open > .header-mobile-menu-children {
+    display: flex;
+  }
+  .header-mobile-menu-link--child {
+    font-size: 16px;
+    font-weight: 400;
+    color: #ccc;
+    text-transform: none;
+    .header-mobile-menu-icon {
+      display: block;
+    }
+    .header-navigation-section {
+      justify-content: space-between;
+      align-items: center;
+    }
+  }
+
+  .header-mobile-menu-item {
+    position: relative;
+  }
+  .header-mobile-menu-arrow {
+    margin-left: 10px;
+    font-size: 16px;
+    transition: transform 0.3s;
+    display: inline-block;
+  }
+  .header-mobile-menu-item.open > .header-mobile-menu-link .header-mobile-menu-arrow {
+    transform: rotate(180deg);
+  }
+  .header-mobile-menu-children {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    margin-left: 18px;
+    margin-top: 8px;
+  }
+  .header-mobile-menu-item.open > .header-mobile-menu-children {
+    display: flex;
+  }
+  .header-mobile-menu-link--child {
+    font-size: 16px;
+    font-weight: 400;
+    color: #ccc;
+    text-transform: none;
+  }
+  .header-cart {
+    position: relative;
+  }
 {%- endstyle -%}
 
-<div class="header-wrapper">
+<!-- Adiciona um elemento para compensar o espaço do header quando sticky -->
+<div class="header-spacer" id="header-spacer"></div>
+<div class="header-wrapper" id="header-wrapper">
   <div class="header-container">
     <!-- Logo centralizada no topo -->
-    <div class="header-logo-section">
-      <a href="{{ routes.root_url }}" class="header-logo">
-        {% comment %} Usa a logo configurada no editor, ou fallback para logo-black.png {% endcomment %}
-        {% if section.settings.logo != blank %}
-          {% comment %} Logo configurada no editor do Shopify {% endcomment %}
-          {%- assign logo_alt = section.settings.logo.alt | default: shop.name | escape -%}
-          {%- assign logo_height = section.settings.logo.height -%}
-          {%- assign logo_width = section.settings.logo.width -%}
-          {{ section.settings.logo
- | image_url: width: 300
- | image_tag:
- class: 'header-logo-image',
- alt: logo_alt,
- width: logo_width,
- height: logo_height,
- loading: 'lazy'
-          }}
-          {% else %}
-          {% comment %} Fallback para logo-black.png da pasta assets {% endcomment %}
-          <img
-            class="header-logo-image"
-            src="{{ 'logo-black.png' | asset_url }}"
-            alt="{{ shop.name | escape }}"
-            width="120"
-            height="120"
-            loading="lazy">
-        {% endif %}
-      </a>
-    </div>
+    {% comment %} <div class="header-logo-section"></div> {% endcomment %}
 
     <!-- Menu e links nas laterais -->
     <div class="header-navigation-section">
@@ -330,62 +342,90 @@
         aria-label="Open menu">
         &#9776;
       </button>
-      <!-- Menu de navegação à esquerda (desktop) -->
-      <nav class="header-navigation">
-        {%- assign navigation_menu_handle = section.settings.navigation_menu | default: 'main-menu-new-0411' -%}
-        {%- assign navigation_menu = linklists[navigation_menu_handle] -%}
+      <div class="header-logo-section">
+        <!-- Menu de navegação à esquerda (desktop) -->
+        <a href="{{ routes.root_url }}" class="header-logo">
+          {% comment %} Usa a logo configurada no editor, ou fallback para logo-black.png {% endcomment %}
+          {% if section.settings.logo != blank %}
+            {% comment %} Logo configurada no editor do Shopify {% endcomment %}
+            {%- assign logo_alt = section.settings.logo.alt | default: shop.name | escape -%}
+            {%- assign logo_height = section.settings.logo.height -%}
+            {%- assign logo_width = section.settings.logo.width -%}
+            {{ section.settings.logo
+ | image_url: width: 300
+ | image_tag:
+ class: 'header-logo-image',
+ alt: logo_alt,
+ width: logo_width,
+ height: logo_height,
+ loading: 'lazy'
+            }}
+            {% else %}
+            {% comment %} Fallback para logo-black.png da pasta assets {% endcomment %}
+            <img
+              class="header-logo-image"
+              src="{{ 'logo-black.png' | asset_url }}"
+              alt="{{ shop.name | escape }}"
+              width="120"
+              height="120"
+              loading="lazy">
+          {% endif %}
+        </a>
+        <nav class="header-navigation">
+          {%- assign navigation_menu_handle = section.settings.navigation_menu | default: 'main-menu-new-0411' -%}
+          {%- assign navigation_menu = linklists[navigation_menu_handle] -%}
 
-        {%- for link in navigation_menu.links -%}
-          {%- assign display_title = "" -%}
+          {%- for link in navigation_menu.links -%}
+            {%- assign display_title = "" -%}
 
-          {%- case link.title -%}
-            {%- when "Adjustable Dumbbells" -%}
-              {%- assign display_title = "DUMBBELLS" -%}
-            {%- when "Exercise Bikes" -%}
-              {%- assign display_title = "BIKES" -%}
-            {%- when "Trampolines For Kids" -%}
-              {%- assign display_title = "TRAMPOLINE" -%}
-            {%- when "Accessories" -%}
-              {%- assign display_title = "ACCESSORIES" -%}
-            {%- when "Community" -%}
-              {%- assign display_title = "COMMUNITY" -%}
-            {%- when "Support" -%}
-              {%- assign display_title = "SUPPORT" -%}
-          {%- endcase -%}
+            {%- case link.title -%}
+              {%- when "Adjustable Dumbbells" -%}
+                {%- assign display_title = "DUMBBELLS" -%}
+              {%- when "Exercise Bikes" -%}
+                {%- assign display_title = "BIKES" -%}
+              {%- when "Trampolines For Kids" -%}
+                {%- assign display_title = "TRAMPOLINE" -%}
+              {%- when "Accessories" -%}
+                {%- assign display_title = "ACCESSORIES" -%}
+              {%- when "Community" -%}
+                {%- assign display_title = "COMMUNITY" -%}
+              {%- when "Support" -%}
+                {%- assign display_title = "SUPPORT" -%}
+            {%- endcase -%}
 
-          {%- if display_title != "" -%}
-            <div class="header-navigation__item">
-              <a
-                href="{{ link.url }}"
-                class="header-navigation__link"
-                {% if link.links.size > 0 %}
-                aria-expanded="false"
-                aria-haspopup="true"
-                {% endif %}>
-                {{ display_title }}
+            {%- if display_title != "" -%}
+              <div class="header-navigation__item">
+                <a
+                  href="{{ link.url }}"
+                  class="header-navigation__link"
+                  {% if link.links.size > 0 %}
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  {% endif %}>
+                  {{ display_title }}
+                  {%- if link.links.size > 0 -%}
+                    <svg class="icon-arrow" viewBox="0 0 12 8">
+                      <path
+                        d="M1 1l5 5 5-5"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2" />
+                    </svg>
+                  {%- endif -%}
+                </a>
+
                 {%- if link.links.size > 0 -%}
-                  <svg class="icon-arrow" viewBox="0 0 12 8">
-                    <path
-                      d="M1 1l5 5 5-5"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2" />
-                  </svg>
+                  <div class="header-navigation__dropdown">
+                    {%- for childlink in link.links -%}
+                      <a href="{{ childlink.url }}" class="header-navigation__dropdown-link">{{ childlink.title }}</a>
+                    {%- endfor -%}
+                  </div>
                 {%- endif -%}
-              </a>
-
-              {%- if link.links.size > 0 -%}
-                <div class="header-navigation__dropdown">
-                  {%- for childlink in link.links -%}
-                    <a href="{{ childlink.url }}" class="header-navigation__dropdown-link">{{ childlink.title }}</a>
-                  {%- endfor -%}
-                </div>
-              {%- endif -%}
-            </div>
-          {%- endif -%}
-        {%- endfor -%}
-      </nav>
-
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        </nav>
+      </div>
       <!-- Links à direita -->
       <div class="header-actions">
         <a href="/search" class="header-search">
@@ -520,6 +560,114 @@
 </div>
 
 <script>
+  class StickyHeader {
+    constructor() {
+      this.header = document.getElementById('header-wrapper');
+      this.spacer = document.getElementById('header-spacer');
+      this.lastScrollTop = 0;
+      this.headerHeight = this.header.offsetHeight;
+      this.scrollThreshold = 100;
+      this.isSticky = false;
+      this.scrollTimer = null;
+      
+      this.init();
+    }
+  
+    init() {
+      // Define altura inicial do spacer e announcement bar
+      this.updateSpacerHeight();
+      this.updateAnnouncementHeight();
+      
+      // Throttled scroll handler
+      let lastScrollTime = Date.now();
+      window.addEventListener('scroll', () => {
+        if (Date.now() - lastScrollTime > 10) {
+          this.checkPosition();
+          lastScrollTime = Date.now();
+        }
+      }, { passive: true });
+  
+      // Debounced resize handler
+      window.addEventListener('resize', () => {
+        if (this.scrollTimer) clearTimeout(this.scrollTimer);
+        this.scrollTimer = setTimeout(() => {
+          this.updateSpacerHeight();
+          this.updateAnnouncementHeight();
+        }, 100);
+      });
+  
+      // Observer para mudanças na announcement bar
+      this.observeAnnouncementBar();
+      
+      // Verifica posição inicial
+      this.checkPosition();
+    }
+  
+    updateAnnouncementHeight() {
+      const announcementBar = document.querySelector('.announcement-bar');
+      if (announcementBar) {
+        const height = announcementBar.offsetHeight;
+        document.documentElement.style.setProperty('--announcement-height', `${height}px`);
+      } else {
+        document.documentElement.style.setProperty('--announcement-height', '0px');
+      }
+    }
+  
+    observeAnnouncementBar() {
+      const observer = new MutationObserver(() => {
+        this.updateAnnouncementHeight();
+      });
+  
+      const announcementBar = document.querySelector('.announcement-bar');
+      if (announcementBar) {
+        observer.observe(announcementBar, {
+          attributes: true,
+          childList: true,
+          subtree: true
+        });
+      }
+    }
+  
+    updateSpacerHeight() {
+      this.headerHeight = this.header.offsetHeight;
+      const announcementHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--announcement-height'));
+      this.spacer.style.height = `${this.headerHeight + announcementHeight}px`;
+    }
+  
+    checkPosition() {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      
+      if (Math.abs(scrollTop - this.lastScrollTop) < 5) return;
+  
+      if (scrollTop > this.scrollThreshold) {
+        this.header.classList.add('header-wrapper--sticky');
+        
+        if (scrollTop > this.lastScrollTop && scrollTop > this.headerHeight) {
+          requestAnimationFrame(() => {
+            this.header.classList.add('header-wrapper--hidden');
+          });
+        } else {
+          requestAnimationFrame(() => {
+            this.header.classList.remove('header-wrapper--hidden');
+          });
+        }
+      } else {
+        requestAnimationFrame(() => {
+          this.header.classList.remove('header-wrapper--sticky', 'header-wrapper--hidden');
+        });
+      }
+  
+      this.lastScrollTop = scrollTop;
+    }
+  }
+  
+  // Inicializa quando o DOM estiver pronto
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => new StickyHeader());
+  } else {
+    new StickyHeader();
+  }
+  
   document.addEventListener('DOMContentLoaded', function() {
     const openBtn = document.getElementById('header-mobile-menu-open');
     const closeBtn = document.getElementById('header-mobile-menu-close');
