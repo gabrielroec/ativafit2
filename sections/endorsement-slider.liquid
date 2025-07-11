@@ -1,8 +1,11 @@
 <style>
   .endorsement-slider-section {
     background: #fff;
-    padding: 70px 0 0;
+    padding: 70px 20px 0;
     overflow: hidden;
+    width: 100%;
+    max-width: 1750px;
+    margin: 0 auto;
   }
   .endorsement-slider-title {
     font-family: "Inter";
@@ -10,48 +13,221 @@
     font-weight: 900;
     line-height: 100%;
     width: 100%;
-    text-align: center;
+    text-align: left;
     margin: 0 0 40px;
     word-spacing: 10px;
   }
   .endorsement-slider-wrapper {
     width: 100%;
-    overflow: hidden;
     position: relative;
     padding: 40px 0;
   }
-  .endorsement-slider-track {
+
+  /* Container para os 7 slides visíveis */
+  .endorsement-visible-slides {
     display: flex;
-    gap: 60px;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    margin-bottom: 40px;
     position: relative;
-    width: fit-content;
   }
+
   .endorsement-slide {
-    min-width: 127px;
-    max-width: 127px;
+    min-width: 100px;
+    max-width: 100px;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
   }
+
+  /* Estilos para diferentes posições */
+  .endorsement-slide.far-left {
+    transform: scale(0.7);
+    opacity: 0.3;
+  }
+
+  .endorsement-slide.left {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+
+  .endorsement-slide.near-left {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+
+  .endorsement-slide.active {
+    transform: scale(1.4);
+    opacity: 1;
+    z-index: 2;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .endorsement-slide.near-right {
+    transform: scale(0.9);
+    opacity: 0.7;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .endorsement-slide.right {
+    transform: scale(0.8);
+    opacity: 0.5;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .endorsement-slide.far-right {
+    transform: scale(0.7);
+    opacity: 0.3;
+    align-items: center;
+    justify-content: center;
+  }
+
   .endorsement-slide img {
-    width: fit-content;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
     object-fit: contain;
     margin-bottom: 16px;
     filter: grayscale(100%);
-    /* Adiciona o filtro preto e branco */
     transition: filter 0.3s ease;
-    /* Opcional: adiciona uma transição suave */
   }
 
-  /* Opcional: remove o filtro no hover para dar mais interatividade */
-  .endorsement-slide img:hover {
+  .endorsement-slide.active img {
     filter: grayscale(0%);
   }
-  .endorsement-slide-text {
-    font-size: 16px;
+
+  /* Animações para os slides */
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(30px) scale(0.7);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+  }
+
+  @keyframes slideOut {
+    from {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translateX(-30px) scale(0.7);
+    }
+  }
+
+  @keyframes fadeInText {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .endorsement-slide.sliding-in {
+    animation: slideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  .endorsement-slide.sliding-out {
+    animation: slideOut 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  /* Container para o texto da marca ativa */
+  .endorsement-active-text {
+    text-align: center;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .endorsement-text-content {
+    font-size: 32px;
     color: #222;
-    margin-bottom: 0;
+    font-family: "Barlow";
+    font-weight: 900;
+    max-width: 700px;
+    line-height: 1.4;
+    animation: fadeInText 0.5s ease forwards;
+  }
+
+  /* Botões de navegação */
+  .endorsement-nav {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 30px;
+  }
+
+  .endorsement-nav-btn {
+    background: #f0f0f0;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    /* Aumentar tamanho das setas */
+  }
+
+  .endorsement-nav-btn:hover {
+    background: #ddd;
+  }
+
+  .endorsement-nav-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Estilo para os dots */
+  .endorsement-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 0 20px;
+    /* Espaçamento lateral para as setas */
+  }
+
+  .endorsement-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ddd;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    padding: 0;
+  }
+
+  .endorsement-dot.active {
+    background: #222;
+    transform: scale(1.2);
+  }
+
+  /* Ajuste do container de navegação */
+  .endorsement-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 30px;
   }
 
   @media screen and (max-width: 768px) {
@@ -62,6 +238,14 @@
     .endorsement-slider-title {
       font-size: 48px;
     }
+
+    .endorsement-visible-slides {
+      gap: 40px;
+    }
+
+    .endorsement-text-content {
+      font-size: 16px;
+    }
   }
 
   @media screen and (max-width: 480px) {
@@ -69,29 +253,63 @@
       font-size: 36px;
       letter-spacing: -1px;
     }
+
+    .endorsement-visible-slides {
+      gap: 20px;
+    }
+
+    .endorsement-slide {
+      min-width: 80px;
+      max-width: 80px;
+    }
+
+    .endorsement-slide img {
+      max-width: 80px;
+    }
   }
 </style>
 
-<section class="endorsement-slider-section" data-slider-container>
+<section class="endorsement-slider-section" data-endorsement-slider>
   <div class="endorsement-slider-title">
     {{ section.settings.title }}
   </div>
   <div class="endorsement-slider-wrapper">
-    <div class="endorsement-slider-track" data-slider-track>
-      {% for block in section.blocks %}
-        <div class="endorsement-slide" data-slide>
-          <img
-            src="{{ block.settings.logo | image_url: width: 127 }}"
-            alt="{{ block.settings.brand | escape }}"
-            loading="lazy">
-          {% if block.settings.text != blank %}
-            <div class="endorsement-slide-text">
-              "{{ block.settings.text }}"
-            </div>
-          {% endif %}
-        </div>
-      {% endfor %}
+    <!-- Container para os slides visíveis -->
+    <div class="endorsement-visible-slides" data-visible-slides>
+      <!-- Os slides serão inseridos aqui via JavaScript -->
     </div>
+
+    <!-- Container para o texto da marca ativa -->
+    <div class="endorsement-active-text">
+      <div class="endorsement-text-content" data-active-text>
+        <!-- O texto será inserido aqui via JavaScript -->
+      </div>
+    </div>
+
+    <!-- Container unificado de navegação -->
+    <div class="endorsement-navigation">
+      <button class="endorsement-nav-btn" data-nav-prev>‹</button>
+      <div class="endorsement-dots" data-dots>
+        {% for block in section.blocks %}
+          <button
+            class="endorsement-dot{% if forloop.index0 == 0 %} active{% endif %}"
+            data-index="{{ forloop.index0 }}"
+            aria-label="Ir para slide {{ forloop.index }}"></button>
+        {% endfor %}
+      </div>
+      <button class="endorsement-nav-btn" data-nav-next>›</button>
+    </div>
+  </div>
+
+  <!-- Slides ocultos (dados) -->
+  <div style="display: none;" data-slides-data>
+    {% for block in section.blocks %}
+      <div
+        class="endorsement-slide-data"
+        data-brand="{{ block.settings.brand | escape }}"
+        data-text="{{ block.settings.text | escape }}"
+        data-logo="{{ block.settings.logo | image_url: width: 127 }}"></div>
+    {% endfor %}
   </div>
 </section>
 
@@ -99,85 +317,176 @@
   class EndorsementSlider {
     constructor(container) {
       this.container = container;
-      this.track = container.querySelector('[data-slider-track]');
-      this.slides = [...this.track.children];
-      this.position = 0;
-      this.slideWidth = 380; // 320px + 60px gap
-      this.isAnimating = false;
+      this.visibleSlidesContainer = container.querySelector('[data-visible-slides]');
+      this.activeTextContainer = container.querySelector('[data-active-text]');
+      this.prevBtn = container.querySelector('[data-nav-prev]');
+      this.nextBtn = container.querySelector('[data-nav-next]');
+      this.slidesData = [...container.querySelectorAll('.endorsement-slide-data')];
+      this.dots = container.querySelectorAll('[data-dots] .endorsement-dot');
+      
+      this.currentIndex = 0;
+      this.autoPlayInterval = null;
       
       this.init();
     }
 
     init() {
-      // Verificar se há slides suficientes
-      if (this.slides.length < 2) return;
-
-      // Clonar slides para criar o efeito infinito
-      // Vamos clonar o conjunto completo 3 vezes para garantir uma transição suave
-      for (let i = 0; i < 3; i++) {
-        this.slides.forEach(slide => {
-          const clone = slide.cloneNode(true);
-          this.track.appendChild(clone);
-        });
+      if (this.slidesData.length < 7) {
+        console.warn('Endorsement Slider precisa de pelo menos 7 slides');
+        return;
       }
 
-      // Posicionar o track para começar do primeiro conjunto de slides
-      this.position = 0;
-      this.updatePosition();
+      this.render();
+      this.bindEvents();
+      this.bindDotEvents();
+      this.startAutoPlay();
+    }
 
-      // Iniciar animação
-      this.animate();
+    render() {
+      // Adicionar classe para animar a saída dos slides atuais
+      const currentSlides = this.visibleSlidesContainer.querySelectorAll('.endorsement-slide');
+      currentSlides.forEach(slide => {
+        slide.classList.add('sliding-out');
+      });
 
-      // Pausar no hover
-      this.container.addEventListener('mouseenter', () => this.pause());
-      this.container.addEventListener('mouseleave', () => this.animate());
+      // Aguardar um pequeno delay para iniciar a nova renderização
+      setTimeout(() => {
+        // Limpar container
+        this.visibleSlidesContainer.innerHTML = '';
+        
+        // Calcular índices para todos os 7 slides
+        const positions = this.calculateSlidePositions();
+        
+        // Criar elementos dos slides com animação de entrada
+        positions.forEach(({ data, position }) => {
+          const slide = document.createElement('div');
+          slide.className = `endorsement-slide ${position} sliding-in`;
+          slide.innerHTML = `
+            <img src="${data.dataset.logo}" 
+                 alt="${data.dataset.brand}" 
+                 loading="lazy">
+          `;
+          this.visibleSlidesContainer.appendChild(slide);
 
-      // Observar visibilidade da página
+          // Remover classe de animação após a conclusão
+          setTimeout(() => {
+            slide.classList.remove('sliding-in');
+          }, 600);
+        });
+        
+        // Atualizar texto ativo com fade
+        const activeSlide = this.slidesData[this.currentIndex];
+        this.activeTextContainer.style.opacity = '0';
+        setTimeout(() => {
+          this.activeTextContainer.textContent = activeSlide.dataset.text ? `"${activeSlide.dataset.text}"` : '';
+          this.activeTextContainer.style.opacity = '1';
+        }, 300);
+
+        // Atualizar os dots
+        this.updateDots();
+      }, 300);
+    }
+
+    calculateSlidePositions() {
+      const totalSlides = this.slidesData.length;
+      const positions = [];
+      
+      // Calcular índices para os 7 slides
+      const indices = [
+        (this.currentIndex - 3 + totalSlides) % totalSlides, // far-left
+        (this.currentIndex - 2 + totalSlides) % totalSlides, // left
+        (this.currentIndex - 1 + totalSlides) % totalSlides, // near-left
+        this.currentIndex, // active
+        (this.currentIndex + 1) % totalSlides, // near-right
+        (this.currentIndex + 2) % totalSlides, // right
+        (this.currentIndex + 3) % totalSlides  // far-right
+      ];
+      
+      const positionClasses = [
+        'far-left',
+        'left',
+        'near-left',
+        'active',
+        'near-right',
+        'right',
+        'far-right'
+      ];
+      
+      indices.forEach((index, i) => {
+        positions.push({
+          data: this.slidesData[index],
+          position: positionClasses[i]
+        });
+      });
+      
+      return positions;
+    }
+
+    bindEvents() {
+      this.prevBtn.addEventListener('click', () => this.prev());
+      this.nextBtn.addEventListener('click', () => this.next());
+      
+      // Pausar autoplay no hover
+      this.container.addEventListener('mouseenter', () => this.stopAutoPlay());
+      this.container.addEventListener('mouseleave', () => this.startAutoPlay());
+      
+      // Pausar quando a página não está visível
       document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
-          this.pause();
+          this.stopAutoPlay();
         } else {
-          this.animate();
+          this.startAutoPlay();
         }
       });
     }
 
-    updatePosition() {
-      this.track.style.transform = `translateX(${this.position}px)`;
+    bindDotEvents() {
+      this.dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+          this.currentIndex = index;
+          this.render();
+        });
+      });
     }
 
-    animate() {
-      if (this.isAnimating) return;
-      this.isAnimating = true;
-
-      const move = () => {
-        if (!this.isAnimating) return;
-
-        this.position -= 0.5; // Reduzido de 1 para 0.5 para mover mais lentamente
-        this.updatePosition();
-
-        // Quando o primeiro conjunto completo de slides passar, 
-        // voltamos discretamente para o segundo conjunto
-        const firstSetWidth = this.slides.length * this.slideWidth;
-        if (Math.abs(this.position) >= firstSetWidth) {
-          this.position += firstSetWidth;
-          this.updatePosition();
+    updateDots() {
+      this.dots.forEach((dot, index) => {
+        if (index === this.currentIndex) {
+          dot.classList.add('active');
+        } else {
+          dot.classList.remove('active');
         }
-
-        requestAnimationFrame(move);
-      };
-
-      requestAnimationFrame(move);
+      });
     }
 
-    pause() {
-      this.isAnimating = false;
+    next() {
+      this.currentIndex = (this.currentIndex + 1) % this.slidesData.length;
+      this.render();
+    }
+
+    prev() {
+      this.currentIndex = this.currentIndex === 0 ? this.slidesData.length - 1 : this.currentIndex - 1;
+      this.render();
+    }
+
+    startAutoPlay() {
+      this.stopAutoPlay();
+      this.autoPlayInterval = setInterval(() => {
+        this.next();
+      }, 40000); // Muda a cada 4 segundos
+    }
+
+    stopAutoPlay() {
+      if (this.autoPlayInterval) {
+        clearInterval(this.autoPlayInterval);
+        this.autoPlayInterval = null;
+      }
     }
   }
 
-  // Inicializar todos os sliders na página
+  // Inicializar slider quando o DOM estiver carregado
   document.addEventListener('DOMContentLoaded', () => {
-    const sliders = document.querySelectorAll('[data-slider-container]');
+    const sliders = document.querySelectorAll('[data-endorsement-slider]');
     sliders.forEach(slider => new EndorsementSlider(slider));
   });
 </script>
