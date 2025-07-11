@@ -1,5 +1,3 @@
-<link rel="stylesheet" href="{{ 'collection-categories.css' | asset_url }}">
-
 <div class="collection-categories">
   <div class="collection-categories__grid">
     {% for block in section.blocks %}
@@ -8,6 +6,8 @@
 
           <img
             src="{{ block.settings.category_image | img_url: '800x' }}"
+            width="800"
+            height="600"
             alt="{{ block.settings.category_title }}"
             loading="lazy"
             class="collection-category__image">
@@ -33,7 +33,8 @@
 
   .collection-categories__grid {
     width: 100%;
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 22px;
     justify-content: center;
   }
@@ -49,6 +50,7 @@
     width: 100%;
     height: 502px;
     overflow: hidden;
+    border-radius: 16px;
   }
 
   .collection-category__image {
@@ -56,6 +58,7 @@
     height: 100%;
     object-fit: cover;
     transition: transform 0.3s ease;
+    border-radius: 16px;
   }
 
   .collection-category__overlay {
@@ -70,6 +73,7 @@
     justify-content: center;
     opacity: 0;
     transition: opacity 0.3s ease;
+    border-radius: 16px;
   }
 
   .collection-category:hover .collection-category__overlay {
@@ -93,44 +97,45 @@
 
   .collection-category__title {
     margin: 0;
-    font-size: 18px;
+    font-size: 24px;
     font-weight: bold;
     font-family: "IBM Plex Mono"
     , monospace;
     color: #fff;
     position: absolute;
     bottom: 20px;
-    left: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
   }
 
   /* Breakpoints responsivos */
-  @media screen and (max-width: 1024px) {
-
-    .collection-category__image-container {
-      height: 400px;
-    }
-  }
-
   @media screen and (max-width: 768px) {
     .collection-categories {
       margin: 40px auto 0;
       padding: 0 10px;
     }
 
+    .collection-categories__grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
 
     .collection-category__image-container {
-      height: 350px;
+      height: calc((100vw - 20px) * 0.75);
+      /* Proporção 4:3 */
+    }
+
+    .collection-category__title {
+      font-size: 20px;
+      bottom: 15px;
+      left: 15px;
     }
   }
 
   @media screen and (max-width: 480px) {
-    .collection-categories__grid {
-      gap: 16px;
-    }
-
-
-    .collection-category__image-container {
-      height: 300px;
+    .collection-category__title {
+      font-size: 18px;
     }
   }
 </style>

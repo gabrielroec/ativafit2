@@ -1,7 +1,7 @@
 {%- comment -%} 
-                          Salve este arquivo como /snippets/product-card.liquid
-                          Inclua na sua coleção ou em qualquer template assim: 
-                          {% render 'product-card', product: product %} 
+                                                                            Salve este arquivo como /snippets/product-card.liquid
+                                                                            Inclua na sua coleção ou em qualquer template assim: 
+                                                                            {% render 'product-card', product: product %} 
 {%- endcomment -%}
 
 {% comment %}Debug info{% endcomment %}
@@ -21,16 +21,18 @@
       .product-card {
         position: relative;
         width: 300px;
+        height: 430px;
         background: #fff;
         border-radius: 0;
         border: 1px solid #D9D9D9;
-
         overflow: hidden;
         transition: transform 0.3s;
         font-family: "IBM Plex Mono"
         , monospace;
-        text-decoration: none; /* Remove o sublinhado do link */
-        display: block; /* Faz o link ocupar todo o espaço do card */
+        text-decoration: none;
+        /* Remove o sublinhado do link */
+        display: flex;
+        flex-direction: column;
       }
       .product-card:hover {
         transform: translateY(-5px);
@@ -41,6 +43,7 @@
         display: block;
         object-fit: contain;
         background-image: linear-gradient(to top, #f9f9f9 0, #fff 100%);
+        flex-shrink: 0;
       }
       .discount-badge {
         position: absolute;
@@ -56,7 +59,7 @@
       .controls {
         display: none;
         position: absolute;
-        bottom: 130px;
+        bottom: 110px;
         left: 50%;
         transform: translateX(-50%);
         width: calc(100% - 32px);
@@ -68,15 +71,33 @@
         justify-content: space-between;
         align-items: stretch;
         gap: 10px;
+        opacity: 0;
+        transition: opacity 0.3s ease
+        , transform 0.3s ease;
       }
       .product-card:hover .controls {
         display: flex;
         align-items: stretch;
         gap: 4px;
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+        animation: slideUp 0.3s ease forwards;
       }
+
+      @keyframes slideUp {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) translateY(10px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(-50%) translateY(0);
+        }
+      }
+
       .buy-btn {
-        background: #EB701F;
-        color: #fff;
+        color: #EB701F;
+        background: transparent;
         font-weight: 600;
         border: none;
         padding: 10px 20px;
@@ -84,6 +105,34 @@
         font-size: 16px;
         cursor: pointer;
         width: 100%;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        transform: scale(0.95);
+        opacity: 0.8;
+      }
+
+      .buy-btn::after {
+        content: '';
+        position: absolute;
+        bottom: 15px;
+        left: 50%;
+        width: 0;
+        height: 2px;
+        background: #EB701F;
+        transform: translateX(-50%);
+        transition: width 0.3s ease;
+      }
+
+      .product-card:hover .buy-btn {
+        color: #c23d12;
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      .product-card:hover .buy-btn::after {
+        width: 50%;
+        background: #c23d12;
       }
       .quantity {
         font-size: 16px;
@@ -107,6 +156,10 @@
       }
       .static-info {
         padding: 16px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
       }
       .product-title {
         font-size: 16px;
@@ -114,6 +167,7 @@
         font-weight: bold;
         color: #000;
         margin-bottom: 8px;
+        flex: 1;
       }
       .price {
         font-size: 16px;
@@ -125,6 +179,30 @@
       .old-price {
         color: #D9D9D9;
         text-decoration: line-through;
+      }
+
+      @media screen and (max-width: 768px) {
+        .product-card {
+          height: 350px;
+        }
+        .product-card img {
+          height: 254px;
+        }
+        .controls {
+          bottom: 90px;
+        }
+      }
+
+      @media screen and (max-width: 480px) {
+        .product-card {
+          height: 300px;
+        }
+        .product-card img {
+          height: 204px;
+        }
+        .controls {
+          bottom: 80px;
+        }
       }
     </style>
 
