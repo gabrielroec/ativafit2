@@ -26,8 +26,8 @@
 
                 {%- unless menu.empty? -%}
                   <div class="footer__block-item footer__block-item--links" {{ block.shopify_attributes }}>
-                    <button class="footer__title heading h6" disabled aria-expanded="false" aria-controls="block-{{ block.id }}" data-action="toggle-collapsible">
-                      <span>{{ menu.title }}</span>
+                    <button class="footer__title heading h6 bold" disabled aria-expanded="false" aria-controls="block-{{ block.id }}" data-action="toggle-collapsible">
+                      <span class="bold">{{ menu.title }}</span>
                       <span class="plus-button"></span>
                     </button>
 
@@ -36,7 +36,7 @@
                         <ul class="footer__linklist list--unstyled" role="list">
                           {%- for link in menu.links -%}
                             <li>
-                              <a href="{{ link.url }}" class="footer__link-item link">{{ link.title }}</a>
+                              <a href="{{ link.url }}" class="footer__link-item link regular">{{ link.title }}</a>
                             </li>
                           {%- endfor -%}
                         </ul>
@@ -67,9 +67,10 @@
                         <div class="form__input-wrapper form__input-wrapper--labelled">
                           <input type="email" id="footer[{{ section.id }}][contact][email]" name="contact[email]" class="form__field form__field--text" required="">
                           <label for="footer[{{ section.id }}][contact][email]" class="form__floating-label">{{ 'footer.newsletter.input' | t }}</label>
+                          <button type="submit" class="form__submit form__submit--tight button button--primary footer-newsletter-button">{{ 'footer.newsletter.submit' | t }}</button>
                         </div>
 
-                        <button type="submit" class="form__submit form__submit--tight button button--primary">{{ 'footer.newsletter.submit' | t }}</button>
+                       
                       {%- endif -%}
                     {%- endform -%}
                   </div>
@@ -88,7 +89,7 @@
           {%- assign locale_selector = true -%}
         {%- endif -%}
 
-        <div class="footer__aside-item footer__aside-item--localization {% if country_selector == false and locale_selector == false %}hidden-pocket{% endif %}">
+        <div class="footer__aside-item footer__aside-item--localization regular {% if country_selector == false and locale_selector == false %}hidden-pocket{% endif %}">
           {%- if locale_selector or country_selector -%}
             {%- form 'localization', id: 'localization_form_footer', class: 'footer__localization-form' -%}
               {%- if locale_selector -%}
@@ -164,7 +165,7 @@
           {%- endif -%}
 
           {%- capture copyright_info -%}© {{ 'now' | date: '%Y' }} {{ shop.name }}<br>{{ powered_by_link }}{%- endcapture -%}
-          <p class="hidden-pocket">{{ copyright_info }}</p>
+          <p class="hidden-pocket regular">{{ copyright_info }}</p>
         </div>
 
         {%- if section.settings.show_social_media -%}
@@ -172,7 +173,7 @@
 
           {%- if social_media != blank -%}
             <div class="footer__aside-item footer__aside-item--social">
-              <p class="footer__aside-title">{{ 'footer.general.follow_us' | t }}</p>
+              <p class="footer__aside-title regular">{{ 'footer.general.follow_us' | t }}</p>
 
               {{ social_media }}
             </div>
@@ -181,7 +182,7 @@
 
         {%- if section.settings.show_payment_icons and shop.enabled_payment_types.size > 0 -%}
           <div class="footer__aside-item footer__aside-item--payment">
-            <p class="footer__aside-title">{{ 'footer.general.we_accept' | t }}</p>
+            <p class="footer__aside-title regular">{{ 'footer.general.we_accept' | t }}</p>
 
             <div class="payment-list">
               {% for type in shop.enabled_payment_types %}
