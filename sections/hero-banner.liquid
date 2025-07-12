@@ -1,12 +1,53 @@
 <link rel="stylesheet" href="{{ 'hero-banner.css' | asset_url }}">
 
 <section
-  class="hero-banner"
+  class="hero-banner js-hero-banner"
   data-desktop-bg="{{ section.settings.background_image | image_url: width: 2000 }}"
   data-mobile-bg="{{ section.settings.background_image_mobile | default: section.settings.background_image | image_url: width: 1000 }}">
-  <div class="hero-banner__overlay"></div>
+  <div class="hero-banner__media-container">
+    {% if section.settings.video_source == 'upload' and section.settings.video_file != blank %}
+      <video
+        class="hero-banner__video"
+        autoplay
+        loop
+        muted
+        playsinline
+        poster="{{ section.settings.background_image | image_url: width: 2000 }}">
+        <source src="{{ section.settings.video_file | file_url }}" type="video/mp4">
+      </video>
+    {% elsif section.settings.video_url != blank %}
+      <div class="hero-banner__video-wrapper" data-video-type="{{ section.settings.video_source }}">
+        {% case section.settings.video_source %}
+          {% when 'youtube' %}
+            <div
+              id="hero-youtube"
+              class="hero-banner__video"
+              data-video-id="{{ section.settings.video_url | split: 'v=' | last }}"></div>
+          {% when 'vimeo' %}
+            <div
+              id="hero-vimeo"
+              class="hero-banner__video"
+              data-video-id="{{ section.settings.video_url | split: '/' | last }}"></div>
+        {% endcase %}
+      </div>
+    {% else %}
+      <div class="hero-banner__image-wrapper">
+        {% if section.settings.background_image != blank %}
+          {{ section.settings.background_image | image_url: width: 2000 | image_tag: class: 'hero-banner__image hero-banner__image--desktop', loading: 'eager', preload: true, alt: section.settings.background_image.alt | escape
+          }}
+          {{ section.settings.background_image_mobile | default: section.settings.background_image | image_url: width: 1000 | image_tag: class: 'hero-banner__image hero-banner__image--mobile', loading: 'eager', preload: true, alt: section.settings.background_image_mobile.alt | escape
+          }}
+        {% else %}
+          {{ 'lifestyle-1' | placeholder_svg_tag: 'hero-banner__image placeholder' }}
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="hero-banner__overlay" style="background-color: {{ section.settings.overlay_color | color_modify: 'alpha', section.settings.overlay_opacity }}"></div>
+
   <div class="hero-banner__content">
-    <div class="">
+    <div class="hero-banner__text-container">
       <h1 class="hero-banner__title black">{{ section.settings.title }}</h1>
       <p class="hero-banner__subtitle">{{ section.settings.subtitle }}</p>
       <div class="hero-banner__buttons">
@@ -15,10 +56,10 @@
             href="{{ section.settings.button_1_link }}"
             class="hero-banner__button hero-banner__button--primary"
             style="
-            color: {{ section.settings.button_1_text_color }};
-            border-color: {{ section.settings.button_1_border_color }};
-            background: {{ section.settings.button_1_bg_color }};
-          "
+              color: {{ section.settings.button_1_text_color }};
+              border-color: {{ section.settings.button_1_border_color }};
+              background: {{ section.settings.button_1_bg_color }};
+            "
             data-hover-bg="{{ section.settings.button_1_bg_color_hover }}"
             data-hover-color="{{ section.settings.button_1_text_color_hover }}">
             {{ section.settings.button_1_text }}
@@ -29,10 +70,10 @@
             href="{{ section.settings.button_2_link }}"
             class="hero-banner__button hero-banner__button--secondary"
             style="
-            color: {{ section.settings.button_2_text_color }};
-            border-color: {{ section.settings.button_2_border_color }};
-            background: {{ section.settings.button_2_bg_color }};
-          "
+              color: {{ section.settings.button_2_text_color }};
+              border-color: {{ section.settings.button_2_border_color }};
+              background: {{ section.settings.button_2_bg_color }};
+            "
             data-hover-bg="{{ section.settings.button_2_bg_color_hover }}"
             data-hover-color="{{ section.settings.button_2_text_color_hover }}">
             {{ section.settings.button_2_text }}
@@ -40,41 +81,246 @@
         {%- endif -%}
       </div>
     </div>
+
     {% if section.settings.product_handle != blank %}
-    {% assign selected_product = all_products[section.settings.product_handle] %}
-      {% comment %}Debug info{% endcomment %}
-      <!--
-        Product Handle: {{ section.settings.product_handle }}  Selected Product: {{ selected_product.title }}  Available: {{ selected_product.available }}  Price: {{ selected_product.price }}
-      -->
+      {% assign selected_product = all_products[section.settings.product_handle] %}
       {% render 'product-card-custom'
         , product: selected_product %}
     {% endif %}
   </div>
+
+  {% if section.settings.show_scroll_indicator %}
+    <div class="hero-banner__scroll-indicator">
+      <div class="hero-banner__scroll-icon"></div>
+    </div>
+  {% endif %}
 </section>
+
+{% style %}
+  .hero-banner {
+    position: relative;
+    width: 100%;
+    height: 90vh;
+    overflow: hidden;
+  }
+
+  .hero-banner__media-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero-banner__video-wrapper,
+  .hero-banner__image-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero-banner__video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero-banner__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero-banner__image--mobile {
+    display: none;
+  }
+
+  .hero-banner__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+
+  .hero-banner__content {
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 20px;
+    max-width: 1750px;
+    margin: 0 auto;
+  }
+
+  .hero-banner__text-container {
+    text-align: left;
+    max-width: 800px;
+  }
+
+  .hero-banner__scroll-indicator {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    cursor: pointer;
+  }
+
+  .hero-banner__scroll-icon {
+    width: 30px;
+    height: 50px;
+    border: 2px solid #fff;
+    border-radius: 15px;
+    position: relative;
+  }
+
+  .hero-banner__scroll-icon::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    background: #fff;
+    border-radius: 50%;
+    transform: translateX(-50%);
+    animation: scroll 2s infinite;
+  }
+
+  @keyframes scroll {
+    0% {
+      transform: translate(-50%, 0);
+      opacity: 1;
+    }
+    100% {
+      transform: translate(-50%, 20px);
+      opacity: 0;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    .hero-banner__image--desktop {
+      display: none;
+    }
+
+    .hero-banner__image--mobile {
+      display: block;
+    }
+
+    .hero-banner__title {
+      font-size: 36px;
+    }
+
+    .hero-banner__subtitle {
+      font-size: 18px;
+    }
+  }
+
+  .hero-banner__video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+{% endstyle %}
 
 <script>
   class HeroBanner {
     constructor(element) {
       this.banner = element;
-      this.desktopBg = this.banner.dataset.desktopBg;
-      this.mobileBg = this.banner.dataset.mobileBg;
+      this.videoWrapper = this.banner.querySelector('.hero-banner__video-wrapper');
+      this.scrollIndicator = this.banner.querySelector('.hero-banner__scroll-indicator');
       
-      // Inicializar
-      this.checkScreenSize();
-      
-      // Adicionar listener para redimensionamento
-      window.addEventListener('resize', () => this.checkScreenSize());
+      this.init();
     }
     
-    checkScreenSize() {
-      const isMobile = window.innerWidth <= 768;
-      this.banner.style.backgroundImage = `url(${isMobile ? this.mobileBg : this.desktopBg})`;
+    init() {
+      if (this.videoWrapper) {
+        const videoType = this.videoWrapper.dataset.videoType;
+        if (videoType === 'youtube') {
+          this.initYouTubeVideo();
+        } else if (videoType === 'vimeo') {
+          this.initVimeoVideo();
+        }
+      }
+
+      if (this.scrollIndicator) {
+        this.scrollIndicator.addEventListener('click', () => {
+          window.scrollTo({
+            top: window.innerHeight,
+            behavior: 'smooth'
+          });
+        });
+      }
+    }
+
+    initYouTubeVideo() {
+      const videoContainer = this.videoWrapper.querySelector('.hero-banner__video');
+      const videoId = videoContainer.dataset.videoId;
+
+      if (window.YT) {
+        this.createYouTubePlayer(videoContainer, videoId);
+      } else {
+        const tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        window.onYouTubeIframeAPIReady = () => {
+          this.createYouTubePlayer(videoContainer, videoId);
+        };
+      }
+    }
+
+    createYouTubePlayer(container, videoId) {
+      new YT.Player(container, {
+        videoId: videoId,
+        playerVars: {
+          autoplay: 1,
+          loop: 1,
+          controls: 0,
+          showinfo: 0,
+          mute: 1,
+          playsinline: 1,
+          playlist: videoId
+        }
+      });
+    }
+
+    initVimeoVideo() {
+      const videoContainer = this.videoWrapper.querySelector('.hero-banner__video');
+      const videoId = videoContainer.dataset.videoId;
+
+      const options = {
+        id: videoId,
+        background: true,
+        autoplay: true,
+        loop: true,
+        muted: true
+      };
+
+      if (window.Vimeo) {
+        new Vimeo.Player(videoContainer, options);
+      } else {
+        const script = document.createElement('script');
+        script.src = 'https://player.vimeo.com/api/player.js';
+        script.onload = () => {
+          new Vimeo.Player(videoContainer, options);
+        };
+        document.head.appendChild(script);
+      }
     }
   }
 
-  // Inicializar todos os banners na página
+  // Initialize all hero banners
   document.addEventListener('DOMContentLoaded', () => {
-    const banners = document.querySelectorAll('.hero-banner');
+    const banners = document.querySelectorAll('.js-hero-banner');
     banners.forEach(banner => new HeroBanner(banner));
   });
 </script>
@@ -85,30 +331,95 @@
     "settings": [
       {
         "type": "header",
-        "content": "Banner Images"
+        "content": "Media"
+      },
+      {
+        "type": "select",
+        "id": "media_type",
+        "label": "Media Type",
+        "options": [
+          {
+            "value": "image",
+            "label": "Image/GIF"
+          }, {
+            "value": "video",
+            "label": "Video"
+          }
+        ],
+        "default": "image"
       },
       {
         "type": "image_picker",
         "id": "background_image",
-        "label": "Desktop Background Image",
-        "info": "Recommended size: 2000x500px"
+        "label": "Desktop Background Image/GIF",
+        "info": "Recommended size: 2000x1100px. Supports GIF animation"
       },
       {
         "type": "image_picker",
         "id": "background_image_mobile",
-        "label": "Mobile Background Image",
-        "info": "Recommended size: 800x400px. If not set, will use desktop image"
+        "label": "Mobile Background Image/GIF",
+        "info": "Recommended size: 800x1000px. Supports GIF animation. If not set, will use desktop image"
       },
       {
+        "type": "select",
+        "id": "video_source",
+        "label": "Video Source",
+        "options": [
+          {
+            "value": "youtube",
+            "label": "YouTube"
+          },
+          {
+            "value": "vimeo",
+            "label": "Vimeo"
+          }
+        ],
+        "default": "youtube"
+      },
+      {
+        "type": "video_url",
+        "id": "video_url",
+        "label": "Video URL",
+        "accept": ["youtube", "vimeo"],
+        "info": "Add your YouTube or Vimeo video URL"
+      }, {
+        "type": "header",
+        "content": "Content"
+      }, {
         "type": "text",
         "id": "title",
-        "label": "Main Title",
-        "default": "30% OFF STRENGTH COLLECTION"
+        "label": "Title",
+        "default": "START WHERE YOU ARE."
       }, {
         "type": "text",
         "id": "subtitle",
         "label": "Subtitle",
-        "default": "GET IT NOW FOR FATHER'S DAY"
+        "default": "YOUR HOME FOR FITNESS FREEDOM"
+      }, {
+        "type": "header",
+        "content": "Overlay"
+      }, {
+        "type": "color",
+        "id": "overlay_color",
+        "label": "Overlay Color",
+        "default": "#000000"
+      }, {
+        "type": "range",
+        "id": "overlay_opacity",
+        "label": "Overlay Opacity",
+        "min": 0,
+        "max": 1,
+        "step": 0.1,
+        "default": 0.3
+      }, {
+        "type": "checkbox",
+        "id": "show_scroll_indicator",
+        "label": "Show Scroll Indicator",
+        "default": true
+      }, {
+        "type": "product",
+        "id": "product_handle",
+        "label": "Product Card"
       }, {
         "type": "text",
         "id": "button_1_text",
@@ -178,10 +489,6 @@
         "label": "Button 2 Text Color (Hover)",
         "default": "#111111"
       }, {
-        "type": "product",
-        "id": "product_handle",
-        "label": "Product Card"
-      }, {
         "type": "text",
         "id": "buy_btn_text",
         "label": "Buy Button Text",
@@ -190,7 +497,8 @@
     ],
     "presets": [
       {
-        "name": "Hero Banner"
+        "name": "Hero Banner",
+        "settings": {}
       }
     ]
   }

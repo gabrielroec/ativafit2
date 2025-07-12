@@ -1,0 +1,402 @@
+<style>
+  .blog-section {
+    padding: 80px 20px;
+    background: #fff;
+    max-width: 1750px;
+    margin: 0 auto;
+  }
+
+  .blog-section__header {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+
+  .blog-section__subtitle {
+    font-size: 14px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+
+  .blog-section__title {
+    font-size: 50px;
+    color: #000;
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  .blog-section__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    margin-top: 60px;
+  }
+
+  .blog-card {
+    position: relative;
+    background: #fff;
+    border-radius: 12px;
+    overflow: visible;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    height: 400px;
+    margin-bottom: 40px;
+  }
+
+  .blog-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .blog-card__image-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 12px;
+  }
+
+  .blog-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .blog-card:hover .blog-card__image {
+    transform: scale(1.05);
+  }
+
+  .blog-card__content {
+    position: absolute;
+    bottom: -20px;
+    left: 20px;
+    right: 20px;
+    background: #fff;
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    z-index: 2;
+    transition: all 0.3s ease;
+  }
+
+  .blog-card:hover .blog-card__content {
+    bottom: -25px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  }
+
+  .blog-card__category {
+    font-size: 12px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+
+  .blog-card__divider {
+    width: 100%;
+    height: 1px;
+    background: #e5e5e5;
+    border: none;
+    margin: 12px 0 16px;
+  }
+
+  .blog-card__title {
+    font-size: 18px;
+    color: #000;
+    line-height: 1.4;
+    margin: 0;
+    text-align: center;
+  }
+
+  .blog-card__date {
+    font-family: "Inter";
+    font-size: 12px;
+    color: #999;
+    margin-top: 12px;
+  }
+
+  /* Responsive */
+  @media screen and (max-width: 1024px) {
+    .blog-section__grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    .blog-section__title {
+      font-size: 40px;
+    }
+
+    .blog-card {
+      margin-bottom: 50px;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    .blog-section {
+      padding: 60px 15px;
+    }
+
+    .blog-section__grid {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .blog-section__title {
+      font-size: 32px;
+    }
+
+    .blog-card {
+      height: 350px;
+      margin-bottom: 50px;
+    }
+
+    .blog-card__content {
+      left: 15px;
+      right: 15px;
+      padding: 20px;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .blog-section__title {
+      font-size: 28px;
+    }
+
+    .blog-card {
+      height: 300px;
+      margin-bottom: 45px;
+    }
+
+    .blog-card__content {
+      padding: 18px;
+    }
+  }
+</style>
+
+<section class="blog-section">
+  <div class="blog-section__header">
+    <p class="blog-section__subtitle regular">{{ section.settings.subtitle }}</p>
+    <h2 class="blog-section__title black">{{ section.settings.title }}</h2>
+  </div>
+
+  <div class="blog-section__grid">
+    {% if section.settings.blog_handle != blank %}
+      {% assign selected_blog = blogs[section.settings.blog_handle] %}
+      {% for article in selected_blog.articles limit: section.settings.posts_count %}
+        <a href="{{ article.url }}" class="blog-card">
+          <div class="blog-card__image-container">
+            {% if article.image != blank %}
+              {{ article.image | image_url: width: 400 | image_tag:
+ class: 'blog-card__image',
+ loading: 'lazy',
+ alt: article.image.alt | escape
+              }}
+            {% else %}
+              {{ 'lifestyle-1' | placeholder_svg_tag: 'blog-card__image' }}
+            {% endif %}
+          </div>
+          <div class="blog-card__content">
+            <h3 class="blog-card__category regular">
+              {% if article.tags.first != blank %}
+                {{ article.tags.first }}
+              {% else %}
+                Blog
+              {% endif %}
+            </h3>
+            <hr class="blog-card__divider">
+            <p class="blog-card__title bold">{{ article.title }}</p>
+            {% if section.settings.show_date %}
+              <p class="blog-card__date">{{ article.published_at | date: "%B %d, %Y" }}</p>
+            {% endif %}
+          </div>
+        </a>
+      {% endfor %}
+    {% else %}
+      <!-- Fallback para posts customizados se não houver blog selecionado -->
+      {% for block in section.blocks %}
+        {% case block.type %}
+          {% when 'blog_post' %}
+            <a
+              href="{{ block.settings.blog_url }}"
+              class="blog-card"
+              {{ block.shopify_attributes }}>
+              <div class="blog-card__image-container">
+                {% if block.settings.blog_image != blank %}
+                  {{ block.settings.blog_image | image_url: width: 400 | image_tag:
+ class: 'blog-card__image',
+ loading: 'lazy',
+ alt: block.settings.blog_image.alt | escape
+                  }}
+                {% else %}
+                  {{ 'lifestyle-1' | placeholder_svg_tag: 'blog-card__image' }}
+                {% endif %}
+              </div>
+              <div class="blog-card__content">
+                <h3 class="blog-card__category regular">{{ block.settings.blog_category }}</h3>
+                <hr class="blog-card__divider">
+                <p class="blog-card__title bold">{{ block.settings.blog_title }}</p>
+                {% if block.settings.show_date and block.settings.blog_date != blank %}
+                  <p class="blog-card__date">{{ block.settings.blog_date | date: "%B %d, %Y" }}</p>
+                {% endif %}
+              </div>
+            </a>
+          {% when 'article' %}
+            {% assign article = articles[block.settings.article_handle] %}
+            {% if article %}
+              <a
+                href="{{ article.url }}"
+                class="blog-card"
+                {{ block.shopify_attributes }}>
+                <div class="blog-card__image-container">
+                  {% if article.image != blank %}
+                    {{ article.image | image_url: width: 400 | image_tag:
+ class: 'blog-card__image',
+ loading: 'lazy',
+ alt: article.image.alt | escape
+                    }}
+                  {% else %}
+                    {{ 'lifestyle-1' | placeholder_svg_tag: 'blog-card__image' }}
+                  {% endif %}
+                </div>
+                <div class="blog-card__content">
+                  <h3 class="blog-card__category regular">
+                    {% if block.settings.custom_category != blank %}
+                      {{ block.settings.custom_category }}
+                    {% else %}
+                      {{ article.tags.first | default: 'Blog' }}
+                    {% endif %}
+                  </h3>
+                  <hr class="blog-card__divider">
+                  <p class="blog-card__title bold">{{ article.title }}</p>
+                  {% if block.settings.show_date %}
+                    <p class="blog-card__date">{{ article.published_at | date: "%B %d, %Y" }}</p>
+                  {% endif %}
+                </div>
+              </a>
+            {% endif %}
+        {% endcase %}
+      {% endfor %}
+    {% endif %}
+  </div>
+</section>
+
+{% schema %}
+  {
+    "name": "Blog Section",
+    "max_blocks": 3,
+    "settings": [
+      {
+        "type": "text",
+        "id": "subtitle",
+        "label": "Subtitle",
+        "default": "Stories & Tips"
+      },
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Main Title",
+        "default": "STRONGER TOGETHER"
+      },
+      {
+        "type": "blog",
+        "id": "blog_handle",
+        "label": "Select Blog",
+        "info": "Choose a blog to display posts dynamically. Leave empty to use custom blocks."
+      },
+      {
+        "type": "range",
+        "id": "posts_count",
+        "label": "Number of Posts",
+        "min": 1,
+        "max": 6,
+        "step": 1,
+        "default": 3,
+        "info": "Number of posts to display from the selected blog"
+      }, {
+        "type": "checkbox",
+        "id": "show_date",
+        "label": "Show Publication Date",
+        "default": false
+      }
+    ],
+    "blocks": [
+      {
+        "type": "blog_post",
+        "name": "Custom Blog Post",
+        "settings": [
+          {
+            "type": "image_picker",
+            "id": "blog_image",
+            "label": "Blog Image",
+            "info": "Recommended size: 400x400px"
+          },
+          {
+            "type": "text",
+            "id": "blog_category",
+            "label": "Category",
+            "default": "The starting line"
+          },
+          {
+            "type": "text",
+            "id": "blog_title",
+            "label": "Blog Title",
+            "default": "How to get back into working out"
+          },
+          {
+            "type": "url",
+            "id": "blog_url",
+            "label": "Blog URL"
+          }, {
+            "type": "checkbox",
+            "id": "show_date",
+            "label": "Show Date",
+            "default": false
+          }, {
+            "type": "text",
+            "id": "blog_date",
+            "label": "Date (YYYY-MM-DD)",
+            "info": "Format: 2024-01-15"
+          }
+        ]
+      }, {
+        "type": "article",
+        "name": "Shopify Article",
+        "settings": [
+          {
+            "type": "article",
+            "id": "article_handle",
+            "label": "Select Article"
+          }, {
+            "type": "text",
+            "id": "custom_category",
+            "label": "Custom Category",
+            "info": "Leave blank to use article's first tag"
+          }, {
+            "type": "checkbox",
+            "id": "show_date",
+            "label": "Show Date",
+            "default": true
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Blog Section",
+        "settings": {
+          "subtitle": "Stories & Tips",
+          "title": "STRONGER TOGETHER",
+          "posts_count": 3,
+          "show_date": false
+        }
+      }
+    ]
+  }
+{% endschema %}

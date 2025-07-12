@@ -1,0 +1,254 @@
+<style>
+  .split-banner {
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  .split-banner__container {
+    max-width: 1920px;
+    margin: 0 auto 35px;
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .split-banner__column {
+    flex-basis: 50%;
+    position: relative;
+  }
+
+  .split-banner__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .split-banner__content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    width: 80%;
+  }
+
+  .split-banner__title {
+    font-family: "Inter";
+    font-size: 72px;
+    font-weight: 900;
+    color: {{ section.settings.title_color }};
+    margin-bottom: 20px;
+    line-height: 1.1;
+  }
+
+  .split-banner__subtitle {
+    font-family: "Barlow";
+    font-size: 24px;
+    color: {{ section.settings.subtitle_color }};
+    margin-bottom: 30px;
+  }
+
+  .split-banner__button {
+    display: inline-block;
+    padding: 15px 30px;
+    border: 2px solid{{ section.settings.button_border_color }};
+    background: {{ section.settings.button_bg_color }};
+    color: {{ section.settings.button_text_color }};
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 600;
+  }
+
+  .split-banner__button:hover {
+    background: {{ section.settings.button_bg_color_hover }};
+    color: {{ section.settings.button_text_color_hover }};
+  }
+
+  @media screen and (max-width: 768px) {
+    .split-banner__column {
+      flex-basis: 100%;
+    }
+
+    .split-banner__column:first-child {
+      order: 2;
+    }
+
+    .split-banner__column:last-child {
+      order: 1;
+    }
+
+    .split-banner__title {
+      font-size: 48px;
+    }
+
+    .split-banner__subtitle {
+      font-size: 20px;
+    }
+  }
+</style>
+
+<section class="split-banner">
+  <div class="split-banner__container">
+    <div class="split-banner__column">
+      {% if section.settings.image_1 != blank %}
+        {{ section.settings.image_1 | image_url: width: 1920 | image_tag:
+ class: 'split-banner__image',
+ loading: 'lazy',
+ alt: section.settings.image_1.alt | escape
+        }}
+      {% else %}
+        {{ 'lifestyle-1' | placeholder_svg_tag: 'split-banner__image placeholder' }}
+      {% endif %}
+
+      {% if section.settings.show_content_1 %}
+        <div class="split-banner__content">
+          <h2 class="split-banner__title">{{ section.settings.title_1 }}</h2>
+          <p class="split-banner__subtitle">{{ section.settings.subtitle_1 }}</p>
+          {% if section.settings.button_text_1 != blank and section.settings.button_link_1 != blank %}
+            <a href="{{ section.settings.button_link_1 }}" class="split-banner__button">
+              {{ section.settings.button_text_1 }}
+            </a>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="split-banner__column">
+      {% if section.settings.image_2 != blank %}
+        {{ section.settings.image_2 | image_url: width: 1920 | image_tag:
+ class: 'split-banner__image',
+ loading: 'lazy',
+ alt: section.settings.image_2.alt | escape
+        }}
+      {% else %}
+        {{ 'lifestyle-1' | placeholder_svg_tag: 'split-banner__image placeholder' }}
+      {% endif %}
+
+      {% if section.settings.show_content_2 %}
+        <div class="split-banner__content">
+          <h2 class="split-banner__title">{{ section.settings.title_2 }}</h2>
+          <p class="split-banner__subtitle">{{ section.settings.subtitle_2 }}</p>
+          {% if section.settings.button_text_2 != blank and section.settings.button_link_2 != blank %}
+            <a href="{{ section.settings.button_link_2 }}" class="split-banner__button">
+              {{ section.settings.button_text_2 }}
+            </a>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+  {
+    "name": "Split Banner",
+    "settings": [
+      {
+        "type": "header",
+        "content": "First Column"
+      },
+      {
+        "type": "image_picker",
+        "id": "image_1",
+        "label": "Image 1"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_content_1",
+        "label": "Show content on image 1",
+        "default": true
+      },
+      {
+        "type": "text",
+        "id": "title_1",
+        "label": "Title 1",
+        "default": "Move to feel."
+      }, {
+        "type": "text",
+        "id": "subtitle_1",
+        "label": "Subtitle 1"
+      }, {
+        "type": "text",
+        "id": "button_text_1",
+        "label": "Button Text 1"
+      }, {
+        "type": "url",
+        "id": "button_link_1",
+        "label": "Button Link 1"
+      }, {
+        "type": "header",
+        "content": "Second Column"
+      }, {
+        "type": "image_picker",
+        "id": "image_2",
+        "label": "Image 2"
+      }, {
+        "type": "checkbox",
+        "id": "show_content_2",
+        "label": "Show content on image 2",
+        "default": true
+      }, {
+        "type": "text",
+        "id": "title_2",
+        "label": "Title 2"
+      }, {
+        "type": "text",
+        "id": "subtitle_2",
+        "label": "Subtitle 2"
+      }, {
+        "type": "text",
+        "id": "button_text_2",
+        "label": "Button Text 2"
+      }, {
+        "type": "url",
+        "id": "button_link_2",
+        "label": "Button Link 2"
+      }, {
+        "type": "header",
+        "content": "Colors"
+      }, {
+        "type": "color",
+        "id": "title_color",
+        "label": "Title Color",
+        "default": "#ffffff"
+      }, {
+        "type": "color",
+        "id": "subtitle_color",
+        "label": "Subtitle Color",
+        "default": "#ffffff"
+      }, {
+        "type": "color",
+        "id": "button_text_color",
+        "label": "Button Text Color",
+        "default": "#ffffff"
+      }, {
+        "type": "color",
+        "id": "button_border_color",
+        "label": "Button Border Color",
+        "default": "#ffffff"
+      }, {
+        "type": "color",
+        "id": "button_bg_color",
+        "label": "Button Background Color",
+        "default": "rgba(0,0,0,0)"
+      }, {
+        "type": "color",
+        "id": "button_text_color_hover",
+        "label": "Button Text Color Hover",
+        "default": "#000000"
+      }, {
+        "type": "color",
+        "id": "button_bg_color_hover",
+        "label": "Button Background Color Hover",
+        "default": "#ffffff"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Split Banner",
+        "settings": {}
+      }
+    ]
+  }
+{% endschema %}
