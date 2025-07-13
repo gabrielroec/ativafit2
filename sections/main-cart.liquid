@@ -3,13 +3,17 @@
   "showShippingEstimator": {% if cart.item_count == 0 %}false{% else %}{{ section.settings.show_shipping_estimator | json }}{% endif %}
 }
 {%- endcapture -%}
-
-<section data-section-id="{{ section.id }}" data-section-type="cart" data-section-settings='{{ section_settings }}' data-item-count="{{ cart.item_count }}">
+<section
+  data-section-id="{{ section.id }}"
+  data-section-type="cart"
+  data-section-settings='{{ section_settings }}'
+  data-item-count="{{ cart.item_count }}">
   {%- if cart.item_count == 0 -%}
     <div class="container">
       <div class="empty-state">
         <div class="empty-state__icon">
-          {%- render 'icon', icon: 'big-cart' -%}
+          {%- render 'icon'
+            , icon: 'big-cart' -%}
         </div>
 
         <p class="empty-state__heading heading h1">{{ 'cart.general.empty' | t }}</p>
@@ -48,9 +52,9 @@
         <div class="cart-wrapper__inner-inner">
           <div class="container container--flush">
             {%- comment -%}
-            --------------------------------------------------------------------------------------
-            LINE ITEMS
-            --------------------------------------------------------------------------------------
+              --------------------------------------------------------------------------------------
+              LINE ITEMS
+              --------------------------------------------------------------------------------------
             {%- endcomment -%}
 
             <div class="card">
@@ -76,11 +80,17 @@
 
                               {%- if line_item.image.aspect_ratio < 1 -%}
                                 <div class="aspect-ratio aspect-ratio--square">
-                                  <img loading="lazy" src="{{ line_item.image | img_url: '180x' }}" alt="{{ line_item.image.alt | escape }}">
+                                  <img
+                                    loading="lazy"
+                                    src="{{ line_item.image | img_url: '180x' }}"
+                                    alt="{{ line_item.image.alt | escape }}">
                                 </div>
                               {%- else -%}
                                 <div class="aspect-ratio" style="padding-bottom: {{ 100.0 | divided_by: line_item.image.aspect_ratio }}%">
-                                  <img loading="lazy" src="{{ line_item.image | img_url: '180x' }}" alt="{{ line_item.image.alt | escape }}">
+                                  <img
+                                    loading="lazy"
+                                    src="{{ line_item.image | img_url: '180x' }}"
+                                    alt="{{ line_item.image.alt | escape }}">
                                 </div>
                               {%- endif -%}
                             </div>
@@ -92,7 +102,7 @@
 
                                 {%- unless collection_for_vendor.empty? -%}
                                   <a class="line-item__vendor link" href="{{ collection_for_vendor.url }}">{{ line_item.product.vendor }}</a>
-                                  {%- else -%}
+                                {%- else -%}
                                   <a class="line-item__vendor link" href="{{ line_item.product.vendor | url_for_vendor }}">{{ line_item.product.vendor }}</a>
                                 {%- endunless -%}
                               {%- endif -%}
@@ -151,7 +161,8 @@
                                 <div class="line-item__price-info">
                                   <div class="unit-price-measurement">
                                     <span class="unit-price-measurement__price">{{ line_item.unit_price | money }}</span>
-                                    <span class="unit-price-measurement__separator">/ </span>
+                                    <span>/
+                                    </span>
 
                                     {%- if line_item.unit_price_measurement.reference_value != 1 -%}
                                       <span class="unit-price-measurement__reference-value">{{ line_item.unit_price_measurement.reference_value }}</span>
@@ -166,7 +177,8 @@
                                 <ul class="line-item__discount-list" role="list">
                                   {%- for discount_allocation in line_item.line_level_discount_allocations -%}
                                     <li class="line-item__discount">
-                                      {%- render 'icon', icon: 'sale' -%}{{ discount_allocation.discount_application.title }} (-{{ discount_allocation.amount | money }})
+                                      {%- render 'icon'
+                                        , icon: 'sale' -%}{{ discount_allocation.discount_application.title }} (-{{ discount_allocation.amount | money }})
                                     </li>
                                   {%- endfor -%}
                                 </ul>
@@ -183,15 +195,52 @@
                                       {%- assign allow_to_add_more = false -%}
                                     {%- endif -%}
 
-                                    <button type="button" class="quantity-selector__button" data-action="decrease-quantity" data-href="{{ routes.cart_change_url }}?quantity={{ line_item.quantity | minus: 1 }}&line={{ forloop.index }}" data-quantity="{{ line_item.quantity | minus: 1 }}" data-line="{{ forloop.index }}" aria-label="{{ 'cart.items.decrease_quantity' | t }}" title="{{ 'cart.items.decrease_quantity' | t }}">{% render 'icon', icon: 'minus' %}</button>
-                                    <input aria-label="{{ 'product.form.quantity' | t }}" class="quantity-selector__value" inputmode="numeric" data-current-value="{{ line_item.quantity }}" data-line="{{ forloop.index }}" value="{{ line_item.quantity }}" size="{{ line_item.quantity | append: '' | size | at_least: 2 }}">
-                                    <button type="button" class="quantity-selector__button" data-action="increase-quantity" data-href="{{ routes.cart_change_url }}?quantity={{ line_item.quantity | plus: 1 }}&line={{ forloop.index }}" data-quantity="{{ line_item.quantity | plus: 1 }}" data-line="{{ forloop.index }}" {% if allow_to_add_more %}aria-label="{{ 'cart.items.increase_quantity' | t }}" title="{{ 'cart.items.increase_quantity' | t }}"{% else %}disabled="disabled" aria-label="{{ 'cart.items.no_more_stock' | t }}" data-tooltip="{{ 'cart.items.no_more_stock' | t }}" data-tooltip-position="bottom-left"{% endif %}>{% render 'icon', icon: 'plus' %}</button>
+                                    <button
+                                      type="button"
+                                      class="quantity-selector__button"
+                                      data-action="decrease-quantity"
+                                      data-href="{{ routes.cart_change_url }}?quantity={{ line_item.quantity | minus: 1 }}&line={{ forloop.index }}"
+                                      data-quantity="{{ line_item.quantity | minus: 1 }}"
+                                      data-line="{{ forloop.index }}"
+                                      aria-label="{{ 'cart.items.decrease_quantity' | t }}"
+                                      title="{{ 'cart.items.decrease_quantity' | t }}">{% render 'icon'
+, icon: 'minus' %}</button>
+                                    <input
+                                      aria-label="{{ 'product.form.quantity' | t }}"
+                                      class="quantity-selector__value"
+                                      inputmode="numeric"
+                                      data-current-value="{{ line_item.quantity }}"
+                                      data-line="{{ forloop.index }}"
+                                      value="{{ line_item.quantity }}"
+                                      size="{{ line_item.quantity | append: '' | size | at_least: 2 }}">
+                                    <button
+                                      type="button"
+                                      class="quantity-selector__button"
+                                      data-action="increase-quantity"
+                                      data-href="{{ routes.cart_change_url }}?quantity={{ line_item.quantity | plus: 1 }}&line={{ forloop.index }}"
+                                      data-quantity="{{ line_item.quantity | plus: 1 }}"
+                                      data-line="{{ forloop.index }}"
+                                      {% if allow_to_add_more %}
+                                      aria-label="{{ 'cart.items.increase_quantity' | t }}"
+                                      title="{{ 'cart.items.increase_quantity' | t }}"
+                                      {% else %}
+                                      disabled="disabled"
+                                      aria-label="{{ 'cart.items.no_more_stock' | t }}"
+                                      data-tooltip="{{ 'cart.items.no_more_stock' | t }}"
+                                      data-tooltip-position="bottom-left"
+                                      {% endif %}>{% render 'icon'
+, icon: 'plus' %}</button>
                                   </div>
                                 {%- else -%}
                                   <span>{{ line_item.quantity }}</span>
                                 {% endunless -%}
 
-                                <a href="{{ routes.cart_change_url }}?quantity=0&line={{ forloop.index }}" data-action="decrease-quantity" data-quantity="0" data-line="{{ forloop.index }}" class="line-item__quantity-remove link">{{ 'cart.items.remove' | t }}</a>
+                                <a
+                                  href="{{ routes.cart_change_url }}?quantity=0&line={{ forloop.index }}"
+                                  data-action="decrease-quantity"
+                                  data-quantity="0"
+                                  data-line="{{ forloop.index }}"
+                                  class="line-item__quantity-remove link">{{ 'cart.items.remove' | t }}</a>
                               </div>
                             </div>
                           </div>
@@ -208,15 +257,52 @@
                                 {%- assign allow_to_add_more = false -%}
                               {%- endif -%}
 
-                              <button type="button" class="quantity-selector__button" data-action="decrease-quantity" data-href="{{ routes.cart_change_url }}?quantity={{ line_item.quantity | minus: 1 }}&line={{ forloop.index }}" data-quantity="{{ line_item.quantity | minus: 1 }}" data-line="{{ forloop.index }}" aria-label="{{ 'cart.items.decrease_quantity' | t }}" title="{{ 'cart.items.decrease_quantity' | t }}">{% render 'icon', icon: 'minus' %}</button>
-                              <input aria-label="{{ 'product.form.quantity' | t }}" class="quantity-selector__value" inputmode="numeric" data-current-value="{{ line_item.quantity }}" data-line="{{ forloop.index }}" value="{{ line_item.quantity }}" size="{{ line_item.quantity | append: '' | size | at_least: 2 }}">
-                              <button type="button" class="quantity-selector__button" data-action="increase-quantity" data-href="{{ routes.cart_change_url }}?quantity={{ line_item.quantity | plus: 1 }}&line={{ forloop.index }}" data-quantity="{{ line_item.quantity | plus: 1 }}" data-line="{{ forloop.index }}" {% if allow_to_add_more %}aria-label="{{ 'cart.items.increase_quantity' | t }}" title="{{ 'cart.items.increase_quantity' | t }}"{% else %}disabled="disabled" aria-label="{{ 'cart.items.no_more_stock' | t }}" data-tooltip="{{ 'cart.items.no_more_stock' | t }}" data-tooltip-position="bottom-left"{% endif %}>{% render 'icon', icon: 'plus' %}</button>
+                              <button
+                                type="button"
+                                class="quantity-selector__button"
+                                data-action="decrease-quantity"
+                                data-href="{{ routes.cart_change_url }}?quantity={{ line_item.quantity | minus: 1 }}&line={{ forloop.index }}"
+                                data-quantity="{{ line_item.quantity | minus: 1 }}"
+                                data-line="{{ forloop.index }}"
+                                aria-label="{{ 'cart.items.decrease_quantity' | t }}"
+                                title="{{ 'cart.items.decrease_quantity' | t }}">{% render 'icon'
+, icon: 'minus' %}</button>
+                              <input
+                                aria-label="{{ 'product.form.quantity' | t }}"
+                                class="quantity-selector__value"
+                                inputmode="numeric"
+                                data-current-value="{{ line_item.quantity }}"
+                                data-line="{{ forloop.index }}"
+                                value="{{ line_item.quantity }}"
+                                size="{{ line_item.quantity | append: '' | size | at_least: 2 }}">
+                              <button
+                                type="button"
+                                class="quantity-selector__button"
+                                data-action="increase-quantity"
+                                data-href="{{ routes.cart_change_url }}?quantity={{ line_item.quantity | plus: 1 }}&line={{ forloop.index }}"
+                                data-quantity="{{ line_item.quantity | plus: 1 }}"
+                                data-line="{{ forloop.index }}"
+                                {% if allow_to_add_more %}
+                                aria-label="{{ 'cart.items.increase_quantity' | t }}"
+                                title="{{ 'cart.items.increase_quantity' | t }}"
+                                {% else %}
+                                disabled="disabled"
+                                aria-label="{{ 'cart.items.no_more_stock' | t }}"
+                                data-tooltip="{{ 'cart.items.no_more_stock' | t }}"
+                                data-tooltip-position="bottom-left"
+                                {% endif %}>{% render 'icon'
+, icon: 'plus' %}</button>
                             </div>
                           {%- else -%}
                             <span>{{ line_item.quantity }}</span>
                           {%- endunless -%}
 
-                          <a href="{{ routes.cart_change_url }}?quantity=0&line={{ forloop.index }}" data-action="decrease-quantity" data-quantity="0" data-line="{{ forloop.index }}" class="line-item__quantity-remove link">{{ 'cart.items.remove' | t }}</a>
+                          <a
+                            href="{{ routes.cart_change_url }}?quantity=0&line={{ forloop.index }}"
+                            data-action="decrease-quantity"
+                            data-quantity="0"
+                            data-line="{{ forloop.index }}"
+                            class="line-item__quantity-remove link">{{ 'cart.items.remove' | t }}</a>
                         </td>
 
                         <td class="line-item__line-price table__cell--right hidden-phone">
@@ -231,12 +317,12 @@
                   </tbody>
                 </table>
               </div>
-            </div>
+          </div>
 
             {%- comment -%}
-            --------------------------------------------------------------------------------------
-            GIFT WRAP
-            --------------------------------------------------------------------------------------
+              --------------------------------------------------------------------------------------
+              GIFT WRAP
+              --------------------------------------------------------------------------------------
             {%- endcomment -%}
 
             {%- assign gift_wrap_product = section.settings.gift_wrap_product -%}
@@ -257,7 +343,8 @@
                 <div class="card">
                   <div class="gift-wrap">
                     <div class="gift-wrap__left">
-                      <span class="gift-wrap__icon">{% render 'icon', icon: 'bi-gift-wrap' %}</span>
+                      <span class="gift-wrap__icon">{% render 'icon'
+, icon: 'bi-gift-wrap' %}</span>
 
                       <p class="gift-wrap__text">
                         <span class="text--strong">{{ section.settings.gift_wrap_text | escape }}</span>
@@ -271,21 +358,33 @@
                       </p>
                     </div>
 
-                    {%- form 'product', gift_wrap_product, class: 'gift-wrap__form' -%}
-                      <input type="hidden" name="quantity" value="1">
-                      <input type="hidden" name="id" data-sku="{{ gift_wrap_product.first_available_variant.sku }}" value="{{ gift_wrap_product.first_available_variant.id }}">
+                    {%- form 'product'
+                      , gift_wrap_product
+                      , class: 'gift-wrap__form' -%}
+                      <input
+                        type="hidden"
+                        name="quantity"
+                        value="1">
+                      <input
+                        type="hidden"
+                        name="id"
+                        data-sku="{{ gift_wrap_product.first_available_variant.sku }}"
+                        value="{{ gift_wrap_product.first_available_variant.id }}">
 
-                      <button type="submit" class="button button--secondary" data-action="add-to-cart">{{ section.settings.gift_wrap_button | escape }}</button>
+                      <button
+                        type="submit"
+                        class="button button--secondary"
+                        data-action="add-to-cart">{{ section.settings.gift_wrap_button | escape }}</button>
                     {%- endform -%}
                   </div>
                 </div>
               {%- endunless -%}
-            {%- endunless -%}
+          {%- endunless -%}
 
             {%- comment -%}
-            --------------------------------------------------------------------------------------
-            SHIPPING ESTIMATOR
-            --------------------------------------------------------------------------------------
+              --------------------------------------------------------------------------------------
+              SHIPPING ESTIMATOR
+              --------------------------------------------------------------------------------------
             {%- endcomment -%}
 
             {%- assign items_requiring_shipping = cart.items | where: 'requires_shipping' -%}
@@ -293,10 +392,18 @@
             {%- if section.settings.show_shipping_estimator and items_requiring_shipping.size > 0 -%}
               <div class="card">
                 <div class="estimate-shipping">
-                  <button type="button" class="estimate-shipping__toggle" data-action="toggle-collapsible" data-collapsible-force-overflow aria-expanded="false" aria-controls="shipping-estimator">
-                    <span class="estimate-shipping__icon">{% render 'icon', icon: 'bi-fast-delivery' %}</span>
+                  <button
+                    type="button"
+                    class="estimate-shipping__toggle"
+                    data-action="toggle-collapsible"
+                    data-collapsible-force-overflow
+                    aria-expanded="false"
+                    aria-controls="shipping-estimator">
+                    <span class="estimate-shipping__icon">{% render 'icon'
+, icon: 'bi-fast-delivery' %}</span>
                     <span class="estimate-shipping__text">{{ 'cart.shipping_estimator.title' | t }}</span>
-                    <span class="estimate-shipping__arrow">{% render 'icon', icon: 'arrow-bottom' %}</span>
+                    <span class="estimate-shipping__arrow">{% render 'icon'
+, icon: 'arrow-bottom' %}</span>
                   </button>
 
                   <div id="shipping-estimator" class="estimate-shipping__collapsible collapsible">
@@ -306,9 +413,14 @@
                           <label for="shipping-estimator-country" class="form__label form__label--light">{{ 'cart.shipping_estimator.country' | t }}</label>
 
                           <div class="select-wrapper select-wrapper--primary">
-                            {%- render 'icon', icon: 'arrow-bottom' -%}
+                            {%- render 'icon'
+                              , icon: 'arrow-bottom' -%}
 
-                            <select name="country" id="shipping-estimator-country" data-default="{{ customer.default_address.country | default: section.settings.shipping_estimator_default_country }}" required>
+                            <select
+                              name="country"
+                              id="shipping-estimator-country"
+                              data-default="{{ customer.default_address.country | default: section.settings.shipping_estimator_default_country }}"
+                              required>
                               {{- country_option_tags -}}
                             </select>
                           </div>
@@ -318,23 +430,39 @@
                           <label for="shipping-estimator-province" class="form__label form__label--light">{{ 'cart.shipping_estimator.province' | t }}</label>
 
                           <div class="select-wrapper select-wrapper--primary">
-                            {%- render 'icon', icon: 'arrow-bottom' -%}
+                            {%- render 'icon'
+                              , icon: 'arrow-bottom' -%}
 
-                            <select name="province" id="shipping-estimator-province" data-default="{{ customer.default_address.province }}"></select>
+                            <select
+                              name="province"
+                              id="shipping-estimator-province"
+                              data-default="{{ customer.default_address.province }}"></select>
                           </div>
                         </div>
 
                         <div class="form__input-wrapper" style="max-width: 155px">
                           <label for="shipping-estimator-zip" class="form__label form__label--light">{{ 'cart.shipping_estimator.zip_code' | t }}</label>
-                          <input type="text" name="zip" id="shipping-estimator-zip" class="form__field form__field--text" value="{{ customer.default.address.zip }}" required>
+                          <input
+                            type="text"
+                            name="zip"
+                            id="shipping-estimator-zip"
+                            class="form__field form__field--text"
+                            value="{{ customer.default.address.zip }}"
+                            required>
                         </div>
 
                         <div class="form__input-wrapper hidden-phone">
-                          <button type="button" class="form__submit button button--secondary" data-action="estimate-shipping">{{ 'cart.shipping_estimator.estimate' | t }}</button>
+                          <button
+                            type="button"
+                            class="form__submit button button--secondary"
+                            data-action="estimate-shipping">{{ 'cart.shipping_estimator.estimate' | t }}</button>
                         </div>
                       </div>
 
-                      <button type="button" class="form__submit button button--secondary hidden-tablet-and-up" data-action="estimate-shipping">{{ 'cart.shipping_estimator.estimate' | t }}</button>
+                      <button
+                        type="button"
+                        class="form__submit button button--secondary hidden-tablet-and-up"
+                        data-action="estimate-shipping">{{ 'cart.shipping_estimator.estimate' | t }}</button>
 
                       <div class="shipping-estimator__results" style="display: none;"></div>
                     </div>
@@ -344,12 +472,17 @@
             {%- endif -%}
 
             {%- comment -%}
-            --------------------------------------------------------------------------------------
-            RECAP
-            --------------------------------------------------------------------------------------
+              --------------------------------------------------------------------------------------
+              RECAP
+              --------------------------------------------------------------------------------------
             {%- endcomment -%}
 
-            <form class="cart-recap" method="post" action="{{ routes.cart_url }}" novalidate="novalidate" data-item-count="{{ cart.item_count }}">
+            <form
+              class="cart-recap"
+              method="post"
+              action="{{ routes.cart_url }}"
+              novalidate="novalidate"
+              data-item-count="{{ cart.item_count }}">
               <div class="cart-recap__scroller">
                 <div class="card">
                   <div class="card__section">
@@ -365,11 +498,11 @@
                     <div class="cart-recap__price-line text--pull">
                       <span class="cart-recap__price-line-label">{{ 'cart.general.total' | t }}</span>
                       <span class="cart-recap__price-line-price">{{ cart.total_price | money_with_currency }}</span>
-                    </div>
+                  </div>
 
                     {%- comment -%}
-                    To calculate the total discount, we take into account the Shopify Script (for Plus merchants), but we also add the compare at price as
-                    well as potential automatic discounts at cart level
+                      To calculate the total discount, we take into account the Shopify Script (for Plus merchants), but we also add the compare at price as
+                      well as potential automatic discounts at cart level
                     {%- endcomment -%}
 
                     {%- assign total_discount = 0 -%}
@@ -394,18 +527,34 @@
 
                     {%- if section.settings.enable_order_notes -%}
                       <div class="cart-recap__note">
-                        <button type="button" class="cart-recap__note-button" data-action="toggle-collapsible" data-collapsible-force-overflow aria-controls="order-note" aria-expanded="false">
+                        <button
+                          type="button"
+                          class="cart-recap__note-button"
+                          data-action="toggle-collapsible"
+                          data-collapsible-force-overflow
+                          aria-controls="order-note"
+                          aria-expanded="false">
                           {{- 'cart.general.note_title' | t -}}
                           <span>
                             <span class="cart-recap__note-edit {% if cart.note != blank %}is-visible{% endif %}">{{ 'cart.general.edit_note' | t }}</span>
-                            {%- render 'icon', icon: 'arrow-bottom' -%}
+                            {%- render 'icon'
+                              , icon: 'arrow-bottom' -%}
                           </span>
                         </button>
 
-                        <div id="order-note" class="collapsible" aria-hidden="true">
+                        <div
+                          id="order-note"
+                          class="collapsible"
+                          aria-hidden="true">
                           <div class="cart-recap__note-inner">
-                            <textarea name="note" class="form__field form__field--textarea" rows="3">{{ cart.note }}</textarea>
-                            <button type="button" class="form__submit form__submit--tight button button--secondary" data-action="save-note">{{ 'cart.general.save_note' | t }}</button>
+                            <textarea
+                              name="note"
+                              class="form__field form__field--textarea"
+                              rows="3">{{ cart.note }}</textarea>
+                            <button
+                              type="button"
+                              class="form__submit form__submit--tight button button--secondary"
+                              data-action="save-note">{{ 'cart.general.save_note' | t }}</button>
                           </div>
                         </div>
                       </div>
@@ -425,15 +574,25 @@
                       </p>
                     </div>
 
-                    <input type="hidden" name="attributes[collection_products_per_page]" value="">
-                    <input type="hidden" name="attributes[collection_layout]" value="">
-                    <button type="submit" name="checkout" class="cart-recap__checkout button button--primary button--full button--large">{{ 'cart.general.checkout' | t }}</button>
+                    <input
+                      type="hidden"
+                      name="attributes[collection_products_per_page]"
+                      value="">
+                    <input
+                      type="hidden"
+                      name="attributes[collection_layout]"
+                      value="">
+                    <button
+                      type="submit"
+                      name="checkout"
+                      class="cart-recap__checkout button button--primary button--full button--large">{{ 'cart.general.checkout' | t }}</button>
                   </div>
                 </div>
 
                 {%- if section.settings.show_payment_icons -%}
                   <div class="cart-recap__secure-payment">
-                    <p class="cart-recap__secure-payment-title">{% render 'icon', icon: 'lock-2' %} {{ 'cart.general.secure_payments' | t }}</p>
+                    <p class="cart-recap__secure-payment-title">{% render 'icon'
+  , icon: 'lock-2' %} {{ 'cart.general.secure_payments' | t }}</p>
 
                     <div class="cart-recap__secure-payment-list payment-list payment-list--centered">
                       {% for type in shop.enabled_payment_types %}
@@ -444,12 +603,12 @@
                 {%- endif -%}
               </div>
             </form>
-          </div>
+        </div>
 
           {%- comment -%}
-          --------------------------------------------------------------------------------------
-          UPSELL
-          --------------------------------------------------------------------------------------
+            --------------------------------------------------------------------------------------
+            UPSELL
+            --------------------------------------------------------------------------------------
           {%- endcomment -%}
 
           {%- assign upsell_collection = section.settings.upsell_collection -%}
@@ -467,21 +626,26 @@
                       <div class="text-with-icons__item" {{ block.shopify_attributes }}>
                         <div class="text-with-icons__icon-wrapper">
                           {%- if block.settings.custom_icon != blank -%}
-                            <img loading="lazy" src="{{ block.settings.custom_icon | img_url: '60x' }}" alt="{{ block.settings.custom_icon.alt | escape }}">
+                            <img
+                              loading="lazy"
+                              src="{{ block.settings.custom_icon | img_url: '60x' }}"
+                              alt="{{ block.settings.custom_icon.alt | escape }}">
                           {%- else -%}
-                            {%- render 'icon', icon: block.settings.icon, stroke_width: 1.5 -%}
+                            {%- render 'icon'
+                              , icon: block.settings.icon
+                              , stroke_width: 1.5 -%}
                           {%- endif -%}
                         </div>
 
                         {%- if block.settings.title != blank or block.settings.content != blank -%}
                           <div class="text-with-icons__content-wrapper">
                             {%- if block.settings.title != blank -%}
-                              <p class="text-with-icons__title text--strong">{{ block.settings.title | escape }}</p>
+                              <p class="text-with-icons__title text--strong bold">{{ block.settings.title | escape }}</p>
                             {%- endif -%}
 
                             {%- if block.settings.content != blank -%}
                               <div class="text-with-icons__content rte">
-                                {{ block.settings.content  }}
+                                {{ block.settings.content }}
                               </div>
                             {%- endif -%}
                           </div>
@@ -524,7 +688,6 @@
                     {%- endif -%}
                   {%- endfor -%}
                 {%- endcapture -%}
-
                 {%- if upsell_products != blank -%}
                   {%- capture section_settings -%}
                   {
@@ -532,8 +695,11 @@
                     "layout": "vertical"
                   }
                   {%- endcapture -%}
-
-                  <div class="section" data-section-id="{{ section.id }}-upsell" data-section-type="featured-collection" data-section-settings='{{ section_settings }}'>
+                  <div
+                    class="section"
+                    data-section-id="{{ section.id }}-upsell"
+                    data-section-type="featured-collection"
+                    data-section-settings='{{ section_settings }}'>
                     <header class="section__header">
                       <h2 class="section__title heading h3">{{ section.settings.upsell_heading | escape }}</h2>
                     </header>
@@ -548,15 +714,19 @@
                   </div>
 
                   {%- comment -%}
-                  --------------------------------------------------------------------------------------
-                  QUICK VIEW CONTAINER
-                  --------------------------------------------------------------------------------------
+                    --------------------------------------------------------------------------------------
+                    QUICK VIEW CONTAINER
+                    --------------------------------------------------------------------------------------
                   {%- endcomment -%}
 
-                  <div id="modal-quick-view-{{ section.id }}" class="modal" aria-hidden="true">
+                  <div
+                    id="modal-quick-view-{{ section.id }}"
+                    class="modal"
+                    aria-hidden="true">
                     <div class="modal__dialog modal__dialog--stretch" role="dialog">
                       <div class="modal__loader">
-                        {%- render 'icon', icon: 'search-loader' -%}
+                        {%- render 'icon'
+                          , icon: 'search-loader' -%}
                       </div>
 
                       <div class="modal__inner"></div>
@@ -573,267 +743,229 @@
 </section>
 
 {% schema %}
-{
-  "name": "Cart",
-  "max_blocks": 3,
-  "settings": [
-    {
-      "type": "paragraph",
-      "content": "Those settings are only applicable when the cart contains at least one product."
-    },
-    {
-      "type": "checkbox",
-      "id": "enable_order_notes",
-      "label": "Enable order notes",
-      "default": true
-    },
-    {
-      "type": "checkbox",
-      "id": "show_payment_icons",
-      "label": "Show payment icons",
-      "default": true
-    },
-    {
-      "type": "header",
-      "content": "Gift wrap"
-    },
-    {
-      "type": "paragraph",
-      "content": "Gift wrap needs to be set up as a product. [Read more](https://support.maestrooo.com/article/190-cart-set-up-a-gift-wrap-product)"
-    },
-    {
-      "type": "product",
-      "id": "gift_wrap_product",
-      "label": "Product"
-    },
-    {
-      "type": "text",
-      "id": "gift_wrap_text",
-      "label": "Text",
-      "default": "Do you want a gift wrap?"
-    },
-    {
-      "type": "text",
-      "id": "gift_wrap_button",
-      "label": "Button",
-      "default": "Add a gift wrap"
-    },
-    {
-      "type": "header",
-      "content": "Shipping estimator"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_shipping_estimator",
-      "label": "Show shipping rates calculator",
-      "default": true
-    },
-    {
-      "type": "text",
-      "id": "shipping_estimator_default_country",
-      "label": "Default country",
-      "info": "If the customer is logged in, the country of their shipping address will be used.",
-      "default": "United States"
-    },
-    {
-      "type": "text",
-      "id": "trust_heading",
-      "label": "Heading",
-      "default": "Our guarantees"
-    },
-    {
-      "type": "header",
-      "content": "Upsell"
-    },
-    {
-      "type": "paragraph",
-      "content": "Show additional products to encourage customers to buy more."
-    },
-    {
-      "type": "text",
-      "id": "upsell_heading",
-      "label": "Heading",
-      "default": "Complete your cart"
-    },
-    {
-      "type": "collection",
-      "id": "upsell_collection",
-      "label": "Collection",
-      "info": "Products already in cart or sold out will be hidden."
-    },
-    {
-      "type": "range",
-      "id": "upsell_products_count",
-      "label": "Products to show",
-      "min": 4,
-      "max": 12,
-      "step": 4,
-      "default": 4
-    }
-  ],
-  "blocks": [
-    {
-      "name": "Trust text",
-      "type": "trust",
-      "settings": [
-        {
-          "type": "select",
-          "id": "icon",
-          "label": "Icon",
-          "options": [
-            {
-              "value": "bi-add-to-cart",
-              "label": "Add to cart",
-              "group": "Shop"
-            },
-            {
-              "value": "bi-gift-wrap",
-              "label": "Gift wrap",
-              "group": "Shop"
-            },
-            {
-              "value": "bi-gift-box",
-              "label": "Gift box",
-              "group": "Shop"
-            },
-            {
-              "value": "bi-heart",
-              "label": "Heart",
-              "group": "Shop"
-            },
-            {
-              "value": "bi-ecology",
-              "label": "Ecology",
-              "group": "Shop"
-            },
-            {
-              "value": "bi-plant",
-              "label": "Plant",
-              "group": "Shop"
-            },
-            {
-              "value": "bi-shop",
-              "label": "Shop",
-              "group": "Shop"
-            },
-            {
-              "value": "bi-shop-pin",
-              "label": "Shop with pin",
-              "group": "Shop"
-            },
-            {
-              "value": "bi-alert",
-              "label": "Alert",
-              "group": "Communication"
-            },
-            {
-              "value": "bi-chat",
-              "label": "Chat",
-              "group": "Communication"
-            },
-            {
-              "value": "bi-comment",
-              "label": "Comment",
-              "group": "Communication"
-            },
-            {
-              "value": "bi-customer-support",
-              "label": "Customer support",
-              "group": "Communication"
-            },
-            {
-              "value": "bi-email",
-              "label": "Email",
-              "group": "Communication"
-            },
-            {
-              "value": "bi-network",
-              "label": "Network",
-              "group": "Communication"
-            },
-            {
-              "value": "bi-newsletter",
-              "label": "Newsletter",
-              "group": "Communication"
-            },
-            {
-              "value": "bi-love",
-              "label": "Love",
-              "group": "Communication"
-            },
-            {
-              "value": "bi-phone",
-              "label": "Phone",
-              "group": "Communication"
-            },
-            {
-              "value": "bi-share",
-              "label": "Share",
-              "group": "Communication"
-            },
-            {
-              "value": "bi-delivery",
-              "label": "Delivery",
-              "group": "Delivery"
-            },
-            {
-              "value": "bi-fast-delivery",
-              "label": "Fast delivery",
-              "group": "Delivery"
-            },
-            {
-              "value": "bi-returns",
-              "label": "Returns",
-              "group": "Delivery"
-            },
-            {
-              "value": "bi-time",
-              "label": "Time",
-              "group": "Delivery"
-            },
-            {
-              "value": "bi-secure-payment",
-              "label": "Secure payment",
-              "group": "Security"
-            },
-            {
-              "value": "bi-mobile-payment",
-              "label": "Mobile payment",
-              "group": "Security"
-            },
-            {
-              "value": "bi-credit-card",
-              "label": "Credit card",
-              "group": "Security"
-            },
-            {
-              "value": "bi-shield",
-              "label": "Shield",
-              "group": "Security"
-            }
-          ],
-          "default": "bi-customer-support"
-        },
-        {
-          "type": "image_picker",
-          "id": "custom_icon",
-          "label": "Custom icon",
-          "info": "60 x 60px .png with transparency recommended"
-        },
-        {
-          "type": "text",
-          "id": "title",
-          "label": "Heading",
-          "default": "Your title"
-        },
-        {
-          "type": "richtext",
-          "id": "content",
-          "label": "Content",
-          "default": "<p>Short content about your store</p>"
-        }
-      ]
-    }
-  ]
-}
+  {
+    "name": "Cart",
+    "max_blocks": 3,
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Those settings are only applicable when the cart contains at least one product."
+      },
+      {
+        "type": "checkbox",
+        "id": "enable_order_notes",
+        "label": "Enable order notes",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "show_payment_icons",
+        "label": "Show payment icons",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Gift wrap"
+      }, {
+        "type": "paragraph",
+        "content": "Gift wrap needs to be set up as a product. [Read more](https://support.maestrooo.com/article/190-cart-set-up-a-gift-wrap-product)"
+      }, {
+        "type": "product",
+        "id": "gift_wrap_product",
+        "label": "Product"
+      }, {
+        "type": "text",
+        "id": "gift_wrap_text",
+        "label": "Text",
+        "default": "Do you want a gift wrap?"
+      }, {
+        "type": "text",
+        "id": "gift_wrap_button",
+        "label": "Button",
+        "default": "Add a gift wrap"
+      }, {
+        "type": "header",
+        "content": "Shipping estimator"
+      }, {
+        "type": "checkbox",
+        "id": "show_shipping_estimator",
+        "label": "Show shipping rates calculator",
+        "default": true
+      }, {
+        "type": "text",
+        "id": "shipping_estimator_default_country",
+        "label": "Default country",
+        "info": "If the customer is logged in, the country of their shipping address will be used.",
+        "default": "United States"
+      }, {
+        "type": "text",
+        "id": "trust_heading",
+        "label": "Heading",
+        "default": "Our guarantees"
+      }, {
+        "type": "header",
+        "content": "Upsell"
+      }, {
+        "type": "paragraph",
+        "content": "Show additional products to encourage customers to buy more."
+      }, {
+        "type": "text",
+        "id": "upsell_heading",
+        "label": "Heading",
+        "default": "Complete your cart"
+      }, {
+        "type": "collection",
+        "id": "upsell_collection",
+        "label": "Collection",
+        "info": "Products already in cart or sold out will be hidden."
+      }, {
+        "type": "range",
+        "id": "upsell_products_count",
+        "label": "Products to show",
+        "min": 4,
+        "max": 12,
+        "step": 4,
+        "default": 4
+      }
+    ],
+    "blocks": [
+      {
+        "name": "Trust text",
+        "type": "trust",
+        "settings": [
+          {
+            "type": "select",
+            "id": "icon",
+            "label": "Icon",
+            "options": [
+              {
+                "value": "bi-add-to-cart",
+                "label": "Add to cart",
+                "group": "Shop"
+              },
+              {
+                "value": "bi-gift-wrap",
+                "label": "Gift wrap",
+                "group": "Shop"
+              },
+              {
+                "value": "bi-gift-box",
+                "label": "Gift box",
+                "group": "Shop"
+              },
+              {
+                "value": "bi-heart",
+                "label": "Heart",
+                "group": "Shop"
+              }, {
+                "value": "bi-ecology",
+                "label": "Ecology",
+                "group": "Shop"
+              }, {
+                "value": "bi-plant",
+                "label": "Plant",
+                "group": "Shop"
+              }, {
+                "value": "bi-shop",
+                "label": "Shop",
+                "group": "Shop"
+              }, {
+                "value": "bi-shop-pin",
+                "label": "Shop with pin",
+                "group": "Shop"
+              }, {
+                "value": "bi-alert",
+                "label": "Alert",
+                "group": "Communication"
+              }, {
+                "value": "bi-chat",
+                "label": "Chat",
+                "group": "Communication"
+              }, {
+                "value": "bi-comment",
+                "label": "Comment",
+                "group": "Communication"
+              }, {
+                "value": "bi-customer-support",
+                "label": "Customer support",
+                "group": "Communication"
+              }, {
+                "value": "bi-email",
+                "label": "Email",
+                "group": "Communication"
+              }, {
+                "value": "bi-network",
+                "label": "Network",
+                "group": "Communication"
+              }, {
+                "value": "bi-newsletter",
+                "label": "Newsletter",
+                "group": "Communication"
+              }, {
+                "value": "bi-love",
+                "label": "Love",
+                "group": "Communication"
+              }, {
+                "value": "bi-phone",
+                "label": "Phone",
+                "group": "Communication"
+              }, {
+                "value": "bi-share",
+                "label": "Share",
+                "group": "Communication"
+              }, {
+                "value": "bi-delivery",
+                "label": "Delivery",
+                "group": "Delivery"
+              }, {
+                "value": "bi-fast-delivery",
+                "label": "Fast delivery",
+                "group": "Delivery"
+              }, {
+                "value": "bi-returns",
+                "label": "Returns",
+                "group": "Delivery"
+              }, {
+                "value": "bi-time",
+                "label": "Time",
+                "group": "Delivery"
+              }, {
+                "value": "bi-secure-payment",
+                "label": "Secure payment",
+                "group": "Security"
+              }, {
+                "value": "bi-mobile-payment",
+                "label": "Mobile payment",
+                "group": "Security"
+              }, {
+                "value": "bi-credit-card",
+                "label": "Credit card",
+                "group": "Security"
+              }, {
+                "value": "bi-shield",
+                "label": "Shield",
+                "group": "Security"
+              }
+            ],
+            "default": "bi-customer-support"
+          }, {
+            "type": "image_picker",
+            "id": "custom_icon",
+            "label": "Custom icon",
+            "info": "60 x 60px .png with transparency recommended"
+          }, {
+            "type": "text",
+            "id": "title",
+            "label": "Heading",
+            "default": "Your title"
+          }, {
+            "type": "richtext",
+            "id": "content",
+            "label": "Content",
+            "default": "<p>Short content about your store</p>"
+          }
+        ]
+      }
+    ]
+  }
 {% endschema %}
