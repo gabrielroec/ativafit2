@@ -1,107 +1,206 @@
 <link rel="stylesheet" href="{{ 'hero-banner.css' | asset_url }}">
 
-<section
-  class="hero-banner js-hero-banner"
-  data-desktop-bg="{{ section.settings.background_image | image_url: width: 2000 }}"
-  data-mobile-bg="{{ section.settings.background_image_mobile | default: section.settings.background_image | image_url: width: 1000 }}">
-  <div class="hero-banner__media-container">
-    {% if section.settings.video_source == 'upload' and section.settings.video_file != blank %}
-      <video
-        class="hero-banner__video"
-        autoplay
-        loop
-        muted
-        playsinline
-        poster="{{ section.settings.background_image | image_url: width: 2000 }}">
-        <source src="{{ section.settings.video_file | file_url }}" type="video/mp4">
-      </video>
-    {% elsif section.settings.video_url != blank %}
-      <div class="hero-banner__video-wrapper" data-video-type="{{ section.settings.video_source }}">
-        {% case section.settings.video_source %}
-          {% when 'youtube' %}
-            <div
-              id="hero-youtube"
-              class="hero-banner__video"
-              data-video-id="{{ section.settings.video_url | split: 'v=' | last }}"></div>
-          {% when 'vimeo' %}
-            <div
-              id="hero-vimeo"
-              class="hero-banner__video"
-              data-video-id="{{ section.settings.video_url | split: '/' | last }}"></div>
+<section class="hero-banner js-hero-banner">
+  <div class="hero-banner__container">
+    <div class="hero-banner__slides" data-slides-count="{{ section.blocks.size }}">
+      {% for block in section.blocks %}
+        {% case block.type %}
+          {% when 'slide' %}
+            <div class="hero-banner__slide {% if forloop.first %}active{% endif %}" {{ block.shopify_attributes }}>
+              {% if block.settings.slide_link != blank %}
+                <a href="{{ block.settings.slide_link }}" class="hero-banner__slide-link" aria-label="Navigate to slide content">
+              {% endif %}
+              
+              <div class="hero-banner__media-container">
+                {% if block.settings.video_source == 'upload' and block.settings.video_file != blank %}
+                  <video
+                    class="hero-banner__video"
+                    autoplay
+                    loop
+                    muted
+                    playsinline
+                    poster="{{ block.settings.background_image | image_url: width: 2000 }}">
+                    <source src="{{ block.settings.video_file | file_url }}" type="video/mp4">
+                  </video>
+                {% elsif block.settings.video_url != blank %}
+                  <div class="hero-banner__video-wrapper" data-video-type="{{ block.settings.video_source }}">
+                    {% case block.settings.video_source %}
+                      {% when 'youtube' %}
+                        <div
+                          class="hero-banner__video"
+                          data-video-id="{{ block.settings.video_url | split: 'v=' | last }}"></div>
+                      {% when 'vimeo' %}
+                        <div
+                          class="hero-banner__video"
+                          data-video-id="{{ block.settings.video_url | split: '/' | last }}"></div>
+                    {% endcase %}
+                  </div>
+                {% else %}
+                  <div class="hero-banner__image-wrapper">
+                    {% if block.settings.background_image != blank %}
+                      {{ block.settings.background_image | image_url: width: 2000 | image_tag: class: 'hero-banner__image hero-banner__image--desktop', loading: 'eager', preload: true, alt: block.settings.background_image.alt | escape }}
+                      {{ block.settings.background_image_mobile | default: block.settings.background_image | image_url: width: 1000 | image_tag: class: 'hero-banner__image hero-banner__image--mobile', loading: 'eager', preload: true, alt: block.settings.background_image_mobile.alt | escape }}
+                    {% else %}
+                      {{ 'lifestyle-1' | placeholder_svg_tag: 'hero-banner__image placeholder' }}
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div class="hero-banner__overlay" style="background-color: {{ block.settings.overlay_color | color_modify: 'alpha', block.settings.overlay_opacity }}"></div>
+              
+              {% if block.settings.slide_link != blank %}
+                </a>
+              {% endif %}
+
+              <div class="hero-banner__content">
+                <div class="hero-banner__text-container">
+                  <h1 class="hero-banner__title black">{{ block.settings.title }}</h1>
+                  <p class="hero-banner__subtitle regular">{{ block.settings.subtitle }}</p>
+                  <div class="hero-banner__buttons">
+                    {%- if block.settings.button_1_text != blank and block.settings.button_1_link != blank -%}
+                      <a
+                        href="{{ block.settings.button_1_link }}"
+                        class="hero-banner__button hero-banner__button--primary"
+                        style="
+                          color: {{ block.settings.button_1_text_color }};
+                          border-color: {{ block.settings.button_1_border_color }};
+                          background: {{ block.settings.button_1_bg_color }};
+                        "
+                        data-hover-bg="{{ block.settings.button_1_bg_color_hover }}"
+                        data-hover-color="{{ block.settings.button_1_text_color_hover }}">
+                        {{ block.settings.button_1_text }}
+                      </a>
+                    {%- endif -%}
+                    {%- if block.settings.button_2_text != blank and block.settings.button_2_link != blank -%}
+                      <a
+                        href="{{ block.settings.button_2_link }}"
+                        class="hero-banner__button hero-banner__button--secondary"
+                        style="
+                          color: {{ block.settings.button_2_text_color }};
+                          border-color: {{ block.settings.button_2_border_color }};
+                          background: {{ block.settings.button_2_bg_color }};
+                        "
+                        data-hover-bg="{{ block.settings.button_2_bg_color_hover }}"
+                        data-hover-color="{{ block.settings.button_2_text_color_hover }}">
+                        {{ block.settings.button_2_text }}
+                      </a>
+                    {%- endif -%}
+                  </div>
+                </div>
+
+                {% if block.settings.product_handle != blank %}
+                  {% assign selected_product = all_products[block.settings.product_handle] %}
+                  {% render 'product-card-custom', product: selected_product %}
+                {% endif %}
+              </div>
+            </div>
         {% endcase %}
+      {% endfor %}
+    </div>
+
+    <!-- Navigation Arrows -->
+    {% if section.blocks.size > 1 %}
+      <button class="hero-banner__nav hero-banner__nav--prev" aria-label="Previous slide">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="hero-banner__nav hero-banner__nav--next" aria-label="Next slide">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <!-- Dots Navigation -->
+      <div class="hero-banner__dots">
+        {% for block in section.blocks %}
+          <button class="hero-banner__dot {% if forloop.first %}active{% endif %}" data-slide="{{ forloop.index0 }}" aria-label="Go to slide {{ forloop.index }}"></button>
+        {% endfor %}
       </div>
-    {% else %}
-      <div class="hero-banner__image-wrapper">
-        {% if section.settings.background_image != blank %}
-          {{ section.settings.background_image | image_url: width: 2000 | image_tag: class: 'hero-banner__image hero-banner__image--desktop', loading: 'eager', preload: true, alt: section.settings.background_image.alt | escape
-          }}
-          {{ section.settings.background_image_mobile | default: section.settings.background_image | image_url: width: 1000 | image_tag: class: 'hero-banner__image hero-banner__image--mobile', loading: 'eager', preload: true, alt: section.settings.background_image_mobile.alt | escape
-          }}
-        {% else %}
-          {{ 'lifestyle-1' | placeholder_svg_tag: 'hero-banner__image placeholder' }}
-        {% endif %}
+    {% endif %}
+
+    <!-- Scroll Indicator -->
+    {% if section.settings.show_scroll_indicator %}
+      <div class="hero-banner__scroll-indicator">
+        <div class="hero-banner__scroll-icon"></div>
       </div>
     {% endif %}
   </div>
-
-  <div class="hero-banner__overlay" style="background-color: {{ section.settings.overlay_color | color_modify: 'alpha', section.settings.overlay_opacity }}"></div>
-
-  <div class="hero-banner__content">
-    <div class="hero-banner__text-container">
-      <h1 class="hero-banner__title black">{{ section.settings.title }}</h1>
-      <p class="hero-banner__subtitle">{{ section.settings.subtitle }}</p>
-      <div class="hero-banner__buttons">
-        {%- if section.settings.button_1_text != blank and section.settings.button_1_link != blank -%}
-          <a
-            href="{{ section.settings.button_1_link }}"
-            class="hero-banner__button hero-banner__button--primary"
-            style="
-              color: {{ section.settings.button_1_text_color }};
-              border-color: {{ section.settings.button_1_border_color }};
-              background: {{ section.settings.button_1_bg_color }};
-            "
-            data-hover-bg="{{ section.settings.button_1_bg_color_hover }}"
-            data-hover-color="{{ section.settings.button_1_text_color_hover }}">
-            {{ section.settings.button_1_text }}
-          </a>
-        {%- endif -%}
-        {%- if section.settings.button_2_text != blank and section.settings.button_2_link != blank -%}
-          <a
-            href="{{ section.settings.button_2_link }}"
-            class="hero-banner__button hero-banner__button--secondary"
-            style="
-              color: {{ section.settings.button_2_text_color }};
-              border-color: {{ section.settings.button_2_border_color }};
-              background: {{ section.settings.button_2_bg_color }};
-            "
-            data-hover-bg="{{ section.settings.button_2_bg_color_hover }}"
-            data-hover-color="{{ section.settings.button_2_text_color_hover }}">
-            {{ section.settings.button_2_text }}
-          </a>
-        {%- endif -%}
-      </div>
-    </div>
-
-    {% if section.settings.product_handle != blank %}
-      {% assign selected_product = all_products[section.settings.product_handle] %}
-      {% render 'product-card-custom'
-        , product: selected_product %}
-    {% endif %}
-  </div>
-
-  {% if section.settings.show_scroll_indicator %}
-    <div class="hero-banner__scroll-indicator">
-      <div class="hero-banner__scroll-icon"></div>
-    </div>
-  {% endif %}
 </section>
 
 {% style %}
   .hero-banner {
     position: relative;
     width: 100%;
-    height: 90vh;
+    height: 100vh;
     overflow: hidden;
+  }
+
+  .hero-banner__container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero-banner__slides {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero-banner__slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform: translateX(100%);
+  }
+
+  .hero-banner__slide.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+  }
+
+  .hero-banner__slide.prev {
+    transform: translateX(-100%);
+  }
+
+  .hero-banner__slide-link {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .hero-banner__slide-link:hover {
+    text-decoration: none;
+  }
+
+  .hero-banner__slide-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0);
+    transition: background 0.3s ease;
+    pointer-events: none;
+  }
+
+  .hero-banner__slide-link:hover::before {
+    background: rgba(255, 255, 255, 0.05);
   }
 
   .hero-banner__media-container {
@@ -154,26 +253,115 @@
     justify-content: flex-start;
     max-width: 1750px;
     margin: 0 auto;
+    padding: 0 20px;
+    z-index: 2;
   }
 
   .hero-banner__text-container {
     text-align: left;
     max-width: 800px;
-    margin-top: 240px;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.8s ease 0.3s;
   }
 
-  .hero-banner__scroll-indicator {
+  .hero-banner__slide.active .hero-banner__text-container {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  /* Navigation Arrows */
+  .hero-banner__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    z-index: 10;
+  }
+
+  .hero-banner__nav:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .hero-banner__nav--prev {
+    left: 30px;
+  }
+
+  .hero-banner__nav--next {
+    right: 30px;
+  }
+
+  /* Dots Navigation */
+  .hero-banner__dots {
     position: absolute;
     bottom: 30px;
     left: 50%;
     transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    z-index: 10;
+  }
+
+  .hero-banner__dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    border: 2px solid rgba(255, 255, 255, 0.6);
     cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-banner__dot::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    border-radius: 50%;
+    transform: scale(0);
+    transition: transform 0.3s ease;
+  }
+
+  .hero-banner__dot.active::before {
+    transform: scale(1);
+  }
+
+  .hero-banner__dot:hover {
+    transform: scale(1.2);
+  }
+
+  /* Scroll Indicator */
+  .hero-banner__scroll-indicator {
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    cursor: pointer;
+    z-index: 10;
   }
 
   .hero-banner__scroll-icon {
     width: 30px;
     height: 50px;
-    border: 2px solid #fff;
+    border: 2px solid rgba(255, 255, 255, 0.8);
     border-radius: 15px;
     position: relative;
   }
@@ -185,7 +373,7 @@
     left: 50%;
     width: 6px;
     height: 6px;
-    background: #fff;
+    background: rgba(255, 255, 255, 0.8);
     border-radius: 50%;
     transform: translateX(-50%);
     animation: scroll 2s infinite;
@@ -202,6 +390,7 @@
     }
   }
 
+  /* Responsive */
   @media screen and (max-width: 768px) {
     .hero-banner__image--desktop {
       display: none;
@@ -211,46 +400,101 @@
       display: block;
     }
 
-    .hero-banner__title {
-      font-size: 36px;
-      margin: 0;
+    .hero-banner__content {
+      padding: 0 15px;
     }
 
-    .hero-banner__subtitle {
-      font-size: 18px;
+    .hero-banner__nav {
+      width: 50px;
+      height: 50px;
+    }
+
+    .hero-banner__nav--prev {
+      left: 15px;
+    }
+
+    .hero-banner__nav--next {
+      right: 15px;
+    }
+
+    .hero-banner__dots {
+      bottom: 20px;
+    }
+
+    .hero-banner__scroll-indicator {
+      bottom: 60px;
     }
   }
 
-  .hero-banner__video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    position: absolute;
-    top: 0;
-    left: 0;
+  @media screen and (max-width: 480px) {
+    .hero-banner__nav {
+      width: 45px;
+      height: 45px;
+    }
+
+    .hero-banner__nav--prev {
+      left: 10px;
+    }
+
+    .hero-banner__nav--next {
+      right: 10px;
+    }
   }
 {% endstyle %}
 
 <script>
-  class HeroBanner {
+  class HeroBannerCarousel {
     constructor(element) {
       this.banner = element;
-      this.videoWrapper = this.banner.querySelector('.hero-banner__video-wrapper');
+      this.slidesContainer = this.banner.querySelector('.hero-banner__slides');
+      this.slides = this.banner.querySelectorAll('.hero-banner__slide');
+      this.dots = this.banner.querySelectorAll('.hero-banner__dot');
+      this.prevBtn = this.banner.querySelector('.hero-banner__nav--prev');
+      this.nextBtn = this.banner.querySelector('.hero-banner__nav--next');
       this.scrollIndicator = this.banner.querySelector('.hero-banner__scroll-indicator');
+      
+      this.currentSlide = 0;
+      this.isAnimating = false;
+      this.autoplayInterval = null;
+      this.autoplayDelay = 6000; // 6 seconds
       
       this.init();
     }
     
     init() {
-      if (this.videoWrapper) {
-        const videoType = this.videoWrapper.dataset.videoType;
-        if (videoType === 'youtube') {
-          this.initYouTubeVideo();
-        } else if (videoType === 'vimeo') {
-          this.initVimeoVideo();
-        }
+      if (this.slides.length <= 1) return;
+      
+      this.setupEventListeners();
+      this.initVideos();
+      this.startAutoplay();
+      
+      // Pause autoplay on hover
+      this.banner.addEventListener('mouseenter', () => this.pauseAutoplay());
+      this.banner.addEventListener('mouseleave', () => this.startAutoplay());
+    }
+    
+    setupEventListeners() {
+      // Navigation buttons
+      if (this.prevBtn) {
+        this.prevBtn.addEventListener('click', () => this.goToPrevSlide());
       }
-
+      
+      if (this.nextBtn) {
+        this.nextBtn.addEventListener('click', () => this.goToNextSlide());
+      }
+      
+      // Dots navigation
+      this.dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => this.goToSlide(index));
+      });
+      
+      // Keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') this.goToPrevSlide();
+        if (e.key === 'ArrowRight') this.goToNextSlide();
+      });
+      
+      // Scroll indicator
       if (this.scrollIndicator) {
         this.scrollIndicator.addEventListener('click', () => {
           window.scrollTo({
@@ -260,9 +504,77 @@
         });
       }
     }
-
-    initYouTubeVideo() {
-      const videoContainer = this.videoWrapper.querySelector('.hero-banner__video');
+    
+    goToSlide(index) {
+      if (this.isAnimating || index === this.currentSlide) return;
+      
+      this.isAnimating = true;
+      
+      // Remove active class from current slide and dot
+      this.slides[this.currentSlide].classList.remove('active');
+      this.dots[this.currentSlide]?.classList.remove('active');
+      
+      // Add prev class for animation
+      if (index < this.currentSlide) {
+        this.slides[this.currentSlide].classList.add('prev');
+      }
+      
+      // Update current slide
+      this.currentSlide = index;
+      
+      // Add active class to new slide and dot
+      this.slides[this.currentSlide].classList.add('active');
+      this.dots[this.currentSlide]?.classList.add('active');
+      
+      // Clean up classes after animation
+      setTimeout(() => {
+        this.slides.forEach(slide => slide.classList.remove('prev'));
+        this.isAnimating = false;
+      }, 800);
+    }
+    
+    goToNextSlide() {
+      const nextIndex = (this.currentSlide + 1) % this.slides.length;
+      this.goToSlide(nextIndex);
+    }
+    
+    goToPrevSlide() {
+      const prevIndex = (this.currentSlide - 1 + this.slides.length) % this.slides.length;
+      this.goToSlide(prevIndex);
+    }
+    
+    startAutoplay() {
+      if (this.slides.length <= 1) return;
+      
+      this.pauseAutoplay();
+      this.autoplayInterval = setInterval(() => {
+        this.goToNextSlide();
+      }, this.autoplayDelay);
+    }
+    
+    pauseAutoplay() {
+      if (this.autoplayInterval) {
+        clearInterval(this.autoplayInterval);
+        this.autoplayInterval = null;
+      }
+    }
+    
+    initVideos() {
+      this.slides.forEach(slide => {
+        const videoWrapper = slide.querySelector('.hero-banner__video-wrapper');
+        if (videoWrapper) {
+          const videoType = videoWrapper.dataset.videoType;
+          if (videoType === 'youtube') {
+            this.initYouTubeVideo(videoWrapper);
+          } else if (videoType === 'vimeo') {
+            this.initVimeoVideo(videoWrapper);
+          }
+        }
+      });
+    }
+    
+    initYouTubeVideo(wrapper) {
+      const videoContainer = wrapper.querySelector('.hero-banner__video');
       const videoId = videoContainer.dataset.videoId;
 
       if (window.YT) {
@@ -294,8 +606,8 @@
       });
     }
 
-    initVimeoVideo() {
-      const videoContainer = this.videoWrapper.querySelector('.hero-banner__video');
+    initVimeoVideo(wrapper) {
+      const videoContainer = wrapper.querySelector('.hero-banner__video');
       const videoId = videoContainer.dataset.videoId;
 
       const options = {
@@ -319,188 +631,235 @@
     }
   }
 
-  // Initialize all hero banners
+  // Initialize carousel
   document.addEventListener('DOMContentLoaded', () => {
     const banners = document.querySelectorAll('.js-hero-banner');
-    banners.forEach(banner => new HeroBanner(banner));
+    banners.forEach(banner => new HeroBannerCarousel(banner));
   });
 </script>
 
 {% schema %}
-  {
-    "name": "Hero Banner",
-    "settings": [
-      {
-        "type": "header",
-        "content": "Media"
-      },
-      {
-        "type": "select",
-        "id": "media_type",
-        "label": "Media Type",
-        "options": [
-          {
-            "value": "image",
-            "label": "Image/GIF"
-          }, {
-            "value": "video",
-            "label": "Video"
+{
+  "name": "Hero Banner Carousel",
+  "max_blocks": 5,
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_scroll_indicator",
+      "label": "Show Scroll Indicator",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Media"
+        },
+        {
+          "type": "select",
+          "id": "media_type",
+          "label": "Media Type",
+          "options": [
+            {
+              "value": "image",
+              "label": "Image/GIF"
+            },
+            {
+              "value": "video",
+              "label": "Video"
+            }
+          ],
+          "default": "image"
+        },
+        {
+          "type": "image_picker",
+          "id": "background_image",
+          "label": "Desktop Background Image/GIF",
+          "info": "Recommended size: 2000x1100px. Supports GIF animation"
+        },
+        {
+          "type": "image_picker",
+          "id": "background_image_mobile",
+          "label": "Mobile Background Image/GIF",
+          "info": "Recommended size: 800x1000px. Supports GIF animation. If not set, will use desktop image"
+        },
+        {
+          "type": "select",
+          "id": "video_source",
+          "label": "Video Source",
+          "options": [
+            {
+              "value": "youtube",
+              "label": "YouTube"
+            },
+            {
+              "value": "vimeo",
+              "label": "Vimeo"
+            }
+          ],
+          "default": "youtube"
+        },
+        {
+          "type": "video_url",
+          "id": "video_url",
+          "label": "Video URL",
+          "accept": ["youtube", "vimeo"],
+          "info": "Add your YouTube or Vimeo video URL"
+        },
+        {
+          "type": "header",
+          "content": "Content"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "START WHERE YOU ARE."
+        },
+        {
+          "type": "text",
+          "id": "subtitle",
+          "label": "Subtitle",
+          "default": "YOUR HOME FOR FITNESS FREEDOM"
+        },
+        {
+          "type": "header",
+          "content": "Overlay"
+        },
+        {
+          "type": "color",
+          "id": "overlay_color",
+          "label": "Overlay Color",
+          "default": "#000000"
+        },
+        {
+          "type": "range",
+          "id": "overlay_opacity",
+          "label": "Overlay Opacity",
+          "min": 0,
+          "max": 1,
+          "step": 0.1,
+          "default": 0.3
+        },
+        {
+          "type": "product",
+          "id": "product_handle",
+          "label": "Product Card"
+        },
+        {
+          "type": "text",
+          "id": "button_1_text",
+          "label": "Button 1 Text",
+          "default": "SHOP NOW"
+        },
+        {
+          "type": "url",
+          "id": "button_1_link",
+          "label": "Button 1 Link"
+        },
+        {
+          "type": "color",
+          "id": "button_1_text_color",
+          "label": "Button 1 Text Color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "color",
+          "id": "button_1_border_color",
+          "label": "Button 1 Border Color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "color",
+          "id": "button_1_bg_color",
+          "label": "Button 1 Background Color",
+          "default": "rgba(0,0,0,0)"
+        },
+        {
+          "type": "color",
+          "id": "button_1_bg_color_hover",
+          "label": "Button 1 Background Color (Hover)",
+          "default": "#ffffff"
+        },
+        {
+          "type": "color",
+          "id": "button_1_text_color_hover",
+          "label": "Button 1 Text Color (Hover)",
+          "default": "#111111"
+        },
+        {
+          "type": "text",
+          "id": "button_2_text",
+          "label": "Button 2 Text",
+          "default": "EXPLORE COLLECTION"
+        },
+        {
+          "type": "url",
+          "id": "button_2_link",
+          "label": "Button 2 Link"
+        },
+        {
+          "type": "color",
+          "id": "button_2_text_color",
+          "label": "Button 2 Text Color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "color",
+          "id": "button_2_border_color",
+          "label": "Button 2 Border Color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "color",
+          "id": "button_2_bg_color",
+          "label": "Button 2 Background Color",
+          "default": "rgba(255,255,255,0.1)"
+        },
+        {
+          "type": "color",
+          "id": "button_2_bg_color_hover",
+          "label": "Button 2 Background Color (Hover)",
+          "default": "#ffffff"
+        },
+        {
+          "type": "color",
+          "id": "button_2_text_color_hover",
+          "label": "Button 2 Text Color (Hover)",
+          "default": "#111111"
+        },
+        {
+          "type": "text",
+          "id": "buy_btn_text",
+          "label": "Buy Button Text",
+          "default": "Buy Now"
+        },
+        {
+          "type": "url",
+          "id": "slide_link",
+          "label": "Slide Link (Optional)",
+          "info": "Add a link to make the entire slide clickable"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero Banner Carousel",
+      "blocks": [
+        {
+          "type": "slide",
+          "settings": {
+            "title": "START WHERE YOU ARE.",
+            "subtitle": "YOUR HOME FOR FITNESS FREEDOM"
           }
-        ],
-        "default": "image"
-      },
-      {
-        "type": "image_picker",
-        "id": "background_image",
-        "label": "Desktop Background Image/GIF",
-        "info": "Recommended size: 2000x1100px. Supports GIF animation"
-      },
-      {
-        "type": "image_picker",
-        "id": "background_image_mobile",
-        "label": "Mobile Background Image/GIF",
-        "info": "Recommended size: 800x1000px. Supports GIF animation. If not set, will use desktop image"
-      },
-      {
-        "type": "select",
-        "id": "video_source",
-        "label": "Video Source",
-        "options": [
-          {
-            "value": "youtube",
-            "label": "YouTube"
-          },
-          {
-            "value": "vimeo",
-            "label": "Vimeo"
-          }
-        ],
-        "default": "youtube"
-      },
-      {
-        "type": "video_url",
-        "id": "video_url",
-        "label": "Video URL",
-        "accept": ["youtube", "vimeo"],
-        "info": "Add your YouTube or Vimeo video URL"
-      }, {
-        "type": "header",
-        "content": "Content"
-      }, {
-        "type": "text",
-        "id": "title",
-        "label": "Title",
-        "default": "START WHERE YOU ARE."
-      }, {
-        "type": "text",
-        "id": "subtitle",
-        "label": "Subtitle",
-        "default": "YOUR HOME FOR FITNESS FREEDOM"
-      }, {
-        "type": "header",
-        "content": "Overlay"
-      }, {
-        "type": "color",
-        "id": "overlay_color",
-        "label": "Overlay Color",
-        "default": "#000000"
-      }, {
-        "type": "range",
-        "id": "overlay_opacity",
-        "label": "Overlay Opacity",
-        "min": 0,
-        "max": 1,
-        "step": 0.1,
-        "default": 0.3
-      }, {
-        "type": "checkbox",
-        "id": "show_scroll_indicator",
-        "label": "Show Scroll Indicator",
-        "default": true
-      }, {
-        "type": "product",
-        "id": "product_handle",
-        "label": "Product Card"
-      }, {
-        "type": "text",
-        "id": "button_1_text",
-        "label": "Button 1 Text",
-        "default": "SHOP NOW"
-      }, {
-        "type": "url",
-        "id": "button_1_link",
-        "label": "Button 1 Link"
-      }, {
-        "type": "color",
-        "id": "button_1_text_color",
-        "label": "Button 1 Text Color",
-        "default": "#ffffff"
-      }, {
-        "type": "color",
-        "id": "button_1_border_color",
-        "label": "Button 1 Border Color",
-        "default": "#ffffff"
-      }, {
-        "type": "color",
-        "id": "button_1_bg_color",
-        "label": "Button 1 Background Color",
-        "default": "rgba(0,0,0,0)"
-      }, {
-        "type": "color",
-        "id": "button_1_bg_color_hover",
-        "label": "Button 1 Background Color (Hover)",
-        "default": "#ffffff"
-      }, {
-        "type": "color",
-        "id": "button_1_text_color_hover",
-        "label": "Button 1 Text Color (Hover)",
-        "default": "#111111"
-      }, {
-        "type": "text",
-        "id": "button_2_text",
-        "label": "Button 2 Text",
-        "default": "EXPLORE COLLECTION"
-      }, {
-        "type": "url",
-        "id": "button_2_link",
-        "label": "Button 2 Link"
-      }, {
-        "type": "color",
-        "id": "button_2_text_color",
-        "label": "Button 2 Text Color",
-        "default": "#ffffff"
-      }, {
-        "type": "color",
-        "id": "button_2_border_color",
-        "label": "Button 2 Border Color",
-        "default": "#ffffff"
-      }, {
-        "type": "color",
-        "id": "button_2_bg_color",
-        "label": "Button 2 Background Color",
-        "default": "rgba(255,255,255,0.1)"
-      }, {
-        "type": "color",
-        "id": "button_2_bg_color_hover",
-        "label": "Button 2 Background Color (Hover)",
-        "default": "#ffffff"
-      }, {
-        "type": "color",
-        "id": "button_2_text_color_hover",
-        "label": "Button 2 Text Color (Hover)",
-        "default": "#111111"
-      }, {
-        "type": "text",
-        "id": "buy_btn_text",
-        "label": "Buy Button Text",
-        "default": "Buy Now"
-      }
-    ],
-    "presets": [
-      {
-        "name": "Hero Banner",
-        "settings": {}
-      }
-    ]
-  }
+        }
+      ]
+    }
+  ]
+}
 {% endschema %}
