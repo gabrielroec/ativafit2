@@ -84,7 +84,7 @@
     </div>
   {%- endif -%}
 
-  <div class="announcement-bar">
+  <div class="announcement-bar{% unless section.settings.enable_ticker %} announcement-bar--static{% endunless %}">
     <div class="container">
       <div class="announcement-bar__inner">
         {%- if section.settings.enable_ticker -%}
@@ -131,6 +131,15 @@
 </section>
 
 <style>
+  /* Static mode styles */
+  .announcement-bar--static .announcement-bar__text {
+    padding-right: 0 !important;
+  }
+
+  .announcement-bar--static .announcement-bar__text::after {
+    display: none !important;
+  }
+
   .announcement-bar__static {
     display: flex;
     align-items: center;
@@ -144,6 +153,11 @@
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: calc(100% - 200px);
+    padding-right: 0 !important;
+  }
+
+  .announcement-bar__text--static::after {
+    display: none !important;
   }
 
   @media screen and (max-width: 768px) {
