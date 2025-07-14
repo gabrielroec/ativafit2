@@ -6,14 +6,21 @@
 
 {{ 'announcement-bar.css' | asset_url | stylesheet_tag }}
 
-<section data-section-id="{{ section.id }}" data-section-type="announcement-bar" data-section-settings='{{ section_settings }}'>
+<section
+  data-section-id="{{ section.id }}"
+  data-section-type="announcement-bar"
+  data-section-settings='{{ section_settings }}'>
   {%- if section.settings.show_newsletter -%}
-    <div id="announcement-bar-newsletter" class="announcement-bar__newsletter hidden-phone" aria-hidden="true">
+    <div
+      id="announcement-bar-newsletter"
+      class="announcement-bar__newsletter hidden-phone"
+      aria-hidden="true">
       <div class="container">
         <div class="announcement-bar__close-container">
           <button class="announcement-bar__close" data-action="toggle-newsletter">
             <span class="visually-hidden">{{ 'general.accessibility.close' | t }}</span>
-            {%- render 'icon', icon: 'close' -%}
+            {%- render 'icon'
+              , icon: 'close' -%}
           </button>
         </div>
       </div>
@@ -33,7 +40,9 @@
           {%- assign newsletter_id = 'newsletter-' | append: section.id -%}
 
           <div class="newsletter">
-            {%- form 'customer', id: newsletter_id, class: 'form newsletter__form' -%}
+            {%- form 'customer'
+              , id: newsletter_id
+              , class: 'form newsletter__form' -%}
               {%- if form.posted_successfully? -%}
                 <p class="alert alert--success alert--center">{{ 'home_page.newsletter.success' | t }}</p>
                 {%- if form.context == 'announcement-bar' -%}
@@ -44,12 +53,24 @@
                   <p class="alert alert--error">{{ form.errors.messages['email'] }}</p>
                 {%- endif -%}
 
-                <input type="hidden" name="contact[tags]" value="newsletter">
-                <input type="hidden" name="contact[context]" value="announcement-bar">
+                <input
+                  type="hidden"
+                  name="contact[tags]"
+                  value="newsletter">
+                <input
+                  type="hidden"
+                  name="contact[context]"
+                  value="announcement-bar">
 
                 <div class="form__input-row">
                   <div class="form__input-wrapper form__input-wrapper--labelled">
-                    <input type="email" id="announcement[contact][email]" name="contact[email]" class="form__field form__field--text" autofocus required>
+                    <input
+                      type="email"
+                      id="announcement[contact][email]"
+                      name="contact[email]"
+                      class="form__field form__field--text"
+                      autofocus
+                      required>
                     <label for="announcement[contact][email]" class="form__floating-label">{{ 'home_page.newsletter.input' | t }}</label>
                   </div>
 
@@ -66,25 +87,41 @@
   <div class="announcement-bar">
     <div class="container">
       <div class="announcement-bar__inner">
-        <div class="announcement-bar__ticker">
-          <div class="announcement-bar__ticker-content">
+        {%- if section.settings.enable_ticker -%}
+          <div class="announcement-bar__ticker">
+            <div class="announcement-bar__ticker-content">
+              {%- if section.settings.link != blank -%}
+                <a href="{{ section.settings.link }}" class="announcement-bar__text">{{ section.settings.text | escape }}</a>
+              {%- else -%}
+                <span class="announcement-bar__text">{{ section.settings.text | escape }}</span>
+              {%- endif -%}
+
+              {%- if section.settings.link != blank -%}
+                <a href="{{ section.settings.link }}" class="announcement-bar__text">{{ section.settings.text | escape }}</a>
+              {%- else -%}
+                <span class="announcement-bar__text">{{ section.settings.text | escape }}</span>
+              {%- endif -%}
+            </div>
+          </div>
+        {%- else -%}
+          <div class="announcement-bar__static">
             {%- if section.settings.link != blank -%}
-              <a href="{{ section.settings.link }}" class="announcement-bar__text">{{ section.settings.text | escape }}</a>
+              <a href="{{ section.settings.link }}" class="announcement-bar__text announcement-bar__text--static">{{ section.settings.text | escape }}</a>
             {%- else -%}
-              <span class="announcement-bar__text">{{ section.settings.text | escape }}</span>
-            {%- endif -%}
-            
-            {%- if section.settings.link != blank -%}
-              <a href="{{ section.settings.link }}" class="announcement-bar__text">{{ section.settings.text | escape }}</a>
-            {%- else -%}
-              <span class="announcement-bar__text">{{ section.settings.text | escape }}</span>
+              <span class="announcement-bar__text announcement-bar__text--static">{{ section.settings.text | escape }}</span>
             {%- endif -%}
           </div>
-        </div>
+        {%- endif -%}
 
         {%- if section.settings.show_newsletter -%}
-          <button type="button" class="announcement-bar__button hidden-phone" data-action="toggle-newsletter" aria-expanded="false" aria-controls="announcement-bar-newsletter">
-            {%- render 'icon', icon: 'newsletter' -%}
+          <button
+            type="button"
+            class="announcement-bar__button hidden-phone"
+            data-action="toggle-newsletter"
+            aria-expanded="false"
+            aria-controls="announcement-bar-newsletter">
+            {%- render 'icon'
+              , icon: 'newsletter' -%}
             {{- section.settings.newsletter_button | escape -}}
           </button>
         {%- endif -%}
@@ -93,59 +130,85 @@
   </div>
 </section>
 
+<style>
+  .announcement-bar__static {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .announcement-bar__text--static {
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: calc(100% - 200px);
+  }
+
+  @media screen and (max-width: 768px) {
+    .announcement-bar__text--static {
+      max-width: 100%;
+    }
+  }
+</style>
+
 <script>
   {%- if section.settings.show_newsletter -%}
     document.documentElement.style.setProperty('--announcement-bar-button-width', document.querySelector('.announcement-bar__button').clientWidth + 'px');
   {%- else -%}
     document.documentElement.style.removeProperty('--announcement-bar-button-width');
   {%- endif -%}
-
+  
   document.documentElement.style.setProperty('--announcement-bar-height', document.getElementById('shopify-section-{{ section.id }}').clientHeight + 'px');
 </script>
 
 {% schema %}
-{
-  "name": "Announcement bar",
-  "settings": [
-    {
-      "type": "text",
-      "id": "text",
-      "label": "Text",
-      "default": "LIMITED-TIME OFFER: GET 10% OFF WITH COUPON ATIVAFIT10"
-    },
-    {
-      "type": "url",
-      "id": "link",
-      "label": "Link"
-    },
-    {
-      "type": "header",
-      "content": "Newsletter"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_newsletter",
-      "label": "Show sign up form",
-      "default": true
-    },
-    {
-      "type": "text",
-      "id": "newsletter_button",
-      "label": "Open button",
-      "default": "Subscribe & Save"
-    },
-    {
-      "type": "text",
-      "id": "newsletter_title",
-      "label": "Heading",
-      "default": "Newsletter"
-    },
-    {
-      "type": "richtext",
-      "id": "newsletter_content",
-      "label": "Text",
-      "default": "<p>A short sentence describing what someone will receive by subscribing</p>"
-    }
-  ]
-}
+  {
+    "name": "Announcement bar",
+    "settings": [
+      {
+        "type": "text",
+        "id": "text",
+        "label": "Text",
+        "default": "LIMITED-TIME OFFER: GET 10% OFF WITH COUPON ATIVAFIT10"
+      },
+      {
+        "type": "url",
+        "id": "link",
+        "label": "Link"
+      },
+      {
+        "type": "checkbox",
+        "id": "enable_ticker",
+        "label": "Enable sliding text",
+        "info": "When enabled, text will scroll horizontally. When disabled, text will be centered and static.",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Newsletter"
+      }, {
+        "type": "checkbox",
+        "id": "show_newsletter",
+        "label": "Show sign up form",
+        "default": true
+      }, {
+        "type": "text",
+        "id": "newsletter_button",
+        "label": "Open button",
+        "default": "Subscribe & Save"
+      }, {
+        "type": "text",
+        "id": "newsletter_title",
+        "label": "Heading",
+        "default": "Newsletter"
+      }, {
+        "type": "richtext",
+        "id": "newsletter_content",
+        "label": "Text",
+        "default": "<p>A short sentence describing what someone will receive by subscribing</p>"
+      }
+    ]
+  }
 {% endschema %}
