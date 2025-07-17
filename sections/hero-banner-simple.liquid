@@ -348,21 +348,21 @@
   class HeroBannerCarousel {
     constructor(element) {
       this.carousel = element;
-      this.slides = this.carousel.querySelectorAll('.hero-banner-carousel__slide');
-      this.dots = this.carousel.querySelectorAll('.hero-banner-carousel__dot');
+      this.slides = Array.from(this.carousel.querySelectorAll('.hero-banner-carousel__slide'));
+      this.dots = Array.from(this.carousel.querySelectorAll('.hero-banner-carousel__dot'));
       this.prevBtn = this.carousel.querySelector('.hero-banner-carousel__navigation--prev');
       this.nextBtn = this.carousel.querySelector('.hero-banner-carousel__navigation--next');
       this.currentSlide = 0;
       this.totalSlides = this.slides.length;
       this.autoplayInterval = null;
       this.autoplayDelay = 5000; // 5 seconds
+      this.isAnimating = false;
   
+      if (this.totalSlides <= 1) return;
       this.init();
     }
   
     init() {
-      if (this.totalSlides <= 1) return;
-  
       this.bindEvents();
       this.startAutoplay();
     }
@@ -370,14 +370,18 @@
     bindEvents() {
       // Arrow navigation
       if (this.prevBtn) {
-        this.prevBtn.addEventListener('click', () => {
+        this.prevBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          if (this.isAnimating) return;
           this.goToPrevSlide();
           this.resetAutoplay();
         });
       }
   
       if (this.nextBtn) {
-        this.nextBtn.addEventListener('click', () => {
+        this.nextBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          if (this.isAnimating) return;
           this.goToNextSlide();
           this.resetAutoplay();
         });
@@ -385,21 +389,12 @@
   
       // Dot navigation
       this.dots.forEach((dot, index) => {
-        dot.addEventListener('click', () => {
+        dot.addEventListener('click', (e) => {
+          e.preventDefault();
+          if (this.isAnimating) return;
           this.goToSlide(index);
           this.resetAutoplay();
         });
-      });
-  
-      // Keyboard navigation
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowLeft') {
-          this.goToPrevSlide();
-          this.resetAutoplay();
-        } else if (e.key === 'ArrowRight') {
-          this.goToNextSlide();
-          this.resetAutoplay();
-        }
       });
   
       // Pause autoplay on hover
@@ -413,26 +408,39 @@
     }
   
     goToSlide(index) {
+      if (this.isAnimating || index === this.currentSlide) return;
+      
+      this.isAnimating = true;
+  
       // Remove active class from current slide and dot
       this.slides[this.currentSlide].classList.remove('active');
-      this.dots[this.currentSlide]?.classList.remove('active');
+      if (this.dots[this.currentSlide]) {
+        this.dots[this.currentSlide].classList.remove('active');
+      }
   
       // Update current slide
       this.currentSlide = index;
   
       // Add active class to new slide and dot
       this.slides[this.currentSlide].classList.add('active');
-      this.dots[this.currentSlide]?.classList.add('active');
+      if (this.dots[this.currentSlide]) {
+        this.dots[this.currentSlide].classList.add('active');
+      }
+  
+      // Reset animation flag after transition
+      setTimeout(() => {
+        this.isAnimating = false;
+      }, 500);
     }
   
     goToNextSlide() {
-      const nextSlide = (this.currentSlide + 1) % this.totalSlides;
-      this.goToSlide(nextSlide);
+      const nextIndex = (this.currentSlide + 1) % this.totalSlides;
+      this.goToSlide(nextIndex);
     }
   
     goToPrevSlide() {
-      const prevSlide = (this.currentSlide - 1 + this.totalSlides) % this.totalSlides;
-      this.goToSlide(prevSlide);
+      const prevIndex = (this.currentSlide - 1 + this.totalSlides) % this.totalSlides;
+      this.goToSlide(prevIndex);
     }
   
     startAutoplay() {
