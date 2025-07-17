@@ -247,36 +247,40 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      const form = document.querySelector('[data-product-id="{{ product.id }}"]');
-      if (!form) return;
-    
-      const quantityInput = form.querySelector('input[name="quantity"]');
-      const qtyDisplay = form.querySelector('.qty');
-      const plusButton = form.querySelector('.plus');
-      const minusButton = form.querySelector('.minus');
+      const productCards = document.querySelectorAll('.product-card-list');
       
-      let quantity = 1;
+      productCards.forEach(card => {
+        const form = card.querySelector('form[data-product-id="{{ product.id }}"]');
+        if (!form) return;
       
-      plusButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        quantity++;
-        updateQuantity();
-      });
-      
-      minusButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (quantity > 1) {
-          quantity--;
+        const quantityInput = form.querySelector('input[name="quantity"]');
+        const qtyDisplay = form.querySelector('.qty');
+        const plusButton = form.querySelector('.plus');
+        const minusButton = form.querySelector('.minus');
+        
+        let quantity = 1;
+        
+        plusButton?.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          quantity++;
           updateQuantity();
+        });
+        
+        minusButton?.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (quantity > 1) {
+            quantity--;
+            updateQuantity();
+          }
+        });
+        
+        function updateQuantity() {
+          quantityInput.value = quantity;
+          qtyDisplay.textContent = quantity;
         }
       });
-      
-      function updateQuantity() {
-        quantityInput.value = quantity;
-        qtyDisplay.textContent = quantity;
-      }
     });
   </script>
 {% endif %}
