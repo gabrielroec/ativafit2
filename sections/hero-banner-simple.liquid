@@ -204,15 +204,19 @@
             src="{{ block.settings.background_image | image_url: width: 2000 }}"
             alt="{{ block.settings.background_image.alt | escape }}"
             class="hero-simple__image hero-simple__image--desktop"
-            loading="{% if forloop.first %}eager{% else %}lazy{% endif %}">
+            loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+            width="2000"
+            height="500">
           <img
             src="{{ block.settings.background_image_mobile | default: block.settings.background_image | image_url: width: 1000 }}"
             alt="{{ block.settings.background_image_mobile.alt | default: block.settings.background_image.alt | escape }}"
             class="hero-simple__image hero-simple__image--mobile"
-            loading="{% if forloop.first %}eager{% else %}lazy{% endif %}">
+            loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+            width="1000"
+            height="500">
         {% endif %}
 
-        <div class="hero-simple__overlay"></div>
+        <div class="hero-simple__overlay" style="background-color: {{ block.settings.overlay_color | color_modify: 'alpha', block.settings.overlay_opacity }}"></div>
 
         <div class="hero-simple__content">
           <div class="hero-simple__text">
@@ -423,10 +427,32 @@
             "label": "Subtitle",
             "default": "GET IT NOW FOR FATHER'S DAY"
           }, {
+            "type": "header",
+            "content": "Overlay Settings"
+          }, {
+            "type": "color",
+            "id": "overlay_color",
+            "label": "Overlay Color",
+            "default": "#000000"
+          }, {
+            "type": "range",
+            "id": "overlay_opacity",
+            "label": "Overlay Opacity",
+            "min": 0,
+            "max": 1,
+            "step": 0.1,
+            "default": 0.5
+          }, {
+            "type": "header",
+            "content": "Link Settings"
+          }, {
             "type": "url",
             "id": "slide_link",
             "label": "Slide Link (Optional)",
             "info": "Add a link to make the entire slide clickable"
+          }, {
+            "type": "header",
+            "content": "Button Settings"
           }, {
             "type": "text",
             "id": "button_1_text",
