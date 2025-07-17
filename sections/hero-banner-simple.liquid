@@ -1,18 +1,19 @@
 <style>
-  .hero-banner-carousel {
+  .hero-simple {
     position: relative;
     width: 100%;
     height: 500px;
     overflow: hidden;
+    margin-top: 70px;
   }
 
-  .hero-banner-carousel__container {
+  .hero-simple__container {
     position: relative;
     width: 100%;
     height: 100%;
   }
 
-  .hero-banner-carousel__slide {
+  .hero-simple__slide {
     position: absolute;
     top: 0;
     left: 0;
@@ -20,53 +21,15 @@
     height: 100%;
     opacity: 0;
     visibility: hidden;
-    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    transform: translateX(100%);
+    transition: opacity 0.6s ease-in-out;
   }
 
-  .hero-banner-carousel__slide.active {
+  .hero-simple__slide.active {
     opacity: 1;
     visibility: visible;
-    transform: translateX(0);
   }
 
-  .hero-banner-carousel__slide.prev {
-    transform: translateX(-100%);
-  }
-
-  .hero-banner-carousel__slide-link {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 5;
-    cursor: pointer;
-    text-decoration: none;
-    transition: all 0.3s ease;
-  }
-
-  .hero-banner-carousel__slide-link:hover {
-    text-decoration: none;
-  }
-
-  .hero-banner-carousel__slide-link::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0);
-    transition: background 0.3s ease;
-    pointer-events: none;
-  }
-
-  .hero-banner-carousel__slide-link:hover::before {
-    background: rgba(255, 255, 255, 0.05);
-  }
-
-  .hero-banner-carousel__image {
+  .hero-simple__image {
     position: absolute;
     top: 0;
     left: 0;
@@ -75,34 +38,20 @@
     object-fit: cover;
   }
 
-  .hero-banner-carousel__image--mobile {
+  .hero-simple__image--mobile {
     display: none;
   }
 
-  @media screen and (max-width: 768px) {
-    .hero-banner-carousel__image--desktop {
-      display: none;
-    }
-
-    .hero-banner-carousel__image--mobile {
-      display: block;
-    }
-  }
-
-  .hero-banner-carousel__slide.active {
-    opacity: 1;
-  }
-
-  .hero-banner-carousel__overlay {
+  .hero-simple__overlay {
     position: absolute;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
+    width: 100%;
+    height: 100%;
     background: rgba(0, 0, 0, 0.5);
   }
 
-  .hero-banner-carousel__content {
+  .hero-simple__content {
     position: relative;
     height: 100%;
     display: flex;
@@ -112,48 +61,32 @@
     margin: 0 auto;
     padding: 0 20px;
     z-index: 2;
-    color: #ffffff;
   }
 
-  .hero-banner-carousel__text-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
+  .hero-simple__text {
     max-width: 625px;
-    transform: translateY(20px);
-    opacity: 0;
-    transition: all 0.8s ease 0.3s;
+    color: white;
   }
 
-  .hero-banner-carousel__slide.active .hero-banner-carousel__text-container {
-    transform: translateY(0);
-    opacity: 1;
-  }
-
-  .hero-banner-carousel__title {
+  .hero-simple__title {
     font-size: 50px;
     font-weight: 700;
-    text-align: left;
     line-height: 1.2;
     margin-bottom: 16px;
-    order: 1;
   }
 
-  .hero-banner-carousel__subtitle {
+  .hero-simple__subtitle {
     font-size: 16px;
     font-weight: 400;
-    margin: 0 0 24px;
-    order: 2;
+    margin-bottom: 24px;
   }
 
-  .hero-banner-carousel__buttons {
+  .hero-simple__buttons {
     display: flex;
     gap: 1rem;
-    order: 3;
   }
 
-  .hero-banner-carousel__button {
+  .hero-simple__button {
     padding: 0.75rem 1.5rem;
     border: 2px solid;
     border-radius: 4px;
@@ -163,14 +96,14 @@
     text-transform: uppercase;
   }
 
-  .hero-banner-carousel__button:hover {
+  .hero-simple__button:hover {
     background-color: #EB701F !important;
     color: #fff !important;
     border-color: #EB701F !important;
   }
 
-  /* Navigation Arrows */
-  .hero-banner-carousel__navigation {
+  /* Navigation */
+  .hero-simple__nav {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
@@ -189,21 +122,20 @@
     z-index: 10;
   }
 
-  .hero-banner-carousel__navigation:hover {
-    background: rgba(255, 255, 255, 1);
+  .hero-simple__nav:hover {
+    background: white;
     transform: translateY(-50%) scale(1.1);
   }
 
-  .hero-banner-carousel__navigation--prev {
+  .hero-simple__nav--prev {
     left: 20px;
   }
 
-  .hero-banner-carousel__navigation--next {
+  .hero-simple__nav--next {
     right: 20px;
   }
 
-  /* Dots */
-  .hero-banner-carousel__dots {
+  .hero-simple__dots {
     position: absolute;
     bottom: 30px;
     left: 50%;
@@ -213,7 +145,7 @@
     z-index: 10;
   }
 
-  .hero-banner-carousel__dot {
+  .hero-simple__dot {
     width: 12px;
     height: 12px;
     border-radius: 50%;
@@ -223,148 +155,117 @@
     transition: all 0.3s ease;
   }
 
-  .hero-banner-carousel__dot.active {
-    background: #ffffff;
+  .hero-simple__dot.active {
+    background: white;
     transform: scale(1.2);
   }
 
-  /* Responsive */
   @media screen and (max-width: 768px) {
-    .hero-banner-carousel__content {
-      padding: 0 15px;
+    .hero-simple__image--desktop {
+      display: none;
     }
 
-    .hero-banner-carousel__title {
+    .hero-simple__image--mobile {
+      display: block;
+    }
+
+    .hero-simple__title {
       font-size: 36px;
     }
 
-    .hero-banner-carousel__buttons {
-      width: 100%;
-      justify-content: flex-start;
-    }
-
-    .hero-banner-carousel__navigation {
+    .hero-simple__nav {
       width: 40px;
       height: 40px;
-      font-size: 16px;
     }
 
-    .hero-banner-carousel__navigation--prev {
+    .hero-simple__nav--prev {
       left: 10px;
     }
 
-    .hero-banner-carousel__navigation--next {
+    .hero-simple__nav--next {
       right: 10px;
-    }
-  }
-
-  @media screen and (max-width: 480px) {
-    .hero-banner-carousel__buttons {
-      flex-direction: column;
-      max-width: 250px;
-    }
-
-    .hero-banner-carousel__button {
-      text-align: center;
     }
   }
 </style>
 
-<section class="hero-banner-carousel js-hero-carousel">
-  <div class="hero-banner-carousel__container">
+<section class="hero-simple" data-hero-simple>
+  <div class="hero-simple__container">
     {% for block in section.blocks %}
-      <div
-        class="hero-banner-carousel__slide {% if forloop.first %}active{% endif %}"
-        data-slide-index="{{ forloop.index0 }}"
-        {{ block.shopify_attributes }}>
+      <div class="hero-simple__slide {% if forloop.first %}active{% endif %}" data-slide="{{ forloop.index0 }}">
         {% if block.settings.slide_link != blank %}
           <a
             href="{{ block.settings.slide_link }}"
-            class="hero-banner-carousel__slide-link"
-            aria-label="Navigate to slide content">
+            class="hero-simple__link"
+            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;"></a>
         {% endif %}
 
         {% if block.settings.background_image != blank %}
           <img
             src="{{ block.settings.background_image | image_url: width: 2000 }}"
             alt="{{ block.settings.background_image.alt | escape }}"
-            class="hero-banner-carousel__image hero-banner-carousel__image--desktop"
-            loading="eager"
-            width="2000"
-            height="500">
+            class="hero-simple__image hero-simple__image--desktop"
+            loading="{% if forloop.first %}eager{% else %}lazy{% endif %}">
           <img
             src="{{ block.settings.background_image_mobile | default: block.settings.background_image | image_url: width: 1000 }}"
             alt="{{ block.settings.background_image_mobile.alt | default: block.settings.background_image.alt | escape }}"
-            class="hero-banner-carousel__image hero-banner-carousel__image--mobile"
-            loading="eager"
-            width="1000"
-            height="500">
+            class="hero-simple__image hero-simple__image--mobile"
+            loading="{% if forloop.first %}eager{% else %}lazy{% endif %}">
         {% endif %}
 
-        <div class="hero-banner-carousel__overlay"></div>
+        <div class="hero-simple__overlay"></div>
 
-        {% if block.settings.slide_link != blank %}
-          </a>
-        {% endif %}
-
-        <div class="hero-banner-carousel__content">
-          <div class="hero-banner-carousel__text-container">
-            <h1 class="hero-banner-carousel__title bold">{{ block.settings.title }}</h1>
-            <p class="hero-banner-carousel__subtitle regular">{{ block.settings.subtitle }}</p>
-            <div class="hero-banner-carousel__buttons">
-              {%- if block.settings.button_1_text != blank and block.settings.button_1_link != blank -%}
+        <div class="hero-simple__content">
+          <div class="hero-simple__text">
+            <h1 class="hero-simple__title">{{ block.settings.title }}</h1>
+            <p class="hero-simple__subtitle">{{ block.settings.subtitle }}</p>
+            <div class="hero-simple__buttons">
+              {% if block.settings.button_1_text != blank and block.settings.button_1_link != blank %}
                 <a
                   href="{{ block.settings.button_1_link }}"
-                  class="hero-banner-carousel__button condensed-bold"
+                  class="hero-simple__button"
                   style="
-                     color: {{ block.settings.button_1_text_color }};
-                     border-color: {{ block.settings.button_1_border_color }};
-                     background: {{ block.settings.button_1_bg_color }};
-                   ">
+                    color: {{ block.settings.button_1_text_color }};
+                    border-color: {{ block.settings.button_1_border_color }};
+                    background: {{ block.settings.button_1_bg_color }};
+                  ">
                   {{ block.settings.button_1_text }}
                 </a>
-              {%- endif -%}
-              {%- if block.settings.button_2_text != blank and block.settings.button_2_link != blank -%}
+              {% endif %}
+              {% if block.settings.button_2_text != blank and block.settings.button_2_link != blank %}
                 <a
                   href="{{ block.settings.button_2_link }}"
-                  class="hero-banner-carousel__button condensed-bold"
+                  class="hero-simple__button"
                   style="
-                     color: {{ block.settings.button_2_text_color }};
-                     border-color: {{ block.settings.button_2_border_color }};
-                     background: {{ block.settings.button_2_bg_color }};
-                   ">
+                    color: {{ block.settings.button_2_text_color }};
+                    border-color: {{ block.settings.button_2_border_color }};
+                    background: {{ block.settings.button_2_bg_color }};
+                  ">
                   {{ block.settings.button_2_text }}
                 </a>
-              {%- endif -%}
+              {% endif %}
             </div>
           </div>
         </div>
       </div>
     {% endfor %}
 
-    {% if section.blocks.size > 1 and section.settings.show_navigation %}
+    {% if section.blocks.size > 1 %}
       <button
-        class="hero-banner-carousel__navigation hero-banner-carousel__navigation--prev"
-        aria-label="Previous slide"
-        type="button">
-        &#8249;
-      </button>
+        class="hero-simple__nav hero-simple__nav--prev"
+        type="button"
+        aria-label="Previous slide">&#8249;</button>
       <button
-        class="hero-banner-carousel__navigation hero-banner-carousel__navigation--next"
-        aria-label="Next slide"
-        type="button">
-        &#8250;
-      </button>
-    {% endif %}
+        class="hero-simple__nav hero-simple__nav--next"
+        type="button"
+        aria-label="Next slide">&#8250;</button>
 
-    {% if section.blocks.size > 1 and section.settings.show_dots %}
-      <div class="hero-banner-carousel__dots">
+      <div class="hero-simple__dots">
         {% for block in section.blocks %}
           <button
-            class="hero-banner-carousel__dot {% if forloop.first %}active{% endif %}"
+            class="hero-simple__dot {% if forloop.first %}active{% endif %}"
+            type="button"
             data-slide="{{ forloop.index0 }}"
-            aria-label="Go to slide {{ forloop.index }}"
-            type="button"></button>
+            aria-label="Go to slide {{ forloop.index }}"></button>
         {% endfor %}
       </div>
     {% endif %}
@@ -372,200 +273,127 @@
 </section>
 
 <script>
-  class HeroBannerCarousel {
-    constructor(element) {
-      this.carousel = element;
-      this.slides = Array.from(this.carousel.querySelectorAll('.hero-banner-carousel__slide'));
-      this.dots = Array.from(this.carousel.querySelectorAll('.hero-banner-carousel__dot'));
-      this.prevBtn = this.carousel.querySelector('.hero-banner-carousel__navigation--prev');
-      this.nextBtn = this.carousel.querySelector('.hero-banner-carousel__navigation--next');
-      this.currentSlide = 0;
-      this.totalSlides = this.slides.length;
-      this.isAnimating = false;
-      this.autoplayInterval = null;
-      this.autoplayDelay = 6000; // 6 seconds
+  (function() {
+  'use strict';
   
-      console.log('=== DEBUG HERO BANNER SIMPLE ===');
-      console.log('Total slides:', this.totalSlides);
-      console.log('Prev button found:', !!this.prevBtn);
-      console.log('Next button found:', !!this.nextBtn);
-      console.log('Dots found:', this.dots.length);
-      console.log('Carousel element:', this.carousel);
-  
+  function HeroSimple(element) {
+    this.hero = element;
+    this.slides = this.hero.querySelectorAll('.hero-simple__slide');
+    this.dots = this.hero.querySelectorAll('.hero-simple__dot');
+    this.prevBtn = this.hero.querySelector('.hero-simple__nav--prev');
+    this.nextBtn = this.hero.querySelector('.hero-simple__nav--next');
+    this.currentSlide = 0;
+    this.slideCount = this.slides.length;
+    this.autoplayTimer = null;
+    this.autoplayDelay = 5000;
+    
+    if (this.slideCount > 1) {
       this.init();
-    }
-  
-    init() {
-      if (this.totalSlides <= 1) {
-        console.log('Not enough slides for carousel');
-        return;
-      }
-      
-      this.setupEventListeners();
-      this.startAutoplay();
-      console.log('Carousel initialized successfully');
-    }
-  
-    setupEventListeners() {
-      if (this.prevBtn) {
-        this.prevBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          console.log('Previous button clicked');
-          if (this.isAnimating) return;
-          this.goToPrevSlide();
-          this.resetAutoplay();
-        });
-        console.log('Previous button listener added');
-      } else {
-        console.log('Previous button not found!');
-      }
-  
-      if (this.nextBtn) {
-        this.nextBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          console.log('Next button clicked');
-          if (this.isAnimating) return;
-          this.goToNextSlide();
-          this.resetAutoplay();
-        });
-        console.log('Next button listener added');
-      } else {
-        console.log('Next button not found!');
-      }
-  
-      this.dots.forEach((dot, index) => {
-        dot.addEventListener('click', (e) => {
-          e.preventDefault();
-          console.log('Dot clicked:', index);
-          if (this.isAnimating) return;
-          this.goToSlide(index);
-          this.resetAutoplay();
-        });
-      });
-      console.log('Dot listeners added for', this.dots.length, 'dots');
-  
-      this.carousel.addEventListener('mouseenter', () => this.pauseAutoplay());
-      this.carousel.addEventListener('mouseleave', () => this.startAutoplay());
-    }
-  
-    goToSlide(index) {
-      if (this.isAnimating || index === this.currentSlide) return;
-      
-      console.log('Going to slide:', index, 'from:', this.currentSlide);
-      this.isAnimating = true;
-  
-      // Remove active class from current slide and dot
-      this.slides[this.currentSlide].classList.remove('active');
-      if (this.dots[this.currentSlide]) {
-        this.dots[this.currentSlide].classList.remove('active');
-      }
-  
-      // Add prev class for animation
-      if (index < this.currentSlide) {
-        this.slides[this.currentSlide].classList.add('prev');
-      }
-  
-      // Update current slide
-      this.currentSlide = index;
-  
-      // Add active class to new slide and dot
-      this.slides[this.currentSlide].classList.add('active');
-      if (this.dots[this.currentSlide]) {
-        this.dots[this.currentSlide].classList.add('active');
-      }
-  
-      // Clean up classes after animation
-      setTimeout(() => {
-        this.slides.forEach(slide => slide.classList.remove('prev'));
-        this.isAnimating = false;
-        console.log('Animation completed for slide:', index);
-      }, 800);
-    }
-  
-    goToNextSlide() {
-      const nextIndex = (this.currentSlide + 1) % this.totalSlides;
-      console.log('Next slide calculated:', nextIndex);
-      this.goToSlide(nextIndex);
-    }
-  
-    goToPrevSlide() {
-      const prevIndex = (this.currentSlide - 1 + this.totalSlides) % this.totalSlides;
-      console.log('Previous slide calculated:', prevIndex);
-      this.goToSlide(prevIndex);
-    }
-  
-    startAutoplay() {
-      if (this.totalSlides <= 1) return;
-      
-      if (this.autoplayInterval) {
-        clearInterval(this.autoplayInterval);
-      }
-  
-      this.autoplayInterval = setInterval(() => {
-        console.log('Autoplay triggered');
-        this.goToNextSlide();
-      }, this.autoplayDelay);
-      console.log('Autoplay started with delay:', this.autoplayDelay);
-    }
-  
-    pauseAutoplay() {
-      if (this.autoplayInterval) {
-        clearInterval(this.autoplayInterval);
-        this.autoplayInterval = null;
-        console.log('Autoplay paused');
-      }
-    }
-  
-    resetAutoplay() {
-      console.log('Autoplay reset');
-      this.pauseAutoplay();
-      this.startAutoplay();
     }
   }
   
-  // Initialize carousel when DOM is loaded
-  document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM loaded, looking for carousels...');
-    const carousels = document.querySelectorAll('.js-hero-carousel');
-    console.log('Found carousels:', carousels.length);
-    carousels.forEach((carousel, index) => {
-      console.log('Initializing carousel', index);
-      new HeroBannerCarousel(carousel);
+  HeroSimple.prototype.init = function() {
+    this.bindEvents();
+    this.startAutoplay();
+  };
+  
+  HeroSimple.prototype.bindEvents = function() {
+    var self = this;
+    
+    if (this.prevBtn) {
+      this.prevBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        self.goToPrev();
+      });
+    }
+    
+    if (this.nextBtn) {
+      this.nextBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        self.goToNext();
+      });
+    }
+    
+    this.dots.forEach(function(dot, index) {
+      dot.addEventListener('click', function(e) {
+        e.preventDefault();
+        self.goToSlide(index);
+      });
     });
-  });
+    
+    this.hero.addEventListener('mouseenter', function() {
+      self.stopAutoplay();
+    });
+    
+    this.hero.addEventListener('mouseleave', function() {
+      self.startAutoplay();
+    });
+  };
+  
+  HeroSimple.prototype.goToSlide = function(index) {
+    if (index === this.currentSlide) return;
+    
+    // Remove active from current
+    this.slides[this.currentSlide].classList.remove('active');
+    if (this.dots[this.currentSlide]) {
+      this.dots[this.currentSlide].classList.remove('active');
+    }
+    
+    // Set new slide
+    this.currentSlide = index;
+    
+    // Add active to new
+    this.slides[this.currentSlide].classList.add('active');
+    if (this.dots[this.currentSlide]) {
+      this.dots[this.currentSlide].classList.add('active');
+    }
+  };
+  
+  HeroSimple.prototype.goToNext = function() {
+    var next = (this.currentSlide + 1) % this.slideCount;
+    this.goToSlide(next);
+  };
+  
+  HeroSimple.prototype.goToPrev = function() {
+    var prev = (this.currentSlide - 1 + this.slideCount) % this.slideCount;
+    this.goToSlide(prev);
+  };
+  
+  HeroSimple.prototype.startAutoplay = function() {
+    var self = this;
+    this.stopAutoplay();
+    this.autoplayTimer = setInterval(function() {
+      self.goToNext();
+    }, this.autoplayDelay);
+  };
+  
+  HeroSimple.prototype.stopAutoplay = function() {
+    if (this.autoplayTimer) {
+      clearInterval(this.autoplayTimer);
+      this.autoplayTimer = null;
+    }
+  };
+  
+  // Initialize when DOM is ready
+  function init() {
+    var heroes = document.querySelectorAll('[data-hero-simple]');
+    heroes.forEach(function(hero) {
+      new HeroSimple(hero);
+    });
+  }
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+  })();
 </script>
 
 {% schema %}
   {
-    "name": "Hero Banner Carousel",
+    "name": "Hero Banner Simple",
     "max_blocks": 5,
-    "settings": [
-      {
-        "type": "checkbox",
-        "id": "show_navigation",
-        "label": "Show Navigation Arrows",
-        "default": true
-      }, {
-        "type": "checkbox",
-        "id": "show_dots",
-        "label": "Show Navigation Dots",
-        "default": true
-      }, {
-        "type": "checkbox",
-        "id": "enable_autoplay",
-        "label": "Enable Autoplay",
-        "default": true
-      }, {
-        "type": "range",
-        "id": "autoplay_delay",
-        "min": 3,
-        "max": 10,
-        "step": 1,
-        "unit": "s",
-        "label": "Autoplay Delay",
-        "default": 5
-      }
-    ],
     "blocks": [
       {
         "type": "slide",
@@ -653,7 +481,7 @@
     ],
     "presets": [
       {
-        "name": "Hero Banner Carousel",
+        "name": "Hero Banner Simple",
         "blocks": [
           {
             "type": "slide",
