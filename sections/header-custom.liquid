@@ -369,55 +369,34 @@
           {%- assign navigation_menu = linklists[navigation_menu_handle] -%}
 
           {%- for link in navigation_menu.links -%}
-            {%- assign display_title = "" -%}
-
-            {%- case link.title -%}
-              {%- when "Adjustable Dumbbells" -%}
-                {%- assign display_title = "DUMBBELLS" -%}
-              {%- when "Exercise Bikes" -%}
-                {%- assign display_title = "BIKES" -%}
-              {%- when "Trampolines For Kids" -%}
-                {%- assign display_title = "TRAMPOLINE" -%}
-              {%- when "Accessories" -%}
-                {%- assign display_title = "ACCESSORIES" -%}
-              {%- when "Community" -%}
-                {%- assign display_title = "COMMUNITY" -%}
-              {%- when "Support" -%}
-                {%- assign display_title = "SUPPORT" -%}
-              {%- when "About Us" -%}
-                {%- assign display_title = "ABOUT US" -%}
-            {%- endcase -%}
-
-            {%- if display_title != "" -%}
-              <div class="header-navigation__item">
-                <a
-                  href="{{ link.url }}"
-                  class="header-navigation__link"
-                  {% if link.links.size > 0 %}
-                  aria-expanded="false"
-                  aria-haspopup="true"
-                  {% endif %}>
-                  {{ display_title }}
-                  {%- if link.links.size > 0 -%}
-                    <svg class="icon-arrow" viewBox="0 0 12 8">
-                      <path
-                        d="M1 1l5 5 5-5"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2" />
-                    </svg>
-                  {%- endif -%}
-                </a>
-
+            <div class="header-navigation__item">
+              <a
+                href="{{ link.url }}"
+                class="header-navigation__link"
+                {% if link.links.size > 0 %}
+                aria-expanded="false"
+                aria-haspopup="true"
+                {% endif %}>
+                {{ link.title }}
                 {%- if link.links.size > 0 -%}
-                  <div class="header-navigation__dropdown">
-                    {%- for childlink in link.links -%}
-                      <a href="{{ childlink.url }}" class="header-navigation__dropdown-link">{{ childlink.title }}</a>
-                    {%- endfor -%}
-                  </div>
+                  <svg class="icon-arrow" viewBox="0 0 12 8">
+                    <path
+                      d="M1 1l5 5 5-5"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2" />
+                  </svg>
                 {%- endif -%}
-              </div>
-            {%- endif -%}
+              </a>
+
+              {%- if link.links.size > 0 -%}
+                <div class="header-navigation__dropdown">
+                  {%- for childlink in link.links -%}
+                    <a href="{{ childlink.url }}" class="header-navigation__dropdown-link">{{ childlink.title }}</a>
+                  {%- endfor -%}
+                </div>
+              {%- endif -%}
+            </div>
           {%- endfor -%}
         </nav>
       </div>
@@ -512,43 +491,26 @@
       {%- assign navigation_menu_handle = section.settings.navigation_menu | default: 'main-menu-new-0411' -%}
       {%- assign navigation_menu = linklists[navigation_menu_handle] -%}
       {%- for link in navigation_menu.links -%}
-        {%- assign display_title = "" -%}
-        {%- case link.title -%}
-          {%- when "Adjustable Dumbbells" -%}
-            {%- assign display_title = "DUMBBELLS" -%}
-          {%- when "Exercise Bikes" -%}
-            {%- assign display_title = "BIKES" -%}
-          {%- when "Trampolines For Kids" -%}
-            {%- assign display_title = "TRAMPOLINE" -%}
-          {%- when "Accessories" -%}
-            {%- assign display_title = "ACCESSORIES" -%}
-          {%- when "Community" -%}
-            {%- assign display_title = "COMMUNITY" -%}
-          {%- when "Support" -%}
-            {%- assign display_title = "SUPPORT" -%}
-        {%- endcase -%}
-        {%- if display_title != "" -%}
-          <div class="header-mobile-menu-item{% if link.links.size > 0 %} has-children{% endif %}">
-            <a
-              href="{{ link.url }}"
-              class="header-mobile-menu-link bold"
-              {% if link.links.size > 0 %}
-              data-has-children="true"
-              {% endif %}>
-              {{ display_title }}
-              {% if link.links.size > 0 %}
-                <span class="header-mobile-menu-arrow">&#9662;</span>
-              {% endif %}
-            </a>
+        <div class="header-mobile-menu-item{% if link.links.size > 0 %} has-children{% endif %}">
+          <a
+            href="{{ link.url }}"
+            class="header-mobile-menu-link bold"
             {% if link.links.size > 0 %}
-              <div class="header-mobile-menu-children">
-                {% for childlink in link.links %}
-                  <a href="{{ childlink.url }}" class="header-mobile-menu-link header-mobile-menu-link--child bold">{{ childlink.title }}</a>
-                {% endfor %}
-              </div>
+            data-has-children="true"
+            {% endif %}>
+            {{ link.title }}
+            {% if link.links.size > 0 %}
+              <span class="header-mobile-menu-arrow">&#9662;</span>
             {% endif %}
-          </div>
-        {%- endif -%}
+          </a>
+          {% if link.links.size > 0 %}
+            <div class="header-mobile-menu-children">
+              {% for childlink in link.links %}
+                <a href="{{ childlink.url }}" class="header-mobile-menu-link header-mobile-menu-link--child bold">{{ childlink.title }}</a>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
       {%- endfor -%}
     </div>
   </nav>
