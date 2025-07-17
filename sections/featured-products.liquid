@@ -1,6 +1,6 @@
 {%- style -%}
   .featured-products {
-    padding: 60px 0;
+    padding: 60px 20px;
     max-width: 1350px;
     margin: 0 auto;
   }
@@ -91,25 +91,29 @@
     color: #fff;
   }
 
+  /* Grid View */
   .featured-products__grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 24px;
-    margin-bottom: 40px;
   }
 
+  /* List View */
   .featured-products__grid.list-view {
     grid-template-columns: 1fr;
-  }
-
-  .featured-products__grid.list-view .product-card {
-    width: 100%;
-    height: auto;
-    display: grid;
-    grid-template-columns: 300px 1fr;
     gap: 24px;
   }
 
+  /* Hide/Show Cards based on View */
+  .featured-products__grid.list-view .product-card {
+    display: none !important;
+  }
+
+  .featured-products__grid:not(.list-view) .product-card-list {
+    display: none !important;
+  }
+
+  /* Pagination */
   .featured-products__pagination {
     display: flex;
     justify-content: center;
@@ -133,13 +137,13 @@
   }
 
   @media screen and (max-width: 1200px) {
-    .featured-products__grid {
+    .featured-products__grid:not(.list-view) {
       grid-template-columns: repeat(3, 1fr);
     }
   }
 
   @media screen and (max-width: 991px) {
-    .featured-products__grid {
+    .featured-products__grid:not(.list-view) {
       grid-template-columns: repeat(2, 1fr);
     }
   }
@@ -162,16 +166,11 @@
     .featured-products__controls {
       flex-wrap: wrap;
     }
-
-    .featured-products__grid.list-view .product-card {
-      grid-template-columns: 1fr;
-    }
   }
 
   @media screen and (max-width: 480px) {
-    .featured-products__grid {
+    .featured-products__grid:not(.list-view) {
       grid-template-columns: 1fr;
-      gap: 16px;
     }
   }
 {%- endstyle -%}
@@ -188,7 +187,7 @@
 
     <div class="featured-products__controls">
       <div class="featured-products__sort">
-        <label for="sort-by regular">Sort by:</label>
+        <label for="sort-by" class="regular">Sort by:</label>
         <select id="sort-by" class="featured-products__sort-select regular">
           <option value="manual">Featured</option>
           <option value="price-ascending">Price: Low to High</option>
@@ -202,7 +201,10 @@
       </div>
 
       <div class="featured-products__view-options">
-        <button class="featured-products__view-btn active" data-view="grid">
+        <button
+          class="featured-products__view-btn active"
+          data-view="grid"
+          title="Grid View">
           <svg
             width="24"
             height="24"
@@ -238,7 +240,10 @@
               stroke-width="2" />
           </svg>
         </button>
-        <button class="featured-products__view-btn" data-view="list">
+        <button
+          class="featured-products__view-btn"
+          data-view="list"
+          title="List View">
           <svg
             width="24"
             height="24"
@@ -285,11 +290,15 @@
     </div>
   </div>
 
-  <div class="featured-products__grid">
+  <div class="featured-products__grid{% if request.design_mode %} shopify-design-mode{% endif %}">
     {%- paginate collection.products by section.settings.products_per_page -%}
       {%- for product in collection.products -%}
-        {% render 'product-card-custom'
-          , product: product %}
+        <div class="featured-products__item">
+          {% render 'product-card-custom'
+            , product: product %}
+          {% render 'product-card-list'
+            , product: product %}
+        </div>
       {%- endfor -%}
 
       {%- if paginate.pages > 1 -%}
@@ -327,28 +336,42 @@
         url.searchParams.set('sort_by', this.value);
         window.location.href = url.toString();
       });
-  
+
       // Set current sort value
       const currentSort = new URL(window.location.href).searchParams.get('sort_by');
       if (currentSort) {
         sortSelect.value = currentSort;
       }
     }
-  
+
     // View toggle functionality
     const viewButtons = document.querySelectorAll('.featured-products__view-btn');
     const productsGrid = document.querySelector('.featured-products__grid');
     
+    // Get saved view preference
+    const savedView = localStorage.getItem('productsView') || 'grid';
+    
+    // Set initial view
+    if (savedView === 'list') {
+      productsGrid.classList.add('list-view');
+      viewButtons.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.view === 'list');
+      });
+    }
+    
     viewButtons.forEach(button => {
       button.addEventListener('click', function() {
+        const view = this.dataset.view;
+        
+        // Update buttons
         viewButtons.forEach(btn => btn.classList.remove('active'));
         this.classList.add('active');
         
-        if (this.dataset.view === 'list') {
-          productsGrid.classList.add('list-view');
-        } else {
-          productsGrid.classList.remove('list-view');
-        }
+        // Update grid class
+        productsGrid.classList.toggle('list-view', view === 'list');
+        
+        // Save preference
+        localStorage.setItem('productsView', view);
       });
     });
   });

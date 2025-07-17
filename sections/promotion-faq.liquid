@@ -1,0 +1,206 @@
+{%- style -%}
+  .promotion-faq {
+    padding: 40px 0 60px;
+    max-width: 1350px;
+    margin: 0 auto;
+  }
+
+  .promotion-faq__title {
+    font-size: 48px;
+    line-height: 1;
+    font-weight: 900;
+    margin-bottom: 40px;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .promotion-faq__list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .promotion-faq__item {
+    background: #F9F9F9;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .promotion-faq__question {
+    padding: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.3s ease;
+  }
+
+  .promotion-faq__question:hover {
+    background: #f5f5f5;
+  }
+
+  .promotion-faq__question-text {
+    font-size: 20px;
+    font-weight: 600;
+    color: #000;
+    padding-right: 40px;
+    margin: 0;
+  }
+
+  .promotion-faq__icon {
+    width: 24px;
+    height: 24px;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .promotion-faq__icon::before,
+  .promotion-faq__icon::after {
+    content: '';
+    position: absolute;
+    background: #000;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+  }
+
+  .promotion-faq__icon::before {
+    width: 2px;
+    height: 16px;
+    top: 4px;
+    left: 11px;
+  }
+
+  .promotion-faq__icon::after {
+    width: 16px;
+    height: 2px;
+    top: 11px;
+    left: 4px;
+  }
+
+  .promotion-faq__item.active .promotion-faq__icon::before {
+    transform: rotate(90deg);
+    opacity: 0;
+  }
+
+  .promotion-faq__answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .promotion-faq__answer-text {
+    padding: 0 24px 24px;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #666;
+  }
+
+  .promotion-faq__item.active .promotion-faq__answer {
+    max-height: 500px;
+  }
+
+  @media screen and (max-width: 768px) {
+    .promotion-faq {
+      padding: 40px 15px;
+    }
+
+    .promotion-faq__title {
+      font-size: 36px;
+      margin-bottom: 30px;
+    }
+
+    .promotion-faq__question-text {
+      font-size: 18px;
+    }
+
+    .promotion-faq__answer-text {
+      font-size: 14px;
+    }
+  }
+{%- endstyle -%}
+
+<section class="promotion-faq">
+  <h2 class="promotion-faq__title black">{{ section.settings.title }}</h2>
+
+  <div class="promotion-faq__list">
+    {% for block in section.blocks %}
+      <div class="promotion-faq__item" {{ block.shopify_attributes }}>
+        <div class="promotion-faq__question">
+          <h3 class="promotion-faq__question-text black">{{ block.settings.question }}</h3>
+          <div class="promotion-faq__icon"></div>
+        </div>
+        <div class="promotion-faq__answer">
+          <div class="promotion-faq__answer-text regular">{{ block.settings.answer }}</div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const faqItems = document.querySelectorAll('.promotion-faq__item');
+    
+    faqItems.forEach(item => {
+      const question = item.querySelector('.promotion-faq__question');
+      
+      question.addEventListener('click', () => {
+        const isActive = item.classList.contains('active');
+        
+        // Fecha todos os itens
+        faqItems.forEach(otherItem => {
+          otherItem.classList.remove('active');
+        });
+        
+        // Abre o item clicado (se não estava ativo)
+        if (!isActive) {
+          item.classList.add('active');
+        }
+      });
+    });
+  });
+</script>
+
+{% schema %}
+  {
+    "name": "Promotion FAQ",
+    "settings": [
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Title",
+        "default": "FREQUENTLY ASKED QUESTIONS"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "faq",
+        "name": "FAQ Item",
+        "settings": [
+          {
+            "type": "text",
+            "id": "question",
+            "label": "Question",
+            "default": "When does the Summer Strength Sale end?"
+          }, {
+            "type": "textarea",
+            "id": "answer",
+            "label": "Answer",
+            "default": "The Summer Strength Sale ends on July 20th, 2025. Don't miss out on these amazing deals!"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Promotion FAQ",
+        "blocks": [
+          {
+            "type": "faq"
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}

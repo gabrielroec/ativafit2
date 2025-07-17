@@ -1,0 +1,282 @@
+{% if product != blank %}
+  <div class="product-card-list">
+    <style>
+      .product-card-list {
+        position: relative;
+        width: 100%;
+        background: #fff;
+        border: 1px solid #D9D9D9;
+        border-radius: 0;
+        overflow: hidden;
+        font-family: "IBM Plex Mono"
+        , monospace;
+        display: grid;
+        grid-template-columns: 300px 1fr auto;
+        gap: 24px;
+        padding-right: 24px;
+      }
+
+      .product-card-list__image-container {
+        width: 300px;
+        height: 300px;
+        position: relative;
+      }
+
+      .product-card-list__image {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        background-image: linear-gradient(to top, #f9f9f9 0, #fff 100%);
+      }
+
+      .product-card-list__discount-badge {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        background: #EB701F;
+        color: #fff;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 400;
+      }
+
+      .product-card-list__content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 16px;
+        padding: 24px 0;
+      }
+
+      .product-card-list__title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #000;
+        margin: 0;
+        line-height: 1.2;
+      }
+
+      .product-card-list__price-container {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .product-card-list__current-price {
+        color: #EB701F;
+        font-size: 24px;
+        font-weight: bold;
+      }
+
+      .product-card-list__old-price {
+        color: #D9D9D9;
+        text-decoration: line-through;
+        font-size: 18px;
+      }
+
+      .product-card-list__description {
+        font-size: 14px;
+        color: #666;
+        line-height: 1.5;
+        margin: 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .product-card-list__actions {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 12px;
+        min-width: 200px;
+      }
+
+      .product-card-list__quantity {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        border: 1px solid #EB701F;
+        border-radius: 4px;
+        padding: 8px;
+        color: #EB701F;
+      }
+
+      .product-card-list__quantity span {
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .product-card-list__quantity .qty {
+        width: 20px;
+        text-align: center;
+      }
+
+      .product-card-list__buy-btn {
+        background: transparent;
+        color: #EB701F;
+        border: none;
+        padding: 12px 24px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        text-decoration: none;
+        text-align: center;
+      }
+
+      .product-card-list__buy-btn:hover {
+        color: #c23d12;
+      }
+
+      @media screen and (max-width: 991px) {
+        .product-card-list {
+          grid-template-columns: 200px 1fr;
+          padding-right: 0;
+        }
+
+        .product-card-list__image-container {
+          width: 200px;
+          height: 200px;
+        }
+
+        .product-card-list__actions {
+          grid-column: 1 / -1;
+          flex-direction: row;
+          padding: 16px 24px;
+          border-top: 1px solid #D9D9D9;
+          background: #f9f9f9;
+        }
+      }
+
+      @media screen and (max-width: 480px) {
+        .product-card-list {
+          grid-template-columns: 1fr;
+        }
+
+        .product-card-list__image-container {
+          width: 100%;
+          height: 250px;
+        }
+
+        .product-card-list__content {
+          padding: 24px;
+        }
+
+        .product-card-list__actions {
+          flex-direction: column;
+        }
+      }
+    </style>
+
+    <div class="product-card-list__image-container">
+      {% if product.featured_image != blank %}
+        <img
+          src="{{ product.featured_image | img_url: '600x600' }}"
+          alt="{{ product.title }}"
+          class="product-card-list__image"
+          width="600"
+          height="600"
+          loading="lazy">
+      {% else %}
+        <div class="product-card-list__image" style="background: #f4f4f4; display: flex; align-items: center; justify-content: center;">
+          <span style="color: #999;">Imagem não disponível</span>
+        </div>
+      {% endif %}
+
+      {% if product.compare_at_price_max > product.price %}
+        {% assign discount_amount = product.compare_at_price_max | minus: product.price %}
+        {% assign discount_percentage = discount_amount | times: 100.0 | divided_by: product.compare_at_price_max | round %}
+        <div class="product-card-list__discount-badge condensed-bold">{{ discount_percentage }}% OFF</div>
+      {% endif %}
+    </div>
+
+    <div class="product-card-list__content">
+      <h3 class="product-card-list__title black">{{ product.title }}</h3>
+
+      <div class="product-card-list__price-container">
+        {% if product.price > 0 %}
+          <span class="product-card-list__current-price bold">{{ product.price | money }}</span>
+          {% if product.compare_at_price_max > product.price %}
+            <span class="product-card-list__old-price bold">{{ product.compare_at_price_max | money }}</span>
+          {% endif %}
+        {% else %}
+          <span class="product-card-list__current-price bold">Preço não disponível</span>
+        {% endif %}
+      </div>
+
+      {% if product.description != blank %}
+        <p class="product-card-list__description regular">{{ product.description | strip_html | truncatewords: 30 }}</p>
+      {% endif %}
+    </div>
+
+    {% if product.available and product.selected_or_first_available_variant != blank %}
+      <form
+        action="/cart/add"
+        method="post"
+        class="product-card-list__actions"
+        data-product-id="{{ product.id }}"
+        onclick="event.stopPropagation();">
+        <input
+          type="hidden"
+          name="id"
+          value="{{ product.selected_or_first_available_variant.id }}">
+        <input
+          type="hidden"
+          name="quantity"
+          value="1"
+          class="quantity-input">
+
+        <div class="product-card-list__quantity">
+          <span class="minus">-</span>
+          <span class="qty">1</span>
+          <span class="plus">+</span>
+        </div>
+
+        <button type="submit" class="product-card-list__buy-btn condensed-bold">
+          {{ section.settings.buy_btn_text | default: 'BUY NOW' }}
+        </button>
+      </form>
+    {% endif %}
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.querySelector('[data-product-id="{{ product.id }}"]');
+      if (!form) return;
+    
+      const quantityInput = form.querySelector('input[name="quantity"]');
+      const qtyDisplay = form.querySelector('.qty');
+      const plusButton = form.querySelector('.plus');
+      const minusButton = form.querySelector('.minus');
+      
+      let quantity = 1;
+      
+      plusButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        quantity++;
+        updateQuantity();
+      });
+      
+      minusButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (quantity > 1) {
+          quantity--;
+          updateQuantity();
+        }
+      });
+      
+      function updateQuantity() {
+        quantityInput.value = quantity;
+        qtyDisplay.textContent = quantity;
+      }
+    });
+  </script>
+{% endif %}
