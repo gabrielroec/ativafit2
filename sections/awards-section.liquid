@@ -1,4 +1,8 @@
 {%- style -%}
+  :root  {
+    --first-letter-spacing: -6px;
+  }
+
   .awards-section {
     padding: 30px 0 0;
     text-align: center;
@@ -36,6 +40,10 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
     display: inline-block;
+  }
+
+  .awards-section__title .highlight::first-letter {
+    margin-right: var(--first-letter-spacing);
   }
 
   .awards-section__images {
@@ -120,6 +128,21 @@
     gap: 20px;
   }
 {%- endstyle -%}
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Função para atualizar o espaçamento da primeira letra
+    function updateFirstLetterSpacing(spacing) {
+      document.documentElement.style.setProperty('--first-letter-spacing', spacing + 'px');
+    }
+    
+    // Valor inicial (negativo para aproximar)
+    updateFirstLetterSpacing(-2);
+    
+    // Expõe a função globalmente para poder ser chamada de outros lugares
+    window.updateFirstLetterSpacing = updateFirstLetterSpacing;
+  });
+</script>
 
 <section class="awards-section">
   <div class="awards-section__container">
