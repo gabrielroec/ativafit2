@@ -26,6 +26,29 @@
     transition: opacity 0.5s ease-in-out;
   }
 
+  .hero-banner-carousel__image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero-banner-carousel__image--mobile {
+    display: none;
+  }
+
+  @media screen and (max-width: 768px) {
+    .hero-banner-carousel__image--desktop {
+      display: none;
+    }
+
+    .hero-banner-carousel__image--mobile {
+      display: block;
+    }
+  }
+
   .hero-banner-carousel__slide.active {
     opacity: 1;
   }
@@ -200,9 +223,24 @@
     {% for block in section.blocks %}
       <div
         class="hero-banner-carousel__slide {% if forloop.first %}active{% endif %}"
-        style="background-image: url({{ block.settings.background_image | default: 'https://via.placeholder.com/1920x500' | image_url: width: 1920 }});"
         data-slide-index="{{ forloop.index0 }}"
         {{ block.shopify_attributes }}>
+        {% if block.settings.background_image != blank %}
+          <img
+            src="{{ block.settings.background_image | image_url: width: 2000 }}"
+            alt="{{ block.settings.background_image.alt | escape }}"
+            class="hero-banner-carousel__image hero-banner-carousel__image--desktop"
+            loading="eager"
+            width="2000"
+            height="500">
+          <img
+            src="{{ block.settings.background_image_mobile | default: block.settings.background_image | image_url: width: 1000 }}"
+            alt="{{ block.settings.background_image_mobile.alt | default: block.settings.background_image.alt | escape }}"
+            class="hero-banner-carousel__image hero-banner-carousel__image--mobile"
+            loading="eager"
+            width="1000"
+            height="500">
+        {% endif %}
         <div class="hero-banner-carousel__overlay"></div>
         <div class="hero-banner-carousel__content">
           <div class="hero-banner-carousel__text-container">
@@ -392,8 +430,14 @@
           {
             "type": "image_picker",
             "id": "background_image",
-            "label": "Background Image",
-            "info": "Recommended size: 1920x500px"
+            "label": "Desktop Background Image",
+            "info": "Recommended size: 2000x500px"
+          },
+          {
+            "type": "image_picker",
+            "id": "background_image_mobile",
+            "label": "Mobile Background Image",
+            "info": "Recommended size: 1000x500px. If not set, will use desktop image"
           },
           {
             "type": "text",
@@ -406,8 +450,7 @@
             "id": "subtitle",
             "label": "Subtitle",
             "default": "GET IT NOW FOR FATHER'S DAY"
-          },
-          {
+          }, {
             "type": "text",
             "id": "button_1_text",
             "label": "Button 1 Text",
