@@ -26,6 +26,38 @@
     transition: opacity 0.5s ease-in-out;
   }
 
+  .hero-banner-carousel__slide-link {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .hero-banner-carousel__slide-link:hover {
+    text-decoration: none;
+  }
+
+  .hero-banner-carousel__slide-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0);
+    transition: background 0.3s ease;
+    pointer-events: none;
+  }
+
+  .hero-banner-carousel__slide-link:hover::before {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
   .hero-banner-carousel__image {
     position: absolute;
     top: 0;
@@ -225,6 +257,13 @@
         class="hero-banner-carousel__slide {% if forloop.first %}active{% endif %}"
         data-slide-index="{{ forloop.index0 }}"
         {{ block.shopify_attributes }}>
+        {% if block.settings.slide_link != blank %}
+          <a
+            href="{{ block.settings.slide_link }}"
+            class="hero-banner-carousel__slide-link"
+            aria-label="Navigate to slide content">
+        {% endif %}
+
         {% if block.settings.background_image != blank %}
           <img
             src="{{ block.settings.background_image | image_url: width: 2000 }}"
@@ -241,7 +280,13 @@
             width="1000"
             height="500">
         {% endif %}
+
         <div class="hero-banner-carousel__overlay"></div>
+
+        {% if block.settings.slide_link != blank %}
+          </a>
+        {% endif %}
+
         <div class="hero-banner-carousel__content">
           <div class="hero-banner-carousel__text-container">
             <h1 class="hero-banner-carousel__title bold">{{ block.settings.title }}</h1>
@@ -450,6 +495,11 @@
             "id": "subtitle",
             "label": "Subtitle",
             "default": "GET IT NOW FOR FATHER'S DAY"
+          }, {
+            "type": "url",
+            "id": "slide_link",
+            "label": "Slide Link (Optional)",
+            "info": "Add a link to make the entire slide clickable"
           }, {
             "type": "text",
             "id": "button_1_text",
