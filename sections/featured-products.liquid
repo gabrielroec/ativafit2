@@ -1,0 +1,383 @@
+{%- style -%}
+  .featured-products {
+    padding: 60px 0;
+    max-width: 1350px;
+    margin: 0 auto;
+  }
+
+  .featured-products__header {
+    margin-bottom: 40px;
+  }
+
+  .featured-products__title {
+    font-size: 48px;
+    line-height: 1;
+    font-weight: 900;
+    margin-bottom: 40px;
+    text-transform: uppercase;
+  }
+
+  .featured-products__toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .featured-products__count {
+    font-size: 16px;
+    color: #666;
+  }
+
+  .featured-products__controls {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .featured-products__sort {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .featured-products__sort select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    min-width: 150px;
+  }
+
+  .featured-products__view-options {
+    display: flex;
+    gap: 10px;
+  }
+
+  .featured-products__view-btn {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+  }
+
+  .featured-products__view-btn.active {
+    border-color: #EB701F;
+    color: #EB701F;
+  }
+
+  .featured-products__filter-btn {
+    padding: 8px 16px;
+    border: 1px solid #EB701F;
+    border-radius: 4px;
+    background: #fff;
+    color: #EB701F;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+  }
+
+  .featured-products__filter-btn:hover {
+    background: #EB701F;
+    color: #fff;
+  }
+
+  .featured-products__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+
+  .featured-products__grid.list-view {
+    grid-template-columns: 1fr;
+  }
+
+  .featured-products__grid.list-view .product-card {
+    width: 100%;
+    height: auto;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 24px;
+  }
+
+  .featured-products__pagination {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 40px;
+  }
+
+  .featured-products__page-btn {
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .featured-products__page-btn.active {
+    background: #EB701F;
+    color: #fff;
+    border-color: #EB701F;
+  }
+
+  @media screen and (max-width: 1200px) {
+    .featured-products__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media screen and (max-width: 991px) {
+    .featured-products__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    .featured-products {
+      padding: 40px 15px;
+    }
+
+    .featured-products__title {
+      font-size: 36px;
+      margin-bottom: 30px;
+    }
+
+    .featured-products__toolbar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .featured-products__controls {
+      flex-wrap: wrap;
+    }
+
+    .featured-products__grid.list-view .product-card {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .featured-products__grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+  }
+{%- endstyle -%}
+
+<section class="featured-products">
+  <div class="featured-products__header">
+    <h2 class="featured-products__title black">{{ section.settings.title }}</h2>
+  </div>
+
+  <div class="featured-products__toolbar">
+    <div class="featured-products__count regular">
+      Showing {{ collection.products.size }} products
+    </div>
+
+    <div class="featured-products__controls">
+      <div class="featured-products__sort">
+        <label for="sort-by regular">Sort by:</label>
+        <select id="sort-by" class="featured-products__sort-select regular">
+          <option value="manual">Featured</option>
+          <option value="price-ascending">Price: Low to High</option>
+          <option value="price-descending">Price: High to Low</option>
+          <option value="title-ascending">A-Z</option>
+          <option value="title-descending">Z-A</option>
+          <option value="created-ascending">Oldest to Newest</option>
+          <option value="created-descending">Newest to Oldest</option>
+          <option value="best-selling">Best Selling</option>
+        </select>
+      </div>
+
+      <div class="featured-products__view-options">
+        <button class="featured-products__view-btn active" data-view="grid">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none">
+            <rect
+              x="3"
+              y="3"
+              width="7"
+              height="7"
+              stroke="currentColor"
+              stroke-width="2" />
+            <rect
+              x="14"
+              y="3"
+              width="7"
+              height="7"
+              stroke="currentColor"
+              stroke-width="2" />
+            <rect
+              x="3"
+              y="14"
+              width="7"
+              height="7"
+              stroke="currentColor"
+              stroke-width="2" />
+            <rect
+              x="14"
+              y="14"
+              width="7"
+              height="7"
+              stroke="currentColor"
+              stroke-width="2" />
+          </svg>
+        </button>
+        <button class="featured-products__view-btn" data-view="list">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none">
+            <rect
+              x="3"
+              y="3"
+              width="18"
+              height="4"
+              stroke="currentColor"
+              stroke-width="2" />
+            <rect
+              x="3"
+              y="10"
+              width="18"
+              height="4"
+              stroke="currentColor"
+              stroke-width="2" />
+            <rect
+              x="3"
+              y="17"
+              width="18"
+              height="4"
+              stroke="currentColor"
+              stroke-width="2" />
+          </svg>
+        </button>
+      </div>
+
+      <button class="featured-products__filter-btn">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none">
+          <path
+            d="M4 4h16v2.4l-6.4 6.4v6.4l-3.2 2.4v-8.8L4 6.4V4z"
+            stroke="currentColor"
+            stroke-width="2" />
+        </svg>
+        Filter
+      </button>
+    </div>
+  </div>
+
+  <div class="featured-products__grid">
+    {%- paginate collection.products by section.settings.products_per_page -%}
+      {%- for product in collection.products -%}
+        {% render 'product-card-custom'
+          , product: product %}
+      {%- endfor -%}
+
+      {%- if paginate.pages > 1 -%}
+        <div class="featured-products__pagination">
+          {%- if paginate.previous -%}
+            <a href="{{ paginate.previous.url }}" class="featured-products__page-btn">Previous</a>
+          {%- endif -%}
+
+          {%- for part in paginate.parts -%}
+            {%- if part.is_link -%}
+              <a href="{{ part.url }}" class="featured-products__page-btn">{{ part.title }}</a>
+            {%- else -%}
+              <span class="featured-products__page-btn{% if part.title == paginate.current_page %} active{% endif %}">
+                {{ part.title }}
+              </span>
+            {%- endif -%}
+          {%- endfor -%}
+
+          {%- if paginate.next -%}
+            <a href="{{ paginate.next.url }}" class="featured-products__page-btn">Next</a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    {%- endpaginate -%}
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Sort functionality
+    const sortSelect = document.querySelector('.featured-products__sort-select');
+    if (sortSelect) {
+      sortSelect.addEventListener('change', function() {
+        const url = new URL(window.location.href);
+        url.searchParams.set('sort_by', this.value);
+        window.location.href = url.toString();
+      });
+  
+      // Set current sort value
+      const currentSort = new URL(window.location.href).searchParams.get('sort_by');
+      if (currentSort) {
+        sortSelect.value = currentSort;
+      }
+    }
+  
+    // View toggle functionality
+    const viewButtons = document.querySelectorAll('.featured-products__view-btn');
+    const productsGrid = document.querySelector('.featured-products__grid');
+    
+    viewButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        viewButtons.forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+        
+        if (this.dataset.view === 'list') {
+          productsGrid.classList.add('list-view');
+        } else {
+          productsGrid.classList.remove('list-view');
+        }
+      });
+    });
+  });
+</script>
+
+{% schema %}
+  {
+    "name": "Featured Products",
+    "settings": [
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Title",
+        "default": "FEATURED PRODUCTS"
+      }, {
+        "type": "range",
+        "id": "products_per_page",
+        "min": 4,
+        "max": 48,
+        "step": 4,
+        "label": "Products per page",
+        "default": 12
+      }
+    ],
+    "presets": [
+      {
+        "name": "Featured Products",
+        "settings": {}
+      }
+    ]
+  }
+{% endschema %}

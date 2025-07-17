@@ -1,0 +1,268 @@
+{%- style -%}
+  .collection-countdown {
+    padding: 0 20px 60px;
+    text-align: center;
+    background: {{ section.settings.background_color }};
+  }
+
+  .collection-countdown__container {
+    max-width: 1350px;
+    margin: 0 auto;
+  }
+
+  .collection-countdown__title {
+    font-size: 48px;
+    line-height: 1;
+    font-weight: 900;
+    margin-bottom: 26px;
+    color: {{ section.settings.title_color }};
+    text-transform: uppercase;
+  }
+
+  .collection-countdown__timer {
+    display: flex;
+    justify-content: center;
+    gap: 80px;
+    margin: 0 auto;
+    padding: 30px;
+    max-width: 100%;
+    background: {{ section.settings.timer_bg_color }};
+    border-radius: 16px;
+  }
+
+  .collection-countdown__item {
+    min-width: 120px;
+    padding: 20px 10px;
+  }
+
+  .collection-countdown__number {
+    font-size: 72px;
+    font-weight: 900;
+    line-height: 1;
+    color: {{ section.settings.numbers_color }};
+    margin-bottom: 10px;
+  }
+
+  .collection-countdown__label {
+    font-size: 18px;
+    color: {{ section.settings.labels_color }};
+    text-transform: uppercase;
+  }
+
+  @media screen and (max-width: 768px) {
+    .collection-countdown {
+      padding: 40px 15px;
+    }
+
+    .collection-countdown__title {
+      font-size: 32px;
+      margin-bottom: 30px;
+    }
+
+    .collection-countdown__timer {
+      padding: 20px 15px;
+      gap: 15px;
+    }
+
+    .collection-countdown__item {
+      min-width: auto;
+      padding: 10px;
+    }
+
+    .collection-countdown__number {
+      font-size: 48px;
+    }
+
+    .collection-countdown__label {
+      font-size: 14px;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .collection-countdown__number {
+      font-size: 36px;
+    }
+
+    .collection-countdown__label {
+      font-size: 12px;
+    }
+  }
+{%- endstyle -%}
+
+<section class="collection-countdown">
+  <div class="collection-countdown__container">
+    <h2 class="collection-countdown__title black">{{ section.settings.title }}</h2>
+
+    <div
+      class="collection-countdown__timer"
+      data-end-date="{{ section.settings.end_date }}"
+      data-end-time="{{ section.settings.end_time }}">
+      <div class="collection-countdown__item">
+        <div class="collection-countdown__number black" data-days>00</div>
+        <div class="collection-countdown__label regular">{{ section.settings.days_label }}</div>
+      </div>
+      <div class="collection-countdown__item">
+        <div class="collection-countdown__number black" data-hours>00</div>
+        <div class="collection-countdown__label regular">{{ section.settings.hours_label }}</div>
+      </div>
+      <div class="collection-countdown__item">
+        <div class="collection-countdown__number black" data-minutes>00</div>
+        <div class="collection-countdown__label regular">{{ section.settings.minutes_label }}</div>
+      </div>
+      <div class="collection-countdown__item">
+        <div class="collection-countdown__number black" data-seconds>00</div>
+        <div class="collection-countdown__label regular">{{ section.settings.seconds_label }}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  class CountdownTimer {
+    constructor(element) {
+      this.element = element;
+      this.endDate = new Date(
+        `${this.element.dataset.endDate}T${this.element.dataset.endTime}`
+      ).getTime();
+      
+      this.daysEl = this.element.querySelector('[data-days]');
+      this.hoursEl = this.element.querySelector('[data-hours]');
+      this.minutesEl = this.element.querySelector('[data-minutes]');
+      this.secondsEl = this.element.querySelector('[data-seconds]');
+      
+      this.interval = null;
+      this.init();
+    }
+    
+    init() {
+      // Limpa intervalo anterior se existir
+      if (this.interval) {
+        clearInterval(this.interval);
+      }
+      
+      // Atualiza imediatamente
+      this.updateTimer();
+      
+      // Configura atualização a cada segundo
+      this.interval = setInterval(() => {
+        this.updateTimer();
+      }, 1000);
+    }
+    
+    updateTimer() {
+      const now = new Date().getTime();
+      const distance = this.endDate - now;
+      
+      if (distance < 0) {
+        clearInterval(this.interval);
+        this.daysEl.textContent = '00';
+        this.hoursEl.textContent = '00';
+        this.minutesEl.textContent = '00';
+        this.secondsEl.textContent = '00';
+        return;
+      }
+      
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+      
+      this.daysEl.textContent = days.toString().padStart(2, '0');
+      this.hoursEl.textContent = hours.toString().padStart(2, '0');
+      this.minutesEl.textContent = minutes.toString().padStart(2, '0');
+      this.secondsEl.textContent = seconds.toString().padStart(2, '0');
+    }
+  }
+  
+  // Inicializa todos os cronômetros na página
+  document.addEventListener('DOMContentLoaded', () => {
+    const timers = document.querySelectorAll('.collection-countdown__timer');
+    timers.forEach(timer => new CountdownTimer(timer));
+  });
+</script>
+
+{% schema %}
+  {
+    "name": "Countdown Timer",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Content"
+      },
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Title",
+        "default": "DON'T MISS OUR BEST PROMOTIONS"
+      },
+      {
+        "type": "text",
+        "id": "end_date",
+        "label": "End Date",
+        "default": "2024-03-31",
+        "info": "Format: YYYY-MM-DD"
+      },
+      {
+        "type": "text",
+        "id": "end_time",
+        "label": "End Time (24h format)",
+        "default": "23:59:59",
+        "info": "Format: HH:MM:SS"
+      }, {
+        "type": "text",
+        "id": "days_label",
+        "label": "Days Label",
+        "default": "Days"
+      }, {
+        "type": "text",
+        "id": "hours_label",
+        "label": "Hours Label",
+        "default": "Hours"
+      }, {
+        "type": "text",
+        "id": "minutes_label",
+        "label": "Minutes Label",
+        "default": "Minutes"
+      }, {
+        "type": "text",
+        "id": "seconds_label",
+        "label": "Seconds Label",
+        "default": "Seconds"
+      }, {
+        "type": "header",
+        "content": "Colors"
+      }, {
+        "type": "color",
+        "id": "background_color",
+        "label": "Background Color",
+        "default": "#ffffff"
+      }, {
+        "type": "color",
+        "id": "title_color",
+        "label": "Title Color",
+        "default": "#000000"
+      }, {
+        "type": "color",
+        "id": "timer_bg_color",
+        "label": "Timer Background Color",
+        "default": "#EB701F"
+      }, {
+        "type": "color",
+        "id": "numbers_color",
+        "label": "Numbers Color",
+        "default": "#ffffff"
+      }, {
+        "type": "color",
+        "id": "labels_color",
+        "label": "Labels Color",
+        "default": "#ffffff"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Countdown Timer",
+        "settings": {}
+      }
+    ]
+  }
+{% endschema %}

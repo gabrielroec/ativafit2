@@ -1,0 +1,706 @@
+<link rel="stylesheet" href="{{ 'collection-hero.css' | asset_url }}">
+
+<section class="collection-hero js-collection-hero">
+  <div class="collection-hero__container">
+    <div class="collection-hero__slides" data-slides-count="{{ section.blocks.size }}">
+      {% for block in section.blocks %}
+        {% case block.type %}
+          {% when 'slide' %}
+            <div class="collection-hero__slide {% if forloop.first %}active{% endif %}" {{ block.shopify_attributes }}>
+              {% if block.settings.slide_link != blank %}
+                <a
+                  href="{{ block.settings.slide_link }}"
+                  class="collection-hero__slide-link"
+                  aria-label="Navigate to promotion content">
+              {% endif %}
+
+              <div class="collection-hero__media-container">
+                {% if block.settings.background_image != blank %}
+                  <div class="collection-hero__image-wrapper">
+                    {{ block.settings.background_image | image_url: width: 2000 | image_tag: class: 'collection-hero__image collection-hero__image--desktop', loading: 'eager', preload: true, alt: block.settings.background_image.alt | escape }}
+                    {{ block.settings.background_image_mobile | default: block.settings.background_image | image_url: width: 1000 | image_tag: class: 'collection-hero__image collection-hero__image--mobile', loading: 'eager', preload: true, alt: block.settings.background_image_mobile.alt | escape }}
+                  </div>
+                {% else %}
+                  {{ 'lifestyle-1' | placeholder_svg_tag: 'collection-hero__image placeholder' }}
+                {% endif %}
+              </div>
+
+              <div class="collection-hero__overlay" style="background-color: {{ block.settings.overlay_color | color_modify: 'alpha', block.settings.overlay_opacity }}"></div>
+
+              {% if block.settings.slide_link != blank %}
+                </a>
+              {% endif %}
+
+              <div class="collection-hero__content">
+                <div class="collection-hero__text-container">
+                  <h1 class="collection-hero__title black">{{ block.settings.title }}</h1>
+                  {% if block.settings.subtitle != blank %}
+                    <p class="collection-hero__subtitle regular">{{ block.settings.subtitle }}</p>
+                  {% endif %}
+                  <div class="collection-hero__buttons">
+                    {%- if block.settings.button_1_text != blank and block.settings.button_1_link != blank -%}
+                      <a
+                        href="{{ block.settings.button_1_link }}"
+                        class="collection-hero__button collection-hero__button--primary condensed-bold"
+                        style="
+                          color: {{ block.settings.button_1_text_color }};
+                          border-color: {{ block.settings.button_1_border_color }};
+                          background: {{ block.settings.button_1_bg_color }};
+                        "
+                        data-hover-bg="{{ block.settings.button_1_bg_color_hover }}"
+                        data-hover-color="{{ block.settings.button_1_text_color_hover }}">
+                        {{ block.settings.button_1_text }}
+                      </a>
+                    {%- endif -%}
+                    {%- if block.settings.button_2_text != blank and block.settings.button_2_link != blank -%}
+                      <a
+                        href="{{ block.settings.button_2_link }}"
+                        class="collection-hero__button collection-hero__button--secondary condensed-bold"
+                        style="
+                          color: {{ block.settings.button_2_text_color }};
+                          border-color: {{ block.settings.button_2_border_color }};
+                          background: {{ block.settings.button_2_bg_color }};
+                        "
+                        data-hover-bg="{{ block.settings.button_2_bg_color_hover }}"
+                        data-hover-color="{{ block.settings.button_2_text_color_hover }}">
+                        {{ block.settings.button_2_text }}
+                      </a>
+                    {%- endif -%}
+                  </div>
+                </div>
+              </div>
+            </div>
+        {% endcase %}
+      {% endfor %}
+    </div>
+
+    <!-- Navigation Arrows -->
+    {% if section.blocks.size > 1 %}
+      <button class="collection-hero__nav collection-hero__nav--prev" aria-label="Previous slide">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none">
+          <path
+            d="M15 18L9 12L15 6"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+      </button>
+      <button class="collection-hero__nav collection-hero__nav--next" aria-label="Next slide">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none">
+          <path
+            d="M9 18L15 12L9 6"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+      </button>
+
+      <!-- Dots Navigation -->
+      <div class="collection-hero__dots">
+        {% for block in section.blocks %}
+          <button
+            class="collection-hero__dot {% if forloop.first %}active{% endif %}"
+            data-slide="{{ forloop.index0 }}"
+            aria-label="Go to slide {{ forloop.index }}"></button>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+{% style %}
+  .collection-hero {
+    position: relative;
+    width: 100%;
+    height: 405px;
+    overflow: hidden;
+  }
+
+  .collection-hero__container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .collection-hero__slides {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .collection-hero__slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform: translateX(100%);
+  }
+
+  .collection-hero__slide.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+  }
+
+  .collection-hero__slide.prev {
+    transform: translateX(-100%);
+  }
+
+  .collection-hero__slide-link {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .collection-hero__slide-link:hover {
+    text-decoration: none;
+  }
+
+  .collection-hero__slide-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0);
+    transition: background 0.3s ease;
+    pointer-events: none;
+  }
+
+  .collection-hero__slide-link:hover::before {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .collection-hero__media-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .collection-hero__image-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .collection-hero__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .collection-hero__image--mobile {
+    display: none;
+  }
+
+  .collection-hero__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .collection-hero__content {
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    max-width: 1750px;
+    margin: 0 auto;
+    padding: 0 20px;
+    z-index: 2;
+  }
+
+  .collection-hero__text-container {
+    text-align: left;
+    max-width: 800px;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.8s ease 0.3s;
+  }
+
+  .collection-hero__slide.active .collection-hero__text-container {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .collection-hero__promotion {
+    font-size: 48px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: {{ section.settings.promotion_color | default: '#FF6B35' }};
+  }
+
+  .collection-hero__title {
+    font-size: 72px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: {{ section.settings.title_color | default: '#FF6B35' }};
+    text-transform: uppercase;
+  }
+
+  .collection-hero__subtitle {
+    font-size: 24px;
+    margin-bottom: 30px;
+    color: {{ section.settings.subtitle_color | default: '#333333' }};
+  }
+
+  .collection-hero__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 30px;
+    font-size: 18px;
+    font-weight: 600;
+    text-transform: uppercase;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+  }
+
+  .collection-hero__button:hover {
+    background: var(--hover-bg) !important;
+    color: var(--hover-color) !important;
+  }
+
+  /* Navigation Arrows */
+  .collection-hero__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    z-index: 10;
+  }
+
+  .collection-hero__nav:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .collection-hero__nav--prev {
+    left: 30px;
+  }
+
+  .collection-hero__nav--next {
+    right: 30px;
+  }
+
+  /* Dots Navigation */
+  .collection-hero__dots {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    z-index: 10;
+  }
+
+  .collection-hero__dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .collection-hero__dot::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    border-radius: 50%;
+    transform: scale(0);
+    transition: transform 0.3s ease;
+  }
+
+  .collection-hero__dot.active::before {
+    transform: scale(1);
+  }
+
+  .collection-hero__dot:hover {
+    transform: scale(1.2);
+  }
+
+  @media screen and (max-width: 768px) {
+    .collection-hero__image--desktop {
+      display: none;
+    }
+
+    .collection-hero__image--mobile {
+      display: block;
+    }
+
+    .collection-hero__content {
+      padding: 0 15px;
+    }
+
+    .collection-hero__promotion {
+      font-size: 32px;
+    }
+
+    .collection-hero__title {
+      font-size: 48px;
+    }
+
+    .collection-hero__subtitle {
+      font-size: 18px;
+    }
+
+    .collection-hero__nav {
+      width: 50px;
+      height: 50px;
+    }
+
+    .collection-hero__nav--prev {
+      left: 15px;
+    }
+
+    .collection-hero__nav--next {
+      right: 15px;
+    }
+
+    .collection-hero__dots {
+      bottom: 20px;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .collection-hero__promotion {
+      font-size: 24px;
+    }
+
+    .collection-hero__title {
+      font-size: 36px;
+    }
+
+    .collection-hero__subtitle {
+      font-size: 16px;
+    }
+
+    .collection-hero__nav {
+      width: 45px;
+      height: 45px;
+    }
+
+    .collection-hero__nav--prev {
+      left: 10px;
+    }
+
+    .collection-hero__nav--next {
+      right: 10px;
+    }
+  }
+{% endstyle %}
+
+<script>
+  class CollectionHeroCarousel {
+    constructor(element) {
+      this.banner = element;
+      this.slidesContainer = this.banner.querySelector('.collection-hero__slides');
+      this.slides = this.banner.querySelectorAll('.collection-hero__slide');
+      this.dots = this.banner.querySelectorAll('.collection-hero__dot');
+      this.prevBtn = this.banner.querySelector('.collection-hero__nav--prev');
+      this.nextBtn = this.banner.querySelector('.collection-hero__nav--next');
+      
+      this.currentSlide = 0;
+      this.isAnimating = false;
+      this.autoplayInterval = null;
+      this.autoplayDelay = 6000; // 6 seconds
+      
+      this.init();
+    }
+    
+    init() {
+      if (this.slides.length <= 1) return;
+      
+      this.setupEventListeners();
+      this.startAutoplay();
+      
+      // Pause autoplay on hover
+      this.banner.addEventListener('mouseenter', () => this.pauseAutoplay());
+      this.banner.addEventListener('mouseleave', () => this.startAutoplay());
+    }
+    
+    setupEventListeners() {
+      if (this.prevBtn) {
+        this.prevBtn.addEventListener('click', () => this.goToPrevSlide());
+      }
+      
+      if (this.nextBtn) {
+        this.nextBtn.addEventListener('click', () => this.goToNextSlide());
+      }
+      
+      this.dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => this.goToSlide(index));
+      });
+      
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') this.goToPrevSlide();
+        if (e.key === 'ArrowRight') this.goToNextSlide();
+      });
+    }
+    
+    goToSlide(index) {
+      if (this.isAnimating || index === this.currentSlide) return;
+      
+      this.isAnimating = true;
+      
+      this.slides[this.currentSlide].classList.remove('active');
+      this.dots[this.currentSlide]?.classList.remove('active');
+      
+      if (index < this.currentSlide) {
+        this.slides[this.currentSlide].classList.add('prev');
+      }
+      
+      this.currentSlide = index;
+      
+      this.slides[this.currentSlide].classList.add('active');
+      this.dots[this.currentSlide]?.classList.add('active');
+      
+      setTimeout(() => {
+        this.slides.forEach(slide => slide.classList.remove('prev'));
+        this.isAnimating = false;
+      }, 800);
+    }
+    
+    goToNextSlide() {
+      const nextIndex = (this.currentSlide + 1) % this.slides.length;
+      this.goToSlide(nextIndex);
+    }
+    
+    goToPrevSlide() {
+      const prevIndex = (this.currentSlide - 1 + this.slides.length) % this.slides.length;
+      this.goToSlide(prevIndex);
+    }
+    
+    startAutoplay() {
+      if (this.slides.length <= 1) return;
+      
+      this.pauseAutoplay();
+      this.autoplayInterval = setInterval(() => {
+        this.goToNextSlide();
+      }, this.autoplayDelay);
+    }
+    
+    pauseAutoplay() {
+      if (this.autoplayInterval) {
+        clearInterval(this.autoplayInterval);
+        this.autoplayInterval = null;
+      }
+    }
+  }
+  
+  document.addEventListener('DOMContentLoaded', () => {
+    const banners = document.querySelectorAll('.js-collection-hero');
+    banners.forEach(banner => new CollectionHeroCarousel(banner));
+  });
+</script>
+
+{% schema %}
+  {
+    "name": "Collection Hero",
+    "max_blocks": 5,
+    "settings": [
+      {
+        "type": "color",
+        "id": "title_color",
+        "label": "Title Color",
+        "default": "#ffffff"
+      }, {
+        "type": "color",
+        "id": "subtitle_color",
+        "label": "Subtitle Color",
+        "default": "#ffffff"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "slide",
+        "name": "Slide",
+        "settings": [
+          {
+            "type": "header",
+            "content": "Media"
+          },
+          {
+            "type": "image_picker",
+            "id": "background_image",
+            "label": "Desktop Background Image",
+            "info": "Recommended size: 2000x405px"
+          },
+          {
+            "type": "image_picker",
+            "id": "background_image_mobile",
+            "label": "Mobile Background Image",
+            "info": "Recommended size: 800x405px. If not set, will use desktop image"
+          },
+          {
+            "type": "header",
+            "content": "Content"
+          }, {
+            "type": "text",
+            "id": "title",
+            "label": "Title",
+            "default": "Collection Title"
+          }, {
+            "type": "text",
+            "id": "subtitle",
+            "label": "Subtitle",
+            "default": "Collection subtitle text goes here"
+          }, {
+            "type": "header",
+            "content": "Button 1"
+          }, {
+            "type": "text",
+            "id": "button_1_text",
+            "label": "Button 1 Text",
+            "default": "SHOP NOW"
+          }, {
+            "type": "url",
+            "id": "button_1_link",
+            "label": "Button 1 Link"
+          }, {
+            "type": "color",
+            "id": "button_1_text_color",
+            "label": "Button 1 Text Color",
+            "default": "#ffffff"
+          }, {
+            "type": "color",
+            "id": "button_1_border_color",
+            "label": "Button 1 Border Color",
+            "default": "#ffffff"
+          }, {
+            "type": "color",
+            "id": "button_1_bg_color",
+            "label": "Button 1 Background Color",
+            "default": "rgba(0,0,0,0)"
+          }, {
+            "type": "color",
+            "id": "button_1_bg_color_hover",
+            "label": "Button 1 Background Color (Hover)",
+            "default": "#ffffff"
+          }, {
+            "type": "color",
+            "id": "button_1_text_color_hover",
+            "label": "Button 1 Text Color (Hover)",
+            "default": "#111111"
+          }, {
+            "type": "header",
+            "content": "Button 2"
+          }, {
+            "type": "text",
+            "id": "button_2_text",
+            "label": "Button 2 Text",
+            "default": "EXPLORE COLLECTION"
+          }, {
+            "type": "url",
+            "id": "button_2_link",
+            "label": "Button 2 Link"
+          }, {
+            "type": "color",
+            "id": "button_2_text_color",
+            "label": "Button 2 Text Color",
+            "default": "#ffffff"
+          }, {
+            "type": "color",
+            "id": "button_2_border_color",
+            "label": "Button 2 Border Color",
+            "default": "#ffffff"
+          }, {
+            "type": "color",
+            "id": "button_2_bg_color",
+            "label": "Button 2 Background Color",
+            "default": "rgba(255,255,255,0.1)"
+          }, {
+            "type": "color",
+            "id": "button_2_bg_color_hover",
+            "label": "Button 2 Background Color (Hover)",
+            "default": "#ffffff"
+          }, {
+            "type": "color",
+            "id": "button_2_text_color_hover",
+            "label": "Button 2 Text Color (Hover)",
+            "default": "#111111"
+          }, {
+            "type": "header",
+            "content": "Overlay"
+          }, {
+            "type": "color",
+            "id": "overlay_color",
+            "label": "Overlay Color",
+            "default": "#000000"
+          }, {
+            "type": "range",
+            "id": "overlay_opacity",
+            "label": "Overlay Opacity",
+            "min": 0,
+            "max": 1,
+            "step": 0.1,
+            "default": 0.3
+          }, {
+            "type": "url",
+            "id": "slide_link",
+            "label": "Slide Link (Optional)",
+            "info": "Add a link to make the entire slide clickable"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Collection Hero",
+        "blocks": [
+          {
+            "type": "slide"
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}
