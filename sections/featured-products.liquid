@@ -275,30 +275,61 @@
       </div>
 
     {% comment %} <button class="featured-products__filter-btn">
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none">
-                <path
-                  d="M4 4h16v2.4l-6.4 6.4v6.4l-3.2 2.4v-8.8L4 6.4V4z"
-                  stroke="currentColor"
-                  stroke-width="2" />
-              </svg>
-              Filter
-          </button> {% endcomment %}
+                                            <svg
+                                              width="24"
+                                              height="24"
+                                              viewBox="0 0 24 24"
+                                              fill="none">
+                                              <path
+                                                d="M4 4h16v2.4l-6.4 6.4v6.4l-3.2 2.4v-8.8L4 6.4V4z"
+                                                stroke="currentColor"
+                                                stroke-width="2" />
+                                            </svg>
+                                            Filter
+                              </button> {% endcomment %}
     </div>
   </div>
 
   <div class="featured-products__grid{% if request.design_mode %} shopify-design-mode{% endif %}">
     {%- paginate collection.products by section.settings.products_per_page -%}
-      {%- for product in collection.products -%}
-        <div class="featured-products__item">
-          {% render 'product-card-custom'
-            , product: product %}
-          {% render 'product-card-list'
-            , product: product %}
+      {% assign shown_products = '' %}
+        {%- for product in collection.products -%}
+        {% comment %} Cria um identificador único combinando múltiplos campos {% endcomment %}
+        {% assign product_sku = product.selected_or_first_available_variant.sku | default: 'no-sku' %}
+        {% assign product_id = product.id %}
+      {% assign product_title_normalized = product.title | downcase | replace: ' ', '' | replace: '-', '' | replace: '|', '' %}
+
+        {% comment %} Cria chaves únicas para verificação {% endcomment %}
+        {% assign unique_key_sku = 'sku:' | append: product_sku %}
+        {% assign unique_key_title = 'title:' | append: product_title_normalized %}
+      {% assign unique_key_handle = 'handle:' | append: product.handle %}
+
+        {% comment %} Verifica se já foi mostrado usando qualquer uma das chaves {% endcomment %}
+        {% assign is_duplicate = false %}
+
+        {% if shown_products contains unique_key_sku and product_sku != 'no-sku' %}
+          {% assign is_duplicate = true %}
+        {% endif %}
+
+        {% if shown_products contains unique_key_title %}
+          {% assign is_duplicate = true %}
+        {% endif %}
+
+        {% if shown_products contains unique_key_handle %}
+          {% assign is_duplicate = true %}
+        {% endif %}
+
+        {% unless is_duplicate %}
+          <div class="featured-products__item">
+            {% render 'product-card-custom'
+              , product: product %}
+            {% render 'product-card-list'
+              , product: product %}
         </div>
+
+          {% comment %} Adiciona todas as chaves aos produtos mostrados {% endcomment %}
+          {% assign shown_products = shown_products | append: '|' | append: unique_key_sku | append: '|' | append: unique_key_title | append: '|' | append: unique_key_handle %}
+        {% endunless %}
       {%- endfor -%}
 
       {%- if paginate.pages > 1 -%}
