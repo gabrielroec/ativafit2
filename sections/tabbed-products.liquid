@@ -1,7 +1,7 @@
 {% comment %} 
-                          Seção de Produtos com Tabs
-                          Permite organizar produtos em diferentes categorias/tabs
-                          Totalmente configurável via Shopify Theme Editor 
+                                                        Seção de Produtos com Tabs
+                                                        Permite organizar produtos em diferentes categorias/tabs
+                                                        Totalmente configurável via Shopify Theme Editor 
 {% endcomment %}
 
 <section
@@ -27,7 +27,7 @@
               class="tabbed-products__nav-item{% if forloop.first %} active{% endif %}"
               data-tab="{{ block.id }}"
               {{ block.shopify_attributes }}>
-              <span class="condensed-bold">{{ block.settings.tab_title | default: 'Tab ' | append: forloop.index }}</span>
+              <span class="condensed-bold">{{ block.settings.tab_title | default: 'Tab' }}</span>
             </button>
           {% endfor %}
         </div>
@@ -37,7 +37,7 @@
       <div class="tabbed-products__content">
         {% for block in section.blocks %}
           {% case block.type %}
-            {% when 'product_tab' %}
+            {% when 'collection_tab' %}
               <div
                 class="tabbed-products__panel{% if forloop.first %} active{% endif %}"
                 data-panel="{{ block.id }}"
@@ -69,6 +69,107 @@
                   </div>
                 {% endif %}
               </div>
+
+            {% when 'products_tab' %}
+              <div
+                class="tabbed-products__panel{% if forloop.first %} active{% endif %}"
+                data-panel="{{ block.id }}"
+                {{ block.shopify_attributes }}>
+
+                {% comment %} Coletar produtos selecionados manualmente {% endcomment %}
+                {% assign products_count = 0 %}
+
+                {% comment %} Contar quantos produtos foram selecionados {% endcomment %}
+                {% if block.settings.product_1 != blank %}
+                  {% assign products_count = products_count | plus: 1 %}
+                {% endif %}
+                {% if block.settings.product_2 != blank %}
+                  {% assign products_count = products_count | plus: 1 %}
+                {% endif %}
+                {% if block.settings.product_3 != blank %}
+                  {% assign products_count = products_count | plus: 1 %}
+                {% endif %}
+                {% if block.settings.product_4 != blank %}
+                  {% assign products_count = products_count | plus: 1 %}
+                {% endif %}
+                {% if block.settings.product_5 != blank %}
+                  {% assign products_count = products_count | plus: 1 %}
+                {% endif %}
+                {% if block.settings.product_6 != blank %}
+                  {% assign products_count = products_count | plus: 1 %}
+                {% endif %}
+                {% if block.settings.product_7 != blank %}
+                  {% assign products_count = products_count | plus: 1 %}
+                {% endif %}
+                {% if block.settings.product_8 != blank %}
+                  {% assign products_count = products_count | plus: 1 %}
+                {% endif %}
+
+                {% if products_count > 0 %}
+                  <div class="tabbed-products__grid" data-products-per-row="{{ block.settings.products_per_row }}">
+                    {% if block.settings.product_1 != blank %}
+                      <div class="tabbed-products__item">
+                        {% render 'product-card-custom'
+                          , product: block.settings.product_1 %}
+                      </div>
+                    {% endif %}
+                    {% if block.settings.product_2 != blank %}
+                      <div class="tabbed-products__item">
+                        {% render 'product-card-custom'
+                          , product: block.settings.product_2 %}
+                      </div>
+                    {% endif %}
+                    {% if block.settings.product_3 != blank %}
+                      <div class="tabbed-products__item">
+                        {% render 'product-card-custom'
+                          , product: block.settings.product_3 %}
+                      </div>
+                    {% endif %}
+                    {% if block.settings.product_4 != blank %}
+                      <div class="tabbed-products__item">
+                        {% render 'product-card-custom'
+                          , product: block.settings.product_4 %}
+                      </div>
+                    {% endif %}
+                    {% if block.settings.product_5 != blank %}
+                      <div class="tabbed-products__item">
+                        {% render 'product-card-custom'
+                          , product: block.settings.product_5 %}
+                      </div>
+                    {% endif %}
+                    {% if block.settings.product_6 != blank %}
+                      <div class="tabbed-products__item">
+                        {% render 'product-card-custom'
+                          , product: block.settings.product_6 %}
+                      </div>
+                    {% endif %}
+                    {% if block.settings.product_7 != blank %}
+                      <div class="tabbed-products__item">
+                        {% render 'product-card-custom'
+                          , product: block.settings.product_7 %}
+                      </div>
+                    {% endif %}
+                    {% if block.settings.product_8 != blank %}
+                      <div class="tabbed-products__item">
+                        {% render 'product-card-custom'
+                          , product: block.settings.product_8 %}
+                      </div>
+                    {% endif %}
+                  </div>
+
+                  {% if block.settings.show_view_all and block.settings.view_all_link != blank %}
+                    <div class="tabbed-products__footer">
+                      <a href="{{ block.settings.view_all_link }}" class="tabbed-products__view-all button button--secondary condensed-bold">
+                        {{ block.settings.view_all_text | default: 'VIEW ALL' }}
+                      </a>
+                    </div>
+                  {% endif %}
+                {% else %}
+                  <div class="tabbed-products__empty">
+                    <p class="regular">No products selected for {{ block.settings.tab_title | default: 'this category' }}.</p>
+                  </div>
+                {% endif %}
+              </div>
           {% endcase %}
         {% endfor %}
       </div>
@@ -78,11 +179,12 @@
 
 {% style %}
   .tabbed-products {
-    padding: 60px 0;
+
     background: {{ section.settings.background_color | default: '#ffffff' }};
   }
   .tabbed-products .container {
-    max-width: 1350px
+    max-width: 1350px;
+    padding: 0 !important;
   }
 
   .tabbed-products__header {
@@ -98,6 +200,7 @@
 
   .tabbed-products__heading {
     font-size: 36px;
+    line-height: 36px;
     font-weight: 700;
     color: {{ section.settings.heading_color | default: '#000000' }};
     margin-bottom: 15px;
@@ -240,6 +343,7 @@
 
     .tabbed-products__heading {
       font-size: 28px;
+      line-height: 28px;
       margin-bottom: 10px;
     }
 
@@ -277,7 +381,8 @@
 
   @media screen and (max-width: 480px) {
     .tabbed-products__heading {
-      font-size: 24px;
+      font-size: 28px;
+      line-height: 28px;
     }
 
     .tabbed-products__nav-item {
@@ -497,8 +602,8 @@
     ],
     "blocks": [
       {
-        "type": "product_tab",
-        "name": "Product Tab",
+        "type": "collection_tab",
+        "name": "Collection Tab",
         "settings": [
           {
             "type": "text",
@@ -540,6 +645,78 @@
             "default": "VIEW ALL"
           }
         ]
+      }, {
+        "type": "products_tab",
+        "name": "Products Tab",
+        "settings": [
+          {
+            "type": "text",
+            "id": "tab_title",
+            "label": "Tab Title",
+            "default": "Products"
+          },
+          {
+            "type": "header",
+            "content": "Products Selection"
+          },
+          {
+            "type": "product",
+            "id": "product_1",
+            "label": "Product 1"
+          },
+          {
+            "type": "product",
+            "id": "product_2",
+            "label": "Product 2"
+          }, {
+            "type": "product",
+            "id": "product_3",
+            "label": "Product 3"
+          }, {
+            "type": "product",
+            "id": "product_4",
+            "label": "Product 4"
+          }, {
+            "type": "product",
+            "id": "product_5",
+            "label": "Product 5"
+          }, {
+            "type": "product",
+            "id": "product_6",
+            "label": "Product 6"
+          }, {
+            "type": "product",
+            "id": "product_7",
+            "label": "Product 7"
+          }, {
+            "type": "product",
+            "id": "product_8",
+            "label": "Product 8"
+          }, {
+            "type": "range",
+            "id": "products_per_row",
+            "label": "Products per Row",
+            "min": 2,
+            "max": 5,
+            "step": 1,
+            "default": 4
+          }, {
+            "type": "checkbox",
+            "id": "show_view_all",
+            "label": "Show 'View All' Button",
+            "default": true
+          }, {
+            "type": "url",
+            "id": "view_all_link",
+            "label": "View All Link",
+            "info": "Optional: Link to a collection or page"
+          }, {
+            "type": "text",
+            "id": "view_all_text",
+            "label": "'View All' Button Text",
+            "default": "VIEW ALL"
+          }
+        ]
       }
     ],
     "presets": [
@@ -547,22 +724,22 @@
         "name": "Tabbed Products",
         "blocks": [
           {
-            "type": "product_tab",
+            "type": "collection_tab",
             "settings": {
               "tab_title": "SEE ALL"
             }
           }, {
-            "type": "product_tab",
+            "type": "products_tab",
             "settings": {
               "tab_title": "BENCHES"
             }
           }, {
-            "type": "product_tab",
+            "type": "products_tab",
             "settings": {
               "tab_title": "STANDS"
             }
           }, {
-            "type": "product_tab",
+            "type": "products_tab",
             "settings": {
               "tab_title": "UPGRADE KITS"
             }
