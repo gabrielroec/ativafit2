@@ -223,6 +223,10 @@
           height: 450px;
         }
 
+        .product-card:hover {
+          transform: none !important;
+        }
+
         .product-card img {
           height: 250px;
         }
@@ -247,8 +251,34 @@
           margin-bottom: 10px;
         }
 
-        .controls {
-          display: none;
+        /* Esconder completamente controles desktop */
+        .controls,
+        .desktop-form {
+          display: none !important;
+          opacity: 0 !important;
+          visibility: hidden !important;
+        }
+
+        .product-card:hover .controls,
+        .product-card:hover .desktop-form {
+          display: none !important;
+          opacity: 0 !important;
+          visibility: hidden !important;
+        }
+
+        /* Remover todos os efeitos hover */
+        .buy-btn,
+        .buy-btn:hover,
+        .product-card:hover .buy-btn {
+          transform: none !important;
+          opacity: 1 !important;
+          color: inherit !important;
+          background: transparent !important;
+        }
+
+        .buy-btn::after,
+        .product-card:hover .buy-btn::after {
+          display: none !important;
         }
 
         .mobile-controls {
@@ -325,7 +355,7 @@
       <form
         action="/cart/add"
         method="post"
-        class="controls desktop-controls"
+        class="controls desktop-form"
         data-product-id="{{ product.id }}"
         onclick="event.stopPropagation();">
         <input
