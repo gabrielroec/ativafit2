@@ -1,18 +1,12 @@
 {%- comment -%} 
-                                                                                      Salve este arquivo como /snippets/product-card.liquid
-                                                                                      Inclua na sua coleção ou em qualquer template assim: 
-                                                                                      {% render 'product-card', product: product %} 
+                                                                                                      Salve este arquivo como /snippets/product-card.liquid
+                                                                                                      Inclua na sua coleção ou em qualquer template assim: 
+                                                                                                      {% render 'product-card', product: product %} 
 {%- endcomment -%}
 
 {% comment %}Debug info{% endcomment %}
 <!--
-  Product Title: {{ product.title }}
-  Product Handle: {{ product.handle }}
-  Product Available: {{ product.available }}
-  Product Price: {{ product.price }}
-  Product Compare Price: {{ product.compare_at_price_max }}
-  Product Featured Image: {{ product.featured_image }}
-  Product First Available Variant: {{ product.selected_or_first_available_variant.id }}
+  Product Title: {{ product.title }}  Product Handle: {{ product.handle }}  Product Available: {{ product.available }}  Product Price: {{ product.price }}  Product Compare Price: {{ product.compare_at_price_max }}  Product Featured Image: {{ product.featured_image }}  Product First Available Variant: {{ product.selected_or_first_available_variant.id }}
 -->
 {% if product != blank %}
   <a href="{{ product.url }}" class="product-card">
@@ -22,13 +16,13 @@
         position: relative;
         width: 100%;
         max-width: 300px;
-        height: 430px;
+        height: 480px;
         background: #fff;
         border-radius: 0;
         border: 1px solid #D9D9D9;
         overflow: hidden;
         transition: transform 0.3s;
-        font-family: "IBM Plex Mono", monospace;
+        font-family: "Barlow", sans-serif;
         text-decoration: none;
         display: flex;
         flex-direction: column;
@@ -108,7 +102,8 @@
         align-items: stretch;
         gap: 10px;
         opacity: 0;
-        transition: opacity 0.3s ease, transform 0.3s ease;
+        transition: opacity 0.3s ease
+        , transform 0.3s ease;
       }
 
       .product-card:hover .controls {
@@ -205,6 +200,69 @@
         background: #d65b0f;
       }
 
+      /* VARIANT SELECTOR */
+      .variant-selector {
+        margin-bottom: 8px;
+      }
+
+      .variant-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 4px;
+      }
+
+      .variant-option {
+        position: relative;
+      }
+
+      .variant-option input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+      }
+
+      .variant-option label {
+        display: inline-block;
+        padding: 4px 8px;
+        background: #f8f8f8;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        color: #666;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        user-select: none;
+        min-width: 20px;
+        text-align: center;
+        line-height: 1.2;
+      }
+
+      .variant-option label:hover {
+        border-color: #EB701F;
+        background: #fff5f0;
+      }
+
+      .variant-option input[type="radio"]:checked + label {
+        background: #EB701F;
+        color: white;
+        border-color: #EB701F;
+      }
+
+      .variant-option input[type="radio"]:disabled + label {
+        background: #f0f0f0;
+        color: #ccc;
+        border-color: #eee;
+        cursor: not-allowed;
+        text-decoration: line-through;
+      }
+
+      .variant-option input[type="radio"]:disabled + label:hover {
+        background: #f0f0f0;
+        border-color: #eee;
+      }
+
       /* ANIMAÇÕES */
       @keyframes slideUp {
         0% {
@@ -249,6 +307,19 @@
           display: flex;
           align-items: flex-start;
           min-height: 40px;
+        }
+
+        .variant-selector {
+          margin-bottom: 6px;
+        }
+
+        .variant-options {
+          gap: 4px;
+        }
+
+        .variant-option label {
+          font-size: 10px;
+          padding: 3px 6px;
         }
 
         .price {
@@ -334,17 +405,17 @@
             font-size: 13px;
           }
         {%- else -%}
-          .product-card {
-            height: 420px;
-            max-width: 250px!important;
-            margin: 0 auto;
-          }
+        .product-card {
+          height: 440px;
+          max-width: 250px !important;
+          margin: 0 auto;
+        }
 
-          .product-card img {
-            height: 220px;
-          }
-        {%- endif -%}
-      }
+        .product-card img {
+          height: 220px;
+        }
+      {%- endif -%}
+    }
     </style>
 
     {%- comment -%} — BADGE DE DESCONTO - Sempre calculado baseado na diferença entre preço original e atual {%- endcomment -%}
@@ -379,7 +450,8 @@
         <input
           type="hidden"
           name="id"
-          value="{{ product.selected_or_first_available_variant.id }}">
+          value="{{ product.selected_or_first_available_variant.id }}"
+          class="variant-id-input">
         <input
           type="hidden"
           name="quantity"
@@ -397,17 +469,46 @@
     {%- comment -%} — TÍTULO E PREÇOS (sempre visíveis) {%- endcomment -%}
     <div class="static-info">
       <h3 class="product-title bold">{{ product.title }}</h3>
-      <div class="price">
-        {% if product.price > 0 %}
-          <span class="current-price bold">{{ product.price | money }}</span>
-          {% if product.compare_at_price_max > product.price %}
-            <span class="old-price bold">{{ product.compare_at_price_max | money }}</span>
+
+      {%- comment -%} — SELETOR DE VARIANTES {%- endcomment -%}
+      {% if product.variants.size > 1 %}
+        <div class="variant-selector">
+          <div class="variant-options">
+            {% for variant in product.variants %}
+              <div class="variant-option">
+                <input
+                  type="radio"
+                  id="variant-{{ variant.id }}-{{ product.id }}"
+                  name="variant-{{ product.id }}"
+                  value="{{ variant.id }}"
+                  data-price="{{ variant.price }}"
+                  data-compare-at-price="{{ variant.compare_at_price | default: 0 }}"
+                  data-available="{{ variant.available }}"
+                  data-image="{% if variant.featured_image %}{{ variant.featured_image | img_url: '600x600' }}{% endif %}"
+                  {% if variant.id == product.selected_or_first_available_variant.id %}
+                  checked{% endif %}
+                  {% unless variant.available %}
+                  disabled{% endunless %}
+                  onclick="event.stopPropagation(); updateVariant(this)">
+                <label class="regular" for="variant-{{ variant.id }}-{{ product.id }}">{{ variant.title }}</label>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="price" data-product-id="{{ product.id }}">
+        {% assign current_variant = product.selected_or_first_available_variant %}
+        {% if current_variant.price > 0 %}
+          <span class="current-price bold">{{ current_variant.price | money }}</span>
+          {% if current_variant.compare_at_price and current_variant.compare_at_price > current_variant.price %}
+            <span class="old-price bold">{{ current_variant.compare_at_price | money }}</span>
           {% endif %}
         {% else %}
-          <span class="current-price">Preço não disponível</span>
+          <span class="current-price">Price not available</span>
         {% endif %}
       </div>
-      
+
       {%- comment -%} — Botão mobile dentro do static-info {%- endcomment -%}
       {% if product.available and product.selected_or_first_available_variant != blank %}
         <form
@@ -419,7 +520,8 @@
           <input
             type="hidden"
             name="id"
-            value="{{ product.selected_or_first_available_variant.id }}">
+            value="{{ product.selected_or_first_available_variant.id }}"
+            class="variant-id-input">
           <input
             type="hidden"
             name="quantity"
@@ -430,8 +532,88 @@
     </div>
   </a>
 
-  {%- comment -%} — JS PARA CONTADOR — mantém simples e isolado por produto {%- endcomment -%}
+  {%- comment -%} — JS PARA CONTADOR E VARIANTES — mantém simples e isolado por produto {%- endcomment -%}
   <script>
+    // Function to update variant (global scope)
+    window.updateVariant = function(radioElement) {
+      const variantId = radioElement.value;
+      const price = parseInt(radioElement.dataset.price);
+      const compareAtPrice = parseInt(radioElement.dataset.compareAtPrice) || 0;
+      const available = radioElement.dataset.available === 'true';
+      const image = radioElement.dataset.image;
+      
+      // Find the product card
+      const productCard = radioElement.closest('.product-card');
+      if (!productCard) return;
+      
+      // Update variant ID in all forms
+      const variantInputs = productCard.querySelectorAll('.variant-id-input');
+      variantInputs.forEach(input => {
+        input.value = variantId;
+      });
+      
+      // Update price display
+      const priceContainer = productCard.querySelector('.price');
+      if (priceContainer) {
+        const formatMoney = (cents) => {
+          return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD'
+          }).format(cents / 100);
+        };
+        
+        let priceHTML = `<span class="current-price bold">${formatMoney(price)}</span>`;
+        
+        if (compareAtPrice > price) {
+          priceHTML += `<span class="old-price bold">${formatMoney(compareAtPrice)}</span>`;
+        }
+        
+        priceContainer.innerHTML = priceHTML;
+      }
+      
+      // Update discount badge
+      const discountBadge = productCard.querySelector('.discount-badge');
+      if (compareAtPrice > price) {
+        const discountPercent = Math.round(((compareAtPrice - price) / compareAtPrice) * 100);
+        if (discountBadge) {
+          discountBadge.innerHTML = `${discountPercent}% OFF`;
+          discountBadge.style.display = 'block';
+        } else {
+          // Create discount badge if it doesn't exist
+          const badge = document.createElement('div');
+          badge.className = 'discount-badge condensed-bold';
+          badge.innerHTML = `${discountPercent}% OFF`;
+          productCard.appendChild(badge);
+        }
+      } else {
+        if (discountBadge) {
+          discountBadge.style.display = 'none';
+        }
+      }
+      
+      // Update product image if variant has specific image
+      if (image) {
+        const productImage = productCard.querySelector('img');
+        if (productImage) {
+          productImage.src = image;
+        }
+      }
+      
+      // Update button states based on availability
+      const buttons = productCard.querySelectorAll('.buy-btn, .mobile-btn');
+      buttons.forEach(button => {
+        if (available) {
+          button.disabled = false;
+          button.textContent = button.classList.contains('mobile-btn') ? 'SHOP NOW' : 'BUY NOW';
+          button.style.opacity = '1';
+        } else {
+          button.disabled = true;
+          button.textContent = 'SOLD OUT';
+          button.style.opacity = '0.6';
+        }
+      });
+    };
+
     document.addEventListener('DOMContentLoaded', function() {
       const productCards = document.querySelectorAll('.product-card');
       
@@ -449,18 +631,20 @@
         const plusButton = form.querySelector('.plus');
         const minusButton = form.querySelector('.minus');
         
+        if (!plusButton || !minusButton) return;
+        
         let quantity = 1;
         
         plusButton.addEventListener('click', (e) => {
           e.preventDefault();
-          e.stopPropagation(); // Previne navegação ao clicar nos botões
+          e.stopPropagation();
           quantity++;
           updateQuantity();
         });
         
         minusButton.addEventListener('click', (e) => {
           e.preventDefault();
-          e.stopPropagation(); // Previne navegação ao clicar nos botões
+          e.stopPropagation();
           if (quantity > 1) {
             quantity--;
             updateQuantity();
@@ -468,8 +652,8 @@
         });
         
         function updateQuantity() {
-          quantityInput.value = quantity;
-          qtyDisplay.textContent = quantity;
+          if (quantityInput) quantityInput.value = quantity;
+          if (qtyDisplay) qtyDisplay.textContent = quantity;
         }
       });
     });

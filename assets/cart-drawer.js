@@ -69,6 +69,44 @@ class CartDrawer {
   async addToCart(form) {
     const formData = new FormData(form);
 
+    // Capture discount data from the product card HTML
+    const productCard = form.closest(".product-card");
+    let discountInfo = null;
+
+    if (productCard) {
+      // Look for discount badge
+      const discountBadge = productCard.querySelector(".discount-badge");
+
+      // Look for old price (crossed out)
+      const oldPriceElement = productCard.querySelector(".old-price");
+      const currentPriceElement = productCard.querySelector(".current-price");
+
+      if (discountBadge && oldPriceElement && currentPriceElement) {
+        // Extract percentage from badge (e.g., "54% OFF")
+        const badgeText = discountBadge.textContent.trim();
+        const percentageMatch = badgeText.match(/(\d+)%/);
+        const discountPercentage = percentageMatch ? parseInt(percentageMatch[1]) : 0;
+
+        // Extract prices from text content
+        const oldPriceText = oldPriceElement.textContent.trim().replace(/[^0-9.]/g, "");
+        const currentPriceText = currentPriceElement.textContent.trim().replace(/[^0-9.]/g, "");
+
+        const oldPrice = parseFloat(oldPriceText) * 100; // Convert to cents
+        const currentPrice = parseFloat(currentPriceText) * 100; // Convert to cents
+
+        if (oldPrice > currentPrice) {
+          discountInfo = {
+            originalPrice: oldPrice,
+            currentPrice: currentPrice,
+            savings: oldPrice - currentPrice,
+            percentage: discountPercentage,
+          };
+
+          console.log("Captured discount info from product card:", discountInfo);
+        }
+      }
+    }
+
     try {
       const response = await fetch("/cart/add.js", {
         method: "POST",
@@ -77,6 +115,20 @@ class CartDrawer {
 
       if (response.ok) {
         const result = await response.json();
+
+        // Store discount info for this product if we found it
+        if (discountInfo) {
+          // Create a storage system for discount data
+          if (!window.cartDiscountData) {
+            window.cartDiscountData = new Map();
+          }
+
+          // Store by variant ID
+          const variantId = result.variant_id || result.id;
+          window.cartDiscountData.set(variantId, discountInfo);
+          console.log("Stored discount data for variant:", variantId, discountInfo);
+        }
+
         await this.loadCartData();
         this.updateCartCount();
         this.open();
@@ -123,12 +175,14 @@ class CartDrawer {
 
     const items = this.cartData.items.map((item, index) => this.renderCartItem(item, index + 1)).join("");
     const discounts = this.renderDiscounts();
+    const savingsInfo = this.renderSavingsInfo();
 
     content.innerHTML = `
       <div class="cart-drawer-items">
         ${items}
       </div>
       <div class="cart-drawer-footer">
+        ${savingsInfo}
         ${discounts}
         <div class="cart-drawer-subtotal">
           <span class="bold">Subtotal</span>
@@ -146,9 +200,63 @@ class CartDrawer {
     this.bindCartEvents();
   }
 
+  // Helper function to find discount data in item
+  findDiscountData(item) {
+    // First, try to get stored discount data from when product was added
+    if (window.cartDiscountData && window.cartDiscountData.has(item.variant_id)) {
+      const storedDiscount = window.cartDiscountData.get(item.variant_id);
+      console.log("Found stored discount data for variant:", item.variant_id, storedDiscount);
+
+      // Adjust for quantity
+      return {
+        hasDiscount: true,
+        originalPrice: storedDiscount.originalPrice * item.quantity,
+        currentPrice: item.final_line_price,
+        savings: storedDiscount.savings * item.quantity,
+        method: "stored_from_product_card",
+      };
+    }
+
+    // Fallback to cart data analysis (original logic)
+    console.log("No stored discount data found, checking cart object...");
+
+    // Check if there's a total_discount field (most reliable)
+    if (item.total_discount > 0) {
+      const originalPrice = item.line_price + item.total_discount;
+      return {
+        hasDiscount: true,
+        originalPrice: originalPrice,
+        currentPrice: item.final_line_price,
+        savings: item.total_discount,
+        method: "total_discount",
+      };
+    }
+
+    // Check original_price vs price (per unit)
+    if (item.original_price > item.price) {
+      const savings = (item.original_price - item.price) * item.quantity;
+      return {
+        hasDiscount: true,
+        originalPrice: item.original_price * item.quantity,
+        currentPrice: item.final_line_price,
+        savings: savings,
+        method: "original_price",
+      };
+    }
+
+    // If no discount found, return no discount
+    return {
+      hasDiscount: false,
+      originalPrice: 0,
+      currentPrice: item.final_line_price,
+      savings: 0,
+      method: "none",
+    };
+  }
+
   renderCartItem(item, lineIndex) {
-    const discountAmount = item.original_line_price - item.final_line_price;
-    const hasDiscount = discountAmount > 0;
+    const discountData = this.findDiscountData(item);
+    console.log(`Item: ${item.product_title} | Discount: ${discountData.hasDiscount ? "YES" : "NO"} | Method: ${discountData.method}`);
 
     return `
       <div class="cart-drawer-item" data-line="${lineIndex}">
@@ -164,8 +272,17 @@ class CartDrawer {
           }
           <div class="cart-drawer-item-price">
             <span class="bold">${this.formatMoney(item.final_line_price)}</span>
-            ${hasDiscount ? `<span class="compare-price regular">${this.formatMoney(item.original_line_price)}</span>` : ""}
+            ${discountData.hasDiscount ? `<span class="compare-price regular">${this.formatMoney(discountData.originalPrice)}</span>` : ""}
           </div>
+          ${
+            discountData.hasDiscount
+              ? `
+            <div class="cart-drawer-item-savings">
+              <span class="savings-text regular">You save ${this.formatMoney(discountData.savings)}</span>
+            </div>
+          `
+              : ""
+          }
           <div class="cart-drawer-quantity">
             <button class="cart-drawer-quantity-btn" onclick="window.cartDrawer.updateQuantity(${lineIndex}, ${item.quantity - 1})" ${
       item.quantity <= 1 ? "disabled" : ""
@@ -202,6 +319,41 @@ class CartDrawer {
     `
       )
       .join("");
+  }
+
+  renderSavingsInfo() {
+    let totalSavings = 0;
+
+    // Calculate savings from all items
+    this.cartData.items.forEach((item, index) => {
+      const discountData = this.findDiscountData(item);
+      totalSavings += discountData.savings;
+    });
+
+    // Add cart-level discounts
+    if (this.cartData.cart_level_discount_applications) {
+      this.cartData.cart_level_discount_applications.forEach((discount) => {
+        totalSavings += discount.total_allocated_amount;
+      });
+    }
+
+    console.log("Total cart savings:", this.formatMoney(totalSavings));
+
+    if (totalSavings > 0) {
+      return `
+        <div class="cart-drawer-savings">
+          <div class="savings-banner">
+            <div class="savings-icon">🎉</div>
+            <div class="savings-content">
+              <div class="savings-title bold">You're saving with Ativafit!</div>
+              <div class="savings-amount bold">${this.formatMoney(totalSavings)} total savings</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    return "";
   }
 
   bindCartEvents() {
