@@ -1,7 +1,7 @@
 {%- comment -%} 
-                                                                                  Salve este arquivo como /snippets/product-card.liquid
-                                                                                  Inclua na sua coleção ou em qualquer template assim: 
-                                                                                  {% render 'product-card', product: product %} 
+                                                                                      Salve este arquivo como /snippets/product-card.liquid
+                                                                                      Inclua na sua coleção ou em qualquer template assim: 
+                                                                                      {% render 'product-card', product: product %} 
 {%- endcomment -%}
 
 {% comment %}Debug info{% endcomment %}
@@ -74,9 +74,9 @@
         align-items: stretch;
         gap: 10px;
         opacity: 0;
-        transition: opacity 0.3s ease
-        , transform 0.3s ease;
+        transition: opacity 0.3s ease, transform 0.3s ease;
       }
+
       .product-card:hover .controls {
         display: flex;
         align-items: stretch;
@@ -84,6 +84,66 @@
         opacity: 1;
         transform: translateX(-50%) translateY(0);
         animation: slideUp 0.3s ease forwards;
+      }
+
+      .mobile-controls {
+        display: none;
+      }
+
+      .mobile-btn {
+        width: 100%;
+        background: #EB701F;
+        color: #fff;
+        border-radius: 4px;
+        padding: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+
+      .mobile-btn:hover {
+        background: #d65b0f;
+      }
+
+      @media screen and (max-width: 768px) {
+        .product-card {
+          height: 450px;
+        }
+
+        .product-card img {
+          height: 250px;
+        }
+
+        .static-info {
+          padding: 12px;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+        }
+
+        .product-title {
+          font-size: 14px;
+          margin-bottom: 8px;
+          flex: none;
+          height: fit-content;
+        }
+
+        .price {
+          font-size: 14px;
+          margin-bottom: 10px;
+        }
+
+        .controls {
+          display: none !important;
+        }
+
+        .mobile-controls {
+          display: block;
+          margin-top: 10px;
+        }
       }
 
       @keyframes slideUp {
@@ -183,68 +243,45 @@
         text-decoration: line-through;
       }
 
-      @media screen and (max-width: 768px) {
-        .product-card {
-          height: 380px;
-        }
-
-        .product-card img {
-          height: 280px;
-        }
-
-        .controls {
-          bottom: 90px;
-        }
-
-        .static-info {
-          padding: 12px;
-        }
-
-        .product-title {
-          font-size: 14px;
-        }
-
-        .price {
-          font-size: 14px;
-        }
-      }
-
       @media screen and (max-width: 480px) {
-        .product-card {
-          height: 350px;
-          max-width: none;
-        }
+        {%- if request.page_type == 'collection' -%}
+          .product-card {
+            height: 420px;
+            max-width: none;
+          }
 
-        .product-card img {
-          height: 250px;
-        }
+          .product-card img {
+            height: 220px;
+          }
 
-        .controls {
-          bottom: 80px;
-          padding: 3px;
-        }
+          .static-info {
+            padding: 10px;
+          }
 
-        .static-info {
-          padding: 10px;
-        }
+          .product-title {
+            font-size: 13px;
+            margin-bottom: 6px;
+          }
 
-        .product-title {
-          font-size: 13px;
-          margin-bottom: 6px;
-        }
+          .price {
+            font-size: 13px;
+          }
 
-        .price {
-          font-size: 13px;
-        }
+          .mobile-btn {
+            padding: 8px;
+            font-size: 13px;
+          }
+        {%- else -%}
+          .product-card {
+            height: 420px;
+            max-width: 300px;
+            margin: 0 auto;
+          }
 
-        .buy-btn {
-          padding: 8px 12px;
-          font-size: 14px;
-        }
-
-        .quantity {
-          font-size: 14px;
-        }
+          .product-card img {
+            height: 220px;
+          }
+        {%- endif -%}
       }
     </style>
 
@@ -269,12 +306,12 @@
       </div>
     {% endif %}
 
-    {%- comment -%} — CONTROLES DE COMPRA (hover) {%- endcomment -%}
+    {%- comment -%} — CONTROLES DE COMPRA DESKTOP (hover) {%- endcomment -%}
     {% if product.available and product.selected_or_first_available_variant != blank %}
       <form
         action="/cart/add"
         method="post"
-        class="controls"
+        class="controls desktop-controls"
         data-product-id="{{ product.id }}"
         onclick="event.stopPropagation();">
         <input
@@ -308,6 +345,26 @@
           <span class="current-price">Preço não disponível</span>
         {% endif %}
       </div>
+      
+      {%- comment -%} — Botão mobile dentro do static-info {%- endcomment -%}
+      {% if product.available and product.selected_or_first_available_variant != blank %}
+        <form
+          action="/cart/add"
+          method="post"
+          class="mobile-controls"
+          data-product-id="{{ product.id }}"
+          onclick="event.stopPropagation();">
+          <input
+            type="hidden"
+            name="id"
+            value="{{ product.selected_or_first_available_variant.id }}">
+          <input
+            type="hidden"
+            name="quantity"
+            value="1">
+          <button type="submit" class="mobile-btn">SHOP NOW</button>
+        </form>
+      {% endif %}
     </div>
   </a>
 
