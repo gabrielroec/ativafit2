@@ -1,6 +1,10 @@
 <link rel="stylesheet" href="{{ 'collection-hero.css' | asset_url }}">
 
-<section class="collection-hero js-collection-hero">
+<section
+  class="collection-hero js-collection-hero{% if collection.handle %} collection-hero--{{ collection.handle }}{% endif %}"
+  {% if collection.handle %}
+  data-collection="{{ collection.handle }}"
+  {% endif %}>
   <div class="collection-hero__container">
     <div class="collection-hero__slides" data-slides-count="{{ section.blocks.size }}">
       {% for block in section.blocks %}
@@ -436,6 +440,22 @@
       right: 10px;
     }
   }
+
+
+  .collection-hero--adjustable-dumbbells .collection-hero__title {
+    font-size: 48px;
+    line-height: 48px;
+  }
+
+  .collection-hero--adjustable-dumbbells .collection-hero__subtitle {
+    font-size: 20px;
+    line-height: 20px;
+    max-width: 550px;
+  }
+
+  .collection-hero--new-dumbbells .collection-hero__subtitle {}
+
+[data-collection="new-dumbbells"] .collection-hero__button {}
 {% endstyle %}
 
 <script>
