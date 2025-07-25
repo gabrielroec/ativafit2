@@ -1,0 +1,420 @@
+{% comment %} 
+        Concept Showcase Section - Estilo Peloton
+        Seção com conceito/texto + imagem lado a lado 
+{% endcomment %}
+
+<section class="concept-showcase" data-section-id="{{ section.id }}">
+  <div class="concept-showcase__container">
+    <div class="concept-showcase__grid">
+      <!-- Content Column -->
+      <div class="concept-showcase__content-column">
+        <div class="concept-showcase__content">
+          {% if section.settings.heading != blank %}
+            <h2 class="concept-showcase__heading black">{{ section.settings.heading }}</h2>
+          {% endif %}
+
+          {% if section.settings.text != blank %}
+            <div class="concept-showcase__text regular">
+              {{ section.settings.text }}
+            </div>
+          {% endif %}
+
+          {% if section.settings.button_text != blank and section.settings.button_link != blank %}
+            <div class="concept-showcase__button-wrapper">
+              <a href="{{ section.settings.button_link }}" class="concept-showcase__button condensed-bold">
+                {{ section.settings.button_text }}
+              </a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Image Column -->
+      <div class="concept-showcase__image-column">
+        {% if section.settings.image != blank %}
+          {{ section.settings.image | image_url: width: 800 | image_tag:
+ class: 'concept-showcase__image',
+ loading: 'lazy',
+ alt: section.settings.image.alt | escape
+          }}
+        {% else %}
+          {{ 'lifestyle-1' | placeholder_svg_tag: 'concept-showcase__image placeholder' }}
+        {% endif %}
+
+        <!-- Optional overlay content on image -->
+        {% if section.settings.overlay_text != blank %}
+          <div class="concept-showcase__image-overlay">
+            <p class="concept-showcase__overlay-text regular">{{ section.settings.overlay_text }}</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% style %}
+  .concept-showcase {
+    background: {{ section.settings.background_color | default: '#ffffff' }};
+    padding: {{ section.settings.section_padding_top }}
+    px 0{{ section.settings.section_padding_bottom }}px;
+  }
+
+  .concept-showcase__container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .concept-showcase__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+    min-height: 600px;
+  }
+
+  {% if section.settings.layout == 'content_right' %}
+    .concept-showcase__content-column {
+      order: 2;
+    }
+    .concept-showcase__image-column {
+      order: 1;
+    }
+  {% endif %}
+
+  /* Content Column */
+  .concept-showcase__content-column {
+    padding: 40px 0;
+  }
+
+  .concept-showcase__content {
+    max-width: 500px;
+    {% if section.settings.layout == 'content_right' %}
+      margin-left: auto;
+    {% else %}
+      margin-right: auto;
+    {% endif %}
+  }
+
+  .concept-showcase__heading {
+    font-size: 48px;
+    font-weight: 700;
+    color: {{ section.settings.heading_color | default: '#000000' }};
+    margin-bottom: 30px;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+  }
+
+  .concept-showcase__text {
+    font-size: 18px;
+    color: {{ section.settings.text_color | default: '#666666' }};
+    line-height: 1.6;
+    margin-bottom: 40px;
+  }
+
+  .concept-showcase__text p {
+    margin-bottom: 20px;
+  }
+
+  .concept-showcase__text p:last-child {
+    margin-bottom: 0;
+  }
+
+  .concept-showcase__button {
+    display: inline-block;
+    padding: 15px 30px;
+    background: {{ section.settings.button_bg_color | default: 'transparent' }};
+    color: {{ section.settings.button_text_color | default: '#000000' }};
+    border: 2px solid{{ section.settings.button_border_color | default: '#000000' }};
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .concept-showcase__button:hover {
+    background: {{ section.settings.button_bg_hover | default: '#000000' }};
+    color: {{ section.settings.button_text_hover | default: '#ffffff' }};
+    transform: translateY(-2px);
+  }
+
+  /* Image Column */
+  .concept-showcase__image-column {
+    position: relative;
+    height: 100%;
+    min-height: 500px;
+  }
+
+  .concept-showcase__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+  }
+
+  .concept-showcase__image.placeholder {
+    height: 500px;
+    border-radius: 8px;
+  }
+
+  /* Image Overlay */
+  .concept-showcase__image-overlay {
+    position: absolute;
+    bottom: 30px;
+    left: 30px;
+    right: 30px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+  }
+
+  .concept-showcase__overlay-text {
+    color: #ffffff;
+    font-size: 16px;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  /* Dark Background Variation */
+  {% if section.settings.background_color == '#2a2a2a' or section.settings.background_color == '#000000' %}
+    .concept-showcase__heading {
+      color: {{ section.settings.heading_color | default: '#ffffff' }};
+    }
+    .concept-showcase__text {
+      color: {{ section.settings.text_color | default: '#cccccc' }};
+    }
+    .concept-showcase__button {
+      color: {{ section.settings.button_text_color | default: '#ffffff' }};
+      border-color: {{ section.settings.button_border_color | default: '#ffffff' }};
+    }
+    .concept-showcase__button:hover {
+      background: {{ section.settings.button_bg_hover | default: '#ffffff' }};
+      color: {{ section.settings.button_text_hover | default: '#000000' }};
+    }
+  {% endif %}
+
+  /* Responsive */
+  @media screen and (max-width: 1024px) {
+    .concept-showcase__grid {
+      gap: 60px;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    .concept-showcase {
+      padding: {{ section.settings.section_padding_top | divided_by: 1.5 }}
+      px 0{{ section.settings.section_padding_bottom | divided_by: 1.5 }}px;
+    }
+
+    .concept-showcase__container {
+      padding: 0 15px;
+    }
+
+    .concept-showcase__grid {
+      grid-template-columns: 1fr;
+      gap: 40px;
+      min-height: auto;
+    }
+
+    .concept-showcase__content-column,
+    .concept-showcase__image-column {
+      order: unset !important;
+    }
+
+    .concept-showcase__image-column {
+      min-height: 350px;
+    }
+
+    .concept-showcase__content {
+      max-width: 100%;
+      margin: 0 !important;
+      text-align: center;
+    }
+
+    .concept-showcase__heading {
+      font-size: 36px;
+      margin-bottom: 20px;
+    }
+
+    .concept-showcase__text {
+      font-size: 16px;
+      margin-bottom: 30px;
+    }
+
+    .concept-showcase__button {
+      padding: 12px 25px;
+      font-size: 13px;
+    }
+
+    .concept-showcase__image-overlay {
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      padding: 15px;
+    }
+
+    .concept-showcase__overlay-text {
+      font-size: 14px;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .concept-showcase__heading {
+      font-size: 28px;
+    }
+
+    .concept-showcase__text {
+      font-size: 15px;
+    }
+
+    .concept-showcase__image-overlay {
+      bottom: 15px;
+      left: 15px;
+      right: 15px;
+      padding: 12px;
+    }
+
+    .concept-showcase__overlay-text {
+      font-size: 13px;
+    }
+  }
+{% endstyle %}
+
+{% schema %}
+  {
+    "name": "Concept Showcase",
+    "tag": "section",
+    "class": "section",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Layout"
+      },
+      {
+        "type": "select",
+        "id": "layout",
+        "label": "Layout",
+        "options": [
+          {
+            "value": "content_left",
+            "label": "Content Left"
+          }, {
+            "value": "content_right",
+            "label": "Content Right"
+          }
+        ],
+        "default": "content_left"
+      },
+      {
+        "type": "header",
+        "content": "Content"
+      },
+      {
+        "type": "text",
+        "id": "heading",
+        "label": "Heading",
+        "default": "A new concept in fitness"
+      }, {
+        "type": "richtext",
+        "id": "text",
+        "label": "Text",
+        "default": "<p>We use a combination of technology, content and best-in-class instructors to empower our millions-strong community through fitness.</p>"
+      }, {
+        "type": "text",
+        "id": "button_text",
+        "label": "Button Text"
+      }, {
+        "type": "url",
+        "id": "button_link",
+        "label": "Button Link"
+      }, {
+        "type": "header",
+        "content": "Image"
+      }, {
+        "type": "image_picker",
+        "id": "image",
+        "label": "Image"
+      }, {
+        "type": "text",
+        "id": "overlay_text",
+        "label": "Image Overlay Text",
+        "info": "Optional text overlay on the image"
+      }, {
+        "type": "header",
+        "content": "Spacing"
+      }, {
+        "type": "range",
+        "id": "section_padding_top",
+        "label": "Top Padding",
+        "min": 0,
+        "max": 120,
+        "step": 10,
+        "default": 80
+      }, {
+        "type": "range",
+        "id": "section_padding_bottom",
+        "label": "Bottom Padding",
+        "min": 0,
+        "max": 120,
+        "step": 10,
+        "default": 80
+      }, {
+        "type": "header",
+        "content": "Colors"
+      }, {
+        "type": "color",
+        "id": "background_color",
+        "label": "Background Color",
+        "default": "#ffffff"
+      }, {
+        "type": "color",
+        "id": "heading_color",
+        "label": "Heading Color",
+        "default": "#000000"
+      }, {
+        "type": "color",
+        "id": "text_color",
+        "label": "Text Color",
+        "default": "#666666"
+      }, {
+        "type": "color",
+        "id": "button_text_color",
+        "label": "Button Text Color",
+        "default": "#000000"
+      }, {
+        "type": "color",
+        "id": "button_border_color",
+        "label": "Button Border Color",
+        "default": "#000000"
+      }, {
+        "type": "color",
+        "id": "button_bg_color",
+        "label": "Button Background Color",
+        "default": "rgba(0,0,0,0)"
+      }, {
+        "type": "color",
+        "id": "button_bg_hover",
+        "label": "Button Background Hover",
+        "default": "#000000"
+      }, {
+        "type": "color",
+        "id": "button_text_hover",
+        "label": "Button Text Hover",
+        "default": "#ffffff"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Concept Showcase",
+        "settings": {
+          "heading": "A new concept in fitness",
+          "text": "<p>We use a combination of technology, content and best-in-class instructors to empower our millions-strong community through fitness.</p>"
+        }
+      }
+    ]
+  }
+{% endschema %}
