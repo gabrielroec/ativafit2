@@ -1,11 +1,11 @@
 {% comment %} 
-      Concept Showcase Section - Estilo Peloton
-      Seção com conceito/texto + imagem lado a lado 
+    Concept Showcase Section - Estilo Peloton
+    Seção com conceito/texto + imagem lado a lado 
 {% endcomment %}
 
 <section class="concept-showcase" data-section-id="{{ section.id }}">
   <div class="concept-showcase__container">
-    <div class="concept-showcase__grid">
+    <div class="concept-showcase__grid{% if section.settings.layout == 'content_right' %} concept-showcase__grid--content-right{% endif %}">
       <!-- Content Column -->
       <div class="concept-showcase__content-column">
         <div class="concept-showcase__content">
@@ -54,6 +54,8 @@
     background: {{ section.settings.background_color | default: '#ffffff' }};
     padding: {{ section.settings.section_padding_top }}
     px 0{{ section.settings.section_padding_bottom }}px;
+    margin: {{ section.settings.section_margin_top }}
+    px 0{{ section.settings.section_margin_bottom }}px;
   }
 
   .concept-showcase__container {
@@ -70,14 +72,14 @@
     min-height: 600px;
   }
 
-  {% if section.settings.layout == 'content_right' %}
-    .concept-showcase__content-column {
-      order: 2;
-    }
-    .concept-showcase__image-column {
-      order: 1;
-    }
-  {% endif %}
+  /* Content Right Layout */
+  .concept-showcase__grid--content-right .concept-showcase__content-column {
+    order: 2;
+  }
+
+  .concept-showcase__grid--content-right .concept-showcase__image-column {
+    order: 1;
+  }
 
   /* Content Column */
   .concept-showcase__content-column {
@@ -86,11 +88,15 @@
 
   .concept-showcase__content {
     max-width: 500px;
-    {% if section.settings.layout == 'content_right' %}
-      margin-left: auto;
-    {% else %}
-      margin-right: auto;
-    {% endif %}
+  }
+
+  /* Content alignment based on layout */
+  .concept-showcase__grid:not(.concept-showcase__grid--content-right) .concept-showcase__content {
+    margin-right: auto;
+  }
+
+  .concept-showcase__grid--content-right .concept-showcase__content {
+    margin-left: auto;
   }
 
   .concept-showcase__heading {
@@ -177,7 +183,7 @@
   }
 
   /* Dark Background Variation */
-  {% if section.settings.background_color == '#2a2a2a' or section.settings.background_color == '#000000' %}
+  {% if section.settings.background_color == '#2a2a2a' or section.settings.background_color == '#000000' or section.settings.background_color == '#1a1a1a' %}
     .concept-showcase__heading {
       color: {{ section.settings.heading_color | default: '#ffffff' }};
     }
@@ -205,6 +211,8 @@
     .concept-showcase {
       padding: {{ section.settings.section_padding_top | divided_by: 1.5 }}
       px 0{{ section.settings.section_padding_bottom | divided_by: 1.5 }}px;
+      margin: {{ section.settings.section_margin_top | divided_by: 1.5 }}
+      px 0{{ section.settings.section_margin_bottom | divided_by: 1.5 }}px;
     }
 
     .concept-showcase__container {
@@ -348,7 +356,7 @@
         "id": "section_padding_top",
         "label": "Top Padding",
         "min": 0,
-        "max": 120,
+        "max": 200,
         "step": 10,
         "default": 80
       }, {
@@ -356,9 +364,25 @@
         "id": "section_padding_bottom",
         "label": "Bottom Padding",
         "min": 0,
-        "max": 120,
+        "max": 200,
         "step": 10,
         "default": 80
+      }, {
+        "type": "range",
+        "id": "section_margin_top",
+        "label": "Top Margin",
+        "min": 0,
+        "max": 200,
+        "step": 10,
+        "default": 0
+      }, {
+        "type": "range",
+        "id": "section_margin_bottom",
+        "label": "Bottom Margin",
+        "min": 0,
+        "max": 200,
+        "step": 10,
+        "default": 0
       }, {
         "type": "header",
         "content": "Colors"
