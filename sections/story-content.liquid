@@ -1,6 +1,6 @@
 {% comment %} 
-              Story Content Section - Estilo Peloton
-              Seção com imagem e conteúdo lado a lado 
+                  Story Content Section - Estilo Peloton
+                  Seção com imagem e conteúdo lado a lado 
 {% endcomment %}
 
 <section class="story-content" data-section-id="{{ section.id }}">
@@ -44,7 +44,7 @@
 
 {% style %}
   .story-content {
-    background: {{ section.settings.background_color | default: '#ffffff' }};
+    background: #ffffff;
     padding: 80px 0;
     margin: 0;
   }
@@ -52,15 +52,15 @@
   .story-content__container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    min-height: 600px;
   }
 
   .story-content__grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 80px;
-    align-items: center;
-    min-height: 600px;
+    display: contents;
   }
 
   /* Image Right Layout */
@@ -75,24 +75,22 @@
   .story-content__image-column {
     position: relative;
     height: 100%;
-    min-height: 500px;
+    min-height: 600px;
   }
 
   .story-content__image {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 8px;
     display: block;
   }
 
   .story-content__image.placeholder {
-    height: 500px;
-    border-radius: 8px;
+    height: 600px;
   }
 
   .story-content__text-column {
-    padding: 40px 0;
+    padding: 60px;
   }
 
   .story-content__content {
@@ -111,7 +109,7 @@
   .story-content__heading {
     font-size: 48px;
     font-weight: 700;
-    color: {{ section.settings.heading_color | default: '#000000' }};
+    color: #000000;
     margin-bottom: 30px;
     line-height: 1.2;
     letter-spacing: -0.5px;
@@ -119,7 +117,7 @@
 
   .story-content__text {
     font-size: 18px;
-    color: {{ section.settings.text_color | default: '#666666' }};
+    color: #666666;
     line-height: 1.6;
     margin-bottom: 40px;
   }
@@ -135,9 +133,9 @@
   .story-content__button {
     display: inline-block;
     padding: 15px 30px;
-    background: {{ section.settings.button_bg_color | default: 'transparent' }};
-    color: {{ section.settings.button_text_color | default: '#000000' }};
-    border: 2px solid{{ section.settings.button_border_color | default: '#000000' }};
+    background: transparent;
+    color: #000000;
+    border: 2px solid #000000;
     text-decoration: none;
     border-radius: 4px;
     transition: all 0.3s ease;
@@ -147,25 +145,15 @@
   }
 
   .story-content__button:hover {
-    background: {{ section.settings.button_bg_hover | default: '#000000' }};
-    color: {{ section.settings.button_text_hover | default: '#ffffff' }};
+    background: #000000;
+    color: #ffffff;
     transform: translateY(-2px);
   }
 
-  /* Dark Background Variation */
-  {% if section.settings.background_color == '#2a2a2a' or section.settings.background_color == '#000000' or section.settings.background_color == '#1a1a1a' %}
-    .story-content__heading {
-      color: {{ section.settings.heading_color | default: '#ffffff' }};
-    }
-    .story-content__text {
-      color: {{ section.settings.text_color | default: '#cccccc' }};
-    }
-  {% endif %}
-
   /* Responsive */
   @media screen and (max-width: 1024px) {
-    .story-content__grid {
-      gap: 60px;
+    .story-content__text-column {
+      padding: 40px;
     }
   }
 
@@ -176,13 +164,8 @@
     }
 
     .story-content__container {
-      padding: 0 15px;
-    }
-
-    .story-content__grid {
       grid-template-columns: 1fr;
-      gap: 40px;
-      min-height: auto;
+      padding: 0;
     }
 
     .story-content__image-column,
@@ -192,6 +175,10 @@
 
     .story-content__image-column {
       min-height: 300px;
+    }
+
+    .story-content__text-column {
+      padding: 40px 20px;
     }
 
     .story-content__content {
@@ -278,49 +265,6 @@
         "type": "url",
         "id": "button_link",
         "label": "Button Link"
-      }, {
-        "type": "header",
-        "content": "Colors"
-      }, {
-        "type": "color",
-        "id": "background_color",
-        "label": "Background Color",
-        "default": "#ffffff"
-      }, {
-        "type": "color",
-        "id": "heading_color",
-        "label": "Heading Color",
-        "default": "#000000"
-      }, {
-        "type": "color",
-        "id": "text_color",
-        "label": "Text Color",
-        "default": "#666666"
-      }, {
-        "type": "color",
-        "id": "button_text_color",
-        "label": "Button Text Color",
-        "default": "#000000"
-      }, {
-        "type": "color",
-        "id": "button_border_color",
-        "label": "Button Border Color",
-        "default": "#000000"
-      }, {
-        "type": "color",
-        "id": "button_bg_color",
-        "label": "Button Background Color",
-        "default": "rgba(0,0,0,0)"
-      }, {
-        "type": "color",
-        "id": "button_bg_hover",
-        "label": "Button Background Hover",
-        "default": "#000000"
-      }, {
-        "type": "color",
-        "id": "button_text_hover",
-        "label": "Button Text Hover",
-        "default": "#ffffff"
       }
     ],
     "presets": [

@@ -1,6 +1,6 @@
 {% comment %} 
-            Hero Story Section - Estilo Peloton
-            Seção de hero com título, subtítulo e fundo escuro 
+              Hero Story Section - Estilo Peloton
+              Seção de hero com título, subtítulo e fundo escuro 
 {% endcomment %}
 
 <section class="hero-story" data-section-id="{{ section.id }}">
@@ -27,7 +27,7 @@
 
 {% style %}
   .hero-story {
-    background: {{ section.settings.background_color | default: '#2a2a2a' }};
+    background: #ffffff;
     min-height: {{ section.settings.section_height }}px;
     display: flex;
     align-items: center;
@@ -52,7 +52,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: {{ section.settings.overlay_color | color_modify: 'alpha', section.settings.overlay_opacity }};
+      background: rgba(0, 0, 0, 0.5);
     }
   {% endif %}
 
@@ -73,7 +73,7 @@
   .hero-story__heading {
     font-size: 72px;
     font-weight: 900;
-    color: {{ section.settings.heading_color | default: '#ffffff' }};
+    color: #000000;
     margin-bottom: 20px;
     line-height: 1.1;
     letter-spacing: -1px;
@@ -81,7 +81,7 @@
 
   .hero-story__subheading {
     font-size: 18px;
-    color: {{ section.settings.subheading_color | default: '#cccccc' }};
+    color: #666666;
     margin-bottom: 40px;
     line-height: 1.6;
     max-width: 600px;
@@ -96,9 +96,9 @@
   .hero-story__button {
     display: inline-block;
     padding: 15px 30px;
-    background: {{ section.settings.button_bg_color | default: 'transparent' }};
-    color: {{ section.settings.button_text_color | default: '#ffffff' }};
-    border: 2px solid{{ section.settings.button_border_color | default: '#ffffff' }};
+    background: transparent;
+    color: #000000;
+    border: 2px solid #000000;
     text-decoration: none;
     border-radius: 4px;
     transition: all 0.3s ease;
@@ -108,10 +108,28 @@
   }
 
   .hero-story__button:hover {
-    background: {{ section.settings.button_bg_hover | default: '#ffffff' }};
-    color: {{ section.settings.button_text_hover | default: '#000000' }};
+    background: #000000;
+    color: #ffffff;
     transform: translateY(-2px);
   }
+
+  /* Image overlay text styling */
+  {% if section.settings.background_image != blank %}
+    .hero-story__heading {
+      color: #ffffff;
+    }
+    .hero-story__subheading {
+      color: #cccccc;
+    }
+    .hero-story__button {
+      color: #ffffff;
+      border-color: #ffffff;
+    }
+    .hero-story__button:hover {
+      background: #ffffff;
+      color: #000000;
+    }
+  {% endif %}
 
   /* Responsive */
   @media screen and (max-width: 768px) {
@@ -189,26 +207,6 @@
         "id": "background_image",
         "label": "Background Image"
       }, {
-        "type": "color",
-        "id": "background_color",
-        "label": "Background Color",
-        "default": "#2a2a2a"
-      }, {
-        "type": "color",
-        "id": "overlay_color",
-        "label": "Overlay Color",
-        "default": "#000000",
-        "info": "Only applies when background image is set"
-      }, {
-        "type": "range",
-        "id": "overlay_opacity",
-        "label": "Overlay Opacity",
-        "min": 0,
-        "max": 1,
-        "step": 0.1,
-        "default": 0.5,
-        "info": "Only applies when background image is set"
-      }, {
         "type": "range",
         "id": "section_height",
         "label": "Section Height (px)",
@@ -216,44 +214,6 @@
         "max": 800,
         "step": 50,
         "default": 600
-      }, {
-        "type": "header",
-        "content": "Colors"
-      }, {
-        "type": "color",
-        "id": "heading_color",
-        "label": "Heading Color",
-        "default": "#ffffff"
-      }, {
-        "type": "color",
-        "id": "subheading_color",
-        "label": "Subheading Color",
-        "default": "#cccccc"
-      }, {
-        "type": "color",
-        "id": "button_text_color",
-        "label": "Button Text Color",
-        "default": "#ffffff"
-      }, {
-        "type": "color",
-        "id": "button_border_color",
-        "label": "Button Border Color",
-        "default": "#ffffff"
-      }, {
-        "type": "color",
-        "id": "button_bg_color",
-        "label": "Button Background Color",
-        "default": "rgba(0,0,0,0)"
-      }, {
-        "type": "color",
-        "id": "button_bg_hover",
-        "label": "Button Background Hover",
-        "default": "#ffffff"
-      }, {
-        "type": "color",
-        "id": "button_text_hover",
-        "label": "Button Text Hover",
-        "default": "#000000"
       }
     ],
     "presets": [

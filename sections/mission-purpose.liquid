@@ -1,6 +1,6 @@
 {% comment %} 
-            Mission Purpose Section - Estilo Peloton
-            Seção com fundo escuro, texto centralizado para missão/propósito 
+              Mission Purpose Section - Estilo Peloton
+              Seção com fundo escuro, texto centralizado para missão/propósito 
 {% endcomment %}
 
 <section class="mission-purpose" data-section-id="{{ section.id }}">
@@ -33,7 +33,7 @@
 
 {% style %}
   .mission-purpose {
-    background: {{ section.settings.background_color | default: '#2a2a2a' }};
+    background: #ffffff;
     padding: 120px 0;
     margin: 0;
     position: relative;
@@ -55,7 +55,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: {{ section.settings.overlay_color | color_modify: 'alpha', section.settings.overlay_opacity }};
+      background: rgba(0, 0, 0, 0.5);
     }
   {% endif %}
 
@@ -73,7 +73,7 @@
 
   .mission-purpose__label {
     font-size: 16px;
-    color: {{ section.settings.label_color | default: '#cccccc' }};
+    color: #666666;
     margin-bottom: 20px;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -83,7 +83,7 @@
   .mission-purpose__heading {
     font-size: 56px;
     font-weight: 700;
-    color: {{ section.settings.heading_color | default: '#ffffff' }};
+    color: #000000;
     margin-bottom: 40px;
     line-height: 1.2;
     letter-spacing: -0.5px;
@@ -94,7 +94,7 @@
 
   .mission-purpose__text {
     font-size: 20px;
-    color: {{ section.settings.text_color | default: '#cccccc' }};
+    color: #666666;
     line-height: 1.6;
     margin-bottom: 50px;
     max-width: 700px;
@@ -113,9 +113,9 @@
   .mission-purpose__button {
     display: inline-block;
     padding: 15px 30px;
-    background: {{ section.settings.button_bg_color | default: 'transparent' }};
-    color: {{ section.settings.button_text_color | default: '#ffffff' }};
-    border: 2px solid{{ section.settings.button_border_color | default: '#ffffff' }};
+    background: transparent;
+    color: #000000;
+    border: 2px solid #000000;
     text-decoration: none;
     border-radius: 4px;
     transition: all 0.3s ease;
@@ -125,10 +125,31 @@
   }
 
   .mission-purpose__button:hover {
-    background: {{ section.settings.button_bg_hover | default: '#ffffff' }};
-    color: {{ section.settings.button_text_hover | default: '#000000' }};
+    background: #000000;
+    color: #ffffff;
     transform: translateY(-2px);
   }
+
+  /* Image overlay text styling */
+  {% if section.settings.background_image != blank %}
+    .mission-purpose__label {
+      color: #cccccc;
+    }
+    .mission-purpose__heading {
+      color: #ffffff;
+    }
+    .mission-purpose__text {
+      color: #cccccc;
+    }
+    .mission-purpose__button {
+      color: #ffffff;
+      border-color: #ffffff;
+    }
+    .mission-purpose__button:hover {
+      background: #ffffff;
+      color: #000000;
+    }
+  {% endif %}
 
   /* Responsive */
   @media screen and (max-width: 768px) {
@@ -222,69 +243,6 @@
         "type": "image_picker",
         "id": "background_image",
         "label": "Background Image"
-      }, {
-        "type": "color",
-        "id": "background_color",
-        "label": "Background Color",
-        "default": "#2a2a2a"
-      }, {
-        "type": "color",
-        "id": "overlay_color",
-        "label": "Overlay Color",
-        "default": "#000000",
-        "info": "Only applies when background image is set"
-      }, {
-        "type": "range",
-        "id": "overlay_opacity",
-        "label": "Overlay Opacity",
-        "min": 0,
-        "max": 1,
-        "step": 0.1,
-        "default": 0.5,
-        "info": "Only applies when background image is set"
-      }, {
-        "type": "header",
-        "content": "Colors"
-      }, {
-        "type": "color",
-        "id": "label_color",
-        "label": "Label Color",
-        "default": "#cccccc"
-      }, {
-        "type": "color",
-        "id": "heading_color",
-        "label": "Heading Color",
-        "default": "#ffffff"
-      }, {
-        "type": "color",
-        "id": "text_color",
-        "label": "Text Color",
-        "default": "#cccccc"
-      }, {
-        "type": "color",
-        "id": "button_text_color",
-        "label": "Button Text Color",
-        "default": "#ffffff"
-      }, {
-        "type": "color",
-        "id": "button_border_color",
-        "label": "Button Border Color",
-        "default": "#ffffff"
-      }, {
-        "type": "color",
-        "id": "button_bg_color",
-        "label": "Button Background Color",
-        "default": "rgba(0,0,0,0)"
-      }, {
-        "type": "color",
-        "id": "button_bg_hover",
-        "label": "Button Background Hover",
-        "default": "#ffffff"
-      }, {
-        "type": "color",
-        "id": "button_text_hover",
-        "label": "Button Text Hover",
-        "default": "#000000"
       }
     ],
     "presets": [
