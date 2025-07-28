@@ -1,0 +1,435 @@
+{% comment %} 
+                    Compare Models Section - Estilo Apple
+                    Seção de comparação de produtos em colunas
+{% endcomment %}
+
+<section class="compare-models" data-section-id="{{ section.id }}">
+  <div class="compare-models__container">
+    {% if section.settings.heading != blank %}
+      <h2 class="compare-models__heading">{{ section.settings.heading }}</h2>
+    {% endif %}
+
+    {% if section.settings.subheading != blank %}
+      <p class="compare-models__subheading">{{ section.settings.subheading }}</p>
+    {% endif %}
+
+    <div class="compare-models__grid">
+      {% for block in section.blocks %}
+        {% case block.type %}
+          {% when 'model' %}
+            <div class="compare-models__column" {{ block.shopify_attributes }}>
+              <div class="compare-models__product">
+                <!-- Product Header -->
+                <div class="compare-models__header">
+                  <h3 class="compare-models__product-name">{{ block.settings.product_name }}</h3>
+                </div>
+
+                <!-- Product Image -->
+                {% if block.settings.product_image != blank %}
+                  <div class="compare-models__image-wrapper">
+                    {{ block.settings.product_image | image_url: width: 400 | image_tag: 
+ class: 'compare-models__image', 
+ loading: 'lazy', 
+ alt: block.settings.product_name | escape
+                    }}
+                  </div>
+                {% endif %}
+
+                <!-- Specifications -->
+                <div class="compare-models__specs">
+                  {% if block.settings.weight_range != blank %}
+                    <div class="compare-models__spec">
+                      <span class="compare-models__spec-label">Weight Range</span>
+                      <span class="compare-models__spec-value">{{ block.settings.weight_range }}</span>
+                    </div>
+                  {% endif %}
+
+                  {% if block.settings.increments != blank %}
+                    <div class="compare-models__spec">
+                      <span class="compare-models__spec-label">Increments</span>
+                      <span class="compare-models__spec-value">{{ block.settings.increments }}</span>
+                    </div>
+                  {% endif %}
+
+                  {% if block.settings.dimensions != blank %}
+                    <div class="compare-models__spec">
+                      <span class="compare-models__spec-label">Dimensions</span>
+                      <span class="compare-models__spec-value">{{ block.settings.dimensions }}</span>
+                    </div>
+                  {% endif %}
+
+                  {% if block.settings.package_weight != blank %}
+                    <div class="compare-models__spec">
+                      <span class="compare-models__spec-label">Package Weight</span>
+                      <span class="compare-models__spec-value">{{ block.settings.package_weight }}</span>
+                    </div>
+                  {% endif %}
+
+                  {% if block.settings.material != blank %}
+                    <div class="compare-models__spec">
+                      <span class="compare-models__spec-label">Material</span>
+                      <span class="compare-models__spec-value">{{ block.settings.material }}</span>
+                    </div>
+                  {% endif %}
+
+                  {% if block.settings.handle_design != blank %}
+                    <div class="compare-models__spec">
+                      <span class="compare-models__spec-label">Handle Design</span>
+                      <span class="compare-models__spec-value">{{ block.settings.handle_design }}</span>
+                    </div>
+                  {% endif %}
+
+                  {% if block.settings.mechanism != blank %}
+                    <div class="compare-models__spec">
+                      <span class="compare-models__spec-label">Mechanism</span>
+                      <span class="compare-models__spec-value">{{ block.settings.mechanism }}</span>
+                    </div>
+                  {% endif %}
+
+                  {% if block.settings.target_user != blank %}
+                    <div class="compare-models__spec">
+                      <span class="compare-models__spec-label">Target User</span>
+                      <span class="compare-models__spec-value">{{ block.settings.target_user }}</span>
+                    </div>
+                  {% endif %}
+                </div>
+
+                <!-- Pricing -->
+                {% if block.settings.price != blank %}
+                  <div class="compare-models__pricing">
+                    <div class="compare-models__price">{{ block.settings.price }}</div>
+                  </div>
+                {% endif %}
+
+                <!-- Actions -->
+                <div class="compare-models__actions">
+                  {% if block.settings.view_more_text != blank and block.settings.view_more_link != blank %}
+                    <a href="{{ block.settings.view_more_link }}" class="compare-models__view-more">
+                      {{ block.settings.view_more_text }} >
+                    </a>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+        {% endcase %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% style %}
+  .compare-models {
+    background: #ffffff;
+    margin: 0;
+    font-family: 'Barlow'
+    , sans-serif !important;
+  }
+
+  .compare-models__container {
+    max-width: 1350px;
+    margin: 0 auto;
+    padding: 0;
+  }
+
+  .compare-models__heading {
+    font-size: 48px;
+    font-weight: 900;
+    color: #1d1d1f;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 16px;
+    line-height: 1.1;
+    font-family: 'Barlow'
+    , sans-serif !important;
+  }
+
+  .compare-models__subheading {
+    font-size: 21px;
+    color: #86868b;
+    text-align: center;
+    margin-bottom: 60px;
+    line-height: 1.4;
+    font-family: 'Barlow'
+    , sans-serif !important;
+    font-weight: 400;
+  }
+
+  .compare-models__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    align-items: start;
+  }
+
+  .compare-models__column {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid #e5e5e7;
+    transition: all 0.3s ease;
+  }
+
+  .compare-models__column:hover {
+    border-color: #FF6100;
+    box-shadow: 0 4px 20px rgba(255, 97, 0, 0.1);
+  }
+
+  .compare-models__header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .compare-models__product-name {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1d1d1f;
+    margin: 0;
+    line-height: 1.2;
+    font-family: 'Barlow'
+    , sans-serif !important;
+    text-align: center;
+  }
+
+  .compare-models__image-wrapper {
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .compare-models__image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+
+  .compare-models__specs {
+    margin-bottom: 24px;
+  }
+
+  .compare-models__spec {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f5f5f7;
+  }
+
+  .compare-models__spec:last-child {
+    border-bottom: none;
+  }
+
+  .compare-models__spec-label {
+    font-size: 14px;
+    color: #86868b;
+    font-weight: 500;
+    font-family: 'Barlow'
+    , sans-serif !important;
+  }
+
+  .compare-models__spec-value {
+    font-size: 14px;
+    color: #1d1d1f;
+    font-weight: 600;
+    text-align: right;
+    font-family: 'Barlow'
+    , sans-serif !important;
+  }
+
+  .compare-models__pricing {
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  .compare-models__price {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1d1d1f;
+    font-family: 'Barlow'
+    , sans-serif !important;
+  }
+
+  .compare-models__actions {
+    display: flex;
+    justify-content: center;
+  }
+
+  .compare-models__view-more {
+    color: #FF6100;
+    text-decoration: none;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+    transition: color 0.3s ease;
+    font-family: 'Barlow'
+    , sans-serif !important;
+  }
+
+  .compare-models__view-more:hover {
+    color: #e55700;
+  }
+
+  /* Responsive */
+  @media screen and (max-width: 1024px) {
+    .compare-models__grid {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    .compare-models {
+      padding: 60px 0;
+    }
+
+    .compare-models__heading {
+      font-size: 36px;
+    }
+
+    .compare-models__subheading {
+      font-size: 18px;
+      margin-bottom: 40px;
+    }
+
+    .compare-models__grid {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .compare-models__column {
+      padding: 20px;
+    }
+
+    .compare-models__product-name {
+      font-size: 20px;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .compare-models__container {
+      padding: 0 16px;
+    }
+
+    .compare-models__heading {
+      font-size: 28px;
+    }
+
+    .compare-models__subheading {
+      font-size: 16px;
+    }
+
+    .compare-models__column {
+      padding: 16px;
+    }
+  }
+{% endstyle %}
+
+{% schema %}
+  {
+    "name": "Compare Models",
+    "tag": "section",
+    "class": "section",
+    "settings": [
+      {
+        "type": "text",
+        "id": "heading",
+        "label": "Heading",
+        "default": "Compare Models"
+      }, {
+        "type": "text",
+        "id": "subheading",
+        "label": "Subheading",
+        "default": "Find the perfect dumbbell set for your fitness journey"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "model",
+        "name": "Product Model",
+        "settings": [
+          {
+            "type": "text",
+            "id": "product_name",
+            "label": "Product Name",
+            "default": "27.5LBS Dumbbell Set GT528"
+          },
+          {
+            "type": "image_picker",
+            "id": "product_image",
+            "label": "Product Image"
+          },
+          {
+            "type": "text",
+            "id": "weight_range",
+            "label": "Weight Range",
+            "default": "5.5 - 27.5 lbs"
+          },
+          {
+            "type": "text",
+            "id": "increments",
+            "label": "Increments",
+            "default": "5.5 lbs"
+          }, {
+            "type": "text",
+            "id": "dimensions",
+            "label": "Dimensions",
+            "default": "16.2\"L x 7.2\"W x 7.2\"H"
+          }, {
+            "type": "text",
+            "id": "package_weight",
+            "label": "Package Weight",
+            "default": "32 lbs (single)"
+          }, {
+            "type": "text",
+            "id": "material",
+            "label": "Material",
+            "default": "Steel plates, reinforced base"
+          }, {
+            "type": "text",
+            "id": "handle_design",
+            "label": "Handle Design",
+            "default": "Steel core, non-slip rubber grip"
+          }, {
+            "type": "text",
+            "id": "mechanism",
+            "label": "Adjustment Mechanism",
+            "default": "Glide Tech"
+          }, {
+            "type": "text",
+            "id": "target_user",
+            "label": "Target User Group",
+            "default": "Beginners, home toning"
+          }, {
+            "type": "text",
+            "id": "price",
+            "label": "Price",
+            "default": "$179.99 (a pair)"
+          }, {
+            "type": "text",
+            "id": "view_more_text",
+            "label": "View More Text",
+            "default": "View more"
+          }, {
+            "type": "url",
+            "id": "view_more_link",
+            "label": "View More Link"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Compare Models",
+        "blocks": [
+          {
+            "type": "model"
+          }, {
+            "type": "model"
+          }, {
+            "type": "model"
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}
