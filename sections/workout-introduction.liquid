@@ -1,0 +1,402 @@
+{% comment %} 
+    Workout Introduction Section
+    Introduction section with image collage and skill progress bars
+{% endcomment %}
+
+<section class="workout-introduction" data-section-id="{{ section.id }}">
+  <div class="workout-introduction__container">
+    <div class="workout-introduction__grid">
+      <!-- Content Column -->
+      <div class="workout-introduction__content">
+        {% for block in section.blocks %}
+          {% case block.type %}
+            {% when 'intro_content' %}
+              <div class="workout-introduction__text" {{ block.shopify_attributes }}>
+                {% if block.settings.title != blank %}
+                  <h2 class="workout-introduction__title">{{ block.settings.title }}</h2>
+                {% endif %}
+
+                {% if block.settings.description != blank %}
+                  <p class="workout-introduction__description">{{ block.settings.description }}</p>
+                {% endif %}
+
+                <!-- Skill Bars -->
+                <div class="workout-introduction__skills">
+                  {% for skill_block in section.blocks %}
+                    {% if skill_block.type == 'skill_bar' %}
+                      <div class="workout-introduction__skill" {{ skill_block.shopify_attributes }}>
+                        <div class="workout-introduction__skill-header">
+                          <span class="workout-introduction__skill-name">{{ skill_block.settings.skill_name }}</span>
+                          <span class="workout-introduction__skill-percentage">{{ skill_block.settings.skill_percentage }}%</span>
+                        </div>
+                        <div class="workout-introduction__skill-bar">
+                          <div class="workout-introduction__skill-progress" style="width: {{ skill_block.settings.skill_percentage }}%; background-color: {{ skill_block.settings.skill_color | default: '#FF6100' }};"></div>
+                        </div>
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+          {% endcase %}
+        {% endfor %}
+      </div>
+
+      <!-- Image Collage Column -->
+      <div class="workout-introduction__images">
+        {% for block in section.blocks %}
+          {% if block.type == 'intro_content' and block.settings.background_images != blank %}
+            <div class="workout-introduction__image-grid" {{ block.shopify_attributes }}>
+              {% assign images = block.settings.background_images | split: ',' %}
+              {% for image in images limit: 4 %}
+                <div class="workout-introduction__image-wrapper workout-introduction__image-wrapper--{{ forloop.index }}">
+                  {% assign image_url = image | strip %}
+                  {% if image_url != blank %}
+                    {{ image_url | image_url: width: 400 | image_tag: 
+ class: 'workout-introduction__image', 
+ loading: 'lazy', 
+ alt: 'Workout introduction image'
+                    }}
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% style %}
+  .workout-introduction {
+    background: #ffffff;
+    padding: {{ section.settings.section_padding | default: '80px 0' }};
+    font-family: 'Barlow'
+    , sans-serif !important;
+  }
+
+  .workout-introduction__container {
+    max-width: 1350px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .workout-introduction__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .workout-introduction__content {
+    padding-right: 40px;
+  }
+
+  .workout-introduction__title {
+    font-size: 3rem;
+    font-weight: 900;
+    color: #ffffff;
+    margin-bottom: 24px;
+    line-height: 1.1;
+    text-transform: uppercase;
+    font-family: 'Barlow'
+    , sans-serif !important;
+  }
+
+  .workout-introduction__description {
+    font-size: 1.25rem;
+    color: #ffffff;
+    margin-bottom: 40px;
+    line-height: 1.6;
+    font-weight: 400;
+    font-family: 'Barlow'
+    , sans-serif !important;
+    opacity: 0.9;
+  }
+
+  .workout-introduction__skills {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .workout-introduction__skill {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .workout-introduction__skill-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .workout-introduction__skill-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #ffffff;
+    font-family: 'Barlow'
+    , sans-serif !important;
+  }
+
+  .workout-introduction__skill-percentage {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #ffffff;
+    opacity: 0.8;
+    font-family: 'Barlow'
+    , sans-serif !important;
+  }
+
+  .workout-introduction__skill-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .workout-introduction__skill-progress {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s ease-in-out;
+    background: linear-gradient(90deg, var(--skill-color) 0%, rgba(255, 97, 0, 0.8) 100%);
+  }
+
+  .workout-introduction__images {
+    position: relative;
+  }
+
+  .workout-introduction__image-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 16px;
+    height: 500px;
+  }
+
+  .workout-introduction__image-wrapper {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+
+  .workout-introduction__image-wrapper--1 {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+  }
+
+  .workout-introduction__image-wrapper--2 {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+  }
+
+  .workout-introduction__image-wrapper--3 {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+  }
+
+  .workout-introduction__image-wrapper--4 {
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
+  }
+
+  .workout-introduction__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .workout-introduction__image-wrapper:hover .workout-introduction__image {
+    transform: scale(1.05);
+  }
+
+  /* Background overlay for content */
+  .workout-introduction__content {
+    position: relative;
+    z-index: 2;
+  }
+
+  .workout-introduction__content::before {
+    content: '';
+    position: absolute;
+    top: -40px;
+    left: -40px;
+    right: -40px;
+    bottom: -40px;
+    background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.6) 100%);
+    border-radius: 16px;
+    z-index: -1;
+  }
+
+  /* Responsive */
+  @media screen and (max-width: 1024px) {
+    .workout-introduction__grid {
+      gap: 60px;
+    }
+
+    .workout-introduction__content {
+      padding-right: 20px;
+    }
+
+    .workout-introduction__title {
+      font-size: 2.5rem;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    .workout-introduction__grid {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+
+    .workout-introduction__content {
+      padding-right: 0;
+      order: 2;
+    }
+
+    .workout-introduction__images {
+      order: 1;
+    }
+
+    .workout-introduction__image-grid {
+      height: 400px;
+    }
+
+    .workout-introduction__title {
+      font-size: 2rem;
+    }
+
+    .workout-introduction__description {
+      font-size: 1.125rem;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .workout-introduction__container {
+      padding: 0 16px;
+    }
+
+    .workout-introduction__image-grid {
+      height: 300px;
+      gap: 12px;
+    }
+
+    .workout-introduction__title {
+      font-size: 1.75rem;
+    }
+
+    .workout-introduction__skill {
+      padding: 16px;
+    }
+  }
+{% endstyle %}
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Animate skill bars on scroll
+    const skillBars = document.querySelectorAll('.workout-introduction__skill-progress');
+    
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const progressBar = entry.target;
+          const percentage = progressBar.style.width;
+          progressBar.style.width = '0%';
+          
+          setTimeout(() => {
+            progressBar.style.width = percentage;
+          }, 200);
+        }
+      });
+    }, { threshold: 0.5 });
+  
+    skillBars.forEach(bar => observer.observe(bar));
+  });
+</script>
+
+{% schema %}
+  {
+    "name": "Workout Introduction",
+    "tag": "section",
+    "class": "section",
+    "settings": [
+      {
+        "type": "text",
+        "id": "section_padding",
+        "label": "Section Padding",
+        "default": "80px 0"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "intro_content",
+        "name": "Introduction Content",
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Title",
+            "default": "INTRODUCTION"
+          }, {
+            "type": "textarea",
+            "id": "description",
+            "label": "Description",
+            "default": "Strip all the excuses about space, equipment, or condition, face the purist form of yourself beneath your bed, and just get action on."
+          }, {
+            "type": "text",
+            "id": "background_images",
+            "label": "Background Images (comma separated URLs)",
+            "info": "Enter up to 4 image URLs separated by commas"
+          }
+        ]
+      }, {
+        "type": "skill_bar",
+        "name": "Skill Bar",
+        "settings": [
+          {
+            "type": "text",
+            "id": "skill_name",
+            "label": "Skill Name",
+            "default": "Muscle & Strength"
+          }, {
+            "type": "range",
+            "id": "skill_percentage",
+            "min": 0,
+            "max": 100,
+            "step": 5,
+            "label": "Skill Percentage",
+            "default": 75
+          }, {
+            "type": "color",
+            "id": "skill_color",
+            "label": "Skill Color",
+            "default": "#FF6100"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Workout Introduction",
+        "blocks": [
+          {
+            "type": "intro_content"
+          }, {
+            "type": "skill_bar"
+          }, {
+            "type": "skill_bar"
+          }, {
+            "type": "skill_bar"
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}

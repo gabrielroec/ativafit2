@@ -1,0 +1,484 @@
+{% comment %} 
+    Workout Stretching Section
+    Specialized section for stretching exercises with orange highlight design
+{% endcomment %}
+
+<section class="workout-stretching-section" data-section-id="{{ section.id }}">
+  <div class="workout-stretching-section__container">
+    {% for block in section.blocks %}
+      {% case block.type %}
+        {% when 'stretching_header' %}
+          <div class="workout-stretching-section__header" {{ block.shopify_attributes }}>
+            <div class="workout-stretching-section__header-content" style="background-color: {{ block.settings.section_color | default: '#FF6100' }};">
+              <h2 class="workout-stretching-section__title">{{ block.settings.title }}</h2>
+            </div>
+          </div>
+
+        {% when 'stretch' %}
+          <div class="workout-stretch" {{ block.shopify_attributes }}>
+            <div class="workout-stretch__grid">
+              <!-- Stretch Image -->
+              <div class="workout-stretch__image-column">
+                {% if block.settings.stretch_image != blank %}
+                  <div class="workout-stretch__image-wrapper">
+                    {{ block.settings.stretch_image | image_url: width: 600 | image_tag: 
+ class: 'workout-stretch__image', 
+ loading: 'lazy', 
+ alt: block.settings.image_alt | default: block.settings.stretch_title | escape
+                    }}
+                    <div class="workout-stretch__image-overlay">
+                      <span class="workout-stretch__image-text">{{ block.settings.stretch_title }}</span>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+
+              <!-- Stretch Content -->
+              <div class="workout-stretch__content-column">
+                <div class="workout-stretch__content">
+                  <div class="workout-stretch__header">
+                    <span class="workout-stretch__number">{{ block.settings.stretch_number }}</span>
+                    <h3 class="workout-stretch__title">{{ block.settings.stretch_title }}</h3>
+                  </div>
+
+                  {% if block.settings.target_muscles != blank %}
+                    <div class="workout-stretch__target">
+                      <span class="workout-stretch__target-label">Target:</span>
+                      <span class="workout-stretch__target-muscles">{{ block.settings.target_muscles }}</span>
+                    </div>
+                  {% endif %}
+
+                  {% if block.settings.instructions != blank %}
+                    <div class="workout-stretch__instructions">
+                      {{ block.settings.instructions }}
+                    </div>
+                  {% endif %}
+
+                  {% if block.settings.repetition_count != blank %}
+                    <div class="workout-stretch__repetition">
+                      <span class="workout-stretch__repetition-text">{{ block.settings.repetition_count }}</span>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+      {% endcase %}
+    {% endfor %}
+  </div>
+</section>
+
+{% style %}
+  .workout-stretching-section {
+    background: linear-gradient(135deg, #fff5f0 0%, #ffffff 100%);
+    padding: {{ section.settings.section_padding | default: '60px 0' }};
+    font-family: 'Barlow'
+    , sans-serif !important;
+  }
+
+  .workout-stretching-section__container {
+    max-width: 1350px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  /* Section Header */
+  .workout-stretching-section__header {
+    margin-bottom: 60px;
+    text-align: center;
+  }
+
+  .workout-stretching-section__header-content {
+    display: inline-block;
+    padding: 24px 48px;
+    border-radius: 16px;
+    box-shadow: 0 12px 40px rgba(255, 97, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .workout-stretching-section__header-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .workout-stretching-section__title {
+    font-size: 2.25rem;
+    font-weight: 900;
+    color: #ffffff;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-family: 'Barlow'
+    , sans-serif !important;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Stretch Blocks */
+  .workout-stretch {
+    margin-bottom: 80px;
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 97, 0, 0.1);
+  }
+
+  .workout-stretch:last-child {
+    margin-bottom: 0;
+  }
+
+  .workout-stretch__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+
+  /* Image Column */
+  .workout-stretch__image-column {
+    position: relative;
+  }
+
+  .workout-stretch__image-wrapper {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(255, 97, 0, 0.15);
+    aspect-ratio: 4 / 3;
+  }
+
+  .workout-stretch__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .workout-stretch__image-wrapper:hover .workout-stretch__image {
+    transform: scale(1.05);
+  }
+
+  .workout-stretch__image-overlay {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background: rgba(255, 97, 0, 0.95);
+    color: #ffffff;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: 'Barlow'
+    , sans-serif !important;
+    box-shadow: 0 4px 16px rgba(255, 97, 0, 0.3);
+  }
+
+  /* Content Column */
+  .workout-stretch__content-column {
+    padding: 20px 0;
+  }
+
+  .workout-stretch__content {
+    max-width: 500px;
+  }
+
+  .workout-stretch__header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 16px;
+  }
+
+  .workout-stretch__number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #FF6100 0%, #ff7a33 100%);
+    color: #ffffff;
+    border-radius: 50%;
+    font-size: 1.25rem;
+    font-weight: 900;
+    font-family: 'Barlow'
+    , sans-serif !important;
+    box-shadow: 0 6px 20px rgba(255, 97, 0, 0.3);
+  }
+
+  .workout-stretch__title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #1d1d1f;
+    margin: 0;
+    line-height: 1.2;
+    font-family: 'Barlow'
+    , sans-serif !important;
+  }
+
+  .workout-stretch__target {
+    margin-bottom: 28px;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #fff5f0 0%, #fff9f6 100%);
+    border-radius: 12px;
+    border-left: 6px solid #FF6100;
+    box-shadow: 0 4px 16px rgba(255, 97, 0, 0.1);
+  }
+
+  .workout-stretch__target-label {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #FF6100;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Barlow'
+    , sans-serif !important;
+  }
+
+  .workout-stretch__target-muscles {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #1d1d1f;
+    margin-left: 8px;
+    font-family: 'Barlow'
+    , sans-serif !important;
+  }
+
+  .workout-stretch__instructions {
+    margin-bottom: 28px;
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    color: #333333;
+    font-family: 'Barlow'
+    , sans-serif !important;
+  }
+
+  .workout-stretch__instructions ul {
+    margin: 0;
+    padding-left: 24px;
+  }
+
+  .workout-stretch__instructions li {
+    margin-bottom: 12px;
+    position: relative;
+  }
+
+  .workout-stretch__instructions li:last-child {
+    margin-bottom: 0;
+  }
+
+  .workout-stretch__instructions li::marker {
+    color: #FF6100;
+    font-weight: 700;
+  }
+
+  .workout-stretch__repetition {
+    text-align: center;
+    padding: 20px 28px;
+    background: linear-gradient(135deg, #FF6100 0%, #ff7a33 100%);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(255, 97, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .workout-stretch__repetition::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+  }
+
+  .workout-stretch__repetition:hover::before {
+    left: 100%;
+  }
+
+  .workout-stretch__repetition-text {
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-family: 'Barlow'
+    , sans-serif !important;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Responsive */
+  @media screen and (max-width: 1024px) {
+    .workout-stretch__grid {
+      gap: 40px;
+    }
+
+    .workout-stretching-section__title {
+      font-size: 2rem;
+    }
+
+    .workout-stretch {
+      padding: 32px;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    .workout-stretching-section__container {
+      padding: 0 16px;
+    }
+
+    .workout-stretch__grid {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+
+    .workout-stretch__content {
+      max-width: 100%;
+    }
+
+    .workout-stretch__title {
+      font-size: 1.625rem;
+    }
+
+    .workout-stretching-section__header-content {
+      padding: 20px 32px;
+    }
+
+    .workout-stretching-section__title {
+      font-size: 1.75rem;
+    }
+
+    .workout-stretch {
+      padding: 24px;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .workout-stretch__header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .workout-stretch__title {
+      font-size: 1.375rem;
+    }
+
+    .workout-stretch__instructions {
+      font-size: 1rem;
+    }
+
+    .workout-stretch {
+      padding: 20px;
+    }
+  }
+{% endstyle %}
+
+{% schema %}
+  {
+    "name": "Workout Stretching Section",
+    "tag": "section",
+    "class": "section",
+    "settings": [
+      {
+        "type": "text",
+        "id": "section_padding",
+        "label": "Section Padding",
+        "default": "60px 0"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "stretching_header",
+        "name": "Stretching Header",
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Section Title",
+            "default": "Stretching Moves 6 mins"
+          }, {
+            "type": "color",
+            "id": "section_color",
+            "label": "Section Color",
+            "default": "#FF6100"
+          }
+        ]
+      }, {
+        "type": "stretch",
+        "name": "Stretch",
+        "settings": [
+          {
+            "type": "text",
+            "id": "stretch_number",
+            "label": "Stretch Number",
+            "default": "1"
+          },
+          {
+            "type": "text",
+            "id": "stretch_title",
+            "label": "Stretch Title",
+            "default": "Across-the-chest Stretch"
+          },
+          {
+            "type": "text",
+            "id": "target_muscles",
+            "label": "Target Muscles",
+            "default": "Shoulders"
+          },
+          {
+            "type": "richtext",
+            "id": "instructions",
+            "label": "Instructions",
+            "default": "<ul><li>Bring your right arm straight across your chest</li><li>Use your left hand to gently pull your right arm closer to your chest</li><li>Hold for 30 seconds, then switch sides</li></ul>"
+          }, {
+            "type": "text",
+            "id": "repetition_count",
+            "label": "Repetition Count",
+            "default": "30 seconds each side"
+          }, {
+            "type": "image_picker",
+            "id": "stretch_image",
+            "label": "Stretch Image"
+          }, {
+            "type": "text",
+            "id": "image_alt",
+            "label": "Image Alt Text"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Workout Stretching Section",
+        "blocks": [
+          {
+            "type": "stretching_header"
+          }, {
+            "type": "stretch"
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}

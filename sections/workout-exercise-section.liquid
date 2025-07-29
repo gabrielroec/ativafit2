@@ -1,0 +1,433 @@
+{% comment %} 
+    Workout Exercise Section
+    Main exercise section with reusable blocks for different exercise types
+{% endcomment %}
+
+<section class="workout-exercise-section" data-section-id="{{ section.id }}">
+  <div class="workout-exercise-section__container">
+    {% for block in section.blocks %}
+      {% case block.type %}
+        {% when 'section_header' %}
+          <div class="workout-exercise-section__header" {{ block.shopify_attributes }}>
+            <div class="workout-exercise-section__header-content" style="background-color: {{ block.settings.section_color | default: '#FF6100' }};">
+              <h2 class="workout-exercise-section__title">{{ block.settings.title }}</h2>
+              {% if block.settings.note != blank %}
+                <p class="workout-exercise-section__note">{{ block.settings.note }}</p>
+              {% endif %}
+            </div>
+          </div>
+
+        {% when 'exercise' %}
+          <div class="workout-exercise" {{ block.shopify_attributes }}>
+            <div class="workout-exercise__grid">
+              <!-- Exercise Image -->
+              <div class="workout-exercise__image-column">
+                {% if block.settings.exercise_image != blank %}
+                  <div class="workout-exercise__image-wrapper">
+                    {{ block.settings.exercise_image | image_url: width: 600 | image_tag: 
+ class: 'workout-exercise__image', 
+ loading: 'lazy', 
+ alt: block.settings.image_alt | default: block.settings.exercise_title | escape
+                    }}
+                    <div class="workout-exercise__image-overlay">
+                      <span class="workout-exercise__image-text">{{ block.settings.exercise_title }}</span>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+
+              <!-- Exercise Content -->
+              <div class="workout-exercise__content-column">
+                <div class="workout-exercise__content">
+                  <div class="workout-exercise__header">
+                    <span class="workout-exercise__number">{{ block.settings.exercise_number }}</span>
+                    <h3 class="workout-exercise__title">{{ block.settings.exercise_title }}</h3>
+                  </div>
+
+                  {% if block.settings.target_muscles != blank %}
+                    <div class="workout-exercise__target">
+                      <span class="workout-exercise__target-label">Target:</span>
+                      <span class="workout-exercise__target-muscles">{{ block.settings.target_muscles }}</span>
+                    </div>
+                  {% endif %}
+
+                  {% if block.settings.instructions != blank %}
+                    <div class="workout-exercise__instructions">
+                      {{ block.settings.instructions }}
+                    </div>
+                  {% endif %}
+
+                  {% if block.settings.repetition_count != blank %}
+                    <div class="workout-exercise__repetition">
+                      <span class="workout-exercise__repetition-text">{{ block.settings.repetition_count }}</span>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+      {% endcase %}
+    {% endfor %}
+  </div>
+</section>
+
+{% style %}
+  .workout-exercise-section {
+    background: #ffffff;
+    padding: {{ section.settings.section_padding | default: '60px 0' }};
+    font-family: 'Barlow'
+    , sans-serif !important;
+  }
+
+  .workout-exercise-section__container {
+    max-width: 1350px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  /* Section Header */
+  .workout-exercise-section__header {
+    margin-bottom: 60px;
+    text-align: center;
+  }
+
+  .workout-exercise-section__header-content {
+    display: inline-block;
+    padding: 20px 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+
+  .workout-exercise-section__title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Barlow'
+    , sans-serif !important;
+  }
+
+  .workout-exercise-section__note {
+    font-size: 1rem;
+    color: #ffffff;
+    margin: 0;
+    opacity: 0.9;
+    font-style: italic;
+    font-family: 'Barlow'
+    , sans-serif !important;
+  }
+
+  /* Exercise Blocks */
+  .workout-exercise {
+    margin-bottom: 80px;
+  }
+
+  .workout-exercise:last-child {
+    margin-bottom: 0;
+  }
+
+  .workout-exercise__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+
+  /* Image Column */
+  .workout-exercise__image-column {
+    position: relative;
+  }
+
+  .workout-exercise__image-wrapper {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    aspect-ratio: 4 / 3;
+  }
+
+  .workout-exercise__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .workout-exercise__image-wrapper:hover .workout-exercise__image {
+    transform: scale(1.05);
+  }
+
+  .workout-exercise__image-overlay {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background: rgba(255, 97, 0, 0.9);
+    color: #ffffff;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: 'Barlow'
+    , sans-serif !important;
+  }
+
+  /* Content Column */
+  .workout-exercise__content-column {
+    padding: 20px 0;
+  }
+
+  .workout-exercise__content {
+    max-width: 500px;
+  }
+
+  .workout-exercise__header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 16px;
+  }
+
+  .workout-exercise__number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: #FF6100;
+    color: #ffffff;
+    border-radius: 50%;
+    font-size: 1.125rem;
+    font-weight: 700;
+    font-family: 'Barlow'
+    , sans-serif !important;
+  }
+
+  .workout-exercise__title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1d1d1f;
+    margin: 0;
+    line-height: 1.2;
+    font-family: 'Barlow'
+    , sans-serif !important;
+  }
+
+  .workout-exercise__target {
+    margin-bottom: 24px;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #FF6100;
+  }
+
+  .workout-exercise__target-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #666666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: 'Barlow'
+    , sans-serif !important;
+  }
+
+  .workout-exercise__target-muscles {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1d1d1f;
+    margin-left: 8px;
+    font-family: 'Barlow'
+    , sans-serif !important;
+  }
+
+  .workout-exercise__instructions {
+    margin-bottom: 24px;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #333333;
+    font-family: 'Barlow'
+    , sans-serif !important;
+  }
+
+  .workout-exercise__instructions ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+
+  .workout-exercise__instructions li {
+    margin-bottom: 8px;
+  }
+
+  .workout-exercise__instructions li:last-child {
+    margin-bottom: 0;
+  }
+
+  .workout-exercise__repetition {
+    text-align: center;
+    padding: 16px 24px;
+    background: #FF6100;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(255, 97, 0, 0.3);
+  }
+
+  .workout-exercise__repetition-text {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Barlow'
+    , sans-serif !important;
+  }
+
+  /* Responsive */
+  @media screen and (max-width: 1024px) {
+    .workout-exercise__grid {
+      gap: 40px;
+    }
+
+    .workout-exercise-section__title {
+      font-size: 1.75rem;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    .workout-exercise-section__container {
+      padding: 0 16px;
+    }
+
+    .workout-exercise__grid {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+
+    .workout-exercise__content {
+      max-width: 100%;
+    }
+
+    .workout-exercise__title {
+      font-size: 1.5rem;
+    }
+
+    .workout-exercise-section__header-content {
+      padding: 16px 24px;
+    }
+
+    .workout-exercise-section__title {
+      font-size: 1.5rem;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .workout-exercise__header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .workout-exercise__title {
+      font-size: 1.25rem;
+    }
+
+    .workout-exercise__instructions {
+      font-size: 0.9375rem;
+    }
+  }
+{% endstyle %}
+
+{% schema %}
+  {
+    "name": "Workout Exercise Section",
+    "tag": "section",
+    "class": "section",
+    "settings": [
+      {
+        "type": "text",
+        "id": "section_padding",
+        "label": "Section Padding",
+        "default": "60px 0"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "section_header",
+        "name": "Section Header",
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Section Title",
+            "default": "Jumping Rope 12 mins"
+          }, {
+            "type": "text",
+            "id": "note",
+            "label": "Note",
+            "default": "*Try to repeat this circle twice or even more"
+          }, {
+            "type": "color",
+            "id": "section_color",
+            "label": "Section Color",
+            "default": "#FF6100"
+          }
+        ]
+      }, {
+        "type": "exercise",
+        "name": "Exercise",
+        "settings": [
+          {
+            "type": "text",
+            "id": "exercise_number",
+            "label": "Exercise Number",
+            "default": "1"
+          },
+          {
+            "type": "text",
+            "id": "exercise_title",
+            "label": "Exercise Title",
+            "default": "Basic Step"
+          },
+          {
+            "type": "text",
+            "id": "target_muscles",
+            "label": "Target Muscles",
+            "default": "Full body cardio"
+          },
+          {
+            "type": "richtext",
+            "id": "instructions",
+            "label": "Instructions",
+            "default": "<ul><li>Focus on using your wrists to flick the jumping rope</li><li>Take tiny hops and keep your arms stationary</li></ul>"
+          }, {
+            "type": "text",
+            "id": "repetition_count",
+            "label": "Repetition Count",
+            "default": "Jump count: 50"
+          }, {
+            "type": "image_picker",
+            "id": "exercise_image",
+            "label": "Exercise Image"
+          }, {
+            "type": "text",
+            "id": "image_alt",
+            "label": "Image Alt Text"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Workout Exercise Section",
+        "blocks": [
+          {
+            "type": "section_header"
+          }, {
+            "type": "exercise"
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}
