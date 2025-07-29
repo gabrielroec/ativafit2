@@ -44,21 +44,51 @@
       <!-- Image Collage Column -->
       <div class="workout-introduction__images">
         {% for block in section.blocks %}
-          {% if block.type == 'intro_content' and block.settings.background_images != blank %}
+          {% if block.type == 'intro_content' %}
             <div class="workout-introduction__image-grid" {{ block.shopify_attributes }}>
-              {% assign images = block.settings.background_images | split: ',' %}
-              {% for image in images limit: 4 %}
-                <div class="workout-introduction__image-wrapper workout-introduction__image-wrapper--{{ forloop.index }}">
-                  {% assign image_url = image | strip %}
-                  {% if image_url != blank %}
-                    {{ image_url | image_url: width: 400 | image_tag: 
+              <!-- Image 1 -->
+              {% if block.settings.image_1 != blank %}
+                <div class="workout-introduction__image-wrapper workout-introduction__image-wrapper--1">
+                  {{ block.settings.image_1 | image_url: width: 400 | image_tag: 
  class: 'workout-introduction__image', 
  loading: 'lazy', 
- alt: 'Workout introduction image'
-                    }}
-                  {% endif %}
+ alt: 'Workout introduction image 1'
+                  }}
                 </div>
-              {% endfor %}
+              {% endif %}
+
+              <!-- Image 2 -->
+              {% if block.settings.image_2 != blank %}
+                <div class="workout-introduction__image-wrapper workout-introduction__image-wrapper--2">
+                  {{ block.settings.image_2 | image_url: width: 400 | image_tag: 
+ class: 'workout-introduction__image', 
+ loading: 'lazy', 
+ alt: 'Workout introduction image 2'
+                  }}
+                </div>
+              {% endif %}
+
+              <!-- Image 3 -->
+              {% if block.settings.image_3 != blank %}
+                <div class="workout-introduction__image-wrapper workout-introduction__image-wrapper--3">
+                  {{ block.settings.image_3 | image_url: width: 400 | image_tag: 
+ class: 'workout-introduction__image', 
+ loading: 'lazy', 
+ alt: 'Workout introduction image 3'
+                  }}
+                </div>
+              {% endif %}
+
+              <!-- Image 4 -->
+              {% if block.settings.image_4 != blank %}
+                <div class="workout-introduction__image-wrapper workout-introduction__image-wrapper--4">
+                  {{ block.settings.image_4 | image_url: width: 400 | image_tag: 
+ class: 'workout-introduction__image', 
+ loading: 'lazy', 
+ alt: 'Workout introduction image 4'
+                  }}
+                </div>
+              {% endif %}
             </div>
           {% endif %}
         {% endfor %}
@@ -344,16 +374,30 @@
             "id": "title",
             "label": "Title",
             "default": "INTRODUCTION"
-          }, {
+          },
+          {
             "type": "textarea",
             "id": "description",
             "label": "Description",
             "default": "Strip all the excuses about space, equipment, or condition, face the purist form of yourself beneath your bed, and just get action on."
+          },
+          {
+            "type": "image_picker",
+            "id": "image_1",
+            "label": "Image 1"
+          },
+          {
+            "type": "image_picker",
+            "id": "image_2",
+            "label": "Image 2"
           }, {
-            "type": "text",
-            "id": "background_images",
-            "label": "Background Images (comma separated URLs)",
-            "info": "Enter up to 4 image URLs separated by commas"
+            "type": "image_picker",
+            "id": "image_3",
+            "label": "Image 3"
+          }, {
+            "type": "image_picker",
+            "id": "image_4",
+            "label": "Image 4"
           }
         ]
       }, {
