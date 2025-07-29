@@ -1,98 +1,42 @@
 {% comment %} 
-      Workout Introduction Section
-      Introduction section with image collage and skill progress bars
+        Workout Introduction Section
+        Introduction section with skill progress bars
 {% endcomment %}
 
 <section class="workout-introduction" data-section-id="{{ section.id }}">
   <div class="workout-introduction__container">
-    <div class="workout-introduction__grid">
-      <!-- Content Column -->
-      <div class="workout-introduction__content">
-        {% for block in section.blocks %}
-          {% case block.type %}
-            {% when 'intro_content' %}
-              <div class="workout-introduction__text" {{ block.shopify_attributes }}>
-                {% if block.settings.title != blank %}
-                  <h2 class="workout-introduction__title">{{ block.settings.title }}</h2>
-                {% endif %}
+    <div class="workout-introduction__content">
+      {% for block in section.blocks %}
+        {% case block.type %}
+          {% when 'intro_content' %}
+            <div class="workout-introduction__text" {{ block.shopify_attributes }}>
+              {% if block.settings.title != blank %}
+                <h2 class="workout-introduction__title">{{ block.settings.title }}</h2>
+              {% endif %}
 
-                {% if block.settings.description != blank %}
-                  <p class="workout-introduction__description">{{ block.settings.description }}</p>
-                {% endif %}
+              {% if block.settings.description != blank %}
+                <p class="workout-introduction__description">{{ block.settings.description }}</p>
+              {% endif %}
 
-                <!-- Skill Bars -->
-                <div class="workout-introduction__skills">
-                  {% for skill_block in section.blocks %}
-                    {% if skill_block.type == 'skill_bar' %}
-                      <div class="workout-introduction__skill" {{ skill_block.shopify_attributes }}>
-                        <div class="workout-introduction__skill-header">
-                          <span class="workout-introduction__skill-name">{{ skill_block.settings.skill_name }}</span>
-                          <span class="workout-introduction__skill-percentage">{{ skill_block.settings.skill_percentage }}%</span>
-                        </div>
-                        <div class="workout-introduction__skill-bar">
-                          <div class="workout-introduction__skill-progress" style="width: {{ skill_block.settings.skill_percentage }}%; background-color: {{ skill_block.settings.skill_color | default: '#FF6100' }};"></div>
-                        </div>
+              <!-- Skill Bars -->
+              <div class="workout-introduction__skills">
+                {% for skill_block in section.blocks %}
+                  {% if skill_block.type == 'skill_bar' %}
+                    <div class="workout-introduction__skill" {{ skill_block.shopify_attributes }}>
+                      <div class="workout-introduction__skill-header">
+                        <span class="workout-introduction__skill-name">{{ skill_block.settings.skill_name }}</span>
+                        <span class="workout-introduction__skill-percentage">{{ skill_block.settings.skill_percentage }}%</span>
                       </div>
-                    {% endif %}
-                  {% endfor %}
-                </div>
+                      <div class="workout-introduction__skill-bar">
+                        <div class="workout-introduction__skill-progress" style="width: {{ skill_block.settings.skill_percentage }}%; background-color: {{ skill_block.settings.skill_color | default: '#FF6100' }};"></div>
+                      </div>
+                    </div>
+                  {% endif %}
+                {% endfor %}
               </div>
-          {% endcase %}
-        {% endfor %}
-      </div>
-
-      <!-- Image Collage Column -->
-      <div class="workout-introduction__images">
-        {% for block in section.blocks %}
-          {% if block.type == 'intro_content' %}
-            <div class="workout-introduction__image-grid" {{ block.shopify_attributes }}>
-              <!-- Image 1 -->
-              {% if block.settings.image_1 != blank %}
-                <div class="workout-introduction__image-wrapper workout-introduction__image-wrapper--1">
-                  {{ block.settings.image_1 | image_url: width: 400 | image_tag: 
- class: 'workout-introduction__image', 
- loading: 'lazy', 
- alt: 'Workout introduction image 1'
-                  }}
-                </div>
-              {% endif %}
-
-              <!-- Image 2 -->
-              {% if block.settings.image_2 != blank %}
-                <div class="workout-introduction__image-wrapper workout-introduction__image-wrapper--2">
-                  {{ block.settings.image_2 | image_url: width: 400 | image_tag: 
- class: 'workout-introduction__image', 
- loading: 'lazy', 
- alt: 'Workout introduction image 2'
-                  }}
-                </div>
-              {% endif %}
-
-              <!-- Image 3 -->
-              {% if block.settings.image_3 != blank %}
-                <div class="workout-introduction__image-wrapper workout-introduction__image-wrapper--3">
-                  {{ block.settings.image_3 | image_url: width: 400 | image_tag: 
- class: 'workout-introduction__image', 
- loading: 'lazy', 
- alt: 'Workout introduction image 3'
-                  }}
-                </div>
-              {% endif %}
-
-              <!-- Image 4 -->
-              {% if block.settings.image_4 != blank %}
-                <div class="workout-introduction__image-wrapper workout-introduction__image-wrapper--4">
-                  {{ block.settings.image_4 | image_url: width: 400 | image_tag: 
- class: 'workout-introduction__image', 
- loading: 'lazy', 
- alt: 'Workout introduction image 4'
-                  }}
-                </div>
-              {% endif %}
             </div>
-          {% endif %}
-        {% endfor %}
-      </div>
+        {% endcase %}
+      {% endfor %}
     </div>
   </div>
 </section>
@@ -111,15 +55,23 @@
     padding: 0 20px;
   }
 
-  .workout-introduction__grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 80px;
-    align-items: center;
+  .workout-introduction__content {
+    position: relative;
+    z-index: 2;
+    margin: 0 auto;
+    text-align: center;
   }
 
-  .workout-introduction__content {
-    padding-right: 40px;
+  .workout-introduction__content::before {
+    content: '';
+    position: absolute;
+    top: -40px;
+    left: -40px;
+    right: -40px;
+    bottom: -40px;
+    background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.6) 100%);
+    border-radius: 16px;
+    z-index: -1;
   }
 
   .workout-introduction__title {
@@ -148,6 +100,8 @@
     display: flex;
     flex-direction: column;
     gap: 24px;
+    max-width: 600px;
+    margin: 0 auto;
   }
 
   .workout-introduction__skill {
@@ -197,106 +151,20 @@
     background: linear-gradient(90deg, var(--skill-color) 0%, rgba(255, 97, 0, 0.8) 100%);
   }
 
-  .workout-introduction__images {
-    position: relative;
-  }
-
-  .workout-introduction__image-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: 16px;
-    height: 500px;
-  }
-
-  .workout-introduction__image-wrapper {
-    position: relative;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  }
-
-  .workout-introduction__image-wrapper--1 {
-    grid-column: 1 / 2;
-    grid-row: 1 / 2;
-  }
-
-  .workout-introduction__image-wrapper--2 {
-    grid-column: 2 / 3;
-    grid-row: 1 / 2;
-  }
-
-  .workout-introduction__image-wrapper--3 {
-    grid-column: 1 / 2;
-    grid-row: 2 / 3;
-  }
-
-  .workout-introduction__image-wrapper--4 {
-    grid-column: 2 / 3;
-    grid-row: 2 / 3;
-  }
-
-  .workout-introduction__image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-  }
-
-  .workout-introduction__image-wrapper:hover .workout-introduction__image {
-    transform: scale(1.05);
-  }
-
-  /* Background overlay for content */
-  .workout-introduction__content {
-    position: relative;
-    z-index: 2;
-  }
-
-  .workout-introduction__content::before {
-    content: '';
-    position: absolute;
-    top: -40px;
-    left: -40px;
-    right: -40px;
-    bottom: -40px;
-    background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.6) 100%);
-    border-radius: 16px;
-    z-index: -1;
-  }
-
   /* Responsive */
   @media screen and (max-width: 1024px) {
-    .workout-introduction__grid {
-      gap: 60px;
-    }
-
-    .workout-introduction__content {
-      padding-right: 20px;
-    }
-
     .workout-introduction__title {
       font-size: 2.5rem;
     }
   }
 
   @media screen and (max-width: 768px) {
-    .workout-introduction__grid {
-      grid-template-columns: 1fr;
-      gap: 40px;
+    .workout-introduction__container {
+      padding: 0 16px;
     }
 
     .workout-introduction__content {
-      padding-right: 0;
-      order: 2;
-    }
-
-    .workout-introduction__images {
-      order: 1;
-    }
-
-    .workout-introduction__image-grid {
-      height: 400px;
+      max-width: 100%;
     }
 
     .workout-introduction__title {
@@ -306,16 +174,15 @@
     .workout-introduction__description {
       font-size: 1.125rem;
     }
+
+    .workout-introduction__skills {
+      max-width: 100%;
+    }
   }
 
   @media screen and (max-width: 480px) {
     .workout-introduction__container {
       padding: 0 16px;
-    }
-
-    .workout-introduction__image-grid {
-      height: 300px;
-      gap: 12px;
     }
 
     .workout-introduction__title {
@@ -346,7 +213,7 @@
         }
       });
     }, { threshold: 0.5 });
-  
+
     skillBars.forEach(bar => observer.observe(bar));
   });
 </script>
@@ -374,30 +241,11 @@
             "id": "title",
             "label": "Title",
             "default": "INTRODUCTION"
-          },
-          {
+          }, {
             "type": "textarea",
             "id": "description",
             "label": "Description",
             "default": "Strip all the excuses about space, equipment, or condition, face the purist form of yourself beneath your bed, and just get action on."
-          },
-          {
-            "type": "image_picker",
-            "id": "image_1",
-            "label": "Image 1"
-          },
-          {
-            "type": "image_picker",
-            "id": "image_2",
-            "label": "Image 2"
-          }, {
-            "type": "image_picker",
-            "id": "image_3",
-            "label": "Image 3"
-          }, {
-            "type": "image_picker",
-            "id": "image_4",
-            "label": "Image 4"
           }
         ]
       }, {
