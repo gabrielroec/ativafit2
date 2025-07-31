@@ -195,183 +195,195 @@
 <section class="featured-products">
   <div class="featured-products__header">
     <h2 class="featured-products__title black">{{ section.settings.title }}</h2>
-  </div>
+</div>
 
-  <div class="featured-products__toolbar">
-    <div class="featured-products__count regular">
-      Showing {{ collection.products.size }} products
-    </div>
+  {% comment %} Determine which collection to use {% endcomment %}
+  {% assign display_collection = collection %}
+  {% if section.settings.custom_collection != blank %}
+    {% assign display_collection = section.settings.custom_collection %}
+  {% endif %}
 
-    <div class="featured-products__controls">
-      <div class="featured-products__sort">
-        <label for="sort-by" class="regular">Sort by:</label>
-        <select id="sort-by" class="featured-products__sort-select regular">
-          <option value="manual">Featured</option>
-          <option value="price-ascending">Price: Low to High</option>
-          <option value="price-descending">Price: High to Low</option>
-          <option value="title-ascending">A-Z</option>
-          <option value="title-descending">Z-A</option>
-          <option value="created-ascending">Oldest to Newest</option>
-          <option value="created-descending">Newest to Oldest</option>
-          <option value="best-selling">Best Selling</option>
-        </select>
+  {% if display_collection != blank %}
+    <div class="featured-products__toolbar">
+      <div class="featured-products__count regular">
+        Showing {{ display_collection.products.size }} products
       </div>
 
-      <div class="featured-products__view-options">
-        <button
-          class="featured-products__view-btn active"
-          data-view="grid"
-          title="Grid View">
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none">
-            <rect
-              x="3"
-              y="3"
-              width="7"
-              height="7"
-              stroke="currentColor"
-              stroke-width="2" />
-            <rect
-              x="14"
-              y="3"
-              width="7"
-              height="7"
-              stroke="currentColor"
-              stroke-width="2" />
-            <rect
-              x="3"
-              y="14"
-              width="7"
-              height="7"
-              stroke="currentColor"
-              stroke-width="2" />
-            <rect
-              x="14"
-              y="14"
-              width="7"
-              height="7"
-              stroke="currentColor"
-              stroke-width="2" />
-          </svg>
-        </button>
-        <button
-          class="featured-products__view-btn"
-          data-view="list"
-          title="List View">
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none">
-            <rect
-              x="3"
-              y="3"
-              width="18"
-              height="4"
-              stroke="currentColor"
-              stroke-width="2" />
-            <rect
-              x="3"
-              y="10"
-              width="18"
-              height="4"
-              stroke="currentColor"
-              stroke-width="2" />
-            <rect
-              x="3"
-              y="17"
-              width="18"
-              height="4"
-              stroke="currentColor"
-              stroke-width="2" />
-          </svg>
-        </button>
-      </div>
-
-    {% comment %} <button class="featured-products__filter-btn">
-                                                                                                                                            <svg
-                                                                                                                                              width="24"
-                                                                                                                                              height="24"
-                                                                                                                                              viewBox="0 0 24 24"
-                                                                                                                                              fill="none">
-                                                                                                                                              <path
-                                                                                                                                                d="M4 4h16v2.4l-6.4 6.4v6.4l-3.2 2.4v-8.8L4 6.4V4z"
-                                                                                                                                                stroke="currentColor"
-                                                                                                                                                stroke-width="2" />
-                                                                                                                                            </svg>
-                                                                                                                                            Filter
-                                                                                              </button> {% endcomment %}
-    </div>
-  </div>
-
-  <div class="featured-products__grid{% if request.design_mode %} shopify-design-mode{% endif %}">
-    {%- paginate collection.products by section.settings.products_per_page -%}
-      {% assign shown_products = '' %}
-        {%- for product in collection.products -%}
-        {% comment %} Cria um identificador único combinando múltiplos campos {% endcomment %}
-        {% assign product_sku = product.selected_or_first_available_variant.sku | default: 'no-sku' %}
-        {% assign product_id = product.id %}
-      {% assign product_title_normalized = product.title | downcase | replace: ' ', '' | replace: '-', '' | replace: '|', '' %}
-
-        {% comment %} Cria chaves únicas para verificação {% endcomment %}
-        {% assign unique_key_sku = 'sku:' | append: product_sku %}
-        {% assign unique_key_title = 'title:' | append: product_title_normalized %}
-      {% assign unique_key_handle = 'handle:' | append: product.handle %}
-
-        {% comment %} Verifica se já foi mostrado usando qualquer uma das chaves {% endcomment %}
-        {% assign is_duplicate = false %}
-
-        {% if shown_products contains unique_key_sku and product_sku != 'no-sku' %}
-          {% assign is_duplicate = true %}
-        {% endif %}
-
-        {% if shown_products contains unique_key_title %}
-          {% assign is_duplicate = true %}
-        {% endif %}
-
-        {% if shown_products contains unique_key_handle %}
-          {% assign is_duplicate = true %}
-        {% endif %}
-
-        {% unless is_duplicate %}
-          <div class="featured-products__item">
-            {% render 'product-card-custom'
-              , product: product %}
-            {% render 'product-card-list'
-              , product: product %}
+      <div class="featured-products__controls">
+        <div class="featured-products__sort">
+          <label for="sort-by" class="regular">Sort by:</label>
+          <select id="sort-by" class="featured-products__sort-select regular">
+            <option value="manual">Featured</option>
+            <option value="price-ascending">Price: Low to High</option>
+            <option value="price-descending">Price: High to Low</option>
+            <option value="title-ascending">A-Z</option>
+            <option value="title-descending">Z-A</option>
+            <option value="created-ascending">Oldest to Newest</option>
+            <option value="created-descending">Newest to Oldest</option>
+            <option value="best-selling">Best Selling</option>
+          </select>
         </div>
 
-          {% comment %} Adiciona todas as chaves aos produtos mostrados {% endcomment %}
-          {% assign shown_products = shown_products | append: '|' | append: unique_key_sku | append: '|' | append: unique_key_title | append: '|' | append: unique_key_handle %}
-        {% endunless %}
-      {%- endfor -%}
+        <div class="featured-products__view-options">
+          <button
+            class="featured-products__view-btn active"
+            data-view="grid"
+            title="Grid View">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none">
+              <rect
+                x="3"
+                y="3"
+                width="7"
+                height="7"
+                stroke="currentColor"
+                stroke-width="2" />
+              <rect
+                x="14"
+                y="3"
+                width="7"
+                height="7"
+                stroke="currentColor"
+                stroke-width="2" />
+              <rect
+                x="3"
+                y="14"
+                width="7"
+                height="7"
+                stroke="currentColor"
+                stroke-width="2" />
+              <rect
+                x="14"
+                y="14"
+                width="7"
+                height="7"
+                stroke="currentColor"
+                stroke-width="2" />
+            </svg>
+          </button>
+          <button
+            class="featured-products__view-btn"
+            data-view="list"
+            title="List View">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none">
+              <rect
+                x="3"
+                y="3"
+                width="18"
+                height="4"
+                stroke="currentColor"
+                stroke-width="2" />
+              <rect
+                x="3"
+                y="10"
+                width="18"
+                height="4"
+                stroke="currentColor"
+                stroke-width="2" />
+              <rect
+                x="3"
+                y="17"
+                width="18"
+                height="4"
+                stroke="currentColor"
+                stroke-width="2" />
+            </svg>
+          </button>
+        </div>
 
-      {%- if paginate.pages > 1 -%}
-        <div class="featured-products__pagination">
-          {%- if paginate.previous -%}
-            <a href="{{ paginate.previous.url }}" class="featured-products__page-btn">Previous</a>
-          {%- endif -%}
+      {% comment %} <button class="featured-products__filter-btn">
+                                                                                                                                                    <svg
+                                                                                                                                                      width="24"
+                                                                                                                                                      height="24"
+                                                                                                                                                      viewBox="0 0 24 24"
+                                                                                                                                                      fill="none">
+                                                                                                                                                    <path
+                                                                                                                                                        d="M4 4h16v2.4l-6.4 6.4v6.4l-3.2 2.4v-8.8L4 6.4V4z"
+                                                                                                                                                        stroke="currentColor"
+                                                                                                                                                        stroke-width="2" />
+                                                                                                                                                    </svg>
+                                                                                                                                                    Filter
+                                                                                                    </button> {% endcomment %}
+      </div>
+    </div>
 
-          {%- for part in paginate.parts -%}
-            {%- if part.is_link -%}
-              <a href="{{ part.url }}" class="featured-products__page-btn">{{ part.title }}</a>
-            {%- else -%}
-              <span class="featured-products__page-btn{% if part.title == paginate.current_page %} active{% endif %}">
-                {{ part.title }}
-              </span>
+    <div class="featured-products__grid{% if request.design_mode %} shopify-design-mode{% endif %}">
+      {%- paginate display_collection.products by section.settings.products_per_page -%}
+        {% assign shown_products = '' %}
+          {%- for product in display_collection.products -%}
+          {% comment %} Cria um identificador único combinando múltiplos campos {% endcomment %}
+          {% assign product_sku = product.selected_or_first_available_variant.sku | default: 'no-sku' %}
+          {% assign product_id = product.id %}
+        {% assign product_title_normalized = product.title | downcase | replace: ' ', '' | replace: '-', '' | replace: '|', '' %}
+
+          {% comment %} Cria chaves únicas para verificação {% endcomment %}
+          {% assign unique_key_sku = 'sku:' | append: product_sku %}
+          {% assign unique_key_title = 'title:' | append: product_title_normalized %}
+        {% assign unique_key_handle = 'handle:' | append: product.handle %}
+
+          {% comment %} Verifica se já foi mostrado usando qualquer uma das chaves {% endcomment %}
+          {% assign is_duplicate = false %}
+
+          {% if shown_products contains unique_key_sku and product_sku != 'no-sku' %}
+            {% assign is_duplicate = true %}
+          {% endif %}
+
+          {% if shown_products contains unique_key_title %}
+            {% assign is_duplicate = true %}
+          {% endif %}
+
+          {% if shown_products contains unique_key_handle %}
+            {% assign is_duplicate = true %}
+          {% endif %}
+
+          {% unless is_duplicate %}
+            <div class="featured-products__item">
+              {% render 'product-card-custom'
+                , product: product %}
+              {% render 'product-card-list'
+                , product: product %}
+          </div>
+
+            {% comment %} Adiciona todas as chaves aos produtos mostrados {% endcomment %}
+            {% assign shown_products = shown_products | append: '|' | append: unique_key_sku | append: '|' | append: unique_key_title | append: '|' | append: unique_key_handle %}
+          {% endunless %}
+        {%- endfor -%}
+
+        {%- if paginate.pages > 1 -%}
+          <div class="featured-products__pagination">
+            {%- if paginate.previous -%}
+              <a href="{{ paginate.previous.url }}" class="featured-products__page-btn">Previous</a>
             {%- endif -%}
-          {%- endfor -%}
 
-          {%- if paginate.next -%}
-            <a href="{{ paginate.next.url }}" class="featured-products__page-btn">Next</a>
-          {%- endif -%}
-        </div>
-      {%- endif -%}
-    {%- endpaginate -%}
-  </div>
+            {%- for part in paginate.parts -%}
+              {%- if part.is_link -%}
+                <a href="{{ part.url }}" class="featured-products__page-btn">{{ part.title }}</a>
+              {%- else -%}
+                <span class="featured-products__page-btn{% if part.title == paginate.current_page %} active{% endif %}">
+                  {{ part.title }}
+                </span>
+              {%- endif -%}
+            {%- endfor -%}
+
+            {%- if paginate.next -%}
+              <a href="{{ paginate.next.url }}" class="featured-products__page-btn">Next</a>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      {%- endpaginate -%}
+    </div>
+  {% else %}
+    <div class="featured-products__empty">
+      <p>No collection selected or collection is empty.</p>
+    </div>
+  {% endif %}
 </section>
 
 <script>
@@ -434,6 +446,11 @@
         "id": "title",
         "label": "Title",
         "default": "FEATURED PRODUCTS"
+      }, {
+        "type": "collection",
+        "id": "custom_collection",
+        "label": "Collection to Display",
+        "info": "Leave empty to use the current page collection"
       }, {
         "type": "range",
         "id": "products_per_page",
