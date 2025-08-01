@@ -36,10 +36,47 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center;
   }
 
   .hero-simple__image--mobile {
     display: none;
+  }
+
+  /* Container para melhor controle da imagem */
+  .hero-simple__image-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .hero-simple__image {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  /* Estilos específicos para diferentes tipos de ajuste */
+  .hero-simple__image[style*="object-fit: contain"] {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  .hero-simple__image[style*="object-fit: center"] {
+    width: auto;
+    height: auto;
+    min-width: 100%;
+    min-height: 100%;
   }
 
   .hero-simple__overlay {
@@ -200,20 +237,24 @@
         {% endif %}
 
         {% if block.settings.background_image != blank %}
-          <img
-            src="{{ block.settings.background_image | image_url: width: 2000 }}"
-            alt="{{ block.settings.background_image.alt | escape }}"
-            class="hero-simple__image hero-simple__image--desktop"
-            loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
-            width="2000"
-            height="500">
-          <img
-            src="{{ block.settings.background_image_mobile | default: block.settings.background_image | image_url: width: 1000 }}"
-            alt="{{ block.settings.background_image_mobile.alt | default: block.settings.background_image.alt | escape }}"
-            class="hero-simple__image hero-simple__image--mobile"
-            loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
-            width="1000"
-            height="500">
+          <div class="hero-simple__image-container">
+            <img
+              src="{{ block.settings.background_image | image_url: width: 2000 }}"
+              alt="{{ block.settings.background_image.alt | escape }}"
+              class="hero-simple__image hero-simple__image--desktop"
+              loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+              width="2000"
+              height="500"
+              style="object-fit: {{ block.settings.image_fit | default: 'cover' }};">
+            <img
+              src="{{ block.settings.background_image_mobile | default: block.settings.background_image | image_url: width: 1000 }}"
+              alt="{{ block.settings.background_image_mobile.alt | default: block.settings.background_image.alt | escape }}"
+              class="hero-simple__image hero-simple__image--mobile"
+              loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+              width="1000"
+              height="500"
+              style="object-fit: {{ block.settings.image_fit | default: 'cover' }};">
+          </div>
         {% endif %}
 
         <div class="hero-simple__overlay" style="background-color: {{ block.settings.overlay_color | color_modify: 'alpha', block.settings.overlay_opacity }}"></div>
@@ -416,12 +457,29 @@
             "info": "Recommended size: 1000x500px. If not set, will use desktop image"
           },
           {
+            "type": "select",
+            "id": "image_fit",
+            "label": "Image Display",
+            "options": [
+              {
+                "value": "cover",
+                "label": "Cover (Fill entire area, may crop)"
+              }, {
+                "value": "contain",
+                "label": "Contain (Show full image, may have gaps)"
+              }, {
+                "value": "center",
+                "label": "Center (Show center portion)"
+              }
+            ],
+            "default": "cover"
+          },
+          {
             "type": "text",
             "id": "title",
             "label": "Title",
             "default": "PERFORMANCE, COMFORT AND STYLE."
-          },
-          {
+          }, {
             "type": "text",
             "id": "subtitle",
             "label": "Subtitle",

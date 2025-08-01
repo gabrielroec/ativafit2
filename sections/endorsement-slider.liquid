@@ -44,6 +44,10 @@
     cursor: pointer;
   }
 
+  .endorsement-slide:hover {
+    transform: scale(1.05);
+  }
+
   /* Estilos para diferentes posições */
   .endorsement-slide.far-left {
     transform: scale(0.7);
@@ -308,7 +312,8 @@
         class="endorsement-slide-data"
         data-brand="{{ block.settings.brand | escape }}"
         data-text="{{ block.settings.text | escape }}"
-        data-logo="{{ block.settings.logo | image_url: width: 127 }}"></div>
+        data-logo="{{ block.settings.logo | image_url: width: 127 }}"
+        data-slide-index="{{ forloop.index0 }}"></div>
     {% endfor %}
   </div>
 </section>
@@ -361,6 +366,7 @@
         positions.forEach(({ data, position }) => {
           const slide = document.createElement('div');
           slide.className = `endorsement-slide ${position} sliding-in`;
+          slide.dataset.slideIndex = this.slidesData.indexOf(data);
           slide.innerHTML = `
             <img src="${data.dataset.logo}" 
                  alt="${data.dataset.brand}" 
@@ -425,6 +431,18 @@
     bindEvents() {
       this.prevBtn.addEventListener('click', () => this.prev());
       this.nextBtn.addEventListener('click', () => this.next());
+      
+      // Adicionar eventos de clique nos slides
+      this.visibleSlidesContainer.addEventListener('click', (e) => {
+        const slide = e.target.closest('.endorsement-slide');
+        if (slide) {
+          const slideIndex = parseInt(slide.dataset.slideIndex);
+          if (!isNaN(slideIndex)) {
+            this.currentIndex = slideIndex;
+            this.render();
+          }
+        }
+      });
       
       // Pausar autoplay no hover
       this.container.addEventListener('mouseenter', () => this.stopAutoPlay());
