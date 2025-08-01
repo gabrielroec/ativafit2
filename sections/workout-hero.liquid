@@ -1,82 +1,170 @@
 {% comment %} 
-                    Workout Hero Section
-                    Hero banner for workout programs with modern design
+                                                                                                                                        Workout Hero Section
+                                                                                                                                        Hero banner for workout programs with modern design
 {% endcomment %}
 
 <section class="workout-hero" data-section-id="{{ section.id }}">
   <div class="workout-hero__background">
-    {% if section.settings.background_image != blank %}
-      {{ section.settings.background_image | image_url: width: 1920 | image_tag: class: 'workout-hero__bg-image', loading: 'eager', alt: 'Workout background'
-      }}
+    <!-- DEBUG: {{ section.settings.background_image | json }} -->
+    {% if section.settings.background_image %}
+      <img
+        src="{{ section.settings.background_image | image_url: width: 1920 }}"
+        alt="Workout background"
+        class="workout-hero__bg-image"
+        width="1920"
+        height="600"
+        style="width: 100%; height: 100%; object-fit: cover; filter: blur(8px);">
+    {% else %}
+      <div class="workout-hero__bg-fallback" style="width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center;">
+        <p style="color: white; text-align: center; padding: 20px;">No image selected</p>
+      </div>
     {% endif %}
-    <div class="workout-hero__overlay" style="opacity: {{ section.settings.overlay_opacity | default: 0.7 }};"></div>
+    <div class="workout-hero__overlay"></div>
   </div>
 
   <div class="workout-hero__container">
-    <div class="workout-hero__content-wrapper">
-      <div class="workout-hero__content">
-        {% if section.settings.heading != blank %}
-          <h1 class="workout-hero__heading">{{ section.settings.heading }}</h1>
-        {% endif %}
+    <div class="workout-hero__content-box">
+      {% if section.settings.heading != blank %}
+        <h1 class="workout-hero__heading">{{ section.settings.heading }}</h1>
+      {% endif %}
 
-        {% if section.settings.intro_text != blank %}
-          <div class="workout-hero__intro">
-            <p class="workout-hero__intro-text">{{ section.settings.intro_text }}</p>
-          </div>
-        {% endif %}
-
-        <!-- Skill Bars -->
-        {% if section.settings.show_skill_bars %}
-          <div class="workout-hero__skills">
-            {% if section.settings.skill_1_name != blank %}
-              <div class="workout-hero__skill">
-                <div class="workout-hero__skill-info">
-                  <span class="workout-hero__skill-name">{{ section.settings.skill_1_name }}</span>
-                  <span class="workout-hero__skill-percentage">{{ section.settings.skill_1_percentage }}%</span>
-                </div>
-                <div class="workout-hero__skill-bar">
-                  <div class="workout-hero__skill-progress" style="width: {{ section.settings.skill_1_percentage }}%; background-color: {{ section.settings.skill_1_color | default: '#FF6100' }};"></div>
-                </div>
-              </div>
-            {% endif %}
-
-            {% if section.settings.skill_2_name != blank %}
-              <div class="workout-hero__skill">
-                <div class="workout-hero__skill-info">
-                  <span class="workout-hero__skill-name">{{ section.settings.skill_2_name }}</span>
-                  <span class="workout-hero__skill-percentage">{{ section.settings.skill_2_percentage }}%</span>
-                </div>
-                <div class="workout-hero__skill-bar">
-                  <div class="workout-hero__skill-progress" style="width: {{ section.settings.skill_2_percentage }}%; background-color: {{ section.settings.skill_2_color | default: '#28a745' }};"></div>
-                </div>
-              </div>
-            {% endif %}
-
-            {% if section.settings.skill_3_name != blank %}
-              <div class="workout-hero__skill">
-                <div class="workout-hero__skill-info">
-                  <span class="workout-hero__skill-name">{{ section.settings.skill_3_name }}</span>
-                  <span class="workout-hero__skill-percentage">{{ section.settings.skill_3_percentage }}%</span>
-                </div>
-                <div class="workout-hero__skill-bar">
-                  <div class="workout-hero__skill-progress" style="width: {{ section.settings.skill_3_percentage }}%; background-color: {{ section.settings.skill_3_color | default: '#007bff' }};"></div>
-                </div>
-              </div>
-            {% endif %}
-          </div>
-        {% endif %}
-      </div>
+      {% if section.settings.intro_text != blank %}
+        <div class="workout-hero__intro">
+          <p class="workout-hero__intro-text">{{ section.settings.intro_text }}</p>
+        </div>
+      {% endif %}
     </div>
   </div>
 </section>
 
+<!-- Skill Bars Section (Below Banner) -->
+{% if section.settings.show_skill_bars %}
+  <section class="workout-hero__skills-section">
+    <div class="workout-hero__skills-container">
+      {% if section.settings.skill_1_name != blank %}
+        <div class="workout-hero__skill-item">
+          <div class="workout-hero__skill-content">
+            <div class="workout-hero__skill-icon">
+              <img
+                src="https://cdn.shopify.com/s/files/1/2623/4904/files/Screenshot_2025-08-01_020520_150x.png?v=1754024731"
+                alt="{{ section.settings.skill_1_name }}"
+                width="48"
+                height="48"
+                loading="lazy">
+            </div>
+            <div class="workout-hero__skill-bar">
+              <div class="workout-hero__skill-segments">
+                {% assign skill_1_percentage = section.settings.skill_1_percentage | default: 80 %}
+                {% assign filled_segments = skill_1_percentage | divided_by: 20 %}
+                {% assign partial_segment = skill_1_percentage | modulo: 20 %}
+
+                {% for i in (1..5) %}
+                  {% assign next_segment = filled_segments | plus: 1 %}
+                  <div class="workout-hero__skill-segment {% if i <= filled_segments %}active{% endif %}">
+                    {% if i == next_segment and partial_segment > 0 %}
+                      <div class="workout-hero__skill-segment-fill" style="background-color: {{ section.settings.skill_1_color | default: '#FF6100' }}; 
+                                  width: {{ partial_segment | times: 5 }}%;">
+</div>
+                    {% elsif i <= filled_segments %}
+                      <div class="workout-hero__skill-segment-fill" style="background-color: {{ section.settings.skill_1_color | default: '#FF6100' }}; 
+                                  width: 100%;">
+</div>
+                    {% endif %}
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <span class="workout-hero__skill-label">{{ section.settings.skill_1_name }}</span>
+        </div>
+      {% endif %}
+
+      {% if section.settings.skill_2_name != blank %}
+        <div class="workout-hero__skill-item">
+          <div class="workout-hero__skill-content">
+            <div class="workout-hero__skill-icon">
+              <img
+                src="https://cdn.shopify.com/s/files/1/2623/4904/files/Screenshot_2025-08-01_020534_150x.png?v=1754024740"
+                alt="{{ section.settings.skill_2_name }}"
+                width="48"
+                height="48"
+                loading="lazy">
+            </div>
+            <div class="workout-hero__skill-bar">
+              <div class="workout-hero__skill-segments">
+                {% assign skill_2_percentage = section.settings.skill_2_percentage | default: 60 %}
+                {% assign filled_segments = skill_2_percentage | divided_by: 20 %}
+                {% assign partial_segment = skill_2_percentage | modulo: 20 %}
+
+                {% for i in (1..5) %}
+                  {% assign next_segment = filled_segments | plus: 1 %}
+                  <div class="workout-hero__skill-segment {% if i <= filled_segments %}active{% endif %}">
+                    {% if i == next_segment and partial_segment > 0 %}
+                      <div class="workout-hero__skill-segment-fill" style="background-color: {{ section.settings.skill_2_color | default: '#28a745' }}; 
+                                  width: {{ partial_segment | times: 5 }}%;">
+</div>
+                    {% elsif i <= filled_segments %}
+                      <div class="workout-hero__skill-segment-fill" style="background-color: {{ section.settings.skill_2_color | default: '#28a745' }}; 
+                                  width: 100%;">
+</div>
+                    {% endif %}
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <span class="workout-hero__skill-label">{{ section.settings.skill_2_name }}</span>
+        </div>
+      {% endif %}
+
+      {% if section.settings.skill_3_name != blank %}
+        <div class="workout-hero__skill-item">
+          <div class="workout-hero__skill-content">
+            <div class="workout-hero__skill-icon">
+              <img
+                src="https://cdn.shopify.com/s/files/1/2623/4904/files/Screenshot_2025-08-01_020547_150x.png?v=1754024757"
+                alt="{{ section.settings.skill_3_name }}"
+                width="48"
+                height="48"
+                loading="lazy">
+            </div>
+            <div class="workout-hero__skill-bar">
+              <div class="workout-hero__skill-segments">
+                {% assign skill_3_percentage = section.settings.skill_3_percentage | default: 60 %}
+                {% assign filled_segments = skill_3_percentage | divided_by: 20 %}
+                {% assign partial_segment = skill_3_percentage | modulo: 20 %}
+
+                {% for i in (1..5) %}
+                  {% assign next_segment = filled_segments | plus: 1 %}
+                  <div class="workout-hero__skill-segment {% if i <= filled_segments %}active{% endif %}">
+                    {% if i == next_segment and partial_segment > 0 %}
+                      <div class="workout-hero__skill-segment-fill" style="background-color: {{ section.settings.skill_3_color | default: '#007bff' }}; 
+                                  width: {{ partial_segment | times: 5 }}%;">
+</div>
+                    {% elsif i <= filled_segments %}
+                      <div class="workout-hero__skill-segment-fill" style="background-color: {{ section.settings.skill_3_color | default: '#007bff' }}; 
+                                  width: 100%;">
+</div>
+                    {% endif %}
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <span class="workout-hero__skill-label">{{ section.settings.skill_3_name }}</span>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+{% endif %}
+
 {% style %}
   .workout-hero {
     position: relative;
-    min-height: 400px;
+    min-height: 500px;
     display: flex;
-    align-items: center;
-    justify-content: flex-start;
+    align-items: flex-end;
+    justify-content: center;
     overflow: hidden;
     font-family: 'Barlow'
     , sans-serif !important;
@@ -96,6 +184,22 @@
     height: 100%;
     object-fit: cover;
     object-position: center;
+    filter: blur(8px);
+  }
+
+  .workout-hero__bg-fallback {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .workout-hero__bg-fallback::before {
+    content: '🏃‍♂️';
+    font-size: 4rem;
+    opacity: 0.3;
   }
 
   .workout-hero__overlay {
@@ -104,7 +208,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 100%);
+    background: rgba(0, 0, 0, 0.3);
     z-index: 2;
   }
 
@@ -117,159 +221,274 @@
     padding: 0 20px;
   }
 
-  .workout-hero__content-wrapper {
-    margin: 0;
-    padding: 0 20px;
-  }
-
-  .workout-hero__content {
-    margin: 0;
+  .workout-hero__content-box {
+    background: #ffffff;
+    border-radius: 16px 16px 0 0;
+    padding: 40px;
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   }
 
   .workout-hero__heading {
-    font-size: clamp(2rem, 4vw, 3rem);
+    font-size: 2.5rem;
     font-weight: 900;
-    color: #ffffff;
-    margin-bottom: 16px;
+    color: #1d1d1f;
+    margin-bottom: 20px;
     line-height: 1.1;
     text-transform: uppercase;
     letter-spacing: -0.02em;
     font-family: 'Barlow'
     , sans-serif !important;
+    text-align: center;
   }
 
   .workout-hero__intro {
-    margin-bottom: 32px;
+    margin-bottom: 0;
   }
 
   .workout-hero__intro-text {
-    font-size: 1rem;
-    color: #ffffff;
-    line-height: 1.5;
+    font-size: 1.125rem;
+    color: #333333;
+    line-height: 1.6;
     font-weight: 400;
     font-family: 'Barlow'
     , sans-serif !important;
-    opacity: 0.85;
-    max-width: 500px;
-    margin: 0;
+    text-align: center;
   }
 
-  .workout-hero__skills {
+  /* Skills Section (Below Banner) */
+  .workout-hero__skills-section {
+    background: #ffffff;
+    padding: 60px 0;
+    font-family: 'Barlow'
+    , sans-serif !important;
+    border-radius: 0 0 16px 16px;
+  }
+
+  .workout-hero__skills-container {
+    max-width: 1350px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    align-items: center;
+  }
+
+  .workout-hero__skill-item {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    max-width: 400px;
-    margin: 0;
-  }
-
-  .workout-hero__skill {
-    background: rgba(255, 255, 255, 0.08);
-    padding: 12px 16px;
-    border-radius: 6px;
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  .workout-hero__skill-info {
-    display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 6px;
+    gap: 16px;
+    min-width: 200px;
   }
 
-  .workout-hero__skill-name {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #ffffff;
-    font-family: 'Barlow'
-    , sans-serif !important;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .workout-hero__skill-percentage {
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: #ffffff;
-    opacity: 0.8;
-    font-family: 'Barlow'
-    , sans-serif !important;
-  }
-
-  .workout-hero__skill-bar {
+  .workout-hero__skill-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
     width: 100%;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 2px;
+  }
+
+  .workout-hero__skill-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    flex-shrink: 0;
     overflow: hidden;
   }
 
-  .workout-hero__skill-progress {
+  .workout-hero__skill-icon:empty {
+    display: none;
+  }
+
+  .workout-hero__skill-icon img {
+    width: 100%;
     height: 100%;
-    border-radius: 2px;
-    transition: width 1s ease-in-out;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  .workout-hero__skill-icon .placeholder-svg {
+    width: 100%;
+    height: 100%;
+    background: #f0f0f0;
+    border-radius: 8px;
+  }
+
+  .workout-hero__skill-bar {
+    flex: 1;
+  }
+
+  .workout-hero__skill-segments {
+    display: flex;
+    gap: 6px;
+    height: 20px;
+  }
+
+  .workout-hero__skill-segment {
+    flex: 1;
+    background: #e0e0e0;
+    border-radius: 3px;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  .workout-hero__skill-segment.animate {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .workout-hero__skill-segment.active {
+    opacity: 1;
+  }
+
+  .workout-hero__skill-segment-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 3px;
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  .workout-hero__skill-segment-fill.animate {
+    transform: scaleX(1);
+  }
+
+  .workout-hero__skill-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #666666;
+    font-family: 'Barlow'
+    , sans-serif !important;
+    text-align: center;
   }
 
   /* Responsive */
   @media screen and (max-width: 768px) {
     .workout-hero {
-      min-height: 60vh;
+      min-height: 400px;
     }
 
     .workout-hero__container {
-      padding: 0 16px;
+      padding: 0 16px 30px;
     }
 
-    .workout-hero__content-wrapper {
-      padding: 0 16px;
+    .workout-hero__content-box {
+      padding: 30px 24px;
     }
 
-    .workout-hero__skills {
-      max-width: 100%;
+    .workout-hero__heading {
+      font-size: 2rem;
+    }
+
+    .workout-hero__intro-text {
+      font-size: 1rem;
+    }
+
+    .workout-hero__skills-section {
+      padding: 40px 0;
+    }
+
+    .workout-hero__skills-container {
+      flex-direction: column;
+      gap: 40px;
+    }
+
+    .workout-hero__skill-item {
+      min-width: 180px;
+    }
+
+    .workout-hero__skill-segments {
+      gap: 5px;
+      height: 18px;
     }
   }
 
   @media screen and (max-width: 480px) {
     .workout-hero {
-      min-height: 50vh;
+      min-height: 350px;
     }
 
-    .workout-hero__container {
-      padding: 0 16px;
-    }
-
-    .workout-hero__content-wrapper {
-      padding: 0;
+    .workout-hero__content-box {
+      padding: 24px 20px;
     }
 
     .workout-hero__heading {
-      margin-bottom: 12px;
+      font-size: 1.75rem;
     }
 
-    .workout-hero__intro {
-      margin-bottom: 24px;
+    .workout-hero__skills-section {
+      padding: 30px 0;
     }
 
-    .workout-hero__skill {
-      padding: 10px 12px;
+    .workout-hero__skills-container {
+      gap: 30px;
+    }
+
+    .workout-hero__skill-item {
+      min-width: 160px;
+    }
+
+    .workout-hero__skill-icon {
+      width: 40px;
+      height: 40px;
+    }
+
+    .workout-hero__skill-segments {
+      gap: 4px;
+      height: 16px;
     }
   }
 {% endstyle %}
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Animate skill bars on load
-    const skillBars = document.querySelectorAll('.workout-hero__skill-progress');
+    // Debug: Check background image
+    console.log('=== WORKOUT HERO DEBUG ===');
+    console.log('Section ID:', '{{ section.id }}');
+    console.log('Background Image Setting:', '{{ section.settings.background_image | json }}');
     
-    skillBars.forEach((bar, index) => {
+    const bgImage = document.querySelector('.workout-hero__bg-image');
+    if (bgImage) {
+      console.log('Image element found:', bgImage.src);
+      bgImage.addEventListener('load', function() {
+        console.log('✅ Background image loaded successfully');
+      });
+      bgImage.addEventListener('error', function() {
+        console.log('❌ Background image failed to load');
+      });
+    } else {
+      console.log('❌ No image element found - showing fallback');
+    }
+    
+    // Animate skill segments on load with smoother timing
+    const skillSegments = document.querySelectorAll('.workout-hero__skill-segment');
+    const skillFills = document.querySelectorAll('.workout-hero__skill-segment-fill');
+    
+    // Animate segments first
+    skillSegments.forEach((segment, index) => {
       setTimeout(() => {
-        const percentage = bar.style.width;
-        bar.style.width = '0%';
-        
-        setTimeout(() => {
-          bar.style.width = percentage;
-        }, 100);
-      }, index * 150);
+        segment.classList.add('animate');
+      }, index * 100); // 100ms delay for segment animation
+    });
+    
+    // Animate fills after segments
+    skillFills.forEach((fill, index) => {
+      setTimeout(() => {
+        fill.classList.add('animate');
+      }, (index * 100) + 300); // 300ms delay after segments start
     });
   });
 </script>
@@ -290,7 +509,7 @@
         "type": "textarea",
         "id": "intro_text",
         "label": "Introduction Text",
-        "default": "Strip all the excuses about space, equipment, or condition, face the purist form of yourself beneath your bed, and just get action on."
+        "default": "Transform your fitness journey with this comprehensive at-home program. Strip all the excuses about space, equipment, or condition, face the purist form of yourself beneath your bed, and just get action on."
       },
       {
         "type": "checkbox",
@@ -311,9 +530,9 @@
         "id": "skill_1_percentage",
         "min": 0,
         "max": 100,
-        "step": 5,
+        "step": 20,
         "label": "Skill 1 Percentage",
-        "default": 75
+        "default": 80
       }, {
         "type": "color",
         "id": "skill_1_color",
@@ -332,7 +551,7 @@
         "id": "skill_2_percentage",
         "min": 0,
         "max": 100,
-        "step": 5,
+        "step": 20,
         "label": "Skill 2 Percentage",
         "default": 80
       }, {
@@ -353,7 +572,7 @@
         "id": "skill_3_percentage",
         "min": 0,
         "max": 100,
-        "step": 5,
+        "step": 20,
         "label": "Skill 3 Percentage",
         "default": 60
       }, {
@@ -365,14 +584,6 @@
         "type": "image_picker",
         "id": "background_image",
         "label": "Background Image"
-      }, {
-        "type": "range",
-        "id": "overlay_opacity",
-        "min": 0,
-        "max": 1,
-        "step": 0.1,
-        "label": "Overlay Opacity",
-        "default": 0.7
       }
     ],
     "presets": [

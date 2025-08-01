@@ -1,6 +1,6 @@
 {% comment %} 
-          Workout Exercise Section
-          Main exercise section with reusable blocks for different exercise types
+                                    Workout Exercise Section
+                                    Main exercise section with reusable blocks for different exercise types
 {% endcomment %}
 
 <section class="workout-exercise-section" data-section-id="{{ section.id }}">
@@ -9,7 +9,7 @@
       {% case block.type %}
         {% when 'section_header' %}
           <div class="workout-exercise-section__header" {{ block.shopify_attributes }}>
-            <div class="workout-exercise-section__header-content" style="background-color: {{ block.settings.section_color | default: '#FF6100' }};">
+            <div class="workout-exercise-section__header-content">
               <h2 class="workout-exercise-section__title">{{ block.settings.title }}</h2>
               {% if block.settings.note != blank %}
                 <p class="workout-exercise-section__note">{{ block.settings.note }}</p>
@@ -87,27 +87,40 @@
 
   .workout-exercise-section__header-content {
     display: inline-block;
-    padding: 16px 32px;
-    border-radius: 8px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
   }
 
   .workout-exercise-section__title {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: #ffffff;
-    margin: 0 0 8px;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #1d1d1f;
+    margin: 0 0 12px;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
     font-family: 'Barlow'
     , sans-serif !important;
+    position: relative;
+  }
+
+  .workout-exercise-section__title::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: #FF6100;
+    border-radius: 2px;
   }
 
   .workout-exercise-section__note {
-    font-size: 0.875rem;
-    color: #ffffff;
+    font-size: 0.9375rem;
+    color: #666666;
     margin: 0;
-    opacity: 0.9;
     font-style: italic;
     font-family: 'Barlow'
     , sans-serif !important;
@@ -176,7 +189,8 @@
     width: 32px;
     height: 32px;
     background: #FF6100;
-    color: #ffffff;
+    color: #fff;
+    border: 2px solid #FF6100;
     border-radius: 50%;
     font-size: 1rem;
     font-weight: 700;
@@ -247,15 +261,15 @@
   .workout-exercise__repetition {
     text-align: center;
     padding: 12px 20px;
-    background: #FF6100;
+    background: #f8f9fa;
     border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(255, 97, 0, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   }
 
   .workout-exercise__repetition-text {
     font-size: 0.875rem;
     font-weight: 700;
-    color: #ffffff;
+    color: #1d1d1f;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-family: 'Barlow'
@@ -298,11 +312,16 @@
     }
 
     .workout-exercise-section__header-content {
-      padding: 12px 20px;
+      padding: 0;
     }
 
     .workout-exercise-section__title {
-      font-size: 1.25rem;
+      font-size: 1.5rem;
+    }
+
+    .workout-exercise-section__title::after {
+      width: 50px;
+      height: 2px;
     }
   }
 

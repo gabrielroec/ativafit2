@@ -1,6 +1,6 @@
 {% comment %} 
-          Workout Stretching Section
-          Specialized section for stretching exercises with orange highlight design
+                        Workout Stretching Section
+                        Specialized section for stretching exercises with orange highlight design
 {% endcomment %}
 
 <section class="workout-stretching-section" data-section-id="{{ section.id }}">
@@ -9,7 +9,7 @@
       {% case block.type %}
         {% when 'stretching_header' %}
           <div class="workout-stretching-section__header" {{ block.shopify_attributes }}>
-            <div class="workout-stretching-section__header-content" style="background-color: {{ block.settings.section_color | default: '#FF6100' }};">
+            <div class="workout-stretching-section__header-content">
               <h2 class="workout-stretching-section__title">{{ block.settings.title }}</h2>
             </div>
           </div>
@@ -23,9 +23,6 @@
                   <div class="workout-stretch__image-wrapper">
                     {{ block.settings.stretch_image | image_url: width: 600 | image_tag: class: 'workout-stretch__image', loading: 'lazy', alt: block.settings.image_alt | default: block.settings.stretch_title | escape
                     }}
-                    <div class="workout-stretch__image-overlay">
-                      <span class="workout-stretch__image-text">{{ block.settings.stretch_title }}</span>
-                    </div>
                   </div>
                 {% endif %}
               </div>
@@ -67,7 +64,6 @@
 
 {% style %}
   .workout-stretching-section {
-    background: linear-gradient(135deg, #fff5f0 0%, #ffffff 100%);
     padding: {{ section.settings.section_padding | default: '60px 0' }};
     font-family: 'Barlow'
     , sans-serif !important;
@@ -87,53 +83,39 @@
 
   .workout-stretching-section__header-content {
     display: inline-block;
-    padding: 24px 48px;
-    border-radius: 16px;
-    box-shadow: 0 12px 40px rgba(255, 97, 0, 0.2);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .workout-stretching-section__header-content::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
-    animation: shimmer 2s infinite;
-  }
-
-  @keyframes shimmer {
-    0% {
-      transform: translateX(-100%);
-    }
-    100% {
-      transform: translateX(100%);
-    }
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
   }
 
   .workout-stretching-section__title {
-    font-size: 2.25rem;
-    font-weight: 900;
-    color: #ffffff;
-    margin: 0;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #1d1d1f;
+    margin: 0 0 12px;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 1.5px;
     font-family: 'Barlow'
     , sans-serif !important;
     position: relative;
-    z-index: 1;
+  }
+
+  .workout-stretching-section__title::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: #FF6100;
+    border-radius: 2px;
   }
 
   /* Stretch Blocks */
   .workout-stretch {
     margin-bottom: 80px;
-    background: #ffffff;
-    border-radius: 20px;
-    padding: 40px;
-    border: 1px solid rgba(255, 97, 0, 0.1);
   }
 
   .workout-stretch:last-child {
@@ -154,8 +136,9 @@
 
   .workout-stretch__image-wrapper {
     position: relative;
-    border-radius: 16px;
+    border-radius: 12px;
     overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
     aspect-ratio: 4 / 3;
   }
 
@@ -167,24 +150,7 @@
   }
 
   .workout-stretch__image-wrapper:hover .workout-stretch__image {
-    transform: scale(1.05);
-  }
-
-  .workout-stretch__image-overlay {
-    position: absolute;
-    top: 16px;
-    left: 16px;
-    background: rgba(255, 97, 0, 0.95);
-    color: #ffffff;
-    padding: 10px 18px;
-    border-radius: 10px;
-    font-size: 0.875rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-family: 'Barlow'
-    , sans-serif !important;
-    box-shadow: 0 4px 16px rgba(255, 97, 0, 0.3);
+    transform: scale(1.02);
   }
 
   /* Content Column */
@@ -200,27 +166,28 @@
     display: flex;
     align-items: center;
     margin-bottom: 20px;
-    gap: 16px;
+    gap: 12px;
   }
 
   .workout-stretch__number {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 48px;
-    height: 48px;
-    background: linear-gradient(135deg, #FF6100 0%, #ff7a33 100%);
-    color: #ffffff;
+    width: 32px;
+    height: 32px;
+    background: #FF6100;
+    color: #fff;
+    border: 2px solid #FF6100;
     border-radius: 50%;
-    font-size: 1.25rem;
-    font-weight: 900;
+    font-size: 1rem;
+    font-weight: 700;
     font-family: 'Barlow'
     , sans-serif !important;
-    box-shadow: 0 6px 20px rgba(255, 97, 0, 0.3);
+    flex-shrink: 0;
   }
 
   .workout-stretch__title {
-    font-size: 1.875rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: #1d1d1f;
     margin: 0;
@@ -230,27 +197,26 @@
   }
 
   .workout-stretch__target {
-    margin-bottom: 28px;
-    padding: 16px 20px;
-    background: linear-gradient(135deg, #fff5f0 0%, #fff9f6 100%);
-    border-radius: 12px;
-    border-left: 6px solid #FF6100;
-    box-shadow: 0 4px 16px rgba(255, 97, 0, 0.1);
+    margin-bottom: 20px;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border-left: 3px solid #FF6100;
   }
 
   .workout-stretch__target-label {
-    font-size: 0.875rem;
-    font-weight: 700;
-    color: #FF6100;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #666666;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
     font-family: 'Barlow'
     , sans-serif !important;
   }
 
   .workout-stretch__target-muscles {
-    font-size: 1.125rem;
-    font-weight: 700;
+    font-size: 0.875rem;
+    font-weight: 600;
     color: #1d1d1f;
     margin-left: 8px;
     font-family: 'Barlow'
@@ -258,9 +224,9 @@
   }
 
   .workout-stretch__instructions {
-    margin-bottom: 28px;
-    font-size: 1.0625rem;
-    line-height: 1.7;
+    margin-bottom: 20px;
+    font-size: 0.9375rem;
+    line-height: 1.6;
     color: #333333;
     font-family: 'Barlow'
     , sans-serif !important;
@@ -268,58 +234,33 @@
 
   .workout-stretch__instructions ul {
     margin: 0;
-    padding-left: 24px;
+    padding-left: 20px;
   }
 
   .workout-stretch__instructions li {
-    margin-bottom: 12px;
-    position: relative;
+    margin-bottom: 6px;
   }
 
   .workout-stretch__instructions li:last-child {
     margin-bottom: 0;
   }
 
-  .workout-stretch__instructions li::marker {
-    color: #FF6100;
-    font-weight: 700;
-  }
-
   .workout-stretch__repetition {
     text-align: center;
-    padding: 20px 28px;
-    background: linear-gradient(135deg, #FF6100 0%, #ff7a33 100%);
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(255, 97, 0, 0.3);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .workout-stretch__repetition::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s ease;
-  }
-
-  .workout-stretch__repetition:hover::before {
-    left: 100%;
+    padding: 12px 20px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   }
 
   .workout-stretch__repetition-text {
-    font-size: 1.25rem;
-    font-weight: 900;
-    color: #ffffff;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #1d1d1f;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
+    letter-spacing: 0.5px;
     font-family: 'Barlow'
     , sans-serif !important;
-    position: relative;
-    z-index: 1;
   }
 
   /* Responsive */
@@ -329,11 +270,7 @@
     }
 
     .workout-stretching-section__title {
-      font-size: 2rem;
-    }
-
-    .workout-stretch {
-      padding: 32px;
+      font-size: 1.5rem;
     }
   }
 
@@ -351,40 +288,49 @@
       max-width: 100%;
     }
 
+    .workout-stretch__header {
+      flex-direction: row;
+      align-items: center;
+      gap: 12px;
+    }
+
     .workout-stretch__title {
-      font-size: 1.625rem;
+      font-size: 1.25rem;
     }
 
     .workout-stretching-section__header-content {
-      padding: 20px 32px;
+      padding: 0;
     }
 
     .workout-stretching-section__title {
-      font-size: 1.75rem;
+      font-size: 1.5rem;
     }
 
-    .workout-stretch {
-      padding: 24px;
+    .workout-stretching-section__title::after {
+      width: 50px;
+      height: 2px;
     }
   }
 
   @media screen and (max-width: 480px) {
     .workout-stretch__header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 12px;
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .workout-stretch__number {
+      width: 28px;
+      height: 28px;
+      font-size: 0.875rem;
     }
 
     .workout-stretch__title {
-      font-size: 1.375rem;
+      font-size: 1.125rem;
     }
 
     .workout-stretch__instructions {
-      font-size: 1rem;
-    }
-
-    .workout-stretch {
-      padding: 20px;
+      font-size: 0.875rem;
     }
   }
 {% endstyle %}

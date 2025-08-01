@@ -1,6 +1,6 @@
 {% comment %} 
-        Workout Product Recommendations Section
-        Product recommendations section for workout programs
+      Workout Product Recommendations Section
+      Product recommendations section for workout programs
 {% endcomment %}
 
 <section class="workout-product-recommendations" data-section-id="{{ section.id }}">
@@ -20,45 +20,8 @@
           {% when 'product' %}
             <div class="workout-product-recommendations__item" {{ block.shopify_attributes }}>
               {% if block.settings.product != blank %}
-                {% assign product = block.settings.product %}
-                <div class="workout-product-recommendations__card">
-                  <div class="workout-product-recommendations__image-wrapper">
-                    <a href="{{ product.url }}">
-                      {% if product.featured_image != blank %}
-                        {{ product.featured_image | image_url: width: 400 | image_tag: 
- class: 'workout-product-recommendations__image', 
- loading: 'lazy', 
- alt: product.featured_image.alt | escape
-                        }}
-                      {% else %}
-                        {{ 'product-1' | placeholder_svg_tag: 'workout-product-recommendations__image placeholder' }}
-                      {% endif %}
-                    </a>
-                  </div>
-
-                  <div class="workout-product-recommendations__content">
-                    <h3 class="workout-product-recommendations__product-title">
-                      <a href="{{ product.url }}">{{ product.title }}</a>
-                    </h3>
-
-                    <div class="workout-product-recommendations__price">
-                      {% if product.compare_at_price > product.price %}
-                        <span class="workout-product-recommendations__price--sale">{{ product.price | money }}</span>
-                        <span class="workout-product-recommendations__price--compare">{{ product.compare_at_price | money }}</span>
-                      {% else %}
-                        <span class="workout-product-recommendations__price--regular">{{ product.price | money }}</span>
-                      {% endif %}
-                    </div>
-
-                    {% if block.settings.description != blank %}
-                      <p class="workout-product-recommendations__description">{{ block.settings.description }}</p>
-                    {% endif %}
-
-                    <a href="{{ product.url }}" class="workout-product-recommendations__button">
-                      {{ block.settings.button_text | default: 'View Product' }}
-                    </a>
-                  </div>
-                </div>
+                {% render 'product-card-custom'
+                  , product: block.settings.product %}
               {% endif %}
             </div>
         {% endcase %}
@@ -113,121 +76,12 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 32px;
+    justify-items: center;
   }
 
-  .workout-product-recommendations__card {
-    background: #ffffff;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
-  }
-
-  .workout-product-recommendations__card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  }
-
-  .workout-product-recommendations__image-wrapper {
-    position: relative;
-    aspect-ratio: 1;
-    overflow: hidden;
-  }
-
-  .workout-product-recommendations__image {
+  .workout-product-recommendations__item {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-  }
-
-  .workout-product-recommendations__card:hover .workout-product-recommendations__image {
-    transform: scale(1.05);
-  }
-
-  .workout-product-recommendations__content {
-    padding: 24px;
-  }
-
-  .workout-product-recommendations__product-title {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #1d1d1f;
-    margin-bottom: 12px;
-    line-height: 1.2;
-    font-family: 'Barlow'
-    , sans-serif !important;
-  }
-
-  .workout-product-recommendations__product-title a {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  .workout-product-recommendations__product-title a:hover {
-    color: #FF6100;
-  }
-
-  .workout-product-recommendations__price {
-    margin-bottom: 16px;
-  }
-
-  .workout-product-recommendations__price--regular {
-    font-size: 1.125rem;
-    font-weight: 700;
-    color: #1d1d1f;
-    font-family: 'Barlow'
-    , sans-serif !important;
-  }
-
-  .workout-product-recommendations__price--sale {
-    font-size: 1.125rem;
-    font-weight: 700;
-    color: #FF6100;
-    font-family: 'Barlow'
-    , sans-serif !important;
-  }
-
-  .workout-product-recommendations__price--compare {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #666666;
-    text-decoration: line-through;
-    margin-left: 8px;
-    font-family: 'Barlow'
-    , sans-serif !important;
-  }
-
-  .workout-product-recommendations__description {
-    font-size: 0.875rem;
-    color: #666666;
-    line-height: 1.5;
-    margin-bottom: 20px;
-    font-family: 'Barlow'
-    , sans-serif !important;
-  }
-
-  .workout-product-recommendations__button {
-    display: inline-block;
-    padding: 12px 24px;
-    background: #FF6100;
-    color: #ffffff;
-    text-decoration: none;
-    border-radius: 6px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: all 0.3s ease;
-    font-family: 'Barlow'
-    , sans-serif !important;
-    border: 2px solid #FF6100;
-  }
-
-  .workout-product-recommendations__button:hover {
-    background: #e55700;
-    border-color: #e55700;
-    transform: translateY(-1px);
+    max-width: 300px;
   }
 
   /* Responsive */
@@ -274,10 +128,6 @@
       grid-template-columns: 1fr;
       gap: 20px;
     }
-
-    .workout-product-recommendations__content {
-      padding: 20px;
-    }
   }
 {% endstyle %}
 
@@ -308,16 +158,6 @@
             "type": "product",
             "id": "product",
             "label": "Product"
-          }, {
-            "type": "text",
-            "id": "description",
-            "label": "Description",
-            "info": "Optional custom description"
-          }, {
-            "type": "text",
-            "id": "button_text",
-            "label": "Button Text",
-            "default": "View Product"
           }
         ]
       }
