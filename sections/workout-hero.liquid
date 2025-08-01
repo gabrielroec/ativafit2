@@ -1,37 +1,71 @@
 {% comment %} 
-        Workout Hero Section
-        Hero banner for workout programs with modern design
+                    Workout Hero Section
+                    Hero banner for workout programs with modern design
 {% endcomment %}
 
 <section class="workout-hero" data-section-id="{{ section.id }}">
   <div class="workout-hero__background">
     {% if section.settings.background_image != blank %}
-      {{ section.settings.background_image | image_url: width: 1920 | image_tag: 
- class: 'workout-hero__bg-image', 
- loading: 'eager', 
- alt: 'Workout background'
+      {{ section.settings.background_image | image_url: width: 1920 | image_tag: class: 'workout-hero__bg-image', loading: 'eager', alt: 'Workout background'
       }}
     {% endif %}
     <div class="workout-hero__overlay" style="opacity: {{ section.settings.overlay_opacity | default: 0.7 }};"></div>
   </div>
 
   <div class="workout-hero__container">
-    <div class="workout-hero__content">
-      {% if section.settings.heading != blank %}
-        <h1 class="workout-hero__heading">{{ section.settings.heading }}</h1>
-      {% endif %}
+    <div class="workout-hero__content-wrapper">
+      <div class="workout-hero__content">
+        {% if section.settings.heading != blank %}
+          <h1 class="workout-hero__heading">{{ section.settings.heading }}</h1>
+        {% endif %}
 
-      {% if section.settings.subheading != blank %}
-        <p class="workout-hero__subheading">{{ section.settings.subheading }}</p>
-      {% endif %}
+        {% if section.settings.intro_text != blank %}
+          <div class="workout-hero__intro">
+            <p class="workout-hero__intro-text">{{ section.settings.intro_text }}</p>
+          </div>
+        {% endif %}
 
-      {% if section.settings.button_text != blank and section.settings.button_link != blank %}
-        <div class="workout-hero__button-wrapper">
-          <a href="{{ section.settings.button_link }}" class="workout-hero__button">
-            {{ section.settings.button_text }}
-          </a>
-        </div>
-      {% endif %}
+        <!-- Skill Bars -->
+        {% if section.settings.show_skill_bars %}
+          <div class="workout-hero__skills">
+            {% if section.settings.skill_1_name != blank %}
+              <div class="workout-hero__skill">
+                <div class="workout-hero__skill-info">
+                  <span class="workout-hero__skill-name">{{ section.settings.skill_1_name }}</span>
+                  <span class="workout-hero__skill-percentage">{{ section.settings.skill_1_percentage }}%</span>
+                </div>
+                <div class="workout-hero__skill-bar">
+                  <div class="workout-hero__skill-progress" style="width: {{ section.settings.skill_1_percentage }}%; background-color: {{ section.settings.skill_1_color | default: '#FF6100' }};"></div>
+                </div>
+              </div>
+            {% endif %}
+
+            {% if section.settings.skill_2_name != blank %}
+              <div class="workout-hero__skill">
+                <div class="workout-hero__skill-info">
+                  <span class="workout-hero__skill-name">{{ section.settings.skill_2_name }}</span>
+                  <span class="workout-hero__skill-percentage">{{ section.settings.skill_2_percentage }}%</span>
+                </div>
+                <div class="workout-hero__skill-bar">
+                  <div class="workout-hero__skill-progress" style="width: {{ section.settings.skill_2_percentage }}%; background-color: {{ section.settings.skill_2_color | default: '#28a745' }};"></div>
+                </div>
+              </div>
+            {% endif %}
+
+            {% if section.settings.skill_3_name != blank %}
+              <div class="workout-hero__skill">
+                <div class="workout-hero__skill-info">
+                  <span class="workout-hero__skill-name">{{ section.settings.skill_3_name }}</span>
+                  <span class="workout-hero__skill-percentage">{{ section.settings.skill_3_percentage }}%</span>
+                </div>
+                <div class="workout-hero__skill-bar">
+                  <div class="workout-hero__skill-progress" style="width: {{ section.settings.skill_3_percentage }}%; background-color: {{ section.settings.skill_3_color | default: '#007bff' }};"></div>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
     </div>
   </div>
 </section>
@@ -42,7 +76,7 @@
     min-height: 400px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     overflow: hidden;
     font-family: 'Barlow'
     , sans-serif !important;
@@ -77,22 +111,26 @@
   .workout-hero__container {
     position: relative;
     z-index: 3;
+    width: 100%;
     max-width: 1350px;
     margin: 0 auto;
     padding: 0 20px;
-    text-align: center;
+  }
+
+  .workout-hero__content-wrapper {
+    margin: 0;
+    padding: 0 20px;
   }
 
   .workout-hero__content {
-    max-width: 800px;
-    margin: 0 auto;
+    margin: 0;
   }
 
   .workout-hero__heading {
-    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-size: clamp(2rem, 4vw, 3rem);
     font-weight: 900;
     color: #ffffff;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
     line-height: 1.1;
     text-transform: uppercase;
     letter-spacing: -0.02em;
@@ -100,75 +138,141 @@
     , sans-serif !important;
   }
 
-  .workout-hero__subheading {
-    font-size: clamp(1.125rem, 2.5vw, 1.5rem);
+  .workout-hero__intro {
+    margin-bottom: 32px;
+  }
+
+  .workout-hero__intro-text {
+    font-size: 1rem;
     color: #ffffff;
-    margin-bottom: 40px;
-    line-height: 1.4;
+    line-height: 1.5;
     font-weight: 400;
     font-family: 'Barlow'
     , sans-serif !important;
-    opacity: 0.9;
+    opacity: 0.85;
+    max-width: 500px;
+    margin: 0;
   }
 
-  .workout-hero__button-wrapper {
-    margin-top: 40px;
+  .workout-hero__skills {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 400px;
+    margin: 0;
   }
 
-  .workout-hero__button {
-    display: inline-block;
-    padding: 18px 36px;
-    background: #FF6100;
-    color: #ffffff;
-    text-decoration: none;
-    border-radius: 8px;
-    font-size: 16px;
+  .workout-hero__skill {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 12px 16px;
+    border-radius: 6px;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .workout-hero__skill-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .workout-hero__skill-name {
+    font-size: 0.75rem;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    transition: all 0.3s ease;
+    color: #ffffff;
     font-family: 'Barlow'
     , sans-serif !important;
-    border: 2px solid #FF6100;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
-  .workout-hero__button:hover {
-    background: #e55700;
-    border-color: #e55700;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(255, 97, 0, 0.3);
+  .workout-hero__skill-percentage {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #ffffff;
+    opacity: 0.8;
+    font-family: 'Barlow'
+    , sans-serif !important;
+  }
+
+  .workout-hero__skill-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .workout-hero__skill-progress {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 1s ease-in-out;
   }
 
   /* Responsive */
   @media screen and (max-width: 768px) {
     .workout-hero {
-      min-height: 70vh;
+      min-height: 60vh;
     }
 
     .workout-hero__container {
       padding: 0 16px;
     }
 
-    .workout-hero__button {
-      padding: 16px 28px;
-      font-size: 14px;
+    .workout-hero__content-wrapper {
+      padding: 0 16px;
+    }
+
+    .workout-hero__skills {
+      max-width: 100%;
     }
   }
 
   @media screen and (max-width: 480px) {
     .workout-hero {
-      min-height: 60vh;
+      min-height: 50vh;
+    }
+
+    .workout-hero__container {
+      padding: 0 16px;
+    }
+
+    .workout-hero__content-wrapper {
+      padding: 0;
     }
 
     .workout-hero__heading {
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
 
-    .workout-hero__subheading {
-      margin-bottom: 32px;
+    .workout-hero__intro {
+      margin-bottom: 24px;
+    }
+
+    .workout-hero__skill {
+      padding: 10px 12px;
     }
   }
 {% endstyle %}
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Animate skill bars on load
+    const skillBars = document.querySelectorAll('.workout-hero__skill-progress');
+    
+    skillBars.forEach((bar, index) => {
+      setTimeout(() => {
+        const percentage = bar.style.width;
+        bar.style.width = '0%';
+        
+        setTimeout(() => {
+          bar.style.width = percentage;
+        }, 100);
+      }, index * 150);
+    });
+  });
+</script>
 
 {% schema %}
   {
@@ -183,17 +287,85 @@
         "default": "The Starter 30-Min Bedside Workout"
       },
       {
-        "type": "text",
-        "id": "subheading",
-        "label": "Subheading",
-        "default": "Transform your fitness journey with this comprehensive at-home program"
+        "type": "textarea",
+        "id": "intro_text",
+        "label": "Introduction Text",
+        "default": "Strip all the excuses about space, equipment, or condition, face the purist form of yourself beneath your bed, and just get action on."
       },
       {
+        "type": "checkbox",
+        "id": "show_skill_bars",
+        "label": "Show Skill Bars",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Skill Bar 1"
+      }, {
+        "type": "text",
+        "id": "skill_1_name",
+        "label": "Skill 1 Name",
+        "default": "Muscle & Strength"
+      }, {
+        "type": "range",
+        "id": "skill_1_percentage",
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "label": "Skill 1 Percentage",
+        "default": 75
+      }, {
+        "type": "color",
+        "id": "skill_1_color",
+        "label": "Skill 1 Color",
+        "default": "#FF6100"
+      }, {
+        "type": "header",
+        "content": "Skill Bar 2"
+      }, {
+        "type": "text",
+        "id": "skill_2_name",
+        "label": "Skill 2 Name",
+        "default": "Cardio & Endurance"
+      }, {
+        "type": "range",
+        "id": "skill_2_percentage",
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "label": "Skill 2 Percentage",
+        "default": 80
+      }, {
+        "type": "color",
+        "id": "skill_2_color",
+        "label": "Skill 2 Color",
+        "default": "#28a745"
+      }, {
+        "type": "header",
+        "content": "Skill Bar 3"
+      }, {
+        "type": "text",
+        "id": "skill_3_name",
+        "label": "Skill 3 Name",
+        "default": "Flexibility & Mobility"
+      }, {
+        "type": "range",
+        "id": "skill_3_percentage",
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "label": "Skill 3 Percentage",
+        "default": 60
+      }, {
+        "type": "color",
+        "id": "skill_3_color",
+        "label": "Skill 3 Color",
+        "default": "#007bff"
+      }, {
         "type": "image_picker",
         "id": "background_image",
         "label": "Background Image"
-      },
-      {
+      }, {
         "type": "range",
         "id": "overlay_opacity",
         "min": 0,
@@ -201,15 +373,6 @@
         "step": 0.1,
         "label": "Overlay Opacity",
         "default": 0.7
-      }, {
-        "type": "text",
-        "id": "button_text",
-        "label": "Button Text",
-        "default": "START WORKOUT"
-      }, {
-        "type": "url",
-        "id": "button_link",
-        "label": "Button Link"
       }
     ],
     "presets": [
