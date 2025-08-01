@@ -1,6 +1,6 @@
 {% comment %} 
-      Workout Blog Posts Section
-      Blog posts section for workout programs
+        Workout Blog Posts Section
+        Blog posts section for workout programs
 {% endcomment %}
 
 <section class="workout-blog-posts" data-section-id="{{ section.id }}">
@@ -21,55 +21,33 @@
             <div class="workout-blog-posts__item" {{ block.shopify_attributes }}>
               {% if block.settings.article != blank %}
                 {% assign article = block.settings.article %}
-                <div class="workout-blog-posts__card">
-                  <div class="workout-blog-posts__image-wrapper">
-                    <a href="{{ article.url }}">
-                      {% if article.image != blank %}
-                        {{ article.image | image_url: width: 400 | image_tag: 
- class: 'workout-blog-posts__image', 
+                <a href="{{ article.url }}" class="workout-blog-card">
+                  <div class="workout-blog-card__image-container">
+                    {% if article.image != blank %}
+                      {{ article.image | image_url: width: 400 | image_tag: 
+ class: 'workout-blog-card__image', 
  loading: 'lazy', 
  alt: article.image.alt | escape
-                        }}
-                      {% else %}
-                        {{ 'article-1' | placeholder_svg_tag: 'workout-blog-posts__image placeholder' }}
-                      {% endif %}
-                    </a>
-                  </div>
-
-                  <div class="workout-blog-posts__content">
-                    <div class="workout-blog-posts__meta">
-                      <span class="workout-blog-posts__date">{{ article.published_at | date: '%B %d, %Y' }}</span>
-                      {% if article.tags.size > 0 %}
-                        <span class="workout-blog-posts__tag">{{ article.tags.first }}</span>
-                      {% endif %}
-                    </div>
-
-                    <h3 class="workout-blog-posts__article-title">
-                      <a href="{{ article.url }}">{{ article.title }}</a>
-                    </h3>
-
-                    {% if article.excerpt != blank %}
-                      <p class="workout-blog-posts__excerpt">{{ article.excerpt | strip_html | truncate: 120 }}</p>
+                      }}
+                    {% else %}
+                      {{ 'lifestyle-1' | placeholder_svg_tag: 'workout-blog-card__image' }}
                     {% endif %}
-
-                    <a href="{{ article.url }}" class="workout-blog-posts__read-more">
-                      {{ block.settings.button_text | default: 'Read More' }}
-                      <svg
-                        class="workout-blog-posts__arrow"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none">
-                        <path
-                          d="M5 12H19M19 12L12 5M19 12L12 19"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round" />
-                      </svg>
-                    </a>
                   </div>
-                </div>
+                  <div class="workout-blog-card__content">
+                    <h3 class="workout-blog-card__category regular">
+                      {% if article.tags.first != blank %}
+                        {{ article.tags.first }}
+                      {% else %}
+                        Blog
+                      {% endif %}
+                    </h3>
+                    <hr class="workout-blog-card__divider">
+                    <p class="workout-blog-card__title bold">{{ article.title }}</p>
+                    {% if section.settings.show_date %}
+                      <p class="workout-blog-card__date">{{ article.published_at | date: "%B %d, %Y" }}</p>
+                    {% endif %}
+                  </div>
+                </a>
               {% endif %}
             </div>
         {% endcase %}
@@ -80,8 +58,10 @@
 
 {% style %}
   .workout-blog-posts {
-    background: #ffffff;
-    padding: 80px 0;
+    background: #fff;
+    padding: 80px 20px;
+    max-width: 1750px;
+    margin: 0 auto;
     font-family: 'Barlow'
     , sans-serif !important;
   }
@@ -89,7 +69,6 @@
   .workout-blog-posts__container {
     max-width: 1350px;
     margin: 0 auto;
-    padding: 0 20px;
   }
 
   .workout-blog-posts__header {
@@ -122,164 +101,126 @@
 
   .workout-blog-posts__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 32px;
+    margin-top: 60px;
   }
 
-  .workout-blog-posts__card {
-    background: #ffffff;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
-    border: 1px solid #f0f0f0;
-  }
-
-  .workout-blog-posts__card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  }
-
-  .workout-blog-posts__image-wrapper {
+  /* Blog Card Design (same as blog-section.liquid) */
+  .workout-blog-card {
     position: relative;
-    aspect-ratio: 16 / 9;
-    overflow: hidden;
+    background: #fff;
+    border-radius: 12px;
+    overflow: visible;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    height: 400px;
+    margin-bottom: 40px;
+    display: block;
   }
 
-  .workout-blog-posts__image {
+  .workout-blog-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .workout-blog-card__image-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 12px;
+  }
+
+  .workout-blog-card__image {
     width: 100%;
     height: 100%;
     object-fit: cover;
     transition: transform 0.3s ease;
   }
 
-  .workout-blog-posts__card:hover .workout-blog-posts__image {
+  .workout-blog-card:hover .workout-blog-card__image {
     transform: scale(1.05);
   }
 
-  .workout-blog-posts__content {
+  .workout-blog-card__content {
+    position: absolute;
+    bottom: -20px;
+    left: 20px;
+    right: 20px;
+    background: #fff;
     padding: 24px;
-  }
-
-  .workout-blog-posts__meta {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 12px;
-  }
-
-  .workout-blog-posts__date {
-    font-size: 0.75rem;
-    color: #666666;
-    font-weight: 500;
-    font-family: 'Barlow'
-    , sans-serif !important;
-  }
-
-  .workout-blog-posts__tag {
-    font-size: 0.75rem;
-    color: #FF6100;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-family: 'Barlow'
-    , sans-serif !important;
-  }
-
-  .workout-blog-posts__article-title {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #1d1d1f;
-    margin-bottom: 12px;
-    line-height: 1.3;
-    font-family: 'Barlow'
-    , sans-serif !important;
-  }
-
-  .workout-blog-posts__article-title a {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  .workout-blog-posts__article-title a:hover {
-    color: #FF6100;
-  }
-
-  .workout-blog-posts__excerpt {
-    font-size: 0.875rem;
-    color: #666666;
-    line-height: 1.6;
-    margin-bottom: 20px;
-    font-family: 'Barlow'
-    , sans-serif !important;
-  }
-
-  .workout-blog-posts__read-more {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: #FF6100;
-    text-decoration: none;
-    font-size: 0.875rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    z-index: 2;
     transition: all 0.3s ease;
+  }
+
+  .workout-blog-card:hover .workout-blog-card__content {
+    bottom: -25px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  }
+
+  .workout-blog-card__category {
+    font-size: 12px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    text-align: center;
     font-family: 'Barlow'
     , sans-serif !important;
   }
 
-  .workout-blog-posts__read-more:hover {
-    color: #e55700;
-    gap: 12px;
+  .workout-blog-card__divider {
+    width: 100%;
+    height: 1px;
+    background: #e5e5e5;
+    border: none;
+    margin: 12px 0 16px;
   }
 
-  .workout-blog-posts__arrow {
-    transition: transform 0.3s ease;
+  .workout-blog-card__title {
+    font-size: 18px;
+    color: #000;
+    line-height: 1.4;
+    margin: 0;
+    text-align: center;
+    font-family: 'Barlow'
+    , sans-serif !important;
   }
 
-  .workout-blog-posts__read-more:hover .workout-blog-posts__arrow {
-    transform: translateX(4px);
+  .workout-blog-card__date {
+    font-family: "Inter";
+    font-size: 12px;
+    color: #999;
+    margin-top: 12px;
+    text-align: center;
   }
 
   /* Responsive */
   @media screen and (max-width: 1024px) {
     .workout-blog-posts__grid {
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: repeat(2, 1fr);
       gap: 24px;
-    }
-  }
-
-  @media screen and (max-width: 768px) {
-    .workout-blog-posts {
-      padding: 60px 0;
-    }
-
-    .workout-blog-posts__container {
-      padding: 0 16px;
     }
 
     .workout-blog-posts__title {
       font-size: 2rem;
     }
 
-    .workout-blog-posts__subtitle {
-      font-size: 1rem;
-    }
-
-    .workout-blog-posts__grid {
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
+    .workout-blog-card {
+      margin-bottom: 50px;
     }
   }
 
-  @media screen and (max-width: 480px) {
+  @media screen and (max-width: 768px) {
     .workout-blog-posts {
-      padding: 40px 0;
-    }
-
-    .workout-blog-posts__title {
-      font-size: 1.75rem;
+      padding: 60px 15px;
     }
 
     .workout-blog-posts__grid {
@@ -287,8 +228,34 @@
       gap: 20px;
     }
 
-    .workout-blog-posts__content {
+    .workout-blog-posts__title {
+      font-size: 1.75rem;
+    }
+
+    .workout-blog-card {
+      height: 350px;
+      margin-bottom: 50px;
+    }
+
+    .workout-blog-card__content {
+      left: 15px;
+      right: 15px;
       padding: 20px;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .workout-blog-posts__title {
+      font-size: 1.5rem;
+    }
+
+    .workout-blog-card {
+      height: 300px;
+      margin-bottom: 45px;
+    }
+
+    .workout-blog-card__content {
+      padding: 18px;
     }
   }
 {% endstyle %}
@@ -309,6 +276,11 @@
         "id": "subheading",
         "label": "Subheading",
         "default": "Learn more about fitness and wellness"
+      }, {
+        "type": "checkbox",
+        "id": "show_date",
+        "label": "Show Date",
+        "default": true
       }
     ],
     "blocks": [
@@ -320,11 +292,6 @@
             "type": "article",
             "id": "article",
             "label": "Article"
-          }, {
-            "type": "text",
-            "id": "button_text",
-            "label": "Button Text",
-            "default": "Read More"
           }
         ]
       }

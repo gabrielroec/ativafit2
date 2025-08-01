@@ -1,6 +1,6 @@
 {% comment %} 
-      Workout Product Recommendations Section
-      Product recommendations section for workout programs
+        Workout Product Recommendations Section
+        Product recommendations section for workout programs
 {% endcomment %}
 
 <section class="workout-product-recommendations" data-section-id="{{ section.id }}">
@@ -20,8 +20,51 @@
           {% when 'product' %}
             <div class="workout-product-recommendations__item" {{ block.shopify_attributes }}>
               {% if block.settings.product != blank %}
-                {% render 'product-card-custom'
-                  , product: block.settings.product %}
+                <div class="workout-product-card">
+                  <div class="workout-product-card__image">
+                    {% if block.settings.product.featured_image %}
+                      <img
+                        src="{{ block.settings.product.featured_image | image_url: width: 120 }}"
+                        alt="{{ block.settings.product.featured_image.alt | escape }}"
+                        width="120"
+                        height="120"
+                        loading="lazy"
+                        class="workout-product-card__img">
+                    {% else %}
+                      <div class="workout-product-card__placeholder">
+                        {{ 'product-1' | placeholder_svg_tag: 'workout-product-card__placeholder-svg' }}
+                      </div>
+                    {% endif %}
+                  </div>
+                  <div class="workout-product-card__content">
+                    <h3 class="workout-product-card__title">{{ block.settings.product.title }}</h3>
+                    <div class="workout-product-card__price">
+                      {% if block.settings.product.compare_at_price > block.settings.product.price %}
+                        <span class="workout-product-card__price--sale">{{ block.settings.product.price | money }}</span>
+                        <span class="workout-product-card__price--compare">{{ block.settings.product.compare_at_price | money }}</span>
+                      {% else %}
+                        <span class="workout-product-card__price--regular">{{ block.settings.product.price | money }}</span>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <a
+                    href="{{ block.settings.product.url }}"
+                    class="workout-product-card__link"
+                    aria-label="View {{ block.settings.product.title }}">
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none">
+                      <path
+                        d="M6 12L10 8L6 4"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg>
+                  </a>
+                </div>
               {% endif %}
             </div>
         {% endcase %}
@@ -33,7 +76,7 @@
 {% style %}
   .workout-product-recommendations {
     background: #f8f9fa;
-    padding: 80px 0;
+    padding: 40px 0;
     font-family: 'Barlow'
     , sans-serif !important;
   }
@@ -46,55 +89,163 @@
 
   .workout-product-recommendations__header {
     text-align: center;
-    margin-bottom: 60px;
+    margin-bottom: 32px;
   }
 
   .workout-product-recommendations__title {
-    font-size: 2.5rem;
-    font-weight: 900;
+    font-size: 1.75rem;
+    font-weight: 800;
     color: #1d1d1f;
-    margin-bottom: 16px;
-    line-height: 1.1;
+    margin-bottom: 8px;
+    line-height: 1.2;
     text-transform: uppercase;
-    letter-spacing: -0.02em;
+    letter-spacing: 0.5px;
     font-family: 'Barlow'
     , sans-serif !important;
   }
 
   .workout-product-recommendations__subtitle {
-    font-size: 1.125rem;
+    font-size: 0.875rem;
     color: #666666;
-    line-height: 1.5;
+    line-height: 1.4;
     font-weight: 400;
     font-family: 'Barlow'
     , sans-serif !important;
-    max-width: 600px;
+    max-width: 400px;
     margin: 0 auto;
   }
 
   .workout-product-recommendations__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 32px;
-    justify-items: center;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
   }
 
   .workout-product-recommendations__item {
     width: 100%;
-    max-width: 300px;
+  }
+
+  /* Compact Product Card */
+  .workout-product-card {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .workout-product-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  }
+
+  .workout-product-card__image {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    margin-right: 16px;
+  }
+
+  .workout-product-card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .workout-product-card__placeholder {
+    width: 100%;
+    height: 100%;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .workout-product-card__placeholder-svg {
+    width: 40px;
+    height: 40px;
+    color: #ccc;
+  }
+
+  .workout-product-card__content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .workout-product-card__title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #1d1d1f;
+    margin: 0 0 4px;
+    line-height: 1.3;
+    font-family: 'Barlow'
+    , sans-serif !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .workout-product-card__price {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .workout-product-card__price--regular,
+  .workout-product-card__price--sale {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #FF6100;
+    font-family: 'Barlow'
+    , sans-serif !important;
+  }
+
+  .workout-product-card__price--compare {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: #999;
+    text-decoration: line-through;
+    font-family: 'Barlow'
+    , sans-serif !important;
+  }
+
+  .workout-product-card__link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: #FF6100;
+    color: #ffffff;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+    margin-left: 12px;
+  }
+
+  .workout-product-card__link:hover {
+    background: #e55a00;
+    transform: scale(1.1);
   }
 
   /* Responsive */
   @media screen and (max-width: 1024px) {
     .workout-product-recommendations__grid {
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
     }
   }
 
   @media screen and (max-width: 768px) {
     .workout-product-recommendations {
-      padding: 60px 0;
+      padding: 32px 0;
     }
 
     .workout-product-recommendations__container {
@@ -102,31 +253,70 @@
     }
 
     .workout-product-recommendations__title {
-      font-size: 2rem;
+      font-size: 1.5rem;
     }
 
     .workout-product-recommendations__subtitle {
-      font-size: 1rem;
+      font-size: 0.8125rem;
     }
 
     .workout-product-recommendations__grid {
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .workout-product-card {
+      padding: 12px;
+    }
+
+    .workout-product-card__image {
+      width: 60px;
+      height: 60px;
+      margin-right: 12px;
+    }
+
+    .workout-product-card__title {
+      font-size: 0.875rem;
+    }
+
+    .workout-product-card__price--regular,
+    .workout-product-card__price--sale {
+      font-size: 0.8125rem;
+    }
+
+    .workout-product-card__link {
+      width: 28px;
+      height: 28px;
+      margin-left: 8px;
     }
   }
 
   @media screen and (max-width: 480px) {
     .workout-product-recommendations {
-      padding: 40px 0;
+      padding: 24px 0;
     }
 
     .workout-product-recommendations__title {
-      font-size: 1.75rem;
+      font-size: 1.25rem;
     }
 
-    .workout-product-recommendations__grid {
-      grid-template-columns: 1fr;
-      gap: 20px;
+    .workout-product-card {
+      padding: 10px;
+    }
+
+    .workout-product-card__image {
+      width: 50px;
+      height: 50px;
+      margin-right: 10px;
+    }
+
+    .workout-product-card__title {
+      font-size: 0.8125rem;
+    }
+
+    .workout-product-card__price--regular,
+    .workout-product-card__price--sale {
+      font-size: 0.75rem;
     }
   }
 {% endstyle %}
