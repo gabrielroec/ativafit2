@@ -9,6 +9,11 @@
     >
     <meta name="theme-color" content="{{ settings.accent_color }}">
 
+    <!-- Favicon Direct Implementation -->
+    <link rel="icon" type="image/png" href="https://cdn.shopify.com/s/files/1/2623/4904/files/favicon_23160412-809a-4224-a424-c0dc14ced21d.png?v=1754166228">
+    <link rel="shortcut icon" href="https://cdn.shopify.com/s/files/1/2623/4904/files/favicon_23160412-809a-4224-a424-c0dc14ced21d.png?v=1754166228" type="image/png">
+    <link rel="apple-touch-icon" href="https://cdn.shopify.com/s/files/1/2623/4904/files/favicon_23160412-809a-4224-a424-c0dc14ced21d.png?v=1754166228">
+
     {%- capture seo_page_title -%}
       {%- if request.page_type == 'search' and search.terms != blank -%}
         {{ search.terms | split: ' AND ' | last | split: 'product_type:' | last }} - {{ shop.name }}
@@ -22,12 +27,10 @@
     {%- if page_description -%}
       <meta name="description" content="{{ page_description | escape }}">
     {%- endif -%}
-  {% render 'social-meta-tags' %}
+      {% render 'social-meta-tags' %}
     <link rel="canonical" href="{{ canonical_url }}">
+    
 
-    {%- if settings.favicon -%}
-      <link rel="shortcut icon" href="{{ settings.favicon | img_url: '96x96' }}" type="image/png">
-    {%- endif -%}
 
     {%- comment -%}Few prefech to increase performance on commonly used third-parties{%- endcomment -%}
     <link rel="preload" as="style" href="{{ 'theme.css' | asset_url }}">
@@ -44,7 +47,7 @@
 
     <link href="https://fonts.cdnfonts.com/css/inter" rel="stylesheet">
                 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" defer></script>
     <!-- Hotjar Tracking Code for https://www.ativafit.com/ -->
 <script>
     (function(h,o,t,j,a,r){
@@ -159,10 +162,12 @@ window.interdeal = {
 
     <script src="{{ 'theme.js' | asset_url }}" defer></script>
     <script src="{{ 'custom.js' | asset_url }}" defer></script>
-
     <!-- Cart Drawer -->
     {{ 'cart-drawer.css' | asset_url | stylesheet_tag }}
     <script src="{{ 'cart-drawer.js' | asset_url }}" defer></script>
+
+    <!-- Barlow overrides -->
+    <link rel="stylesheet" href="{{ 'barlow-override.css' | asset_url }}">
 
     {%- if request.page_type != 'cart' -%}
       <script>
@@ -238,8 +243,9 @@ window.interdeal = {
     {% render 'digismoothie-candyrack' %}
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ 'swiper.min.css' | asset_url }}">
-    {{ 'swiper.min.js' | asset_url | script_tag }}
-    {{ 'jquery.min.js' | asset_url | script_tag }}
+    <script src="{{ 'jquery.min.js' | asset_url }}" defer></script>
+    <script src="{{ 'swiper.min.js' | asset_url }}" defer></script>
+    
 
     {% include 'pagefly-app-header' %}
   <meta name="google-site-verification" content="MMiNaiXOwNEI9BAzMcFWKtn93PFIXJS6nFRcAl-4Pwo" />
@@ -274,7 +280,7 @@ window.interdeal = {
       <li id="a11y-new-window-message">{{ 'general.accessibility.new_window' | t }}</li>
     </ul>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" defer></script>
     <script>
               try {
               setTimeout(function () {

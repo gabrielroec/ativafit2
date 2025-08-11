@@ -1,6 +1,6 @@
 {% comment %} 
-                                                                            Story Content Section - Estilo Peloton
-                                                                            Seção com imagem e conteúdo lado a lado 
+                                                                                  Story Content Section - Estilo Peloton
+                                                                                  Seção com imagem e conteúdo lado a lado 
 {% endcomment %}
 
 <section class="story-content" data-section-id="{{ section.id }}">
@@ -19,6 +19,13 @@
       <!-- Content Column -->
       <div class="story-content__text-column">
         <div class="story-content__content">
+          <!-- Section Label -->
+          {% if section.settings.section_label != blank %}
+            <div class="story-content__section-label">
+              <p class="story-content__label condensed-bold">{{ section.settings.section_label }}</p>
+            </div>
+          {% endif %}
+
           {% if section.settings.heading != blank %}
             <h2 class="story-content__heading black">{{ section.settings.heading }}</h2>
           {% endif %}
@@ -45,22 +52,34 @@
 {% style %}
   .story-content {
     background: #ffffff;
-    margin: 0 0 70px;
+    margin: 0 0 100px;
   }
 
   .story-content__container {
     max-width: 1750px;
     margin: 0 auto;
     padding: 0 40px;
+  }
+
+  .story-content__section-label {
+    margin-bottom: 20px;
+  }
+
+  .story-content__label {
+    font-size: 14px;
+    color: #EB701F;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .story-content__grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     align-items: center;
     min-height: 600px;
-    gap: 60px;
-  }
-
-  .story-content__grid {
-    display: contents;
+    gap: 80px;
   }
 
   /* Image Right Layout */
@@ -162,9 +181,18 @@
 
 /* Responsive */
 @media screen and (max-width: 1024px) {
+  .story-content {
+    padding: 60px 0;
+    margin: 0 0 80px;
+  }
+
   .story-content__container {
     gap: 40px;
     padding: 0 30px;
+  }
+
+  .story-content__grid {
+    gap: 60px;
   }
 
   .story-content__text-column {
@@ -175,13 +203,18 @@
 @media screen and (max-width: 768px) {
   .story-content {
     padding: 50px 0;
-    margin: 0;
+    margin: 0 0 60px;
   }
 
   .story-content__container {
     grid-template-columns: 1fr;
     padding: 0 20px;
     gap: 30px;
+  }
+
+  .story-content__grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
   }
 
   .story-content__image-column,
@@ -244,6 +277,16 @@
     "settings": [
       {
         "type": "header",
+        "content": "Section Label"
+      },
+      {
+        "type": "text",
+        "id": "section_label",
+        "label": "Section Label",
+        "info": "Optional label that appears above the content"
+      },
+      {
+        "type": "header",
         "content": "Layout"
       },
       {
@@ -260,12 +303,10 @@
           }
         ],
         "default": "image_left"
-      },
-      {
+      }, {
         "type": "header",
         "content": "Content"
-      },
-      {
+      }, {
         "type": "image_picker",
         "id": "image",
         "label": "Image"

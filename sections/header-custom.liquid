@@ -31,9 +31,8 @@
   }
 
   .header-wrapper--hidden {
-    transform: translateY(-0% !important);
+    transform: translateY(-100% !important);
     padding: 10px 20px !important;
-
   }
 
   /* Adiciona um espaço quando o header está sticky para evitar "pulo" no conteúdo */
@@ -124,12 +123,19 @@
     background: #fff;
     min-width: 500px;
     padding: 15px 0;
-    display: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
     z-index: 10;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
   }
 
   .header-navigation__item:hover .header-navigation__dropdown {
-    display: block;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
   }
 
   .header-navigation__dropdown-link {
@@ -139,12 +145,88 @@
     padding: 8px 25px;
     display: flex;
     gap: 10px;
-    transition: color 0.3s ease;
+    align-items: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
 
+  .header-navigation__dropdown-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #eb7122, #ff8c42);
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: -1;
+  }
+
+  .header-navigation__dropdown-link:hover::before {
+    width: 100%;
   }
 
   .header-navigation__dropdown-link:hover {
-    color: #eb7122;
+    color: #ffffff;
+  }
+
+  .header-navigation__dropdown-item {
+    position: relative;
+  }
+
+  .header-navigation__sub-dropdown {
+    position: absolute;
+    left: 100%;
+    top: 0;
+    background: #fff;
+    min-width: 200px;
+    padding: 15px 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-10px);
+    z-index: 15;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    border-left: 1px solid #f0f0f0;
+    border-radius: 0 8px 8px 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .header-navigation__dropdown-item:hover .header-navigation__sub-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+  }
+
+  .header-navigation__sub-dropdown-link {
+    color: #000;
+    text-decoration: none;
+    font-size: 14px;
+    padding: 8px 25px;
+    display: block;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    transform: translateX(0);
+  }
+
+  .header-navigation__sub-dropdown-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #eb7122, #ff8c42);
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: -1;
+  }
+
+  .header-navigation__sub-dropdown-link:hover::before {
+    width: 100%;
+  }
+
+  .header-navigation__sub-dropdown-link:hover {
+    color: #ffffff;
+    transform: translateX(0px);
   }
 
   .icon-arrow {
@@ -153,10 +235,31 @@
     fill: currentColor;
   }
 
+  .icon-arrow-sub {
+    width: 8px;
+    height: 12px;
+    fill: currentColor;
+    margin-left: 8px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .header-navigation__dropdown-link:hover .icon-arrow-sub {
+    transform: rotate(90deg);
+  }
+
   .header-actions {
     display: flex;
     gap: 9px;
     align-items: center;
+  }
+
+  .header-actions a {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: scale(1);
+  }
+
+  .header-actions a:hover {
+    transform: scale(1.1);
   }
 
   .cart-count {
@@ -198,7 +301,7 @@
     background: #1a1a1a;
     box-shadow: 2px 0 16px rgba(0, 0, 0, 0.2);
     transform: translateX(-100%);
-    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 200;
     padding: 40px 24px 24px;
     display: flex;
@@ -228,20 +331,27 @@
     font-size: 20px;
     font-weight: 600;
     text-transform: uppercase;
-    transition: color 0.3s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    transform: translateX(0);
   }
+
   .header-mobile-menu-link:hover {
     color: #eb7122;
+    transform: translateX(5px);
   }
   .header-mobile-menu-backdrop {
-    display: none;
+    opacity: 0;
+    visibility: hidden;
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.5);
     z-index: 150;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .header-mobile-menu-backdrop.open {
-    display: block;
+    opacity: 1;
+    visibility: visible;
   }
 
   @media screen and (max-width: 1080px) {
@@ -270,13 +380,16 @@
     transform: rotate(180deg);
   }
   .header-mobile-menu-children {
-    display: none;
+    max-height: 0;
+    overflow: hidden;
     flex-direction: column;
     gap: 12px;
     margin-left: 18px;
     margin-top: 8px;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .header-mobile-menu-item.open > .header-mobile-menu-children {
+    max-height: 500px;
     display: flex;
   }
   .header-mobile-menu-link--child {
@@ -293,37 +406,80 @@
     }
   }
 
-  .header-mobile-menu-item {
-    position: relative;
-  }
-  .header-mobile-menu-arrow {
-    margin-left: 10px;
-    font-size: 16px;
-    transition: transform 0.3s;
-    display: inline-block;
-  }
-  .header-mobile-menu-item.open > .header-mobile-menu-link .header-mobile-menu-arrow {
-    transform: rotate(180deg);
-  }
-  .header-mobile-menu-children {
-    display: none;
-    flex-direction: column;
-    gap: 12px;
-    margin-left: 18px;
-    margin-top: 8px;
-  }
-  .header-mobile-menu-item.open > .header-mobile-menu-children {
-    display: flex;
-  }
+
   .header-mobile-menu-link--child {
     font-size: 16px;
     font-weight: 400;
     color: #ccc;
     text-transform: none;
   }
+
+  .header-mobile-menu-item--child {
+    margin-left: 0;
+  }
+
+  .header-mobile-menu-children--sub {
+    margin-left: 36px;
+  }
+
+  .header-mobile-menu-link--subchild {
+    font-size: 14px;
+    font-weight: 400;
+    color: #999;
+    text-transform: none;
+  }
   .header-cart {
     position: relative;
   }
+
+
+  #header-wrapper > div.header-container > div > div.header-logo-section > nav > div:nth-child(1) > div {
+    min-width: 370px !important;
+  }
+  #header-wrapper > div.header-container > div > div.header-logo-section > nav > div:nth-child(2) > div {
+    min-width: 280px !important;
+  }
+  #header-wrapper > div.header-container > div > div.header-logo-section > nav > div:nth-child(3) > div {
+    min-width: 330px !important;
+  }
+  #header-wrapper > div.header-container > div > div.header-logo-section > nav > div:nth-child(4) > div {
+    min-width: 300px !important;
+  }
+  #header-wrapper > div.header-container > div > div.header-logo-section > nav > div:nth-child(5) > div {
+    min-width: 200px !important;
+  }
+
+  /* Primeiro, vamos ajustar o CSS do link */
+  .hero-simple__link {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+    /* Aumentar o z-index para ficar acima do overlay */
+    cursor: pointer;
+  }
+
+  /* Ajustar o z-index do overlay */
+  .hero-simple__overlay {
+    z-index: 1;
+  }
+
+  /* Ajustar o z-index do content para ficar acima do link */
+  .hero-simple__content {
+    z-index: 4;
+  }
+
+  /* Ajustar o z-index dos controles de navegação */
+  .hero-simple__nav {
+    z-index: 5;
+  }
+
+  .hero-simple__dots {
+    z-index: 5;
+  }
+
 {%- endstyle -%}
 
 <!-- Adiciona um elemento para compensar o espaço do header quando sticky -->
@@ -392,7 +548,27 @@
               {%- if link.links.size > 0 -%}
                 <div class="header-navigation__dropdown">
                   {%- for childlink in link.links -%}
-                    <a href="{{ childlink.url }}" class="header-navigation__dropdown-link">{{ childlink.title }}</a>
+                    <div class="header-navigation__dropdown-item">
+                      <a href="{{ childlink.url }}" class="header-navigation__dropdown-link">
+                        {{ childlink.title }}
+                        {%- if childlink.links.size > 0 -%}
+                          <svg class="icon-arrow-sub" viewBox="0 0 8 12">
+                            <path
+                              d="M1 1l3 5 3-5"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2" />
+                          </svg>
+                        {%- endif -%}
+                      </a>
+                      {%- if childlink.links.size > 0 -%}
+                        <div class="header-navigation__sub-dropdown">
+                          {%- for subchildlink in childlink.links -%}
+                            <a href="{{ subchildlink.url }}" class="header-navigation__sub-dropdown-link">{{ subchildlink.title }}</a>
+                          {%- endfor -%}
+                        </div>
+                      {%- endif -%}
+                    </div>
                   {%- endfor -%}
                 </div>
               {%- endif -%}
@@ -506,7 +682,26 @@
           {% if link.links.size > 0 %}
             <div class="header-mobile-menu-children">
               {% for childlink in link.links %}
-                <a href="{{ childlink.url }}" class="header-mobile-menu-link header-mobile-menu-link--child bold">{{ childlink.title }}</a>
+                <div class="header-mobile-menu-item header-mobile-menu-item--child">
+                  <a
+                    href="{{ childlink.url }}"
+                    class="header-mobile-menu-link header-mobile-menu-link--child bold"
+                    {% if childlink.links.size > 0 %}
+                    data-has-children="true"
+                    {% endif %}>
+                    {{ childlink.title }}
+                    {% if childlink.links.size > 0 %}
+                      <span class="header-mobile-menu-arrow">&#9662;</span>
+                    {% endif %}
+                  </a>
+                  {% if childlink.links.size > 0 %}
+                    <div class="header-mobile-menu-children header-mobile-menu-children--sub">
+                      {% for subchildlink in childlink.links %}
+                        <a href="{{ subchildlink.url }}" class="header-mobile-menu-link header-mobile-menu-link--subchild">{{ subchildlink.title }}</a>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                </div>
               {% endfor %}
             </div>
           {% endif %}
@@ -649,7 +844,7 @@
       if (e.key === 'Escape') closeMenu();
     });
   
-    // Expansão de subitens no menu mobile
+    // Expansão de subitens no menu mobile (incluindo terceiro nível)
     document.querySelectorAll('.header-mobile-menu-link[data-has-children]').forEach(function(link) {
       link.addEventListener('click', function(e) {
         e.preventDefault();
