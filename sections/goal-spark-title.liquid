@@ -1,0 +1,594 @@
+<section
+  class="section goal-spark-title"
+  data-section-id="{{ section.id }}"
+  data-section-type="goal-spark-title"
+  style="padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px;">
+  <div class="container">
+    {%- if section.settings.main_title_part1 != blank or section.settings.spark_text != blank -%}
+      <h2 class="goal-spark-title__heading">
+        {{ section.settings.main_title_part1 }}
+        <span class="spark-highlight">{{ section.settings.spark_text }}</span>
+        {{ section.settings.main_title_part2 }}
+      </h2>
+    {%- endif -%}
+
+    {%- if section.blocks.size > 0 -%}
+      <!-- Desktop/Tablet Grid -->
+      <div class="strength-cards-desktop">
+        <div class="strength-cards-grid">
+          {%- for block in section.blocks -%}
+            <div class="strength-card" {{ block.shopify_attributes }}>
+              <div class="strength-card__image">
+                {%- if block.settings.card_image != blank -%}
+                  <img
+                    src="{{ block.settings.card_image | img_url: '400x450' }}"
+                    alt="{{ block.settings.card_image.alt | default: block.settings.card_title }}"
+                    width="400"
+                    height="450"
+                    loading="lazy">
+                {%- else -%}
+                  {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-image' }}
+                {%- endif -%}
+              </div>
+              <div class="strength-card__content">
+                {%- if block.settings.card_title != blank -%}
+                  <h3 class="strength-card__title">{{ block.settings.card_title | escape }}</h3>
+                {%- endif -%}
+
+                {%- if block.settings.card_quote_part1 != blank -%}
+                  <p class="strength-card__quote">
+                    "{{ block.settings.card_quote_part1 }}
+                    {%- if block.settings.card_spark_text != blank -%}
+                      <span class="spark-text">{{ block.settings.card_spark_text }}</span>
+                    {%- endif -%}
+                    {{ block.settings.card_quote_part2 }}"
+                  </p>
+                {%- endif -%}
+              </div>
+            </div>
+          {%- endfor -%}
+        </div>
+      </div>
+
+      <!-- Mobile Slider -->
+      <div class="strength-cards-mobile" id="mobile-slider-{{ section.id }}">
+        <div class="mobile-slider-container">
+          <div class="mobile-slide active" data-slide="0">
+            {%- for block in section.blocks -%}
+              <div
+                class="mobile-card{% unless forloop.first %} hidden{% endunless %}"
+                data-card="{{ forloop.index0 }}"
+                {{ block.shopify_attributes }}>
+                <div class="mobile-card__image">
+                  {%- if block.settings.card_image != blank -%}
+                    <img
+                      src="{{ block.settings.card_image | img_url: '400x450' }}"
+                      alt="{{ block.settings.card_image.alt | default: block.settings.card_title }}"
+                      width="400"
+                      height="450"
+                      loading="lazy">
+                  {%- else -%}
+                    {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-image' }}
+                  {%- endif -%}
+                </div>
+                <div class="mobile-card__content">
+                  {%- if block.settings.card_title != blank -%}
+                    <h3 class="mobile-card__title">{{ block.settings.card_title | escape }}</h3>
+                  {%- endif -%}
+
+                  {%- if block.settings.card_quote_part1 != blank -%}
+                    <p class="mobile-card__quote">
+                      "{{ block.settings.card_quote_part1 }}
+                      {%- if block.settings.card_spark_text != blank -%}
+                        <span class="spark-text">{{ block.settings.card_spark_text }}</span>
+                      {%- endif -%}
+                      {{ block.settings.card_quote_part2 }}"
+                    </p>
+                  {%- endif -%}
+
+                  {%- if section.blocks.size > 1 -%}
+                    <div class="mobile-dots-inside">
+                      {%- for block_dot in section.blocks -%}
+                        <button class="mobile-dot{% if forloop.first %} active{% endif %}" data-slide="{{ forloop.index0 }}"></button>
+                      {%- endfor -%}
+                    </div>
+                  {%- endif -%}
+                </div>
+              </div>
+            {%- endfor -%}
+          </div>
+        </div>
+
+
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+<style>
+  .goal-spark-title {
+    padding: 40px 0;
+  }
+
+  .goal-spark-title__heading {
+    font-family: 'Barlow'
+    , sans-serif;
+    font-weight: 700;
+    font-size: 40px;
+    line-height: 42px;
+    letter-spacing: 0;
+    text-align: center;
+    margin: 0 0 60px;
+    color: inherit;
+  }
+
+  .spark-highlight {
+    color: #EB701F;
+  }
+
+  .strength-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 450px);
+    gap: 70px 130px;
+    justify-content: center;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .strength-card {
+    background: #ffffff;
+    border-radius: 0 0 35px 0;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease
+    , box-shadow 0.3s ease;
+    width: 450px;
+  }
+
+  .strength-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  .strength-card__image {
+    width: 100%;
+    height: 450px;
+    overflow: hidden;
+    border-radius: 0 0 35px 0;
+  }
+
+  .strength-card__image img,
+  .strength-card__image svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 0 0 35px 0;
+  }
+
+  .strength-card__content {
+    padding: 34px 17px;
+  }
+
+  .strength-card__title {
+    font-family: 'Barlow'
+    , sans-serif;
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 31px;
+    letter-spacing: 0;
+    color: #000000;
+    margin: 0 0 16px;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .strength-card__quote {
+    font-family: 'Barlow'
+    , sans-serif;
+    font-weight: 500 !important;
+    font-style: italic;
+    font-size: 18px;
+    line-height: 20px;
+    letter-spacing: 0;
+    color: #EB701F;
+    margin: 0;
+    width: 100%;
+    max-width: 350px;
+  }
+
+  .spark-text {
+    font-weight: 700;
+    color: #EB701F;
+  }
+
+  /* Desktop/Tablet Grid */
+  .strength-cards-desktop {
+    display: block;
+  }
+
+  .strength-cards-mobile {
+    display: none;
+  }
+
+  /* Mobile Components */
+  .mobile-slider-container {
+    position: relative;
+    width: 100%;
+    overflow: visible;
+  }
+
+  .mobile-card {
+    width: 100%;
+    max-width: 450px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 0 0 35px 0;
+    overflow: visible;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .mobile-card.hidden {
+    display: none;
+  }
+
+  .mobile-card__image {
+    width: 100%;
+    height: 450px;
+    overflow: hidden;
+    border-radius: 0 0 35px 0;
+  }
+
+  .mobile-card__image img,
+  .mobile-card__image svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 0 0 35px 0;
+  }
+
+  .mobile-card__content {
+    padding: 34px 17px;
+  }
+
+  .mobile-card__title {
+    font-family: 'Barlow'
+    , sans-serif;
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 31px;
+    letter-spacing: 0;
+    color: #000000;
+    margin: 0 0 16px;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .mobile-card__quote {
+    font-family: 'Barlow'
+    , sans-serif;
+    font-weight: 500 !important;
+    font-style: italic;
+    font-size: 18px;
+    line-height: 20px;
+    letter-spacing: 0;
+    color: #EB701F;
+    margin: 0;
+    width: 100%;
+    max-width: 350px;
+  }
+
+  /* Mobile Dots Inside Card */
+  .mobile-dots-inside {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    gap: 12px;
+  }
+
+  .mobile-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: none;
+    background-color: #E0E0E0;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .mobile-dot.active,
+  .mobile-dot:hover {
+    background-color: #EB701F;
+  }
+
+  /* Responsive Breakpoints */
+  @media (max-width: 1024px) {
+    .goal-spark-title__heading {
+      font-size: 32px;
+      line-height: 36px;
+      margin-bottom: 40px;
+    }
+
+    .strength-cards-desktop {
+      display: none;
+    }
+
+    .strength-cards-mobile {
+      display: block;
+      padding: 0 20px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .strength-cards-mobile {
+      padding: 0 15px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .strength-cards-mobile {
+      padding: 0 10px;
+    }
+
+    .mobile-card__content {
+      padding: 20px;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+  const sectionId = '{{ section.id }}';
+  const mobileSlider = document.getElementById('mobile-slider-' + sectionId);
+  
+  if (!mobileSlider) return;
+  
+  const mobileCards = mobileSlider.querySelectorAll('.mobile-card');
+  
+  if (mobileCards.length === 0) return;
+  
+  let currentSlide = 0;
+  let isAnimating = false;
+  
+  function getAllDots() {
+    // Get all dots from all cards (since each card has its own set of dots)
+    return mobileSlider.querySelectorAll('.mobile-dot');
+  }
+  
+  function showMobileSlide(index) {
+    if (isAnimating) return;
+    isAnimating = true;
+    
+    // Validate index
+    if (index < 0 || index >= mobileCards.length) {
+      isAnimating = false;
+      return;
+    }
+    
+    // Hide all cards with fade effect
+    mobileCards.forEach((card, i) => {
+      if (i === index) {
+        card.classList.remove('hidden');
+        card.style.opacity = '0';
+        card.style.transition = 'opacity 0.3s ease';
+        
+        // Force reflow and fade in
+        setTimeout(() => {
+          card.style.opacity = '1';
+        }, 10);
+      } else {
+        card.classList.add('hidden');
+      }
+    });
+    
+    // Update all dots in all cards
+    const allDots = getAllDots();
+    allDots.forEach((dot, i) => {
+      const dotIndex = parseInt(dot.getAttribute('data-slide'));
+      dot.classList.toggle('active', dotIndex === index);
+    });
+    
+    currentSlide = index;
+    
+    // Reset animation flag
+    setTimeout(() => {
+      isAnimating = false;
+    }, 300);
+  }
+  
+  function nextSlide() {
+    const newSlide = currentSlide < mobileCards.length - 1 ? currentSlide + 1 : 0;
+    showMobileSlide(newSlide);
+  }
+  
+  function prevSlide() {
+    const newSlide = currentSlide > 0 ? currentSlide - 1 : mobileCards.length - 1;
+    showMobileSlide(newSlide);
+  }
+  
+  // Add click events to all dots using event delegation
+  mobileSlider.addEventListener('click', (e) => {
+    if (e.target.classList.contains('mobile-dot')) {
+      const slideIndex = parseInt(e.target.getAttribute('data-slide'));
+      if (!isNaN(slideIndex)) {
+        showMobileSlide(slideIndex);
+      }
+    }
+  });
+  
+  // Touch/swipe support for mobile slider - Improved version
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let touchMoved = false;
+  let isDragging = false;
+  
+  mobileSlider.addEventListener('touchstart', (e) => {
+    if (window.innerWidth > 1024) return;
+    
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    touchMoved = false;
+    isDragging = true;
+  }, { passive: true });
+  
+  mobileSlider.addEventListener('touchmove', (e) => {
+    if (window.innerWidth > 1024 || !isDragging) return;
+    
+    const touchCurrentX = e.touches[0].clientX;
+    const touchCurrentY = e.touches[0].clientY;
+    const deltaX = touchCurrentX - touchStartX;
+    const deltaY = touchCurrentY - touchStartY;
+    
+    // Check if this is a horizontal swipe
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 15) {
+      touchMoved = true;
+      e.preventDefault(); // Prevent scrolling
+    }
+  }, { passive: false });
+  
+  mobileSlider.addEventListener('touchend', (e) => {
+    if (window.innerWidth > 1024 || !isDragging) return;
+    
+    isDragging = false;
+    
+    if (touchMoved) {
+      const touchEndX = e.changedTouches[0].clientX;
+      const deltaX = touchEndX - touchStartX;
+      const threshold = 75; // Minimum swipe distance
+      
+      if (Math.abs(deltaX) > threshold) {
+        if (deltaX > 0) {
+          prevSlide(); // Swipe right = previous slide
+        } else {
+          nextSlide(); // Swipe left = next slide
+        }
+      }
+    }
+    
+    touchMoved = false;
+  }, { passive: true });
+  
+  // Prevent context menu on long press
+  mobileSlider.addEventListener('contextmenu', (e) => {
+    if (window.innerWidth <= 1024) {
+      e.preventDefault();
+    }
+  });
+  
+  // Initialize mobile slider
+  showMobileSlide(0);
+  
+  // Debug: Log when slider is initialized
+  console.log('Mobile slider initialized with', mobileCards.length, 'cards');
+  });
+</script>
+
+{% schema %}
+  {
+    "name": "Goal Spark Title",
+    "max_blocks": 6,
+    "settings": [
+      {
+        "type": "header",
+        "content": "Main Title Settings"
+      },
+      {
+        "type": "text",
+        "id": "main_title_part1",
+        "label": "Title Part 1",
+        "default": "For Every Goal, A New"
+      },
+      {
+        "type": "text",
+        "id": "spark_text",
+        "label": "Spark Text (highlighted)",
+        "default": "Spark"
+      },
+      {
+        "type": "text",
+        "id": "main_title_part2",
+        "label": "Title Part 2 (optional)"
+      }, {
+        "type": "header",
+        "content": "Spacing Settings"
+      }, {
+        "type": "range",
+        "id": "padding_top",
+        "min": 0,
+        "max": 100,
+        "step": 4,
+        "unit": "px",
+        "label": "Padding top",
+        "default": 40
+      }, {
+        "type": "range",
+        "id": "padding_bottom",
+        "min": 0,
+        "max": 100,
+        "step": 4,
+        "unit": "px",
+        "label": "Padding bottom",
+        "default": 40
+      }
+    ],
+    "blocks": [
+      {
+        "type": "strength_card",
+        "name": "Strength Card",
+        "settings": [
+          {
+            "type": "image_picker",
+            "id": "card_image",
+            "label": "Card Image"
+          },
+          {
+            "type": "text",
+            "id": "card_title",
+            "label": "Card Title",
+            "default": "New to Strength Training"
+          },
+          {
+            "type": "text",
+            "id": "card_quote_part1",
+            "label": "Quote Part 1",
+            "default": "I always wanted to start but felt intimidated."
+          },
+          {
+            "type": "text",
+            "id": "card_spark_text",
+            "label": "Spark Text in Quote",
+            "default": "Spark"
+          }, {
+            "type": "text",
+            "id": "card_quote_part2",
+            "label": "Quote Part 2",
+            "default": "was the perfect first step."
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "category": "Text",
+        "name": "Goal Spark Title",
+        "settings": {
+          "main_title_part1": "For Every Goal, A New",
+          "spark_text": "Spark"
+        },
+        "blocks": [
+          {
+            "type": "strength_card",
+            "settings": {
+              "card_title": "New to Strength Training",
+              "card_quote_part1": "I always wanted to start but felt intimidated.",
+              "card_spark_text": "Spark",
+              "card_quote_part2": "was the perfect first step."
+            }
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}
