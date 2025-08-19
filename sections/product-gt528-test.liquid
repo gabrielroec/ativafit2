@@ -890,12 +890,17 @@
       font-family: Barlow, sans-serif;
       font-size: 18px;
       font-weight: 700;
-      color: #333;
+      color: #333 !important;
       transition: all 0.2s ease;
     }
     
     .accordion-header:hover {
-      color: #EB701F;
+      color: #EB701F !important;
+    }
+    
+    /* Accordion header ativo (aberto) - destaque laranja */
+    .accordion-header.active {
+      color: #EB701F !important;
     }
     
     .accordion-icon {
@@ -1024,7 +1029,11 @@
        order: 1;
      }
      
-
+    /* Subtitle mobile: duas linhas, uma frase por linha */
+    .product-subtitle {
+      white-space: pre-line;
+      line-height: 1.2;
+    }
     
     .product-price-container.mobile-only {
       order: 2;
@@ -1056,6 +1065,10 @@
      
      .product-info .product-features {
        order: 5;
+       /* Product features mobile: texto maior e mais negrito */
+       font-size: 26px !important;
+       font-weight: 600 !important;
+       line-height: 32px !important;
      }
      
      .product-info .benefits {
@@ -1193,7 +1206,8 @@ letter-spacing: 0%!important;
 
       <div class="product-name-container">
         <h1 class="product-name">{{ product.title }}</h1>
-        <p class="product-subtitle">Sculpt & Tone with Style. Your Home, Your Boutique Gym.</p>
+        <p class="product-subtitle">Sculpt & Tone with Style.
+Your Home, Your Boutique Gym.</p>
         <div class="review">
           <svg
             width="125"
@@ -1433,7 +1447,7 @@ letter-spacing: 0%!important;
            {%- case block.type -%}
              {%- when 'accordion_item' -%}
                <div class="accordion-item" {{ block.shopify_attributes }}>
-                 <button class="accordion-header" onclick="toggleAccordion(this)">
+                 <button class="accordion-header{% if forloop.first %} active{% endif %}" onclick="toggleAccordion(this)">
                    <span>{{ block.settings.title }}</span>
                    <span class="accordion-icon">{% if forloop.first %}-{% else %}+{% endif %}</span>
                  </button>
@@ -1469,7 +1483,7 @@ letter-spacing: 0%!important;
          {%- if section.blocks.size == 0 -%}
            <!-- Accordion padrão quando não há blocos configurados -->
            <div class="accordion-item">
-             <button class="accordion-header" onclick="toggleAccordion(this)">
+             <button class="accordion-header active" onclick="toggleAccordion(this)">
                <span>Key Features</span>
                <span class="accordion-icon">-</span>
              </button>
@@ -2357,7 +2371,11 @@ letter-spacing: 0%!important;
          const icon = header.querySelector('.accordion-icon');
          const isActive = content.classList.contains('active');
          
-         // Fecha todos os outros accordions
+         // Remove active de todos os headers e contents
+         document.querySelectorAll('.accordion-header').forEach(item => {
+           item.classList.remove('active');
+         });
+         
          document.querySelectorAll('.accordion-content').forEach(item => {
            item.classList.remove('active');
          });
@@ -2368,8 +2386,14 @@ letter-spacing: 0%!important;
          
          // Abre o accordion clicado se não estava ativo
          if (!isActive) {
+           header.classList.add('active');
            content.classList.add('active');
            icon.textContent = '-';
+         } else {
+           // Se estava ativo, fecha e remove o destaque laranja
+           header.classList.remove('active');
+           content.classList.remove('active');
+           icon.textContent = '+';
          }
        }
     </script>

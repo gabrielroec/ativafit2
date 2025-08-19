@@ -460,18 +460,9 @@
     });
   }
 
-  // Auto-advance slider
-  let autoSlideInterval;
+  // Auto-advance slider DISABLED - remove auto functionality
+  let autoSlideInterval = null;
   
-  function startAutoSlide() {
-    const isMobile = window.innerWidth <= 768;
-    const shouldAutoSlide = isMobile ? totalReviews > 1 : getTotalSlides() > 1;
-    
-    if (shouldAutoSlide) {
-      autoSlideInterval = setInterval(nextSlide, 5000); // 5 seconds
-    }
-  }
-
   function stopAutoSlide() {
     if (autoSlideInterval) {
       clearInterval(autoSlideInterval);
@@ -481,39 +472,15 @@
 
   // Initialize
   updateSlider();
-  
-  // Start auto-slide if there are multiple slides
-  const isMobile = window.innerWidth <= 768;
-  const shouldAutoSlide = isMobile ? totalReviews > 1 : getTotalSlides() > 1;
-  
-  if (shouldAutoSlide) {
-    startAutoSlide();
-  }
-
-  // Pause on hover
-  sliderContainer.addEventListener('mouseenter', stopAutoSlide);
-  sliderContainer.addEventListener('mouseleave', () => {
-    const isMobile = window.innerWidth <= 768;
-    const shouldAutoSlide = isMobile ? totalReviews > 1 : getTotalSlides() > 1;
-    if (shouldAutoSlide) {
-      startAutoSlide();
-    }
-  });
 
   // Handle window resize
   let resizeTimeout;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(() => {
-      stopAutoSlide();
+      stopAutoSlide(); // Stop any existing intervals
       currentSlide = 0; // Reset to first slide on resize
       updateSlider();
-      
-      const isMobile = window.innerWidth <= 768;
-      const shouldAutoSlide = isMobile ? totalReviews > 1 : getTotalSlides() > 1;
-      if (shouldAutoSlide) {
-        startAutoSlide();
-      }
     }, 250);
   });
 
@@ -572,13 +539,6 @@
     }
     
     isDragging = false;
-    
-    // Restart auto-slide after touch interaction
-    const isMobile = window.innerWidth <= 768;
-    const shouldAutoSlide = isMobile ? totalReviews > 1 : getTotalSlides() > 1;
-    if (shouldAutoSlide) {
-      setTimeout(startAutoSlide, 1000);
-    }
   });
   });
 </script>

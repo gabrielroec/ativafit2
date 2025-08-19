@@ -26,11 +26,15 @@
                 {%- if block.settings.title_part1 != blank -%}
                   <span class="title-line-1">{{ block.settings.title_part1 }}</span>
                 {%- endif -%}
-                {%- if block.settings.highlight_text != blank -%}
-                  <span class="title-line-2 highlight-text">{{ block.settings.highlight_text }}</span>
-                {%- endif -%}
-                {%- if block.settings.title_part2 != blank -%}
-                  <span class="title-line-2">{{ block.settings.title_part2 }}</span>
+                {%- if block.settings.highlight_text != blank or block.settings.title_part2 != blank -%}
+                  <div class="title-line-2-container">
+                    {%- if block.settings.highlight_text != blank -%}
+                      <span class="title-line-2 highlight-text">{{ block.settings.highlight_text }}</span>
+                    {%- endif -%}
+                    {%- if block.settings.title_part2 != blank -%}
+                      <span class="title-line-2">{{ block.settings.title_part2 }}</span>
+                    {%- endif -%}
+                  </div>
                 {%- endif -%}
               </h3>
             {%- endif -%}
@@ -123,6 +127,14 @@
     display: inline;
   }
 
+  /* Container para as line-2 ficarem na mesma linha */
+  .title-line-2-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: baseline;
+  }
+
   .highlight-text {
     color: #EB701F;
   }
@@ -165,6 +177,11 @@
       direction: ltr;
     }
 
+    /* Remove padding-left no mobile para reverse rows */
+    .feature-row.reverse .feature-content {
+      padding-left: 0 !important;
+    }
+
     .feature-content {
       text-align: left;
       order: 2;
@@ -196,6 +213,11 @@
     .feature-row {
       gap: 30px;
       margin-bottom: 50px;
+    }
+
+    /* Remove padding-left no mobile pequeno também */
+    .feature-row.reverse .feature-content {
+      padding-left: 0 !important;
     }
 
     .feature-title {

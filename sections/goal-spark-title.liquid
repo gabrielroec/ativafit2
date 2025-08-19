@@ -86,19 +86,20 @@
                     </p>
                   {%- endif -%}
 
-                  {%- if section.blocks.size > 1 -%}
-                    <div class="mobile-dots-inside">
-                      {%- for block_dot in section.blocks -%}
-                        <button class="mobile-dot{% if forloop.first %} active{% endif %}" data-slide="{{ forloop.index0 }}"></button>
-                      {%- endfor -%}
-                    </div>
-                  {%- endif -%}
+
                 </div>
               </div>
             {%- endfor -%}
           </div>
         </div>
 
+        {%- if section.blocks.size > 1 -%}
+          <div class="mobile-dots" id="mobile-dots-{{ section.id }}">
+            {%- for block in section.blocks -%}
+              <button class="mobile-dot{% if forloop.first %} active{% endif %}" data-slide="{{ forloop.index0 }}"></button>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
 
       </div>
     {%- endif -%}
@@ -325,16 +326,16 @@
   .mobile-slider-container {
     position: relative;
     width: 100%;
-    overflow: visible;
+    overflow: hidden;
   }
 
   .mobile-card {
     width: 100%;
-    max-width: 450px;
+    max-width: 400px;
     margin: 0 auto;
     background: #ffffff;
     border-radius: 0 0 35px 0;
-    overflow: visible;
+    overflow: hidden;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
   }
@@ -345,9 +346,10 @@
 
   .mobile-card__image {
     width: 100%;
-    height: 450px;
+    height: 400px;
     overflow: hidden;
     border-radius: 0 0 35px 0;
+    aspect-ratio: 1 / 1;
   }
 
   .mobile-card__image img,
@@ -390,12 +392,12 @@
     max-width: 350px;
   }
 
-  /* Mobile Dots Inside Card */
-  .mobile-dots-inside {
+  /* Mobile Dots */
+  .mobile-dots {
     display: flex;
     justify-content: center;
-    margin-top: 20px;
     gap: 12px;
+    margin-top: 30px;
   }
 
   .mobile-dot {
@@ -470,6 +472,7 @@
   document.addEventListener('DOMContentLoaded', function() {
   const sectionId = '{{ section.id }}';
   const mobileSlider = document.getElementById('mobile-slider-' + sectionId);
+  const mobileDotsContainer = document.getElementById('mobile-dots-' + sectionId);
   
   if (!mobileSlider) return;
   
@@ -478,52 +481,27 @@
   if (mobileCards.length === 0) return;
   
   let currentSlide = 0;
-  let isAnimating = false;
-  
-  function getAllDots() {
-    // Get all dots from all cards (since each card has its own set of dots)
-    return mobileSlider.querySelectorAll('.mobile-dot');
-  }
   
   function showMobileSlide(index) {
-    if (isAnimating) return;
-    isAnimating = true;
-    
     // Validate index
     if (index < 0 || index >= mobileCards.length) {
-      isAnimating = false;
       return;
     }
     
-    // Hide all cards with fade effect
+    // Hide all cards
     mobileCards.forEach((card, i) => {
-      if (i === index) {
-        card.classList.remove('hidden');
-        card.style.opacity = '0';
-        card.style.transition = 'opacity 0.3s ease';
-        
-        // Force reflow and fade in
-        setTimeout(() => {
-          card.style.opacity = '1';
-        }, 10);
-      } else {
-        card.classList.add('hidden');
-      }
+      card.classList.toggle('hidden', i !== index);
     });
     
-    // Update all dots in all cards
-    const allDots = getAllDots();
-    allDots.forEach((dot, i) => {
-      const dotIndex = parseInt(dot.getAttribute('data-slide'));
-      dot.classList.toggle('active', dotIndex === index);
-    });
+    // Update dots
+    if (mobileDotsContainer) {
+      const mobileDots = mobileDotsContainer.querySelectorAll('.mobile-dot');
+      mobileDots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === index);
+      });
+    }
     
     currentSlide = index;
-    
-    // Reset animation flag
-    setTimeout(() => {
-      isAnimating = false;
-    }, 300);
   }
   
   function nextSlide() {
@@ -536,79 +514,54 @@
     showMobileSlide(newSlide);
   }
   
-  // Add click events to all dots using event delegation
-  mobileSlider.addEventListener('click', (e) => {
-    if (e.target.classList.contains('mobile-dot')) {
-      const slideIndex = parseInt(e.target.getAttribute('data-slide'));
-      if (!isNaN(slideIndex)) {
-        showMobileSlide(slideIndex);
-      }
-    }
-  });
+  // Add click events to dots
+  if (mobileDotsContainer) {
+    const mobileDots = mobileDotsContainer.querySelectorAll('.mobile-dot');
+    mobileDots.forEach((dot, index) => {
+      dot.addEventListener('click', () => {
+        showMobileSlide(index);
+      });
+    });
+  }
   
-  // Touch/swipe support for mobile slider - Improved version
+  // Touch/swipe support - igual ao sistema das video reviews
   let touchStartX = 0;
-  let touchStartY = 0;
   let touchMoved = false;
-  let isDragging = false;
   
   mobileSlider.addEventListener('touchstart', (e) => {
     if (window.innerWidth > 1024) return;
-    
     touchStartX = e.touches[0].clientX;
-    touchStartY = e.touches[0].clientY;
     touchMoved = false;
-    isDragging = true;
   }, { passive: true });
   
   mobileSlider.addEventListener('touchmove', (e) => {
-    if (window.innerWidth > 1024 || !isDragging) return;
-    
-    const touchCurrentX = e.touches[0].clientX;
-    const touchCurrentY = e.touches[0].clientY;
-    const deltaX = touchCurrentX - touchStartX;
-    const deltaY = touchCurrentY - touchStartY;
-    
-    // Check if this is a horizontal swipe
-    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 15) {
+    if (window.innerWidth > 1024) return;
+    const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
+    if (deltaX > 15) {
       touchMoved = true;
-      e.preventDefault(); // Prevent scrolling
+      e.preventDefault();
     }
   }, { passive: false });
   
   mobileSlider.addEventListener('touchend', (e) => {
-    if (window.innerWidth > 1024 || !isDragging) return;
+    if (window.innerWidth > 1024 || !touchMoved) return;
     
-    isDragging = false;
+    const touchEndX = e.changedTouches[0].clientX;
+    const deltaX = touchEndX - touchStartX;
+    const threshold = 75;
     
-    if (touchMoved) {
-      const touchEndX = e.changedTouches[0].clientX;
-      const deltaX = touchEndX - touchStartX;
-      const threshold = 75; // Minimum swipe distance
-      
-      if (Math.abs(deltaX) > threshold) {
-        if (deltaX > 0) {
-          prevSlide(); // Swipe right = previous slide
-        } else {
-          nextSlide(); // Swipe left = next slide
-        }
+    if (Math.abs(deltaX) > threshold) {
+      if (deltaX > 0 && currentSlide > 0) {
+        showMobileSlide(currentSlide - 1);
+      } else if (deltaX < 0 && currentSlide < mobileCards.length - 1) {
+        showMobileSlide(currentSlide + 1);
       }
     }
-    
-    touchMoved = false;
   }, { passive: true });
-  
-  // Prevent context menu on long press
-  mobileSlider.addEventListener('contextmenu', (e) => {
-    if (window.innerWidth <= 1024) {
-      e.preventDefault();
-    }
-  });
   
   // Initialize mobile slider
   showMobileSlide(0);
   
-  // Debug: Log when slider is initialized
   console.log('Mobile slider initialized with', mobileCards.length, 'cards');
   });
 </script>
