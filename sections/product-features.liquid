@@ -1,252 +1,316 @@
-{% comment %} PRODUCT FEATURES SECTION {% endcomment %}
-<div class="product-features-section">
-  <div class="features-container">
-    <div id="feature-left-{{ section.id }}" class="feature-block left-feature">
-      <div class="feature-content">
-        <h2 class="feature-title">{{ section.settings.left_title }}</h2>
-        <div class="feature-description">{{ section.settings.left_description }}</div>
-      </div>
-    </div>
+<section
+  data-section-id="{{ section.id }}"
+  data-section-type="product-features"
+  style="padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px;">
+  <div class="container feature-container">
 
-    <div id="feature-right-{{ section.id }}" class="feature-block right-feature">
-      <div class="feature-content">
-        <h2 class="feature-title">{{ section.settings.right_title }}</h2>
-        <div class="feature-description">{{ section.settings.right_description }}</div>
-      </div>
-    </div>
+    {%- if section.blocks.size > 0 -%}
+      {%- for block in section.blocks -%}
+        <div class="feature-row{% if forloop.index == 2 %} reverse{% endif %}" {{ block.shopify_attributes }}>
+          <div class="feature-image">
+            {%- if block.settings.feature_image != blank -%}
+              <img
+                src="{{ block.settings.feature_image | img_url: '600x400' }}"
+                alt="{{ block.settings.feature_image.alt | default: block.settings.feature_title }}"
+                width="600"
+                height="400"
+                loading="lazy">
+            {%- else -%}
+              {{ 'product-1' | placeholder_svg_tag: 'placeholder-image' }}
+            {%- endif -%}
+          </div>
+
+          <div class="feature-content">
+            {%- if block.settings.title_part1 != blank or block.settings.highlight_text != blank -%}
+              <h3 class="feature-title">
+                {%- if block.settings.title_part1 != blank -%}
+                  <span class="title-line-1">{{ block.settings.title_part1 }}</span>
+                {%- endif -%}
+                {%- if block.settings.highlight_text != blank -%}
+                  <span class="title-line-2 highlight-text">{{ block.settings.highlight_text }}</span>
+                {%- endif -%}
+                {%- if block.settings.title_part2 != blank -%}
+                  <span class="title-line-2">{{ block.settings.title_part2 }}</span>
+                {%- endif -%}
+              </h3>
+            {%- endif -%}
+
+            {%- if block.settings.feature_description != blank -%}
+              <p class="feature-description">{{ block.settings.feature_description }}</p>
+            {%- endif -%}
+          </div>
+        </div>
+      {%- endfor -%}
+    {%- endif -%}
+
   </div>
-</div>
+</section>
 
 <style>
-  .product-features-section {
-    width: 100%;
-    max-width: 1370px;
-    margin: 60px auto;
-    padding: 0 20px;
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0;
   }
 
-  .features-container {
-    display: flex;
-    gap: 20px;
+  .feature-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+    margin-bottom: 20px;
+    width: 100%;
   }
 
-  .feature-block {
-    height: 700px;
+  .feature-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .feature-row.reverse {
+    direction: rtl;
+  }
+
+  .feature-row.reverse .feature-image,
+  .feature-row.reverse .feature-content {
+    direction: ltr;
+  }
+
+  .feature-row.reverse .feature-content {
+    padding-left: 80px;
+  }
+
+  .feature-image {
     width: 100%;
-    max-width: 665px;
-    display: flex;
-    align-items: start;
-    justify-content: center;
-    text-align: center !important;
-    background-repeat: no-repeat;
-    padding: 40px;
-    border-radius: 10px;
-    position: relative;
+    border-radius: 20px;
     overflow: hidden;
+    aspect-ratio: 4 / 3;
   }
 
-  #feature-left-{{ section.id }} {
-    background-color: {{ section.settings.left_bg_color }};
-    {% if section.settings.left_bg_image != blank %}
-      background-image: url('{{ section.settings.left_bg_image | img_url: '2000x' }}');
-    {% else %}
-      background-image: url('{{ 'bg_section_1.png' | asset_url }}');
-    {% endif %}
-    background-position: right bottom;
-    background-size: 90%;
-  }
-
-  #feature-right-{{ section.id }} {
-    background-color: {{ section.settings.right_bg_color }};
-    {% if section.settings.right_bg_image != blank %}
-      background-image: url('{{ section.settings.right_bg_image | img_url: '2000x' }}');
-    {% else %}
-      background-image: url('{{ 'bg_section_2.png' | asset_url }}');
-    {% endif %}
-    background-position: center bottom;
-    background-size: 100%;
+  .feature-image img,
+  .feature-image svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
   }
 
   .feature-content {
-    color: #FFFFFF;
-    z-index: 1;
+    padding: 0;
     width: 100%;
-    max-width: 100%;
-    text-align: center;
   }
 
   .feature-title {
-    font-size: 36px;
-    margin-bottom: 0 !important;
-    font-weight: bold;
-    color: #FFFFFF !important;
-    text-align: center;
+    font-family: 'Barlow'
+    , sans-serif;
+    font-weight: 700;
+    font-size: 40px;
+    line-height: 44px;
+    letter-spacing: 0;
+    color: #000000;
+    margin: 0 0 24px;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .title-line-1 {
+    display: block;
+    color: #000000;
+  }
+
+  .title-line-2 {
+    display: inline;
+  }
+
+  .highlight-text {
+    color: #EB701F;
   }
 
   .feature-description {
-    font-size: 16px;
-    line-height: 1.5;
-    margin-bottom: 20px;
-    color: #FFFFFF !important;
-    text-align: center;
+    font-family: Barlow;
+    font-weight: 500 !important;
+    font-style: Medium;
+    font-size: 25px !important;
+    leading-trim: NONE;
+    line-height: 31px;
+    letter-spacing: 0;
+    max-width: 480px;
   }
 
-  .feature-link {
-    display: inline-block;
-    color: #FFFFFF;
-    text-decoration: underline;
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .container {
+      padding: 0 30px;
+    }
 
+    .feature-row {
+      gap: 50px;
+      margin-bottom: 70px;
+    }
   }
 
-  @media screen and (max-width: 1024px) {
-    .features-container {
-      flex-direction: column;
+  @media (max-width: 768px) {
+    .container {
+      padding: 0 20px;
+    }
+
+    .feature-row {
+      grid-template-columns: 1fr;
       gap: 30px;
+      margin-bottom: 60px;
     }
 
-    .feature-block {
-      width: 100% !important;
-      max-width: 100% !important;
-      height: 500px;
+    .feature-row.reverse {
+      direction: ltr;
     }
 
+    .feature-content {
+      text-align: left;
+      order: 2;
+    }
 
+    .feature-image {
+      order: 1;
+      border-radius: 16px;
+      aspect-ratio: 16 / 10;
+    }
+
+    .feature-title {
+      font-size: 32px;
+      line-height: 36px;
+      margin-bottom: 20px;
+    }
+
+    .feature-description {
+      font-size: 16px;
+      line-height: 22px;
+    }
   }
 
-  @media screen and (max-width: 767px) {
-    .features-container {
-      flex-direction: column;
-      gap: 30px;
+  @media (max-width: 480px) {
+    .container {
+      padding: 0 15px;
     }
 
-    .feature-block {
-      min-height: 450px;
-      padding: 25px 20px;
-      height: 400px;
+    .feature-row {
+      gap: 30px;
+      margin-bottom: 50px;
     }
 
     .feature-title {
       font-size: 28px;
+      line-height: 32px;
     }
 
     .feature-description {
       font-size: 14px;
-      line-height: 1.4;
-      padding: 0 15px;
+      line-height: 20px;
     }
 
-    #feature-left-{{ section.id }} {
-      background-position: right 150px;
+    .feature-image {
+      border-radius: 12px;
     }
-
-    #feature-right-{{ section.id }} {
-      background-position: center 200px;
-    }
-
-  }
-
-  @media screen and (max-width: 480px) {
-    .product-features-section {
-      width: 100% !important;
-      max-width: 100% !important;
-      padding: 0 !important;
-    }
-    .feature-block {
-      min-height: 350px;
-      height: 550px;
-      padding: 20px 15px;
-    }
-    .features-container {
-      gap: 10px;
-    }
-    .feature-title {
-      font-size: 24px;
-    }
-
-    .feature-description {
-      font-size: 13px;
-      padding: 0 10px;
-    }
-
-    .product-features-section {
-      margin: 40px auto;
-      padding: 0 15px;
-    }
-    #feature-left-{{ section.id }} {
-      background-position: right bottom;
-    }
-    #feature-right-{{ section.id }} {
-      background-position: center bottom;
-    }
-
   }
 </style>
 
 {% schema %}
   {
     "name": "Product Features",
-    "tag": "section",
-    "class": "product-features-section",
+    "max_blocks": 6,
     "settings": [
       {
         "type": "header",
-        "content": "Left Feature Block"
-      },
+        "content": "Spacing Settings"
+      }, {
+        "type": "range",
+        "id": "padding_top",
+        "min": 0,
+        "max": 100,
+        "step": 4,
+        "unit": "px",
+        "label": "Padding top",
+        "default": 0
+      }, {
+        "type": "range",
+        "id": "padding_bottom",
+        "min": 0,
+        "max": 100,
+        "step": 4,
+        "unit": "px",
+        "label": "Padding bottom",
+        "default": 0
+      }
+    ],
+    "blocks": [
       {
-        "type": "color",
-        "id": "left_bg_color",
-        "label": "Background color",
-        "default": "#FF6B35"
-      },
-      {
-        "type": "image_picker",
-        "id": "left_bg_image",
-        "label": "Background image"
-      },
-      {
-        "type": "text",
-        "id": "left_title",
-        "label": "Title",
-        "default": "More range."
-      },
-      {
-        "type": "textarea",
-        "id": "left_description",
-        "label": "Description",
-        "default": "The Ativafit 66 lb adjustable dumbbell packs 12 weight settings—from 11 lbs up to 66 lbs (5-30 kg) in 5 lb increments—into one sleek, space-saving design. No more plate stacks, just seamless progression through every exercise."
-      },
-      {
-        "type": "header",
-        "content": "Right Feature Block"
-      },
-      {
-        "type": "color",
-        "id": "right_bg_color",
-        "label": "Background color",
-        "default": "#1A1A1A"
-      },
-      {
-        "type": "image_picker",
-        "id": "right_bg_image",
-        "label": "Background image"
-      },
-      {
-        "type": "text",
-        "id": "right_title",
-        "label": "Title",
-        "default": "Faster adjustments."
-      },
-      {
-        "type": "textarea",
-        "id": "right_description",
-        "label": "Description",
-        "default": "Our patented Dial Tech system locks in your chosen plates and ejects the rest in under 3 seconds: press the safety tab, twist to your next weight, and lift—the most efficient way to keep your workout intensity high."
+        "type": "feature",
+        "name": "Feature Block",
+        "settings": [
+          {
+            "type": "image_picker",
+            "id": "feature_image",
+            "label": "Feature Image"
+          },
+          {
+            "type": "header",
+            "content": "Title Settings"
+          },
+          {
+            "type": "text",
+            "id": "title_part1",
+            "label": "Title Part 1",
+            "default": "Space-Saving Strength:"
+          },
+          {
+            "type": "text",
+            "id": "highlight_text",
+            "label": "Highlight Text (orange)",
+            "default": "5.5-27.5 lbs"
+          }, {
+            "type": "text",
+            "id": "title_part2",
+            "label": "Title Part 2 (optional)"
+          }, {
+            "type": "textarea",
+            "id": "feature_description",
+            "label": "Feature Description",
+            "default": "One dumbbell, five weights. Perfect for your entire fitness journey while saving 90% of your space."
+          }
+        ]
       }
     ],
     "presets": [
       {
+        "category": "Product",
         "name": "Product Features",
-        "category": "Product"
+        "blocks": [
+          {
+            "type": "feature",
+            "settings": {
+              "title_part1": "Space-Saving Strength:",
+              "highlight_text": "5.5-27.5 lbs",
+              "title_part2": "",
+              "feature_description": "One dumbbell, five weights. Perfect for your entire fitness journey while saving 90% of your space."
+            }
+          }, {
+            "type": "feature",
+            "settings": {
+              "title_part1": "Glide Tech:",
+              "highlight_text": "3-Second",
+              "title_part2": "Weight Switch",
+              "feature_description": "Glide Tech lets you switch weights in just 3 seconds. Keep your flow, stay in the zone, and focus on the burn."
+            }
+          }, {
+            "type": "feature",
+            "settings": {
+              "title_part1": "Compact Size:",
+              "highlight_text": "13.39\" D × 7.87\" W × 5.91\" H",
+              "title_part2": "",
+              "feature_description": "Sleek and compact. Slide it under the bed or tuck it in a closet. Your gym is wherever you want it to be."
+            }
+          }
+        ]
       }
     ]
   }

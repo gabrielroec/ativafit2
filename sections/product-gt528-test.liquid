@@ -1,7 +1,7 @@
 <style>
   .pp-full {
     background: #F2F2F2;
-    padding: 50px 0;
+    padding: 50px 20px;
   }
     
   .product-name {
@@ -282,7 +282,7 @@
     letter-spacing: 0;
     text-align: center;
     width: 100%;
-    max-width: 133px;
+    max-width: 170px;
   }
   
   /* GALERIA SIMPLES */
@@ -303,6 +303,9 @@
     align-items: center;
     justify-content: center;
     margin-bottom: 16px;
+    position: relative;
+    cursor: pointer;
+    touch-action: pan-y pinch-zoom;
   }
   
   .main-image img {
@@ -310,6 +313,196 @@
     height: 100%;
     object-fit: cover;
     transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+  
+  /* Indicador de swipe */
+  .swipe-indicator {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    opacity: 0.8;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  
+  .swipe-indicator.hidden {
+    opacity: 0;
+  }
+  
+  /* Modal de visualização em tela cheia */
+  .fullscreen-modal {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(0, 0, 0, 0.95) !important;
+    z-index: 99999 !important;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px 20px 20px;
+  }
+  
+  .fullscreen-modal.active {
+    display: flex !important;
+  }
+  
+  /* Container principal da galeria em tela cheia */
+  .fullscreen-gallery {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  
+  /* Área da imagem principal em tela cheia */
+  .fullscreen-main-area {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin-bottom: 20px;
+  }
+  
+  .fullscreen-image {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    border-radius: 8px;
+    user-select: none;
+    -webkit-user-select: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  }
+  
+  /* Botão de fechar */
+  .fullscreen-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 24px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 999999;
+    backdrop-filter: blur(10px);
+  }
+  
+  .fullscreen-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+  }
+  
+  /* Setas de navegação na imagem principal */
+  .fullscreen-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 5;
+  }
+  
+  .fullscreen-nav:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-50%) scale(1.1);
+  }
+  
+  .fullscreen-prev {
+    left: 30px;
+  }
+  
+  .fullscreen-next {
+    right: 30px;
+  }
+  
+  /* Galeria de miniaturas em tela cheia */
+  .fullscreen-thumbnails {
+    width: 100%;
+    max-width: 800px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+  }
+  
+  .fullscreen-thumbnails-container {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 10px 0;
+    scroll-behavior: smooth;
+  }
+  
+  .fullscreen-thumbnails-container::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  .fullscreen-thumbnails-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+  }
+  
+  .fullscreen-thumbnails-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+  }
+  
+  .fullscreen-thumb {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+  }
+  
+  .fullscreen-thumb:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: scale(1.05);
+  }
+  
+  .fullscreen-thumb.active {
+    border-color: #EB701F;
+    box-shadow: 0 0 10px rgba(235, 112, 31, 0.5);
   }
   
   /* Container das Miniaturas */
@@ -412,6 +605,54 @@
       width: 40px;
       height: 40px;
     }
+    
+    /* Indicador de swipe mais visível no mobile */
+    .swipe-indicator {
+      top: 15px;
+      right: 15px;
+      font-size: 11px;
+      padding: 6px 10px;
+    }
+    
+    /* Modal em tela cheia otimizado para mobile */
+    .fullscreen-modal {
+      padding: 20px 10px 10px 10px;
+    }
+    
+    .fullscreen-close {
+      width: 45px;
+      height: 45px;
+      top: 15px;
+      right: 15px;
+      font-size: 20px;
+    }
+    
+    .fullscreen-nav {
+      width: 45px;
+      height: 45px;
+      font-size: 18px;
+    }
+    
+    .fullscreen-prev {
+      left: 15px;
+    }
+    
+    .fullscreen-next {
+      right: 15px;
+    }
+    
+    /* Galeria de miniaturas mobile */
+    .fullscreen-thumbnails {
+      max-width: 100%;
+      height: 80px;
+      padding: 15px;
+    }
+    
+    .fullscreen-thumb {
+      width: 60px;
+      height: 60px;
+    }
+    
     .benefits{
         flex-direction:column!important;
         gap:20px!important;
@@ -981,7 +1222,7 @@ letter-spacing: 0%!important;
       <!-- PRODUCT GALLERY SIMPLES -->
       <div class="product-gallery">
         <!-- Imagem Principal -->
-        <div class="main-image">
+        <div class="main-image" id="mainImageContainer">
           {%- if product.featured_media -%}
             <img 
               id="mainImage"
@@ -992,6 +1233,11 @@ letter-spacing: 0%!important;
               loading="lazy"
             >
           {%- endif -%}
+          
+          <!-- Indicador de Swipe -->
+          <div class="swipe-indicator" id="swipeIndicator">
+            <span>← Swipe or tap to browse</span>
+          </div>
           
           <!-- Setas de Navegação -->
           <button class="main-nav main-prev" onclick="changeImage(-1)" aria-label="Imagem anterior">
@@ -1005,6 +1251,48 @@ letter-spacing: 0%!important;
               <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </button>
+        </div>
+        
+        <!-- Modal de Visualização em Tela Cheia -->
+        <div class="fullscreen-modal" id="fullscreenModal" style="display: none;">
+          <div class="fullscreen-gallery">
+            <!-- Botão de fechar -->
+            <button class="fullscreen-close" onclick="closeFullscreen()" aria-label="Fechar visualização">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            
+            <!-- Área da imagem principal -->
+            <div class="fullscreen-main-area">
+              <img class="fullscreen-image" id="fullscreenImage" src="" alt="">
+              <button class="fullscreen-nav fullscreen-prev" onclick="changeFullscreenImage(-1)" aria-label="Imagem anterior">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <button class="fullscreen-nav fullscreen-next" onclick="changeFullscreenImage(1)" aria-label="Próxima imagem">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+            
+            <!-- Galeria de miniaturas em tela cheia -->
+            <div class="fullscreen-thumbnails">
+              <div class="fullscreen-thumbnails-container" id="fullscreenThumbnailsContainer">
+                {%- for media in product.media -%}
+                  <img 
+                    class="fullscreen-thumb{% if media.id == product.featured_media.id %} active{% endif %}"
+                    src="{{ media | image_url: width: 150 }}" 
+                    alt="{{ media.alt | escape }}"
+                    onclick="changeFullscreenImageByIndex({{ forloop.index0 }})"
+                    data-fullsize="{{ media | image_url: width: 1200 }}"
+                  >
+                {%- endfor -%}
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Miniaturas -->
@@ -1085,9 +1373,10 @@ letter-spacing: 0%!important;
                       data-option-position="{{ option.position }}"
                       data-option-value="{{ value | escape }}"
                       {%- if option.selected_value == value -%} checked{%- endif -%}
-                      onchange="updateVariant()"
+                      class="variant-option"
+                      onclick="updateVariant()"
                     >
-                    <label for="{{ option.name | handleize }}-{{ value | handleize }}" class="option-button">
+                    <label for="{{ option.name | handleize }}-{{ value | handleize }}" class="option-button" onclick="document.getElementById('{{ option.name | handleize }}-{{ value | handleize }}').click()">
                       {{ value }}
                     </label>
                   {%- endfor -%}
@@ -1140,71 +1429,62 @@ letter-spacing: 0%!important;
        
     
        <div class="product-accordion">
-       
-         <div class="accordion-item">
-           <button class="accordion-header" onclick="toggleAccordion(this)">
-             <span>Key Features</span>
-             <span class="accordion-icon">-</span>
-           </button>
-           <div class="accordion-content active">
-             <ul>
-               <li><strong>Dimensions:</strong> 13.39" D × 7.87" W × 5.91" H</li>
-               <li><strong>Weight Range:</strong> 5.5–27.5 lbs (2.5–12.5 kg) with 5 weight options</li>
-               <li><strong>Increments:</strong> Adjust in 5.5 lbs (2.5 kg) steps</li>
-               <li><strong>Glide Tech Adjustment:</strong> Switch weights in just 3 seconds with a smooth slide</li>
-               <li><strong>Durable Build:</strong> Steel plates with reinforced plastic tray for lasting durability</li>
-               <li><strong>Included Items:</strong> 2 x dumbbells, 2 x trays, 1 x workout guide, 1 x manual</li>
-             </ul>
-           </div>
-         </div>
+         {%- for block in section.blocks -%}
+           {%- case block.type -%}
+             {%- when 'accordion_item' -%}
+               <div class="accordion-item" {{ block.shopify_attributes }}>
+                 <button class="accordion-header" onclick="toggleAccordion(this)">
+                   <span>{{ block.settings.title }}</span>
+                   <span class="accordion-icon">{% if forloop.first %}-{% else %}+{% endif %}</span>
+                 </button>
+                 <div class="accordion-content{% if forloop.first %} active{% endif %}">
+                   {%- if block.settings.content_type == 'list' -%}
+                     <ul>
+                       {%- for i in (1..5) -%}
+                         {%- assign item_key = 'item_' | append: i -%}
+                         {%- assign item_text = block.settings[item_key] -%}
+                         {%- if item_text != blank -%}
+                           <li>{{ item_text }}</li>
+                         {%- endif -%}
+                       {%- endfor -%}
+                     </ul>
+                   {%- elsif block.settings.content_type == 'text' -%}
+                     <div class="accordion-text">
+                       {{ block.settings.text_content }}
+                     </div>
+                   {%- endif -%}
+                   
+                   {%- if block.settings.show_link and block.settings.link_text != blank and block.settings.link_url != blank -%}
+                     <p class="accordion-link">
+                       <a href="{{ block.settings.link_url }}" target="_blank" rel="noopener">
+                         {{ block.settings.link_text }}
+                       </a>
+                     </p>
+                   {%- endif -%}
+                 </div>
+               </div>
+           {%- endcase -%}
+         {%- endfor -%}
          
-       
-         <div class="accordion-item">
-           <button class="accordion-header" onclick="toggleAccordion(this)">
-             <span>Shipping & Returns</span>
-             <span class="accordion-icon">+</span>
-           </button>
-           <div class="accordion-content">
-             <ul>
-               <li><strong>Free Shipping:</strong> Standard shipping in 3–7 days (Continental US).</li>
-               <li><strong>Easy Cancel:</strong> Cancel within 24 hours of purchase.</li>
-               <li><strong>30-Day Returns:</strong> Unused items returnable within 30 days; buyer pays return shipping for personal reasons.</li>
-               <li><strong>Fast Refunds:</strong> Issued to original payment or store credit.</li>
-             </ul>
-             <p class="accordion-link">View full details on <a href="#">Shipping policy</a> and <a href="#">Refund&Return</a>.</p>
+         {%- if section.blocks.size == 0 -%}
+           <!-- Accordion padrão quando não há blocos configurados -->
+           <div class="accordion-item">
+             <button class="accordion-header" onclick="toggleAccordion(this)">
+               <span>Key Features</span>
+               <span class="accordion-icon">-</span>
+             </button>
+             <div class="accordion-content active">
+               <ul>
+                 <li><strong>Dimensions:</strong> 13.39" D × 7.87" W × 5.91" H</li>
+                 <li><strong>Weight Range:</strong> 5.5–27.5 lbs (2.5–12.5 kg) with 5 weight options</li>
+                 <li><strong>Increments:</strong> Adjust in 5.5 lbs (2.5 kg) steps</li>
+                 <li><strong>Glide Tech Adjustment:</strong> Switch weights in just 3 seconds with a smooth slide</li>
+                 <li><strong>Durable Build:</strong> Steel plates with reinforced plastic tray for lasting durability</li>
+                 <li><strong>Included Items:</strong> 2 x dumbbells, 2 x trays, 1 x workout guide, 1 x manual</li>
+               </ul>
+             </div>
            </div>
-         </div>
-         
-        
-         <div class="accordion-item">
-           <button class="accordion-header" onclick="toggleAccordion(this)">
-             <span>Use Tips & Manual</span>
-             <span class="accordion-icon">+</span>
-           </button>
-           <div class="accordion-content">
-             <ul>
-               <li>Please adjust weights on the trays for safety.</li>
-               <li>Make sure to press down the red safety button completely and have the arrow pointed exactly to the desired weight number.</li>
-               <li>Please do not drop or throw weights after use.</li>
-             </ul>
-             <p class="accordion-link"><a href="#">View and download the manual</a>.</p>
-           </div>
-         </div>
-         
-        
-         <div class="accordion-item">
-           <button class="accordion-header" onclick="toggleAccordion(this)">
-             <span>Warranty & Support</span>
-             <span class="accordion-icon">+</span>
-           </button>
-           <div class="accordion-content">
-             <ul>
-               <li><strong>1-Year Warranty:</strong> Free replacement if your product arrives defective or faulty.</li>
-               <li><strong>Extend to 2 Years:</strong> Join <a href="#">Ativa People</a> for an extra year of coverage and exclusive rewards.</li>
-               <li><strong>Support:</strong> Questions? Email <a href="mailto:services@ativafit.com">services@ativafit.com</a>.</li>
-             </ul>
-           </div>
-         </div>
+         {%- endif -%}
        </div>
  
     </div>
@@ -1220,6 +1500,15 @@ letter-spacing: 0%!important;
       let startOffset = 0;
       let dragThreshold = 10; // Pixels mínimos para considerar como drag
       let hasMoved = false;
+      
+      // Variáveis para swipe na imagem principal
+      let isSwiping = false;
+      let swipeStartX = 0;
+      let swipeStartY = 0;
+      let swipeThreshold = 50; // Pixels mínimos para considerar como swipe
+      
+      // Variáveis para modal em tela cheia
+      let fullscreenCurrentIndex = 0;
       
       // Função para trocar imagem principal
       function changeMainImage(newSrc, clickedThumb) {
@@ -1244,6 +1533,110 @@ letter-spacing: 0%!important;
         }
         
         updateMainNavButtons();
+      }
+      
+      // Função para abrir visualização em tela cheia
+      function openFullscreen() {
+        console.log('openFullscreen chamada');
+        const modal = document.getElementById('fullscreenModal');
+        const fullscreenImage = document.getElementById('fullscreenImage');
+        const mainImage = document.getElementById('mainImage');
+        
+        if (modal && fullscreenImage && mainImage) {
+          console.log('Abrindo galeria em tela cheia...');
+          
+          // Define a imagem principal
+          fullscreenImage.src = mainImage.src.replace('800', '1200');
+          fullscreenImage.alt = mainImage.alt;
+          fullscreenCurrentIndex = currentIndex;
+          
+          // Atualiza miniaturas ativas no modal
+          updateFullscreenThumbnails();
+          
+          // Força a exibição do modal
+          modal.style.display = 'flex';
+          modal.classList.add('active');
+          
+          // Bloqueia scroll
+          document.body.style.overflow = 'hidden';
+          
+          console.log('Galeria em tela cheia aberta com sucesso');
+        } else {
+          console.error('Elementos não encontrados para galeria em tela cheia');
+        }
+      }
+      
+      // Função para fechar visualização em tela cheia
+      function closeFullscreen() {
+        console.log('closeFullscreen chamada');
+        const modal = document.getElementById('fullscreenModal');
+        if (modal) {
+          console.log('Fechando modal...');
+          // Remove a classe active
+          modal.classList.remove('active');
+          // Força o display none
+          modal.style.display = 'none';
+          // Restaura o scroll
+          document.body.style.overflow = '';
+          console.log('Modal fechado com sucesso');
+        } else {
+          console.error('Modal não encontrado para fechar');
+        }
+      }
+      
+      // Função para atualizar miniaturas no modal em tela cheia
+      function updateFullscreenThumbnails() {
+        const fullscreenThumbs = document.querySelectorAll('.fullscreen-thumb');
+        fullscreenThumbs.forEach((thumb, index) => {
+          thumb.classList.remove('active');
+          if (index === fullscreenCurrentIndex) {
+            thumb.classList.add('active');
+            // Faz scroll para mostrar a miniatura ativa
+            thumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          }
+        });
+      }
+      
+      // Função para navegar no modal em tela cheia
+      function changeFullscreenImage(direction) {
+        const fullscreenThumbs = document.querySelectorAll('.fullscreen-thumb');
+        if (fullscreenThumbs.length === 0) return;
+        
+        fullscreenCurrentIndex = Math.max(0, Math.min(fullscreenThumbs.length - 1, fullscreenCurrentIndex + direction));
+        const targetThumb = fullscreenThumbs[fullscreenCurrentIndex];
+        
+        if (targetThumb) {
+          const newSrc = targetThumb.getAttribute('data-fullsize');
+          const fullscreenImage = document.getElementById('fullscreenImage');
+          if (fullscreenImage && newSrc) {
+            fullscreenImage.src = newSrc;
+            fullscreenImage.alt = targetThumb.alt;
+          }
+          
+          // Atualiza miniaturas ativas
+          updateFullscreenThumbnails();
+        }
+      }
+      
+      // Função para mudar imagem clicando na miniatura
+      function changeFullscreenImageByIndex(index) {
+        const fullscreenThumbs = document.querySelectorAll('.fullscreen-thumb');
+        if (index < 0 || index >= fullscreenThumbs.length) return;
+        
+        fullscreenCurrentIndex = index;
+        const targetThumb = fullscreenThumbs[index];
+        
+        if (targetThumb) {
+          const newSrc = targetThumb.getAttribute('data-fullsize');
+          const fullscreenImage = document.getElementById('fullscreenImage');
+          if (fullscreenImage && newSrc) {
+            fullscreenImage.src = newSrc;
+            fullscreenImage.alt = targetThumb.alt;
+          }
+          
+          // Atualiza miniaturas ativas
+          updateFullscreenThumbnails();
+        }
       }
       
       // Função para navegar pelas imagens principais
@@ -1337,6 +1730,83 @@ letter-spacing: 0%!important;
             if (isDragging) e.preventDefault();
           });
         }
+        
+        // Adiciona eventos de swipe na imagem principal
+        const mainImageContainer = document.getElementById('mainImageContainer');
+        if (mainImageContainer) {
+          // Clique para abrir em tela cheia
+          mainImageContainer.addEventListener('click', function(e) {
+            console.log('Clique na imagem principal detectado');
+            // Não abre se clicou nas setas de navegação
+            if (e.target.closest('.main-nav')) {
+              console.log('Clique nas setas, ignorando');
+              return;
+            }
+            console.log('Abrindo tela cheia...');
+            openFullscreen();
+          });
+          
+          // Touch events para swipe
+          mainImageContainer.addEventListener('touchstart', startSwipe, { passive: false });
+          mainImageContainer.addEventListener('touchmove', onSwipe, { passive: false });
+          mainImageContainer.addEventListener('touchend', stopSwipe, { passive: false });
+          
+          // Mouse events para swipe (desktop)
+          mainImageContainer.addEventListener('mousedown', startSwipe);
+          mainImageContainer.addEventListener('mousemove', onSwipe);
+          mainImageContainer.addEventListener('mouseup', stopSwipe);
+          mainImageContainer.addEventListener('mouseleave', stopSwipe);
+        }
+        
+        // Event listeners para o modal em tela cheia
+        const fullscreenModal = document.getElementById('fullscreenModal');
+        if (fullscreenModal) {
+          // Fecha com ESC
+          document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && fullscreenModal.classList.contains('active')) {
+              console.log('ESC pressionado, fechando modal');
+              closeFullscreen();
+            }
+          });
+          
+          // Fecha clicando fora da galeria
+          fullscreenModal.addEventListener('click', function(e) {
+            // Só fecha se clicar diretamente no modal (fundo)
+            if (e.target === fullscreenModal) {
+              console.log('Clique fora da galeria, fechando modal');
+              closeFullscreen();
+            }
+          });
+          
+          // Garante que o botão de fechar funcione
+          const closeBtn = fullscreenModal.querySelector('.fullscreen-close');
+          if (closeBtn) {
+            closeBtn.addEventListener('click', function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('Botão fechar clicado');
+              closeFullscreen();
+            });
+          }
+        }
+        
+        // Esconde indicador de swipe após alguns segundos
+        setTimeout(() => {
+          const swipeIndicator = document.getElementById('swipeIndicator');
+          if (swipeIndicator) {
+            swipeIndicator.classList.add('hidden');
+          }
+        }, 3000);
+        
+        // Teste inicial do modal
+        console.log('=== TESTE INICIAL DO MODAL ===');
+        const testModal = document.getElementById('fullscreenModal');
+        console.log('Modal encontrado no DOM:', testModal);
+        if (testModal) {
+          console.log('Modal HTML:', testModal.outerHTML);
+          console.log('Modal display inicial:', testModal.style.display);
+          console.log('Modal classes:', testModal.className);
+        }
       });
       
       // Função para iniciar drag
@@ -1420,6 +1890,44 @@ letter-spacing: 0%!important;
         }, 50);
       }
       
+      // Função para iniciar swipe na imagem principal
+      function startSwipe(e) {
+        e.preventDefault();
+        isSwiping = false;
+        swipeStartX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
+        swipeStartY = e.type === 'mousedown' ? e.clientY : e.touches[0].clientY;
+      }
+      
+      // Função para movimento durante swipe
+      function onSwipe(e) {
+        if (!isSwiping) return;
+        e.preventDefault();
+      }
+      
+      // Função para parar swipe
+      function stopSwipe(e) {
+        if (!isSwiping) {
+          const currentX = e.type === 'mouseup' ? e.clientX : e.changedTouches[0].clientX;
+          const currentY = e.type === 'mouseup' ? e.clientY : e.changedTouches[0].clientY;
+          
+          const deltaX = Math.abs(swipeStartX - currentX);
+          const deltaY = Math.abs(swipeStartY - currentY);
+          
+          // Só considera swipe se moveu mais horizontalmente que verticalmente
+          if (deltaX > swipeThreshold && deltaX > deltaY) {
+            if (swipeStartX > currentX) {
+              // Swipe para esquerda - próxima imagem
+              changeImage(1);
+            } else {
+              // Swipe para direita - imagem anterior
+              changeImage(-1);
+            }
+          }
+        }
+        
+        isSwiping = false;
+      }
+      
       // Atualiza botões quando a janela é redimensionada
       window.addEventListener('resize', function() {
         thumbnailsOffset = 0;
@@ -1477,6 +1985,7 @@ letter-spacing: 0%!important;
       
       // Função para atualizar variante
       function updateVariant() {
+        console.log('updateVariant chamada');
         const options = [];
         
         // Coleta todas as opções selecionadas
@@ -1484,37 +1993,135 @@ letter-spacing: 0%!important;
           const position = input.getAttribute('data-option-position');
           const value = input.getAttribute('data-option-value');
           options[position - 1] = value;
+          console.log('Opção selecionada:', position, value);
         });
         
         // Encontra a variante correspondente
         const variants = {{ product.variants | json }};
+        console.log('Variantes disponíveis:', variants);
         const selectedVariant = variants.find(variant => {
           return variant.options.every((option, index) => option === options[index]);
         });
+        
+        console.log('Variante selecionada:', selectedVariant);
         
         if (selectedVariant) {
           // Atualiza preço se necessário
           updatePrice(selectedVariant);
           // Atualiza disponibilidade
           updateAvailability(selectedVariant);
+          
+          // Atualiza imagem principal baseada na variante selecionada
+          updateMainImageForVariant(selectedVariant);
         }
+      }
+      
+      // Função para atualizar imagem principal baseada na variante
+      function updateMainImageForVariant(variant) {
+        console.log('updateMainImageForVariant chamada com:', variant);
+        const mainImage = document.getElementById('mainImage');
+        console.log('mainImage encontrada:', mainImage);
+        console.log('mainImage tagName:', mainImage ? mainImage.tagName : 'N/A');
+        console.log('mainImage id:', mainImage ? mainImage.id : 'N/A');
+        
+        if (!mainImage) {
+          console.log('mainImage não encontrada');
+          return;
+        }
+        
+        // Verifica se a variante tem uma imagem associada
+        if (variant.featured_image && variant.featured_image.src) {
+          console.log('Variante tem imagem:', variant.featured_image);
+          const newImageSrc = variant.featured_image.src;
+          console.log('Nova imagem da variante:', newImageSrc);
+          console.log('mainImage antes:', mainImage.src);
+          mainImage.src = newImageSrc;
+          console.log('mainImage depois:', mainImage.src);
+          console.log('mainImage atual:', mainImage.src);
+          
+          // Força o redraw da imagem
+          mainImage.style.opacity = '0.99';
+          setTimeout(() => {
+            mainImage.style.opacity = '1';
+          }, 10);
+          
+          // Atualiza a miniatura ativa correspondente
+          updateActiveThumbnail(newImageSrc);
+        } else {
+          console.log('Variante não tem imagem, usando mapeamento por cor');
+          
+          // Mapeia as variantes para as imagens correspondentes
+          const variantImageMap = {
+            'midnight': '{{ product.media[1] | image_url: width: 800 }}', // Imagem dos sinos pretos
+            'sunrise': '{{ product.media[0] | image_url: width: 800 }}'   // Imagem dos sinos coloridos
+          };
+          
+          console.log('VariantImageMap:', variantImageMap);
+          
+          // Verifica se a variante tem uma imagem mapeada
+          const variantOption = variant.options[0]; // Assumindo que a primeira opção é a cor
+          console.log('VariantOption:', variantOption);
+          console.log('VariantOption lowercase:', variantOption.toLowerCase());
+          
+          if (variantImageMap[variantOption.toLowerCase()]) {
+            const newImageSrc = variantImageMap[variantOption.toLowerCase()];
+            console.log('Nova imagem do mapeamento:', newImageSrc);
+            mainImage.src = newImageSrc;
+            
+            // Atualiza a miniatura ativa correspondente
+            updateActiveThumbnail(newImageSrc);
+          } else {
+            console.log('Nenhuma imagem mapeada para:', variantOption);
+            console.log('Opções disponíveis:', variant.options);
+          }
+        }
+      }
+      
+      // Função para atualizar a miniatura ativa
+      function updateActiveThumbnail(imageSrc) {
+        const thumbnails = document.querySelectorAll('.thumbnail');
+        thumbnails.forEach(thumb => {
+          thumb.classList.remove('active');
+          // Se a miniatura corresponde à nova imagem principal, marca como ativa
+          if (thumb.src === imageSrc || thumb.src.replace('150', '800') === imageSrc) {
+            thumb.classList.add('active');
+            // Atualiza o índice atual
+            currentIndex = Array.from(thumbnails).indexOf(thumb);
+          }
+        });
+        
+        // Atualiza os botões de navegação
+        updateMainNavButtons();
       }
       
       // Atualiza preço baseado na variante
       function updatePrice(variant) {
-        const priceElement = document.querySelector('.product-price');
-        const originalPriceElement = document.querySelector('.product-price-original');
+        console.log('Atualizando preço para variante:', variant);
+        const priceElements = document.querySelectorAll('.product-price');
+        const originalPriceElements = document.querySelectorAll('.product-price-original');
         
-        if (priceElement) {
-          const price = (variant.price / 100).toFixed(2);
-          priceElement.textContent = `$${price}`;
-        }
+        priceElements.forEach(priceElement => {
+          if (priceElement) {
+            const price = (variant.price / 100).toFixed(2);
+            priceElement.textContent = `$${price}`;
+            console.log('Preço atualizado para:', price);
+          }
+        });
         
-        if (originalPriceElement && variant.compare_at_price) {
-          const comparePrice = (variant.compare_at_price / 100).toFixed(2);
-          originalPriceElement.textContent = `$${comparePrice}`;
-          originalPriceElement.style.display = variant.compare_at_price > variant.price ? 'block' : 'none';
-        }
+        originalPriceElements.forEach(originalPriceElement => {
+          if (originalPriceElement) {
+            // Mostra preço riscado apenas para a variante Midnight
+            if (variant.option1 === 'Midnight' && variant.compare_at_price) {
+              const comparePrice = (variant.compare_at_price / 100).toFixed(2);
+              originalPriceElement.textContent = `$${comparePrice}`;
+              originalPriceElement.style.display = 'block';
+              console.log('Preço original atualizado para:', comparePrice);
+            } else {
+              // Esconde preço riscado para outras variantes
+              originalPriceElement.style.display = 'none';
+            }
+          }
+        });
       }
       
       // Atualiza disponibilidade
@@ -1527,56 +2134,222 @@ letter-spacing: 0%!important;
       }
       
       // Inicializa quando o DOM estiver pronto
-          document.addEventListener('DOMContentLoaded', function() {
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM carregado, inicializando...');
         updateQuantityButtons();
+        
+        // Adiciona event listeners para as opções de variante
+        const variantOptions = document.querySelectorAll('.variant-option');
+        console.log('Variantes encontradas:', variantOptions.length);
+        
+        // Log detalhado de cada opção encontrada
+        variantOptions.forEach((option, index) => {
+          console.log(`Opção ${index}:`, {
+            id: option.id,
+            value: option.value,
+            name: option.name,
+            checked: option.checked,
+            classList: option.classList.toString()
           });
+        });
+        
+        // Verifica se há problemas com seletores específicos
+        console.log('=== VERIFICAÇÃO ESPECÍFICA ===');
+        const midnightOption = document.querySelector('input[value="Midnight"]');
+        const sunriseOption = document.querySelector('input[value="Sunrise"]');
+        
+        console.log('Opção Midnight encontrada:', midnightOption);
+        console.log('Opção Sunrise encontrada:', sunriseOption);
+        
+        if (midnightOption) {
+          console.log('Midnight - ID:', midnightOption.id);
+          console.log('Midnight - Classes:', midnightOption.classList.toString());
+          console.log('Midnight - Name:', midnightOption.name);
+          console.log('Midnight - Value:', midnightOption.value);
+        }
+        
+        if (sunriseOption) {
+          console.log('Sunrise - ID:', sunriseOption.id);
+          console.log('Sunrise - Classes:', sunriseOption.classList.toString());
+          console.log('Sunrise - Name:', sunriseOption.name);
+          console.log('Sunrise - Value:', sunriseOption.value);
+        }
+        
+        // Variável para rastrear a opção atualmente selecionada
+        let currentSelectedOption = '';
+        
+        variantOptions.forEach(option => {
+          // Event listener para mudança de seleção
+          option.addEventListener('change', function() {
+            console.log('Opção alterada (change):', this.value, 'ID:', this.id);
+            currentSelectedOption = this.value;
+            updateVariant();
+          });
+          
+          // Event listener para clique (para garantir que funcione sempre)
+          option.addEventListener('click', function() {
+            console.log('Opção clicada (click):', this.value, 'ID:', this.id);
+            
+            // Se a opção clicada é diferente da atual, executa updateVariant
+            if (this.value !== currentSelectedOption) {
+              currentSelectedOption = this.value;
+              updateVariant();
+            } else {
+              // Se é a mesma opção, força a execução para garantir que a imagem seja atualizada
+              console.log('Forçando atualização para opção já selecionada');
+              setTimeout(() => {
+                updateVariant();
+              }, 50);
+            }
+          });
+        });
+        
+        // Define a opção inicial selecionada
+        const initialSelected = document.querySelector('.variant-option:checked');
+        if (initialSelected) {
+          currentSelectedOption = initialSelected.value;
+          console.log('Opção inicial selecionada:', currentSelectedOption);
+        }
+        
+        // Teste inicial
+        console.log('Funções disponíveis:', typeof updateVariant, typeof updatePrice, typeof updateMainImageForVariant);
+        
+        // Teste manual para verificar se as opções estão funcionando
+        setTimeout(() => {
+          console.log('=== TESTE MANUAL ===');
+          if (midnightOption) {
+            console.log('Testando evento click na opção Midnight...');
+            midnightOption.click();
+          }
+          if (sunriseOption) {
+            console.log('Testando evento click na opção Sunrise...');
+            sunriseOption.click();
+          }
+        }, 1000);
+      });
           
       // ADD TO CART FUNCTION
       function addToCart() {
-        const quantity = document.getElementById('quantity').value;
+        const quantityInput = document.getElementById('quantity');
+        const quantity = parseInt(quantityInput.value) || 1;
         const selectedVariant = getSelectedVariant();
         
         if (!selectedVariant) {
-          alert('Please select a variant before adding to cart');
+          alert('Please select all product options');
           return;
         }
         
-        // Aqui você pode integrar com a API do Shopify para adicionar ao carrinho
-        console.log('Adding to cart:', {
-          variantId: selectedVariant.id,
-          quantity: quantity,
-          variant: selectedVariant
-        });
+        if (!selectedVariant.available) {
+          alert('This product is currently unavailable');
+          return;
+        }
         
-        // Feedback visual
         const btn = document.querySelector('.add-to-cart-btn');
         const originalText = btn.textContent;
-        btn.textContent = 'ADDED TO CART!';
-        btn.style.background = '#28a745';
         
-        setTimeout(() => {
-          btn.textContent = originalText;
-          btn.style.background = '#EB701F';
-        }, 2000);
+        // Feedback visual - loading
+        btn.textContent = 'ADDING...';
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+        
+        // Preparar dados para o carrinho
+        const formData = {
+          'items': [{
+            'id': selectedVariant.id,
+            'quantity': quantity
+          }]
+        };
+        
+        // Fazer request para adicionar ao carrinho
+        fetch('/cart/add.js', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Erro ao adicionar ao carrinho');
+          }
+          return response.json();
+        })
+        .then(data => {
+          // Sucesso - feedback visual
+          btn.textContent = 'ADDED TO CART!';
+          btn.style.background = '#28a745';
+          
+          // Atualizar contador do carrinho se existir
+          updateCartCount();
+          
+          setTimeout(() => {
+            btn.textContent = originalText;
+            btn.style.background = '#EB701F';
+            btn.disabled = false;
+            btn.style.opacity = '1';
+          }, 2000);
+        })
+        .catch(error => {
+          console.error('Erro:', error);
+          
+          // Erro - feedback visual
+          btn.textContent = 'ERROR - TRY AGAIN';
+          btn.style.background = '#dc3545';
+          
+          setTimeout(() => {
+            btn.textContent = originalText;
+            btn.style.background = '#EB701F';
+            btn.disabled = false;
+            btn.style.opacity = '1';
+          }, 3000);
+        });
       }
       
       function getSelectedVariant() {
-        const selectedOptions = {};
+        const variants = {{ product.variants | json }};
+        
+        // Se só existe uma variante (produto sem opções)
+        if (variants.length === 1) {
+          return variants[0];
+        }
+        
+        // Coleta opções selecionadas
+        const selectedOptions = [];
         const optionInputs = document.querySelectorAll('.option-values input[type="radio"]:checked');
         
         optionInputs.forEach(input => {
-          const position = input.dataset.optionPosition;
+          const position = parseInt(input.dataset.optionPosition) - 1;
           const value = input.dataset.optionValue;
-          selectedOptions[`option${position}`] = value;
+          selectedOptions[position] = value;
         });
         
-        // Aqui você pode implementar a lógica para encontrar a variante correspondente
-        // Por enquanto, retornamos um objeto básico
-                 return {
-           id: 'variant_' + Date.now(),
-           options: selectedOptions
-         };
-       }
+        // Encontra a variante que corresponde às opções selecionadas
+        const matchingVariant = variants.find(variant => {
+          return variant.options.every((option, index) => {
+            return option === selectedOptions[index];
+          });
+        });
+        
+        return matchingVariant || null;
+      }
+      
+      // Função para atualizar contador do carrinho (opcional)
+      function updateCartCount() {
+        fetch('/cart.js')
+          .then(response => response.json())
+          .then(cart => {
+            const cartCountElements = document.querySelectorAll('.cart-count');
+            cartCountElements.forEach(element => {
+              element.textContent = cart.item_count;
+            });
+          })
+          .catch(error => {
+            console.log('Erro ao atualizar contador do carrinho:', error);
+          });
+      }
+      
+
        
        // ACCORDION FUNCTION
        function toggleAccordion(header) {
@@ -1647,6 +2420,149 @@ letter-spacing: 0%!important;
       "id": "benefit_text_3",
       "label": "Benefit Text 3",
       "default": "Third Benefit Text"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "accordion_item",
+      "name": "Accordion Item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Accordion Title",
+          "default": "Accordion Title"
+        },
+        {
+          "type": "select",
+          "id": "content_type",
+          "label": "Content Type",
+          "options": [
+            {
+              "value": "list",
+              "label": "List Items"
+            },
+            {
+              "value": "text",
+              "label": "Text Content"
+            }
+          ],
+          "default": "list"
+        },
+        {
+          "type": "text",
+          "id": "item_1",
+          "label": "List Item 1",
+          "default": "First list item"
+        },
+        {
+          "type": "text",
+          "id": "item_2",
+          "label": "List Item 2",
+          "default": "Second list item"
+        },
+        {
+          "type": "text",
+          "id": "item_3",
+          "label": "List Item 3",
+          "default": "Third list item"
+        },
+        {
+          "type": "text",
+          "id": "item_4",
+          "label": "List Item 4",
+          "default": "Fourth list item"
+        },
+        {
+          "type": "text",
+          "id": "item_5",
+          "label": "List Item 5",
+          "default": "Fifth list item"
+        },
+        {
+          "type": "richtext",
+          "id": "text_content",
+          "label": "Text Content",
+          "info": "Use this when content type is 'Text Content'"
+        },
+        {
+          "type": "header",
+          "content": "Optional Link"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_link",
+          "label": "Show Link",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "link_text",
+          "label": "Link Text",
+          "default": "Learn more"
+        },
+        {
+          "type": "url",
+          "id": "link_url",
+          "label": "Link URL"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product GT528 Test",
+      "blocks": [
+        {
+          "type": "accordion_item",
+          "settings": {
+            "title": "Key Features",
+            "content_type": "list",
+            "item_1": "<strong>Dimensions:</strong> 13.39\" D × 7.87\" W × 5.91\" H",
+            "item_2": "<strong>Weight Range:</strong> 5.5–27.5 lbs (2.5–12.5 kg) with 5 weight options",
+            "item_3": "<strong>Increments:</strong> Adjust in 5.5 lbs (2.5 kg) steps",
+            "item_4": "<strong>Glide Tech Adjustment:</strong> Switch weights in just 3 seconds with a smooth slide",
+            "item_5": "<strong>Durable Build:</strong> Steel plates with reinforced plastic tray for lasting durability"
+          }
+        },
+        {
+          "type": "accordion_item",
+          "settings": {
+            "title": "Shipping & Returns",
+            "content_type": "list",
+            "item_1": "<strong>Free Shipping:</strong> Standard shipping in 3–7 days (Continental US).",
+            "item_2": "<strong>Easy Cancel:</strong> Cancel within 24 hours of purchase.",
+            "item_3": "<strong>30-Day Returns:</strong> Unused items returnable within 30 days; buyer pays return shipping for personal reasons.",
+            "item_4": "<strong>Fast Refunds:</strong> Issued to original payment or store credit.",
+            "show_link": true,
+            "link_text": "View full details on Shipping policy and Refund&Return",
+            "link_url": "#"
+          }
+        },
+        {
+          "type": "accordion_item",
+          "settings": {
+            "title": "Use Tips & Manual",
+            "content_type": "list",
+            "item_1": "Please adjust weights on the trays for safety.",
+            "item_2": "Make sure to press down the red safety button completely and have the arrow pointed exactly to the desired weight number.",
+            "item_3": "Please do not drop or throw weights after use.",
+            "show_link": true,
+            "link_text": "View and download the manual",
+            "link_url": "#"
+          }
+        },
+        {
+          "type": "accordion_item",
+          "settings": {
+            "title": "Warranty & Support",
+            "content_type": "list",
+            "item_1": "<strong>1-Year Warranty:</strong> Free replacement if your product arrives defective or faulty.",
+            "item_2": "<strong>Extend to 2 Years:</strong> Join Ativa People for an extra year of coverage and exclusive rewards.",
+            "item_3": "<strong>Support:</strong> Questions? Email services@ativafit.com"
+          }
+        }
+      ]
     }
   ]
 }

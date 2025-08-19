@@ -1,0 +1,474 @@
+{%- liquid
+  assign section_id = 'faq-accordion-' | append: section.id
+-%}
+
+<section id="{{ section_id }}" class="faq-section" style="padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px;">
+  <div class="faq-container">
+    {%- if section.settings.main_heading != blank -%}
+      <h2 class="faq-heading">{{ section.settings.main_heading }}</h2>
+    {%- endif -%}
+
+    <div class="faq-accordion">
+      {%- for block in section.blocks -%}
+        <div class="faq-item" {{ block.shopify_attributes }}>
+          <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+            <span class="faq-question-text">{{ block.settings.question }}</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-content">
+              <p>{{ block.settings.answer }}</p>
+            </div>
+          </div>
+        </div>
+      {%- endfor -%}
+    </div>
+
+    <div class="faq-cta">
+      {%- if section.settings.cta_question != blank -%}
+        <p class="faq-cta-text">{{ section.settings.cta_question }}</p>
+      {%- endif -%}
+
+      {%- if section.settings.cta_text != blank -%}
+        {%- liquid
+          assign cta_url = section.settings.cta_url
+          if cta_url == blank
+            assign cta_url = 'mailto:support@ativafit.com'
+          endif
+        -%}
+        <a href="{{ cta_url }}" class="faq-cta-button">{{ section.settings.cta_text }}</a>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq-section {
+    background: #F2F2F2;
+    border-radius: 35px 35px 0 0;
+  }
+
+  .faq-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .faq-heading {
+    font-family: Barlow, sans-serif;
+    font-weight: 700;
+    font-size: 40px;
+    line-height: 42px;
+    letter-spacing: 0;
+    text-align: center;
+    color: #000;
+    margin: 0 0 60px 0;
+  }
+
+  .faq-accordion {
+    max-width: 800px;
+    margin: 0 auto 60px;
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+  }
+
+  .faq-item {
+    background: #f8f8f8;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .faq-item:hover {
+    background: #f0f0f0;
+  }
+
+  .faq-item.active {
+    background: #fff;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .faq-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .faq-question {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 24px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.3s ease;
+  }
+
+  .faq-question:focus {
+    outline: none;
+  }
+
+  .faq-question-text {
+    font-family: Barlow, sans-serif;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 24px;
+    color: #333;
+    flex: 1;
+    padding-right: 20px;
+  }
+
+  .faq-icon {
+    font-family: Barlow, sans-serif;
+    font-weight: 300;
+    font-size: 24px;
+    color: #000;
+    transition: transform 0.3s ease;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .faq-item.active .faq-icon {
+    transform: rotate(45deg);
+  }
+
+  .faq-answer {
+    overflow: hidden;
+    transition: all 0.4s ease;
+    max-height: 0;
+    opacity: 0;
+    display: none;
+  }
+
+  .faq-answer.open {
+    max-height: 500px;
+    opacity: 1;
+    padding-bottom: 24px;
+  }
+
+  .faq-answer-content {
+    padding: 0 30px;
+  }
+
+  .faq-answer-content p {
+    font-family: Barlow, sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    color: #666;
+    margin: 0;
+  }
+
+  .faq-cta {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .faq-cta-text {
+    font-family: Barlow, sans-serif;
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 22px;
+    letter-spacing: 0;
+    text-align: center;
+    color: #333;
+    margin: 0 0 24px 0;
+  }
+
+  .faq-cta-button {
+    background: #EB701F;
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    padding: 16px 40px;
+    font-family: Barlow, sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 24px;
+    letter-spacing: 0;
+    text-align: center;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+  }
+
+  .faq-cta-button:hover {
+    background: #d55a0f;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(235, 112, 31, 0.3);
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .faq-container {
+      padding: 0 15px;
+    }
+
+    .faq-heading {
+      font-size: 32px;
+      line-height: 36px;
+      margin-bottom: 40px;
+    }
+
+    .faq-accordion {
+      padding: 15px;
+      margin-bottom: 40px;
+    }
+
+    .faq-question {
+      padding: 20px;
+    }
+
+    .faq-question-text {
+      font-size: 16px;
+      line-height: 22px;
+      padding-right: 15px;
+    }
+
+    .faq-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    .faq-answer-content {
+      padding: 0 20px;
+    }
+
+    .faq-answer-content p {
+      font-size: 15px;
+      line-height: 22px;
+    }
+
+    .faq-cta-text {
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    .faq-cta-button {
+      padding: 14px 32px;
+      font-size: 14px;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+  // FAQ Toggle functionality
+  function toggleFAQ(button) {
+    const faqItem = button.closest('.faq-item');
+    const answer = faqItem.querySelector('.faq-answer');
+    const icon = button.querySelector('.faq-icon');
+    const isOpen = faqItem.classList.contains('active');
+    
+    // Close all other FAQ items
+    const allFaqItems = document.querySelectorAll('.faq-item');
+    allFaqItems.forEach(item => {
+      if (item !== faqItem) {
+        item.classList.remove('active');
+        const otherAnswer = item.querySelector('.faq-answer');
+        const otherIcon = item.querySelector('.faq-icon');
+        otherAnswer.classList.remove('open');
+        otherAnswer.style.display = 'none';
+        item.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+      }
+    });
+    
+    // Toggle current FAQ item
+    if (isOpen) {
+      // Close current item
+      faqItem.classList.remove('active');
+      answer.classList.remove('open');
+      setTimeout(() => {
+        answer.style.display = 'none';
+      }, 400);
+      button.setAttribute('aria-expanded', 'false');
+    } else {
+      // Open current item
+      faqItem.classList.add('active');
+      answer.style.display = 'block';
+      setTimeout(() => {
+        answer.classList.add('open');
+      }, 10);
+      button.setAttribute('aria-expanded', 'true');
+    }
+  }
+  
+  // Make toggleFAQ function global
+  window.toggleFAQ = toggleFAQ;
+  
+  // Close FAQ when clicking outside
+  document.addEventListener('click', function(event) {
+    if (!event.target.closest('.faq-item')) {
+      const allFaqItems = document.querySelectorAll('.faq-item.active');
+      allFaqItems.forEach(item => {
+        item.classList.remove('active');
+        const answer = item.querySelector('.faq-answer');
+        answer.classList.remove('open');
+        setTimeout(() => {
+          answer.style.display = 'none';
+        }, 400);
+        item.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+      });
+    }
+  });
+  
+  // Keyboard accessibility
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+      const allFaqItems = document.querySelectorAll('.faq-item.active');
+      allFaqItems.forEach(item => {
+        item.classList.remove('active');
+        const answer = item.querySelector('.faq-answer');
+        answer.classList.remove('open');
+        setTimeout(() => {
+          answer.style.display = 'none';
+        }, 400);
+        item.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+      });
+    }
+  });
+  });
+</script>
+
+{%- schema -%}
+  {
+    "name": "FAQ Accordion",
+    "tag": "section",
+    "class": "faq-accordion-section",
+    "max_blocks": 20,
+    "settings": [
+      {
+        "type": "header",
+        "content": "Heading Settings"
+      },
+      {
+        "type": "text",
+        "id": "main_heading",
+        "label": "Main Heading",
+        "default": "FAQ Guide for Your Ativafit Experience"
+      },
+      {
+        "type": "header",
+        "content": "Call to Action"
+      },
+      {
+        "type": "text",
+        "id": "cta_question",
+        "label": "CTA Question",
+        "default": "Still have questions?"
+      }, {
+        "type": "text",
+        "id": "cta_text",
+        "label": "CTA Button Text",
+        "default": "CONTACT SUPPORT"
+      }, {
+        "type": "url",
+        "id": "cta_url",
+        "label": "CTA Button URL",
+        "info": "Leave blank to use default email link"
+      }, {
+        "type": "header",
+        "content": "Section Settings"
+      }, {
+        "type": "range",
+        "id": "padding_top",
+        "min": 0,
+        "max": 120,
+        "step": 4,
+        "unit": "px",
+        "label": "Padding Top",
+        "default": 80
+      }, {
+        "type": "range",
+        "id": "padding_bottom",
+        "min": 0,
+        "max": 120,
+        "step": 4,
+        "unit": "px",
+        "label": "Padding Bottom",
+        "default": 80
+      }
+    ],
+    "blocks": [
+      {
+        "type": "faq_item",
+        "name": "FAQ Item",
+        "settings": [
+          {
+            "type": "text",
+            "id": "question",
+            "label": "Question",
+            "default": "How do Ativafit adjustable dumbbells work?"
+          }, {
+            "type": "textarea",
+            "id": "answer",
+            "label": "Answer",
+            "default": "Our adjustable dumbbells let you change weights in seconds using a smooth glide adjustment system."
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "FAQ Accordion",
+        "settings": {
+          "main_heading": "FAQ Guide for Your Ativafit Experience",
+          "cta_question": "Still have questions?",
+          "cta_text": "CONTACT SUPPORT"
+        },
+        "blocks": [
+          {
+            "type": "faq_item",
+            "settings": {
+              "question": "How do the 27.5 lbs adjustable dumbbells work?",
+              "answer": "Our 27.5 lbs adjustable dumbbells let you change weights in seconds using a smooth glide adjustment system. Simply slide the dial to select from 5.5, 11, 16.5, 22, or 27.5 lbs — no need for multiple dumbbells cluttering your space."
+            }
+          },
+          {
+            "type": "faq_item",
+            "settings": {
+              "question": "Are these adjustable dumbbells suitable for beginners?",
+              "answer": "Yes! With five weight options starting at just 5.5 lbs, these dumbbells are perfect for beginners, intermediate lifters, and anyone looking to progress at their own pace."
+            }
+          },
+          {
+            "type": "faq_item",
+            "settings": {
+              "question": "What's the size of the 27.5 lbs adjustable dumbbells?",
+              "answer": "Each dumbbell measures just 13.39\" D × 7.87\" W × 5.91\" H — about the size of a shoebox — making them ideal for small spaces, apartments, or home gyms."
+            }
+          },
+          {
+            "type": "faq_item",
+            "settings": {
+              "question": "Do the dumbbells come as a pair or single?",
+              "answer": "They are sold as a pair, so you can perform balanced, full-body workouts right out of the box."
+            }
+          }, {
+            "type": "faq_item",
+            "settings": {
+              "question": "What exercises can I do with 27.5 lbs adjustable dumbbells?",
+              "answer": "You can target your arms, shoulders, back, chest, and legs. Popular exercises include bicep curls, shoulder presses, chest presses, lunges, squats, and rows."
+            }
+          }, {
+            "type": "faq_item",
+            "settings": {
+              "question": "Do the dumbbells come with a warranty?",
+              "answer": "Yes. We offer a standard one-year warranty, plus an extra year when you sign up for our Ativa People program."
+            }
+          }
+        ]
+      }
+    ]
+  }
+{%- endschema -%}

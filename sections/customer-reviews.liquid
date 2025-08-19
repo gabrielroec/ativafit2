@@ -1,291 +1,677 @@
+<section
+  data-section-id="{{ section.id }}"
+  data-section-type="customer-reviews"
+  style="padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px;">
+  <div class="customer-reviews-container">
+
+    {%- if section.settings.heading_part1 != blank or section.settings.highlight_text1 != blank -%}
+      <h2 class="customer-reviews-heading">
+        {{ section.settings.heading_part1 }}
+        {%- if section.settings.highlight_text1 != blank -%}
+          <span class="highlight-text">{{ section.settings.highlight_text1 }}</span>
+        {%- endif -%}
+        {{ section.settings.heading_part2 }}
+        {%- if section.settings.highlight_text2 != blank -%}
+          <span class="highlight-text">{{ section.settings.highlight_text2 }}</span>
+        {%- endif -%}
+      </h2>
+    {%- endif -%}
+
+    {%- if section.blocks.size > 0 -%}
+      <!-- Reviews Slider Container -->
+      <div class="reviews-slider-container" id="reviews-slider-{{ section.id }}">
+        <div class="reviews-slider">
+          {%- for block in section.blocks -%}
+            <div class="review-item" {{ block.shopify_attributes }}>
+              <div class="review-header">
+                <div class="review-avatar">
+                  {%- if block.settings.customer_name != blank -%}
+                    {{ block.settings.customer_name | slice: 0 | upcase }}
+                  {%- else -%}
+                    ?
+                  {%- endif -%}
+                </div>
+                <div class="review-author-info">
+                  <div class="review-author-name">{{ block.settings.customer_name | default: 'Customer' }}</div>
+                  <div class="review-date">{{ block.settings.review_date | default: 'Recent' }}</div>
+                </div>
+              </div>
+
+              {%- if block.settings.rating > 0 -%}
+                <div class="review-stars">
+                  {%- for i in (1..5) -%}
+                    <span class="star{% if i <= block.settings.rating %} filled{% endif %}">★</span>
+                  {%- endfor -%}
+                </div>
+              {%- endif -%}
+
+              {%- if block.settings.review_title != blank -%}
+                <h3 class="review-title">{{ block.settings.review_title }}</h3>
+              {%- endif -%}
+
+              {%- if block.settings.review_text != blank -%}
+                <div class="review-text-container">
+                  {%- assign text_words = block.settings.review_text | split: ' ' -%}
+                  {%- if text_words.size > 20 -%}
+                    <p class="review-text">
+                      <span class="review-text-preview">{{ text_words | slice: 0, 20 | join: ' ' }}...
+                        <button class="read-more-btn" onclick="toggleReadMore(this)">Read More</button>
+                      </span>
+                      <span class="review-text-full" style="display: none;">{{ block.settings.review_text }}
+                        <button class="read-more-btn" onclick="toggleReadMore(this)">Read Less</button>
+                      </span>
+                    </p>
+                  {%- else -%}
+                    <p class="review-text">{{ block.settings.review_text }}</p>
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+            </div>
+          {%- endfor -%}
+        </div>
+
+        <!-- Desktop dots (3 per slide) -->
+        {%- if section.blocks.size > 3 -%}
+          <div class="reviews-dots desktop-dots" id="reviews-dots-desktop-{{ section.id }}">
+            {%- assign total_desktop_slides = section.blocks.size | divided_by: 3.0 | ceil -%}
+            {%- for i in (1..total_desktop_slides) -%}
+              <button class="reviews-dot{% if forloop.first %} active{% endif %}" data-slide="{{ forloop.index0 }}"></button>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+
+        <!-- Mobile dots (1 per slide) -->
+        {%- if section.blocks.size > 1 -%}
+          <div class="reviews-dots mobile-dots" id="reviews-dots-mobile-{{ section.id }}">
+            {%- for block in section.blocks -%}
+              <button class="reviews-dot{% if forloop.first %} active{% endif %}" data-slide="{{ forloop.index0 }}"></button>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
 <style>
-  .customer-reviews {
-    padding: 70px 0;
-    background: #fff;
-    overflow: hidden;
+  section.faq-section {
+    border-radius: 35px !important;
+  }
+  .customer-reviews-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
   }
 
-  .customer-reviews__title {
-    font-size: 50px;
-    font-weight: 900;
-    line-height: 1;
+  .customer-reviews-heading {
+    font-family: Barlow
+    , sans-serif;
+    font-weight: 700;
+    font-size: 40px;
+    line-height: 42px;
+    letter-spacing: 0;
     text-align: center;
+    color: #000;
     margin-bottom: 60px;
   }
 
-  .customer-reviews__title span {
+  .customer-reviews-heading .highlight-text {
     color: #EB701F;
   }
 
-  .customer-reviews__row {
+  .reviews-slider-container {
     position: relative;
-    overflow: hidden;
-    margin-bottom: 30px;
+    width: 100%;
   }
 
-  .customer-reviews__track {
+  .reviews-slider {
     display: flex;
-    gap: 30px;
-    position: relative;
-    width: fit-content;
+    gap: 40px;
+    transition: transform 0.5s ease;
+    width: 100%;
+    will-change: transform;
   }
 
-  .customer-reviews__card {
-    min-width: 400px;
+  .reviews-slider .review-item {
+    flex: 0 0 calc(33.333% - 27px);
+    width: calc(33.333% - 27px);
+  }
+
+  .review-item {
     background: #fff;
-    border: 1px solid #E5E5E5;
-    padding: 24px;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #f0f0f0;
+    transition: transform 0.3s ease
+    , box-shadow 0.3s ease;
   }
 
-  .customer-reviews__header {
+  .review-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  }
+
+  .review-header {
     display: flex;
     align-items: center;
-    margin-bottom: 16px;
+    gap: 15px;
+    margin-bottom: 20px;
   }
 
-  .customer-reviews__name {
-    font-weight: 600;
-    font-size: 18px;
+  .review-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #EB701F;
+    color: #000;
+    border: 2px solid #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Barlow
+    , sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .review-author-info {
+    flex: 1;
+  }
+
+  .review-author-name {
+    font-family: Barlow
+    , sans-serif;
+    font-weight: 500;
+    font-style: Medium;
+    font-size: 22px;
+    line-height: 19px;
+    letter-spacing: 0;
+    color: #000;
     margin-bottom: 4px;
   }
 
-  .customer-reviews__stars {
+  .review-date {
+    font-family: Barlow
+    , sans-serif;
+    font-weight: 400;
+    font-style: Regular;
+    font-size: 18px;
+    line-height: 19px;
+    letter-spacing: 0;
+    color: #666;
+  }
+
+  .review-stars {
     display: flex;
     gap: 4px;
+    margin-bottom: 16px;
+  }
+
+  .star {
+    font-size: 18px;
+    color: #ddd;
+    transition: color 0.2s ease;
+  }
+
+  .star.filled {
     color: #EB701F;
   }
 
-  .customer-reviews__text {
+  .review-title {
+    font-family: Barlow
+    , sans-serif;
+    font-weight: 500;
+    font-style: Medium;
+    font-size: 25px;
+    line-height: 41px;
+    letter-spacing: 0;
+    color: #000;
+    margin-bottom: 12px;
+  }
+
+  .review-text {
+    font-family: Barlow
+    , sans-serif;
+    font-weight: 400;
+    font-style: Regular;
+    font-size: 18px;
+    line-height: 19px;
+    letter-spacing: 0;
+    color: #333;
+    margin: 0;
+  }
+
+  .review-text-container {
+    position: relative;
+  }
+
+  .read-more-btn {
+    background: none;
+    border: none;
+    color: #EB701F;
+    font-family: Barlow
+    , sans-serif;
+    font-weight: 500;
     font-size: 16px;
-    line-height: 1.5;
-    color: #222;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    text-decoration: underline;
+    transition: opacity 0.2s ease;
+    display: inline;
+    vertical-align: baseline;
   }
 
-  @media screen and (max-width: 768px) {
-    .customer-reviews {
-      padding: 40px 10px;
+  .read-more-btn:hover {
+    opacity: 0.7;
+  }
+
+  .reviews-dots {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 40px;
+  }
+
+  .mobile-dots {
+    display: none;
+  }
+
+  .desktop-dots {
+    display: flex;
+  }
+
+  .reviews-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: none;
+    background: #ddd;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .reviews-dot:hover {
+    background: #EB701F;
+    opacity: 0.7;
+  }
+
+  .reviews-dot.active {
+    background: #EB701F;
+    transform: scale(1.2);
+  }
+
+  /* Mobile Responsive */
+  @media (max-width: 1024px) {
+    .reviews-slider .review-item {
+      flex: 0 0 calc(50% - 20px);
+      width: calc(50% - 20px);
     }
 
-    .customer-reviews__title {
-      font-size: 48px;
+    .reviews-slider {
+      gap: 30px;
     }
   }
 
-  @media screen and (max-width: 480px) {
-    .customer-reviews__title {
-      font-size: 36px;
-      letter-spacing: -1px;
+  @media (max-width: 768px) {
+    .customer-reviews-container {
+      padding: 0 15px;
+    }
+
+    .customer-reviews-heading {
+      font-size: 32px;
+      line-height: 36px;
+      margin-bottom: 40px;
+    }
+
+    .reviews-slider-container {
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .reviews-slider {
+      gap: 0;
+      width: calc(100% * {{ section.blocks.size }});
+    }
+
+    .reviews-slider .review-item {
+      flex: 0 0 calc(100% / {{ section.blocks.size }});
+      width: calc(100% / {{ section.blocks.size }});
+      min-width: calc(100% / {{ section.blocks.size }});
+      scroll-snap-align: center;
+      opacity: 1;
+      visibility: visible;
+      padding: 25px 15px;
+    }
+
+    .review-item {
+      padding: 25px;
+    }
+
+    .review-avatar {
+      width: 45px;
+      height: 45px;
+      font-size: 18px;
+    }
+
+    .mobile-dots {
+      display: flex;
+    }
+
+    .desktop-dots {
+      display: none;
     }
   }
 </style>
 
-<section class="customer-reviews">
-  <h2 class="customer-reviews__title black">
-    TRUSTED BY OVER
-    <span class="black">10,000</span>
-    SATISFIED CUSTOMERS
-  </h2>
-
-  <div class="customer-reviews__row" data-direction="right">
-    <div class="customer-reviews__track">
-      {% assign half_size = section.blocks.size | divided_by: 2 %}
-      {% for block in section.blocks %}
-        {% if forloop.index <= half_size %}
-          <div class="customer-reviews__card" {{ block.shopify_attributes }}>
-            <div class="customer-reviews__header">
-              <div>
-                <div class="customer-reviews__name bold">{{ block.settings.name }}</div>
-                <div class="customer-reviews__stars">
-                  {% for i in (1..5) %}
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 16 16"
-                      fill="currentColor">
-                      <path d="M8 0L9.79611 6.2139H16L11.1019 10.0722L12.8982 16L8 12.1417L3.10182 16L4.89811 10.0722L0 6.2139H6.20389L8 0Z" />
-                    </svg>
-                  {% endfor %}
-                </div>
-              </div>
-            </div>
-            <p class="customer-reviews__text regular">{{ block.settings.text }}</p>
-          </div>
-        {% endif %}
-      {% endfor %}
-    </div>
-  </div>
-
-  <div class="customer-reviews__row" data-direction="left">
-    <div class="customer-reviews__track">
-      {% assign half_size = section.blocks.size | divided_by: 2 %}
-      {% for block in section.blocks %}
-        {% if forloop.index > half_size %}
-          <div class="customer-reviews__card" {{ block.shopify_attributes }}>
-            <div class="customer-reviews__header">
-              <div>
-                <div class="customer-reviews__name bold">{{ block.settings.name }}</div>
-                <div class="customer-reviews__stars">
-                  {% for i in (1..5) %}
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 16 16"
-                      fill="currentColor">
-                      <path d="M8 0L9.79611 6.2139H16L11.1019 10.0722L12.8982 16L8 12.1417L3.10182 16L4.89811 10.0722L0 6.2139H6.20389L8 0Z" />
-                    </svg>
-                  {% endfor %}
-                </div>
-              </div>
-            </div>
-            <p class="customer-reviews__text regular">{{ block.settings.text }}</p>
-          </div>
-        {% endif %}
-      {% endfor %}
-    </div>
-  </div>
-</section>
-
 <script>
-  class CustomerReviews {
-    constructor(container) {
-      this.container = container;
-      this.rows = container.querySelectorAll('.customer-reviews__row');
-      this.animations = new Map();
+  document.addEventListener('DOMContentLoaded', function() {
+  const sectionId = '{{ section.id }}';
+  const sliderContainer = document.getElementById(`reviews-slider-${sectionId}`);
+  const desktopDotsContainer = document.getElementById(`reviews-dots-desktop-${sectionId}`);
+  const mobileDotsContainer = document.getElementById(`reviews-dots-mobile-${sectionId}`);
+  
+  if (!sliderContainer) return;
+  
+  const reviewsSlider = sliderContainer.querySelector('.reviews-slider');
+  const totalReviews = {{ section.blocks.size }};
+  let currentSlide = 0;
+  
+  function getReviewsPerSlide() {
+    return window.innerWidth <= 768 ? 1 : (window.innerWidth <= 1024 ? 2 : 3);
+  }
+  
+  function getTotalSlides() {
+    return Math.ceil(totalReviews / getReviewsPerSlide());
+  }
+
+  function updateSlider() {
+    const reviewsPerSlide = getReviewsPerSlide();
+    const isMobile = window.innerWidth <= 768;
+    
+    console.log('Update slider - isMobile:', isMobile, 'currentSlide:', currentSlide, 'totalReviews:', totalReviews);
+    
+    if (isMobile) {
+      // Mobile: slide by individual reviews
+      const slideWidth = 100 / totalReviews;
+      const translateX = -currentSlide * slideWidth;
+      reviewsSlider.style.transform = `translateX(${translateX}%)`;
+      console.log('Mobile transform:', `translateX(${translateX}%)`, 'slideWidth:', slideWidth);
       
-      this.init();
-    }
-
-    init() {
-      this.rows.forEach(row => {
-        const track = row.querySelector('.customer-reviews__track');
-        const direction = row.dataset.direction;
-        const slides = [...track.children];
-        
-        if (slides.length < 2) return;
-
-        // Clonar slides para criar o efeito infinito
-        const slidesToClone = Math.ceil((row.offsetWidth * 3) / (slides[0].offsetWidth + 30));
-        
-        // Primeiro, adiciona clones no final
-        for (let i = 0; i < slidesToClone; i++) {
-          slides.forEach(slide => {
-            const clone = slide.cloneNode(true);
-            track.appendChild(clone);
-          });
-        }
-        
-        // Depois, adiciona clones no início
-        for (let i = slides.length - 1; i >= 0; i--) {
-          const clone = slides[i].cloneNode(true);
-          track.insertBefore(clone, track.firstChild);
-        }
-
-        // Configurar animação
-        const animation = {
-          track,
-          position: -slides[0].offsetWidth * slides.length, // Começa do primeiro conjunto real
-          slideWidth: slides[0].offsetWidth + 30, // width + gap
-          direction: direction === 'left' ? -1 : 1,
-          isAnimating: false,
-          originalSlidesCount: slides.length
-        };
-
-        this.animations.set(row, animation);
-        
-        // Posiciona inicialmente sem transição
-        track.style.transition = 'none';
-        track.style.transform = `translateX(${animation.position}px)`;
-        // Força reflow
-        track.offsetHeight;
-        track.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
-        
-        this.animate(row);
-
-        // Pausar no hover
-        row.addEventListener('mouseenter', () => this.pause(row));
-        row.addEventListener('mouseleave', () => this.animate(row));
-      });
-
-      // Observar visibilidade da página
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-          this.rows.forEach(row => this.pause(row));
-        } else {
-          this.rows.forEach(row => this.animate(row));
-        }
-      });
-    }
-
-    animate(row) {
-      const animation = this.animations.get(row);
-      if (!animation || animation.isAnimating) return;
-
-      animation.isAnimating = true;
-
-      const move = () => {
-        if (!animation.isAnimating) return;
-
-        animation.position += 0.5 * animation.direction;
-        animation.track.style.transform = `translateX(${animation.position}px)`;
-
-        // Verifica se precisa resetar a posição
-        const totalWidth = animation.slideWidth * animation.originalSlidesCount;
-        
-        if (animation.direction > 0 && animation.position >= 0) {
-          // Se movendo para direita e chegou no final dos clones iniciais
-          animation.position = -totalWidth;
-          animation.track.style.transition = 'none';
-          animation.track.style.transform = `translateX(${animation.position}px)`;
-          animation.track.offsetHeight; // Força reflow
-          animation.track.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
-        } else if (animation.direction < 0 && animation.position <= -(totalWidth * 2)) {
-          // Se movendo para esquerda e chegou no final dos clones finais
-          animation.position = -totalWidth;
-          animation.track.style.transition = 'none';
-          animation.track.style.transform = `translateX(${animation.position}px)`;
-          animation.track.offsetHeight; // Força reflow
-          animation.track.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
-        }
-
-        requestAnimationFrame(move);
-      };
-
-      requestAnimationFrame(move);
-    }
-
-    pause(row) {
-      const animation = this.animations.get(row);
-      if (animation) {
-        animation.isAnimating = false;
+      // Update mobile dots
+      if (mobileDotsContainer) {
+        const mobileDots = mobileDotsContainer.querySelectorAll('.reviews-dot');
+        mobileDots.forEach((dot, index) => {
+          dot.classList.toggle('active', index === currentSlide);
+        });
+        console.log('Mobile dots updated, active:', currentSlide);
+      }
+    } else {
+      // Desktop: slide by groups
+      const slideWidth = 100 / reviewsPerSlide;
+      const translateX = -currentSlide * slideWidth;
+      reviewsSlider.style.transform = `translateX(${translateX}%)`;
+      
+      // Update desktop dots
+      if (desktopDotsContainer) {
+        const desktopDots = desktopDotsContainer.querySelectorAll('.reviews-dot');
+        desktopDots.forEach((dot, index) => {
+          dot.classList.toggle('active', index === currentSlide);
+        });
       }
     }
   }
 
-  // Inicializar quando o DOM estiver pronto
-  document.addEventListener('DOMContentLoaded', () => {
-    new CustomerReviews(document.querySelector('.customer-reviews'));
+  function showSlide(slideIndex) {
+    const isMobile = window.innerWidth <= 768;
+    const maxSlide = isMobile ? totalReviews - 1 : getTotalSlides() - 1;
+    currentSlide = Math.max(0, Math.min(slideIndex, maxSlide));
+    updateSlider();
+  }
+
+  function nextSlide() {
+    const isMobile = window.innerWidth <= 768;
+    const maxSlide = isMobile ? totalReviews - 1 : getTotalSlides() - 1;
+    const nextIndex = (currentSlide + 1) % (maxSlide + 1);
+    showSlide(nextIndex);
+  }
+
+  // Desktop dot navigation
+  if (desktopDotsContainer) {
+    const desktopDots = desktopDotsContainer.querySelectorAll('.reviews-dot');
+    desktopDots.forEach((dot, index) => {
+      dot.addEventListener('click', () => {
+        showSlide(index);
+      });
+    });
+  }
+
+  // Mobile dot navigation
+  if (mobileDotsContainer) {
+    const mobileDots = mobileDotsContainer.querySelectorAll('.reviews-dot');
+    mobileDots.forEach((dot, index) => {
+      dot.addEventListener('click', () => {
+        showSlide(index);
+      });
+    });
+  }
+
+  // Auto-advance slider
+  let autoSlideInterval;
+  
+  function startAutoSlide() {
+    const isMobile = window.innerWidth <= 768;
+    const shouldAutoSlide = isMobile ? totalReviews > 1 : getTotalSlides() > 1;
+    
+    if (shouldAutoSlide) {
+      autoSlideInterval = setInterval(nextSlide, 5000); // 5 seconds
+    }
+  }
+
+  function stopAutoSlide() {
+    if (autoSlideInterval) {
+      clearInterval(autoSlideInterval);
+      autoSlideInterval = null;
+    }
+  }
+
+  // Initialize
+  updateSlider();
+  
+  // Start auto-slide if there are multiple slides
+  const isMobile = window.innerWidth <= 768;
+  const shouldAutoSlide = isMobile ? totalReviews > 1 : getTotalSlides() > 1;
+  
+  if (shouldAutoSlide) {
+    startAutoSlide();
+  }
+
+  // Pause on hover
+  sliderContainer.addEventListener('mouseenter', stopAutoSlide);
+  sliderContainer.addEventListener('mouseleave', () => {
+    const isMobile = window.innerWidth <= 768;
+    const shouldAutoSlide = isMobile ? totalReviews > 1 : getTotalSlides() > 1;
+    if (shouldAutoSlide) {
+      startAutoSlide();
+    }
+  });
+
+  // Handle window resize
+  let resizeTimeout;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      stopAutoSlide();
+      currentSlide = 0; // Reset to first slide on resize
+      updateSlider();
+      
+      const isMobile = window.innerWidth <= 768;
+      const shouldAutoSlide = isMobile ? totalReviews > 1 : getTotalSlides() > 1;
+      if (shouldAutoSlide) {
+        startAutoSlide();
+      }
+    }, 250);
+  });
+
+  // Touch/Swipe support
+  let startX = 0;
+  let isDragging = false;
+
+  // Read More functionality
+  function toggleReadMore(button) {
+    const paragraph = button.closest('p');
+    const preview = paragraph.querySelector('.review-text-preview');
+    const full = paragraph.querySelector('.review-text-full');
+    
+    if (full.style.display === 'none') {
+      // Show full text
+      preview.style.display = 'none';
+      full.style.display = 'inline';
+    } else {
+      // Show preview text
+      preview.style.display = 'inline';
+      full.style.display = 'none';
+    }
+  }
+
+  // Make toggleReadMore function global
+  window.toggleReadMore = toggleReadMore;
+
+  sliderContainer.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+    isDragging = true;
+    stopAutoSlide();
+  });
+
+  sliderContainer.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+  });
+
+  sliderContainer.addEventListener('touchend', (e) => {
+    if (!isDragging) return;
+    
+    const endX = e.changedTouches[0].clientX;
+    const deltaX = startX - endX;
+    
+    if (Math.abs(deltaX) > 50) { // Minimum swipe distance
+      const isMobile = window.innerWidth <= 768;
+      const maxSlide = isMobile ? totalReviews - 1 : getTotalSlides() - 1;
+      
+      if (deltaX > 0) {
+        // Swipe left - next slide
+        showSlide((currentSlide + 1) % (maxSlide + 1));
+      } else {
+        // Swipe right - previous slide
+        showSlide(currentSlide > 0 ? currentSlide - 1 : maxSlide);
+      }
+    }
+    
+    isDragging = false;
+    
+    // Restart auto-slide after touch interaction
+    const isMobile = window.innerWidth <= 768;
+    const shouldAutoSlide = isMobile ? totalReviews > 1 : getTotalSlides() > 1;
+    if (shouldAutoSlide) {
+      setTimeout(startAutoSlide, 1000);
+    }
+  });
   });
 </script>
 
 {% schema %}
   {
     "name": "Customer Reviews",
-    "settings": [],
+    "max_blocks": 20,
+    "settings": [
+      {
+        "type": "header",
+        "content": "Heading Settings"
+      },
+      {
+        "type": "text",
+        "id": "heading_part1",
+        "label": "Heading Part 1",
+        "default": "Customer"
+      },
+      {
+        "type": "text",
+        "id": "highlight_text1",
+        "label": "Highlight Text 1 (orange)",
+        "default": "Reviews"
+      },
+      {
+        "type": "text",
+        "id": "heading_part2",
+        "label": "Heading Part 2"
+      }, {
+        "type": "text",
+        "id": "highlight_text2",
+        "label": "Highlight Text 2 (orange)"
+      }, {
+        "type": "header",
+        "content": "Section Settings"
+      }, {
+        "type": "range",
+        "id": "padding_top",
+        "min": 0,
+        "max": 120,
+        "step": 4,
+        "unit": "px",
+        "label": "Padding Top",
+        "default": 60
+      }, {
+        "type": "range",
+        "id": "padding_bottom",
+        "min": 0,
+        "max": 120,
+        "step": 4,
+        "unit": "px",
+        "label": "Padding Bottom",
+        "default": 60
+      }
+    ],
     "blocks": [
       {
         "type": "review",
-        "name": "Review",
+        "name": "Customer Review",
         "settings": [
           {
             "type": "text",
-            "id": "name",
-            "label": "Nome do Cliente",
-            "default": "Jonh Doe"
-          }, {
+            "id": "customer_name",
+            "label": "Customer Name",
+            "default": "John Doe"
+          },
+          {
             "type": "text",
-            "id": "text",
-            "label": "Texto do Review",
-            "default": "I've used other kits, but this one is the best. The attention to detail and usability are truly amazing."
+            "id": "review_date",
+            "label": "Review Date",
+            "default": "March 26, 2023",
+            "info": "Ex: March 26, 2023 or Recent"
+          },
+          {
+            "type": "range",
+            "id": "rating",
+            "min": 1,
+            "max": 5,
+            "step": 1,
+            "label": "Star Rating",
+            "default": 5
+          },
+          {
+            "type": "text",
+            "id": "review_title",
+            "label": "Review Title",
+            "default": "Amazing product!"
+          }, {
+            "type": "textarea",
+            "id": "review_text",
+            "label": "Review Text",
+            "default": "This product exceeded my expectations. The quality is excellent and it's exactly what I needed for my home workouts."
           }
         ]
       }
@@ -293,22 +679,38 @@
     "presets": [
       {
         "name": "Customer Reviews",
+        "settings": {
+          "heading_part1": "Customer",
+          "highlight_text1": "Reviews"
+        },
         "blocks": [
           {
-            "type": "review"
-          },
-          {
-            "type": "review"
-          },
-          {
-            "type": "review"
-          },
-          {
-            "type": "review"
+            "type": "review",
+            "settings": {
+              "customer_name": "Rob Schmidt",
+              "review_date": "March 26, 2023",
+              "rating": 5,
+              "review_title": "The price is reasonable",
+              "review_text": "Worth it for the money, bought them for my teenage son. He loves them."
+            }
           }, {
-            "type": "review"
+            "type": "review",
+            "settings": {
+              "customer_name": "Andrew Ford",
+              "review_date": "September 19, 2023",
+              "rating": 5,
+              "review_title": "Portable weights",
+              "review_text": "Pol had to improvise workout routines because of the pandemic, luckily I've come across these adjustable weights. I live in a 2br apartment with my two..."
+            }
           }, {
-            "type": "review"
+            "type": "review",
+            "settings": {
+              "customer_name": "Chinda Mon",
+              "review_date": "March 23, 2023",
+              "rating": 5,
+              "review_title": "Ativafit dumbbell",
+              "review_text": "Weight up to almost 30 lb. Ativafit product have great exercise stuff. Love their products"
+            }
           }
         ]
       }
