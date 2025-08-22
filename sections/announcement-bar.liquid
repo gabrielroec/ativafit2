@@ -3,7 +3,6 @@
   "showNewsletter": {{ section.settings.show_newsletter | json }}
 }
 {%- endcapture -%}
-
 {{ 'announcement-bar.css' | asset_url | stylesheet_tag }}
 
 <section
@@ -84,7 +83,7 @@
     </div>
   {%- endif -%}
 
-  <div class="announcement-bar{% unless section.settings.enable_ticker %} announcement-bar--static{% endunless %}">
+  <div class="announcement-bar{% unless section.settings.enable_ticker %} announcement-bar--static{% endunless %}" id="announcement-bar-main">
     <div class="container">
       <div class="announcement-bar__inner">
         {%- if section.settings.enable_ticker -%}
@@ -131,6 +130,27 @@
 </section>
 
 <style>
+  /* Sticky announcement bar styles */
+  #announcement-bar-main {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    transform: translateY(0);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+  }
+
+  #announcement-bar-main.announcement-bar--sticky {
+    background-color: rgba(var(--announcement-bg-rgb), 0.98);
+    backdrop-filter: blur(10px);
+  }
+
+  #announcement-bar-main.announcement-bar--hidden {
+    transform: translateY(-100%);
+  }
+
   /* Static mode styles */
   .announcement-bar--static .announcement-bar__text {
     padding-right: 0 !important;
@@ -174,7 +194,110 @@
     document.documentElement.style.removeProperty('--announcement-bar-button-width');
   {%- endif -%}
   
-  document.documentElement.style.setProperty('--announcement-bar-height', document.getElementById('shopify-section-{{ section.id }}').clientHeight + 'px');
+  // Set announcement bar height and RGB color variables
+  const announcementBar = document.getElementById('announcement-bar-main');
+  if (announcementBar) {
+    const height = announcementBar.offsetHeight;
+    document.documentElement.style.setProperty('--announcement-height', `${height}px`);
+    
+    // Get background color and convert to RGB values for transparency
+    const bgColor = getComputedStyle(announcementBar).backgroundColor;
+    const rgb = bgColor.match(/\d+/g);
+    if (rgb) {
+      document.documentElement.style.setProperty('--announcement-bg-rgb', `${rgb[0]}, ${rgb[1]}, ${rgb[2]}`);
+    }
+  }
+
+  // Unified sticky behavior for announcement bar and header
+  class UnifiedStickyBehavior {
+    constructor() {
+      this.announcementBar = document.getElementById('announcement-bar-main');
+      this.header = document.getElementById('header-wrapper');
+      this.lastScrollTop = 0;
+      this.scrollThreshold = 50;
+      this.announcementHeight = this.announcementBar ? this.announcementBar.offsetHeight : 0;
+      
+      this.init();
+    }
+
+    init() {
+      if (!this.announcementBar) return;
+
+      // Throttled scroll handler
+      let lastScrollTime = Date.now();
+      window.addEventListener('scroll', () => {
+        if (Date.now() - lastScrollTime > 10) {
+          this.checkPosition();
+          lastScrollTime = Date.now();
+        }
+      }, { passive: true });
+
+      // Update heights on resize
+      window.addEventListener('resize', () => {
+        this.announcementHeight = this.announcementBar.offsetHeight;
+        this.updateHeaderPosition();
+      });
+
+      // Initial setup
+      this.updateHeaderPosition();
+      this.checkPosition();
+    }
+
+    updateHeaderPosition() {
+      if (this.header) {
+        this.header.style.top = `${this.announcementHeight}px`;
+      }
+      // Notify header about changes
+      window.dispatchEvent(new CustomEvent('announcementBarChange'));
+    }
+
+    checkPosition() {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      
+      if (Math.abs(scrollTop - this.lastScrollTop) < 3) return;
+
+      if (scrollTop > this.scrollThreshold) {
+        // Add sticky class
+        this.announcementBar.classList.add('announcement-bar--sticky');
+        if (this.header) {
+          this.header.classList.add('header-wrapper--sticky');
+        }
+        
+        // Hide/show based on scroll direction
+        if (scrollTop > this.lastScrollTop && scrollTop > this.announcementHeight * 2) {
+          // Scrolling down - hide
+          this.announcementBar.classList.add('announcement-bar--hidden');
+          if (this.header) {
+            this.header.style.top = '0px';
+            this.header.classList.add('header-wrapper--hidden');
+          }
+        } else {
+          // Scrolling up - show
+          this.announcementBar.classList.remove('announcement-bar--hidden');
+          if (this.header) {
+            this.header.style.top = `${this.announcementHeight}px`;
+            this.header.classList.remove('header-wrapper--hidden');
+          }
+        }
+      } else {
+        // Remove sticky behavior
+        this.announcementBar.classList.remove('announcement-bar--sticky', 'announcement-bar--hidden');
+        if (this.header) {
+          this.header.classList.remove('header-wrapper--sticky', 'header-wrapper--hidden');
+          this.header.style.top = `${this.announcementHeight}px`;
+        }
+      }
+
+      this.lastScrollTop = scrollTop;
+    }
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => new UnifiedStickyBehavior());
+  } else {
+    new UnifiedStickyBehavior();
+  }
 </script>
 
 {% schema %}

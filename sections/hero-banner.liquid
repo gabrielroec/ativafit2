@@ -99,20 +99,8 @@
       {% endfor %}
     </div>
 
-    <!-- Navigation Arrows -->
+    <!-- Dots Navigation -->
     {% if section.blocks.size > 1 %}
-      <button class="hero-banner__nav hero-banner__nav--prev" aria-label="Previous slide">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-      <button class="hero-banner__nav hero-banner__nav--next" aria-label="Next slide">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-
-      <!-- Dots Navigation -->
       <div class="hero-banner__dots">
         {% for block in section.blocks %}
           <button class="hero-banner__dot {% if forloop.first %}active{% endif %}" data-slide="{{ forloop.index0 }}" aria-label="Go to slide {{ forloop.index }}"></button>
@@ -135,6 +123,7 @@
     width: 100%;
     height: 83vh;
     overflow: hidden;
+    touch-action: pan-y pinch-zoom;
   }
 
   .hero-banner__container {
@@ -268,40 +257,6 @@
   .hero-banner__slide.active .hero-banner__text-container {
     transform: translateY(0);
     opacity: 1;
-  }
-
-  /* Navigation Arrows */
-  .hero-banner__nav {
-    position: absolute;
-    top: 80%;
-    transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.1);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
-    z-index: 10;
-  }
-
-  .hero-banner__nav:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.6);
-    transform: translateY(-50%) scale(1.1);
-  }
-
-  .hero-banner__nav--prev {
-    left: 30px;
-  }
-
-  .hero-banner__nav--next {
-    right: 30px;
   }
 
   /* Dots Navigation */
@@ -443,19 +398,6 @@
       padding: 0 15px;
     }
 
-    .hero-banner__nav {
-      width: 50px;
-      height: 50px;
-    }
-
-    .hero-banner__nav--prev {
-      left: 15px;
-    }
-
-    .hero-banner__nav--next {
-      right: 15px;
-    }
-
     .hero-banner__dots {
       bottom: 20px;
     }
@@ -478,28 +420,14 @@
     }
   }
   
-  @media screen and (max-width: 480px) {
-    .hero-banner__nav {
-      width: 45px;
-      height: 45px;
-    }
-
-    .hero-banner__nav--prev {
-      left: 10px;
-    }
-
-    .hero-banner__nav--next {
-      right: 10px;
-    }
-  }
   @media screen and (max-width: 473px) {
     .hero-banner{
-      height: 40vh;
+      height: 50vh;
     }
   }
   @media screen and (max-width: 387px) {
     .hero-banner{
-      height: 35vh;
+      height: 45vh;
     }
   }
   
@@ -512,14 +440,20 @@
       this.slidesContainer = this.banner.querySelector('.hero-banner__slides');
       this.slides = this.banner.querySelectorAll('.hero-banner__slide');
       this.dots = this.banner.querySelectorAll('.hero-banner__dot');
-      this.prevBtn = this.banner.querySelector('.hero-banner__nav--prev');
-      this.nextBtn = this.banner.querySelector('.hero-banner__nav--next');
       this.scrollIndicator = this.banner.querySelector('.hero-banner__scroll-indicator');
       
       this.currentSlide = 0;
       this.isAnimating = false;
       this.autoplayInterval = null;
       this.autoplayDelay = 6000; // 6 seconds
+      
+      // Touch/swipe variables
+      this.startX = 0;
+      this.startY = 0;
+      this.currentX = 0;
+      this.currentY = 0;
+      this.isDragging = false;
+      this.swipeThreshold = 50; // minimum distance for a swipe
       
       this.init();
     }
@@ -537,18 +471,27 @@
     }
     
     setupEventListeners() {
-      // Navigation buttons
-      if (this.prevBtn) {
-        this.prevBtn.addEventListener('click', () => this.goToPrevSlide());
-      }
-      
-      if (this.nextBtn) {
-        this.nextBtn.addEventListener('click', () => this.goToNextSlide());
-      }
-      
       // Dots navigation
       this.dots.forEach((dot, index) => {
         dot.addEventListener('click', () => this.goToSlide(index));
+      });
+      
+      // Touch events for swipe
+      this.banner.addEventListener('touchstart', (e) => this.handleTouchStart(e), { passive: true });
+      this.banner.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive: false });
+      this.banner.addEventListener('touchend', (e) => this.handleTouchEnd(e), { passive: true });
+      
+      // Mouse events for drag (desktop)
+      this.banner.addEventListener('mousedown', (e) => this.handleMouseStart(e));
+      this.banner.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+      this.banner.addEventListener('mouseup', (e) => this.handleMouseEnd(e));
+      this.banner.addEventListener('mouseleave', (e) => this.handleMouseEnd(e));
+      
+      // Prevent context menu on long press
+      this.banner.addEventListener('contextmenu', (e) => {
+        if (this.isDragging) {
+          e.preventDefault();
+        }
       });
       
       // Keyboard navigation
@@ -566,6 +509,112 @@
           });
         });
       }
+    }
+    
+    handleTouchStart(e) {
+      if (this.isAnimating) return;
+      
+      this.startX = e.touches[0].clientX;
+      this.startY = e.touches[0].clientY;
+      this.isDragging = false;
+      
+      this.pauseAutoplay();
+    }
+    
+    handleTouchMove(e) {
+      if (this.isAnimating) return;
+      
+      this.currentX = e.touches[0].clientX;
+      this.currentY = e.touches[0].clientY;
+      
+      const deltaX = Math.abs(this.currentX - this.startX);
+      const deltaY = Math.abs(this.currentY - this.startY);
+      
+      // Detect horizontal swipe
+      if (deltaX > 10 && deltaX > deltaY) {
+        this.isDragging = true;
+        e.preventDefault(); // Prevent scrolling
+      }
+    }
+    
+    handleTouchEnd(e) {
+      if (this.isAnimating || !this.isDragging) {
+        this.startAutoplay();
+        return;
+      }
+      
+      const deltaX = this.currentX - this.startX;
+      const deltaY = Math.abs(this.currentY - this.startY);
+      
+      // Only consider horizontal swipes
+      if (Math.abs(deltaX) > this.swipeThreshold && Math.abs(deltaX) > deltaY) {
+        if (deltaX > 0) {
+          // Swipe right - go to previous slide
+          this.goToPrevSlide();
+        } else {
+          // Swipe left - go to next slide
+          this.goToNextSlide();
+        }
+      }
+      
+      this.isDragging = false;
+      this.startAutoplay();
+    }
+    
+    handleMouseStart(e) {
+      if (this.isAnimating) return;
+      
+      this.startX = e.clientX;
+      this.startY = e.clientY;
+      this.isDragging = false;
+      
+      this.pauseAutoplay();
+      
+      // Prevent text selection
+      e.preventDefault();
+    }
+    
+    handleMouseMove(e) {
+      if (this.isAnimating) return;
+      
+      this.currentX = e.clientX;
+      this.currentY = e.clientY;
+      
+      const deltaX = Math.abs(this.currentX - this.startX);
+      const deltaY = Math.abs(this.currentY - this.startY);
+      
+      // Detect horizontal drag
+      if (deltaX > 10 && deltaX > deltaY) {
+        this.isDragging = true;
+        this.banner.style.cursor = 'grabbing';
+      }
+    }
+    
+    handleMouseEnd(e) {
+      if (this.isAnimating) {
+        this.banner.style.cursor = '';
+        return;
+      }
+      
+      if (this.isDragging) {
+        const deltaX = this.currentX - this.startX;
+        const deltaY = Math.abs(this.currentY - this.startY);
+        
+        // Only consider horizontal drags
+        if (Math.abs(deltaX) > this.swipeThreshold && Math.abs(deltaX) > deltaY) {
+          if (deltaX > 0) {
+            // Drag right - go to previous slide
+            this.goToPrevSlide();
+          } else {
+            // Drag left - go to next slide
+            this.goToNextSlide();
+          }
+        }
+      }
+      
+      this.isDragging = false;
+      this.banner.style.cursor = '';
+      this.startAutoplay();
     }
     
     goToSlide(index) {

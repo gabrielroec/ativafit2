@@ -13,6 +13,7 @@
     transform: translateY(0);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     will-change: transform
+    , top
     , padding
     , background-color
     , box-shadow;
@@ -26,8 +27,8 @@
   .header-wrapper--sticky {
     background-color: rgba(255, 255, 255, 0.98);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    top: 0;
+    padding: 15px 20px;
+    backdrop-filter: blur(10px);
   }
 
   .header-wrapper--hidden {
@@ -712,112 +713,45 @@
 </div>
 
 <script>
-  class StickyHeader {
+  class HeaderManager {
     constructor() {
       this.header = document.getElementById('header-wrapper');
       this.spacer = document.getElementById('header-spacer');
-      this.lastScrollTop = 0;
-      this.headerHeight = this.header.offsetHeight;
-      this.scrollThreshold = 100;
-      this.isSticky = false;
       this.scrollTimer = null;
       
       this.init();
     }
   
     init() {
-      // Define altura inicial do spacer e announcement bar
+      // Define altura inicial do spacer
       this.updateSpacerHeight();
-      this.updateAnnouncementHeight();
       
-      // Throttled scroll handler
-      let lastScrollTime = Date.now();
-      window.addEventListener('scroll', () => {
-        if (Date.now() - lastScrollTime > 10) {
-          this.checkPosition();
-          lastScrollTime = Date.now();
-        }
-      }, { passive: true });
-  
       // Debounced resize handler
       window.addEventListener('resize', () => {
         if (this.scrollTimer) clearTimeout(this.scrollTimer);
         this.scrollTimer = setTimeout(() => {
           this.updateSpacerHeight();
-          this.updateAnnouncementHeight();
         }, 100);
       });
-  
-      // Observer para mudanças na announcement bar
-      this.observeAnnouncementBar();
       
-      // Verifica posição inicial
-      this.checkPosition();
-    }
-  
-    updateAnnouncementHeight() {
-      const announcementBar = document.querySelector('.announcement-bar');
-      if (announcementBar) {
-        const height = announcementBar.offsetHeight;
-        document.documentElement.style.setProperty('--announcement-height', `${height}px`);
-      } else {
-        document.documentElement.style.setProperty('--announcement-height', '0px');
-      }
-    }
-  
-    observeAnnouncementBar() {
-      const observer = new MutationObserver(() => {
-        this.updateAnnouncementHeight();
+      // Listen for announcement bar changes
+      window.addEventListener('announcementBarChange', () => {
+        this.updateSpacerHeight();
       });
-  
-      const announcementBar = document.querySelector('.announcement-bar');
-      if (announcementBar) {
-        observer.observe(announcementBar, {
-          attributes: true,
-          childList: true,
-          subtree: true
-        });
-      }
     }
   
     updateSpacerHeight() {
-      this.headerHeight = this.header.offsetHeight;
-      const announcementHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--announcement-height'));
-      this.spacer.style.height = `${this.headerHeight + announcementHeight}px`;
-    }
-  
-    checkPosition() {
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      
-      if (Math.abs(scrollTop - this.lastScrollTop) < 5) return;
-  
-      if (scrollTop > this.scrollThreshold) {
-        this.header.classList.add('header-wrapper--sticky');
-        
-        if (scrollTop > this.lastScrollTop && scrollTop > this.headerHeight) {
-          requestAnimationFrame(() => {
-            this.header.classList.add('header-wrapper--hidden');
-          });
-        } else {
-          requestAnimationFrame(() => {
-            this.header.classList.remove('header-wrapper--hidden');
-          });
-        }
-      } else {
-        requestAnimationFrame(() => {
-          this.header.classList.remove('header-wrapper--sticky', 'header-wrapper--hidden');
-        });
-      }
-  
-      this.lastScrollTop = scrollTop;
+      const headerHeight = this.header.offsetHeight;
+      const announcementHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--announcement-height')) || 0;
+      this.spacer.style.height = `${headerHeight + announcementHeight}px`;
     }
   }
   
   // Inicializa quando o DOM estiver pronto
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => new StickyHeader());
+    document.addEventListener('DOMContentLoaded', () => new HeaderManager());
   } else {
-    new StickyHeader();
+    new HeaderManager();
   }
   
   document.addEventListener('DOMContentLoaded', function() {
