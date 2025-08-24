@@ -1,0 +1,225 @@
+{%- liquid
+  assign section_id = 'trust-benefits-' | append: section.id
+-%}
+
+<section
+  id="{{ section_id }}"
+  class="trust-benefits"
+  style="padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px;">
+  <div class="trust-benefits-container">
+    <div class="trust-benefits-grid">
+      {%- for block in section.blocks -%}
+        <div class="trust-benefit-item" {{ block.shopify_attributes }}>
+          {%- if block.settings.benefit_icon != blank -%}
+            <div class="benefit-icon">
+              <img
+                src="{{ block.settings.benefit_icon | image_url: width: 80 }}"
+                alt="{{ block.settings.benefit_title | escape }}"
+                width="80"
+                height="80"
+                loading="lazy">
+            </div>
+          {%- endif -%}
+
+          {%- if block.settings.benefit_title != blank -%}
+            <h3 class="benefit-title">{{ block.settings.benefit_title }}</h3>
+          {%- endif -%}
+
+          {%- if block.settings.benefit_description != blank -%}
+            <p class="benefit-description">{{ block.settings.benefit_description }}</p>
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  .trust-benefits {
+    background: #fff;
+    width: 100%;
+  }
+
+  .trust-benefits-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .trust-benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+    align-items: start;
+  }
+
+  .trust-benefit-item {
+    text-align: center;
+    padding: 0 15px;
+  }
+
+  .benefit-icon {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+.benefit-icon img {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+}
+
+  .benefit-title {
+    font-family: Barlow
+    , sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 28px;
+    letter-spacing: 0;
+    text-align: center;
+    color: #000;
+    margin: 0 0 15px;
+  }
+
+  .benefit-description {
+    font-family: Barlow
+    , sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 22px;
+    letter-spacing: 0;
+    text-align: center;
+    color: #666;
+    margin: 0;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .trust-benefits-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 30px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .trust-benefits-grid {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+
+    .trust-benefit-item {
+      padding: 0 10px;
+    }
+
+    .benefit-title {
+      font-size: 22px;
+      line-height: 26px;
+    }
+
+    .benefit-description {
+      font-size: 15px;
+      line-height: 20px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .trust-benefits-container {
+      padding: 0 15px;
+    }
+
+    .benefit-title {
+      font-size: 20px;
+      line-height: 24px;
+    }
+
+    .benefit-description {
+      font-size: 14px;
+      line-height: 18px;
+    }
+  }
+</style>
+
+{%- schema -%}
+  {
+    "name": "Trust Benefits",
+    "tag": "section",
+    "class": "trust-benefits-section",
+    "settings": [
+      {
+        "type": "range",
+        "id": "padding_top",
+        "min": 0,
+        "max": 100,
+        "step": 4,
+        "unit": "px",
+        "label": "Top padding",
+        "default": 60
+      }, {
+        "type": "range",
+        "id": "padding_bottom",
+        "min": 0,
+        "max": 100,
+        "step": 4,
+        "unit": "px",
+        "label": "Bottom padding",
+        "default": 60
+      }
+    ],
+    "blocks": [
+      {
+        "type": "trust_benefit",
+        "name": "Trust Benefit",
+        "settings": [
+          {
+            "type": "image_picker",
+            "id": "benefit_icon",
+            "label": "Benefit Icon"
+          }, {
+            "type": "text",
+            "id": "benefit_title",
+            "label": "Benefit Title",
+            "default": "Benefit Title"
+          }, {
+            "type": "textarea",
+            "id": "benefit_description",
+            "label": "Benefit Description",
+            "default": "Add your benefit description here."
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Trust Benefits",
+        "blocks": [
+          {
+            "type": "trust_benefit",
+            "settings": {
+              "benefit_title": "Built to Last",
+              "benefit_description": "All-steel plates, reinforced trays, and award-winning design ensure your gear stays strong for years."
+            }
+          }, {
+            "type": "trust_benefit",
+            "settings": {
+              "benefit_title": "We've Got Your Back",
+              "benefit_description": "Enjoy dedicated support, a 1-year warranty (extend to 2 years with AtivaPeople), and peace of mind."
+            }
+          }, {
+            "type": "trust_benefit",
+            "settings": {
+              "benefit_title": "Safety First",
+              "benefit_description": "Up to $4M Liberty Insurance coverage for injuries caused by product faults on Ativafit dumbbells."
+            }
+          }, {
+            "type": "trust_benefit",
+            "settings": {
+              "benefit_title": "Easy & Secure Shopping",
+              "benefit_description": "Free fast shipping, multiple payment options, and safe checkout every time."
+            }
+          }
+        ]
+      }
+    ]
+  }
+{%- endschema -%}

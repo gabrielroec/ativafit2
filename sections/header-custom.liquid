@@ -13,6 +13,7 @@
     transform: translateY(0);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     will-change: transform
+    , top
     , padding
     , background-color
     , box-shadow;
@@ -26,8 +27,8 @@
   .header-wrapper--sticky {
     background-color: rgba(255, 255, 255, 0.98);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    top: 0;
+    padding: 15px 20px;
+    backdrop-filter: blur(10px);
   }
 
   .header-wrapper--hidden {
@@ -390,6 +391,7 @@
   }
   .header-mobile-menu-item.open > .header-mobile-menu-children {
     max-height: 500px;
+    display: flex;
   }
   .header-mobile-menu-link--child {
     font-size: 16px;
@@ -430,6 +432,55 @@
   .header-cart {
     position: relative;
   }
+
+
+  #header-wrapper > div.header-container > div > div.header-logo-section > nav > div:nth-child(1) > div {
+    min-width: 370px !important;
+  }
+  #header-wrapper > div.header-container > div > div.header-logo-section > nav > div:nth-child(2) > div {
+    min-width: 280px !important;
+  }
+  #header-wrapper > div.header-container > div > div.header-logo-section > nav > div:nth-child(3) > div {
+    min-width: 330px !important;
+  }
+  #header-wrapper > div.header-container > div > div.header-logo-section > nav > div:nth-child(4) > div {
+    min-width: 300px !important;
+  }
+  #header-wrapper > div.header-container > div > div.header-logo-section > nav > div:nth-child(5) > div {
+    min-width: 200px !important;
+  }
+
+  /* Primeiro, vamos ajustar o CSS do link */
+  .hero-simple__link {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+    /* Aumentar o z-index para ficar acima do overlay */
+    cursor: pointer;
+  }
+
+  /* Ajustar o z-index do overlay */
+  .hero-simple__overlay {
+    z-index: 1;
+  }
+
+  /* Ajustar o z-index do content para ficar acima do link */
+  .hero-simple__content {
+    z-index: 4;
+  }
+
+  /* Ajustar o z-index dos controles de navegação */
+  .hero-simple__nav {
+    z-index: 5;
+  }
+
+  .hero-simple__dots {
+    z-index: 5;
+  }
+
 {%- endstyle -%}
 
 <!-- Adiciona um elemento para compensar o espaço do header quando sticky -->
@@ -503,7 +554,11 @@
                         {{ childlink.title }}
                         {%- if childlink.links.size > 0 -%}
                           <svg class="icon-arrow-sub" viewBox="0 0 8 12">
-                            <path d="M1 1l3 5 3-5" fill="none" stroke="currentColor" stroke-width="2" />
+                            <path
+                              d="M1 1l3 5 3-5"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2" />
                           </svg>
                         {%- endif -%}
                       </a>
@@ -629,7 +684,12 @@
             <div class="header-mobile-menu-children">
               {% for childlink in link.links %}
                 <div class="header-mobile-menu-item header-mobile-menu-item--child">
-                  <a href="{{ childlink.url }}" class="header-mobile-menu-link header-mobile-menu-link--child bold" {% if childlink.links.size > 0 %}data-has-children="true"{% endif %}>
+                  <a
+                    href="{{ childlink.url }}"
+                    class="header-mobile-menu-link header-mobile-menu-link--child bold"
+                    {% if childlink.links.size > 0 %}
+                    data-has-children="true"
+                    {% endif %}>
                     {{ childlink.title }}
                     {% if childlink.links.size > 0 %}
                       <span class="header-mobile-menu-arrow">&#9662;</span>
@@ -653,112 +713,45 @@
 </div>
 
 <script>
-  class StickyHeader {
+  class HeaderManager {
     constructor() {
       this.header = document.getElementById('header-wrapper');
       this.spacer = document.getElementById('header-spacer');
-      this.lastScrollTop = 0;
-      this.headerHeight = this.header.offsetHeight;
-      this.scrollThreshold = 100;
-      this.isSticky = false;
       this.scrollTimer = null;
       
       this.init();
     }
   
     init() {
-      // Define altura inicial do spacer e announcement bar
+      // Define altura inicial do spacer
       this.updateSpacerHeight();
-      this.updateAnnouncementHeight();
       
-      // Throttled scroll handler
-      let lastScrollTime = Date.now();
-      window.addEventListener('scroll', () => {
-        if (Date.now() - lastScrollTime > 10) {
-          this.checkPosition();
-          lastScrollTime = Date.now();
-        }
-      }, { passive: true });
-  
       // Debounced resize handler
       window.addEventListener('resize', () => {
         if (this.scrollTimer) clearTimeout(this.scrollTimer);
         this.scrollTimer = setTimeout(() => {
           this.updateSpacerHeight();
-          this.updateAnnouncementHeight();
         }, 100);
       });
-  
-      // Observer para mudanças na announcement bar
-      this.observeAnnouncementBar();
       
-      // Verifica posição inicial
-      this.checkPosition();
-    }
-  
-    updateAnnouncementHeight() {
-      const announcementBar = document.querySelector('.announcement-bar');
-      if (announcementBar) {
-        const height = announcementBar.offsetHeight;
-        document.documentElement.style.setProperty('--announcement-height', `${height}px`);
-      } else {
-        document.documentElement.style.setProperty('--announcement-height', '0px');
-      }
-    }
-  
-    observeAnnouncementBar() {
-      const observer = new MutationObserver(() => {
-        this.updateAnnouncementHeight();
+      // Listen for announcement bar changes
+      window.addEventListener('announcementBarChange', () => {
+        this.updateSpacerHeight();
       });
-  
-      const announcementBar = document.querySelector('.announcement-bar');
-      if (announcementBar) {
-        observer.observe(announcementBar, {
-          attributes: true,
-          childList: true,
-          subtree: true
-        });
-      }
     }
   
     updateSpacerHeight() {
-      this.headerHeight = this.header.offsetHeight;
-      const announcementHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--announcement-height'));
-      this.spacer.style.height = `${this.headerHeight + announcementHeight}px`;
-    }
-  
-    checkPosition() {
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      
-      if (Math.abs(scrollTop - this.lastScrollTop) < 5) return;
-  
-      if (scrollTop > this.scrollThreshold) {
-        this.header.classList.add('header-wrapper--sticky');
-        
-        if (scrollTop > this.lastScrollTop && scrollTop > this.headerHeight) {
-          requestAnimationFrame(() => {
-            this.header.classList.add('header-wrapper--hidden');
-          });
-        } else {
-          requestAnimationFrame(() => {
-            this.header.classList.remove('header-wrapper--hidden');
-          });
-        }
-      } else {
-        requestAnimationFrame(() => {
-          this.header.classList.remove('header-wrapper--sticky', 'header-wrapper--hidden');
-        });
-      }
-  
-      this.lastScrollTop = scrollTop;
+      const headerHeight = this.header.offsetHeight;
+      const announcementHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--announcement-height')) || 0;
+      this.spacer.style.height = `${headerHeight + announcementHeight}px`;
     }
   }
   
   // Inicializa quando o DOM estiver pronto
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => new StickyHeader());
+    document.addEventListener('DOMContentLoaded', () => new HeaderManager());
   } else {
-    new StickyHeader();
+    new HeaderManager();
   }
   
   document.addEventListener('DOMContentLoaded', function() {

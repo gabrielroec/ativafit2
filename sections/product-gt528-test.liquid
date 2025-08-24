@@ -1,0 +1,2916 @@
+<style>
+  .pp-full {
+    background: #F2F2F2;
+    padding: 50px 20px;
+  }
+
+  .product-name {
+    font-family: Barlow;
+    font-weight: 700;
+    font-style: Bold;
+    font-size: 40px;
+    leading-trim: NONE;
+    line-height: 42px;
+    letter-spacing: 0;
+    width: 100%;
+    max-width: 545px;
+    margin: 0 0 40px !important;
+  }
+  .product-subtitle {
+    font-family: Barlow;
+    font-weight: 400 !important;
+    font-style: Regular;
+    font-size: 25px;
+    leading-trim: NONE;
+    letter-spacing: 0;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 0 20px !important;
+    white-space: pre-line;
+
+  }
+  .review {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 40px !important;
+  }
+  .review-text {
+    font-family: Barlow;
+    font-weight: 400 !important;
+    font-style: Regular;
+    font-size: 18px;
+    leading-trim: NONE;
+    line-height: 24px;
+    letter-spacing: 0;
+  }
+  .product-price-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .product-price {
+    font-family: Barlow;
+    font-weight: 600 !important;
+    font-style: SemiBold;
+    font-size: 36px;
+    leading-trim: NONE;
+    line-height: 42px;
+    letter-spacing: 0;
+    color: #EB701F;
+    margin: 0 !important;
+
+
+  }
+  .product-price-original {
+    font-family: Barlow;
+    font-weight: 500 !important;
+    font-style: Medium;
+    font-size: 24px;
+    leading-trim: NONE;
+    line-height: 42px;
+    letter-spacing: 0;
+    text-decoration: line-through;
+
+  }
+  /* Wrapper */
+  .pmg {
+    max-width: 880px;
+    user-select: none;
+    margin-top: 40px !important;
+  }
+
+  /* Área principal */
+  .pmg-main {
+    position: relative
+  }
+  .pmg-stage {
+    background: #f6f6f6;
+    border-radius: 20px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 0;
+    padding-bottom: 75%;
+    /* 4:3 aspect ratio */
+    max-width: 600px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .pmg-stage img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  @media (max-width: 1024px) {
+    .pp-full {
+      padding: 40px 0 !important;
+    }
+  }
+  @media (max-width: 768px) {
+    .pmg-stage {
+      height: 400px;
+      max-width: 100%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .pmg-stage {
+      height: 350px;
+    }
+  }
+
+  /* Setas */
+  .pmg-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    border: 0;
+    background: #fff;
+    color: #111;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    cursor: pointer;
+    transition: transform 0.15s ease
+    , opacity 0.15s ease;
+  }
+  .pmg-prev {
+    left: 8px
+  }
+  .pmg-next {
+    right: 8px
+  }
+  .pmg-nav:disabled {
+    opacity: .4;
+    cursor: not-allowed
+  }
+  .pmg-nav:active {
+    transform: translateY(-50%) scale(0.96)
+  }
+
+  /* Thumbs */
+  .pmg-thumbs {
+    margin-top: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pmg-thumbs .swiper {
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+  }
+
+  .pmg-thumbs .swiper-wrapper {
+    display: flex;
+    align-items: center;
+  }
+
+  .pmg-thumbs .swiper-slide {
+    width: calc(20% - 8px) !important;
+    flex-shrink: 0;
+  }
+
+  /* Fallback se Swiper não funcionar */
+  .pmg-thumbs-fallback {
+    display: flex;
+    overflow-x: auto;
+    gap: 10px;
+    padding: 4px 0;
+    scrollbar-width: thin;
+  }
+
+  .pmg-thumbs-fallback .pmg-thumb {
+    width: 80px;
+    min-width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+  }
+
+  .pmg-thumbs-fallback::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .pmg-thumbs-fallback::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+
+  .pmg-thumbs-fallback::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+  }
+
+  .pmg-thumbs-fallback::-webkit-scrollbar-thumb:hover {
+    background: #999;
+  }
+
+  @media (max-width: 720px) {
+    .pmg-thumbs .swiper-slide {
+      width: calc(25% - 6px) !important;
+    }
+
+    .pmg-thumbs-fallback .pmg-thumb {
+      width: 70px;
+      min-width: 70px;
+      height: 70px;
+    }
+  }
+  .pmg-thumb {
+    position: relative;
+    border: 1px solid #e5e5e5;
+    border-radius: 15px;
+    overflow: hidden;
+    background: #fff;
+    padding: 0 0 75%;
+    cursor: pointer;
+    width: 100%;
+    height: 0;
+    /* 4:3 aspect ratio */
+    display: block;
+  }
+  .pmg-thumb img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: #fafafa;
+    display: block;
+  }
+  .pmg-thumb[aria-current="true"] {
+    outline: 2px solid #111
+  }
+  .pmg-thumb:focus-visible {
+    outline: 2px solid #111;
+    outline-offset: 2px
+  }
+  .container-product-page {
+    display: flex;
+    justify-content: center;
+    gap: 80px;
+  }
+  .product-features {
+    font-family: Barlow;
+    font-weight: 400 !important;
+    font-style: Regular;
+    font-size: 25px;
+    leading-trim: NONE;
+    line-height: 30px;
+    letter-spacing: 0;
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 20px !important;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .feature-line {
+    display: block;
+    white-space: nowrap;
+  }
+  .benefits {
+    display: flex;
+    background: #fff;
+    padding: 20px;
+    border-radius: 25px;
+    gap: 20px;
+    justify-content: space-around;
+  }
+  .benefits div {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+  }
+  .benefits div span {
+    font-family: Barlow;
+    font-weight: 400;
+    font-style: Regular;
+    font-size: 16px;
+    leading-trim: NONE;
+    line-height: 19px;
+    letter-spacing: 0;
+    text-align: center;
+    width: 100%;
+    max-width: 170px;
+  }
+
+  /* GALERIA SIMPLES */
+  .product-gallery {
+    width: 100%;
+    max-width: 600px;
+    margin: 40px auto 0;
+  }
+
+  /* Imagem Principal */
+  .main-image {
+    width: 100%;
+    height: 0;
+    padding-bottom: 75%;
+    /* 4:3 aspect ratio */
+    background: #f6f6f6;
+    border-radius: 20px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    position: relative;
+    cursor: pointer;
+    touch-action: pan-y pinch-zoom;
+  }
+
+  .main-image img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+
+  /* Indicador de swipe */
+  .swipe-indicator {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    opacity: 0.8;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .swipe-indicator.hidden {
+    opacity: 0;
+  }
+
+  /* Modal de visualização em tela cheia */
+  .fullscreen-modal {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(0, 0, 0, 0.95) !important;
+    z-index: 99999 !important;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px 20px;
+  }
+
+  /* Bloqueia scroll quando modal está ativo */
+  body.modal-open {
+    overflow: hidden !important;
+    position: fixed !important;
+    width: 100% !important;
+  }
+
+  .fullscreen-modal.active {
+    display: flex !important;
+  }
+
+  /* Container principal da galeria em tela cheia */
+  .fullscreen-gallery {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  /* Área da imagem principal em tela cheia */
+  .fullscreen-main-area {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin-bottom: 20px;
+  }
+
+  .fullscreen-image {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    border-radius: 8px;
+    user-select: none;
+    -webkit-user-select: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Botão de fechar */
+  .fullscreen-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 24px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 999999;
+    backdrop-filter: blur(10px);
+  }
+
+  .fullscreen-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+  }
+
+  /* Setas de navegação na imagem principal */
+  .fullscreen-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 5;
+  }
+
+  /* Esconder setas do modal fullscreen no mobile */
+  @media (max-width: 768px) {
+    .fullscreen-nav {
+      display: none !important;
+    }
+  }
+
+  .fullscreen-nav:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .fullscreen-prev {
+    left: 30px;
+  }
+
+  .fullscreen-next {
+    right: 30px;
+  }
+
+  /* Galeria de miniaturas em tela cheia */
+  .fullscreen-thumbnails {
+    width: 100%;
+    max-width: 800px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+  }
+
+  .fullscreen-thumbnails-container {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 10px 0;
+    scroll-behavior: smooth;
+  }
+
+  .fullscreen-thumbnails-container::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .fullscreen-thumbnails-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+  }
+
+  .fullscreen-thumbnails-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+  }
+
+  .fullscreen-thumb {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  .fullscreen-thumb:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: scale(1.05);
+  }
+
+  .fullscreen-thumb.active {
+    border-color: #EB701F;
+    box-shadow: 0 0 10px rgba(235, 112, 31, 0.5);
+  }
+
+  /* Container das Miniaturas */
+  .thumbnails-container {
+    display: flex;
+    align-items: center;
+  }
+
+  /* Setas de Navegação da Imagem Principal */
+  .main-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+    transition: all 0.2s ease;
+    color: #333;
+    backdrop-filter: blur(10px);
+  }
+
+  /* Esconder setas no mobile */
+  @media (max-width: 768px) {
+    .main-nav {
+      display: none !important;
+    }
+  }
+
+  .main-nav:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: translateY(-50%) scale(1.05);
+  }
+
+  .main-nav:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .main-prev {
+    left: 20px;
+  }
+
+  .main-next {
+    right: 20px;
+  }
+
+  /* Área de Scroll das Miniaturas */
+  .thumbnails-scroll {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Container das Miniaturas */
+  .thumbnails {
+    display: flex;
+    gap: 8px;
+    transition: transform 0.1s ease;
+    padding: 4px 0;
+    cursor: grab;
+  }
+
+  .thumbnails:active {
+    cursor: grabbing;
+  }
+
+  /* Miniaturas */
+  .thumbnail {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+  }
+
+  .thumbnail:hover {
+    border-color: #ccc;
+  }
+
+  .thumbnail.active {
+    border-color: #EB701F;
+    box-shadow: 0 0 0 1px #EB701F;
+  }
+
+  /* Responsivo */
+  @media (max-width: 768px) {
+    .main-image {
+      padding-bottom: 75%;
+      /* Keep 4:3 aspect ratio */
+    }
+
+    .thumbnail {
+      width: 70px;
+      height: 52.5px;
+      /* 4:3 ratio */
+    }
+
+    .main-nav {
+      width: 40px;
+      height: 40px;
+    }
+
+    /* Indicador de swipe mais visível no mobile */
+    .swipe-indicator {
+      top: 15px;
+      right: 15px;
+      font-size: 11px;
+      padding: 6px 10px;
+    }
+
+    /* Modal em tela cheia otimizado para mobile */
+    .fullscreen-modal {
+      padding: 20px 10px 10px;
+    }
+
+    .fullscreen-close {
+      width: 45px;
+      height: 45px;
+      top: 15px;
+      right: 15px;
+      font-size: 20px;
+    }
+
+    .fullscreen-nav {
+      width: 45px;
+      height: 45px;
+      font-size: 18px;
+    }
+
+    .fullscreen-prev {
+      left: 15px;
+    }
+
+    .fullscreen-next {
+      right: 15px;
+    }
+
+    /* Galeria de miniaturas mobile */
+    .fullscreen-thumbnails {
+      max-width: 100%;
+      height: 80px;
+      padding: 15px;
+    }
+
+    .fullscreen-thumb {
+      width: 60px;
+      height: 60px;
+    }
+
+    .benefits {
+      flex-direction: column !important;
+      gap: 20px !important;
+      align-items: flex-start !important;
+      justify-content: flex-start !important;
+    }
+    .benefits div {
+      flex-direction: row;
+    }
+    .benefits div span {
+      max-width: 100% !important;
+      text-align: left;
+    }
+    .pp-full {
+      padding: 0 0 20px !important
+    }
+  }
+
+  @media (max-width: 480px) {
+    .main-image {
+      padding-bottom: 75%;
+      /* Keep 4:3 aspect ratio */
+    }
+
+    .thumbnail {
+      width: 60px;
+      height: 45px;
+      /* 4:3 ratio */
+    }
+  }
+
+  /* PRODUCT OPTIONS */
+  .product-options {
+    margin-top: 40px;
+    margin-bottom: 20px !important;
+    max-width: 800px;
+  }
+
+  .options-row {
+    display: flex;
+    gap: 60px;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+
+  .option-label {
+    font-family: Barlow
+    , sans-serif;
+    font-weight: 600;
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  /* VARIANTES (Color, Size, etc.) */
+  .option-values {
+    display: flex;
+    gap: 12px;
+  }
+
+  .option-values input[type="radio"] {
+    display: none;
+  }
+
+  .option-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    font-family: Barlow
+    , sans-serif;
+    font-weight: 500;
+    font-size: 16px;
+    color: #333;
+    transition: all 0.2s ease;
+    min-width: 120px;
+    text-align: center;
+  }
+
+  .option-button:hover {
+    border-color: #EB701F;
+    background: #fef7f0;
+  }
+
+  .option-values input[type="radio"]:checked + .option-button {
+    border-color: #EB701F;
+    background: #fff;
+    color: #333;
+  }
+
+  /* QUANTITY SELECTOR */
+  .quantity-selector {
+    display: flex;
+    align-items: center;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    width: fit-content;
+    height: 57.51px;
+  }
+
+  .qty-btn {
+    background: none;
+    border: none;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    transition: all 0.2s ease;
+  }
+
+  .qty-btn:hover {
+    background: #f5f5f5;
+    color: #EB701F;
+  }
+
+  .qty-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .qty-input {
+    border: none;
+    width: 60px;
+    height: 44px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+    background: none;
+    outline: none;
+  }
+
+  /* PAYMENT OPTIONS */
+  .payment-options {
+    margin-top: 20px;
+
+  }
+
+  .payment-text {
+    font-family: Barlow !important;
+    font-weight: 400 !important;
+    font-style: Regular !important;
+    font-size: 18px !important;
+    leading-trim: NONE !important;
+    line-height: 19px !important;
+    letter-spacing: 0 !important;
+
+  }
+
+  .shop-pay-logo {
+    width: 78.5px !important;
+    height: 18px !important;
+    display: inline !important;
+    vertical-align: baseline !important;
+    margin: 0 2px !important;
+  }
+
+  .learn-more-link {
+    font-family: Barlow
+    , sans-serif;
+    font-size: 18px;
+    color: #333;
+    text-decoration: underline;
+    cursor: pointer;
+    margin: 0;
+    display: block;
+  }
+
+  .learn-more-link:hover {
+    color: #333;
+    text-decoration: underline;
+  }
+
+  /* ADD TO CART BUTTON */
+  .add-to-cart-section {
+    margin-top: 30px;
+    text-align: center;
+  }
+
+  .add-to-cart-btn {
+    background: #EB701F;
+    color: #000;
+    border: none;
+    padding: 18px 40px;
+    font-family: Barlow
+    , sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
+  }
+
+  .add-to-cart-btn:hover {
+    background: #d65a0f;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .add-to-cart-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  /* PRODUCT ACCORDION */
+  .product-accordion {
+    margin-top: 40px;
+    max-width: 800px;
+  }
+
+  .accordion-item {
+    border-bottom: 1px solid #313131;
+    margin-bottom: 0;
+  }
+
+  .accordion-item:first-child {
+    border-top: 1px solid #313131;
+  }
+
+  .accordion-header {
+    width: 100%;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: Barlow
+    , sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #333 !important;
+    transition: all 0.2s ease;
+  }
+
+  .accordion-header:hover {
+    color: #EB701F !important;
+  }
+
+  /* Accordion header ativo (aberto) - destaque laranja */
+  .accordion-header.active {
+    color: #EB701F !important;
+  }
+
+  .accordion-icon {
+    font-size: 24px;
+    font-weight: 400;
+    color: #666;
+    transition: transform 0.3s ease;
+  }
+
+  .accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    padding: 0;
+  }
+
+  .accordion-content.active {
+    max-height: 500px;
+    padding: 0 0 20px;
+  }
+
+  .accordion-content ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .accordion-content li {
+    font-family: Barlow !important;
+    font-weight: 500 !important;
+    font-style: Medium !important;
+    font-size: {{ section.settings.accordion_font_size | default: 16 }}
+    px !important;
+    leading-trim: NONE !important;
+    line-height: {{ section.settings.accordion_font_size | default: 16 | plus: 8 }}
+    px !important;
+    letter-spacing: 0 !important;
+  }
+
+  .accordion-content strong {
+    font-family: Barlow !important;
+    font-weight: 500 !important;
+    font-style: Medium !important;
+    font-size: {{ section.settings.accordion_font_size | default: 16 }}
+    px !important;
+    leading-trim: NONE !important;
+    line-height: {{ section.settings.accordion_font_size | default: 16 | plus: 8 }}
+    px !important;
+    letter-spacing: 0 !important;
+  }
+
+  .accordion-content .accordion-text {
+    font-family: Barlow !important;
+    font-weight: 500 !important;
+    font-style: Medium !important;
+    font-size: {{ section.settings.accordion_font_size | default: 16 }}
+    px !important;
+    leading-trim: NONE !important;
+    line-height: {{ section.settings.accordion_font_size | default: 16 | plus: 8 }}
+    px !important;
+    letter-spacing: 0 !important;
+  }
+
+  .accordion-link {
+    margin-top: 16px;
+    font-family: Barlow
+    , sans-serif;
+    font-size: 14px;
+    color: #666;
+  }
+
+  .accordion-link a {
+    color: #EB701F;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .accordion-link a:hover {
+    text-decoration: underline;
+  }
+
+  .product-price-container.mobile-only {
+    display: none !important;
+  }
+  @media (max-width: 768px) {
+    .product-options {
+      margin-top: 30px;
+    }
+
+    .options-row {
+      flex-direction: column;
+      gap: 30px;
+    }
+
+    .product-option {
+      min-width: unset;
+    }
+
+    .option-button {
+      min-width: 100px;
+      padding: 10px 16px;
+      font-size: 14px;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    .container-product-page {
+      flex-direction: column;
+      gap: 20px;
+    }
+    .review {
+      margin: 0 !important;
+    }
+    .show-desk {
+      display: block;
+    }
+    .none-mob {
+      display: none;
+    }
+    .none-desk {
+      display: none;
+    }
+    .show-mob {
+      display: block
+    }
+    .desktop-only {
+      display: flex;
+    }
+    .product-main {
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 40px;
+    }
+
+    .product-info {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .product-info .product-options {
+      order: 1;
+    }
+
+    /* Subtitle mobile: ajuste de line-height */
+
+
+    .product-price-container.mobile-only {
+      order: 2;
+      display: none;
+      /* Escondido no desktop */
+    }
+  }
+
+  @media (min-width: 1025px) {
+    .product-price-container.mobile-only {
+      display: none !important;
+    }
+    .product-price-container.desktop-only {
+      display: flex !important;
+    }
+  }
+
+  /* Desktop: esconde preço mobile */
+
+
+  .product-info .payment-options {
+    order: 3;
+    margin: 0 !important;
+  }
+
+  .product-info .add-to-cart-section {
+    order: 4;
+    margin: 0 !important;
+  }
+
+  .product-info .product-features {
+    order: 5;
+    /* Product features mobile: texto maior e mais negrito */
+    font-size: 22px !important;
+    font-weight: 600 !important;
+    line-height: 28px !important;
+  }
+
+  /* Ajustes específicos para telas menores */
+  @media (max-width: 480px) {
+    .product-info .product-features {
+      font-size: 22px !important;
+      line-height: 24px !important;
+    }
+  }
+
+  @media (max-width: 464px) {
+    .product-info .product-features {
+      font-size: 22px !important;
+      line-height: 22px !important;
+    }
+  }
+
+  @media (max-width: 346px) {
+    .product-info .product-features {
+      font-size: 20px !important;
+      line-height: 20px !important;
+    }
+  }
+
+
+  .product-info .benefits {
+    order: 6;
+  }
+
+  .product-info .benefits img {
+    width: 40px !important;
+    height: 35px !important;
+  }
+  .product-info .benefits div {
+    gap: 10px !important;
+  }
+  .product-info .product-accordion {
+    order: 7;
+  }
+
+  .product-subtitle {
+    font-family: Barlow !important;
+    font-weight: 400 !important;
+    font-style: Regular !important;
+    font-size: 22px !important;
+    leading-trim: NONE !important;
+    line-height: 30px !important;
+    letter-spacing: 0 !important;
+
+  }
+  .option-button,
+  .quantity-selector {
+    height: 50px !important;
+  }
+  /* Preço no desktop - apenas acima de 1024px */
+  .product-name-container .product-price-container {
+    display: none !important;
+  }
+
+  @media (min-width: 1024px) {
+    .product-name-container .product-price-container {
+      display: flex !important;
+    }
+  }
+
+  /* Preço no mobile - apenas abaixo de 1024px */
+  .product-info .product-price-container {
+    display: block !important;
+  }
+
+  @media (min-width: 1024px) {
+    .product-info .product-price-container {
+      display: none !important;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    .product-price-container.mobile-only {
+      display: block;
+    }
+    .product-price-container.desktop-only {
+      display: none !important;
+    }
+    .product-name {
+      margin: 0 0 20px !important;
+    }
+    /* Layout mobile: options em cima, preço embaixo */
+    .product-info .product-options {
+      order: 1;
+      margin: 0;
+      padding: 0;
+    }
+
+    .product-info .product-price-container.mobile-only {
+      order: 2;
+      margin: 0;
+      padding: 0;
+      display: flex !important;
+      flex-direction: row !important;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* Options todas na mesma linha */
+    .product-options .options-row {
+      display: flex;
+      flex-direction: row;
+      gap: 20px;
+      flex-wrap: nowrap;
+    }
+
+    /* Estilo dos títulos das options */
+    .option-label {
+      font-family: Barlow !important;
+      font-weight: 700 !important;
+      font-style: Bold !important;
+      font-size: 18px !important;
+      line-height: 24px !important;
+      letter-spacing: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    /* Remove todos os gaps e margens */
+    .product-options,
+    .product-option {
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Preço mobile idêntico ao desktop */
+    .product-price-container.mobile-only .product-price {
+      font-family: Barlow !important;
+      font-weight: 600 !important;
+      font-style: SemiBold !important;
+      font-size: 36px !important;
+      leading-trim: NONE !important;
+      line-height: 42px !important;
+      letter-spacing: 0 !important;
+
+    }
+
+    .product-price-container.mobile-only .product-price-original {
+      font-family: Barlow !important;
+      font-weight: 500 !important;
+      font-style: Medium !important;
+      font-size: 24px !important;
+      leading-trim: NONE !important;
+      line-height: 42px !important;
+      letter-spacing: 0 !important;
+      text-decoration: line-through !important;
+
+    }
+  }
+  @media (max-width: 480px) {
+    .quantity-selector {
+      width: 130px !important;
+    }
+  }
+  @media (max-width: 376px) {
+    .quantity-selector {
+      width: 90px !important;
+    }
+  }
+</style>
+<section class="pp-full">
+  <section class="container container-product-page">
+    <div class="product-main">
+
+      <div class="product-name-container">
+        <h1 class="product-name">{{ section.settings.product_title | default: product.title }}</h1>
+        <p class="product-subtitle">{{ section.settings.product_subtitle | default: "Sculpt & Tone with Style.\nYour Home, Your Boutique Gym." }}</p>
+        <div class="review">
+          <svg
+            width="125"
+            height="22"
+            viewBox="0 0 125 22"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <path d="M10.8568 0L13.2943 7.50186H21.1822L14.8008 12.1383L17.2383 19.6401L10.8568 15.0037L4.47533 19.6401L6.91284 12.1383L0.531369 7.50186H8.4193L10.8568 0Z" fill="#EB701F" />
+            <path d="M36.6781 0L39.1156 7.50186H47.0035L40.6221 12.1383L43.0596 19.6401L36.6781 15.0037L30.2966 19.6401L32.7341 12.1383L26.3527 7.50186H34.2406L36.6781 0Z" fill="#EB701F" />
+            <path d="M62.4999 0L64.9374 7.50186H72.8253L66.4438 12.1383L68.8813 19.6401L62.4999 15.0037L56.1184 19.6401L58.5559 12.1383L52.1744 7.50186H60.0624L62.4999 0Z" fill="#EB701F" />
+            <path d="M88.3216 0L90.7591 7.50186H98.6471L92.2656 12.1383L94.7031 19.6401L88.3216 15.0037L81.9402 19.6401L84.3777 12.1383L77.9962 7.50186H85.8841L88.3216 0Z" fill="#EB701F" />
+            <path d="M114.143 0L116.581 7.50186H124.469L118.087 12.1383L120.525 19.6401L114.143 15.0037L107.762 19.6401L110.199 12.1383L103.818 7.50186H111.706L114.143 0Z" fill="#EB701F" />
+          </svg>
+          <p class="review-text">
+            {{ section.settings.review_text | default: "5.0 (463 Reviews)" }}
+          </p>
+        </div>
+        <div class="product-price-container desktop-only">
+          <p class="product-price">{{ product.price | money }}</p>
+          {%- if product.compare_at_price > product.price -%}
+            <p class="product-price-original">{{ product.compare_at_price | money }}</p>
+          {%- endif -%}
+        </div>
+      </div>
+
+      <!-- PRODUCT GALLERY SIMPLES -->
+      <div class="product-gallery">
+        <!-- Imagem Principal -->
+        <div class="main-image" id="mainImageContainer">
+          {%- if product.featured_media -%}
+            <img
+              id="mainImage"
+              src="{{ product.featured_media | image_url: width: 800 }}"
+              alt="{{ product.featured_media.alt | escape }}"
+              width="800"
+              height="800"
+              loading="lazy">
+          {%- endif -%}
+
+          <!-- Indicador de Swipe -->
+          <div class="swipe-indicator" id="swipeIndicator">
+            <span>← Swipe or tap to browse</span>
+          </div>
+
+          <!-- Setas de Navegação -->
+          <button
+            class="main-nav main-prev"
+            onclick="changeImage(-1)"
+            aria-label="Imagem anterior">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none">
+              <path
+                d="M15 18l-6-6 6-6"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+
+          <button
+            class="main-nav main-next"
+            onclick="changeImage(1)"
+            aria-label="Próxima imagem">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none">
+              <path
+                d="M9 6l6 6-6 6"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Modal de Visualização em Tela Cheia -->
+        <div
+          class="fullscreen-modal"
+          id="fullscreenModal"
+          style="display: none;">
+          <div class="fullscreen-gallery">
+            <!-- Botão de fechar -->
+            <button
+              class="fullscreen-close"
+              onclick="closeFullscreen()"
+              aria-label="Fechar visualização">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none">
+                <path
+                  d="M6 18L18 6M6 6l12 12"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round" />
+              </svg>
+            </button>
+
+            <!-- Área da imagem principal -->
+            <div class="fullscreen-main-area">
+              <img
+                class="fullscreen-image"
+                id="fullscreenImage"
+                src=""
+                alt=""
+                width="1200"
+                height="900">
+              <button
+                class="fullscreen-nav fullscreen-prev"
+                onclick="changeFullscreenImage(-1)"
+                aria-label="Imagem anterior">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none">
+                  <path
+                    d="M15 18l-6-6 6-6"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round" />
+                </svg>
+              </button>
+              <button
+                class="fullscreen-nav fullscreen-next"
+                onclick="changeFullscreenImage(1)"
+                aria-label="Próxima imagem">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none">
+                  <path
+                    d="M9 6l6 6-6 6"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Galeria de miniaturas em tela cheia -->
+            <div class="fullscreen-thumbnails">
+              <div class="fullscreen-thumbnails-container" id="fullscreenThumbnailsContainer">
+                {%- for media in product.media -%}
+                  <img
+                    class="fullscreen-thumb{% if media.id == product.featured_media.id %} active{% endif %}"
+                    src="{{ media | image_url: width: 150 }}"
+                    alt="{{ media.alt | escape }}"
+                    width="150"
+                    height="113"
+                    onclick="changeFullscreenImageByIndex({{ forloop.index0 }})"
+                    data-fullsize="{{ media | image_url: width: 1200 }}">
+                {%- endfor -%}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Miniaturas -->
+        <div class="thumbnails-container">
+          <div class="thumbnails-scroll">
+            <div class="thumbnails">
+              {%- for media in product.media -%}
+                <img
+                  class="thumbnail{% if media.id == product.featured_media.id %} active{% endif %}"
+                  src="{{ media | image_url: width: 150 }}"
+                  alt="{{ media.alt | escape }}"
+                  width="150"
+                  height="150"
+                  onclick="changeMainImage('{{ media | image_url: width: 800 }}', this)"
+                  loading="lazy">
+              {%- endfor -%}
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+    <div class="product-info">
+
+
+      <p class="product-features">
+        <span class="feature-line">{{ section.settings.feature_line_1 | default: "5 Weight Levels | 3-Second Switch" }}</span>
+        <span class="feature-line">{{ section.settings.feature_line_2 | default: "Comfort Grip | Compact Storage" }}</span>
+      </p>
+      <div class="benefits">
+        <div>
+          {% if section.settings.benefit_icon_1 %}
+            <img
+              src="{{ section.settings.benefit_icon_1 | image_url: width: 37 }}"
+              alt="{{ section.settings.benefit_text_1 }}"
+              width="37"
+              height="25"
+              style="width: 37px; height: 25px; object-fit: contain;">
+          {% endif %}
+          <span>{{ section.settings.benefit_text_1 | default: "Free Shipping within the U.S." }}</span>
+        </div>
+        <div>
+          {% if section.settings.benefit_icon_2 %}
+            <img
+              src="{{ section.settings.benefit_icon_2 | image_url: width: 37 }}"
+              alt="{{ section.settings.benefit_text_2 }}"
+              width="37"
+              height="25"
+              style="width: 37px; height: 25px; object-fit: contain;">
+          {% endif %}
+          <span>{{ section.settings.benefit_text_2 | default: "Free Shipping within the U.S." }}</span>
+        </div>
+        <div>
+          {% if section.settings.benefit_icon_3 %}
+            <img
+              src="{{ section.settings.benefit_icon_3 | image_url: width: 37 }}"
+              alt="{{ section.settings.benefit_text_3 }}"
+              width="37"
+              height="25"
+              style="width: 37px; height: 25px; object-fit: contain;">
+          {% endif %}
+          <span>{{ section.settings.benefit_text_3 | default: "Free Shipping within the U.S." }}</span>
+        </div>
+      </div>
+
+      <div class="product-options">
+        <div class="options-row">
+
+          {%- unless product.has_only_default_variant -%}
+            {%- for option in product.options_with_values -%}
+              <div class="product-option">
+                <h3 class="option-label">{{ option.name }}</h3>
+                <div class="option-values">
+                  {%- for value in option.values -%}
+                    <input
+                      type="radio"
+                      id="{{ option.name | handleize }}-{{ value | handleize }}"
+                      name="{{ option.name | handleize }}"
+                      value="{{ value | escape }}"
+                      data-option-position="{{ option.position }}"
+                      data-option-value="{{ value | escape }}"
+                      {%- if option.selected_value == value -%}
+                      checked{%- endif -%}
+                      class="variant-option"
+                      onclick="updateVariant()">
+                    <label
+                      for="{{ option.name | handleize }}-{{ value | handleize }}"
+                      class="option-button"
+                      onclick="document.getElementById('{{ option.name | handleize }}-{{ value | handleize }}').click()">
+                      {{ value }}
+                    </label>
+                  {%- endfor -%}
+                </div>
+              </div>
+            {%- endfor -%}
+          {%- endunless -%}
+
+
+          <div class="product-option">
+            <h3 class="option-label">{{ section.settings.quantity_label | default: "Quantity" }}</h3>
+            <div class="quantity-selector">
+              <button
+                type="button"
+                class="qty-btn qty-minus"
+                onclick="changeQuantity(-1)">-</button>
+              <input
+                type="number"
+                id="quantity"
+                name="quantity"
+                value="1"
+                min="1"
+                max="10"
+                class="qty-input"
+                onchange="validateQuantity()">
+              <button
+                type="button"
+                class="qty-btn qty-plus"
+                onclick="changeQuantity(1)">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRICE FOR MOBILE ONLY -->
+      <div class="product-price-container mobile-only">
+        <p class="product-price">{{ product.price | money }}</p>
+        {%- if product.compare_at_price > product.price -%}
+          <p class="product-price-original">{{ product.compare_at_price | money }}</p>
+        {%- endif -%}
+      </div>
+      <div class="add-to-cart-section">
+        <button
+          type="button"
+          class="add-to-cart-btn"
+          onclick="addToCart()">
+          {{ section.settings.add_to_cart_text | default: "ADD TO CART" }}
+        </button>
+      </div>
+      <div class="product-accordion">
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+            {%- when 'accordion_item' -%}
+              <div class="accordion-item" {{ block.shopify_attributes }}>
+                <button class="accordion-header{% if forloop.first %} active{% endif %}" onclick="toggleAccordion(this)">
+                  <span>{{ block.settings.title }}</span>
+                  <span class="accordion-icon">
+                    {% if forloop.first %}-{% else %}+{% endif %}
+                  </span>
+                </button>
+                <div class="accordion-content{% if forloop.first %} active{% endif %}">
+                  {%- if block.settings.content_type == 'list' -%}
+                    <ul>
+                      {%- for i in (1..5) -%}
+                        {%- assign item_key = 'item_' | append: i -%}
+                        {%- assign item_text = block.settings[item_key] -%}
+                        {%- if item_text != blank -%}
+                          <li>{{ item_text }}</li>
+                        {%- endif -%}
+                      {%- endfor -%}
+                    </ul>
+                  {%- elsif block.settings.content_type == 'text' -%}
+                    <div class="accordion-text">
+                      {{ block.settings.text_content }}
+                    </div>
+                  {%- endif -%}
+
+                  {%- if block.settings.show_link and block.settings.link_text != blank and block.settings.link_url != blank -%}
+                    <p class="accordion-link">
+                      <a
+                        href="{{ block.settings.link_url }}"
+                        target="_blank"
+                        rel="noopener">
+                        {{ block.settings.link_text }}
+                      </a>
+                    </p>
+                  {%- endif -%}
+                </div>
+              </div>
+          {%- endcase -%}
+        {%- endfor -%}
+
+        {%- if section.blocks.size == 0 -%}
+          <!-- Accordion padrão quando não há blocos configurados -->
+          <div class="accordion-item">
+            <button class="accordion-header active" onclick="toggleAccordion(this)">
+              <span>Key Features</span>
+              <span class="accordion-icon">-</span>
+            </button>
+            <div class="accordion-content active">
+              <ul>
+                <li>
+                  <strong>Dimensions:</strong>
+                  13.39" D × 7.87" W × 5.91" H</li>
+                <li>
+                  <strong>Weight Range:</strong>
+                  5.5–27.5 lbs (2.5–12.5 kg) with 5 weight options</li>
+                <li>
+                  <strong>Increments:</strong>
+                  Adjust in 5.5 lbs (2.5 kg) steps</li>
+                <li>
+                  <strong>Glide Tech Adjustment:</strong>
+                  Switch weights in just 3 seconds with a smooth slide</li>
+                <li>
+                  <strong>Durable Build:</strong>
+                  Steel plates with reinforced plastic tray for lasting durability</li>
+                <li>
+                  <strong>Included Items:</strong>
+                  2 x dumbbells, 2 x trays, 1 x workout guide, 1 x manual</li>
+              </ul>
+            </div>
+          </div>
+        {%- endif -%}
+      </div>
+
+    </div>
+    <script>
+      // GALERIA SIMPLES - JavaScript puro
+      let currentIndex = 0;
+      let thumbnailsOffset = 0;
+      const thumbnailWidth = 88; // 80px + 8px gap
+      
+      // Variáveis para drag
+      let isDragging = false;
+      let startX = 0;
+      let startOffset = 0;
+      let dragThreshold = 10; // Pixels mínimos para considerar como drag
+      let hasMoved = false;
+      
+      // Variáveis para swipe na imagem principal
+      let isSwiping = false;
+      let swipeStartX = 0;
+      let swipeStartY = 0;
+      let swipeThreshold = 50; // Pixels mínimos para considerar como swipe
+      
+      // Variáveis para modal em tela cheia
+      let fullscreenCurrentIndex = 0;
+      
+      // Função para trocar imagem principal
+      function changeMainImage(newSrc, clickedThumb) {
+        // Se estava fazendo drag, não executa o clique
+        if (isDragging || hasMoved) {
+          return;
+        }
+        
+        const mainImage = document.getElementById('mainImage');
+        if (mainImage) {
+          mainImage.src = newSrc;
+        }
+        
+        // Remove active de todas as miniaturas
+        const thumbnails = document.querySelectorAll('.thumbnail');
+        thumbnails.forEach(thumb => thumb.classList.remove('active'));
+        
+        // Adiciona active na miniatura clicada
+        if (clickedThumb) {
+          clickedThumb.classList.add('active');
+          currentIndex = Array.from(thumbnails).indexOf(clickedThumb);
+        }
+        
+        updateMainNavButtons();
+      }
+      
+      // Função para abrir visualização em tela cheia
+      function openFullscreen() {
+        console.log('openFullscreen chamada');
+        const modal = document.getElementById('fullscreenModal');
+        const fullscreenImage = document.getElementById('fullscreenImage');
+        const mainImage = document.getElementById('mainImage');
+        
+        if (modal && fullscreenImage && mainImage) {
+          console.log('Abrindo galeria em tela cheia...');
+          
+          // Define a imagem principal
+          fullscreenImage.src = mainImage.src.replace('800', '1200');
+          fullscreenImage.alt = mainImage.alt;
+          fullscreenCurrentIndex = currentIndex;
+          
+          // Atualiza miniaturas ativas no modal
+          updateFullscreenThumbnails();
+          
+          // Força a exibição do modal
+          modal.style.display = 'flex';
+          modal.classList.add('active');
+          
+          // Bloqueia scroll da página
+          document.body.classList.add('modal-open');
+          
+          console.log('Galeria em tela cheia aberta com sucesso');
+        } else {
+          console.error('Elementos não encontrados para galeria em tela cheia');
+        }
+      }
+      
+      // Função para fechar visualização em tela cheia
+      function closeFullscreen() {
+        console.log('closeFullscreen chamada');
+        const modal = document.getElementById('fullscreenModal');
+        if (modal) {
+          console.log('Fechando modal...');
+          // Remove a classe active
+          modal.classList.remove('active');
+          // Força o display none
+          modal.style.display = 'none';
+          // Restaura o scroll da página
+          document.body.classList.remove('modal-open');
+          console.log('Modal fechado com sucesso');
+        } else {
+          console.error('Modal não encontrado para fechar');
+        }
+      }
+      
+      // Função para atualizar miniaturas no modal em tela cheia
+      function updateFullscreenThumbnails() {
+        const fullscreenThumbs = document.querySelectorAll('.fullscreen-thumb');
+        fullscreenThumbs.forEach((thumb, index) => {
+          thumb.classList.remove('active');
+          if (index === fullscreenCurrentIndex) {
+            thumb.classList.add('active');
+            // Faz scroll para mostrar a miniatura ativa
+            thumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          }
+        });
+      }
+      
+      // Função para navegar no modal em tela cheia (com navegação cíclica)
+      function changeFullscreenImage(direction) {
+        const fullscreenThumbs = document.querySelectorAll('.fullscreen-thumb');
+        if (fullscreenThumbs.length === 0) return;
+        
+        // Navegação cíclica no modal
+        fullscreenCurrentIndex += direction;
+        if (fullscreenCurrentIndex >= fullscreenThumbs.length) {
+          fullscreenCurrentIndex = 0; // Volta para a primeira imagem
+        } else if (fullscreenCurrentIndex < 0) {
+          fullscreenCurrentIndex = fullscreenThumbs.length - 1; // Vai para a última imagem
+        }
+        
+        const targetThumb = fullscreenThumbs[fullscreenCurrentIndex];
+        
+        if (targetThumb) {
+          const newSrc = targetThumb.getAttribute('data-fullsize');
+          const fullscreenImage = document.getElementById('fullscreenImage');
+          if (fullscreenImage && newSrc) {
+            fullscreenImage.src = newSrc;
+            fullscreenImage.alt = targetThumb.alt;
+          }
+          
+          // Atualiza miniaturas ativas
+          updateFullscreenThumbnails();
+        }
+      }
+      
+      // Função para mudar imagem clicando na miniatura
+      function changeFullscreenImageByIndex(index) {
+        const fullscreenThumbs = document.querySelectorAll('.fullscreen-thumb');
+        if (index < 0 || index >= fullscreenThumbs.length) return;
+        
+        fullscreenCurrentIndex = index;
+        const targetThumb = fullscreenThumbs[index];
+        
+        if (targetThumb) {
+          const newSrc = targetThumb.getAttribute('data-fullsize');
+          const fullscreenImage = document.getElementById('fullscreenImage');
+          if (fullscreenImage && newSrc) {
+            fullscreenImage.src = newSrc;
+            fullscreenImage.alt = targetThumb.alt;
+          }
+          
+          // Atualiza miniaturas ativas
+          updateFullscreenThumbnails();
+        }
+      }
+      
+      // Função para navegar pelas imagens principais (com navegação cíclica)
+      function changeImage(direction) {
+        const thumbnails = document.querySelectorAll('.thumbnail');
+        if (thumbnails.length === 0) return;
+        
+        // Navegação cíclica
+        currentIndex += direction;
+        if (currentIndex >= thumbnails.length) {
+          currentIndex = 0; // Volta para a primeira imagem
+        } else if (currentIndex < 0) {
+          currentIndex = thumbnails.length - 1; // Vai para a última imagem
+        }
+        
+        const targetThumb = thumbnails[currentIndex];
+        
+        if (targetThumb) {
+          const newSrc = targetThumb.src.replace('150', '800');
+          changeMainImage(newSrc, targetThumb);
+          
+          // Move as miniaturas para mostrar a ativa
+          scrollToActiveThumbnail();
+        }
+      }
+      
+      // Função para navegar pelas miniaturas
+      function scrollThumbs(direction) {
+        const thumbnailsContainer = document.querySelector('.thumbnails');
+        const thumbnailsScroll = document.querySelector('.thumbnails-scroll');
+        const thumbnails = document.querySelectorAll('.thumbnail');
+        
+        if (!thumbnailsContainer || !thumbnailsScroll || thumbnails.length <= 5) return;
+        
+        const scrollWidth = thumbnailsScroll.offsetWidth;
+        const totalWidth = thumbnails.length * thumbnailWidth;
+        const maxOffset = totalWidth - scrollWidth;
+        
+        thumbnailsOffset += direction * (thumbnailWidth * 2); // Move 2 miniaturas por vez
+        thumbnailsOffset = Math.max(0, Math.min(maxOffset, thumbnailsOffset));
+        
+        thumbnailsContainer.style.transform = `translateX(-${thumbnailsOffset}px)`;
+        
+        // Atualiza estado dos botões
+        updateNavButtons();
+      }
+      
+      // Atualiza estado dos botões de navegação principais
+      function updateMainNavButtons() {
+        const prevBtn = document.querySelector('.main-prev');
+        const nextBtn = document.querySelector('.main-next');
+        const thumbnails = document.querySelectorAll('.thumbnail');
+        
+        if (!prevBtn || !nextBtn) return;
+        
+        prevBtn.disabled = currentIndex <= 0;
+        nextBtn.disabled = currentIndex >= thumbnails.length - 1;
+      }
+      
+      // Função para mover as miniaturas para mostrar a ativa
+      function scrollToActiveThumbnail() {
+        const thumbnails = document.querySelectorAll('.thumbnail');
+        const thumbnailsScroll = document.querySelector('.thumbnails-scroll');
+        
+        if (thumbnails.length <= 5 || !thumbnailsScroll) return;
+        
+        const activeThumb = thumbnails[currentIndex];
+        const scrollWidth = thumbnailsScroll.offsetWidth;
+        const totalWidth = thumbnails.length * thumbnailWidth;
+        
+        // Calcula a posição ideal para mostrar a miniatura ativa
+        let idealOffset = currentIndex * thumbnailWidth - (scrollWidth / 2) + (thumbnailWidth / 2);
+        idealOffset = Math.max(0, Math.min(totalWidth - scrollWidth, idealOffset));
+        
+        thumbnailsOffset = idealOffset;
+        
+        const thumbnailsContainer = document.querySelector('.thumbnails');
+        if (thumbnailsContainer) {
+          thumbnailsContainer.style.transform = `translateX(-${thumbnailsOffset}px)`;
+        }
+      }
+      
+      // Inicializa quando o DOM estiver pronto
+      document.addEventListener('DOMContentLoaded', function() {
+        updateMainNavButtons();
+        
+        // Adiciona eventos de drag nas miniaturas
+        const thumbnailsContainer = document.querySelector('.thumbnails');
+        if (thumbnailsContainer) {
+          // Mouse events
+          thumbnailsContainer.addEventListener('mousedown', startDrag);
+          
+          // Touch events para mobile
+          thumbnailsContainer.addEventListener('touchstart', startDrag, { passive: false });
+          
+          // Previne seleção de texto durante drag
+          thumbnailsContainer.addEventListener('selectstart', function(e) {
+            if (isDragging) e.preventDefault();
+          });
+        }
+        
+        // Adiciona eventos de swipe na imagem principal
+        const mainImageContainer = document.getElementById('mainImageContainer');
+        if (mainImageContainer) {
+          // Clique para abrir em tela cheia
+          mainImageContainer.addEventListener('click', function(e) {
+            console.log('Clique na imagem principal detectado');
+            // Não abre se clicou nas setas de navegação
+            if (e.target.closest('.main-nav')) {
+              console.log('Clique nas setas, ignorando');
+              return;
+            }
+            console.log('Abrindo tela cheia...');
+            openFullscreen();
+          });
+          
+          // Touch events para swipe
+          mainImageContainer.addEventListener('touchstart', startSwipe, { passive: true });
+          mainImageContainer.addEventListener('touchmove', onSwipe, { passive: false });
+          mainImageContainer.addEventListener('touchend', stopSwipe, { passive: true });
+          
+          // Mouse events para swipe (desktop)
+          mainImageContainer.addEventListener('mousedown', startSwipe);
+          mainImageContainer.addEventListener('mousemove', onSwipe);
+          mainImageContainer.addEventListener('mouseup', stopSwipe);
+          mainImageContainer.addEventListener('mouseleave', stopSwipe);
+        }
+        
+        // Event listeners para o modal em tela cheia
+        const fullscreenModal = document.getElementById('fullscreenModal');
+        if (fullscreenModal) {
+          // Fecha com ESC
+          document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && fullscreenModal.classList.contains('active')) {
+              console.log('ESC pressionado, fechando modal');
+              closeFullscreen();
+            }
+          });
+          
+          // Fecha clicando fora da galeria
+          fullscreenModal.addEventListener('click', function(e) {
+            // Só fecha se clicar diretamente no modal (fundo)
+            if (e.target === fullscreenModal) {
+              console.log('Clique fora da galeria, fechando modal');
+              closeFullscreen();
+            }
+          });
+          
+          // Garante que o botão de fechar funcione
+          const closeBtn = fullscreenModal.querySelector('.fullscreen-close');
+          if (closeBtn) {
+            closeBtn.addEventListener('click', function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('Botão fechar clicado');
+              closeFullscreen();
+            });
+          }
+          
+          // Adiciona suporte a swipe no modal fullscreen para mobile
+          const fullscreenMainArea = fullscreenModal.querySelector('.fullscreen-main-area');
+          if (fullscreenMainArea) {
+            let fullscreenSwipeStartX = 0;
+            let fullscreenSwipeStartY = 0;
+            let isFullscreenSwiping = false;
+            
+            fullscreenMainArea.addEventListener('touchstart', function(e) {
+              fullscreenSwipeStartX = e.touches[0].clientX;
+              fullscreenSwipeStartY = e.touches[0].clientY;
+              isFullscreenSwiping = false;
+            }, { passive: true });
+            
+            fullscreenMainArea.addEventListener('touchmove', function(e) {
+              if (!isFullscreenSwiping) {
+                const currentX = e.touches[0].clientX;
+                const currentY = e.touches[0].clientY;
+                const deltaX = Math.abs(fullscreenSwipeStartX - currentX);
+                const deltaY = Math.abs(fullscreenSwipeStartY - currentY);
+                
+                if (deltaX > 10 && deltaX > deltaY) {
+                  isFullscreenSwiping = true;
+                  e.preventDefault();
+                }
+              }
+              
+              if (isFullscreenSwiping) {
+                e.preventDefault();
+              }
+            }, { passive: false });
+            
+            fullscreenMainArea.addEventListener('touchend', function(e) {
+              if (isFullscreenSwiping) {
+                const currentX = e.changedTouches[0].clientX;
+                const deltaX = Math.abs(fullscreenSwipeStartX - currentX);
+                
+                if (deltaX > 50) {
+                  if (fullscreenSwipeStartX > currentX) {
+                    // Swipe para esquerda - próxima imagem
+                    changeFullscreenImage(1);
+                  } else {
+                    // Swipe para direita - imagem anterior
+                    changeFullscreenImage(-1);
+                  }
+                }
+              }
+              isFullscreenSwiping = false;
+            }, { passive: true });
+          }
+        }
+        
+        // Esconde indicador de swipe após alguns segundos
+        setTimeout(() => {
+          const swipeIndicator = document.getElementById('swipeIndicator');
+          if (swipeIndicator) {
+            swipeIndicator.classList.add('hidden');
+          }
+        }, 3000);
+        
+        // Teste inicial do modal
+        console.log('=== TESTE INICIAL DO MODAL ===');
+        const testModal = document.getElementById('fullscreenModal');
+        console.log('Modal encontrado no DOM:', testModal);
+        if (testModal) {
+          console.log('Modal HTML:', testModal.outerHTML);
+          console.log('Modal display inicial:', testModal.style.display);
+          console.log('Modal classes:', testModal.className);
+        }
+      });
+      
+      // Função para iniciar drag
+      function startDrag(e) {
+        isDragging = false;
+        hasMoved = false;
+        startX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
+        startOffset = thumbnailsOffset;
+        
+        // Adiciona eventos de movimento
+        if (e.type === 'mousedown') {
+          document.addEventListener('mousemove', onDrag);
+          document.addEventListener('mouseup', stopDrag);
+        } else {
+          document.addEventListener('touchmove', onDrag);
+          document.addEventListener('touchend', stopDrag);
+        }
+      }
+      
+      // Função para movimento durante drag
+      function onDrag(e) {
+        e.preventDefault();
+        const currentX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
+        const deltaX = Math.abs(startX - currentX);
+        
+        // Só ativa o drag se moveu mais que o threshold
+        if (!hasMoved && deltaX > dragThreshold) {
+          isDragging = true;
+          hasMoved = true;
+          
+          // Adiciona cursor de arraste
+          document.body.style.cursor = 'grabbing';
+          document.body.style.userSelect = 'none';
+        }
+        
+        if (!isDragging) return;
+        
+        const newOffset = startOffset + (startX - currentX);
+        const thumbnails = document.querySelectorAll('.thumbnail');
+        const thumbnailsScroll = document.querySelector('.thumbnails-scroll');
+        
+        if (thumbnailsScroll && thumbnails.length > 5) {
+          const scrollWidth = thumbnailsScroll.offsetWidth;
+          const totalWidth = thumbnails.length * thumbnailWidth;
+          const maxOffset = totalWidth - scrollWidth;
+          
+          thumbnailsOffset = Math.max(0, Math.min(maxOffset, newOffset));
+          
+          const thumbnailsContainer = document.querySelector('.thumbnails');
+          if (thumbnailsContainer) {
+            thumbnailsContainer.style.transform = `translateX(-${thumbnailsOffset}px)`;
+          }
+        }
+      }
+      
+      // Função para parar drag
+      function stopDrag() {
+        // Se não moveu o suficiente, não era um drag
+        if (!hasMoved) {
+          isDragging = false;
+          hasMoved = false;
+        }
+        
+        isDragging = false;
+        hasMoved = false;
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        
+        // Remove eventos de movimento
+        document.removeEventListener('mousemove', onDrag);
+        document.removeEventListener('mouseup', stopDrag);
+        document.removeEventListener('touchmove', onDrag);
+        document.removeEventListener('touchend', stopDrag);
+        
+        // Atualiza botões principais
+        updateMainNavButtons();
+        
+        // Pequeno delay para garantir que o clique funcione
+        setTimeout(() => {
+          hasMoved = false;
+        }, 50);
+      }
+      
+      // Função para iniciar swipe na imagem principal
+      function startSwipe(e) {
+        isSwiping = false;
+        swipeStartX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
+        swipeStartY = e.type === 'mousedown' ? e.clientY : e.touches[0].clientY;
+        
+        // Não previne o evento por padrão - deixa o scroll funcionar inicialmente
+      }
+      
+      // Função para movimento durante swipe
+      function onSwipe(e) {
+        if (!isSwiping) {
+          const currentX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
+          const currentY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
+          
+          const deltaX = Math.abs(swipeStartX - currentX);
+          const deltaY = Math.abs(swipeStartY - currentY);
+          
+          // Detecta se é um swipe horizontal
+          if (deltaX > 10 && deltaX > deltaY) {
+            isSwiping = true;
+            // Previne scroll apenas quando é um swipe horizontal
+            e.preventDefault();
+          }
+        }
+        
+        if (isSwiping) {
+          e.preventDefault();
+        }
+      }
+      
+      // Função para parar swipe
+      function stopSwipe(e) {
+        if (isSwiping) {
+          const currentX = e.type === 'mouseup' ? e.clientX : e.changedTouches[0].clientX;
+          const currentY = e.type === 'mouseup' ? e.clientY : e.changedTouches[0].clientY;
+          
+          const deltaX = Math.abs(swipeStartX - currentX);
+          const deltaY = Math.abs(swipeStartY - currentY);
+          
+          // Só considera swipe se moveu mais horizontalmente que verticalmente
+          if (deltaX > swipeThreshold && deltaX > deltaY) {
+            if (swipeStartX > currentX) {
+              // Swipe para esquerda - próxima imagem
+              changeImage(1);
+            } else {
+              // Swipe para direita - imagem anterior
+              changeImage(-1);
+            }
+          }
+        }
+        
+        isSwiping = false;
+      }
+      
+      // Atualiza botões quando a janela é redimensionada
+      window.addEventListener('resize', function() {
+        thumbnailsOffset = 0;
+        const thumbnailsContainer = document.querySelector('.thumbnails');
+        if (thumbnailsContainer) {
+          thumbnailsContainer.style.transform = 'translateX(0px)';
+        }
+                updateNavButtons();
+        });
+      
+      // PRODUCT VARIANTS & QUANTITY FUNCTIONS
+      
+      // Função para alterar quantidade
+      function changeQuantity(change) {
+        const input = document.getElementById('quantity');
+        const currentValue = parseInt(input.value) || 1;
+        const newValue = currentValue + change;
+        const min = parseInt(input.min) || 1;
+        const max = parseInt(input.max) || 999;
+        
+        if (newValue >= min && newValue <= max) {
+          input.value = newValue;
+          updateQuantityButtons();
+        }
+      }
+      
+      // Função para validar quantidade
+      function validateQuantity() {
+        const input = document.getElementById('quantity');
+        const value = parseInt(input.value);
+        const min = parseInt(input.min) || 1;
+        const max = parseInt(input.max) || 999;
+        
+        if (value < min) {
+          input.value = min;
+        } else if (value > max) {
+          input.value = max;
+        }
+        
+        updateQuantityButtons();
+      }
+      
+      // Atualiza estado dos botões de quantidade
+      function updateQuantityButtons() {
+        const input = document.getElementById('quantity');
+        const minusBtn = document.querySelector('.qty-minus');
+        const plusBtn = document.querySelector('.qty-plus');
+        const value = parseInt(input.value);
+        const min = parseInt(input.min) || 1;
+        const max = parseInt(input.max) || 999;
+        
+        if (minusBtn) minusBtn.disabled = value <= min;
+        if (plusBtn) plusBtn.disabled = value >= max;
+      }
+      
+      // Função para atualizar variante
+      function updateVariant() {
+        console.log('updateVariant chamada');
+        const options = [];
+        
+        // Coleta todas as opções selecionadas
+        document.querySelectorAll('input[data-option-position]:checked').forEach(input => {
+          const position = input.getAttribute('data-option-position');
+          const value = input.getAttribute('data-option-value');
+          options[position - 1] = value;
+          console.log('Opção selecionada:', position, value);
+        });
+        
+        // Encontra a variante correspondente
+        const variants = {{ product.variants | json }};
+        console.log('Variantes disponíveis:', variants);
+        const selectedVariant = variants.find(variant => {
+          return variant.options.every((option, index) => option === options[index]);
+        });
+        
+        console.log('Variante selecionada:', selectedVariant);
+        
+        if (selectedVariant) {
+          // Atualiza preço se necessário
+          updatePrice(selectedVariant);
+          // Atualiza disponibilidade
+          updateAvailability(selectedVariant);
+          
+          // Atualiza imagem principal baseada na variante selecionada
+          updateMainImageForVariant(selectedVariant);
+        }
+      }
+      
+      // Função para atualizar imagem principal baseada na variante
+      function updateMainImageForVariant(variant) {
+        console.log('updateMainImageForVariant chamada com:', variant);
+        const mainImage = document.getElementById('mainImage');
+        console.log('mainImage encontrada:', mainImage);
+        console.log('mainImage tagName:', mainImage ? mainImage.tagName : 'N/A');
+        console.log('mainImage id:', mainImage ? mainImage.id : 'N/A');
+        
+        if (!mainImage) {
+          console.log('mainImage não encontrada');
+          return;
+        }
+        
+        // Verifica se a variante tem uma imagem associada
+        if (variant.featured_image && variant.featured_image.src) {
+          console.log('Variante tem imagem:', variant.featured_image);
+          const newImageSrc = variant.featured_image.src;
+          console.log('Nova imagem da variante:', newImageSrc);
+          console.log('mainImage antes:', mainImage.src);
+          mainImage.src = newImageSrc;
+          console.log('mainImage depois:', mainImage.src);
+          console.log('mainImage atual:', mainImage.src);
+          
+          // Força o redraw da imagem
+          mainImage.style.opacity = '0.99';
+          setTimeout(() => {
+            mainImage.style.opacity = '1';
+          }, 10);
+          
+          // Atualiza a miniatura ativa correspondente
+          updateActiveThumbnail(newImageSrc);
+        } else {
+          console.log('Variante não tem imagem, usando mapeamento por cor');
+          
+          // Mapeia as variantes para as imagens correspondentes
+          const variantImageMap = {
+            'midnight': '{{ product.media[1] | image_url: width: 800 }}', // Imagem dos sinos pretos
+            'sunrise': '{{ product.media[0] | image_url: width: 800 }}'   // Imagem dos sinos coloridos
+          };
+          
+          console.log('VariantImageMap:', variantImageMap);
+          
+          // Verifica se a variante tem uma imagem mapeada
+          const variantOption = variant.options[0]; // Assumindo que a primeira opção é a cor
+          console.log('VariantOption:', variantOption);
+          console.log('VariantOption lowercase:', variantOption.toLowerCase());
+          
+          if (variantImageMap[variantOption.toLowerCase()]) {
+            const newImageSrc = variantImageMap[variantOption.toLowerCase()];
+            console.log('Nova imagem do mapeamento:', newImageSrc);
+            mainImage.src = newImageSrc;
+            
+            // Atualiza a miniatura ativa correspondente
+            updateActiveThumbnail(newImageSrc);
+          } else {
+            console.log('Nenhuma imagem mapeada para:', variantOption);
+            console.log('Opções disponíveis:', variant.options);
+          }
+        }
+      }
+      
+      // Função para atualizar a miniatura ativa
+      function updateActiveThumbnail(imageSrc) {
+        const thumbnails = document.querySelectorAll('.thumbnail');
+        thumbnails.forEach(thumb => {
+          thumb.classList.remove('active');
+          // Se a miniatura corresponde à nova imagem principal, marca como ativa
+          if (thumb.src === imageSrc || thumb.src.replace('150', '800') === imageSrc) {
+            thumb.classList.add('active');
+            // Atualiza o índice atual
+            currentIndex = Array.from(thumbnails).indexOf(thumb);
+          }
+        });
+        
+        // Atualiza os botões de navegação
+        updateMainNavButtons();
+      }
+      
+      // Atualiza preço baseado na variante
+      function updatePrice(variant) {
+        console.log('Atualizando preço para variante:', variant);
+        const priceElements = document.querySelectorAll('.product-price');
+        const originalPriceElements = document.querySelectorAll('.product-price-original');
+        
+        priceElements.forEach(priceElement => {
+          if (priceElement) {
+            const price = (variant.price / 100).toFixed(2);
+            priceElement.textContent = `$${price}`;
+            console.log('Preço atualizado para:', price);
+          }
+        });
+        
+        originalPriceElements.forEach(originalPriceElement => {
+          if (originalPriceElement) {
+            // Mostra preço riscado apenas para a variante Midnight
+            if (variant.option1 === 'Midnight' && variant.compare_at_price) {
+              const comparePrice = (variant.compare_at_price / 100).toFixed(2);
+              originalPriceElement.textContent = `$${comparePrice}`;
+              originalPriceElement.style.display = 'block';
+              console.log('Preço original atualizado para:', comparePrice);
+            } else {
+              // Esconde preço riscado para outras variantes
+              originalPriceElement.style.display = 'none';
+            }
+          }
+        });
+      }
+      
+      // Atualiza disponibilidade
+      function updateAvailability(variant) {
+        const quantityInput = document.getElementById('quantity');
+        
+        if (quantityInput && variant.inventory_management) {
+          quantityInput.max = variant.inventory_quantity || 999;
+        }
+      }
+      
+      // Inicializa quando o DOM estiver pronto
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM carregado, inicializando...');
+        updateQuantityButtons();
+        
+        // Adiciona event listeners para as opções de variante
+        const variantOptions = document.querySelectorAll('.variant-option');
+        console.log('Variantes encontradas:', variantOptions.length);
+        
+        // Log detalhado de cada opção encontrada
+        variantOptions.forEach((option, index) => {
+          console.log(`Opção ${index}:`, {
+            id: option.id,
+            value: option.value,
+            name: option.name,
+            checked: option.checked,
+            classList: option.classList.toString()
+          });
+        });
+        
+        // Verifica se há problemas com seletores específicos
+        console.log('=== VERIFICAÇÃO ESPECÍFICA ===');
+        const midnightOption = document.querySelector('input[value="Midnight"]');
+        const sunriseOption = document.querySelector('input[value="Sunrise"]');
+        
+        console.log('Opção Midnight encontrada:', midnightOption);
+        console.log('Opção Sunrise encontrada:', sunriseOption);
+        
+        if (midnightOption) {
+          console.log('Midnight - ID:', midnightOption.id);
+          console.log('Midnight - Classes:', midnightOption.classList.toString());
+          console.log('Midnight - Name:', midnightOption.name);
+          console.log('Midnight - Value:', midnightOption.value);
+        }
+        
+        if (sunriseOption) {
+          console.log('Sunrise - ID:', sunriseOption.id);
+          console.log('Sunrise - Classes:', sunriseOption.classList.toString());
+          console.log('Sunrise - Name:', sunriseOption.name);
+          console.log('Sunrise - Value:', sunriseOption.value);
+        }
+        
+        // Variável para rastrear a opção atualmente selecionada
+        let currentSelectedOption = '';
+        
+        variantOptions.forEach(option => {
+          // Event listener para mudança de seleção
+          option.addEventListener('change', function() {
+            console.log('Opção alterada (change):', this.value, 'ID:', this.id);
+            currentSelectedOption = this.value;
+            updateVariant();
+          });
+          
+          // Event listener para clique (para garantir que funcione sempre)
+          option.addEventListener('click', function() {
+            console.log('Opção clicada (click):', this.value, 'ID:', this.id);
+            
+            // Se a opção clicada é diferente da atual, executa updateVariant
+            if (this.value !== currentSelectedOption) {
+              currentSelectedOption = this.value;
+              updateVariant();
+            } else {
+              // Se é a mesma opção, força a execução para garantir que a imagem seja atualizada
+              console.log('Forçando atualização para opção já selecionada');
+              setTimeout(() => {
+                updateVariant();
+              }, 50);
+            }
+          });
+        });
+        
+        // Define a opção inicial selecionada
+        const initialSelected = document.querySelector('.variant-option:checked');
+        if (initialSelected) {
+          currentSelectedOption = initialSelected.value;
+          console.log('Opção inicial selecionada:', currentSelectedOption);
+        }
+        
+        // Teste inicial
+        console.log('Funções disponíveis:', typeof updateVariant, typeof updatePrice, typeof updateMainImageForVariant);
+        
+        // Teste manual para verificar se as opções estão funcionando
+        setTimeout(() => {
+          console.log('=== TESTE MANUAL ===');
+          if (midnightOption) {
+            console.log('Testando evento click na opção Midnight...');
+            midnightOption.click();
+          }
+          if (sunriseOption) {
+            console.log('Testando evento click na opção Sunrise...');
+            sunriseOption.click();
+          }
+        }, 1000);
+      });
+          
+      // ADD TO CART FUNCTION
+      function addToCart() {
+        const quantityInput = document.getElementById('quantity');
+        const quantity = parseInt(quantityInput.value) || 1;
+        const selectedVariant = getSelectedVariant();
+        
+        if (!selectedVariant) {
+          alert('Please select all product options');
+          return;
+        }
+        
+        if (!selectedVariant.available) {
+          alert('This product is currently unavailable');
+          return;
+        }
+        
+        const btn = document.querySelector('.add-to-cart-btn');
+        const originalText = btn.textContent;
+        
+        // Feedback visual - loading
+        btn.textContent = 'ADDING...';
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+        
+        // Preparar dados para o carrinho
+        const formData = {
+          'items': [{
+            'id': selectedVariant.id,
+            'quantity': quantity
+          }]
+        };
+        
+        // Fazer request para adicionar ao carrinho
+        fetch('/cart/add.js', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Erro ao adicionar ao carrinho');
+          }
+          return response.json();
+        })
+        .then(data => {
+          // Sucesso - feedback visual
+          btn.textContent = 'ADDED TO CART!';
+          btn.style.background = '#28a745';
+          
+          // Atualizar contador do carrinho se existir
+          updateCartCount();
+          
+          setTimeout(() => {
+            btn.textContent = originalText;
+            btn.style.background = '#EB701F';
+            btn.disabled = false;
+            btn.style.opacity = '1';
+          }, 2000);
+        })
+        .catch(error => {
+          console.error('Erro:', error);
+          
+          // Erro - feedback visual
+          btn.textContent = 'ERROR - TRY AGAIN';
+          btn.style.background = '#dc3545';
+          
+          setTimeout(() => {
+            btn.textContent = originalText;
+            btn.style.background = '#EB701F';
+            btn.disabled = false;
+            btn.style.opacity = '1';
+          }, 3000);
+        });
+      }
+      
+      function getSelectedVariant() {
+        const variants = {{ product.variants | json }};
+        
+        // Se só existe uma variante (produto sem opções)
+        if (variants.length === 1) {
+          return variants[0];
+        }
+        
+        // Coleta opções selecionadas
+        const selectedOptions = [];
+        const optionInputs = document.querySelectorAll('.option-values input[type="radio"]:checked');
+        
+        optionInputs.forEach(input => {
+          const position = parseInt(input.dataset.optionPosition) - 1;
+          const value = input.dataset.optionValue;
+          selectedOptions[position] = value;
+        });
+        
+        // Encontra a variante que corresponde às opções selecionadas
+        const matchingVariant = variants.find(variant => {
+          return variant.options.every((option, index) => {
+            return option === selectedOptions[index];
+          });
+        });
+        
+        return matchingVariant || null;
+      }
+      
+      // Função para atualizar contador do carrinho (opcional)
+      function updateCartCount() {
+        fetch('/cart.js')
+          .then(response => response.json())
+          .then(cart => {
+            const cartCountElements = document.querySelectorAll('.cart-count');
+            cartCountElements.forEach(element => {
+              element.textContent = cart.item_count;
+            });
+          })
+          .catch(error => {
+            console.log('Erro ao atualizar contador do carrinho:', error);
+          });
+      }
+      
+
+       
+       // ACCORDION FUNCTION
+       function toggleAccordion(header) {
+         const content = header.nextElementSibling;
+         const icon = header.querySelector('.accordion-icon');
+         const isActive = content.classList.contains('active');
+         
+         // Remove active de todos os headers e contents
+         document.querySelectorAll('.accordion-header').forEach(item => {
+           item.classList.remove('active');
+         });
+         
+         document.querySelectorAll('.accordion-content').forEach(item => {
+           item.classList.remove('active');
+         });
+         
+         document.querySelectorAll('.accordion-icon').forEach(item => {
+           item.textContent = '+';
+         });
+         
+         // Abre o accordion clicado se não estava ativo
+         if (!isActive) {
+           header.classList.add('active');
+           content.classList.add('active');
+           icon.textContent = '-';
+         } else {
+           // Se estava ativo, fecha e remove o destaque laranja
+           header.classList.remove('active');
+           content.classList.remove('active');
+           icon.textContent = '+';
+         }
+       }
+    </script>
+
+  </section>
+</section>
+
+{% schema %}
+  {
+    "name": "Product GT528 Test",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Product Information"
+      },
+      {
+        "type": "text",
+        "id": "product_title",
+        "label": "Product Title",
+        "info": "Override the default product title"
+      },
+      {
+        "type": "textarea",
+        "id": "product_subtitle",
+        "label": "Product Subtitle",
+        "default": "Sculpt & Tone with Style.\nYour Home, Your Boutique Gym.",
+        "info": "Use \\n for line breaks"
+      },
+      {
+        "type": "text",
+        "id": "review_text",
+        "label": "Review Text",
+        "default": "5.0 (463 Reviews)"
+      }, {
+        "type": "text",
+        "id": "feature_line_1",
+        "label": "Feature Line 1",
+        "default": "5 Weight Levels | 3-Second Switch"
+      }, {
+        "type": "text",
+        "id": "feature_line_2",
+        "label": "Feature Line 2",
+        "default": "Comfort Grip | Compact Storage"
+      }, {
+        "type": "text",
+        "id": "quantity_label",
+        "label": "Quantity Label",
+        "default": "Quantity"
+      }, {
+        "type": "textarea",
+        "id": "payment_text",
+        "label": "Payment Text",
+        "default": "Pay in 4 interest-free installments, or from $48.65/mo with",
+        "info": "Text that appears before the Shop Pay logo"
+      }, {
+        "type": "text",
+        "id": "learn_more_text",
+        "label": "Learn More Link Text",
+        "default": "Learn more"
+      }, {
+        "type": "text",
+        "id": "add_to_cart_text",
+        "label": "Add to Cart Button Text",
+        "default": "ADD TO CART"
+      }, {
+        "type": "header",
+        "content": "Accordion Settings"
+      }, {
+        "type": "text",
+        "id": "accordion_font_size",
+        "label": "Accordion Content Font Size (px)",
+        "default": "16",
+        "info": "Font size for accordion content text (both desktop and mobile). Enter just the number, e.g. 18"
+      }, {
+        "type": "header",
+        "content": "Benefits Section"
+      }, {
+        "type": "image_picker",
+        "id": "benefit_icon_1",
+        "label": "Benefit Icon 1",
+        "info": "Icon for first benefit (Free Shipping)"
+      }, {
+        "type": "text",
+        "id": "benefit_text_1",
+        "label": "Benefit Text 1",
+        "default": "Free Shipping within the U.S."
+      }, {
+        "type": "image_picker",
+        "id": "benefit_icon_2",
+        "label": "Benefit Icon 2",
+        "info": "Icon for second benefit"
+      }, {
+        "type": "text",
+        "id": "benefit_text_2",
+        "label": "Benefit Text 2",
+        "default": "Second Benefit Text"
+      }, {
+        "type": "image_picker",
+        "id": "benefit_icon_3",
+        "label": "Benefit Icon 3",
+        "info": "Icon for third benefit"
+      }, {
+        "type": "text",
+        "id": "benefit_text_3",
+        "label": "Benefit Text 3",
+        "default": "Third Benefit Text"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "accordion_item",
+        "name": "Accordion Item",
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Accordion Title",
+            "default": "Accordion Title"
+          },
+          {
+            "type": "select",
+            "id": "content_type",
+            "label": "Content Type",
+            "options": [
+              {
+                "value": "list",
+                "label": "List Items"
+              }, {
+                "value": "text",
+                "label": "Text Content"
+              }
+            ],
+            "default": "list"
+          },
+          {
+            "type": "text",
+            "id": "item_1",
+            "label": "List Item 1",
+            "default": "First list item"
+          },
+          {
+            "type": "text",
+            "id": "item_2",
+            "label": "List Item 2",
+            "default": "Second list item"
+          }, {
+            "type": "text",
+            "id": "item_3",
+            "label": "List Item 3",
+            "default": "Third list item"
+          }, {
+            "type": "text",
+            "id": "item_4",
+            "label": "List Item 4",
+            "default": "Fourth list item"
+          }, {
+            "type": "text",
+            "id": "item_5",
+            "label": "List Item 5",
+            "default": "Fifth list item"
+          }, {
+            "type": "richtext",
+            "id": "text_content",
+            "label": "Text Content",
+            "info": "Use this when content type is 'Text Content'"
+          }, {
+            "type": "header",
+            "content": "Optional Link"
+          }, {
+            "type": "checkbox",
+            "id": "show_link",
+            "label": "Show Link",
+            "default": false
+          }, {
+            "type": "text",
+            "id": "link_text",
+            "label": "Link Text",
+            "default": "Learn more"
+          }, {
+            "type": "url",
+            "id": "link_url",
+            "label": "Link URL"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Product GT528 Test",
+        "blocks": [
+          {
+            "type": "accordion_item",
+            "settings": {
+              "title": "Key Features",
+              "content_type": "list",
+              "item_1": "<strong>Dimensions:</strong> 13.39\" D × 7.87\" W × 5.91\" H",
+              "item_2": "<strong>Weight Range:</strong> 5.5–27.5 lbs (2.5–12.5 kg) with 5 weight options",
+              "item_3": "<strong>Increments:</strong> Adjust in 5.5 lbs (2.5 kg) steps",
+              "item_4": "<strong>Glide Tech Adjustment:</strong> Switch weights in just 3 seconds with a smooth slide",
+              "item_5": "<strong>Durable Build:</strong> Steel plates with reinforced plastic tray for lasting durability"
+            }
+          }, {
+            "type": "accordion_item",
+            "settings": {
+              "title": "Shipping & Returns",
+              "content_type": "list",
+              "item_1": "<strong>Free Shipping:</strong> Standard shipping in 3–7 days (Continental US).",
+              "item_2": "<strong>Easy Cancel:</strong> Cancel within 24 hours of purchase.",
+              "item_3": "<strong>30-Day Returns:</strong> Unused items returnable within 30 days; buyer pays return shipping for personal reasons.",
+              "item_4": "<strong>Fast Refunds:</strong> Issued to original payment or store credit.",
+              "show_link": true,
+              "link_text": "View full details on Shipping policy and Refund&Return",
+              "link_url": "#"
+            }
+          }, {
+            "type": "accordion_item",
+            "settings": {
+              "title": "Use Tips & Manual",
+              "content_type": "list",
+              "item_1": "Please adjust weights on the trays for safety.",
+              "item_2": "Make sure to press down the red safety button completely and have the arrow pointed exactly to the desired weight number.",
+              "item_3": "Please do not drop or throw weights after use.",
+              "show_link": true,
+              "link_text": "View and download the manual",
+              "link_url": "#"
+            }
+          }, {
+            "type": "accordion_item",
+            "settings": {
+              "title": "Warranty & Support",
+              "content_type": "list",
+              "item_1": "<strong>1-Year Warranty:</strong> Free replacement if your product arrives defective or faulty.",
+              "item_2": "<strong>Extend to 2 Years:</strong> Join Ativa People for an extra year of coverage and exclusive rewards.",
+              "item_3": "<strong>Support:</strong> Questions? Email services@ativafit.com"
+            }
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}

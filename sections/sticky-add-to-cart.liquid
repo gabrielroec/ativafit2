@@ -49,7 +49,7 @@
           {%- if product.available -%}
             {{ section.settings.button_text | default: 'Add to Cart' }}
           {%- else -%}
-            {{ 'products.product.sold_out' | t }}
+            Sold Out
           {%- endif -%}
         </button>
       </div>
@@ -63,10 +63,11 @@
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 100;
+    z-index: 1000;
     transform: translateY(100%);
     transition: transform 0.3s ease-in-out;
     visibility: hidden;
+    background-color: white;
   }
 
   .sticky-add-to-cart-wrapper.visible {
@@ -211,29 +212,51 @@
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const stickyBar = document.getElementById('sticky-add-to-cart');
-    if (!stickyBar) return;
+    if (!stickyBar) {
+      console.log('Sticky bar not found');
+      return;
+    }
+    
+    console.log('Sticky bar found:', stickyBar);
     
     const scrollThreshold = parseInt(stickyBar.dataset.scrollThreshold) || 300;
     const addToCartButton = document.querySelector('.sticky-add-to-cart-button');
     
-    // Check if we're on a product page
-    const isProductPage = document.body.classList.contains('template-product');
+    // Check if we're on a product page (more comprehensive check)
+    const isProductPage = document.body.classList.contains('template-product') || 
+                         document.body.classList.contains('product-template') ||
+                         window.location.pathname.includes('/products/') ||
+                         document.querySelector('form[action*="/cart/add"]') ||
+                         document.querySelector('[data-product-id]') ||
+                         document.querySelector('.product-form');
+    
+    console.log('Is product page:', isProductPage);
+    console.log('Body classes:', document.body.className);
+    console.log('URL pathname:', window.location.pathname);
+    
     if (!isProductPage) {
+      console.log('Hiding sticky bar - not a product page');
       stickyBar.style.display = 'none';
       return;
     }
     
     // Handle scroll events
     function handleScroll() {
+      console.log('Scroll Y:', window.scrollY, 'Threshold:', scrollThreshold);
       if (window.scrollY > scrollThreshold) {
+        console.log('Adding visible class');
         stickyBar.classList.add('visible');
       } else {
+        console.log('Removing visible class');
         stickyBar.classList.remove('visible');
       }
     }
     
     // Add scroll event listener
     window.addEventListener('scroll', handleScroll);
+    
+    // Initial check in case page is already scrolled
+    handleScroll();
     
     // Handle add to cart click
     if (addToCartButton) {

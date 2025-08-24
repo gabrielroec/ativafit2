@@ -1,6 +1,6 @@
 {% comment %} 
-                                                                Concept Showcase Section - Estilo Peloton
-                                                                Seção com conceito/texto + imagem lado a lado 
+                                                                                                Concept Showcase Section - Estilo Peloton
+                                                                                                Seção com conceito/texto + imagem lado a lado 
 {% endcomment %}
 
 <section class="concept-showcase" data-section-id="{{ section.id }}">
@@ -9,6 +9,13 @@
       <!-- Content Column -->
       <div class="concept-showcase__content-column">
         <div class="concept-showcase__content">
+          <!-- Section Label -->
+          {% if section.settings.section_label != blank %}
+            <div class="concept-showcase__section-label">
+              <p class="concept-showcase__label condensed-bold">{{ section.settings.section_label }}</p>
+            </div>
+          {% endif %}
+
           {% if section.settings.heading != blank %}
             <h2 class="concept-showcase__heading black">{{ section.settings.heading }}</h2>
           {% endif %}
@@ -59,15 +66,27 @@
     max-width: 1750px;
     margin: 0 auto;
     padding: 0 40px;
+  }
+
+  .concept-showcase__section-label {
+    margin-bottom: 10px;
+  }
+
+  .concept-showcase__label {
+    font-size: 14px;
+    color: #EB701F;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .concept-showcase__grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     align-items: center;
     min-height: 600px;
-    gap: 60px;
-  }
-
-  .concept-showcase__grid {
-    display: contents;
+    gap: 20px;
   }
 
   /* Content Right Layout */
@@ -94,7 +113,6 @@
   margin: 0 auto;
 }
 
-
 .concept-showcase__grid--content-right .concept-showcase__content {
   margin-left: auto;
 }
@@ -103,7 +121,7 @@
   font-size: 48px;
   font-weight: 700;
   color: #000000;
-  margin-bottom: 30px;
+  margin-bottom: 10px;
   line-height: 1.2;
   letter-spacing: -0.5px;
 }
@@ -189,9 +207,18 @@
 
 /* Responsive */
 @media screen and (max-width: 1024px) {
+  .concept-showcase {
+    padding: 60px 0;
+    margin: 0 0 20px;
+  }
+
   .concept-showcase__container {
     gap: 40px;
     padding: 0 30px;
+  }
+
+  .concept-showcase__grid {
+    gap: 20px;
   }
 
   .concept-showcase__content-column {
@@ -201,8 +228,7 @@
 
 @media screen and (max-width: 768px) {
   .concept-showcase {
-    padding: 40px 0 0;
-    margin: 0;
+    padding: 20px 0 !important;
     background-color: #F5F5F5;
   }
 
@@ -210,6 +236,11 @@
     grid-template-columns: 1fr;
     padding: 0 20px;
     gap: 30px;
+  }
+
+  .concept-showcase__grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
   }
 
   .concept-showcase__content-column,
@@ -223,7 +254,7 @@
   }
 
   .concept-showcase__content-column {
-    padding: 40px 0;
+    padding: 0;
   }
 
   .concept-showcase__content {
@@ -293,6 +324,16 @@
     "settings": [
       {
         "type": "header",
+        "content": "Section Label"
+      },
+      {
+        "type": "text",
+        "id": "section_label",
+        "label": "Section Label",
+        "info": "Optional label that appears above the content"
+      },
+      {
+        "type": "header",
         "content": "Layout"
       },
       {
@@ -309,12 +350,10 @@
           }
         ],
         "default": "content_left"
-      },
-      {
+      }, {
         "type": "header",
         "content": "Content"
-      },
-      {
+      }, {
         "type": "text",
         "id": "heading",
         "label": "Heading",

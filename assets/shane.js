@@ -1,4 +1,5 @@
 $(document).ready(function(){
+  console.log("123333")
   $(".pro_f_title").click(function(){
     $(this).find("span").toggleClass('active');
     $(this).parent().find(".pro_f_content").slideToggle();

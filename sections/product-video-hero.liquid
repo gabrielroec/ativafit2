@@ -11,7 +11,15 @@
     <span class="progress-highlight">{{ section.settings.video_title_end }}</span>
   </h2>
   <div class="video-container">
-    <div id="youtube-player"></div>
+    {% if section.settings.video_source == 'shopify' and section.settings.video != blank %}
+      <video id="native-player" playsinline muted loop autoplay style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:20px;object-fit:cover;">
+        {% for source in section.settings.video.sources %}
+          <source src="{{ source.url }}" type="{{ source.mime_type }}">
+        {% endfor %}
+      </video>
+    {% else %}
+      <div id="youtube-player"></div>
+    {% endif %}
     <div class="video-overlay">
       <div class="video-controls">
         <button
@@ -229,49 +237,66 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Carregar API do YouTube
-    const tag = document.createElement('script');
-    tag.src = "https://www.youtube.com/iframe_api";
-    const firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-    
+    {% assign is_native = false %}
+    {% if section.settings.video_source == 'shopify' and section.settings.video != blank %}
+      {% assign is_native = true %}
+    {% endif %}
+    var isNative = {{ is_native | json }};
+    var ytId = {{ section.settings.video_url.id | default: section.settings.youtube_video_id | json }};
     let player;
     
-    // Função chamada pela API do YouTube quando estiver pronta
-    window.onYouTubeIframeAPIReady = function() {
-      player = new YT.Player('youtube-player', {
-        videoId: '{{ section.settings.youtube_video_id }}', // ID do vídeo específico
-        playerVars: {
-          autoplay: 1,
-          mute: 1, // Mudo por padrão (exigência de muitos navegadores)
-          controls: 0,
-          showinfo: 0,
-          rel: 0,
-          modestbranding: 1,
-          loop: 1,
-          playlist: '{{ section.settings.youtube_video_id }}' // Necessário para loop
-        },
-        events: {
-          'onReady': onPlayerReady,
-          'onStateChange': onPlayerStateChange
-        }
-      });
-    };
-  
+    if (!isNative) {
+      // Carregar API do YouTube somente quando necessário
+      const tag = document.createElement('script');
+      tag.src = "https://www.youtube.com/iframe_api";
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      
+      // Função chamada pela API do YouTube quando estiver pronta
+      window.onYouTubeIframeAPIReady = function() {
+        player = new YT.Player('youtube-player', {
+          videoId: ytId,
+          playerVars: {
+            autoplay: 1,
+            mute: 1,
+            controls: 0,
+            showinfo: 0,
+            rel: 0,
+            modestbranding: 1,
+            loop: 1,
+            playlist: ytId
+          },
+          events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+          }
+        });
+      };
+    } else {
+      // Ajustes iniciais para vídeo nativo
+      const native = document.getElementById('native-player');
+      if (native) {
+        native.muted = true;
+        native.autoplay = true;
+        native.loop = true;
+        native.play().catch(function(){});
+      }
+    }
+    
     // Quando o player estiver pronto
     function onPlayerReady(event) {
-      // Tenta iniciar o vídeo
-      event.target.playVideo();
-      
-      // Atualiza o estado do botão de mudo
-      updateMuteButton(true);
+      if (!isNative) {
+        event.target.playVideo();
+        updateMuteButton(true);
+      }
     }
-  
+    
     function onPlayerStateChange(event) {
-      // Atualiza o ícone do botão quando o estado do player muda
-      updatePlayPauseButton(event.data === YT.PlayerState.PLAYING);
+      if (!isNative) {
+        updatePlayPauseButton(event.data === YT.PlayerState.PLAYING);
+      }
     }
-  
+    
     // Controle de play/pause
     const playPauseButton = document.getElementById('playPauseButton');
     const pauseIcon = document.querySelector('.pause-icon');
@@ -307,7 +332,17 @@
     }
   
     playPauseButton.addEventListener('click', function() {
-      if (player && typeof player.getPlayerState === 'function') {
+      if (isNative) {
+        const native = document.getElementById('native-player');
+        if (!native) return;
+        if (native.paused) {
+          native.play();
+          updatePlayPauseButton(true);
+        } else {
+          native.pause();
+          updatePlayPauseButton(false);
+        }
+      } else if (player && typeof player.getPlayerState === 'function') {
         const state = player.getPlayerState();
         if (state === YT.PlayerState.PLAYING) {
           player.pauseVideo();
@@ -320,7 +355,12 @@
     });
     
     muteButton.addEventListener('click', function() {
-      if (player && typeof player.isMuted === 'function') {
+      if (isNative) {
+        const native = document.getElementById('native-player');
+        if (!native) return;
+        native.muted = !native.muted;
+        updateMuteButton(native.muted);
+      } else if (player && typeof player.isMuted === 'function') {
         if (player.isMuted()) {
           player.unMute();
           updateMuteButton(false);
@@ -346,11 +386,32 @@
         "content": "Video Settings"
       },
       {
+        "type": "select",
+        "id": "video_source",
+        "label": "Video source",
+        "default": "shopify",
+        "options": [
+          { "value": "shopify", "label": "Shopify uploaded video" },
+          { "value": "youtube", "label": "YouTube link" }
+        ]
+      },
+      {
+        "type": "video",
+        "id": "video",
+        "label": "Shopify video"
+      },
+      {
+        "type": "video_url",
+        "id": "video_url",
+        "label": "YouTube video URL",
+        "accept": ["youtube"]
+      },
+      {
         "type": "text",
         "id": "youtube_video_id",
         "label": "YouTube Video ID",
         "default": "NgIlbGa9qS0",
-        "info": "The video ID is the part after v= in the YouTube URL"
+        "info": "Deprecated: prefer the YouTube video URL above. The video ID is the part after v= in the YouTube URL."
       },
       {
         "type": "header",

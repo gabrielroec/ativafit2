@@ -1,0 +1,451 @@
+<section
+  class="section product-colorways"
+  data-section-id="{{ section.id }}"
+  data-section-type="product-colorways"
+  style="padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px;">
+  <div class="container">
+
+    {%- if section.blocks.size > 0 -%}
+      <div class="colorways-grid">
+        {%- for block in section.blocks -%}
+          <div class="colorway-item" {{ block.shopify_attributes }}>
+            <div class="colorway-image">
+              {%- if block.settings.colorway_image != blank -%}
+                <img
+                  src="{{ block.settings.colorway_image | img_url: '600x400' }}"
+                  alt="{{ block.settings.colorway_image.alt | default: block.settings.colorway_name }}"
+                  width="600"
+                  height="400"
+                  loading="lazy">
+              {%- else -%}
+                {{ 'product-1' | placeholder_svg_tag: 'placeholder-image' }}
+              {%- endif -%}
+
+              {%- if block.settings.colorway_label != blank -%}
+                <div class="colorway-label">{{ block.settings.colorway_label | escape }}</div>
+              {%- endif -%}
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+
+      {%- if section.blocks.size > 0 -%}
+        <div class="colorways-indicators">
+          {%- for block in section.blocks -%}
+            <div class="color-dot" style="background: {{ block.settings.gradient_background }}"></div>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    {%- endif -%}
+
+    <div class="colorways-content">
+      {%- if section.settings.heading_part1 != blank or section.settings.highlight_text1 != blank -%}
+        <h2 class="colorways-heading">
+          {{ section.settings.heading_part1 }}
+          {%- if section.settings.highlight_text1 != blank -%}
+            <span class="highlight-text">{{ section.settings.highlight_text1 }}</span>
+          {%- endif -%}
+          {{ section.settings.heading_part2 }}
+          {%- if section.settings.highlight_text2 != blank -%}
+            <span class="highlight-text">{{ section.settings.highlight_text2 }}</span>
+          {%- endif -%}
+        </h2>
+      {%- endif -%}
+
+      {%- if section.settings.description_line1 != blank or section.settings.description_line2 != blank or section.settings.description_line3 != blank -%}
+        <div class="colorways-description">
+          {%- if section.settings.description_line1 != blank -%}
+            <p>{{ section.settings.description_line1 }}</p>
+          {%- endif -%}
+          {%- if section.settings.description_line2 != blank -%}
+            <p>{{ section.settings.description_line2 }}</p>
+          {%- endif -%}
+          {%- if section.settings.description_line3 != blank -%}
+            <p>{{ section.settings.description_line3 }}</p>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  .product-colorways {
+    background-color: #fff;
+  }
+
+  .colorways-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 200px;
+    margin-bottom: 30px;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .colorway-item {
+    position: relative;
+
+
+  }
+
+  .colorway-image {
+    position: relative;
+    width: 100%;
+    object-fit: contain;
+    overflow: hidden;
+    border-radius: 16px;
+  }
+
+  .colorway-image img,
+  .colorway-image svg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .colorway-label {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-family: 'Barlow'
+    , sans-serif;
+    font-weight: 700;
+    font-size: 48px;
+    line-height: 52px;
+    letter-spacing: 0;
+    color: rgba(255, 255, 255, 0.8);
+    text-transform: uppercase;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .colorways-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .color-dot {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .colorways-content {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .colorways-heading {
+    font-family: 'Barlow'
+    , sans-serif;
+    font-weight: 700;
+    font-size: {{ section.settings.heading_font_size | default: 32 }}px;
+    line-height: 1.1;
+    letter-spacing: 0;
+    color: #000000;
+    margin: 0 0 24px;
+  }
+
+  .highlight-text {
+    color: #EB701F;
+  }
+
+  .colorways-description {
+    font-family: 'Barlow'
+    , sans-serif;
+    letter-spacing: 0;
+    color: #000;
+  }
+
+  .colorways-description p {
+    margin: 0 0 8px;
+    font-family: Barlow;
+    font-weight: 500 !important;
+    font-style: Medium;
+    font-size: {{ section.settings.description_font_size | default: 20 }}px !important;
+    leading-trim: NONE;
+    line-height: 1.24;
+    letter-spacing: 0;
+    text-align: center;
+
+  }
+
+  .colorways-description p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .colorways-grid {
+      grid-template-columns: 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .colorway-image {
+      height: 300px;
+    }
+
+    .colorway-label {
+      font-size: 36px;
+      line-height: 40px;
+      top: 15px;
+      left: 15px;
+    }
+
+    .colorways-heading {
+      font-size: {{ section.settings.mobile_heading_font_size | default: 28 }}px;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+
+    .color-dot {
+      width: 32px;
+      height: 32px;
+    }
+
+    .colorways-indicators {
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    /* Mobile: transforma parágrafos em texto contínuo */
+    .colorways-description {
+      font-family: Barlow;
+      font-weight: 500 !important;
+      font-style: Medium;
+      font-size: {{ section.settings.mobile_description_font_size | default: 18 }}px !important;
+      leading-trim: NONE;
+      line-height: 1.3;
+      letter-spacing: 0;
+      text-align: center;
+    }
+
+    .colorways-description p {
+      display: inline;
+      margin: 0;
+      font-size: {{ section.settings.mobile_description_font_size | default: 18 }}px !important;
+    }
+
+    .colorways-description p:not(:last-child):after {
+      content: " ";
+    }
+  }
+
+  @media (max-width: 480px) {
+    .colorways-grid {
+      gap: 20px;
+    }
+
+    .colorway-image {
+      height: 250px;
+      border-radius: 12px;
+    }
+
+    .colorway-label {
+      font-size: 28px;
+      line-height: 32px;
+    }
+
+    .colorways-heading {
+      font-size: 24px;
+      line-height: 1.1;
+    }
+
+    /* Telas menores: ajusta font-size */
+    .colorways-description {
+      font-size: 16px !important;
+      line-height: 1.2;
+    }
+  }
+</style>
+
+{% schema %}
+  {
+    "name": "Product Colorways",
+    "max_blocks": 4,
+    "settings": [
+      {
+        "type": "header",
+        "content": "Heading Settings"
+      },
+      {
+        "type": "text",
+        "id": "heading_part1",
+        "label": "Heading Part 1",
+        "default": "Sleek Style:"
+      },
+      {
+        "type": "text",
+        "id": "highlight_text1",
+        "label": "Highlight Text 1 (orange)",
+        "default": "Sunrise"
+      },
+      {
+        "type": "text",
+        "id": "heading_part2",
+        "label": "Heading Part 2",
+        "default": " & "
+      }, {
+        "type": "text",
+        "id": "highlight_text2",
+        "label": "Highlight Text 2 (orange)",
+        "default": "Midnight"
+      }, {
+        "type": "header",
+        "content": "Description Settings"
+      }, {
+        "type": "text",
+        "id": "description_line1",
+        "label": "Description Line 1",
+        "default": "Say goodbye to cold, industrial equipment."
+      }, {
+        "type": "text",
+        "id": "description_line2",
+        "label": "Description Line 2",
+        "default": "With \"Sunrise\" & \"Midnight\" colorways, Spark dumbbell"
+      }, {
+        "type": "text",
+        "id": "description_line3",
+        "label": "Description Line 3",
+        "default": "is a stylish piece of your home decor."
+      }, {
+        "type": "header",
+        "content": "Typography Settings"
+      },
+      {
+        "type": "range",
+        "id": "heading_font_size",
+        "min": 20,
+        "max": 60,
+        "step": 2,
+        "unit": "px",
+        "label": "Heading Font Size",
+        "default": 32,
+        "info": "Font size for the main heading"
+      },
+      {
+        "type": "range",
+        "id": "description_font_size",
+        "min": 14,
+        "max": 32,
+        "step": 1,
+        "unit": "px",
+        "label": "Description Font Size",
+        "default": 20,
+        "info": "Font size for description paragraphs"
+      },
+      {
+        "type": "header",
+        "content": "Mobile Typography Settings"
+      },
+      {
+        "type": "range",
+        "id": "mobile_heading_font_size",
+        "min": 16,
+        "max": 40,
+        "step": 2,
+        "unit": "px",
+        "label": "Mobile Heading Font Size",
+        "default": 28,
+        "info": "Font size for the main heading on mobile (<768px)"
+      },
+      {
+        "type": "range",
+        "id": "mobile_description_font_size",
+        "min": 12,
+        "max": 24,
+        "step": 1,
+        "unit": "px",
+        "label": "Mobile Description Font Size",
+        "default": 18,
+        "info": "Font size for description paragraphs on mobile (<768px)"
+      }, {
+        "type": "header",
+        "content": "Spacing Settings"
+      }, {
+        "type": "range",
+        "id": "padding_top",
+        "min": 0,
+        "max": 100,
+        "step": 4,
+        "unit": "px",
+        "label": "Padding top",
+        "default": 60
+      }, {
+        "type": "range",
+        "id": "padding_bottom",
+        "min": 0,
+        "max": 100,
+        "step": 4,
+        "unit": "px",
+        "label": "Padding bottom",
+        "default": 60
+      }
+    ],
+    "blocks": [
+      {
+        "type": "colorway",
+        "name": "Colorway",
+        "settings": [
+          {
+            "type": "image_picker",
+            "id": "colorway_image",
+            "label": "Colorway Image"
+          }, {
+            "type": "text",
+            "id": "colorway_label",
+            "label": "Colorway Label (on image)",
+            "default": "SUNRISE"
+          }, {
+            "type": "text",
+            "id": "gradient_background",
+            "label": "Gradient CSS for dot",
+            "default": "linear-gradient(116.85deg, #F9DD51 0.12%, #FFA846 43.72%, #DE5E54 75.01%, #362424 117.78%)",
+            "info": "Use CSS gradient syntax"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "category": "Product",
+        "name": "Product Colorways",
+        "settings": {
+          "heading_part1": "Sleek Style:",
+          "highlight_text1": "Sunrise",
+          "heading_part2": " & ",
+          "highlight_text2": "Midnight",
+          "description_line1": "Say goodbye to cold, industrial equipment.",
+          "description_line2": "With \"Sunrise\" & \"Midnight\" colorways, Spark dumbbell",
+          "description_line3": "is a stylish piece of your home decor.",
+          "heading_font_size": 32,
+          "description_font_size": 20,
+          "mobile_heading_font_size": 28,
+          "mobile_description_font_size": 18
+        },
+        "blocks": [
+          {
+            "type": "colorway",
+            "settings": {
+              "colorway_label": "SUNRISE",
+              "gradient_background": "linear-gradient(116.85deg, #F9DD51 0.12%, #FFA846 43.72%, #DE5E54 75.01%, #362424 117.78%)"
+            }
+          }, {
+            "type": "colorway",
+            "settings": {
+              "colorway_label": "MIDNIGHT",
+              "gradient_background": "linear-gradient(116.85deg, #E3E3E1 0.12%, #8F908F 58.95%, #262A2B 117.78%)"
+            }
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}

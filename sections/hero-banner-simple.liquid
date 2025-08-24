@@ -36,7 +36,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain !important;
   }
 
   .hero-simple__image--mobile {
@@ -62,11 +62,13 @@
     margin: 0 auto;
     padding: 0 20px;
     z-index: 2;
+    pointer-events: none;
   }
 
   .hero-simple__text {
     max-width: 625px;
     color: white;
+    pointer-events: auto;
   }
 
   .hero-simple__title {
@@ -78,7 +80,7 @@
 
   .hero-simple__subtitle {
     font-size: 16px;
-    font-weight: 400;
+    font-weight: 600;
     margin-bottom: 24px;
   }
 
@@ -160,80 +162,65 @@
     background: white;
     transform: scale(1.2);
   }
-  @media screen and (max-width: 1824px) {
-    .hero-simple {
-     height: 400px!important;
-    }
+  @media screen and (max-width: 1824px) {}
+@media screen and (max-width: 1280px) {
+  .hero-simple {
+    height: 320px !important;
   }
-@media screen and (max-width: 1456px) {
-    .hero-simple {
-      height: 300px!important;
-    }
+}
+@media screen and (max-width: 983px) {
+  .hero-simple {
+    height: 280px !important;
   }
-  @media screen and (max-width: 1093px) {
-    .hero-simple {
-      height: 270px!important;
-    }
-  }
-  @media screen and (max-width: 983px) {
-    .hero-simple {
-      height: 250px!important;
-    }
-  }
-  @media screen and (max-width: 910px) {
-    .hero-simple {
-      height: 200px!important;
-    }
-  }
-  @media screen and (max-width: 768px) {
-    .hero-simple {
-      height: 700px!important;
-    }
-    .hero-simple__image--desktop {
-      display: none;
-    }
+}
+@media screen and (max-width: 1093px) {}
+@media screen and (max-width: 910px) {}
+@media screen and (max-width: 768px) {
 
-    .hero-simple__image--mobile {
-      display: block;
-    }
+  .hero-simple__image--desktop {
+    display: none;
+  }
 
-    .hero-simple__title {
-      font-size: 36px;
-    }
+  .hero-simple__image--mobile {
+    display: block;
+  }
 
-    .hero-simple__nav {
-      width: 40px;
-      height: 40px;
-    }
+  .hero-simple__title {
+    font-size: 36px;
+  }
 
-    .hero-simple__nav--prev {
-      left: 10px;
-    }
+  .hero-simple__nav {
+    width: 40px;
+    height: 40px;
+  }
 
-    .hero-simple__nav--next {
-      right: 10px;
-    }
+  .hero-simple__nav--prev {
+    left: 10px;
   }
-  @media screen and (max-width: 627px) {
-    .hero-simple {
-      height: 600px!important;
-    }
+
+  .hero-simple__nav--next {
+    right: 10px;
   }
-  @media screen and (max-width: 536px) {
-    .hero-simple {
-      height: 500px!important;
-    }
+  .hero-simple {
+    height: 940px !important;
   }
-  @media screen and (max-width: 455px) {
-    .hero-simple {
-      height: 450px!important;
-    }
+}
+@media screen and (max-width: 627px) {
+  .hero-simple {
+    height: 800px !important;
   }
-  @media screen and (max-width: 400px) {
-    .hero-simple {
-      height: 400px!important;
-    }
+}
+@media screen and (max-width: 536px) {
+  .hero-simple {
+    height: 660px !important;
   }
+}
+@media screen and (max-width: 455px) {}
+@media screen and (max-width: 400px) {
+  .hero-simple {
+    height: 500px !important;
+  }
+}
 </style>
 
 <section class="hero-simple" data-hero-simple>
@@ -244,7 +231,7 @@
           <a
             href="{{ block.settings.slide_link }}"
             class="hero-simple__link"
-            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;"></a>
+            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 3;"></a>
         {% endif %}
 
         {% if block.settings.background_image != blank %}
@@ -279,6 +266,8 @@
                     color: {{ block.settings.button_1_text_color }};
                     border-color: {{ block.settings.button_1_border_color }};
                     background: {{ block.settings.button_1_bg_color }};
+                    position: relative;
+                    z-index: 4;
                   ">
                   {{ block.settings.button_1_text }}
                 </a>
@@ -291,6 +280,8 @@
                     color: {{ block.settings.button_2_text_color }};
                     border-color: {{ block.settings.button_2_border_color }};
                     background: {{ block.settings.button_2_bg_color }};
+                    position: relative;
+                    z-index: 4;
                   ">
                   {{ block.settings.button_2_text }}
                 </a>

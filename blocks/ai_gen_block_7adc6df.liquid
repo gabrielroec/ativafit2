@@ -1,0 +1,287 @@
+{% doc %}
+  @prompt
+    text paragraph layout
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-text-paragraph-{{ ai_gen_id }} {
+    padding: {{ block.settings.padding_top }}px {{ block.settings.padding_horizontal }}px {{ block.settings.padding_bottom }}px {{ block.settings.padding_horizontal }}px;
+    background-color: {{ block.settings.background_color }};
+    text-align: {{ block.settings.text_alignment }};
+    max-width: {{ block.settings.max_width }}px;
+    margin: 0 auto;
+  }
+
+  .ai-text-paragraph-heading-{{ ai_gen_id }} {
+    font-size: {{ block.settings.heading_size }}px;
+    color: {{ block.settings.heading_color }};
+    margin: 0 0 {{ block.settings.heading_margin_bottom }}px 0;
+    font-weight: {{ block.settings.heading_weight }};
+    line-height: 1.2;
+  }
+
+  .ai-text-paragraph-content-{{ ai_gen_id }} {
+    font-size: {{ block.settings.text_size }}px;
+    color: {{ block.settings.text_color }};
+    line-height: {{ block.settings.line_height }};
+    margin: 0;
+  }
+
+  .ai-text-paragraph-content-{{ ai_gen_id }} p {
+    margin: 0 0 {{ block.settings.paragraph_spacing }}px 0;
+  }
+
+  .ai-text-paragraph-content-{{ ai_gen_id }} p:last-child {
+    margin-bottom: 0;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-text-paragraph-{{ ai_gen_id }} {
+      padding: {{ block.settings.padding_top | times: 0.7 }}px {{ block.settings.padding_horizontal | times: 0.7 }}px {{ block.settings.padding_bottom | times: 0.7 }}px {{ block.settings.padding_horizontal | times: 0.7 }}px;
+      text-align: {{ block.settings.mobile_text_alignment }};
+    }
+
+    .ai-text-paragraph-heading-{{ ai_gen_id }} {
+      font-size: {{ block.settings.heading_size | times: 0.8 }}px;
+    }
+
+    .ai-text-paragraph-content-{{ ai_gen_id }} {
+      font-size: {{ block.settings.text_size | times: 0.9 }}px;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-text-paragraph-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  {% if block.settings.heading != blank %}
+    <h2 class="ai-text-paragraph-heading-{{ ai_gen_id }}">
+      {{ block.settings.heading }}
+    </h2>
+  {% endif %}
+
+  {% if block.settings.content != blank %}
+    <div class="ai-text-paragraph-content-{{ ai_gen_id }}">
+      {{ block.settings.content }}
+    </div>
+  {% else %}
+    <div class="ai-text-paragraph-content-{{ ai_gen_id }}" style="color: #999; font-style: italic;">
+      Add your text content here
+    </div>
+  {% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "Text paragraph",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading"
+    },
+    {
+      "type": "richtext",
+      "id": "content",
+      "label": "Text content",
+      "default": "<p>Add your paragraph text here. You can format it with bold, italic, and other rich text options.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "select",
+      "id": "mobile_text_alignment",
+      "label": "Mobile text alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Maximum width",
+      "min": 400,
+      "max": 1200,
+      "step": 50,
+      "unit": "px",
+      "default": 800
+    },
+    {
+      "type": "header",
+      "content": "Heading style"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size",
+      "min": 16,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 28
+    },
+    {
+      "type": "select",
+      "id": "heading_weight",
+      "label": "Heading weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Normal"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi-bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ],
+      "default": "600"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#333333"
+    },
+    {
+      "type": "range",
+      "id": "heading_margin_bottom",
+      "label": "Heading bottom spacing",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Text style"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "Text size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#333333"
+    },
+    {
+      "type": "range",
+      "id": "line_height",
+      "label": "Line height",
+      "min": 1,
+      "max": 2,
+      "step": 0.1,
+      "default": 1.6
+    },
+    {
+      "type": "range",
+      "id": "paragraph_spacing",
+      "label": "Paragraph spacing",
+      "min": 0,
+      "max": 32,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_horizontal",
+      "label": "Horizontal padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Text paragraph"
+    }
+  ]
+}
+{% endschema %}

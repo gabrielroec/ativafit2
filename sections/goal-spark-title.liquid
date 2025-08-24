@@ -1,0 +1,683 @@
+<section
+  class="section goal-spark-title"
+  data-section-id="{{ section.id }}"
+  data-section-type="goal-spark-title"
+  style="padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px;">
+  <div class="container">
+    {%- if section.settings.main_title_part1 != blank or section.settings.spark_text != blank -%}
+      <h2 class="goal-spark-title__heading">
+        {{ section.settings.main_title_part1 }}
+        <span class="spark-highlight">{{ section.settings.spark_text }}</span>
+        {{ section.settings.main_title_part2 }}
+      </h2>
+    {%- endif -%}
+
+    {%- if section.blocks.size > 0 -%}
+      <!-- Desktop/Tablet Grid -->
+      <div class="strength-cards-desktop">
+        <div class="strength-cards-grid">
+          {%- for block in section.blocks -%}
+            <div class="strength-card" {{ block.shopify_attributes }}>
+              <div class="strength-card__image">
+                {%- if block.settings.card_image != blank -%}
+                  <img
+                    src="{{ block.settings.card_image | img_url: '400x450' }}"
+                    alt="{{ block.settings.card_image.alt | default: block.settings.card_title }}"
+                    width="400"
+                    height="450"
+                    loading="lazy">
+                {%- else -%}
+                  {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-image' }}
+                {%- endif -%}
+              </div>
+              <div class="strength-card__content">
+                {%- if block.settings.card_title != blank -%}
+                  <h3 class="strength-card__title">{{ block.settings.card_title | escape }}</h3>
+                {%- endif -%}
+
+                {%- if block.settings.card_quote_part1 != blank -%}
+                  <p class="strength-card__quote">
+                    "{{ block.settings.card_quote_part1 }}
+                    {%- if block.settings.card_spark_text != blank -%}
+                      <span class="spark-text">{{ block.settings.card_spark_text }}</span>
+                    {%- endif -%}
+                    {{ block.settings.card_quote_part2 }}"
+                  </p>
+                {%- endif -%}
+              </div>
+            </div>
+          {%- endfor -%}
+        </div>
+      </div>
+
+      <!-- Mobile Slider -->
+      <div class="strength-cards-mobile" id="mobile-slider-{{ section.id }}">
+        <div class="mobile-slider-container">
+          <div class="mobile-slide active" data-slide="0">
+            {%- for block in section.blocks -%}
+              <div
+                class="mobile-card{% unless forloop.first %} hidden{% endunless %}"
+                data-card="{{ forloop.index0 }}"
+                {{ block.shopify_attributes }}>
+                <div class="mobile-card__image">
+                  {%- if block.settings.card_image != blank -%}
+                    <img
+                      src="{{ block.settings.card_image | img_url: '400x450' }}"
+                      alt="{{ block.settings.card_image.alt | default: block.settings.card_title }}"
+                      width="400"
+                      height="450"
+                      loading="lazy">
+                  {%- else -%}
+                    {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-image' }}
+                  {%- endif -%}
+                </div>
+                <div class="mobile-card__content">
+                  {%- if block.settings.card_title != blank -%}
+                    <h3 class="mobile-card__title">{{ block.settings.card_title | escape }}</h3>
+                  {%- endif -%}
+
+                  {%- if block.settings.card_quote_part1 != blank -%}
+                    <p class="mobile-card__quote">
+                      "{{ block.settings.card_quote_part1 }}
+                      {%- if block.settings.card_spark_text != blank -%}
+                        <span class="spark-text">{{ block.settings.card_spark_text }}</span>
+                      {%- endif -%}
+                      {{ block.settings.card_quote_part2 }}"
+                    </p>
+                  {%- endif -%}
+
+
+                </div>
+              </div>
+            {%- endfor -%}
+          </div>
+        </div>
+
+        {%- if section.blocks.size > 1 -%}
+          <div class="mobile-dots" id="mobile-dots-{{ section.id }}">
+            {%- for block in section.blocks -%}
+              <button class="mobile-dot{% if forloop.first %} active{% endif %}" data-slide="{{ forloop.index0 }}"></button>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+<style>
+  .goal-spark-title {
+    padding: 40px 0;
+  }
+
+  .goal-spark-title__heading {
+    font-family: 'Barlow'
+    , sans-serif;
+    font-weight: 700;
+    font-size: 40px;
+    line-height: 42px;
+    letter-spacing: 0;
+    text-align: center;
+    margin: 0 0 60px;
+    color: inherit;
+  }
+
+  .spark-highlight {
+    color: #EB701F;
+  }
+
+  .strength-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(400px, 450px));
+    gap: 60px 70px;
+    justify-content: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 30px;
+  }
+
+  /* Ajustes responsivos para telas maiores - SEMPRE 2 COLUNAS */
+  @media (min-width: 1200px) {
+    .strength-cards-grid {
+      grid-template-columns: repeat(2, minmax(450px, 500px));
+      max-width: 1400px;
+      gap: 60px 80px;
+      padding: 0 40px;
+    }
+  }
+
+  @media (min-width: 1440px) {
+    .strength-cards-grid {
+      grid-template-columns: repeat(2, minmax(500px, 550px));
+      max-width: 1600px;
+      gap: 60px 90px;
+      padding: 0 50px;
+    }
+  }
+
+  @media (min-width: 1680px) {
+    .strength-cards-grid {
+      grid-template-columns: repeat(2, minmax(550px, 600px));
+      max-width: 1800px;
+      gap: 60px 100px;
+      padding: 0 60px;
+    }
+  }
+
+  @media (min-width: 1920px) {
+    .strength-cards-grid {
+      grid-template-columns: repeat(2, minmax(600px, 650px));
+      max-width: 2000px;
+      gap: 60px 110px;
+      padding: 0 70px;
+    }
+  }
+
+  @media (min-width: 2200px) {
+    .strength-cards-grid {
+      grid-template-columns: repeat(2, minmax(650px, 700px));
+      max-width: 2200px;
+      gap: 60px 120px;
+      padding: 0 80px;
+    }
+  }
+
+  .strength-card {
+    background: #ffffff;
+    border-radius: 35px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease
+    , box-shadow 0.3s ease;
+    width: 100%;
+    max-width: 450px;
+  }
+
+  /* Cards crescem progressivamente em telas maiores */
+  @media (min-width: 1200px) {
+    .strength-card {
+      max-width: 500px;
+    }
+  }
+
+  @media (min-width: 1440px) {
+    .strength-card {
+      max-width: 550px;
+    }
+  }
+
+  @media (min-width: 1680px) {
+    .strength-card {
+      max-width: 600px;
+    }
+  }
+
+  @media (min-width: 1920px) {
+    .strength-card {
+      max-width: 650px;
+    }
+  }
+
+  @media (min-width: 2200px) {
+    .strength-card {
+      max-width: 700px;
+    }
+  }
+
+  .strength-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  .strength-card__image {
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+    border-radius: 35px;
+  }
+
+  /* Altura da imagem cresce proporcionalmente */
+  @media (min-width: 1200px) {
+    .strength-card__image {
+      height: 400px;
+    }
+  }
+
+  @media (min-width: 1440px) {
+    .strength-card__image {
+      height: 400px;
+    }
+  }
+
+  @media (min-width: 1680px) {
+    .strength-card__image {
+      height: 400px;
+    }
+  }
+
+  @media (min-width: 1920px) {
+    .strength-card__image {
+      height: 400px;
+    }
+  }
+
+  @media (min-width: 2200px) {
+    .strength-card__image {
+      height: 400px;
+    }
+  }
+
+  .strength-card__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    /* Posiciona a imagem no topo e centralizada horizontalmente */
+    display: block;
+    border-radius: 35px;
+  }
+  .strength-card__image svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 35px;
+  }
+
+  .strength-card__content {
+    padding: 34px 17px;
+  }
+
+  .strength-card__title {
+    font-family: 'Barlow'
+    , sans-serif;
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 31px;
+    letter-spacing: 0;
+    color: #000000;
+    margin: 0 0 16px;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .strength-card__quote {
+    font-family: 'Barlow'
+    , sans-serif;
+    font-weight: 500 !important;
+    font-style: italic;
+    font-size: 18px;
+    line-height: 20px;
+    letter-spacing: 0;
+    color: #EB701F;
+    margin: 0;
+    width: 100%;
+    max-width: 350px;
+  }
+
+  .spark-text {
+    font-weight: 700;
+    color: #EB701F;
+  }
+
+  /* Desktop/Tablet Grid */
+  .strength-cards-desktop {
+    display: block;
+  }
+
+  .strength-cards-mobile {
+    display: none;
+  }
+
+  /* Mobile Components */
+  .mobile-slider-container {
+    position: relative;
+    width: 100%;
+    overflow: visible;
+  }
+
+  .mobile-card {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 35px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .mobile-card.hidden {
+    display: none;
+  }
+
+  .mobile-card__image {
+    width: 100%;
+    height: 400px;
+    overflow: visible;
+    border-radius: 35px;
+    aspect-ratio: 1 / 1;
+  }
+
+  .mobile-card__image img,
+  .mobile-card__image svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 35px;
+  }
+
+  .mobile-card__content {
+    padding: 34px 17px;
+  }
+
+  .mobile-card__title {
+    font-family: 'Barlow'
+    , sans-serif;
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 31px;
+    letter-spacing: 0;
+    color: #000000;
+    margin: 0 0 16px;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .mobile-card__quote {
+    font-family: 'Barlow'
+    , sans-serif;
+    font-weight: 500 !important;
+    font-style: italic;
+    font-size: 18px;
+    line-height: 20px;
+    letter-spacing: 0;
+    color: #EB701F;
+    margin: 0;
+    width: 100%;
+    max-width: 350px;
+  }
+
+  /* Mobile Dots */
+  .mobile-dots {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 30px;
+  }
+
+  .mobile-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: none;
+    background-color: #E0E0E0;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .mobile-dot.active,
+  .mobile-dot:hover {
+    background-color: #EB701F;
+  }
+
+  /* Responsive Breakpoints - Mantém 2 por linha até 1024px */
+  @media (max-width: 1199px) and (min-width: 1025px) {
+    .strength-cards-grid {
+      grid-template-columns: repeat(2, minmax(350px, 450px));
+      max-width: 1000px;
+      gap: 50px 60px;
+      padding: 0 30px;
+    }
+
+    .strength-card {
+      max-width: 450px;
+    }
+
+    .strength-card__image {
+      height: 400px;
+    }
+  }
+
+  /* Mobile breakpoint - a partir de 1024px para baixo */
+  @media (max-width: 1024px) {
+    .goal-spark-title__heading {
+      font-size: 32px;
+      line-height: 36px;
+      margin-bottom: 40px;
+    }
+
+    .strength-cards-desktop {
+      display: none;
+    }
+
+    .strength-cards-mobile {
+      display: block;
+      padding: 0 20px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .strength-cards-mobile {
+      padding: 0 15px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .strength-cards-mobile {
+      padding: 0 10px;
+    }
+
+    .mobile-card__content {
+      padding: 20px;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+  const sectionId = '{{ section.id }}';
+  const mobileSlider = document.getElementById('mobile-slider-' + sectionId);
+  const mobileDotsContainer = document.getElementById('mobile-dots-' + sectionId);
+  
+  if (!mobileSlider) return;
+  
+  const mobileCards = mobileSlider.querySelectorAll('.mobile-card');
+  
+  if (mobileCards.length === 0) return;
+  
+  let currentSlide = 0;
+  
+  function showMobileSlide(index) {
+    // Validate index
+    if (index < 0 || index >= mobileCards.length) {
+      return;
+    }
+    
+    // Hide all cards
+    mobileCards.forEach((card, i) => {
+      card.classList.toggle('hidden', i !== index);
+    });
+    
+    // Update dots
+    if (mobileDotsContainer) {
+      const mobileDots = mobileDotsContainer.querySelectorAll('.mobile-dot');
+      mobileDots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === index);
+      });
+    }
+    
+    currentSlide = index;
+  }
+  
+  function nextSlide() {
+    const newSlide = currentSlide < mobileCards.length - 1 ? currentSlide + 1 : 0;
+    showMobileSlide(newSlide);
+  }
+  
+  function prevSlide() {
+    const newSlide = currentSlide > 0 ? currentSlide - 1 : mobileCards.length - 1;
+    showMobileSlide(newSlide);
+  }
+  
+  // Add click events to dots
+  if (mobileDotsContainer) {
+    const mobileDots = mobileDotsContainer.querySelectorAll('.mobile-dot');
+    mobileDots.forEach((dot, index) => {
+      dot.addEventListener('click', () => {
+        showMobileSlide(index);
+      });
+    });
+  }
+  
+  // Touch/swipe support - igual ao sistema das video reviews
+  let touchStartX = 0;
+  let touchMoved = false;
+  
+  mobileSlider.addEventListener('touchstart', (e) => {
+    if (window.innerWidth > 1024) return;
+    touchStartX = e.touches[0].clientX;
+    touchMoved = false;
+  }, { passive: true });
+  
+  mobileSlider.addEventListener('touchmove', (e) => {
+    if (window.innerWidth > 1024) return;
+    const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
+    if (deltaX > 15) {
+      touchMoved = true;
+      e.preventDefault();
+    }
+  }, { passive: false });
+  
+  mobileSlider.addEventListener('touchend', (e) => {
+    if (window.innerWidth > 1024 || !touchMoved) return;
+    
+    const touchEndX = e.changedTouches[0].clientX;
+    const deltaX = touchEndX - touchStartX;
+    const threshold = 75;
+    
+    if (Math.abs(deltaX) > threshold) {
+      if (deltaX > 0 && currentSlide > 0) {
+        showMobileSlide(currentSlide - 1);
+      } else if (deltaX < 0 && currentSlide < mobileCards.length - 1) {
+        showMobileSlide(currentSlide + 1);
+      }
+    }
+  }, { passive: true });
+  
+  // Initialize mobile slider
+  showMobileSlide(0);
+  
+  console.log('Mobile slider initialized with', mobileCards.length, 'cards');
+  });
+</script>
+
+{% schema %}
+  {
+    "name": "Goal Spark Title",
+    "max_blocks": 6,
+    "settings": [
+      {
+        "type": "header",
+        "content": "Main Title Settings"
+      },
+      {
+        "type": "text",
+        "id": "main_title_part1",
+        "label": "Title Part 1",
+        "default": "For Every Goal, A New"
+      },
+      {
+        "type": "text",
+        "id": "spark_text",
+        "label": "Spark Text (highlighted)",
+        "default": "Spark"
+      },
+      {
+        "type": "text",
+        "id": "main_title_part2",
+        "label": "Title Part 2 (optional)"
+      }, {
+        "type": "header",
+        "content": "Spacing Settings"
+      }, {
+        "type": "range",
+        "id": "padding_top",
+        "min": 0,
+        "max": 100,
+        "step": 4,
+        "unit": "px",
+        "label": "Padding top",
+        "default": 40
+      }, {
+        "type": "range",
+        "id": "padding_bottom",
+        "min": 0,
+        "max": 100,
+        "step": 4,
+        "unit": "px",
+        "label": "Padding bottom",
+        "default": 40
+      }
+    ],
+    "blocks": [
+      {
+        "type": "strength_card",
+        "name": "Strength Card",
+        "settings": [
+          {
+            "type": "image_picker",
+            "id": "card_image",
+            "label": "Card Image"
+          },
+          {
+            "type": "text",
+            "id": "card_title",
+            "label": "Card Title",
+            "default": "New to Strength Training"
+          },
+          {
+            "type": "text",
+            "id": "card_quote_part1",
+            "label": "Quote Part 1",
+            "default": "I always wanted to start but felt intimidated."
+          },
+          {
+            "type": "text",
+            "id": "card_spark_text",
+            "label": "Spark Text in Quote",
+            "default": "Spark"
+          }, {
+            "type": "text",
+            "id": "card_quote_part2",
+            "label": "Quote Part 2",
+            "default": "was the perfect first step."
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "category": "Text",
+        "name": "Goal Spark Title",
+        "settings": {
+          "main_title_part1": "For Every Goal, A New",
+          "spark_text": "Spark"
+        },
+        "blocks": [
+          {
+            "type": "strength_card",
+            "settings": {
+              "card_title": "New to Strength Training",
+              "card_quote_part1": "I always wanted to start but felt intimidated.",
+              "card_spark_text": "Spark",
+              "card_quote_part2": "was the perfect first step."
+            }
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}
