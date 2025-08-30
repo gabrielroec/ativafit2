@@ -129,57 +129,31 @@
 
   .strength-cards-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(400px, 450px));
-    gap: 60px 70px;
-    justify-content: center;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 30px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+    width: 100%;
   }
 
-  /* Ajustes responsivos para telas maiores - SEMPRE 2 COLUNAS */
+  /* Ajustes responsivos para telas maiores - 3 colunas quando houver 3+ itens */
   @media (min-width: 1200px) {
     .strength-cards-grid {
-      grid-template-columns: repeat(2, minmax(450px, 500px));
-      max-width: 1400px;
-      gap: 60px 80px;
-      padding: 0 40px;
-    }
-  }
-
-  @media (min-width: 1440px) {
-    .strength-cards-grid {
-      grid-template-columns: repeat(2, minmax(500px, 550px));
-      max-width: 1600px;
-      gap: 60px 90px;
-      padding: 0 50px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 50px;
     }
   }
 
   @media (min-width: 1680px) {
     .strength-cards-grid {
-      grid-template-columns: repeat(2, minmax(550px, 600px));
-      max-width: 1800px;
-      gap: 60px 100px;
-      padding: 0 60px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 70px;
     }
   }
 
-  @media (min-width: 1920px) {
-    .strength-cards-grid {
-      grid-template-columns: repeat(2, minmax(600px, 650px));
-      max-width: 2000px;
-      gap: 60px 110px;
-      padding: 0 70px;
-    }
-  }
 
   @media (min-width: 2200px) {
     .strength-cards-grid {
-      grid-template-columns: repeat(2, minmax(650px, 700px));
-      max-width: 2200px;
-      gap: 60px 120px;
-      padding: 0 80px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
     }
   }
 
@@ -423,17 +397,16 @@
     background-color: #EB701F;
   }
 
-  /* Responsive Breakpoints - Mantém 2 por linha até 1024px */
+  /* Responsive Breakpoints - 2 por linha em telas médias */
   @media (max-width: 1199px) and (min-width: 1025px) {
     .strength-cards-grid {
-      grid-template-columns: repeat(2, minmax(350px, 450px));
-      max-width: 1000px;
-      gap: 50px 60px;
-      padding: 0 30px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 40px;
+      width: 100%;
     }
 
     .strength-card {
-      max-width: 450px;
+      max-width: none;
     }
 
     .strength-card__image {
@@ -455,7 +428,6 @@
 
     .strength-cards-mobile {
       display: block;
-      padding: 0 20px;
     }
   }
 
@@ -571,6 +543,37 @@
   showMobileSlide(0);
   
   console.log('Mobile slider initialized with', mobileCards.length, 'cards');
+  });
+
+  // Desktop Grid Layout Management
+  document.addEventListener('DOMContentLoaded', function() {
+    const sectionId = '{{ section.id }}';
+    const strengthCardsGrid = document.querySelector(`[data-section-id="${sectionId}"] .strength-cards-grid`);
+    
+    if (!strengthCardsGrid) return;
+    
+    const strengthCards = strengthCardsGrid.querySelectorAll('.strength-card');
+    const totalCards = strengthCards.length;
+    
+    console.log('Total strength cards:', totalCards);
+    
+    // Aplicar layout baseado no número de cards
+    if (totalCards === 2) {
+      strengthCardsGrid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+      strengthCardsGrid.style.maxWidth = '900px';
+      strengthCardsGrid.style.margin = '0 auto';
+      console.log('Applied 2-column layout');
+    } else if (totalCards === 3) {
+      strengthCardsGrid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+      strengthCardsGrid.style.maxWidth = 'none';
+      strengthCardsGrid.style.margin = '0';
+      console.log('Applied 3-column layout');
+    } else if (totalCards >= 4) {
+      strengthCardsGrid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+      strengthCardsGrid.style.maxWidth = 'none';
+      strengthCardsGrid.style.margin = '0';
+      console.log('Applied 2x2 layout for', totalCards, 'cards');
+    }
   });
 </script>
 

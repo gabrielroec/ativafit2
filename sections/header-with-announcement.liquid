@@ -7,28 +7,39 @@
 {%- style -%}
   /* UNIFIED HEADER + ANNOUNCEMENT BAR COMPONENT */
 
-  /* Container principal sticky */.unified-header {
-    position: fixed;
+  /* Container principal - INICIALMENTE RELATIVE, NÃO FIXED */.unified-header {
+    position: relative;
+    /* MUDANÇA: era 'fixed', agora é 'relative' */
     top: 0;
     left: 0;
     right: 0;
     z-index: 100;
     background: #fff;
+    transition: all 0.3s ease;
+    transform: translateY(0);
   }
 
+  /* QUANDO STICKY - então vira fixed com transições suaves */
   .unified-header.sticky {
+    position: fixed;
+    top: 0;
     backdrop-filter: blur(10px);
     box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(0);
   }
 
   /* ANNOUNCEMENT BAR SECTION */
   .announcement-section {
     background: #000000;
     border-bottom: 1px solid #333;
+    transition: all 0.3s ease;
   }
 
   .unified-header.sticky .announcement-section {
     background: rgba(0, 0, 0, 0.95);
+    padding: 4px 0;
+    /* Reduz o padding vertical quando sticky */
+    border-bottom-color: rgba(51, 51, 51, 0.7);
   }
 
   .announcement-bar {
@@ -62,10 +73,12 @@
     white-space: nowrap;
     padding-right: 100px;
     display: inline-block;
+    transition: color 0.3s ease;
   }
 
   .announcement-bar__text:hover {
     color: #eb701f;
+    transform: translateY(-1px);
   }
 
   @keyframes scroll-text {
@@ -132,6 +145,7 @@
   .announcement-bar__button:hover {
     background: #d65a0f;
     transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(235, 112, 31, 0.3);
   }
 
   /* HEADER SECTION */
@@ -139,10 +153,14 @@
     background: #fff;
     border-bottom: 1px solid #cdcdcd;
     padding: 20px;
+    transition: all 0.3s ease;
   }
 
   .unified-header.sticky .header-section {
     background: rgba(255, 255, 255, 0.95);
+    padding: 12px 20px;
+    /* Reduz o padding vertical quando sticky */
+    border-bottom-color: rgba(205, 205, 205, 0.5);
   }
 
   .header-container {
@@ -154,6 +172,14 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    transition: all 0.3s ease;
+  }
+
+  .unified-header.sticky .header-navigation-section {
+    gap: 20px;
+    /* Reduz o gap quando sticky */
+    margin-top: 5px;
+    /* Reduz o margin quando sticky */
   }
 
   .header-logo-section {
@@ -162,22 +188,43 @@
     align-items: center;
     margin-bottom: 0;
     gap: 30px;
+    transition: all 0.3s ease;
+  }
+
+  .unified-header.sticky .header-logo-section {
+    gap: 20px;
+    /* Reduz o gap quando sticky */
   }
 
   .header-logo {
     max-width: {{ section.settings.logo_max_width }}px;
+    transition: all 0.3s ease;
+  }
+
+  .unified-header.sticky .header-logo {
+    max-width: calc({{ section.settings.logo_max_width }}px * 0.85);
+    /* Reduz um pouco mais o logo */
   }
 
   .header-logo img {
     width: 100%;
     height: auto;
     display: block;
+    transition: all 0.3s ease;
   }
 
   .header-navigation {
     display: flex;
     gap: 30px;
     margin-top: 11px;
+    transition: all 0.3s ease;
+  }
+
+  .unified-header.sticky .header-navigation {
+    gap: 20px;
+    /* Reduz o gap quando sticky */
+    margin-top: 5px;
+    /* Reduz o margin quando sticky */
   }
 
   .header-navigation__item {
@@ -190,14 +237,31 @@
     font-size: 16px;
     font-weight: 600;
     text-transform: capitalize;
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
     gap: 5px;
+    position: relative;
+  }
+
+  .header-navigation__link::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #eb7122, #ff8c42);
+    transition: width 0.3s ease;
+  }
+
+  .header-navigation__link:hover::after {
+    width: 100%;
   }
 
   .header-navigation__link:hover {
     color: #eb7122;
+    transform: translateY(-1px);
   }
 
   .header-navigation__dropdown {
@@ -211,7 +275,7 @@
     visibility: hidden;
     transform: translateY(-10px);
     z-index: 10;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s ease;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
   }
@@ -230,7 +294,7 @@
     display: flex;
     gap: 10px;
     align-items: center;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s ease;
     position: relative;
   }
 
@@ -242,7 +306,7 @@
     width: 0;
     height: 100%;
     background: linear-gradient(90deg, #eb7122, #ff8c42);
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width 0.3s ease;
     z-index: -1;
   }
 
@@ -258,15 +322,24 @@
     display: flex;
     gap: 9px;
     align-items: center;
+    transition: all 0.3s ease;
+  }
+
+  .unified-header.sticky .header-actions {
+    gap: 6px;
+    /* Reduz o gap quando sticky */
   }
 
   .header-actions a {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s ease;
     transform: scale(1);
+    padding: 8px;
+    border-radius: 8px;
   }
 
   .header-actions a:hover {
     transform: scale(1.1);
+    background: rgba(235, 112, 31, 0.1);
   }
 
   .cart-count {
@@ -284,6 +357,18 @@
     justify-content: center;
     border: 3px solid #fff;
     border-radius: 1000px;
+    transition: all 0.3s ease;
+    animation: cartCountPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes cartCountPulse {
+    0,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
   }
 
   .header-cart {
@@ -294,6 +379,11 @@
     width: 12px;
     height: 12px;
     fill: currentColor;
+    transition: transform 0.3s ease;
+  }
+
+  .header-navigation__link:hover .icon-arrow {
+    transform: rotate(180deg);
   }
 
   /* MOBILE MENU */
@@ -301,75 +391,30 @@
     display: none;
     background: none;
     border: none;
-    color: #000;
-    font-size: 32px;
+    font-size: 24px;
     cursor: pointer;
-    margin-right: 20px;
-    z-index: 120;
+    color: #222021;
+    padding: 5px;
+    transition: all 0.3s ease;
   }
 
-  .header-mobile-menu {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 80vw;
-    max-width: 350px;
-    height: 100vh;
-    background: #1a1a1a;
-    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.2);
-    transform: translateX(-100%);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 200;
-    padding: 40px 24px 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
-
-  .header-mobile-menu.open {
-    transform: translateX(0);
-  }
-
-  .header-mobile-menu-close {
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 32px;
-    align-self: flex-end;
-    cursor: pointer;
-    margin-bottom: 24px;
-  }
-
-  .header-mobile-menu-nav {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
-
-  .header-mobile-menu-link {
-    color: #fff;
-    text-decoration: none;
-    font-size: 20px;
-    font-weight: 600;
-    text-transform: uppercase;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    transform: translateX(0);
-  }
-
-  .header-mobile-menu-link:hover {
+  .header-mobile-menu-icon:hover {
     color: #eb7122;
-    transform: translateX(5px);
+    transform: scale(1.1);
   }
 
   .header-mobile-menu-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
     opacity: 0;
     visibility: hidden;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 150;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
   }
 
   .header-mobile-menu-backdrop.open {
@@ -377,25 +422,172 @@
     visibility: visible;
   }
 
-  /* SPACER */
-  .unified-header-spacer {
-    height: 0;
+  .header-mobile-menu {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    /* MUDANÇA: era 80%, agora é 100% */
+    max-width: 100%;
+    /* MUDANÇA: era 300px, agora é 100% */
+    height: 100vh;
+    /* MUDANÇA: era 100%, agora é 100vh para garantir altura total */
+    background: #fff;
+    z-index: 1001;
+    transition: left 0.3s ease;
+    padding: 20px;
+    overflow-y: auto;
+    box-shadow: 4px 0 25px rgba(0, 0, 0, 0.15);
+  }
+
+  .header-mobile-menu.open {
+    left: 0;
+  }
+
+  .header-mobile-menu-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #222021;
+    transition: all 0.3s ease;
+  }
+
+  .header-mobile-menu-close:hover {
+    color: #eb7122;
+    transform: scale(1.1);
+  }
+
+  .header-mobile-menu-nav {
+    margin-top: 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    /* MUDANÇA: era 20px, agora é 0 para melhor organização */
+  }
+
+  .header-mobile-menu-item {
+    border-bottom: 1px solid #eee;
+  }
+
+  .header-mobile-menu-link {
+    color: #222021;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: 600;
+    padding: 15px 0;
+    /* MUDANÇA: era 10px, agora é 15px para melhor toque */
+    transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .header-mobile-menu-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #eb7122, #ff8c42);
+    transition: width 0.3s ease;
+  }
+
+  .header-mobile-menu-link:hover::before {
+    width: 100%;
+  }
+
+  .header-mobile-menu-link:hover {
+    color: #eb7122;
+    transform: translateX(5px);
+  }
+
+  /* NOVO: Submenu mobile */
+  .header-mobile-submenu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    background: #f8f8f8;
+    margin: 0 -20px;
+    padding: 0 20px;
+  }
+
+  .header-mobile-submenu.open {
+    max-height: 500px;
+    /* Altura suficiente para o submenu */
+  }
+
+  .header-mobile-submenu-link {
+    color: #666;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 12px 20px;
     display: block;
+    border-bottom: 1px solid #eee;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .header-mobile-submenu-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #eb7122, #ff8c42);
+    transition: width 0.3s ease;
+    z-index: -1;
+  }
+
+  .header-mobile-submenu-link:hover::before {
+    width: 100%;
+  }
+
+  .header-mobile-submenu-link:hover {
+    color: #ffffff;
+    transform: translateX(10px);
+  }
+
+  /* NOVO: Ícone de seta para submenus */
+  .mobile-menu-arrow {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+    transition: transform 0.3s ease;
+  }
+
+  .header-mobile-menu-item.has-submenu .mobile-menu-arrow {
+    transform: rotate(0deg);
+  }
+
+  .header-mobile-menu-item.has-submenu.open .mobile-menu-arrow {
+    transform: rotate(180deg);
   }
 
   /* RESPONSIVE */
-  @media screen and (max-width: 1080px) {
+  @media (max-width: 768px) {
     .header-navigation {
       display: none;
     }
+
     .header-mobile-menu-icon {
       display: block;
     }
-  }
 
-  @media screen and (max-width: 768px) {
-    .announcement-bar__text--static {
-      max-width: 100%;
+    .header-logo-section {
+      gap: 15px;
+    }
+
+    .header-section {
+      padding: 15px;
     }
 
     .announcement-bar__button {
@@ -403,9 +595,82 @@
     }
   }
 
+  /* SPACER - INICIALMENTE 0, só cresce quando sticky */
+  .unified-header-spacer {
+    height: 0;
+    transition: height 0.3s ease;
+    overflow: hidden;
+  }
+
+  /* QUANDO STICKY - spacer cresce para compensar */
+  .unified-header.sticky + .unified-header-spacer {
+    height: var(--unified-header-height, 0px);
+  }
+
+  /* Indicador visual sutil para mostrar que o header está sticky */
+  .unified-header.sticky::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #eb701f, #ff8c42);
+    background-size: 200% 100%;
+    animation: stickyIndicator 2s ease-in-out infinite;
+  }
+
+  @keyframes stickyIndicator {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  /* PROGRESS BAR - Substitui a barrinha laranja */
+  .unified-header.sticky::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--scroll-progress, 0%);
+    /* Usa a variável CSS para largura dinâmica */
+    height: 3px;
+    background: linear-gradient(90deg, #eb701f, #ff8c42);
+    transition: width 0.1s ease;
+    z-index: 101;
+  }
+
+  /* Remove a animação antiga */
+
+
+  /*
+
+   @keyframes stickyIndicator { 
+   0% { 
+   background-position: 200% 0; 
+   } 
+   100% { 
+   background-position: -200% 0; 
+   } 
+   } 
+*/
+
+  /* Efeito de hover nos elementos do header quando sticky */
+  .unified-header.sticky .header-navigation__link:hover {
+    transform: translateY(-2px);
+  }
+
+  .unified-header.sticky .header-actions a:hover {
+    transform: scale(1.15);
+    background: rgba(235, 112, 31, 0.15);
+  }
+
 {%- endstyle -%}
 
-<!-- Spacer para compensar o espaço do header fixo -->
+<!-- Spacer para compensar o espaço do header quando sticky -->
 <div class="unified-header-spacer" id="unified-header-spacer"></div>
 
 <!-- Componente Unificado Header + Announcement -->
@@ -623,7 +888,27 @@
       {%- assign navigation_menu_handle = section.settings.navigation_menu | default: 'main-menu-new-0411' -%}
       {%- assign navigation_menu = linklists[navigation_menu_handle] -%}
       {%- for link in navigation_menu.links -%}
-        <a href="{{ link.url }}" class="header-mobile-menu-link">{{ link.title }}</a>
+        <div class="header-mobile-menu-item{% if link.links.size > 0 %} has-submenu{% endif %}">
+          <a href="{{ link.url }}" class="header-mobile-menu-link">
+            {{ link.title }}
+            {%- if link.links.size > 0 -%}
+              <svg class="mobile-menu-arrow" viewBox="0 0 12 8">
+                <path
+                  d="M1 1l5 5 5-5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2" />
+              </svg>
+            {%- endif -%}
+          </a>
+          {%- if link.links.size > 0 -%}
+            <div class="header-mobile-submenu">
+              {%- for childlink in link.links -%}
+                <a href="{{ childlink.url }}" class="header-mobile-submenu-link">{{ childlink.title }}</a>
+              {%- endfor -%}
+            </div>
+          {%- endif -%}
+        </div>
       {%- endfor -%}
     </div>
   </nav>
@@ -636,7 +921,7 @@
       this.header = document.getElementById('unified-header');
       this.spacer = document.getElementById('unified-header-spacer');
       this.lastScrollTop = 0;
-      this.scrollThreshold = 50;
+      this.scrollThreshold = 100;
       this.headerHeight = 0;
       this.isSticky = false;
       
@@ -646,16 +931,20 @@
     init() {
       if (!this.header) return;
   
-            // Calcula altura inicial com delay para garantir que o DOM esteja pronto
+      // Calcula altura inicial com delay para garantir que o DOM esteja pronto
       setTimeout(() => this.updateHeight(), 100);
       setTimeout(() => this.updateHeight(), 500);
   
-      // Throttled scroll handler
-      let lastScrollTime = Date.now();
+      // Scroll handler otimizado
+      let ticking = false;
       window.addEventListener('scroll', () => {
-        if (Date.now() - lastScrollTime > 10) {
-          this.checkPosition();
-          lastScrollTime = Date.now();
+        if (!ticking) {
+          requestAnimationFrame(() => {
+            this.checkPosition();
+            this.updateProgressBar(); // NOVO: Atualiza a progress bar
+            ticking = false;
+          });
+          ticking = true;
         }
       }, { passive: true });
   
@@ -676,36 +965,64 @@
       
       this.headerHeight = this.header.offsetHeight;
       
-      // Inicialmente o spacer deve ser 0 (header não está sticky)
+      // Inicialmente o spacer deve ser 0
       if (!this.isSticky) {
         this.spacer.style.height = '0px';
       }
       
       // Set CSS custom properties for other components
       document.documentElement.style.setProperty('--unified-header-height', `${this.headerHeight}px`);
-      
-      console.log('Header height updated:', this.headerHeight + 'px', 'Sticky:', this.isSticky);
     }
   
-            checkPosition() {
+    checkPosition() {
       const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
       
-      if (Math.abs(scrollTop - this.lastScrollTop) < 3) return;
+      // Evita mudanças desnecessárias
+      if (Math.abs(scrollTop - this.lastScrollTop) < 5) return;
   
       if (scrollTop > this.scrollThreshold) {
         if (!this.isSticky) {
-          this.header.classList.add('sticky');
-          this.spacer.style.height = `${this.headerHeight}px`;
-          this.isSticky = true;
+          this.makeSticky();
         }
       } else {
-        // Remove sticky behavior and spacer
-        this.header.classList.remove('sticky');
-        this.spacer.style.height = '0px';
-        this.isSticky = false;
+        if (this.isSticky) {
+          this.removeSticky();
+        }
       }
   
       this.lastScrollTop = scrollTop;
+    }
+  
+    // NOVO: Atualiza a progress bar baseada no scroll
+    updateProgressBar() {
+      if (!this.header || !this.isSticky) return;
+      
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const documentHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrollProgress = (scrollTop / documentHeight) * 100;
+      
+      // Atualiza a largura da progress bar
+      this.header.style.setProperty('--scroll-progress', `${Math.min(scrollProgress, 100)}%`);
+    }
+  
+    makeSticky() {
+      // Adiciona classe sticky
+      this.header.classList.add('sticky');
+      
+      // Ajusta spacer imediatamente
+      this.spacer.style.height = `${this.headerHeight}px`;
+      
+      this.isSticky = true;
+    }
+  
+    removeSticky() {
+      // Remove classe sticky
+      this.header.classList.remove('sticky');
+      
+      // Zera spacer imediatamente
+      this.spacer.style.height = '0px';
+      
+      this.isSticky = false;
     }
   
     setupMobileMenu() {
@@ -724,11 +1041,52 @@
         mobileMenu.classList.remove('open');
         backdrop.classList.remove('open');
         document.body.style.overflow = '';
+        
+        // Fecha todos os submenus quando fecha o menu principal
+        const submenus = mobileMenu.querySelectorAll('.header-mobile-submenu');
+        const menuItems = mobileMenu.querySelectorAll('.header-mobile-menu-item');
+        
+        submenus.forEach(submenu => submenu.classList.remove('open'));
+        menuItems.forEach(item => item.classList.remove('open'));
       };
   
       if (openBtn) openBtn.addEventListener('click', openMenu);
       if (closeBtn) closeBtn.addEventListener('click', closeMenu);
       if (backdrop) backdrop.addEventListener('click', closeMenu);
+      
+      // NOVO: Funcionalidade dos submenus mobile
+      const menuItems = mobileMenu.querySelectorAll('.header-mobile-menu-item.has-submenu');
+      
+      menuItems.forEach(item => {
+        const link = item.querySelector('.header-mobile-menu-link');
+        const submenu = item.querySelector('.header-mobile-submenu');
+        
+        if (link && submenu) {
+          link.addEventListener('click', (e) => {
+            e.preventDefault(); // Previne navegação para links com submenu
+            
+            // Toggle do submenu
+            const isOpen = submenu.classList.contains('open');
+            
+            // Fecha todos os outros submenus
+            menuItems.forEach(otherItem => {
+              if (otherItem !== item) {
+                otherItem.classList.remove('open');
+                otherItem.querySelector('.header-mobile-submenu').classList.remove('open');
+              }
+            });
+            
+            // Toggle do submenu atual
+            if (isOpen) {
+              submenu.classList.remove('open');
+              item.classList.remove('open');
+            } else {
+              submenu.classList.add('open');
+              item.classList.add('open');
+            }
+          });
+        }
+      });
       
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeMenu();

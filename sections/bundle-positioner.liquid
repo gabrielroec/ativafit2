@@ -1,0 +1,1045 @@
+{%- style -%}
+  .bundle-positioner {
+    position: relative;
+    width: 100%;
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    background: {{ section.settings.background_color }};
+  }
+
+  .bundle-positioner__container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .bundle-positioner__content {
+    text-align: {{ section.settings.text_alignment }};
+  }
+
+  .bundle-positioner__heading {
+    font-size: {{ section.settings.heading_font_size }}px;
+    font-weight: {{ section.settings.heading_font_weight }};
+    color: {{ section.settings.heading_color }};
+    margin-bottom: {{ section.settings.heading_margin_bottom }}px;
+    line-height: {{ section.settings.heading_line_height }};
+  }
+
+  .bundle-positioner__bundle-container {
+    margin-top: 30px;
+    margin-bottom: 30px;
+  }
+
+  /* Bundle app integration styles */
+  .bundle-positioner__bundle-container .bundle-picker,
+  .bundle-positioner__bundle-container [data-bundle-picker],
+  .bundle-positioner__bundle-container .bundle-selector {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* PERSONALIZAÇÕES DO BUNDLE NATIVO */
+  .cbb-frequently-bought-container {
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* OCULTA O TÍTULO ORIGINAL DO BUNDLE */
+  .cbb-frequently-bought-title {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* TÍTULO PERSONALIZADO EDITÁVEL */
+  .bundle-positioner__custom-title {
+    font-family: 'IBMPlexMonoRegular'
+    , monospace;
+    font-size: {{ section.settings.heading_font_size }}px;
+    font-weight: {{ section.settings.heading_font_weight }};
+    color: {{ section.settings.heading_color }};
+    margin-bottom: {{ section.settings.heading_margin_bottom }}px;
+    line-height: {{ section.settings.heading_line_height }};
+    text-align: {{ section.settings.text_alignment }};
+    {% if section.settings.heading_gradient %}
+      background: {{ section.settings.heading_gradient_value }};
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    {% endif %}
+    {% if section.settings.heading_highlight %}
+      background: linear-gradient(120deg, transparent 0%, transparent 40%, {{ section.settings.heading_highlight_color }} 40%, {{ section.settings.heading_highlight_color }} 60%, transparent 60%, transparent 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    {% endif %}
+    /* Garante que o título seja visível */
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* TAMANHO DE FONTE UNIFORME PARA TODOS OS ELEMENTOS DO BUNDLE */
+  .cbb-frequently-bought-selector-label-name,
+  .cbb-frequently-bought-selector-label-name h3,
+  .cbb-frequently-bought-selector-label-name span,
+  .cbb-frequently-bought-this-item-label,
+  .cbb-frequently-bought-selector-link,
+  .cbb-frequently-bought-selector-label-regular-price,
+  .cbb-frequently-bought-selector-label-sale-price,
+  .cbb-frequently-bought-selector-label-compare-at-price,
+  .cbb-recommendations-variant-select,
+  .cbb-frequently-bought-this-item-variant-select {
+    font-size: 16px !important;
+    line-height: 1.4 !important;
+  }
+
+  .cbb-frequently-bought-discount-message-container {
+    display: none !important;
+  }
+
+  .cbb-frequently-bought-plus-icon {
+    display: none !important;
+  }
+
+  .cbb-saving-amount {
+    background-color: #F4F4F4;
+    color: #DD4D1E !important;
+    padding: 0 20px !important;
+    border-radius: 1000px;
+    font-size: 16px !important;
+    font-weight: 400 !important;
+    display: none !important;
+  }
+
+  .cbb-frequently-bought-recommendations-container {
+    margin-top: 20px !important;
+  }
+
+  .cbb-frequently-bought-recommendations-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .cbb-frequently-bought-form {
+    display: flex !important;
+    align-items: start !important;
+    justify-content: start !important;
+    flex-direction: column !important;
+  }
+
+  .cbb-frequently-bought-form button {
+    width: 400px !important;
+    border-radius: 1000px !important;
+    font-weight: 700 !important;
+    padding: 10px 0 !important;
+    font-size: 16px !important;
+  }
+
+  li.cbb-frequently-bought-product {
+    width: 150px !important;
+    height: 150px !important;
+  }
+
+  .cbb-frequently-bought-product-image {
+    width: 150px !important;
+    height: 150px !important;
+  }
+
+  a.cbb-frequently-bought-product-image-link {
+    width: 150px !important;
+    height: 150px !important;
+  }
+
+  ul.cbb-frequently-bought-products {
+    width: fit-content !important;
+    display: flex !important;
+    gap: 20px !important;
+  }
+
+  /* Responsive adjustments */
+  @media screen and (max-width: 768px) {
+    .bundle-positioner {
+      padding-top: 40px;
+      padding-bottom: 40px;
+    }
+
+    .bundle-positioner__heading {
+      font-size: {{ section.settings.heading_font_size_mobile }}px;
+    }
+
+    .bundle-positioner__custom-title {
+      font-size: {{ section.settings.heading_font_size_mobile }}px;
+    }
+
+    .bundle-positioner__container {
+      padding: 0 15px;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .bundle-positioner__container {
+      padding: 0 10px;
+    }
+  }
+
+  /* GARANTIR QUE TODOS OS ELEMENTOS DE TEXTO TENHAM 16px */
+  .cbb-frequently-bought-container *,
+  .cbb-frequently-bought-container *::before,
+  .cbb-frequently-bought-container *::after {
+    font-size: 16px !important;
+  }
+
+  /* EXCEÇÕES - Elementos que devem manter tamanhos específicos */
+  .bundle-positioner__custom-title {
+    font-size: {{ section.settings.heading_font_size }}
+    px !important;
+  }
+
+  .cbb-saving-amount {
+    font-size: 16px !important;
+  }
+
+  .cbb-frequently-bought-form button {
+    font-size: 16px !important;
+  }
+
+  /* RESPONSIVIDADE DO BUNDLE NATIVO */
+  @media (max-width: 1025px) {
+    .cbb-frequently-bought-recommendations-container {
+      margin-top: 20px !important;
+      display: flex;
+      align-items: start;
+      gap: 20px;
+      flex-direction: column;
+    }
+
+    /* Mantém 16px no mobile */
+    .cbb-frequently-bought-selector-label-name,
+    .cbb-frequently-bought-selector-label-name h3,
+    .cbb-frequently-bought-selector-label-name span,
+    .cbb-frequently-bought-this-item-label,
+    .cbb-frequently-bought-selector-link,
+    .cbb-frequently-bought-selector-label-regular-price,
+    .cbb-frequently-bought-selector-label-sale-price,
+    .cbb-frequently-bought-selector-label-compare-at-price,
+    .cbb-recommendations-variant-select,
+    .cbb-frequently-bought-this-item-variant-select {
+      font-size: 16px !important;
+      line-height: 1.4 !important;
+    }
+  }
+
+  @media (max-width: 767px) {
+    ul.cbb-frequently-bought-products {
+      width: fit-content !important;
+      display: flex !important;
+      gap: 20px !important;
+      flex-wrap: wrap !important;
+    }
+
+    /* Mantém 16px no mobile pequeno */
+    .cbb-frequently-bought-container *,
+    .cbb-frequently-bought-container *::before,
+    .cbb-frequently-bought-container *::after {
+      font-size: 16px !important;
+    }
+  }
+
+  @media (max-width: 426px) {
+    button.cbb-frequently-bought-add-button {
+      width: 100% !important;
+    }
+
+    /* Mantém 16px no mobile muito pequeno */
+    .cbb-frequently-bought-container *,
+    .cbb-frequently-bought-container *::before,
+    .cbb-frequently-bought-container *::after {
+      font-size: 16px !important;
+    }
+  }
+
+  /* PREVIEW NO SITE EDITOR */
+  .bundle-editor-preview {
+    border: 2px dashed #ddd;
+    border-radius: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    background: #f9f9f9;
+    margin: 20px 0;
+    display: none;
+  }
+
+  .bundle-editor-preview.show {
+    display: block;
+  }
+
+  .bundle-editor-preview-title {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .bundle-editor-preview-content {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .bundle-editor-preview-products {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .bundle-editor-preview-product {
+    width: 100px;
+    height: 100px;
+    background: #e0e0e0;
+    border-radius: 12px;
+    position: relative;
+  }
+
+  .bundle-editor-preview-product::after {
+    content: '+';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+    color: #999;
+  }
+
+  .bundle-editor-preview-product:last-child::after {
+    content: '';
+  }
+
+  .bundle-editor-preview-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+  }
+
+  .bundle-editor-preview-price {
+    font-size: 20px;
+    font-weight: 700;
+    color: #DD4D1E;
+  }
+
+  .bundle-editor-preview-button {
+    background: #DD4D1E;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    min-width: 180px;
+  }
+
+  /* PREVIEW RESPONSIVO */
+  @media (max-width: 768px) {
+    .bundle-editor-preview-content {
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .bundle-editor-preview-products {
+      gap: 15px;
+    }
+
+    .bundle-editor-preview-product {
+      width: 80px;
+      height: 80px;
+    }
+  }
+{%- endstyle -%}
+
+<section class="bundle-positioner" id="bundle-positioner-{{ section.id }}">
+  <div class="bundle-positioner__container">
+
+    {% if section.settings.show_heading and section.settings.heading != blank %}
+      <div class="bundle-positioner__content">
+        <h2 class="bundle-positioner__custom-title">{{ section.settings.heading }}</h2>
+      </div>
+    {% endif %}
+
+    <div class="bundle-positioner__bundle-container">
+      {% comment %} 
+                                                                                                                                                                                                        BUNDLE ORIGINAL DO APP EXTERNO
+                                                                                                                                                                                                        Este container será preenchido automaticamente pelo app do bundle
+                                                                                                                                                                                                        quando a página carregar. O app detecta este elemento e renderiza
+                                                                                                                                                                                                        o bundle dentro dele. 
+                                                                                                                                                      {% endcomment %}
+
+      {% if section.settings.bundle_app_selector != blank %}
+        {{ section.settings.bundle_app_selector }}
+        {% else %}
+        <!--
+          BUNDLE APP PLACEHOLDER
+          O app externo do bundle será renderizado aqui automaticamente.
+          Se você quiser usar um seletor específico, configure-o nas configurações da seção.
+        -->
+        <div class="bundle-app-placeholder" data-bundle-positioner="{{ section.id }}">
+          <!-- Bundle será carregado aqui pelo app externo -->
+        </div>
+
+        <!-- PREVIEW NO SITE EDITOR -->
+        {% if section.settings.show_editor_preview %}
+          <div class="bundle-editor-preview show">
+            <div class="bundle-editor-preview-title">Bundle Preview</div>
+            <div class="bundle-editor-preview-content">
+              <div class="bundle-editor-preview-products">
+                <div class="bundle-editor-preview-product"></div>
+                <div class="bundle-editor-preview-product"></div>
+                <div class="bundle-editor-preview-product"></div>
+              </div>
+              <div class="bundle-editor-preview-form">
+                <div class="bundle-editor-preview-price">$XXX.XX</div>
+                <button class="bundle-editor-preview-button">Add Bundle to Cart</button>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Bundle Positioner Manager
+    class BundlePositionerManager {
+      constructor(sectionId) {
+        this.sectionId = sectionId;
+        this.section = document.getElementById(`bundle-positioner-${sectionId}`);
+        this.placeholder = this.section?.querySelector('.bundle-app-placeholder');
+        this.bundleContainer = this.section?.querySelector('.bundle-positioner__bundle-container');
+        
+        if (this.placeholder && this.bundleContainer) {
+          this.init();
+        }
+      }
+  
+      init() {
+        // Aguarda um pouco para o bundle carregar
+        setTimeout(() => {
+          // Primeiro, procura por bundles já existentes na página
+          this.findAndMoveExistingBundle();
+          
+          // Depois, monitora por novos bundles
+          this.observeBundleLoading();
+          
+          // Inicializa personalizações do bundle nativo
+          this.observeBundleCustomizations();
+        }, 1000); // Aguarda 1 segundo
+      }
+  
+      findAndMoveExistingBundle() {
+        // Procura por elementos do bundle em toda a página
+        const bundleSelectors = [
+          '.cbb-frequently-bought-container',
+          '[data-bundle-picker]',
+          '.bundle-picker',
+          '.bundle-selector'
+        ];
+  
+        let existingBundle = null;
+        
+        // Procura por cada seletor
+        for (const selector of bundleSelectors) {
+          existingBundle = document.querySelector(selector);
+          if (existingBundle) {
+            console.log(`Bundle encontrado com seletor: ${selector}`);
+            break;
+          }
+        }
+  
+        if (existingBundle) {
+          // Tenta mover preservando funcionalidade
+          this.moveBundleToPositioner(existingBundle);
+        } else {
+          // Se não encontrou, aguarda um pouco e tenta novamente
+          setTimeout(() => {
+            this.findAndMoveExistingBundle();
+          }, 2000);
+        }
+      }
+  
+      moveBundleToPositioner(bundleElement) {
+        try {
+          // Tenta uma abordagem mais suave: move o bundle mas mantém referências
+          this.moveBundleSafely(bundleElement);
+          
+        } catch (error) {
+          console.error('Erro ao mover bundle:', error);
+          // Fallback: tenta mover de forma mais agressiva
+          this.moveBundleAggressively(bundleElement);
+        }
+      }
+  
+      moveBundleSafely(bundleElement) {
+        // Abordagem suave: move o bundle mas tenta preservar funcionalidade
+        const originalParent = bundleElement.parentNode;
+        const originalNextSibling = bundleElement.nextSibling;
+        
+        // Remove o bundle
+        if (originalParent) {
+          originalParent.removeChild(bundleElement);
+        }
+        
+        // Adiciona ao nosso container
+        this.bundleContainer.appendChild(bundleElement);
+        
+        // Esconde o placeholder
+        this.hidePlaceholder();
+        
+        // Aplica estilos
+        this.styleBundle(bundleElement);
+        
+        // Tenta re-conectar eventos se necessário
+        this.reconnectBundleEvents(bundleElement);
+        
+        console.log('Bundle movido de forma segura');
+      }
+  
+      moveBundleAggressively(bundleElement) {
+        // Abordagem mais agressiva se a suave falhar
+        if (bundleElement.parentNode) {
+          bundleElement.parentNode.removeChild(bundleElement);
+        }
+        
+        this.bundleContainer.appendChild(bundleElement);
+        this.hidePlaceholder();
+        this.styleBundle(bundleElement);
+        
+        // Re-inicializa todos os eventos
+        this.reinitializeBundleEvents(bundleElement);
+        
+        console.log('Bundle movido com re-inicialização completa');
+      }
+  
+      reconnectBundleEvents(bundleElement) {
+        // Tenta re-conectar eventos existentes
+        const checkboxes = bundleElement.querySelectorAll('input[type="checkbox"]');
+        const selects = bundleElement.querySelectorAll('select');
+        const buttons = bundleElement.querySelectorAll('button');
+        
+        // Re-conecta checkboxes
+        checkboxes.forEach(checkbox => {
+          if (checkbox.classList.contains('cbb-frequently-bought-selector-input')) {
+            // Tenta preservar eventos existentes
+            if (!checkbox.hasAttribute('data-event-reconnected')) {
+              checkbox.setAttribute('data-event-reconnected', 'true');
+              
+              // Adiciona listener para debug
+              checkbox.addEventListener('change', (e) => {
+                console.log('Checkbox alterado:', e.target.checked);
+                // Tenta disparar evento original se existir
+                if (e.target.onchange) {
+                  e.target.onchange(e);
+                }
+              });
+            }
+          }
+        });
+        
+        // Re-conecta selects
+        selects.forEach(select => {
+          if (select.classList.contains('cbb-recommendations-variant-select')) {
+            if (!select.hasAttribute('data-event-reconnected')) {
+              select.setAttribute('data-event-reconnected', 'true');
+              
+              select.addEventListener('change', (e) => {
+                console.log('Variante alterada:', e.target.value);
+                if (e.target.onchange) {
+                  e.target.onchange(e);
+                }
+              });
+            }
+          }
+        });
+        
+        // Re-conecta botões
+        buttons.forEach(button => {
+          if (button.classList.contains('cbb-frequently-bought-add-button')) {
+            if (!button.hasAttribute('data-event-reconnected')) {
+              button.setAttribute('data-event-reconnected', 'true');
+              
+              button.addEventListener('click', (e) => {
+                console.log('Botão clicado');
+                if (e.target.onclick) {
+                  e.target.onclick(e);
+                }
+              });
+            }
+          }
+        });
+      }
+  
+      reinitializeBundleEvents(bundleElement) {
+        // Procura por elementos interativos e re-aplica eventos se necessário
+        const checkboxes = bundleElement.querySelectorAll('input[type="checkbox"]');
+        const selects = bundleElement.querySelectorAll('select');
+        const buttons = bundleElement.querySelectorAll('button');
+        
+        // Re-aplica eventos de checkbox
+        checkboxes.forEach(checkbox => {
+          if (checkbox.classList.contains('cbb-frequently-bought-selector-input')) {
+            checkbox.addEventListener('change', this.handleCheckboxChange.bind(this));
+          }
+        });
+        
+        // Re-aplica eventos de select
+        selects.forEach(select => {
+          if (select.classList.contains('cbb-recommendations-variant-select')) {
+            select.addEventListener('change', this.handleVariantChange.bind(this));
+          }
+        });
+        
+        // Re-aplica eventos de botão
+        buttons.forEach(button => {
+          if (button.classList.contains('cbb-frequently-bought-add-button')) {
+            button.addEventListener('click', this.handleAddToCart.bind(this));
+          }
+        });
+      }
+  
+      handleCheckboxChange(event) {
+        // Simula o comportamento original do app
+        const checkbox = event.target;
+        const isChecked = checkbox.checked;
+        
+        // Atualiza preços e cálculos se necessário
+        this.updateBundlePricing();
+        
+        console.log('Checkbox alterado:', isChecked);
+      }
+  
+      handleVariantChange(event) {
+        // Simula o comportamento original do app
+        const select = event.target;
+        const selectedVariant = select.value;
+        
+        // Atualiza preços e cálculos se necessário
+        this.updateBundlePricing();
+        
+        console.log('Variante alterada:', selectedVariant);
+      }
+  
+      handleAddToCart(event) {
+        // Simula o comportamento original do app
+        console.log('Adicionando bundle ao carrinho');
+        
+        // Aqui você pode adicionar lógica adicional se necessário
+        // O app original deve lidar com a funcionalidade principal
+      }
+  
+      updateBundlePricing() {
+        // Atualiza preços do bundle se necessário
+        const totalPriceElement = this.bundleContainer.querySelector('.cbb-frequently-bought-total-price-sale-price');
+        if (totalPriceElement) {
+          // Recalcula preços baseado nos itens selecionados
+          console.log('Preços atualizados');
+        }
+      }
+  
+      styleBundle(bundleElement) {
+        // Aplica estilos para garantir que o bundle se ajuste ao container
+        if (bundleElement) {
+          bundleElement.style.width = '100%';
+          bundleElement.style.maxWidth = '100%';
+          bundleElement.style.margin = '0';
+          bundleElement.style.padding = '0';
+          
+          // Aplica estilos aos elementos filhos se necessário
+          const childElements = bundleElement.querySelectorAll('*');
+          childElements.forEach(element => {
+            if (element.style) {
+              // Garante que elementos internos não tenham larguras fixas problemáticas
+              if (element.style.width && element.style.width !== '100%') {
+                element.style.maxWidth = '100%';
+              }
+            }
+          });
+        }
+      }
+  
+      observeBundleLoading() {
+        // Observer para detectar quando novos bundles são carregados
+        const observer = new MutationObserver((mutations) => {
+          mutations.forEach((mutation) => {
+            if (mutation.type === 'childList') {
+              mutation.addedNodes.forEach((node) => {
+                if (node.nodeType === 1) {
+                  // Verifica se o novo elemento é um bundle
+                  if (this.isBundleElement(node)) {
+                    console.log('Novo bundle detectado via mutation observer');
+                    this.moveBundleToPositioner(node);
+                    observer.disconnect();
+                  }
+                  
+                  // Também verifica elementos filhos
+                  const bundleChildren = node.querySelectorAll('.cbb-frequently-bought-container, [data-bundle-picker], .bundle-picker, .bundle-selector');
+                  if (bundleChildren.length > 0) {
+                    console.log('Bundle filho detectado');
+                    this.moveBundleToPositioner(bundleChildren[0]);
+                    observer.disconnect();
+                  }
+                }
+              });
+            }
+          });
+        });
+  
+        // Observa mudanças em toda a página
+        if (document.body) {
+          observer.observe(document.body, {
+            childList: true,
+            subtree: true
+          });
+        }
+      }
+  
+      isBundleElement(element) {
+        // Verifica se o elemento é um bundle
+        const bundleClasses = [
+          'cbb-frequently-bought-container',
+          'bundle-picker',
+          'bundle-selector'
+        ];
+        
+        const bundleAttributes = [
+          'data-bundle-picker'
+        ];
+  
+        // Verifica classes
+        for (const className of bundleClasses) {
+          if (element.classList && element.classList.contains(className)) {
+            return true;
+          }
+        }
+  
+        // Verifica atributos
+        for (const attr of bundleAttributes) {
+          if (element.hasAttribute(attr)) {
+            return true;
+          }
+        }
+  
+        // Verifica se contém elementos de bundle
+        const bundleSelectors = '.cbb-frequently-bought-container, [data-bundle-picker], .bundle-picker, .bundle-selector';
+        if (element.querySelector && element.querySelector(bundleSelectors)) {
+          return true;
+        }
+  
+        return false;
+      }
+  
+      hidePlaceholder() {
+        if (this.placeholder) {
+          this.placeholder.style.display = 'none';
+        }
+      }
+  
+      // FUNÇÕES PERSONALIZADAS DO BUNDLE NATIVO
+      moveBundleSection() {
+        const source = document.querySelector('.cbb-frequently-bought-container');
+        const target = this.bundleContainer;
+
+        // Verifica se já foi movido para evitar loops
+        if (source && target && !target.contains(source) && !source.hasAttribute('data-moved')) {
+          source.setAttribute('data-moved', 'true');
+          target.appendChild(source);
+          console.log('[✔] Seção movida.');
+        }
+      }
+  
+      updateBundleTitle() {
+        // Verifica se o título já foi aplicado
+        if (this.bundleContainer.querySelector('.bundle-positioner__custom-title')) {
+          return; // Título já existe, não aplica novamente
+        }
+
+        // Não cria título duplicado - o título já está no HTML
+        console.log('[✔] Título já existe no HTML, não aplicando duplicado');
+      }
+  
+      addSavingsText() {
+        // Verifica se o texto de economia já foi adicionado
+        if (document.querySelector('.cbb-saving-amount')) {
+          return; // Já existe, não adiciona novamente
+        }
+
+        const saleEl = document.querySelector('.cbb-frequently-bought-total-price-sale-price .money');
+        const wasEl = document.querySelector('.cbb-frequently-bought-total-price-was-price .money');
+
+        if (saleEl && wasEl) {
+          const sale = parseFloat(saleEl.textContent.replace(/[^0-9.]/g, ''));
+          const was = parseFloat(wasEl.textContent.replace(/[^0-9.]/g, ''));
+          const saved = was - sale;
+
+          if (saved > 0) {
+            const savingsEl = document.createElement('div');
+            savingsEl.className = 'cbb-saving-amount';
+            savingsEl.style.color = '#1e824c';
+            savingsEl.style.fontWeight = '600';
+            savingsEl.style.marginTop = '5px';
+            savingsEl.textContent = `SAVE $${saved.toFixed(2)} TODAY!`;
+
+            const container = document.querySelector('.cbb-frequently-bought-total-price-box');
+            if (container) {
+              container.appendChild(savingsEl);
+              console.log('[✔] Economia exibida.');
+            }
+          }
+        }
+      }
+  
+      // Observer para personalizações do bundle
+      observeBundleCustomizations() {
+        let executionCount = 0;
+        const maxExecutions = 5; // Limita a 5 execuções
+        
+        const observer = new MutationObserver(() => {
+          if (executionCount >= maxExecutions) {
+            console.log('Limite de execuções atingido, desconectando observer');
+            observer.disconnect();
+            return;
+          }
+          
+          executionCount++;
+          this.moveBundleSection();
+          this.updateBundleTitle();
+          this.addSavingsText();
+        });
+
+        observer.observe(document.body, {
+          childList: true,
+          subtree: true,
+        });
+
+        // Executa apenas uma vez no início
+        this.moveBundleSection();
+        this.updateBundleTitle();
+        this.addSavingsText();
+        console.log('WORK HERE - Bundle Positioner');
+      }
+    }
+  
+    // Inicializa o manager para esta seção
+    const sectionId = '{{ section.id }}';
+    if (sectionId) {
+      new BundlePositionerManager(sectionId);
+    }
+  });
+</script>
+
+{% schema %}
+  {
+    "name": "Bundle Positioner",
+    "tag": "section",
+    "class": "bundle-positioner-section",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Bundle App Integration"
+      },
+      {
+        "type": "html",
+        "id": "bundle_app_selector",
+        "label": "Bundle App Selector (Optional)",
+        "info": "If you have a specific selector for the bundle app, paste it here. Otherwise, leave empty for automatic detection."
+      },
+      {
+        "type": "header",
+        "content": "Content Settings"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_heading",
+        "label": "Show Heading",
+        "default": true
+      }, {
+        "type": "text",
+        "id": "heading",
+        "label": "Bundle Title",
+        "default": "Maximize your results — combine with these essentials.",
+        "info": "This title will replace the original bundle title"
+      }, {
+        "type": "range",
+        "id": "heading_font_size",
+        "label": "Title Font Size (Desktop)",
+        "min": 20,
+        "max": 80,
+        "step": 2,
+        "unit": "px",
+        "default": 36
+      }, {
+        "type": "range",
+        "id": "heading_font_size_mobile",
+        "label": "Title Font Size (Mobile)",
+        "min": 18,
+        "max": 50,
+        "step": 2,
+        "unit": "px",
+        "default": 24
+      }, {
+        "type": "select",
+        "id": "heading_font_weight",
+        "label": "Title Font Weight",
+        "options": [
+          {
+            "value": "400",
+            "label": "Regular"
+          },
+          {
+            "value": "500",
+            "label": "Medium"
+          },
+          {
+            "value": "600",
+            "label": "Semi Bold"
+          },
+          {
+            "value": "700",
+            "label": "Bold"
+          }, {
+            "value": "800",
+            "label": "Extra Bold"
+          }
+        ],
+        "default": "700"
+      }, {
+        "type": "range",
+        "id": "heading_line_height",
+        "label": "Title Line Height",
+        "min": 1.0,
+        "max": 1.5,
+        "step": 0.1,
+        "default": 1.2
+      }, {
+        "type": "range",
+        "id": "heading_margin_bottom",
+        "label": "Title Bottom Margin",
+        "min": 0,
+        "max": 40,
+        "step": 5,
+        "unit": "px",
+        "default": 20
+      }, {
+        "type": "color",
+        "id": "heading_color",
+        "label": "Title Color",
+        "default": "#000000",
+        "info": "Base color for the title (ignored if gradient is enabled)"
+      }, {
+        "type": "checkbox",
+        "id": "heading_gradient",
+        "label": "Enable Title Gradient",
+        "default": false,
+        "info": "Enable gradient effect on the title"
+      }, {
+        "type": "text",
+        "id": "heading_gradient_value",
+        "label": "Title Gradient",
+        "default": "linear-gradient(to right, #FF9877, #DD4D1E)",
+        "info": "CSS gradient value (e.g., linear-gradient(to right, #FF9877, #DD4D1E))"
+      }, {
+        "type": "checkbox",
+        "id": "heading_highlight",
+        "label": "Enable Title Highlight",
+        "default": false,
+        "info": "Highlight specific parts of the title with background color"
+      }, {
+        "type": "color",
+        "id": "heading_highlight_color",
+        "label": "Title Highlight Color",
+        "default": "#FFD700",
+        "info": "Color for highlighting parts of the title"
+      }, {
+        "type": "select",
+        "id": "text_alignment",
+        "label": "Title Alignment",
+        "options": [
+          {
+            "value": "left",
+            "label": "Left"
+          }, {
+            "value": "center",
+            "label": "Center"
+          }, {
+            "value": "right",
+            "label": "Right"
+          }
+        ],
+        "default": "left"
+      }, {
+        "type": "header",
+        "content": "Layout Settings"
+      }, {
+        "type": "header",
+        "content": "Spacing"
+      }, {
+        "type": "range",
+        "id": "padding_top",
+        "label": "Top Padding (Desktop)",
+        "min": 0,
+        "max": 120,
+        "step": 10,
+        "unit": "px",
+        "default": 60
+      }, {
+        "type": "range",
+        "id": "padding_bottom",
+        "label": "Bottom Padding (Desktop)",
+        "min": 0,
+        "max": 120,
+        "step": 10,
+        "unit": "px",
+        "default": 60
+      }, {
+        "type": "header",
+        "content": "Background"
+      }, {
+        "type": "color",
+        "id": "background_color",
+        "label": "Background Color",
+        "default": "#ffffff"
+      }, {
+        "type": "checkbox",
+        "id": "show_editor_preview",
+        "label": "Show Editor Preview",
+        "default": false,
+        "info": "Enable this to show a preview of the bundle in the site editor"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Bundle Positioner",
+        "settings": {
+          "heading": "Maximize your results — combine with these essentials.",
+          "heading_font_size": 36,
+          "heading_font_size_mobile": 24,
+          "heading_color": "#000000",
+          "text_alignment": "left"
+        }
+      }
+    ]
+  }
+{% endschema %}

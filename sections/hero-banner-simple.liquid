@@ -1,4 +1,4 @@
-<style>
+{%- style -%}
   .hero-simple {
     position: relative;
     width: 100%;
@@ -12,7 +12,6 @@
     width: 100%;
     height: 100%;
   }
-
 
   .hero-simple__slide {
     position: absolute;
@@ -63,6 +62,61 @@
     padding: 0 20px;
     z-index: 2;
     pointer-events: none;
+  }
+
+  /* Desktop positioning options - APENAS para telas ≥1024px */
+  @media screen and (min-width: 1024px) {
+    .hero-simple__content--left {
+      justify-content: flex-start;
+    }
+
+    .hero-simple__content--center {
+      justify-content: center;
+    }
+
+    .hero-simple__content--right {
+      justify-content: flex-end;
+    }
+
+    /* Reset mobile positioning on desktop */
+    .hero-simple__content--top,
+    .hero-simple__content--bottom {
+      align-items: center;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+  }
+
+  /* Mobile positioning options - APENAS para telas <1024px */
+  @media screen and (max-width: 1023px) {
+    .hero-simple__content {
+      justify-content: center;
+      /* Sempre centralizado horizontalmente no mobile */
+    }
+
+    .hero-simple__content--top {
+      align-items: flex-start;
+      padding-top: 20px;
+      padding-bottom: 0;
+    }
+
+    .hero-simple__content--center {
+      align-items: center;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+
+    .hero-simple__content--bottom {
+      align-items: flex-end;
+      padding-top: 0;
+      padding-bottom: 20px;
+    }
+
+    /* Reset desktop positioning on mobile */
+    .hero-simple__content--left,
+    .hero-simple__content--right {
+      justify-content: center;
+    }
   }
 
   .hero-simple__text {
@@ -162,6 +216,7 @@
     background: white;
     transform: scale(1.2);
   }
+
   @media screen and (max-width: 1824px) {}
 @media screen and (max-width: 1280px) {
   .hero-simple {
@@ -176,7 +231,6 @@
 @media screen and (max-width: 1093px) {}
 @media screen and (max-width: 910px) {}
 @media screen and (max-width: 768px) {
-
   .hero-simple__image--desktop {
     display: none;
   }
@@ -201,6 +255,7 @@
   .hero-simple__nav--next {
     right: 10px;
   }
+
   .hero-simple {
     height: 940px !important;
   }
@@ -221,7 +276,7 @@
     height: 500px !important;
   }
 }
-</style>
+{%- endstyle -%}
 
 <section class="hero-simple" data-hero-simple>
   <div class="hero-simple__container">
@@ -253,10 +308,44 @@
 
         <div class="hero-simple__overlay" style="background-color: {{ block.settings.overlay_color | color_modify: 'alpha', block.settings.overlay_opacity }}"></div>
 
-        <div class="hero-simple__content">
-          <div class="hero-simple__text">
-            <h1 class="hero-simple__title">{{ block.settings.title }}</h1>
-            <p class="hero-simple__subtitle">{{ block.settings.subtitle }}</p>
+        <div class="hero-simple__content hero-simple__content--{{ block.settings.desktop_text_position }} hero-simple__content--{{ block.settings.mobile_text_position }}">
+          <div class="hero-simple__text" style="
+            text-align: {{ block.settings.text_alignment }};
+            max-width: {{ block.settings.text_max_width }}px;
+          ">
+            {% if block.settings.title != blank %}
+              <h1 class="hero-simple__title" style="
+                font-size: {{ block.settings.title_font_size }}px;
+                font-weight: {{ block.settings.title_font_weight }};
+                line-height: {{ block.settings.title_line_height }};
+                margin-bottom: {{ block.settings.title_margin_bottom }}px;
+                color: {{ block.settings.title_color }};
+              ">
+                {{ block.settings.title }}</h1>
+            {% endif %}
+
+            {% if block.settings.subtitle != blank %}
+              <p class="hero-simple__subtitle" style="
+                font-size: {{ block.settings.subtitle_font_size }}px;
+                font-weight: {{ block.settings.subtitle_font_weight }};
+                line-height: {{ block.settings.subtitle_line_height }};
+                margin-bottom: {{ block.settings.subtitle_margin_bottom }}px;
+                color: {{ block.settings.subtitle_color }};
+              ">
+                {{ block.settings.subtitle }}</p>
+            {% endif %}
+
+            {% if block.settings.custom_text != blank %}
+              <div class="hero-simple__custom-text" style="
+                font-size: {{ block.settings.custom_text_font_size }}px;
+                font-weight: {{ block.settings.custom_text_font_weight }};
+                line-height: {{ block.settings.custom_text_line_height }};
+                margin-bottom: {{ block.settings.custom_text_margin_bottom }}px;
+                color: {{ block.settings.custom_text_color }};
+              ">
+                {{ block.settings.custom_text }}</div>
+            {% endif %}
+
             <div class="hero-simple__buttons">
               {% if block.settings.button_1_text != blank and block.settings.button_1_link != blank %}
                 <a
@@ -455,16 +544,264 @@
             "info": "Recommended size: 1000x500px. If not set, will use desktop image"
           },
           {
+            "type": "header",
+            "content": "Text Positioning"
+          },
+          {
+            "type": "select",
+            "id": "desktop_text_position",
+            "label": "Desktop Text Position",
+            "options": [
+              {
+                "value": "left",
+                "label": "Left"
+              }, {
+                "value": "center",
+                "label": "Center"
+              }, {
+                "value": "right",
+                "label": "Right"
+              }
+            ],
+            "default": "left"
+          }, {
+            "type": "select",
+            "id": "mobile_text_position",
+            "label": "Mobile Text Position",
+            "options": [
+              {
+                "value": "top",
+                "label": "Top"
+              }, {
+                "value": "center",
+                "label": "Center"
+              }, {
+                "value": "bottom",
+                "label": "Bottom"
+              }
+            ],
+            "default": "center"
+          }, {
+            "type": "header",
+            "content": "Text Content & Styling"
+          }, {
             "type": "text",
             "id": "title",
             "label": "Title",
             "default": "PERFORMANCE, COMFORT AND STYLE."
-          },
-          {
+          }, {
+            "type": "range",
+            "id": "title_font_size",
+            "label": "Title Font Size",
+            "min": 20,
+            "max": 80,
+            "step": 2,
+            "unit": "px",
+            "default": 50
+          }, {
+            "type": "select",
+            "id": "title_font_weight",
+            "label": "Title Font Weight",
+            "options": [
+              {
+                "value": "300",
+                "label": "Light"
+              },
+              {
+                "value": "400",
+                "label": "Regular"
+              },
+              {
+                "value": "500",
+                "label": "Medium"
+              },
+              {
+                "value": "600",
+                "label": "Semi Bold"
+              }, {
+                "value": "700",
+                "label": "Bold"
+              }, {
+                "value": "800",
+                "label": "Extra Bold"
+              }, {
+                "value": "900",
+                "label": "Black"
+              }
+            ],
+            "default": "700"
+          }, {
+            "type": "range",
+            "id": "title_line_height",
+            "label": "Title Line Height",
+            "min": 1.0,
+            "max": 2.0,
+            "step": 0.1,
+            "default": 1.2
+          }, {
+            "type": "range",
+            "id": "title_margin_bottom",
+            "label": "Title Bottom Margin",
+            "min": 0,
+            "max": 50,
+            "step": 2,
+            "unit": "px",
+            "default": 16
+          }, {
+            "type": "color",
+            "id": "title_color",
+            "label": "Title Color",
+            "default": "#ffffff"
+          }, {
             "type": "text",
             "id": "subtitle",
             "label": "Subtitle",
             "default": "GET IT NOW FOR FATHER'S DAY"
+          }, {
+            "type": "range",
+            "id": "subtitle_font_size",
+            "label": "Subtitle Font Size",
+            "min": 12,
+            "max": 32,
+            "step": 1,
+            "unit": "px",
+            "default": 16
+          }, {
+            "type": "select",
+            "id": "subtitle_font_weight",
+            "label": "Subtitle Font Weight",
+            "options": [
+              {
+                "value": "300",
+                "label": "Light"
+              },
+              {
+                "value": "400",
+                "label": "Regular"
+              },
+              {
+                "value": "500",
+                "label": "Medium"
+              },
+              {
+                "value": "600",
+                "label": "Semi Bold"
+              }, {
+                "value": "700",
+                "label": "Bold"
+              }
+            ],
+            "default": "600"
+          }, {
+            "type": "range",
+            "id": "subtitle_line_height",
+            "label": "Subtitle Line Height",
+            "min": 1.0,
+            "max": 2.0,
+            "step": 0.1,
+            "default": 1.4
+          }, {
+            "type": "range",
+            "id": "subtitle_margin_bottom",
+            "label": "Subtitle Bottom Margin",
+            "min": 0,
+            "max": 50,
+            "step": 2,
+            "unit": "px",
+            "default": 24
+          }, {
+            "type": "color",
+            "id": "subtitle_color",
+            "label": "Subtitle Color",
+            "default": "#ffffff"
+          }, {
+            "type": "textarea",
+            "id": "custom_text",
+            "label": "Custom Text Content",
+            "info": "Add additional text content below title and subtitle"
+          }, {
+            "type": "range",
+            "id": "custom_text_font_size",
+            "label": "Custom Text Font Size",
+            "min": 12,
+            "max": 24,
+            "step": 1,
+            "unit": "px",
+            "default": 14
+          }, {
+            "type": "select",
+            "id": "custom_text_font_weight",
+            "label": "Custom Text Font Weight",
+            "options": [
+              {
+                "value": "300",
+                "label": "Light"
+              }, {
+                "value": "400",
+                "label": "Regular"
+              }, {
+                "value": "500",
+                "label": "Medium"
+              }, {
+                "value": "600",
+                "label": "Semi Bold"
+              }
+            ],
+            "default": "400"
+          }, {
+            "type": "range",
+            "id": "custom_text_line_height",
+            "label": "Custom Text Line Height",
+            "min": 1.0,
+            "max": 2.0,
+            "step": 0.1,
+            "default": 1.5
+          }, {
+            "type": "range",
+            "id": "custom_text_margin_bottom",
+            "label": "Custom Text Bottom Margin",
+            "min": 0,
+            "max": 50,
+            "step": 2,
+            "unit": "px",
+            "default": 24
+          }, {
+            "type": "color",
+            "id": "custom_text_color",
+            "label": "Custom Text Color",
+            "default": "#ffffff"
+          }, {
+            "type": "header",
+            "content": "Text Layout"
+          }, {
+            "type": "select",
+            "id": "text_alignment",
+            "label": "Text Alignment",
+            "options": [
+              {
+                "value": "left",
+                "label": "Left"
+              }, {
+                "value": "center",
+                "label": "Center"
+              }, {
+                "value": "right",
+                "label": "Right"
+              }, {
+                "value": "justify",
+                "label": "Justify"
+              }
+            ],
+            "default": "left"
+          }, {
+            "type": "range",
+            "id": "text_max_width",
+            "label": "Text Container Max Width",
+            "min": 300,
+            "max": 800,
+            "step": 25,
+            "unit": "px",
+            "default": 625
           }, {
             "type": "header",
             "content": "Overlay Settings"

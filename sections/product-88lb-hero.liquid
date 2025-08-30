@@ -1,0 +1,411 @@
+{%- liquid
+  assign section_id = 'product-88lb-hero-' | append: section.id
+-%}
+
+<section
+  id="{{ section_id }}"
+  class="product-88lb-hero"
+  style="padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px;">
+
+  <div class="product-88lb-hero__container">
+
+    <!-- Top Image - Left Aligned -->
+    <div class="product-88lb-hero__top-image">
+      {%- if section.settings.top_image != blank -%}
+        <img
+          src="{{ section.settings.top_image | img_url: '600x400' }}"
+          alt="{{ section.settings.top_image.alt | default: '88lb Product Top Image' }}"
+          width="600"
+          height="400"
+          loading="lazy"
+          class="product-88lb-hero__image">
+      {%- else -%}
+        {{ 'lifestyle-1' | placeholder_svg_tag: 'product-88lb-hero__image placeholder-image' }}
+      {%- endif -%}
+    </div>
+
+    <!-- Center Content -->
+    <div class="product-88lb-hero__content">
+      {%- if section.settings.main_title != blank -%}
+        <h1 class="product-88lb-hero__title" style="font-size: {{ section.settings.title_size }}px; line-height: {{ section.settings.title_size | plus: 10 }}px;">
+          {%- if section.settings.highlight_text != blank -%}
+            {{ section.settings.main_title | replace: section.settings.highlight_text, '<span class="highlight">' | append: section.settings.highlight_text | append: '</span>' }}
+          {%- else -%}
+            {{ section.settings.main_title }}
+          {%- endif -%}
+        </h1>
+      {%- endif -%}
+
+      {%- if section.settings.description != blank -%}
+        <div class="product-88lb-hero__description" style="font-size: {{ section.settings.description_size }}px; line-height: {{ section.settings.description_size | plus: 12 }}px;">
+          {{ section.settings.description }}
+        </div>
+      {%- endif -%}
+
+      {%- if section.settings.cta_text != blank and section.settings.cta_link != blank -%}
+        <div class="product-88lb-hero__cta">
+          <a href="{{ section.settings.cta_link }}" class="product-88lb-hero__cta-button">
+            {{ section.settings.cta_text }}
+          </a>
+        </div>
+      {%- endif -%}
+    </div>
+
+    <!-- Bottom Image - Right Aligned -->
+    <div class="product-88lb-hero__bottom-image">
+      {%- if section.settings.bottom_image != blank -%}
+        <img
+          src="{{ section.settings.bottom_image | img_url: '600x400' }}"
+          alt="{{ section.settings.bottom_image.alt | default: '88lb Product Bottom Image' }}"
+          width="600"
+          height="400"
+          loading="lazy"
+          class="product-88lb-hero__image">
+      {%- else -%}
+        {{ 'lifestyle-1' | placeholder_svg_tag: 'product-88lb-hero__image placeholder-image' }}
+      {%- endif -%}
+    </div>
+
+  </div>
+</section>
+
+<style>
+  .product-88lb-hero {
+    background: #ffffff;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .product-88lb-hero__container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    align-items: center;
+  }
+
+  /* Top and Bottom Images */
+  .product-88lb-hero__top-image,
+  .product-88lb-hero__bottom-image {
+    display: flex;
+    width: 100%;
+    height: auto;
+  }
+
+  .product-88lb-hero__top-image {
+    justify-content: flex-start;
+  }
+
+  .product-88lb-hero__bottom-image {
+    justify-content: flex-end;
+  }
+
+  .product-88lb-hero__image {
+    width: auto;
+    height: auto;
+    max-width: 500px;
+    max-height: 300px;
+    border-radius: 20px;
+    transition: transform 0.3s ease;
+  }
+
+  .product-88lb-hero__image:hover {
+    transform: translateY(-5px);
+  }
+
+  .placeholder-image {
+    width: auto;
+    height: auto;
+    max-width: 500px;
+    max-height: 300px;
+    border-radius: 20px;
+    background: #f5f5f5;
+    border: 2px dashed #ddd;
+  }
+
+  /* Center Content */
+  .product-88lb-hero__content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    align-items: center;
+    justify-content: center;
+    max-width: 1924px;
+  }
+
+  .product-88lb-hero__title {
+    font-family: 'Barlow'
+    , sans-serif;
+    font-weight: 700;
+    color: #000000;
+    margin: 0;
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .product-88lb-hero__title .highlight {
+    color: #EB701F;
+  }
+
+  .product-88lb-hero__description {
+    font-family: 'Barlow'
+    , sans-serif;
+    font-weight: 400;
+    color: #333333;
+    margin: 0;
+    text-align: center;
+    line-height: 1.6;
+    max-width: 800px;
+  }
+
+  .product-88lb-hero__cta {
+    margin-top: 20px;
+  }
+
+  .product-88lb-hero__cta-button {
+    display: inline-block;
+    background: #EB701F;
+    color: #ffffff;
+    text-decoration: none;
+    padding: 18px 40px;
+    border-radius: 50px;
+    font-family: 'Barlow'
+    , sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(235, 112, 31, 0.3);
+  }
+
+  .product-88lb-hero__cta-button:hover {
+    background: #d55a0f;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(235, 112, 31, 0.4);
+  }
+
+  /* Responsive Design - Tablet */
+  @media (max-width: 1024px) {
+    .product-88lb-hero__container {
+      gap: 30px;
+      padding: 0 15px;
+    }
+
+    .product-88lb-hero__content {
+      padding: 30px 15px;
+      gap: 25px;
+    }
+
+    .product-88lb-hero__image {
+      max-width: 400px;
+      max-height: 250px;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .product-88lb-hero__container {
+      gap: 25px;
+    }
+
+    .product-88lb-hero__content {
+      padding: 25px 15px;
+      gap: 20px;
+    }
+
+    .product-88lb-hero__image {
+      max-width: 350px;
+      max-height: 220px;
+    }
+  }
+
+  /* Responsive Design - Mobile */
+  @media (max-width: 768px) {
+    .product-88lb-hero__container {
+      gap: 20px;
+      padding: 0 15px;
+    }
+
+    .product-88lb-hero__content {
+      padding: 20px 15px;
+      gap: 18px;
+    }
+
+    .product-88lb-hero__image {
+      max-width: 300px;
+      max-height: 180px;
+    }
+
+    .product-88lb-hero__cta-button {
+      padding: 16px 35px;
+      font-size: 16px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .product-88lb-hero__container {
+      padding: 0 10px;
+      gap: 15px;
+    }
+
+    .product-88lb-hero__content {
+      padding: 15px 10px;
+      gap: 15px;
+    }
+
+    .product-88lb-hero__image {
+      max-width: 250px;
+      max-height: 150px;
+    }
+
+    .product-88lb-hero__cta-button {
+      padding: 14px 30px;
+      font-size: 15px;
+    }
+  }
+
+  /* Animation for images on scroll */
+  @media (prefers-reduced-motion: no-preference) {
+    .product-88lb-hero__top-image,
+    .product-88lb-hero__bottom-image {
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeInUp 0.8s ease forwards;
+    }
+
+    .product-88lb-hero__top-image {
+      animation-delay: 0.2s;
+    }
+
+    .product-88lb-hero__bottom-image {
+      animation-delay: 0.4s;
+    }
+
+    .product-88lb-hero__content {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.8s ease forwards 0.6s;
+    }
+  }
+
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
+{% schema %}
+  {
+    "name": "88lb Product Hero",
+    "tag": "section",
+    "class": "product-88lb-hero-section",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Content Settings"
+      },
+      {
+        "type": "text",
+        "id": "main_title",
+        "label": "Main Title",
+        "default": "Titan-Tier Weight Capacity: Up to 88 lbs"
+      },
+      {
+        "type": "text",
+        "id": "highlight_text",
+        "label": "Text to Highlight (Orange)",
+        "default": "88 lbs",
+        "info": "Enter the exact word or phrase from the title that should be highlighted in orange"
+      },
+      {
+        "type": "range",
+        "id": "title_size",
+        "min": 24,
+        "max": 60,
+        "step": 2,
+        "unit": "px",
+        "label": "Title Font Size",
+        "default": 42
+      }, {
+        "type": "richtext",
+        "id": "description",
+        "label": "Description",
+        "default": "<p>Push past limits with dumbbells engineered for serious lifters. Adjustable from 11 to 88 lbs, they deliver the strength you need for progressive overload, muscle building, and peak performance. Unlike other sets, this powerhouse helps you unlock your full lifting potential.</p>"
+      }, {
+        "type": "range",
+        "id": "description_size",
+        "min": 14,
+        "max": 24,
+        "step": 1,
+        "unit": "px",
+        "label": "Description Font Size",
+        "default": 18
+      }, {
+        "type": "header",
+        "content": "Call to Action"
+      }, {
+        "type": "text",
+        "id": "cta_text",
+        "label": "CTA Button Text",
+        "default": "Shop Now"
+      }, {
+        "type": "url",
+        "id": "cta_link",
+        "label": "CTA Button Link"
+      }, {
+        "type": "header",
+        "content": "Images"
+      }, {
+        "type": "image_picker",
+        "id": "top_image",
+        "label": "Top Image (Left Aligned)"
+      }, {
+        "type": "image_picker",
+        "id": "bottom_image",
+        "label": "Bottom Image (Right Aligned)"
+      }, {
+        "type": "header",
+        "content": "Spacing"
+      }, {
+        "type": "range",
+        "id": "padding_top",
+        "min": 0,
+        "max": 100,
+        "step": 4,
+        "unit": "px",
+        "label": "Top padding",
+        "default": 60
+      }, {
+        "type": "range",
+        "id": "padding_bottom",
+        "min": 0,
+        "max": 100,
+        "step": 4,
+        "unit": "px",
+        "label": "Bottom padding",
+        "default": 60
+      }
+    ],
+    "presets": [
+      {
+        "name": "88lb Product Hero",
+        "settings": {
+          "main_title": "Titan-Tier Weight Capacity: Up to 88 lbs",
+          "highlight_text": "88 lbs",
+          "description": "<p>Push past limits with dumbbells engineered for serious lifters. Adjustable from 11 to 88 lbs, they deliver the strength you need for progressive overload, muscle building, and peak performance. Unlike other sets, this powerhouse helps you unlock your full lifting potential.</p>",
+          "cta_text": "Shop Now",
+          "padding_top": 60,
+          "padding_bottom": 60
+        }
+      }
+    ]
+  }
+{% endschema %}

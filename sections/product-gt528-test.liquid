@@ -1334,9 +1334,9 @@
           </p>
         </div>
         <div class="product-price-container desktop-only">
-          <p class="product-price">{{ product.price | money }}</p>
-          {%- if product.compare_at_price > product.price -%}
-            <p class="product-price-original">{{ product.compare_at_price | money }}</p>
+          <p class="product-price">{{ product.selected_or_first_available_variant.price | money }}</p>
+          {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
+            <p class="product-price-original">{{ product.selected_or_first_available_variant.compare_at_price | money }}</p>
           {%- endif -%}
         </div>
       </div>
@@ -1610,9 +1610,9 @@
 
       <!-- PRICE FOR MOBILE ONLY -->
       <div class="product-price-container mobile-only">
-        <p class="product-price">{{ product.price | money }}</p>
-        {%- if product.compare_at_price > product.price -%}
-          <p class="product-price-original">{{ product.compare_at_price | money }}</p>
+        <p class="product-price">{{ product.selected_or_first_available_variant.price | money }}</p>
+        {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
+          <p class="product-price-original">{{ product.selected_or_first_available_variant.compare_at_price | money }}</p>
         {%- endif -%}
       </div>
       <div class="add-to-cart-section">
@@ -2306,6 +2306,12 @@
           
           // Atualiza imagem principal baseada na variante selecionada
           updateMainImageForVariant(selectedVariant);
+          
+          // Log detalhado dos preços para debug
+          console.log('=== DEBUG PREÇOS ===');
+          console.log('Preço atual:', selectedVariant.price);
+          console.log('Preço de comparação:', selectedVariant.compare_at_price);
+          console.log('Tem desconto:', selectedVariant.compare_at_price > selectedVariant.price);
         }
       }
       
@@ -2395,6 +2401,7 @@
         
         priceElements.forEach(priceElement => {
           if (priceElement) {
+            // Formata o preço corretamente usando o formato do Shopify
             const price = (variant.price / 100).toFixed(2);
             priceElement.textContent = `$${price}`;
             console.log('Preço atualizado para:', price);
@@ -2403,15 +2410,16 @@
         
         originalPriceElements.forEach(originalPriceElement => {
           if (originalPriceElement) {
-            // Mostra preço riscado apenas para a variante Midnight
-            if (variant.option1 === 'Midnight' && variant.compare_at_price) {
+            // Verifica se a variante tem preço de comparação (compare_at_price)
+            if (variant.compare_at_price && variant.compare_at_price > variant.price) {
               const comparePrice = (variant.compare_at_price / 100).toFixed(2);
               originalPriceElement.textContent = `$${comparePrice}`;
               originalPriceElement.style.display = 'block';
-              console.log('Preço original atualizado para:', comparePrice);
+              console.log('Preço original (riscado) atualizado para:', comparePrice);
             } else {
-              // Esconde preço riscado para outras variantes
+              // Esconde preço riscado se não houver desconto
               originalPriceElement.style.display = 'none';
+              console.log('Preço riscado ocultado - sem desconto');
             }
           }
         });
@@ -2430,6 +2438,9 @@
       document.addEventListener('DOMContentLoaded', function() {
         console.log('DOM carregado, inicializando...');
         updateQuantityButtons();
+        
+        // Inicializa preços com a variante padrão
+        initializePrices();
         
         // Adiciona event listeners para as opções de variante
         const variantOptions = document.querySelectorAll('.variant-option');
@@ -2624,7 +2635,8 @@
           });
         });
         
-        return matchingVariant || null;
+        console.log('Variante selecionada para carrinho:', matchingVariant);
+        return matchingVariant || variants[0]; // Fallback para primeira variante
       }
       
       // Função para atualizar contador do carrinho (opcional)
@@ -2675,6 +2687,17 @@
            icon.textContent = '+';
          }
        }
+      
+      // Função para atualizar preços na inicialização
+      function initializePrices() {
+        const variants = {{ product.variants | json }};
+        const initialVariant = variants.find(variant => variant.id === {{ product.selected_or_first_available_variant.id }});
+        
+        if (initialVariant) {
+          console.log('Inicializando preços com variante:', initialVariant);
+          updatePrice(initialVariant);
+        }
+      }
     </script>
 
   </section>
@@ -2774,11 +2797,6 @@
         "id": "benefit_icon_3",
         "label": "Benefit Icon 3",
         "info": "Icon for third benefit"
-      }, {
-        "type": "text",
-        "id": "benefit_text_3",
-        "label": "Benefit Text 3",
-        "default": "Third Benefit Text"
       }
     ],
     "blocks": [
