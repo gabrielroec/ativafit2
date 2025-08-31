@@ -128,33 +128,77 @@
   }
 
   .strength-cards-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    flex-wrap: nowrap;
     gap: 40px;
     width: 100%;
+    max-width: none;
+    margin: 0;
+    justify-content: center;
+    padding: 0;
   }
 
-  /* Ajustes responsivos para telas maiores - 3 colunas quando houver 3+ itens */
-  @media (min-width: 1200px) {
-    .strength-cards-grid {
-      grid-template-columns: repeat(3, 1fr);
-      gap: 50px;
-    }
+  /* Layout inteligente baseado no número de itens */
+  .strength-cards-grid.few-items {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: center !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    gap: 20px !important;
+    padding: 0 20px !important;
   }
 
-  @media (min-width: 1680px) {
-    .strength-cards-grid {
-      grid-template-columns: repeat(3, 1fr);
-      gap: 70px;
-    }
+  .strength-cards-grid.many-items {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: flex-start !important;
+    max-width: none !important;
+    margin: 0 !important;
+    overflow-x: auto !important;
+    scroll-snap-type: x mandatory !important;
   }
 
+  /* Scroll profissional e suave */
+  .strength-cards-grid.many-items {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: flex-start !important;
+    max-width: none !important;
+    margin: 0 !important;
+    overflow-x: auto !important;
+    scroll-snap-type: x mandatory !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #EB701F #f0f0f0 !important;
+  }
 
-  @media (min-width: 2200px) {
-    .strength-cards-grid {
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-    }
+  /* Estilizar scrollbar para webkit */
+  .strength-cards-grid.many-items::-webkit-scrollbar {
+    height: 8px !important;
+  }
+
+  .strength-cards-grid.many-items::-webkit-scrollbar-track {
+    background: #f0f0f0 !important;
+    border-radius: 4px !important;
+  }
+
+  .strength-cards-grid.many-items::-webkit-scrollbar-thumb {
+    background: #EB701F !important;
+    border-radius: 4px !important;
+    transition: background 0.3s ease !important;
+  }
+
+  .strength-cards-grid.many-items::-webkit-scrollbar-thumb:hover {
+    background: #d65a0f !important;
+  }
+
+  /* Scroll snap para cada card */
+  .strength-cards-grid.many-items .strength-card {
+    min-width: 400px;
+    max-width: 450px;
+    margin: 0;
+    flex-shrink: 0;
+    scroll-snap-align: start !important;
   }
 
   .strength-card {
@@ -165,38 +209,28 @@
     transition: transform 0.3s ease
     , box-shadow 0.3s ease;
     width: 100%;
-    max-width: 450px;
+    max-width: 415px !important;
+    margin: 0;
+    flex-shrink: 1;
+    flex-grow: 1;
   }
 
-  /* Cards crescem progressivamente em telas maiores */
-  @media (min-width: 1200px) {
-    .strength-card {
-      max-width: 500px;
-    }
+  /* Centralizar quando há 3 itens ou menos - SEM SCROLL */
+  .strength-cards-grid.few-items .strength-card {
+    width: 100% !important;
+    max-width: 415px !important;
+    margin: 0 !important;
+    flex-shrink: 1 !important;
+    flex-grow: 1 !important;
   }
 
-  @media (min-width: 1440px) {
-    .strength-card {
-      max-width: 550px;
-    }
-  }
-
-  @media (min-width: 1680px) {
-    .strength-card {
-      max-width: 600px;
-    }
-  }
-
-  @media (min-width: 1920px) {
-    .strength-card {
-      max-width: 650px;
-    }
-  }
-
-  @media (min-width: 2200px) {
-    .strength-card {
-      max-width: 700px;
-    }
+  /* Quando há mais de 3 itens, deixa como scroll horizontal */
+  .strength-cards-grid.many-items .strength-card {
+    width: 100%;
+    max-width: 415px;
+    margin: 0;
+    flex-shrink: 0;
+    scroll-snap-align: start !important;
   }
 
   .strength-card:hover {
@@ -209,37 +243,6 @@
     height: 400px;
     overflow: hidden;
     border-radius: 35px;
-  }
-
-  /* Altura da imagem cresce proporcionalmente */
-  @media (min-width: 1200px) {
-    .strength-card__image {
-      height: 400px;
-    }
-  }
-
-  @media (min-width: 1440px) {
-    .strength-card__image {
-      height: 400px;
-    }
-  }
-
-  @media (min-width: 1680px) {
-    .strength-card__image {
-      height: 400px;
-    }
-  }
-
-  @media (min-width: 1920px) {
-    .strength-card__image {
-      height: 400px;
-    }
-  }
-
-  @media (min-width: 2200px) {
-    .strength-card__image {
-      height: 400px;
-    }
   }
 
   .strength-card__image img {
@@ -399,18 +402,14 @@
 
   /* Responsive Breakpoints - 2 por linha em telas médias */
   @media (max-width: 1199px) and (min-width: 1025px) {
-    .strength-cards-grid {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 40px;
-      width: 100%;
+    .strength-cards-grid.few-items {
+      justify-content: center !important;
+      max-width: 100% !important;
     }
 
-    .strength-card {
-      max-width: none;
-    }
-
-    .strength-card__image {
-      height: 400px;
+    .strength-cards-grid.many-items {
+      justify-content: flex-start !important;
+      max-width: none !important;
     }
   }
 
@@ -423,11 +422,39 @@
     }
 
     .strength-cards-desktop {
-      display: none;
+      display: none !important;
     }
 
     .strength-cards-mobile {
-      display: block;
+      display: block !important;
+    }
+
+    /* No mobile, sempre usar slider - ESCONDER COMPLETAMENTE O GRID */
+    .strength-cards-grid {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      height: 0 !important;
+      overflow: hidden !important;
+    }
+
+    /* Garantir que o mobile slider seja visível */
+    .mobile-slider-container {
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+
+    .mobile-card {
+      display: block !important;
+    }
+
+    .mobile-card.hidden {
+      display: none !important;
+    }
+
+    .mobile-dots {
+      display: flex !important;
     }
   }
 
@@ -444,6 +471,47 @@
 
     .mobile-card__content {
       padding: 20px;
+    }
+  }
+
+  /* Responsive Breakpoints - Ajuste automático sem scroll */
+  @media (max-width: 1400px) and (min-width: 1025px) {
+    .strength-cards-grid.few-items {
+      gap: 15px !important;
+    }
+
+    .strength-cards-grid.few-items .strength-card {
+      max-width: 380px !important;
+    }
+  }
+
+  @media (max-width: 1200px) and (min-width: 1025px) {
+    .strength-cards-grid.few-items {
+      gap: 12px !important;
+    }
+
+    .strength-cards-grid.few-items .strength-card {
+      max-width: 340px !important;
+    }
+  }
+
+  @media (max-width: 1100px) and (min-width: 1025px) {
+    .strength-cards-grid.few-items {
+      gap: 10px !important;
+    }
+
+    .strength-cards-grid.few-items .strength-card {
+      max-width: 300px !important;
+    }
+  }
+
+  @media (max-width: 1024px) and (min-width: 1025px) {
+    .strength-cards-grid.few-items {
+      gap: 8px !important;
+    }
+
+    .strength-cards-grid.few-items .strength-card {
+      max-width: 260px !important;
     }
   }
 </style>
@@ -545,7 +613,7 @@
   console.log('Mobile slider initialized with', mobileCards.length, 'cards');
   });
 
-  // Desktop Grid Layout Management
+  // Desktop Layout Management
   document.addEventListener('DOMContentLoaded', function() {
     const sectionId = '{{ section.id }}';
     const strengthCardsGrid = document.querySelector(`[data-section-id="${sectionId}"] .strength-cards-grid`);
@@ -557,24 +625,59 @@
     
     console.log('Total strength cards:', totalCards);
     
-    // Aplicar layout baseado no número de cards
-    if (totalCards === 2) {
-      strengthCardsGrid.style.gridTemplateColumns = 'repeat(2, 1fr)';
-      strengthCardsGrid.style.maxWidth = '900px';
-      strengthCardsGrid.style.margin = '0 auto';
-      console.log('Applied 2-column layout');
-    } else if (totalCards === 3) {
-      strengthCardsGrid.style.gridTemplateColumns = 'repeat(3, 1fr)';
-      strengthCardsGrid.style.maxWidth = 'none';
-      strengthCardsGrid.style.margin = '0';
-      console.log('Applied 3-column layout');
-    } else if (totalCards >= 4) {
-      strengthCardsGrid.style.gridTemplateColumns = 'repeat(2, 1fr)';
-      strengthCardsGrid.style.maxWidth = 'none';
-      strengthCardsGrid.style.margin = '0';
-      console.log('Applied 2x2 layout for', totalCards, 'cards');
+    // Função para aplicar layout responsivo
+    function applyResponsiveLayout() {
+      const windowWidth = window.innerWidth;
+      
+      if (totalCards <= 3) {
+        // 3 itens ou menos: centralizar na mesma linha (SEM SCROLL)
+        strengthCardsGrid.classList.add('few-items');
+        strengthCardsGrid.classList.remove('many-items');
+        strengthCardsGrid.style.overflowX = 'visible';
+        
+        // Calcular gap dinamicamente baseado na largura disponível
+        const containerWidth = windowWidth - 40; // 20px padding de cada lado
+        const cardMaxWidth = 415; // Largura máxima do card
+        const totalCardsWidth = totalCards * cardMaxWidth;
+        const availableSpace = containerWidth - totalCardsWidth;
+        
+        if (availableSpace > 0) {
+          // Se há espaço suficiente, usar gap padrão
+          const gap = Math.min(20, availableSpace / (totalCards + 1));
+          strengthCardsGrid.style.gap = gap + 'px';
+        } else {
+          // Se não há espaço suficiente, reduzir gap progressivamente
+          let gap = 20;
+          if (windowWidth <= 1024) gap = 8;
+          else if (windowWidth <= 1100) gap = 10;
+          else if (windowWidth <= 1200) gap = 12;
+          else if (windowWidth <= 1400) gap = 15;
+          else gap = 20;
+          strengthCardsGrid.style.gap = gap + 'px';
+        }
+        
+        console.log('Applied centered responsive layout for', totalCards, 'cards at', windowWidth, 'px width, gap:', strengthCardsGrid.style.gap);
+      } else {
+        // Mais de 3 itens: scroll horizontal profissional
+        strengthCardsGrid.classList.add('many-items');
+        strengthCardsGrid.classList.remove('few-items');
+        strengthCardsGrid.style.overflowX = 'auto';
+        console.log('Applied scrollable layout for', totalCards, 'cards');
+      }
     }
+    
+    // Aplicar layout inicial
+    applyResponsiveLayout();
+    
+    // Aplicar layout quando a janela for redimensionada
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(applyResponsiveLayout, 100);
+    });
   });
+
+  // Mobile slider functionality complete
 </script>
 
 {% schema %}
