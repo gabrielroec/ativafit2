@@ -6,368 +6,437 @@
 
     {%- if section.blocks.size > 0 -%}
       {%- for block in section.blocks -%}
-        <div class="feature-row{% if forloop.index == 2 %} reverse{% endif %}" {{ block.shopify_attributes }}>
-          <div class="feature-image">
-            {%- if block.settings.feature_image != blank -%}
-              <img
-                src="{{ block.settings.feature_image | img_url: '600x400' }}"
-                alt="{{ block.settings.feature_image.alt | default: block.settings.feature_title }}"
-                width="600"
-                height="400"
-                loading="lazy">
-            {%- else -%}
-              {{ 'product-1' | placeholder_svg_tag: 'placeholder-image' }}
-            {%- endif -%}
-          </div>
+        <div
+          class="feature-row{% if forloop.index == 2 %} reverse{% endif %}"
+          {{ block.shopify_attributes }}
+          data-block-id="{{ block.id }}">
+          <style > :root
+          {
+            --title-size-desktop-{{ block.id }}: {{ block.settings.title_size_desktop }}px;
+            --desc-size-desktop-{{ block.id }}: {{ block.settings.description_size_desktop }}px;
+            --title-size-mobile-{{ block.id }}: {{ block.settings.title_size_mobile }}px;
+            --desc-size-mobile-{{ block.id }}: {{ block.settings.description_size_mobile }}px;
+          }
 
-          <div class="feature-content">
-            {%- if block.settings.title_part1 != blank or block.settings.highlight_text != blank -%}
-              <h3 class="feature-title">
-                {%- if block.settings.title_part1 != blank -%}
-                  <span class="title-line-1">{{ block.settings.title_part1 }}</span>
-                {%- endif -%}
-                {%- if block.settings.highlight_text != blank or block.settings.title_part2 != blank -%}
-                  <div class="title-line-2-container">
-                    {%- if block.settings.highlight_text != blank -%}
-                      <span class="title-line-2 highlight-text">{{ block.settings.highlight_text }}</span>
-                    {%- endif -%}
-                    {%- if block.settings.title_part2 != blank -%}
-                      <span class="title-line-2">{{ block.settings.title_part2 }}</span>
-                    {%- endif -%}
-                  </div>
-                {%- endif -%}
-              </h3>
-            {%- endif -%}
+          [data-block-id="{{ block.id }}"] .feature-title {
+            font-size: var(--title-size-desktop-{{ block.id }});
+          }
+          [data-block-id="{{ block.id }}"] .feature-description {
+            font-size: var(--desc-size-desktop-{{ block.id }});
+          }
 
-            {%- if block.settings.feature_description != blank -%}
-              <p class="feature-description">{{ block.settings.feature_description }}</p>
-            {%- endif -%}
-          </div>
+          @media screen and (max-width: 1024px),
+          screen and (max-width: 9999px) and(min-width: 0px) and(prefers-reduced-motion: reduce) {
+            [data-block-id="{{ block.id }}"] .feature-title {
+              font-size: var(--title-size-mobile-{{ block.id }});
+            }
+            [data-block-id="{{ block.id }}"] .feature-description {
+              font-size: var(--desc-size-mobile-{{ block.id }});
+            }
+          }
+        </style>
+        <script>
+              document.addEventListener('shopify:section:load', function() {
+                const block = document.querySelector('[data-block-id="{{ block.id }}"]');
+                if (!block) return;
+
+                function updateFontSizes() {
+                  const isMobileView = window.matchMedia('(max-width: 1024px)').matches || 
+                                     document.documentElement.classList.contains('shopify-mobile-preview');
+                  
+                  const root = document.documentElement;
+                  if (isMobileView) {
+                    root.style.setProperty('--title-size-desktop-{{ block.id }}', '{{ block.settings.title_size_mobile }}px');
+                    root.style.setProperty('--desc-size-desktop-{{ block.id }}', '{{ block.settings.description_size_mobile }}px');
+                  } else {
+                    root.style.setProperty('--title-size-desktop-{{ block.id }}', '{{ block.settings.title_size_desktop }}px');
+                    root.style.setProperty('--desc-size-desktop-{{ block.id }}', '{{ block.settings.description_size_desktop }}px');
+                  }
+                }
+
+                // Atualiza quando o modo de visualização muda
+                const observer = new MutationObserver(function(mutations) {
+                  mutations.forEach(function(mutation) {
+                    if (mutation.target.classList.contains('shopify-mobile-preview')) {
+                      updateFontSizes();
+                    }
+                  });
+                });
+
+                observer.observe(document.documentElement, {
+                  attributes: true,
+                  attributeFilter: ['class']
+                });
+
+                // Atualização inicial
+                updateFontSizes();
+              });
+        </script>
+        <style>
+          [data-block-id="{{ block.id }}"] .feature-title,
+          [data-block-id="{{ block.id }}"] .feature-description {
+            transition: font-size 0.3s ease;
+          }
+        </style>
+        <div class="feature-image">
+          {%- if block.settings.feature_image != blank -%}
+            <img
+              src="{{ block.settings.feature_image | image_url: width: 600, height: 400 }}"
+              alt="{{ block.settings.feature_image.alt | default: block.settings.feature_title }}"
+              width="600"
+              height="400"
+              loading="lazy">
+          {%- else -%}
+            {{ 'product-1' | placeholder_svg_tag: 'placeholder-image' }}
+          {%- endif -%}
         </div>
-      {%- endfor -%}
-    {%- endif -%}
 
-  </div>
-</section>
+        <div class="feature-content">
+          {%- if block.settings.title_part1 != blank or block.settings.highlight_text != blank -%}
+            <h3 class="feature-title">
+              {%- if block.settings.title_part1 != blank -%}
+                <span class="title-line-1">{{ block.settings.title_part1 }}</span>
+              {%- endif -%}
+              {%- if block.settings.highlight_text != blank or block.settings.title_part2 != blank -%}
+                <div class="title-line-2-container">
+                  {%- if block.settings.highlight_text != blank -%}
+                    <span class="title-line-2 highlight-text">{{ block.settings.highlight_text }}</span>
+                  {%- endif -%}
+                  {%- if block.settings.title_part2 != blank -%}
+                    <span class="title-line-2">{{ block.settings.title_part2 }}</span>
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+            </h3>
+          {%- endif -%}
 
-<style>
+          {%- if block.settings.feature_description != blank -%}
+            <p class="feature-description">{{ block.settings.feature_description }}</p>
+          {%- endif -%}
+        </div>
+      </div>
+    {%- endfor -%}
+  {%- endif -%}
+
+</div></section><style>
+/* Product Features - Inline Font Sizes v3.0 - {{ 'now' | date: '%Y%m%d%H%M%S' }} */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.feature-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.feature-row:last-child {
+  margin-bottom: 0;
+}
+
+.feature-row.reverse {
+  direction: rtl;
+}
+
+.feature-row.reverse .feature-image,
+.feature-row.reverse .feature-content {
+  direction: ltr;
+}
+
+.feature-row.reverse .feature-content {
+  padding-left: 80px;
+}
+
+.feature-image {
+  width: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+}
+
+.feature-image img,
+.feature-image svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+.feature-content {
+  padding: 0;
+  width: 100%;
+}
+
+.feature-container .feature-title {
+  font-family: 'Barlow'
+  , sans-serif;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0;
+  color: #000000;
+  margin: 0 0 24px;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.title-line-1 {
+  display: block;
+  color: #000000;
+}
+
+.title-line-2 {
+  display: inline;
+}
+
+/* Container para as line-2 ficarem na mesma linha */
+.title-line-2-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.highlight-text {
+  color: #EB701F;
+}
+
+.feature-container .feature-description {
+  font-family: Barlow;
+  font-weight: 500 !important;
+  font-style: Medium;
+  leading-trim: NONE;
+  line-height: 1.24;
+  letter-spacing: 0;
+  max-width: 480px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
   .container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0;
+    padding: 0 30px;
   }
 
   .feature-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 60px;
-    align-items: center;
-    margin-bottom: 20px;
-    width: 100%;
+    gap: 50px;
+    margin-bottom: 70px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 20px;
   }
 
-  .feature-row:last-child {
-    margin-bottom: 0;
+  .feature-row {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    margin-bottom: 60px;
   }
 
   .feature-row.reverse {
-    direction: rtl;
-  }
-
-  .feature-row.reverse .feature-image,
-  .feature-row.reverse .feature-content {
     direction: ltr;
   }
 
+  /* Remove padding-left no mobile para reverse rows */
   .feature-row.reverse .feature-content {
-    padding-left: 80px;
-  }
-
-  .feature-image {
-    width: 100%;
-    border-radius: 20px;
-    overflow: hidden;
-    aspect-ratio: 4 / 3;
-  }
-
-  .feature-image img,
-  .feature-image svg {
-    width: 100%;
-    height: 100%;
-    display: block;
-    object-fit: contain;
+    padding-left: 0 !important;
   }
 
   .feature-content {
-    padding: 0;
-    width: 100%;
+    text-align: left;
+    order: 2;
   }
 
-  .feature-title {
-    font-family: 'Barlow'
-    , sans-serif;
-    font-weight: 700;
-    font-size: {{ block.settings.title_font_size | default: 32 }}px;
+  .feature-image {
+    order: 1;
+    border-radius: 16px;
+    aspect-ratio: 16 / 10;
+  }
+
+  .feature-container .feature-title {
     line-height: 1.1;
-    letter-spacing: 0;
-    color: #000000;
-    margin: 0 0 24px;
-    max-width: 480px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    margin-bottom: 20px;
   }
 
-  .title-line-1 {
-    display: block;
-    color: #000000;
+  .feature-container .feature-description {
+    line-height: 1.1;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 15px;
   }
 
-  .title-line-2 {
-    display: inline;
+  .feature-row {
+    gap: 30px;
+    margin-bottom: 50px;
   }
 
-  /* Container para as line-2 ficarem na mesma linha */
-  .title-line-2-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: baseline;
+  /* Remove padding-left no mobile pequeno também */
+  .feature-row.reverse .feature-content {
+    padding-left: 0 !important;
   }
 
-  .highlight-text {
-    color: #EB701F;
+  .feature-container .feature-title {
+    line-height: 1.1;
   }
 
-  .feature-description {
-    font-family: Barlow;
-    font-weight: 500 !important;
-    font-style: Medium;
-    font-size: {{ block.settings.description_font_size | default: 20 }}
-    px !important;
-    leading-trim: NONE;
-    line-height: 1.24;
-    letter-spacing: 0;
-    max-width: 480px;
+  .feature-container .feature-description {
+    line-height: 1.1;
   }
 
-  /* Responsive */
-  @media (max-width: 1024px) {
-    .container {
-      padding: 0 30px;
-    }
-
-    .feature-row {
-      gap: 50px;
-      margin-bottom: 70px;
-    }
+  .feature-image {
+    border-radius: 12px;
   }
-
-  @media (max-width: 768px) {
-    .container {
-      padding: 0 20px;
+}</style>{% schema %}
+{
+  "name": "Product Features",
+  "max_blocks": 6,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Spacing Settings"
+    }, {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 0
+    }, {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 0
     }
-
-    .feature-row {
-      grid-template-columns: 1fr;
-      gap: 30px;
-      margin-bottom: 60px;
+  ],
+  "blocks": [
+    {
+      "type": "feature",
+      "name": "Feature Block",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "feature_image",
+          "label": "Feature Image"
+        },
+        {
+          "type": "header",
+          "content": "Title Settings"
+        },
+        {
+          "type": "text",
+          "id": "title_part1",
+          "label": "Title Part 1",
+          "default": "Space-Saving Strength:"
+        },
+        {
+          "type": "text",
+          "id": "highlight_text",
+          "label": "Highlight Text (orange)",
+          "default": "5.5-27.5 lbs"
+        }, {
+          "type": "text",
+          "id": "title_part2",
+          "label": "Title Part 2 (optional)"
+        }, {
+          "type": "header",
+          "content": "Typography Settings"
+        }, {
+          "type": "header",
+          "content": "Desktop Typography (>1024px)"
+        }, {
+          "type": "number",
+          "id": "title_size_desktop",
+          "label": "Title Size Desktop",
+          "default": 32
+        }, {
+          "type": "number",
+          "id": "description_size_desktop",
+          "label": "Description Size Desktop",
+          "default": 20
+        }, {
+          "type": "header",
+          "content": "Mobile Typography (≤1024px)"
+        }, {
+          "type": "number",
+          "id": "title_size_mobile",
+          "label": "Title Size Mobile",
+          "default": 26
+        }, {
+          "type": "number",
+          "id": "description_size_mobile",
+          "label": "Description Size Mobile",
+          "default": 18
+        }, {
+          "type": "header",
+          "content": "Content Settings"
+        }, {
+          "type": "textarea",
+          "id": "feature_description",
+          "label": "Feature Description",
+          "default": "One dumbbell, five weights. Perfect for your entire fitness journey while saving 90% of your space."
+        }
+      ]
     }
-
-    .feature-row.reverse {
-      direction: ltr;
-    }
-
-    /* Remove padding-left no mobile para reverse rows */
-    .feature-row.reverse .feature-content {
-      padding-left: 0 !important;
-    }
-
-    .feature-content {
-      text-align: left;
-      order: 2;
-    }
-
-    .feature-image {
-      order: 1;
-      border-radius: 16px;
-      aspect-ratio: 16 / 10;
-    }
-
-    .feature-title {
-      font-size: {{ block.settings.title_font_size | default: 32 | divided_by: 1.25 | round }}px;
-      line-height: 1.1;
-      margin-bottom: 20px;
-    }
-
-    .feature-description {
-      font-size: {{ block.settings.description_font_size | default: 20 | divided_by: 1.25 | round }}
-      px !important;
-      line-height: 1.1;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .container {
-      padding: 0 15px;
-    }
-
-    .feature-row {
-      gap: 30px;
-      margin-bottom: 50px;
-    }
-
-    /* Remove padding-left no mobile pequeno também */
-    .feature-row.reverse .feature-content {
-      padding-left: 0 !important;
-    }
-
-    .feature-title {
-      font-size: 28px;
-      line-height: 32px;
-    }
-
-    .feature-description {
-      font-size: 20px !important;
-      line-height: 20px;
-    }
-
-    .feature-image {
-      border-radius: 12px;
-    }
-  }
-</style>
-
-{% schema %}
-  {
-    "name": "Product Features",
-    "max_blocks": 6,
-    "settings": [
-      {
-        "type": "header",
-        "content": "Spacing Settings"
-      }, {
-        "type": "range",
-        "id": "padding_top",
-        "min": 0,
-        "max": 100,
-        "step": 4,
-        "unit": "px",
-        "label": "Padding top",
-        "default": 0
-      }, {
-        "type": "range",
-        "id": "padding_bottom",
-        "min": 0,
-        "max": 100,
-        "step": 4,
-        "unit": "px",
-        "label": "Padding bottom",
-        "default": 0
-      }
-    ],
-    "blocks": [
-      {
-        "type": "feature",
-        "name": "Feature Block",
-        "settings": [
-          {
-            "type": "image_picker",
-            "id": "feature_image",
-            "label": "Feature Image"
-          },
-          {
-            "type": "header",
-            "content": "Title Settings"
-          },
-          {
-            "type": "text",
-            "id": "title_part1",
-            "label": "Title Part 1",
-            "default": "Space-Saving Strength:"
-          },
-          {
-            "type": "text",
-            "id": "highlight_text",
-            "label": "Highlight Text (orange)",
-            "default": "5.5-27.5 lbs"
-          }, {
-            "type": "text",
-            "id": "title_part2",
-            "label": "Title Part 2 (optional)"
-          }, {
-            "type": "header",
-            "content": "Typography Settings"
-          }, {
-            "type": "range",
-            "id": "title_font_size",
-            "label": "Title Font Size",
-            "min": 20,
-            "max": 60,
-            "step": 2,
-            "unit": "px",
-            "default": 32,
-            "info": "Font size for the feature title"
-          }, {
-            "type": "range",
-            "id": "description_font_size",
-            "label": "Description Font Size",
-            "min": 14,
-            "max": 32,
-            "step": 1,
-            "unit": "px",
-            "default": 20,
-            "info": "Font size for the feature description"
-          }, {
-            "type": "header",
-            "content": "Content Settings"
-          }, {
-            "type": "textarea",
-            "id": "feature_description",
-            "label": "Feature Description",
-            "default": "One dumbbell, five weights. Perfect for your entire fitness journey while saving 90% of your space."
+  ],
+  "presets": [
+    {
+      "category": "Product",
+      "name": "Product Features",
+      "blocks": [
+        {
+          "type": "feature",
+          "settings": {
+            "title_part1": "Space-Saving Strength:",
+            "highlight_text": "5.5-27.5 lbs",
+            "title_part2": "",
+            "title_size_desktop": 32,
+            "description_size_desktop": 20,
+            "title_size_mobile": 26,
+            "description_size_mobile": 18,
+            "feature_description": "One dumbbell, five weights. Perfect for your entire fitness journey while saving 90% of your space."
           }
-        ]
-      }
-    ],
-    "presets": [
-      {
-        "category": "Product",
-        "name": "Product Features",
-        "blocks": [
-          {
-            "type": "feature",
-            "settings": {
-              "title_part1": "Space-Saving Strength:",
-              "highlight_text": "5.5-27.5 lbs",
-              "title_part2": "",
-              "title_font_size": 32,
-              "description_font_size": 20,
-              "feature_description": "One dumbbell, five weights. Perfect for your entire fitness journey while saving 90% of your space."
-            }
-          }, {
-            "type": "feature",
-            "settings": {
-              "title_part1": "Glide Tech:",
-              "highlight_text": "3-Second",
-              "title_part2": "Weight Switch",
-              "title_font_size": 32,
-              "description_font_size": 20,
-              "feature_description": "Glide Tech lets you switch weights in just 3 seconds. Keep your flow, stay in the zone, and focus on the burn."
-            }
-          }, {
-            "type": "feature",
-            "settings": {
-              "title_part1": "Compact Size:",
-              "highlight_text": "13.39\" D × 7.87\" W × 5.91\" H",
-              "title_part2": "",
-              "title_font_size": 32,
-              "description_font_size": 20,
-              "feature_description": "Sleek and compact. Slide it under the bed or tuck it in a closet. Your gym is wherever you want it to be."
-            }
+        }, {
+          "type": "feature",
+          "settings": {
+            "title_part1": "Glide Tech:",
+            "highlight_text": "3-Second",
+            "title_part2": "Weight Switch",
+            "title_size_desktop": 32,
+            "description_size_desktop": 20,
+            "title_size_mobile": 26,
+            "description_size_mobile": 18,
+            "feature_description": "Glide Tech lets you switch weights in just 3 seconds. Keep your flow, stay in the zone, and focus on the burn."
           }
-        ]
-      }
-    ]
-  }
-{% endschema %}
+        }, {
+          "type": "feature",
+          "settings": {
+            "title_part1": "Compact Size:",
+            "highlight_text": "13.39\" D × 7.87\" W × 5.91\" H",
+            "title_part2": "",
+            "title_size_desktop": 32,
+            "description_size_desktop": 20,
+            "title_size_mobile": 26,
+            "description_size_mobile": 18,
+            "feature_description": "Sleek and compact. Slide it under the bed or tuck it in a closet. Your gym is wherever you want it to be."
+          }
+        }
+      ]
+    }
+  ]
+}{% endschema %}

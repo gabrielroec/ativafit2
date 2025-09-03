@@ -1,0 +1,222 @@
+<!-- Simple Banner Only Image Section -->
+<section id="sb-{{ section.id }}" class="simple-banner-only-image">
+  {%- liquid
+    assign desktop_image = section.settings.desktop_image
+    assign mobile_image = section.settings.mobile_image
+    assign alt_text = section.settings.alt_text | default: ''
+    assign link_url = section.settings.link_url
+    assign preload_image = section.settings.preload_image
+    assign section_bg_color = section.settings.section_bg_color | default: 'transparent'
+    
+    # Padding settings
+    assign padding_top_desktop = section.settings.padding_top_desktop | default: 0
+    assign padding_top_mobile = section.settings.padding_top_mobile | default: 0
+    assign padding_bottom_desktop = section.settings.padding_bottom_desktop | default: 0
+    assign padding_bottom_mobile = section.settings.padding_bottom_mobile | default: 0
+    
+
+  -%}
+
+  <div class="banner-wrapper">
+    {%- if link_url != blank -%}<a href="{{ link_url }}" class="banner-link">{%- endif -%}
+    
+{%- if desktop_image -%}
+      <img
+        src="{{ desktop_image | image_url: width: 2000 }}"
+        alt="{{ alt_text }}"
+        class="banner-image banner-image-desktop"
+        loading="{% if preload_image %}eager{% else %}lazy{% endif %}"
+        width="{{ desktop_image.width }}"
+        height="{{ desktop_image.height }}">
+      <img
+        src="{{ mobile_image | default: desktop_image | image_url: width: 1000 }}"
+        alt="{{ mobile_image.alt | default: desktop_image.alt | default: alt_text }}"
+        class="banner-image banner-image-mobile"
+        loading="{% if preload_image %}eager{% else %}lazy{% endif %}"
+        width="{{ mobile_image.width | default: desktop_image.width }}"
+        height="{{ mobile_image.height | default: desktop_image.height }}">
+    {%- else -%}
+      <div class="banner-placeholder">
+        <p>Add an image to display your banner</p>
+      </div>
+    {%- endif -%}
+    
+    {%- if link_url != blank -%}</a>{%- endif -%}
+  </div>
+</section>
+
+<style>
+  #sb-{{ section.id }} {
+    background-color: {{ section_bg_color }};
+    padding-top: {{ padding_top_mobile }}px;
+    padding-bottom: {{ padding_bottom_mobile }}px;
+  }
+  
+  #sb-{{ section.id }} .banner-wrapper {
+    width: 100%;
+    position: relative;
+  }
+  
+  #sb-{{ section.id }} .banner-link {
+    display: block;
+    text-decoration: none;
+  }
+  
+  #sb-{{ section.id }} .banner-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+  }
+  
+  #sb-{{ section.id }} .banner-image-desktop {
+    display: none;
+  }
+  
+  #sb-{{ section.id }} .banner-image-mobile {
+    display: block;
+  }
+  
+  #sb-{{ section.id }} .banner-placeholder {
+    width: 100%;
+    min-height: 200px;
+    background-color: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-size: 16px;
+  }
+  
+  /* Desktop styles */
+  @media (min-width: 1024px) {
+    #sb-{{ section.id }} {
+      padding-top: {{ padding_top_desktop }}px;
+      padding-bottom: {{ padding_bottom_desktop }}px;
+    }
+    
+    #sb-{{ section.id }} .banner-image-desktop {
+      display: block;
+    }
+    
+    #sb-{{ section.id }} .banner-image-mobile {
+      display: none;
+    }
+  }
+</style>
+
+{%- schema -%}
+{
+  "name": "Simple Banner Only Image",
+  "tag": "section",
+  "class": "section-simple-banner-only-image",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Images"
+    },
+    {
+      "type": "image_picker",
+      "id": "desktop_image",
+      "label": "Desktop Image",
+      "info": "Displayed on screens 1024px and wider"
+    },
+    {
+      "type": "image_picker", 
+      "id": "mobile_image",
+      "label": "Mobile Image",
+      "info": "Displayed on screens smaller than 1024px. Falls back to desktop image if not set."
+    },
+    {
+      "type": "text",
+      "id": "alt_text",
+      "label": "Alt Text",
+      "info": "Describe the image for screen readers and SEO"
+    },
+    {
+      "type": "header",
+      "content": "Link"
+    },
+    {
+      "type": "url",
+      "id": "link_url",
+      "label": "Banner Link URL",
+      "info": "Make the entire banner clickable (optional)"
+    },
+    {
+      "type": "header",
+      "content": "Performance"
+    },
+    {
+      "type": "checkbox",
+      "id": "preload_image",
+      "label": "Preload Image",
+      "default": false,
+      "info": "Enable for above-the-fold banners to improve loading speed"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color",
+      "id": "section_bg_color",
+      "label": "Background Color",
+      "default": "transparent"
+    },
+    {
+      "type": "header",
+      "content": "Spacing - Mobile"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top Padding (Mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile", 
+      "label": "Bottom Padding (Mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Spacing - Desktop"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_desktop",
+      "label": "Top Padding (Desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 8,
+      "unit": "px", 
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_desktop",
+      "label": "Bottom Padding (Desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 8,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Simple Banner Only Image"
+    }
+  ]
+}
+{%- endschema -%}

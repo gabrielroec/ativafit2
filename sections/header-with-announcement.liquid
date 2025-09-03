@@ -1,9 +1,3 @@
-{%- capture section_settings -%}
-{
-  "showNewsletter": {{ section.settings.show_newsletter | json }}
-}
-{%- endcapture -%}
-
 {%- style -%}
   /* UNIFIED HEADER + ANNOUNCEMENT BAR COMPONENT */
 
@@ -125,6 +119,16 @@
 
   .announcement-bar__text--static:hover {
     color: #eb701f;
+  }
+
+  @media screen and (max-width: 768px) {
+    .announcement-bar__text--static {
+      max-width: 100%;
+      white-space: normal;
+      text-overflow: unset;
+      overflow: visible;
+      line-height: 1.4;
+    }
   }
 
   .announcement-bar__button {
@@ -316,6 +320,77 @@
 
   .header-navigation__dropdown-link:hover {
     color: #ffffff;
+  }
+
+  .header-navigation__dropdown-item {
+    position: relative;
+  }
+
+  .header-navigation__sub-dropdown {
+    position: absolute;
+    left: 100%;
+    top: 0;
+    background: #fff;
+    min-width: 200px;
+    padding: 15px 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-10px);
+    z-index: 15;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    border-left: 1px solid #f0f0f0;
+    border-radius: 0 8px 8px 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .header-navigation__dropdown-item:hover .header-navigation__sub-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+  }
+
+  .header-navigation__sub-dropdown-link {
+    color: #000;
+    text-decoration: none;
+    font-size: 14px;
+    padding: 8px 25px;
+    display: block;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    transform: translateX(0);
+  }
+
+  .header-navigation__sub-dropdown-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #eb7122, #ff8c42);
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: -1;
+  }
+
+  .header-navigation__sub-dropdown-link:hover::before {
+    width: 100%;
+  }
+
+  .header-navigation__sub-dropdown-link:hover {
+    color: #ffffff;
+    transform: translateX(0px);
+  }
+
+  .icon-arrow-sub {
+    width: 8px;
+    height: 12px;
+    fill: currentColor;
+    margin-left: 8px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .header-navigation__dropdown-link:hover .icon-arrow-sub {
+    transform: rotate(90deg);
   }
 
   .header-actions {
@@ -556,6 +631,57 @@
     transform: translateX(10px);
   }
 
+  /* NOVO: Submenu de segundo nível no mobile */
+  .header-mobile-submenu-item {
+    position: relative;
+  }
+
+  .header-mobile-submenu-level2 {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    background: #f0f0f0;
+    margin: 0 -20px;
+    padding: 0 20px;
+  }
+
+  .header-mobile-submenu-item.open .header-mobile-submenu-level2 {
+    max-height: 300px;
+  }
+
+  .header-mobile-submenu-link-level2 {
+    color: #888;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 400;
+    padding: 10px 20px;
+    display: block;
+    border-bottom: 1px solid #ddd;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .header-mobile-submenu-link-level2::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #eb7122, #ff8c42);
+    transition: width 0.3s ease;
+    z-index: -1;
+  }
+
+  .header-mobile-submenu-link-level2:hover::before {
+    width: 100%;
+  }
+
+  .header-mobile-submenu-link-level2:hover {
+    color: #ffffff;
+    transform: translateX(15px);
+  }
+
   /* NOVO: Ícone de seta para submenus */
   .mobile-menu-arrow {
     width: 16px;
@@ -788,7 +914,23 @@
                       <div class="header-navigation__dropdown-item">
                         <a href="{{ childlink.url }}" class="header-navigation__dropdown-link">
                           {{ childlink.title }}
+                          {%- if childlink.links.size > 0 -%}
+                            <svg class="icon-arrow-sub" viewBox="0 0 8 12">
+                              <path
+                                d="M1 1l3 5 3-5"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2" />
+                            </svg>
+                          {%- endif -%}
                         </a>
+                        {%- if childlink.links.size > 0 -%}
+                          <div class="header-navigation__sub-dropdown">
+                            {%- for subchildlink in childlink.links -%}
+                              <a href="{{ subchildlink.url }}" class="header-navigation__sub-dropdown-link">{{ subchildlink.title }}</a>
+                            {%- endfor -%}
+                          </div>
+                        {%- endif -%}
                       </div>
                     {%- endfor -%}
                   </div>
@@ -800,7 +942,7 @@
 
         <!-- Header Actions -->
         <div class="header-actions">
-          <a href="/search" class="header-search">
+          <a href="{{ routes.search_url }}" class="header-search">
             <svg
               width="32"
               height="32"
@@ -815,7 +957,7 @@
               <path d="M24.7264 23.3951L20.2891 18.9395C21.4304 17.6322 22.0559 15.9773 22.0551 14.2675C22.0551 10.2603 18.6782 7 14.5275 7C10.3769 7 7 10.2603 7 14.2675C7 18.2747 10.3769 21.535 14.5275 21.535C16.0857 21.535 17.5706 21.0812 18.8402 20.2199L23.3112 24.7093C23.4981 24.8967 23.7494 25 24.0188 25C24.2738 25 24.5156 24.9062 24.6992 24.7355C24.8866 24.5611 24.9947 24.322 24.9998 24.0708C25.0049 23.8195 24.9066 23.5765 24.7264 23.3951ZM14.5275 8.89587C17.5955 8.89587 20.0914 11.3055 20.0914 14.2675C20.0914 17.2295 17.5955 19.6391 14.5275 19.6391C11.4596 19.6391 8.96371 17.2295 8.96371 14.2675C8.96371 11.3055 11.4596 8.89587 14.5275 8.89587Z" fill="white" />
             </svg>
           </a>
-          <a href="/account" class="header-account">
+          <a href="{{ routes.account_url }}" class="header-account">
             <svg
               width="32"
               height="32"
@@ -846,7 +988,7 @@
               </defs>
             </svg>
           </a>
-          <a href="/cart" class="header-cart cart-icon">
+          <a href="{{ routes.cart_url }}" class="header-cart cart-icon">
             <svg
               width="32"
               height="32"
@@ -904,7 +1046,27 @@
           {%- if link.links.size > 0 -%}
             <div class="header-mobile-submenu">
               {%- for childlink in link.links -%}
-                <a href="{{ childlink.url }}" class="header-mobile-submenu-link">{{ childlink.title }}</a>
+                <div class="header-mobile-submenu-item{% if childlink.links.size > 0 %} has-submenu{% endif %}">
+                  <a href="{{ childlink.url }}" class="header-mobile-submenu-link">
+                    {{ childlink.title }}
+                    {%- if childlink.links.size > 0 -%}
+                      <svg class="mobile-menu-arrow" viewBox="0 0 12 8">
+                        <path
+                          d="M1 1l5 5 5-5"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2" />
+                      </svg>
+                    {%- endif -%}
+                  </a>
+                  {%- if childlink.links.size > 0 -%}
+                    <div class="header-mobile-submenu-level2">
+                      {%- for subchildlink in childlink.links -%}
+                        <a href="{{ subchildlink.url }}" class="header-mobile-submenu-link-level2">{{ subchildlink.title }}</a>
+                      {%- endfor -%}
+                    </div>
+                  {%- endif -%}
+                </div>
               {%- endfor -%}
             </div>
           {%- endif -%}
@@ -1082,6 +1244,40 @@
               item.classList.remove('open');
             } else {
               submenu.classList.add('open');
+              item.classList.add('open');
+            }
+          });
+        }
+      });
+  
+      // NOVO: Funcionalidade dos sub-submenus mobile
+      const submenuItems = mobileMenu.querySelectorAll('.header-mobile-submenu-item.has-submenu');
+      
+      submenuItems.forEach(item => {
+        const link = item.querySelector('.header-mobile-submenu-link');
+        const submenuLevel2 = item.querySelector('.header-mobile-submenu-level2');
+        
+        if (link && submenuLevel2) {
+          link.addEventListener('click', (e) => {
+            e.preventDefault(); // Previne navegação para links com submenu
+            
+            // Toggle do submenu de segundo nível
+            const isOpen = submenuLevel2.classList.contains('open');
+            
+            // Fecha todos os outros submenus de segundo nível
+            submenuItems.forEach(otherItem => {
+              if (otherItem !== item) {
+                otherItem.classList.remove('open');
+                otherItem.querySelector('.header-mobile-submenu-level2').classList.remove('open');
+              }
+            });
+            
+            // Toggle do submenu atual
+            if (isOpen) {
+              submenuLevel2.classList.remove('open');
+              item.classList.remove('open');
+            } else {
+              submenuLevel2.classList.add('open');
               item.classList.add('open');
             }
           });

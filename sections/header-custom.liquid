@@ -388,6 +388,7 @@
     margin-left: 18px;
     margin-top: 8px;
     transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: none;
   }
   .header-mobile-menu-item.open > .header-mobile-menu-children {
     max-height: 500px;
@@ -579,7 +580,7 @@
       </div>
       <!-- Links à direita -->
       <div class="header-actions">
-        <a href="/search" class="header-search">
+        <a href="{{ routes.search_url }}" class="header-search">
           <svg
             width="32"
             height="32"
@@ -595,7 +596,7 @@
           </svg>
 
         </a>
-        <a href="/account" class="header-account">
+        <a href="{{ routes.account_url }}" class="header-account">
           <svg
             width="32"
             height="32"
@@ -627,7 +628,7 @@
           </svg>
 
         </a>
-        <a href="/cart" class="header-cart cart-icon">
+        <a href="{{ routes.cart_url }}" class="header-cart cart-icon">
           <svg
             width="32"
             height="32"
@@ -780,6 +781,15 @@
   
     // Expansão de subitens no menu mobile (incluindo terceiro nível)
     document.querySelectorAll('.header-mobile-menu-link[data-has-children]').forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        var item = link.parentElement;
+        item.classList.toggle('open');
+      });
+    });
+
+    // Expansão de subitens de segundo nível
+    document.querySelectorAll('.header-mobile-menu-link--child[data-has-children]').forEach(function(link) {
       link.addEventListener('click', function(e) {
         e.preventDefault();
         var item = link.parentElement;
