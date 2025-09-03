@@ -12,10 +12,11 @@
           data-block-id="{{ block.id }}">
           <style > :root
           {
-            --title-size-desktop-{{ block.id }}: {{ block.settings.title_size_desktop }}px;
-            --desc-size-desktop-{{ block.id }}: {{ block.settings.description_size_desktop }}px;
-            --title-size-mobile-{{ block.id }}: {{ block.settings.title_size_mobile }}px;
-            --desc-size-mobile-{{ block.id }}: {{ block.settings.description_size_mobile }}px;
+            --title-size-desktop-{{ block.id }}: {{ block.settings.title_size_desktop | default: 32 }}px;
+            --desc-size-desktop-{{ block.id }}: {{ block.settings.description_size_desktop | default: 20 }}px;
+            --title-size-mobile-{{ block.id }}: {{ block.settings.title_size_mobile | default: 26 }}px;
+            --desc-size-mobile-{{ block.id }}: {{ block.settings.description_size_mobile | default: 18 }}px;
+            --text-align-desktop-{{ block.id }}: {{ block.settings.text_align_desktop | default: 'left' }};
           }
 
           [data-block-id="{{ block.id }}"] .feature-title {
@@ -24,14 +25,30 @@
           [data-block-id="{{ block.id }}"] .feature-description {
             font-size: var(--desc-size-desktop-{{ block.id }});
           }
+          [data-block-id="{{ block.id }}"] .feature-content {
+            text-align: var(--text-align-desktop-{{ block.id }});
+          }
 
-          @media screen and (max-width: 1024px),
-          screen and (max-width: 9999px) and(min-width: 0px) and(prefers-reduced-motion: reduce) {
+          @media screen and (max-width: 1023px) {
             [data-block-id="{{ block.id }}"] .feature-title {
               font-size: var(--title-size-mobile-{{ block.id }});
             }
             [data-block-id="{{ block.id }}"] .feature-description {
               font-size: var(--desc-size-mobile-{{ block.id }});
+            }
+          }
+
+          @media screen and (max-width: 768px) {
+            [data-block-id="{{ block.id }}"] .feature-title {
+              justify-content: center;
+              align-items: center;
+            }
+            [data-block-id="{{ block.id }}"] .feature-content {
+              text-align: center;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
             }
           }
         </style>
@@ -41,16 +58,60 @@
                 if (!block) return;
 
                 function updateFontSizes() {
-                  const isMobileView = window.matchMedia('(max-width: 1024px)').matches || 
+                  const isMobileView = window.matchMedia('(max-width: 1023px)').matches || 
                                      document.documentElement.classList.contains('shopify-mobile-preview');
+                  const isSmallMobile = window.matchMedia('(max-width: 768px)').matches;
                   
                   const root = document.documentElement;
+                  const title = block.querySelector('.feature-title');
+                  const content = block.querySelector('.feature-content');
+                  
                   if (isMobileView) {
-                    root.style.setProperty('--title-size-desktop-{{ block.id }}', '{{ block.settings.title_size_mobile }}px');
-                    root.style.setProperty('--desc-size-desktop-{{ block.id }}', '{{ block.settings.description_size_mobile }}px');
+                    root.style.setProperty('--title-size-desktop-{{ block.id }}', '{{ block.settings.title_size_mobile | default: 26 }}px');
+                    root.style.setProperty('--desc-size-desktop-{{ block.id }}', '{{ block.settings.description_size_mobile | default: 18 }}px');
+                    
+                    if (isSmallMobile) {
+                      // Centralizar apenas em telas ≤768px
+                      root.style.setProperty('--text-align-desktop-{{ block.id }}', 'center');
+                      if (title) {
+                        title.style.justifyContent = 'center';
+                        title.style.alignItems = 'center';
+                      }
+                      if (content) {
+                        content.style.display = 'flex';
+                        content.style.flexDirection = 'column';
+                        content.style.alignItems = 'center';
+                        content.style.justifyContent = 'center';
+                      }
+                    } else {
+                      // Tablet (769px - 1023px) - usar alinhamento desktop
+                      root.style.setProperty('--text-align-desktop-{{ block.id }}', '{{ block.settings.text_align_desktop | default: "left" }}');
+                      if (title) {
+                        title.style.justifyContent = '';
+                        title.style.alignItems = '';
+                      }
+                      if (content) {
+                        content.style.display = '';
+                        content.style.flexDirection = '';
+                        content.style.alignItems = '';
+                        content.style.justifyContent = '';
+                      }
+                    }
                   } else {
-                    root.style.setProperty('--title-size-desktop-{{ block.id }}', '{{ block.settings.title_size_desktop }}px');
-                    root.style.setProperty('--desc-size-desktop-{{ block.id }}', '{{ block.settings.description_size_desktop }}px');
+                    // Desktop (>1023px)
+                    root.style.setProperty('--title-size-desktop-{{ block.id }}', '{{ block.settings.title_size_desktop | default: 32 }}px');
+                    root.style.setProperty('--desc-size-desktop-{{ block.id }}', '{{ block.settings.description_size_desktop | default: 20 }}px');
+                    root.style.setProperty('--text-align-desktop-{{ block.id }}', '{{ block.settings.text_align_desktop | default: "left" }}');
+                    if (title) {
+                      title.style.justifyContent = '';
+                      title.style.alignItems = '';
+                    }
+                    if (content) {
+                      content.style.display = '';
+                      content.style.flexDirection = '';
+                      content.style.alignItems = '';
+                      content.style.justifyContent = '';
+                    }
                   }
                 }
 
@@ -250,7 +311,7 @@
   }
 
   .feature-content {
-    text-align: left;
+    text-align: center;
     order: 2;
   }
 
@@ -384,6 +445,27 @@
           "default": 18
         }, {
           "type": "header",
+          "content": "Text Alignment"
+        }, {
+          "type": "select",
+          "id": "text_align_desktop",
+          "label": "Desktop Text Alignment",
+          "info": "Text alignment for desktop screens. Mobile is always centered.",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            }, {
+              "value": "center",
+              "label": "Center"
+            }, {
+              "value": "right",
+              "label": "Right"
+            }
+          ],
+          "default": "left"
+        }, {
+          "type": "header",
           "content": "Content Settings"
         }, {
           "type": "textarea",
@@ -409,6 +491,7 @@
             "description_size_desktop": 20,
             "title_size_mobile": 26,
             "description_size_mobile": 18,
+            "text_align_desktop": "left",
             "feature_description": "One dumbbell, five weights. Perfect for your entire fitness journey while saving 90% of your space."
           }
         }, {
@@ -421,6 +504,7 @@
             "description_size_desktop": 20,
             "title_size_mobile": 26,
             "description_size_mobile": 18,
+            "text_align_desktop": "left",
             "feature_description": "Glide Tech lets you switch weights in just 3 seconds. Keep your flow, stay in the zone, and focus on the burn."
           }
         }, {
@@ -433,6 +517,7 @@
             "description_size_desktop": 20,
             "title_size_mobile": 26,
             "description_size_mobile": 18,
+            "text_align_desktop": "left",
             "feature_description": "Sleek and compact. Slide it under the bed or tuck it in a closet. Your gym is wherever you want it to be."
           }
         }

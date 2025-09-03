@@ -84,13 +84,13 @@
                               {%- if block.settings.heading != blank -%}
                 {%- assign heading_tag = block.settings.heading_tag | default: 'h2' -%}
                 <{{ heading_tag }} class="banner-heading">
-                  {{ block.settings.heading }}
+                  {{ block.settings.heading | replace: '&nbsp;', ' ' | strip }}
                 </{{ heading_tag }}>
               {%- endif -%}
               
               {%- if block.settings.text != blank -%}
                 <div class="banner-text">
-                  {{ block.settings.text }}
+                  {{ block.settings.text | replace: '&nbsp;', ' ' | strip }}
                 </div>
               {%- endif -%}
                 
@@ -177,8 +177,11 @@
   #sbc-{{ section.id }} .banner-heading {
     font-size: var(--h-size);
     font-weight: bold;
-    margin: 0 0 {{ section.blocks.first.settings.heading_margin_bottom | default: 16 }}px 0;
+    margin: 0 0 {{ section.blocks.first.settings.heading_margin_bottom | default: 0 }}px 0;
     line-height: 1.2;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
     {%- if section.blocks.first.settings.heading_color != blank -%}
       color: {{ section.blocks.first.settings.heading_color }};
     {%- endif -%}
@@ -187,7 +190,7 @@
   #sbc-{{ section.id }} .banner-text {
     font-size: var(--t-size);
     line-height: 1.5;
-    margin: 0 0 {{ section.blocks.first.settings.text_margin_bottom | default: 24 }}px 0;
+    margin: 0 0 {{ section.blocks.first.settings.text_margin_bottom | default: 0 }}px 0;
     white-space: normal;
     word-wrap: break-word;
     overflow-wrap: break-word;
@@ -724,3 +727,35 @@
   ]
 }
 {%- endschema -%}
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Função para limpar &nbsp; dos textos
+    function cleanTextContent() {
+      const headings = document.querySelectorAll('.banner-heading');
+      const texts = document.querySelectorAll('.banner-text');
+      
+      headings.forEach(function(heading) {
+        if (heading.innerHTML.includes('&nbsp;')) {
+          heading.innerHTML = heading.innerHTML.replace(/&nbsp;/g, ' ');
+        }
+      });
+      
+      texts.forEach(function(text) {
+        if (text.innerHTML.includes('&nbsp;')) {
+          text.innerHTML = text.innerHTML.replace(/&nbsp;/g, ' ');
+        }
+      });
+    }
+    
+    // Executa imediatamente
+    cleanTextContent();
+    
+    // Re-executa quando o Shopify editor atualiza
+    if (typeof window.Shopify !== 'undefined' && window.Shopify.designMode) {
+      document.addEventListener('shopify:section:load', cleanTextContent);
+      document.addEventListener('shopify:block:select', cleanTextContent);
+      document.addEventListener('shopify:block:deselect', cleanTextContent);
+    }
+  });
+</script>
