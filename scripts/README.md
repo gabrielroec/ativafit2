@@ -4,9 +4,9 @@ Este diretório contém scripts PowerShell para automatizar o processo de otimiz
 
 ## 📁 Arquivos
 
-- **`minify-assets.ps1`** - Minifica todos os arquivos CSS e JavaScript
-- **`deploy-optimized.ps1`** - Deploy completo com backup e otimização
-- **`rollback.ps1`** - Reverte para versão anterior em caso de problemas
+- **`minify-assets-simple.ps1`** - Minifica todos os arquivos CSS e JavaScript
+- **`deploy-simple.ps1`** - Deploy completo com backup e otimização
+- **`rollback-simple.ps1`** - Reverte para versão anterior em caso de problemas
 
 ## 🛠️ Pré-requisitos
 
@@ -42,13 +42,10 @@ git --version
 
 ```powershell
 # Minificar todos os arquivos
-.\scripts\minify-assets.ps1
+.\scripts\minify-assets-simple.ps1
 
 # Modo dry-run (apenas simular)
-.\scripts\minify-assets.ps1 -DryRun
-
-# Modo verboso
-.\scripts\minify-assets.ps1 -Verbose
+.\scripts\minify-assets-simple.ps1 -DryRun
 ```
 
 **Resultado:**
@@ -60,19 +57,16 @@ git --version
 
 ```powershell
 # Deploy completo (backup + minificação + deploy)
-.\scripts\deploy-optimized.ps1
+.\scripts\deploy-simple.ps1
 
 # Pular backup (não recomendado)
-.\scripts\deploy-optimized.ps1 -SkipBackup
+.\scripts\deploy-simple.ps1 -SkipBackup
 
 # Pular minificação (usar arquivos já minificados)
-.\scripts\deploy-optimized.ps1 -SkipMinification
-
-# Modo verboso
-.\scripts\deploy-optimized.ps1 -Verbose
+.\scripts\deploy-simple.ps1 -SkipMinification
 
 # Store personalizada
-.\scripts\deploy-optimized.ps1 -StoreUrl "sua-loja.myshopify.com"
+.\scripts\deploy-simple.ps1 -StoreUrl "sua-loja.myshopify.com"
 ```
 
 **Fluxo:**
@@ -86,16 +80,16 @@ git --version
 
 ```powershell
 # Listar backups disponíveis
-.\scripts\rollback.ps1 -ListBackups
+.\scripts\rollback-simple.ps1 -ListBackups
 
 # Rollback para backup específico
-.\scripts\rollback.ps1 -BackupTag "backup-2025-01-15-1430"
+.\scripts\rollback-simple.ps1 -BackupTag "backup-2025-01-15-1430"
 
 # Rollback interativo (escolher backup)
-.\scripts\rollback.ps1
+.\scripts\rollback-simple.ps1
 
 # Rollback forçado (sem confirmação)
-.\scripts\rollback.ps1 -BackupTag "backup-2025-01-15-1430" -Force
+.\scripts\rollback-simple.ps1 -BackupTag "backup-2025-01-15-1430" -Force
 ```
 
 **Fluxo:**
