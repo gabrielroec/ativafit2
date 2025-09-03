@@ -1,0 +1,150 @@
+{%- style -%}
+  .product-content {
+    padding: 60px 0;
+    background: #f8f9fa;
+  }
+  
+  .product-content__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  .product-content__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 40px;
+    margin-top: 40px;
+  }
+  
+  .product-content__card {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+  
+  .product-content__card h3 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #333;
+  }
+  
+  .product-content__card p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #666;
+    margin-bottom: 15px;
+  }
+  
+  .product-content__card ul {
+    margin: 15px 0;
+    padding-left: 20px;
+  }
+  
+  .product-content__card li {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #666;
+    margin-bottom: 8px;
+  }
+  
+  @media (max-width: 768px) {
+    .product-content {
+      padding: 40px 0;
+    }
+    
+    .product-content__grid {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+  }
+{%- endstyle -%}
+
+<section class="product-content" id="product-content-{{ section.id }}">
+  <div class="product-content__container">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="product-content__heading">{{ section.settings.heading }}</h2>
+    {%- endif -%}
+    
+    {%- if section.settings.subheading != blank -%}
+      <p class="product-content__subheading">{{ section.settings.subheading }}</p>
+    {%- endif -%}
+    
+    <div class="product-content__grid">
+      {%- for block in section.blocks -%}
+        <div class="product-content__card" {{ block.shopify_attributes }}>
+          {%- if block.settings.title != blank -%}
+            <h3>{{ block.settings.title }}</h3>
+          {%- endif -%}
+          
+          {%- if block.settings.content != blank -%}
+            <div class="product-content__text">
+              {{ block.settings.content }}
+            </div>
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Product Content",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Product Information"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Learn more about this product and its benefits for your fitness journey."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "content_card",
+      "name": "Content Card",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Card Title"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "Card Content"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Content",
+      "blocks": [
+        {
+          "type": "content_card",
+          "settings": {
+            "title": "Product Benefits",
+            "content": "<p>This product offers numerous benefits for your fitness routine:</p><ul><li>Space-saving design</li><li>Quick weight adjustment</li><li>Durable construction</li><li>Professional quality</li></ul>"
+          }
+        },
+        {
+          "type": "content_card",
+          "settings": {
+            "title": "Technical Specifications",
+            "content": "<p>Built with precision and attention to detail:</p><ul><li>High-grade materials</li><li>Precision engineering</li><li>Safety tested</li><li>Warranty included</li></ul>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
