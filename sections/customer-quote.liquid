@@ -1,0 +1,122 @@
+{%- style -%}
+  .customer-quote {
+    padding: 60px 0;
+    background: {{ section.settings.background_color }};
+  }
+
+  .customer-quote__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    text-align: center;
+  }
+
+  .customer-quote__text {
+    font-family: 'Barlow'
+    , sans-serif;
+    font-weight: 700;
+    font-style: normal;
+    font-size: {{ section.settings.quote_size_desktop }}px;
+    line-height: 100%;
+    letter-spacing: 0;
+    text-align: center;
+    color: {{ section.settings.text_color }};
+    margin: 0 auto;
+    max-width: 1070px;
+  }
+
+  .customer-quote__quotation-marks {
+    font-size: 1.5em;
+    color: #000000;
+  }
+
+  @media (max-width: 768px) {
+    .customer-quote {
+      padding: 40px 0;
+    }
+
+    .customer-quote__text {
+      font-size: {{ section.settings.quote_size_mobile }}px;
+    }
+  }
+{%- endstyle -%}
+
+<section class="customer-quote" id="customer-quote-{{ section.id }}">
+  <div class="customer-quote__container">
+    {%- if section.settings.quote_text != blank -%}
+      <blockquote class="customer-quote__text">
+        <span class="customer-quote__quotation-marks">"</span>
+        {{ section.settings.quote_text }}<span class="customer-quote__quotation-marks">"</span>
+      </blockquote>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+  {
+    "name": "Customer Quote",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Quote Content"
+      },
+      {
+        "type": "textarea",
+        "id": "quote_text",
+        "label": "Quote text",
+        "default": "Never in a million years would I think THIS is where I would be in my life. Haha. And to think, you guys were there from the start, God damn. Thank you so much."
+      },
+      {
+        "type": "header",
+        "content": "Font Sizes - Desktop"
+      },
+      {
+        "type": "range",
+        "id": "quote_size_desktop",
+        "label": "Quote font size (Desktop)",
+        "min": 16,
+        "max": 60,
+        "step": 1,
+        "unit": "px",
+        "default": 30
+      }, {
+        "type": "header",
+        "content": "Font Sizes - Mobile"
+      }, {
+        "type": "range",
+        "id": "quote_size_mobile",
+        "label": "Quote font size (Mobile)",
+        "min": 14,
+        "max": 40,
+        "step": 1,
+        "unit": "px",
+        "default": 20
+      }, {
+        "type": "header",
+        "content": "Colors"
+      }, {
+        "type": "color",
+        "id": "background_color",
+        "label": "Background color",
+        "default": "#ffffff"
+      }, {
+        "type": "color",
+        "id": "text_color",
+        "label": "Text color",
+        "default": "#333333"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Customer Quote",
+        "settings": {
+          "quote_text": "Never in a million years would I think THIS is where I would be in my life. Haha. And to think, you guys were there from the start, God damn. Thank you so much.",
+          "quote_size_desktop": 30,
+          "quote_size_mobile": 20,
+          "background_color": "#ffffff",
+          "text_color": "#333333"
+        }
+      }
+    ]
+  }
+{% endschema %}

@@ -1,0 +1,353 @@
+{%- style -%}
+  .story-section {
+    padding: 86px 0 60px;
+    background: {{ section.settings.background_color }};
+  }
+
+  .story-section__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .story-section__content {
+    display: flex;
+    gap: 60px;
+    align-items: flex-start;
+  }
+
+  .story-section__column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .story-section__column--left {
+    gap: 30px;
+  }
+
+  .story-section__column--right {
+    gap: 30px;
+    height: 100%;
+  }
+
+  .story-section__title {
+    font-family: 'Barlow'
+    , sans-serif;
+    font-weight: 700;
+    font-size: {{ section.settings.title_size_desktop }}px;
+    line-height: 100%;
+    letter-spacing: 0;
+    color: {{ section.settings.title_color }};
+    margin: 0;
+  }
+
+  .story-section__title--highlight {
+    color: {{ section.settings.highlight_color }};
+  }
+
+  .story-section__image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+
+  .story-section__image--before-after {
+    border-radius: {{ section.settings.first_image_border_radius }}px;
+    max-width: 537px;
+    height: 557px;
+    object-fit: cover;
+  }
+
+  .story-section__image--story {
+    border-radius: {{ section.settings.second_image_border_radius }}px;
+    aspect-ratio: 680 / 297;
+    max-width: 680px;
+  }
+
+  .story-section__text {
+    font-family: 'Barlow'
+    , sans-serif;
+    font-weight: 500;
+    font-size: {{ section.settings.text_size_desktop }}px;
+    line-height: 100%;
+    letter-spacing: 0;
+    color: {{ section.settings.text_color }};
+    margin: 0;
+  }
+
+  .story-section__text p {
+    margin-bottom: 20px;
+  }
+
+  .story-section__text p:last-child {
+    margin-bottom: 0;
+  }
+
+  .story-section__cta {
+    font-family: 'Barlow'
+    , sans-serif;
+    font-weight: 700;
+    font-size: {{ section.settings.text_size_desktop }}px;
+    line-height: 100%;
+    color: {{ section.settings.text_color }};
+    margin-top: 20px;
+  }
+
+  @media (max-width: 768px) {
+    .story-section {
+      padding: 40px 0;
+    }
+
+    .story-section__content {
+      flex-direction: column;
+      gap: 40px;
+    }
+
+    .story-section__title {
+      font-size: {{ section.settings.title_size_mobile }}px;
+    }
+
+    .story-section__text {
+      font-size: {{ section.settings.text_size_mobile }}px;
+    }
+
+    .story-section__cta {
+      font-size: {{ section.settings.text_size_mobile }}px;
+    }
+
+    .story-section__image--before-after {
+      max-width: 100%;
+      height: auto;
+      aspect-ratio: 1 / 1;
+    }
+
+    .story-section__image--story {
+      max-width: 100%;
+    }
+  }
+{%- endstyle -%}
+
+{%- liquid
+  assign full_title = section.settings.title
+  assign highlight_text = section.settings.highlight_text
+
+  if highlight_text != blank and full_title contains highlight_text
+    assign title_parts = full_title | split: highlight_text
+    assign title_before = title_parts[0]
+    assign title_after = title_parts[1]
+  else
+    assign title_before = full_title
+    assign title_after = ''
+  endif
+-%}
+
+<section class="story-section" id="story-section-{{ section.id }}">
+  <div class="story-section__container">
+    <div class="story-section__content">
+      <!-- Primeira coluna: Título e imagem -->
+      <div class="story-section__column story-section__column--left">
+        <div class="story-section__header">
+          {%- if section.settings.title != blank -%}
+            <h1 class="story-section__title">
+              {{ title_before }}
+              {%- if highlight_text != blank and full_title contains highlight_text -%}
+                <span class="story-section__title--highlight">{{ highlight_text }}</span>
+              {%- endif -%}
+              {{ title_after }}
+            </h1>
+          {%- endif -%}
+        </div>
+
+        {%- if section.settings.before_after_image != blank -%}
+          <div class="story-section__image-container">
+            <img
+              src="{{ section.settings.before_after_image | img_url: '1074x1074' }}"
+              alt="{{ section.settings.before_after_image.alt | default: 'Transformação' }}"
+              class="story-section__image story-section__image--before-after"
+              loading="lazy">
+          </div>
+        {%- endif -%}
+      </div>
+
+      <!-- Segunda coluna: Imagem e texto -->
+      <div class="story-section__column story-section__column--right">
+        {%- if section.settings.story_image != blank -%}
+          <div class="story-section__image-container">
+            <img
+              src="{{ section.settings.story_image | img_url: '1360x594' }}"
+              alt="{{ section.settings.story_image.alt | default: 'História' }}"
+              class="story-section__image story-section__image--story"
+              loading="lazy">
+          </div>
+        {%- endif -%}
+
+        <div class="story-section__content-text">
+          {%- if section.settings.description != blank -%}
+            <div class="story-section__text">
+              {{ section.settings.description }}
+            </div>
+          {%- endif -%}
+
+          {%- if section.settings.cta_text != blank -%}
+            <p class="story-section__cta">{{ section.settings.cta_text }}</p>
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+  {
+    "name": "Story Section",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Title"
+      },
+      {
+        "type": "textarea",
+        "id": "title",
+        "label": "Complete title",
+        "default": "80 lbs gone. A new life found. This is Mike's story."
+      },
+      {
+        "type": "text",
+        "id": "highlight_text",
+        "label": "Exact text to highlight",
+        "default": "new life",
+        "info": "Type the exact text that should be highlighted in the title"
+      },
+      {
+        "type": "header",
+        "content": "Font Sizes - Desktop"
+      }, {
+        "type": "range",
+        "id": "title_size_desktop",
+        "label": "Title size (Desktop)",
+        "min": 20,
+        "max": 80,
+        "step": 1,
+        "unit": "px",
+        "default": 40
+      }, {
+        "type": "range",
+        "id": "text_size_desktop",
+        "label": "Text size (Desktop)",
+        "min": 14,
+        "max": 40,
+        "step": 1,
+        "unit": "px",
+        "default": 26
+      }, {
+        "type": "header",
+        "content": "Font Sizes - Mobile"
+      }, {
+        "type": "range",
+        "id": "title_size_mobile",
+        "label": "Title size (Mobile)",
+        "min": 18,
+        "max": 60,
+        "step": 1,
+        "unit": "px",
+        "default": 28
+      }, {
+        "type": "range",
+        "id": "text_size_mobile",
+        "label": "Text size (Mobile)",
+        "min": 12,
+        "max": 30,
+        "step": 1,
+        "unit": "px",
+        "default": 18
+      }, {
+        "type": "header",
+        "content": "Colors"
+      }, {
+        "type": "color",
+        "id": "background_color",
+        "label": "Background color",
+        "default": "#ffffff"
+      }, {
+        "type": "color",
+        "id": "title_color",
+        "label": "Title color",
+        "default": "#333333"
+      }, {
+        "type": "color",
+        "id": "highlight_color",
+        "label": "Highlight color",
+        "default": "#eb701f"
+      }, {
+        "type": "color",
+        "id": "text_color",
+        "label": "Text color",
+        "default": "#333333"
+      }, {
+        "type": "header",
+        "content": "Images"
+      }, {
+        "type": "image_picker",
+        "id": "before_after_image",
+        "label": "Before/after image (first column)"
+      }, {
+        "type": "image_picker",
+        "id": "story_image",
+        "label": "Story image (second column)"
+      }, {
+        "type": "range",
+        "id": "first_image_border_radius",
+        "label": "First image border radius",
+        "min": 0,
+        "max": 50,
+        "step": 1,
+        "unit": "px",
+        "default": 25
+      }, {
+        "type": "range",
+        "id": "second_image_border_radius",
+        "label": "Second image border radius",
+        "min": 0,
+        "max": 50,
+        "step": 1,
+        "unit": "px",
+        "default": 12
+      }, {
+        "type": "header",
+        "content": "Content"
+      }, {
+        "type": "richtext",
+        "id": "description",
+        "label": "Story text",
+        "default": "<p>Change began with a simple decision: to stop waiting and start fighting. He chose the path of self-improvement, and he chose AtivaFit as his trusted partner.</p><p>Our home training gears were there for every drop of sweat, every conquered challenge from lighter beginnings to heavier lifts. They were the tools that helped him sculpt not just his body, but his future as a certified personal trainer.</p><p>Mike's journey proves that true strength isn't just physical, it's about building a better version of yourself.</p>"
+      }, {
+        "type": "text",
+        "id": "cta_text",
+        "label": "Call to action",
+        "default": "This fall, we invite you to build yours."
+      }
+    ],
+    "presets": [
+      {
+        "name": "Story Section",
+        "settings": {
+          "title": "80 lbs gone. A new life found. This is Mike's story.",
+          "highlight_text": "new life",
+          "title_size_desktop": 40,
+          "text_size_desktop": 26,
+          "title_size_mobile": 28,
+          "text_size_mobile": 18,
+          "background_color": "#ffffff",
+          "title_color": "#333333",
+          "highlight_color": "#eb701f",
+          "text_color": "#333333",
+          "first_image_border_radius": 25,
+          "second_image_border_radius": 12,
+          "description": "<p>Change began with a simple decision: to stop waiting and start fighting. He chose the path of self-improvement, and he chose AtivaFit as his trusted partner.</p><p>Our home training gears were there for every drop of sweat, every conquered challenge from lighter beginnings to heavier lifts. They were the tools that helped him sculpt not just his body, but his future as a certified personal trainer.</p><p>Mike's journey proves that true strength isn't just physical, it's about building a better version of yourself.</p>",
+          "cta_text": "This fall, we invite you to build yours."
+        }
+      }
+    ]
+  }
+{% endschema %}

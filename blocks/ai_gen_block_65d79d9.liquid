@@ -1,0 +1,560 @@
+{% doc %}
+  @prompt
+    The section is designed with a two-column & three-line layout on a desktop. 
+    
+    The left column contains the main headline and the an 1:1 image.  headline that reads "80 lbs gone. A new life found. This is Mike's story." The words "A new life found" should be highlighted in a contrasting color (hex #eb701f).
+    
+    The right column contains an 16:9 image and the main body of the customer's story.
+    
+    Below these two main content columns, a single-column block spans the width of the page. This block holds the customer's direct quote, which is styled to stand out from the rest of the text.
+    
+    The section should have a title field, an image picker with rounded corners for the main images, a rich text editor for the story content, and a text area for the final quote.
+    
+    Include placeholders for the text fields and image pickers.
+    
+    The layout will automatically adjust for smaller screens to ensure it's responsive and easy to read on mobile devices., The two columns share the width in 2:3 ratio on the desktop version., The height of the two columns should be the same, but the width of the two columns can be adjusted.
+    
+    The main content body is:
+    Change began with a simple decision: to stop waiting and start fighting. He chose the path of self-improvement, and he chose AtivaFit as his trusted partner.Our home training gears were there for every drop of sweat, every conquered challenge from lighter beginnings to heavier lifts. They were the tools that helped him sculpt not just his body, but his future as a certified personal trainer.Mike's journey proves that true strength isn't just physical, it's about building a better version of yourself.This fall, we invite you to build yours., Please allow me to adjust the ratio of the images. 
+    Also, please enable me to adjust the space between the two columns.
+    And, I want to set the width of the two columns to 2.5:3.5
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-customer-story-{{ ai_gen_id }} {
+    padding: 60px 20px;
+    background-color: {{ block.settings.background_color }};
+    color: {{ block.settings.text_color }};
+  }
+
+  .ai-customer-story-container-{{ ai_gen_id }} {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .ai-customer-story-title-{{ ai_gen_id }} {
+    text-align: center;
+    font-size: {{ block.settings.title_size }}px;
+    color: {{ block.settings.title_color }};
+    margin: 0 0 50px;
+    font-weight: 600;
+  }
+
+  .ai-customer-story-main-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: 2.5fr 3.5fr;
+    gap: {{ block.settings.column_gap }}px;
+    margin-bottom: 60px;
+    align-items: stretch;
+  }
+
+  .ai-customer-story-left-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    height: 100%;
+  }
+
+  .ai-customer-story-headline-{{ ai_gen_id }} {
+    font-size: {{ block.settings.headline_size }}px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0;
+    color: {{ block.settings.headline_color }};
+  }
+
+  .ai-customer-story-highlight-{{ ai_gen_id }} {
+    color: {{ block.settings.highlight_color }};
+  }
+
+  .ai-customer-story-left-image-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    flex: 1;
+    border-radius: {{ block.settings.image_border_radius }}px;
+    overflow: hidden;
+    background-color: #f4f4f4;
+    min-height: 300px;
+    aspect-ratio: {{ block.settings.left_image_ratio }};
+  }
+
+  .ai-customer-story-left-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-customer-story-left-image-wrapper-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: #f4f4f4;
+  }
+
+  .ai-customer-story-right-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    height: 100%;
+  }
+
+  .ai-customer-story-right-image-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    aspect-ratio: {{ block.settings.right_image_ratio }};
+    border-radius: {{ block.settings.image_border_radius }}px;
+    overflow: hidden;
+    background-color: #f4f4f4;
+  }
+
+  .ai-customer-story-right-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-customer-story-right-image-wrapper-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: #f4f4f4;
+  }
+
+  .ai-customer-story-content-{{ ai_gen_id }} {
+    font-size: {{ block.settings.content_size }}px;
+    line-height: 1.6;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .ai-customer-story-content-{{ ai_gen_id }} p {
+    margin: 0 0 20px;
+  }
+
+  .ai-customer-story-content-{{ ai_gen_id }} p:last-child {
+    margin-bottom: 0;
+  }
+
+  .ai-customer-story-quote-{{ ai_gen_id }} {
+    background-color: {{ block.settings.quote_background_color }};
+    padding: 40px;
+    border-radius: {{ block.settings.quote_border_radius }}px;
+    text-align: center;
+    border-left: 4px solid {{ block.settings.highlight_color }};
+  }
+
+  .ai-customer-story-quote-text-{{ ai_gen_id }} {
+    font-size: {{ block.settings.quote_size }}px;
+    font-style: italic;
+    font-weight: 500;
+    line-height: 1.4;
+    color: {{ block.settings.quote_text_color }};
+    margin: 0;
+    position: relative;
+  }
+
+  .ai-customer-story-quote-text-{{ ai_gen_id }}::before {
+    content: '"';
+    font-size: 1.5em;
+    color: {{ block.settings.highlight_color }};
+    position: absolute;
+    left: -0.3em;
+    top: -0.1em;
+  }
+
+  .ai-customer-story-quote-text-{{ ai_gen_id }}::after {
+    content: '"';
+    font-size: 1.5em;
+    color: {{ block.settings.highlight_color }};
+  }
+
+  .ai-customer-story-empty-state-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 20px;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-customer-story-{{ ai_gen_id }} {
+      padding: 40px 20px;
+    }
+
+    .ai-customer-story-main-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .ai-customer-story-left-{{ ai_gen_id }} {
+      gap: 20px;
+      height: auto;
+    }
+
+    .ai-customer-story-right-{{ ai_gen_id }} {
+      gap: 20px;
+      height: auto;
+    }
+
+    .ai-customer-story-left-image-wrapper-{{ ai_gen_id }} {
+      flex: none;
+    }
+
+    .ai-customer-story-content-{{ ai_gen_id }} {
+      flex: none;
+    }
+
+    .ai-customer-story-quote-{{ ai_gen_id }} {
+      padding: 30px 20px;
+    }
+
+    .ai-customer-story-title-{{ ai_gen_id }} {
+      margin-bottom: 30px;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .ai-customer-story-headline-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.headline_size }}px * 0.8);
+    }
+
+    .ai-customer-story-title-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.title_size }}px * 0.8);
+    }
+
+    .ai-customer-story-quote-text-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.quote_size }}px * 0.9);
+    }
+  }
+{% endstyle %}
+
+<div class="ai-customer-story-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-customer-story-container-{{ ai_gen_id }}">
+    {% if block.settings.section_title != blank %}
+      <h2 class="ai-customer-story-title-{{ ai_gen_id }}">{{ block.settings.section_title }}</h2>
+    {% endif %}
+
+    <div class="ai-customer-story-main-{{ ai_gen_id }}">
+      <div class="ai-customer-story-left-{{ ai_gen_id }}">
+        {% if block.settings.headline != blank %}
+          <h3 class="ai-customer-story-headline-{{ ai_gen_id }}">
+            {% assign headline_parts = block.settings.headline | split: 'A new life found' %}
+            {% if headline_parts.size > 1 %}
+              {{ headline_parts[0] }}<span class="ai-customer-story-highlight-{{ ai_gen_id }}">A new life found</span>{{ headline_parts[1] }}
+            {% else %}
+              {{ block.settings.headline }}
+            {% endif %}
+          </h3>
+        {% endif %}
+
+        <div class="ai-customer-story-left-image-wrapper-{{ ai_gen_id }}">
+          {% if block.settings.left_image %}
+            <img
+              src="{{ block.settings.left_image | image_url: width: 600 }}"
+              alt="{{ block.settings.left_image.alt | escape }}"
+              class="ai-customer-story-left-image-{{ ai_gen_id }}"loading="lazy"
+              width="{{ block.settings.left_image.width }}"
+              height="{{ block.settings.left_image.height }}"
+            >
+          {% else %}
+            {{ 'image' | placeholder_svg_tag }}<div class="ai-customer-story-empty-state-{{ ai_gen_id }}">
+              Add a customer image
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="ai-customer-story-right-{{ ai_gen_id }}">
+        <div class="ai-customer-story-right-image-wrapper-{{ ai_gen_id }}">
+          {% if block.settings.right_image %}
+            <img
+              src="{{ block.settings.right_image | image_url: width: 800 }}"
+              alt="{{ block.settings.right_image.alt | escape }}"
+              class="ai-customer-story-right-image-{{ ai_gen_id }}"
+              loading="lazy"
+              width="{{ block.settings.right_image.width }}"
+              height="{{ block.settings.right_image.height }}"
+            >
+          {% else %}
+            {{ 'image' | placeholder_svg_tag }}
+            <div class="ai-customer-story-empty-state-{{ ai_gen_id }}">
+              Add a story image
+            </div>
+          {% endif %}
+        </div>
+
+        {% if block.settings.story_content != blank %}
+          <div class="ai-customer-story-content-{{ ai_gen_id }}">
+            {{ block.settings.story_content }}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if block.settings.customer_quote != blank %}
+      <div class="ai-customer-story-quote-{{ ai_gen_id }}">
+        <p class="ai-customer-story-quote-text-{{ ai_gen_id }}">{{ block.settings.customer_quote }}</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Customer story",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Section title",
+      "default": "Customer Success Stories"
+    },
+    {
+      "type": "text",
+      "id": "headline",
+      "label": "Main headline",
+      "default": "80 lbs gone. A new life found. This is Mike's story."
+    },
+    {
+      "type": "image_picker",
+      "id": "left_image",
+      "label": "Customer image"
+    },
+    {
+      "type": "image_picker",
+      "id": "right_image",
+      "label": "Story image"
+    },
+    {
+      "type": "richtext",
+      "id": "story_content",
+      "label": "Story content",
+      "default": "<p>Change began with a simple decision: to stop waiting and start fighting. He chose the path of self-improvement, and he chose AtivaFit as his trusted partner.</p><p>Our home training gears were there for every drop of sweat, every conquered challenge from lighter beginnings to heavier lifts. They were the tools that helped him sculpt not just his body, but his future as a certified personal trainer.</p><p>Mike's journey proves that true strength isn't just physical, it's about building a better version of yourself.</p><p>This fall, we invite you to build yours.</p>"
+    },
+    {
+      "type": "textarea",
+      "id": "customer_quote",
+      "label": "Customer quote",
+      "default": "This program didn't just help me lose weight - it gave me my confidence back and showed me what I'm truly capable of achieving."
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "column_gap",
+      "min": 20,
+      "max": 100,
+      "step": 10,
+      "unit": "px",
+      "label": "Space between columns",
+      "default": 60
+    },
+    {
+      "type": "select",
+      "id": "left_image_ratio",
+      "label": "Left image ratio",
+      "options": [
+        {
+          "value": "1/1",
+          "label": "Square (1:1)"
+        },
+        {
+          "value": "4/3",
+          "label": "Landscape (4:3)"
+        },
+        {
+          "value": "3/4",
+          "label": "Portrait (3:4)"
+        },
+        {
+          "value": "16/9",
+          "label": "Wide (16:9)"
+        },
+        {
+          "value": "9/16",
+          "label": "Tall (9:16)"
+        },
+        {
+          "value": "2/3",
+          "label": "Portrait (2:3)"
+        },
+        {
+          "value": "3/2",
+          "label": "Landscape (3:2)"
+        }
+      ],
+      "default": "1/1"
+    },
+    {
+      "type": "select",
+      "id": "right_image_ratio",
+      "label": "Right image ratio",
+      "options": [
+        {
+          "value": "1/1",
+          "label": "Square (1:1)"
+        },
+        {
+          "value": "4/3",
+          "label": "Landscape (4:3)"
+        },
+        {
+          "value": "3/4",
+          "label": "Portrait (3:4)"
+        },
+        {
+          "value": "16/9",
+          "label": "Wide (16:9)"
+        },
+        {
+          "value": "9/16",
+          "label": "Tall (9:16)"
+        },
+        {
+          "value": "2/3",
+          "label": "Portrait (2:3)"
+        },
+        {
+          "value": "3/2",
+          "label": "Landscape (3:2)"
+        }
+      ],
+      "default": "16/9"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "headline_color",
+      "label": "Headline color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "highlight_color",
+      "label": "Highlight color",
+      "default": "#eb701f"
+    },
+    {
+      "type": "color",
+      "id": "quote_background_color",
+      "label": "Quote background color",
+      "default": "#f8f8f8"
+    },
+    {
+      "type": "color",
+      "id": "quote_text_color",
+      "label": "Quote text color",
+      "default": "#333333"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 20,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Title size",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "headline_size",
+      "min": 20,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Headline size",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "content_size",
+      "min": 14,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Content size",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "quote_size",
+      "min": 16,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Quote size",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Image border radius",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "quote_border_radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Quote border radius",
+      "default": 8
+    }
+  ],
+  "presets": [
+    {
+      "name": "Customer story"
+    }
+  ]
+}
+{% endschema %}

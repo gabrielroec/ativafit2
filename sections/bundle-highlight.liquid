@@ -1,0 +1,304 @@
+{%- style -%}
+  #bundle-highlight-{{ section.id }} {
+    padding: 60px 0;
+    background: {{ section.settings.background_color }};
+    width: 100%;
+  }
+
+  #bundle-highlight-{{ section.id }}
+  .bundle-highlight__container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+    text-align: left;
+  }
+
+  #bundle-highlight-{{ section.id }}
+  .bundle-highlight__title {
+    font-family: 'Barlow'
+    , sans-serif;
+    font-weight: 700;
+    font-size: {{ section.settings.title_size_desktop }}px;
+    line-height: 100%;
+    letter-spacing: 0;
+    color: {{ section.settings.title_color }};
+    margin: 0 0 30px;
+  }
+
+  #bundle-highlight-{{ section.id }}
+  .bundle-highlight__description {
+    font-family: 'Barlow'
+    , sans-serif;
+    font-weight: 500;
+    font-size: {{ section.settings.text_size_desktop }}px;
+    line-height: 100%;
+    letter-spacing: 0;
+    color: {{ section.settings.text_color }};
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    #bundle-highlight-{{ section.id }} {
+      padding: 40px 0;
+    }
+
+    #bundle-highlight-{{ section.id }}
+    .bundle-highlight__title {
+      font-size: {{ section.settings.title_size_mobile }}px;
+      margin-bottom: 20px;
+    }
+
+    #bundle-highlight-{{ section.id }}
+    .bundle-highlight__description {
+      font-size: {{ section.settings.text_size_mobile }}px;
+    }
+  }
+
+  /* Force next apps section to inherit same background */
+  #bundle-highlight-{{ section.id }}+ div[id*="apps"] {
+    background: {{ section.settings.background_color }}
+     !important;
+  }
+
+  #bundle-highlight-{{ section.id }}
+  + div[id*="apps"] .shopify-section {
+    background: {{ section.settings.background_color }}
+     !important;
+  }
+
+  #bundle-highlight-{{ section.id }}
+  + div[id*="apps"] .container {
+    background: {{ section.settings.background_color }}
+     !important;
+  }
+
+  #bundle-highlight-{{ section.id }}
+  + div[id*="apps"] .bndlr-container {
+    background: {{ section.settings.background_color }}
+     !important;
+  }
+
+  #bundle-highlight-{{ section.id }}
+  + div[id*="apps"] .bundler-target-element {
+    background: {{ section.settings.background_color }}
+     !important;
+  }
+
+  #bundle-highlight-{{ section.id }}
+  + div[id*="apps"] .bndlr-products-container {
+    background: {{ section.settings.background_color }}
+     !important;
+  }
+
+  #bundle-highlight-{{ section.id }}
+  + div[id*="apps"] .bndlr-inner-products-container {
+    background: {{ section.settings.background_color }}
+     !important;
+  }
+
+  #bundle-highlight-{{ section.id }}
+  + div[id*="apps"] .bndlr-mnm-available-products {
+    background: {{ section.settings.background_color }}
+     !important;
+  }
+
+  /* Force ALL elements in the bundler app to inherit background */
+  #bundle-highlight-{{ section.id }}+ div[id*="apps"] div[class*="bndlr"] {
+    background: {{ section.settings.background_color }}
+     !important;
+  }
+
+  #bundle-highlight-{{ section.id }}
+  + div[id*="apps"] div[class*="bundler"] {
+    background: {{ section.settings.background_color }}
+     !important;
+  }
+
+  /* Specific targeting for the exact app section */
+  div[id*="shopify-section-template"][id*="apps_UXdtyL"] {
+    background: {{ section.settings.background_color }}
+     !important;
+  }
+
+  div[id*="shopify-section-template"][id*="apps_UXdtyL"] * {
+    background: {{ section.settings.background_color }}
+     !important;
+  }
+
+  div[id*="shopify-section-template"][id*="apps_jgRAxr"] {
+    background: {{ section.settings.background_color }}
+     !important;
+  }
+
+  div[id*="shopify-section-template"][id*="apps_jgRAxr"] * {
+    background: {{ section.settings.background_color }}
+     !important;
+  }
+
+  /* Generic targeting for any apps section after bundle highlight */
+  div[id*="shopify-section-template"][id*="apps"] {
+    background: {{ section.settings.background_color }}
+     !important;
+  }
+
+  /* Force margin-top 0 for all bundler containers */
+  .bundler-target-element[data-bndlr-ccid] .bndlr-container {
+    margin-top: 0 !important;
+  }
+
+  /* JavaScript will add custom properties to apps sections */
+  div[data-bundle-bg] {
+    background: var(--bundle-bg-color) !important;
+  }
+
+  div[data-bundle-bg] * {
+    background: var(--bundle-bg-color) !important;
+  }
+{%- endstyle -%}
+
+<section class="bundle-highlight" id="bundle-highlight-{{ section.id }}">
+  <div class="bundle-highlight__container">
+    {%- if section.settings.title != blank -%}
+      <h2 class="bundle-highlight__title">{{ section.settings.title }}</h2>
+    {%- endif -%}
+
+    {%- if section.settings.description != blank -%}
+      <div class="bundle-highlight__description">
+        {{ section.settings.description }}
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+  // Find all bundle highlight sections
+  const bundleHighlights = document.querySelectorAll('[id*="bundle-highlight-"]');
+  
+  bundleHighlights.forEach(function(bundleSection) {
+    // Get the background color from the computed styles
+    const bgColor = window.getComputedStyle(bundleSection).backgroundColor;
+    
+    // Find the next apps section after this bundle highlight
+    let nextElement = bundleSection.nextElementSibling;
+    while (nextElement) {
+      if (nextElement.id && nextElement.id.includes('apps')) {
+        // Apply the background color
+        nextElement.setAttribute('data-bundle-bg', 'true');
+        nextElement.style.setProperty('--bundle-bg-color', bgColor);
+        nextElement.style.background = bgColor + ' !important';
+        
+        // Apply to all children
+        const allChildren = nextElement.querySelectorAll('*');
+        allChildren.forEach(function(child) {
+          child.style.background = bgColor + ' !important';
+        });
+        
+        break;
+      }
+      nextElement = nextElement.nextElementSibling;
+    }
+  });
+  });
+</script>
+
+{% schema %}
+  {
+    "name": "Bundle Highlight",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Content"
+      },
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Title",
+        "default": "1. The Complete Self-Care Powerhouse"
+      },
+      {
+        "type": "richtext",
+        "id": "description",
+        "label": "Description",
+        "default": "<p>Your perfect starting point for total self-improvement. Sculpt your body with a pro-grade weight set, then recover faster with the massage gun. This bundle is a complete investment in your well-being—from building strength to mindful recovery.</p>"
+      },
+      {
+        "type": "header",
+        "content": "Font Sizes - Desktop"
+      }, {
+        "type": "range",
+        "id": "title_size_desktop",
+        "label": "Title size (Desktop)",
+        "min": 20,
+        "max": 80,
+        "step": 1,
+        "unit": "px",
+        "default": 40
+      }, {
+        "type": "range",
+        "id": "text_size_desktop",
+        "label": "Text size (Desktop)",
+        "min": 14,
+        "max": 40,
+        "step": 1,
+        "unit": "px",
+        "default": 26
+      }, {
+        "type": "header",
+        "content": "Font Sizes - Mobile"
+      }, {
+        "type": "range",
+        "id": "title_size_mobile",
+        "label": "Title size (Mobile)",
+        "min": 18,
+        "max": 60,
+        "step": 1,
+        "unit": "px",
+        "default": 28
+      }, {
+        "type": "range",
+        "id": "text_size_mobile",
+        "label": "Text size (Mobile)",
+        "min": 12,
+        "max": 30,
+        "step": 1,
+        "unit": "px",
+        "default": 18
+      }, {
+        "type": "header",
+        "content": "Colors"
+      }, {
+        "type": "color",
+        "id": "background_color",
+        "label": "Background color",
+        "default": "#ffffff"
+      }, {
+        "type": "color",
+        "id": "title_color",
+        "label": "Title color",
+        "default": "#333333"
+      }, {
+        "type": "color",
+        "id": "text_color",
+        "label": "Text color",
+        "default": "#333333"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Bundle Highlight",
+        "settings": {
+          "title": "1. The Complete Self-Care Powerhouse",
+          "description": "<p>Your perfect starting point for total self-improvement. Sculpt your body with a pro-grade weight set, then recover faster with the massage gun. This bundle is a complete investment in your well-being—from building strength to mindful recovery.</p>",
+          "title_size_desktop": 40,
+          "text_size_desktop": 26,
+          "title_size_mobile": 28,
+          "text_size_mobile": 18,
+          "background_color": "#ffffff",
+          "title_color": "#333333",
+          "text_color": "#333333"
+        }
+      }
+    ]
+  }
+{% endschema %}
