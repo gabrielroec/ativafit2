@@ -1,14 +1,14 @@
 <div class="collection-categories">
   <div class="collection-categories__grid">
     {% for block in section.blocks %}
-      <div class="collection-category" {{ block.shopify_attributes }}>
+      <div class="collection-category collection-category--{{ block.id }}" {{ block.shopify_attributes }}>
         <div class="collection-category__image-container">
 
           <img
             src="{{ block.settings.category_image | img_url: '800x' }}"
             width="800"
             height="600"
-            alt="{{ block.settings.category_title }}"
+            alt="{{ block.settings.category_title | strip_html }}"
             loading="lazy"
             class="collection-category__image">
           <div class="collection-category__overlay">
@@ -17,13 +17,13 @@
             </a>
           </div>
         </div>
-        <h3 class="collection-category__title bold">{{ block.settings.category_title }}</h3>
+        <div class="collection-category__title bold">{{ block.settings.category_title }}</div>
       </div>
     {% endfor %}
   </div>
 </div>
 
-<style>
+{%- style -%}
   .collection-categories {
     width: 100%;
     max-width: 1750px;
@@ -95,17 +95,22 @@
     color: #fff;
   }
 
-  .collection-category__title {
-    margin: 0;
-    font-size: 24px;
-    font-weight: bold;
-    color: #fff;
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-  }
+  {% for block in section.blocks %}
+    .collection-category--{{ block.id }}
+    .collection-category__title {
+      margin: 0 auto;
+      font-size: 24px;
+      font-weight: bold;
+      color: #fff;
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: {{ block.settings.title_max_width | default: 200 }}px;
+      text-align: center;
+      line-height: 1.2;
+    }
+  {% endfor %}
 
   /* Breakpoints responsivos */
   @media screen and (max-width: 768px) {
@@ -124,18 +129,25 @@
       /* Proporção 4:3 */
     }
 
-    .collection-category__title {
-      font-size: 20px;
-      bottom: 15px;
-    }
+    {% for block in section.blocks %}
+      .collection-category--{{ block.id }}
+      .collection-category__title {
+        font-size: 20px;
+        bottom: 15px;
+        max-width: {{ block.settings.title_max_width_mobile | default: 180 }}px;
+      }
+    {% endfor %}
   }
 
   @media screen and (max-width: 480px) {
-    .collection-category__title {
-      font-size: 18px;
-    }
+    {% for block in section.blocks %}
+      .collection-category--{{ block.id }}
+      .collection-category__title {
+        font-size: 18px;
+      }
+    {% endfor %}
   }
-</style>
+{%- endstyle -%}
 
 {% schema %}
   {
@@ -150,11 +162,39 @@
             "type": "image_picker",
             "id": "category_image",
             "label": "Imagem da categoria"
-          }, {
-            "type": "text",
+          },
+          {
+            "type": "richtext",
             "id": "category_title",
-            "label": "Nome da categoria",
-            "default": "Nome da categoria"
+            "label": "Título da categoria",
+            "default": "<p>Nome da categoria</p>",
+            "info": "Use o editor de texto para quebrar linhas e formatar o título"
+          },
+          {
+            "type": "header",
+            "content": "Configurações do Título"
+          },
+          {
+            "type": "range",
+            "id": "title_max_width",
+            "label": "Largura máxima do título (Desktop)",
+            "min": 100,
+            "max": 400,
+            "step": 10,
+            "unit": "px",
+            "default": 200
+          }, {
+            "type": "range",
+            "id": "title_max_width_mobile",
+            "label": "Largura máxima do título (Mobile)",
+            "min": 80,
+            "max": 300,
+            "step": 10,
+            "unit": "px",
+            "default": 180
+          }, {
+            "type": "header",
+            "content": "Link e Botão"
           }, {
             "type": "url",
             "id": "category_link",
@@ -173,13 +213,33 @@
         "name": "Categorias",
         "blocks": [
           {
-            "type": "category"
+            "type": "category",
+            "settings": {
+              "category_title": "<p>Nome da categoria</p>",
+              "title_max_width": 200,
+              "title_max_width_mobile": 180
+            }
           }, {
-            "type": "category"
+            "type": "category",
+            "settings": {
+              "category_title": "<p>Nome da categoria</p>",
+              "title_max_width": 200,
+              "title_max_width_mobile": 180
+            }
           }, {
-            "type": "category"
+            "type": "category",
+            "settings": {
+              "category_title": "<p>Nome da categoria</p>",
+              "title_max_width": 200,
+              "title_max_width_mobile": 180
+            }
           }, {
-            "type": "category"
+            "type": "category",
+            "settings": {
+              "category_title": "<p>Nome da categoria</p>",
+              "title_max_width": 200,
+              "title_max_width_mobile": 180
+            }
           }
         ]
       }

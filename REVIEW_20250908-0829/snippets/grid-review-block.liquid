@@ -1,0 +1,56 @@
+{% case block.type %}
+  {% when 'text' %}
+    <div class="grid-reviews__item grid-reviews__text" {{ block.shopify_attributes }}>
+      <div class="grid-reviews__header">
+        {% comment %}Avatar com iniciais{% endcomment %}
+        {% assign name_parts = block.settings.author | split: ' ' %}
+        {% assign first_initial = name_parts[0] | slice: 0 | upcase %}
+        {% assign second_initial = name_parts[1] | slice: 0 | upcase %}
+        {% assign initials = first_initial %}
+        {% if second_initial != blank %}
+          {% assign initials = initials | append: second_initial %}
+        {% endif %}
+        
+        <div class="grid-reviews__avatar-wrapper">
+          <div class="grid-reviews__avatar bold">
+            {% if initials != blank %}
+              {{ initials }}
+            {% else %}
+              AA
+            {% endif %}
+          </div>
+
+          <div class="grid-reviews__user-info">
+            {% if block.settings.author != blank %}
+              <div class="grid-reviews__author black">{{ block.settings.author }}</div>
+            {% endif %}
+            <div class="grid-reviews__stars">
+              {% assign rating = block.settings.rating | default: 5 %}
+              {% for i in (1..5) %}
+                {% if i <= rating %}
+                  <span>★</span>
+                {% else %}
+                  <span style="color: #ddd;">★</span>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-reviews__quote regular">{{ block.settings.text }}</div>
+    </div>
+  {% when 'video' %}
+    <div class="grid-reviews__item" {{ block.shopify_attributes }}>
+      <div class="grid-reviews__video">
+        {% assign video_id = block.settings.youtube_url | split: "v=" | last | split: "&" | first %}
+        <iframe
+          src="https://www.youtube.com/embed/{{ video_id }}"
+          loading="lazy"
+          title="YouTube video"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+    </div>
+{% endcase %} 

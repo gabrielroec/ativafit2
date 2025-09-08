@@ -1,0 +1,212 @@
+{%- style -%}
+  .product-showcase {
+    padding: 0 20px;
+    width: 100%;
+    max-width: 1750px;
+    margin: 70px auto 0;
+    overflow: hidden;
+  }
+
+  .product-showcase__header {
+    text-align: left;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .product-showcase__title {
+    font-size: 50px;
+    font-weight: 900;
+    line-height: 100%;
+    margin: 0;
+  }
+
+  .product-showcase__slider {
+    position: relative;
+  }
+
+  .product-showcase__grid {
+    display: flex;
+    gap: 20px;
+  }
+
+  .product-showcase__slide {
+    flex: 0 0 auto;
+    width: calc(25% - 15px);
+    min-width: 280px;
+  }
+
+  .product-showcase__navigation {
+    display: none !important;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 20px;
+  }
+
+  .product-showcase__arrow {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #EB701F;
+    background: transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+  }
+
+  .product-showcase__arrow:hover {
+    background: #EB701F;
+    color: white;
+  }
+
+  .product-showcase__arrow svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .product-showcase__view-all {
+    background: #EB701F;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 16px;
+    transition: background 0.3s ease;
+  }
+
+  .product-showcase__view-all:hover {
+    background: #c23d12;
+  }
+
+  @media screen and (max-width: 768px) {
+    .product-showcase {
+      padding: 0 10px;
+    }
+
+    .product-showcase__slide {
+      width: calc(50% - 10px);
+    }
+
+    .product-showcase__header {
+      flex-direction: row;
+      gap: 16px;
+    }
+
+    .product-showcase__view-all {
+      align-self: flex-start;
+    }
+    .product-showcase__title {
+      font-size: 48px;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .product-showcase__slide {
+      width: 100%;
+    }
+    .product-showcase__title {
+      font-size: 36px;
+    }
+  }
+  .product-showcase__slide.swiper-slide {
+    width: fit-content !important;
+  }
+
+{%- endstyle -%}
+
+<div class="product-showcase">
+  <div class="product-showcase__header">
+    <h2 class="product-showcase__title black">{{ section.settings.title | escape }}</h2>
+    <a href="{{ section.settings.view_all_link }}" class="product-showcase__view-all condensed-bold">
+      {{ section.settings.view_all_text | default: 'VIEW ALL' }}
+    </a>
+  </div>
+
+  <div class="product-showcase__slider">
+    <div class="product-showcase__grid swiper-wrapper">
+      {%- for product in collections[section.settings.collection].products -%}
+        <div class="product-showcase__slide swiper-slide">
+          {% render 'product-card-custom'
+            , product: product %}
+        </div>
+      {%- endfor -%}
+    </div>
+
+    <div class="product-showcase__navigation">
+      <button class="product-showcase__arrow prev-button" aria-label="Previous">
+        <svg fill="currentColor" viewBox="0 0 24 24">
+          <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+        </svg>
+      </button>
+      <button class="product-showcase__arrow next-button" aria-label="Next">
+        <svg fill="currentColor" viewBox="0 0 24 24">
+          <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="{{ 'swiper-bundle.min.js' | asset_url }}" defer="defer"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    new Swiper('.product-showcase__slider', {
+      slidesPerView: 'auto',
+      spaceBetween: 0,
+      navigation: {
+        nextEl: '.next-button',
+        prevEl: '.prev-button',
+      },
+      breakpoints: {
+        320: {
+          slidesPerView: 1,
+        },
+        768: {
+          slidesPerView: 3,
+        },
+        1024: {
+          slidesPerView: 5,
+        }
+      }
+    });
+  });
+</script>
+
+{% schema %}
+  {
+    "name": "Vitrine de Produtos",
+    "settings": [
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Título da vitrine",
+        "default": "BEST SELLERS"
+      }, {
+        "type": "collection",
+        "id": "collection",
+        "label": "Coleção"
+      }, {
+        "type": "url",
+        "id": "view_all_link",
+        "label": "Link do botão View All"
+      }, {
+        "type": "text",
+        "id": "view_all_text",
+        "label": "Texto do botão View All",
+        "default": "VIEW ALL"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Vitrine de Produtos",
+        "settings": {
+          "title": "BEST SELLERS"
+        }
+      }
+    ]
+  }
+{% endschema %}
