@@ -54,105 +54,9 @@
     }
   }
 
-  /* Force next apps section to inherit same background */
-  #bundle-highlight-{{ section.id }}+ div[id*="apps"] {
-    background: {{ section.settings.background_color }}
-     !important;
-  }
-
-  #bundle-highlight-{{ section.id }}
-  + div[id*="apps"] .shopify-section {
-    background: {{ section.settings.background_color }}
-     !important;
-  }
-
-  #bundle-highlight-{{ section.id }}
-  + div[id*="apps"] .container {
-    background: {{ section.settings.background_color }}
-     !important;
-  }
-
-  #bundle-highlight-{{ section.id }}
-  + div[id*="apps"] .bndlr-container {
-    background: {{ section.settings.background_color }}
-     !important;
-  }
-
-  #bundle-highlight-{{ section.id }}
-  + div[id*="apps"] .bundler-target-element {
-    background: {{ section.settings.background_color }}
-     !important;
-  }
-
-  #bundle-highlight-{{ section.id }}
-  + div[id*="apps"] .bndlr-products-container {
-    background: {{ section.settings.background_color }}
-     !important;
-  }
-
-  #bundle-highlight-{{ section.id }}
-  + div[id*="apps"] .bndlr-inner-products-container {
-    background: {{ section.settings.background_color }}
-     !important;
-  }
-
-  #bundle-highlight-{{ section.id }}
-  + div[id*="apps"] .bndlr-mnm-available-products {
-    background: {{ section.settings.background_color }}
-     !important;
-  }
-
-  /* Force ALL elements in the bundler app to inherit background */
-  #bundle-highlight-{{ section.id }}+ div[id*="apps"] div[class*="bndlr"] {
-    background: {{ section.settings.background_color }}
-     !important;
-  }
-
-  #bundle-highlight-{{ section.id }}
-  + div[id*="apps"] div[class*="bundler"] {
-    background: {{ section.settings.background_color }}
-     !important;
-  }
-
-  /* Specific targeting for the exact app section */
-  div[id*="shopify-section-template"][id*="apps_UXdtyL"] {
-    background: {{ section.settings.background_color }}
-     !important;
-  }
-
-  div[id*="shopify-section-template"][id*="apps_UXdtyL"] * {
-    background: {{ section.settings.background_color }}
-     !important;
-  }
-
-  div[id*="shopify-section-template"][id*="apps_jgRAxr"] {
-    background: {{ section.settings.background_color }}
-     !important;
-  }
-
-  div[id*="shopify-section-template"][id*="apps_jgRAxr"] * {
-    background: {{ section.settings.background_color }}
-     !important;
-  }
-
-  /* Generic targeting for any apps section after bundle highlight */
-  div[id*="shopify-section-template"][id*="apps"] {
-    background: {{ section.settings.background_color }}
-     !important;
-  }
-
   /* Force margin-top 0 for all bundler containers */
   .bundler-target-element[data-bndlr-ccid] .bndlr-container {
     margin-top: 0 !important;
-  }
-
-  /* JavaScript will add custom properties to apps sections */
-  div[data-bundle-bg] {
-    background: var(--bundle-bg-color) !important;
-  }
-
-  div[data-bundle-bg] * {
-    background: var(--bundle-bg-color) !important;
   }
 {%- endstyle -%}
 
@@ -171,35 +75,62 @@
 </section>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-  // Find all bundle highlight sections
-  const bundleHighlights = document.querySelectorAll('[id*="bundle-highlight-"]');
+  // Global script - only run once
+  if (!window.bundleColorsApplied) {
+  window.bundleColorsApplied = true;
   
-  bundleHighlights.forEach(function(bundleSection) {
-    // Get the background color from the computed styles
-    const bgColor = window.getComputedStyle(bundleSection).backgroundColor;
-    
-    // Find the next apps section after this bundle highlight
-    let nextElement = bundleSection.nextElementSibling;
-    while (nextElement) {
-      if (nextElement.id && nextElement.id.includes('apps')) {
-        // Apply the background color
-        nextElement.setAttribute('data-bundle-bg', 'true');
-        nextElement.style.setProperty('--bundle-bg-color', bgColor);
-        nextElement.style.background = bgColor + ' !important';
-        
-        // Apply to all children
-        const allChildren = nextElement.querySelectorAll('*');
-        allChildren.forEach(function(child) {
-          child.style.background = bgColor + ' !important';
-        });
-        
-        break;
-      }
-      nextElement = nextElement.nextElementSibling;
-    }
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+      // Define the exact app IDs in order and their colors
+      const appConfigs = [
+        { id: '1757329073fd8b0d41', color: '#ffffff' },    // App 1 - White
+        { id: 'apps_UXdtyL', color: '#fcebdf' },          // App 2 - Special color
+        { id: 'apps_jgRAxr', color: '#ffffff' },          // App 3 - White  
+        { id: 'apps_T84XwQ', color: '#fcebdf' }           // App 4 - Special color
+      ];
+      
+      // Apply colors to each specific app
+      appConfigs.forEach(function(config, index) {
+        const appSection = document.querySelector('[id*="' + config.id + '"]');
+        if (appSection) {
+          // Force the background color on main section
+          appSection.style.setProperty('background', config.color, 'important');
+          appSection.style.setProperty('background-color', config.color, 'important');
+          
+          // Force on container
+          const container = appSection.querySelector('.container');
+          if (container) {
+            container.style.setProperty('background', config.color, 'important');
+            container.style.setProperty('background-color', config.color, 'important');
+          }
+          
+          // Force on bundler container - but keep products white
+          const bundlerContainers = appSection.querySelectorAll('.bndlr-container');
+          bundlerContainers.forEach(function(bundlerContainer) {
+            bundlerContainer.style.setProperty('background', config.color, 'important');
+            bundlerContainer.style.setProperty('background-color', config.color, 'important');
+            
+            // Keep individual products white
+            const products = bundlerContainer.querySelectorAll('.bndlr-product');
+            products.forEach(function(product) {
+              product.style.setProperty('background', '#ffffff', 'important');
+              product.style.setProperty('background-color', '#ffffff', 'important');
+              
+              // Force white on all product children too
+              const productChildren = product.querySelectorAll('*');
+              productChildren.forEach(function(child) {
+                child.style.setProperty('background', '#ffffff', 'important');
+                child.style.setProperty('background-color', '#ffffff', 'important');
+              });
+            });
+          });
+          
+          console.log('Applied', config.color, 'to app', index + 1, config.id, '(products kept white)');
+        }
+      });
+    }, 200);
   });
-  });
+  }
 </script>
 
 {% schema %}
