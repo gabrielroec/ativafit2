@@ -50,7 +50,7 @@
     <link rel="dns-prefetch" href="https://maps.googleapis.com">
     <link rel="dns-prefetch" href="https://maps.gstatic.com">
 
-
+   
     {% render 'css-variables' %}
 
     <link href="https://fonts.cdnfonts.com/css/inter" rel="stylesheet">
@@ -261,6 +261,77 @@
 
 
   {% include 'pagefly-app-header' %}</head>
+
+    <style>
+      /* Técnica 1: Múltiplos !important com seletores mais específicos */
+      .rivyoTestimonialItem{
+        background-color: #fff !important;
+        background: #fff !important;
+      }
+      
+      /* Técnica 2: Seletores mais específicos */
+      div.rivyoTestimonialItem,
+      .rivyoTestimonialItem[style*="background"],
+      .rivyoTestimonialItem[style*="background-color"] {
+        background-color: #fff !important;
+        background: #fff !important;
+      }
+      
+      /* Técnica 3: Usando atributo style com máxima especificidade */
+      .rivyoTestimonialItem[style] {
+        background-color: #fff !important;
+        background: #fff !important;
+      }
+      
+      /* Técnica 4: Seletores aninhados para máxima especificidade */
+      body .rivyoTestimonialItem,
+      html body .rivyoTestimonialItem {
+        background-color: #fff !important;
+        background: #fff !important;
+      }
+    </style>
+    
+    <!-- Técnica 5: JavaScript para forçar estilo com máxima prioridade -->
+    <script>
+      // Função para forçar background branco nos elementos Rivyo
+      function forceRivyoBackground() {
+        const rivyoElements = document.querySelectorAll('.rivyoTestimonialItem');
+        rivyoElements.forEach(element => {
+          // Remove estilos inline existentes
+          element.removeAttribute('style');
+          // Força o estilo com setProperty para máxima prioridade
+          element.style.setProperty('background-color', '#fff', 'important');
+          element.style.setProperty('background', '#fff', 'important');
+        });
+      }
+      
+      // Executa imediatamente
+      forceRivyoBackground();
+      
+      // Executa quando o DOM estiver carregado
+      document.addEventListener('DOMContentLoaded', forceRivyoBackground);
+      
+      // Executa quando a página estiver totalmente carregada
+      window.addEventListener('load', forceRivyoBackground);
+      
+      // Executa a cada 500ms para pegar elementos carregados dinamicamente
+      setInterval(forceRivyoBackground, 500);
+      
+      // Observer para detectar mudanças no DOM
+      const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.type === 'childList') {
+            forceRivyoBackground();
+          }
+        });
+      });
+      
+      // Inicia o observer
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+    </script>
 
   <body class="Ativafit--v4 {% if settings.animation_image_zoom %}features--animate-zoom{% endif%} template-{{ request.page_type | handle }} {% if request.page_type contains '/' %}template-{{ request.page_type | split: '/' | last | handle }}{% endif %}" data-instant-intensity="viewport">
     {% section 'tom-custom-fonts' %}
