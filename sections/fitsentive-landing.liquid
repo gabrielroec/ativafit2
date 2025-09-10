@@ -1,104 +1,288 @@
 {% comment %}
-Ativafit x Fitsentive — Landing Section (Shopify OS 2.0)
-How to use:
-1) In your theme, go to Online Store → Themes → Edit code → sections → Add a new section → name it fitsentive-landing.liquid
-2) Paste ALL of this code.
-3) In the Theme Editor, create a new Page, choose the "fitsentive-landing" section via a custom page template (see note at bottom), and configure the content.
-
-Why this fixes deployment:
-- Removes full HTML <head>/<body> which breaks Shopify templates.
-- Avoids Tailwind CDN; uses minimal, embedded CSS compatible with Shopify.
-- Replaces unsupported `aspect-w-16 aspect-h-9` utilities with CSS-powered responsive boxes.
-- Provides theme-editor (schema) fields for video URL, images, links, and copy.
+Fitsentive — Landing Section (Mobile hero = <a> 包裹整块，必定可点)
 {% endcomment %}
 
 <style>
-  .fit-hero { position: relative; height: 80vh; min-height: 460px; overflow: hidden; color: #fff; }
-  .fit-hero video { position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; width: auto; height: auto; transform: translate(-50%, -50%); z-index: 0; }
-  .fit-hero::after { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,.5); z-index: 1; }
-  .fit-hero__inner { position: relative; z-index: 2; height: 100%; display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 1rem; }
-  .fit-container { width: min(1200px, 92%); margin: 0 auto; }
-  .fit-btn { display: inline-block; background: #eb701f; color: #fff; padding: .85rem 1.5rem; border-radius: .6rem; font-weight: 700; text-decoration: none; transition: filter .2s ease; }
-  .fit-btn:hover { filter: brightness(0.95); }
-  .fit-grid { display: grid; gap: 2rem; }
-  @media (min-width: 992px){ .fit-grid--2 { grid-template-columns: 1fr 1fr; } }
-  .fit-card { border-radius: .8rem; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.08); background: #fff; }
-  .fit-copy { color: #555; line-height: 1.65; }
-  .fit-logos { display: flex; align-items: center; gap: 1.25rem; justify-content: center; }
-  .fit-logos span { font-size: 2rem; color: #bbb; }
-  .fit-thumb { position: relative; width: 100%; }
-  .fit-thumb::before{ content:""; display:block; padding-bottom:56.25%; }
-  .fit-thumb > img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
-  .fit-product { display: grid; gap: 1.5rem; align-items: center; }
-  @media (min-width: 992px){ .fit-product { grid-template-columns: 1fr 1fr; } }
-  .fit-bullets { display: grid; gap: .9rem; color:#555; }
-  .fit-bullets strong { color: #111; }
-  .fit-price { font-size: clamp(1.5rem, 2.2vw, 2rem); font-weight: 800; }
-  .fit-section { padding: 4rem 0; }
-  .fit-section--alt { background: #f7f7f9; }
-  .fit-section--dark { background: #222; color: #fff; }
-  .fit-gallery { display:grid; grid-template-columns: repeat(2,1fr); gap: .75rem; }
-  @media (min-width: 768px){ .fit-gallery { grid-template-columns: repeat(4,1fr); } }
-  .fit-gallery img{ width:100%; height:100%; object-fit:cover; border-radius:.6rem; aspect-ratio:1/1; }
-  .fit-center { text-align:center; }
-  .fit-title { font-weight: 800; margin: 0 0 .8rem; font-size: clamp(1.6rem, 2.6vw, 2.25rem); }
-  .fit-subtitle { margin: 0 0 1.25rem; color:#666; }
+.fit-container { 
+  width: 95%; 
+  max-width: 1600px; 
+  margin: 0 auto; 
+}
+
+.fit-title {
+  font-weight: 800;
+  margin: 0 0 .6rem;
+  font-size: clamp(1.8rem, 3vw, 3rem); /* 普通标题，最大≈30px */
+}
+
+h1.fit-title {
+  font-size: clamp(2rem, 5vw, 4.5rem); /* Hero 主标题，最大≈45px */
+}
+
+.fit-subtitle {
+  margin: 0 0 1rem;
+  color: #666;
+  font-size: clamp(1.1rem, 1.6vw, 1.5rem); /* 副标题最大≈24px */
+}
+
+.fit-btn {
+  display: inline-block;
+  background: #eb701f;
+  color: #fff;
+  padding: 1rem 1.6rem; 
+  border-radius: .6rem;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 1.05rem; /* 按钮文字更大 */
+}
+
+.fit-section {
+  padding: 3rem 0; /* 区块间距更大 */
+}
+
+.fit-section--alt {
+  background: #f7f7f9;
+}
+
+.fit-section--dark {
+  background: #222;
+  color: #fff;
+}
+
+.fit-copy {
+  color: #555;
+  line-height: 1.85; 
+  font-size: 1.25rem; /* 正文大约20px，舒适阅读 */
+}
+
+/* 放大合作 Logo */
+.fit-logos img {
+  height: 64px; /* 原40px → 64px，更突出 */
+  width: auto;
+}
+
+
+  .fit-center{text-align:center;}
+  .fit-grid{display:grid;gap:1.25rem;}
+  .fit-grid--2{grid-template-columns:1fr;}
+  .fit-product{display:grid;gap:1rem;align-items:start;}
+  .fit-card{border-radius:.8rem;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.06);background:#fff;}
+  .fit-gallery{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem;}
+  .fit-gallery img{width:100%;height:100%;object-fit:cover;border-radius:.6rem;aspect-ratio:1/1;}
+  .fit-logos{display:flex;align-items:center;justify-content:center;gap:1rem;}
+  .fit-logos span{font-size:1.6rem;color:#bbb;}
+
+  .fit-hero{position:relative;}
+  .hero-wrap{width:100%;}
+  .hero-ratio{position:relative;width:100%;}
+  .hero-ratio::before{content:"";display:block;padding-top:var(--ratio,56%);}
+  .hero-inner{position:absolute;inset:0;}
+  .hero-img{width:100%;height:100%;object-fit:cover;display:block;}
+
+  .hero-desktop{display:none;}
+  .hero-mobile{display:block;}
+  @media (min-width:768px){
+    .fit-section{padding:3.5rem 0;}
+    .fit-grid--2{grid-template-columns:1fr 1fr;}
+    .fit-product{grid-template-columns:1fr 1fr;gap:1.5rem;align-items:center;}
+    .fit-gallery{grid-template-columns:repeat(4,1fr);gap:.75rem;}
+    .fit-title{font-size:clamp(1.6rem,2.2vw,2.1rem);}
+    .fit-subtitle{font-size:1rem;}
+    .hero-desktop{display:block;}
+    .hero-mobile{display:none;}
+  }
+
+  @media (max-width:767px){
+    #shopify-section-{{ section.id }} .fit-hero__click{display:none !important;}
+  }
+  /* ===== Enlarge logos (overrides inline height=40px) ===== */
+.fit-logos img {
+  height: 80px !important;
+  width: auto !important;
+}
+
+/* ===== Enlarge body text across the section ===== */
+.fit-section,
+.fit-section p,
+.fit-section li {
+  font-size: 1.25rem !important;  /* ≈20px */
+  line-height: 1.85 !important;
+}
+/* ===== Force larger body copy inside Fitsentive landing only ===== */
+/* 段落与列表：统一放大到 ~20px，行距更舒展 */
+.fit-section p,
+.fit-section li,
+.fit-copy {
+  font-size: 1.25rem !important;   /* ≈20px */
+  line-height: 1.9 !important;
+}
+
+/* 卖点要点区域：同时放大普通文本与加粗部分 */
+.fit-bullets,
+.fit-bullets div,
+.fit-bullets strong {
+  font-size: 1.25rem !important;
+  line-height: 1.9 !important;
+}
+
+/* 社区段落（副标题型短文，也一并放大） */
+.fit-section .fit-subtitle {
+  font-size: clamp(1.1rem, 1.6vw, 1.5rem) !important; /* 最大≈24px */
+  line-height: 1.8 !important;
+}
+
+/* 价格保持原有大小（如需更大，可注释掉本段） */
+.fit-price {
+  font-size: clamp(1.5rem, 2.2vw, 2rem) !important;
+}
+/* ========== Partner 区块文字放大 ========== */
+.fit-section .fit-copy {
+  font-size: 1.5rem !important;   /* ≈21px */
+  line-height: 1.9 !important;
+}
+
+.fit-section .fit-title {
+  font-size: clamp(2rem, 3vw, 3.2rem) !important; /* 最大≈32px */
+}
+
+/* ========== Product 卖点文字放大 ========== */
+.fit-product .fit-title {
+  font-size: clamp(1.8rem, 2.5vw, 2.8rem) !important; /* 产品标题≈28px */
+  margin-bottom: 1rem;
+}
+
+.fit-product .fit-bullets div,
+.fit-product .fit-bullets strong {
+  font-size: 1.5rem !important;  /* ≈20px */
+  line-height: 1.9 !important;
+}
+
+/* 价格部分如果也想更大，可以调这里 */
+.fit-product .fit-price {
+  font-size: clamp(2rem, 2.8vw, 2.4rem) !important; /* 最大≈24px */
+}
+
 </style>
 
+<!-- =================== HERO =================== -->
 <section class="fit-hero">
-  <video autoplay loop muted playsinline>
-    <source src="{{ section.settings.hero_video_url | escape }}" type="video/mp4">
-  </video>
-  <div class="fit-hero__inner">
-    <div class="fit-container">
-      <h1 class="fit-title" style="font-size:clamp(2rem,4.5vw,3.5rem); color:#fff;">{{ section.settings.hero_heading }}</h1>
-      <p class="fit-subtitle" style="color:#eaeaea; max-width:800px; margin:0 auto 1.25rem;">{{ section.settings.hero_subheading }}</p>
-      <a href="#star-products" class="fit-btn">{{ section.settings.hero_cta_text }}</a>
+  <!-- Desktop hero: 2000x500 -->
+  <div class="hero-wrap hero-desktop">
+    <div class="hero-ratio" style="--ratio:25%;">
+      <div class="hero-inner">
+        {% assign desktop_href = section.settings.hero_link_url | default: section.settings.product_url %}
+        {% if desktop_href != blank %}
+          <a href="{{ desktop_href }}" aria-label="{{ section.settings.hero_image_alt | escape }}" style="position:absolute;inset:0;z-index:3;display:block;"></a>
+        {% endif %}
+        {% if section.settings.hero_image %}
+          <img class="hero-img" src="{{ section.settings.hero_image | image_url: width: 2000 }}"
+               alt="{{ section.settings.hero_image_alt | escape }}"
+               style="object-position: {{ section.settings.hero_object_position }};">
+        {% endif %}
+      </div>
     </div>
   </div>
+
+  <!-- Mobile hero: 500x450, whole <a> -->
+  {% assign ig_url = section.settings.mobile_ig_url | replace:'http://','https://' %}
+  {% if section.settings.mobile_ig_on and ig_url != blank %}
+    <a href="{{ ig_url }}" target="_blank" rel="noopener" class="hero-wrap hero-mobile" style="text-decoration:none;">
+      <div class="hero-ratio" style="--ratio:111%;">
+        <div class="hero-inner">
+          {% if section.settings.hero_image_mobile %}
+            <img class="hero-img" src="{{ section.settings.hero_image_mobile | image_url: width: 1080 }}"
+                 alt="{{ section.settings.hero_image_alt | escape }}">
+          {% elsif section.settings.mobile_ig_cover %}
+            <img class="hero-img" src="{{ section.settings.mobile_ig_cover | image_url: width: 1080 }}"
+                 alt="{{ section.settings.hero_image_alt | escape }}">
+          {% else %}
+            <img class="hero-img" src="{{ section.settings.hero_image | image_url: width: 1080 }}"
+                 alt="{{ section.settings.hero_image_alt | escape }}">
+          {% endif %}
+        </div>
+      </div>
+    </a>
+  {% else %}
+    <div class="hero-wrap hero-mobile">
+      <div class="hero-ratio" style="--ratio:111%;">
+        <div class="hero-inner">
+          {% if section.settings.hero_image_mobile %}
+            <img class="hero-img" src="{{ section.settings.hero_image_mobile | image_url: width: 1000 }}"
+                 alt="{{ section.settings.hero_image_alt | escape }}">
+          {% else %}
+            <img class="hero-img" src="{{ section.settings.hero_image | image_url: width: 1000 }}"
+                 alt="{{ section.settings.hero_image_alt | escape }}">
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
 </section>
 
+<!-- ============== Partnership + Challenge ============== -->
 <section class="fit-section fit-section--alt">
   <div class="fit-container fit-grid fit-grid--2" style="align-items:center;">
     <div>
       <h2 class="fit-title">{{ section.settings.partner_heading }}</h2>
       <p class="fit-copy">{{ section.settings.partner_copy }}</p>
       <div class="fit-logos" style="margin-top:1rem;">
-        <img src="{{ section.settings.logo_left | image_url }}" alt="Left logo" style="height:40px; width:auto;"/>
+        <img src="{{ section.settings.logo_left | image_url }}" alt="Left logo" />
         <span>&times;</span>
-        <img src="{{ section.settings.logo_right | image_url }}" alt="Right logo" style="height:40px; width:auto;"/>
+        <img src="{{ section.settings.logo_right | image_url }}" alt="Right logo" />
       </div>
     </div>
     <div>
       <h3 class="fit-title" style="text-align:center;">{{ section.settings.challenge_title }}</h3>
-      <div class="fit-grid" style="grid-template-columns:1fr 1fr; gap: .75rem;">
-        {% for block in section.blocks %}
-          {% if block.type == 'thumb' %}
-            <div class="fit-thumb fit-card">
-              <img src="{{ block.settings.thumb | image_url }}" alt="{{ block.settings.alt }}">
-            </div>
+      {% assign thumb_count = 0 %}
+      {% for block in section.blocks %}
+        {% if block.type == 'thumb' and block.settings.thumb != blank %}
+          {% assign thumb_count = thumb_count | plus: 1 %}
+        {% endif %}
+      {% endfor %}
+      <div class="fit-grid" style="grid-template-columns:1fr 1fr;gap:.6rem;">
+        {% if thumb_count > 0 %}
+          {% for block in section.blocks %}
+            {% if block.type == 'thumb' and block.settings.thumb != blank %}
+              <div class="fit-thumb fit-card"><img src="{{ block.settings.thumb | image_url }}" alt="{{ block.settings.alt }}"></div>
+            {% endif %}
+          {% endfor %}
+        {% else %}
+          {% if section.settings.challenge1 != blank %}
+            <div class="fit-thumb fit-card"><img src="{{ section.settings.challenge1 | image_url }}" alt="{{ section.settings.challenge1_alt }}"></div>
           {% endif %}
-        {% endfor %}
+          {% if section.settings.challenge2 != blank %}
+            <div class="fit-thumb fit-card"><img src="{{ section.settings.challenge2 | image_url }}" alt="{{ section.settings.challenge2_alt }}"></div>
+          {% endif %}
+          {% if section.settings.challenge3 != blank %}
+            <div class="fit-thumb fit-card"><img src="{{ section.settings.challenge3 | image_url }}" alt="{{ section.settings.challenge3_alt }}"></div>
+          {% endif %}
+          {% if section.settings.challenge4 != blank %}
+            <div class="fit-thumb fit-card"><img src="{{ section.settings.challenge4 | image_url }}" alt="{{ section.settings.challenge4_alt }}"></div>
+          {% endif %}
+        {% endif %}
       </div>
     </div>
   </div>
 </section>
 
+<!-- =================== Star Product =================== -->
 <section id="star-products" class="fit-section">
   <div class="fit-container">
     <h2 class="fit-title fit-center">{{ section.settings.star_heading }}</h2>
     <div class="fit-product">
-      <div class="fit-card"><img src="{{ section.settings.product_image | image_url }}" alt="Product" style="width:100%; height:auto; display:block;"></div>
+      <div class="fit-card">
+        <img src="{{ section.settings.product_image | image_url }}" alt="Product" style="width:100%;height:auto;display:block;">
+      </div>
       <div>
         <h3 class="fit-title">{{ section.settings.product_title }}</h3>
-        <div class="fit-bullets">
+        <div class="fit-bullets" style="display:grid;gap:.7rem;color:#555;">
           <div>⚙ <strong>{{ section.settings.bullet1_bold }}</strong> {{ section.settings.bullet1_rest }}</div>
           <div>🏋 <strong>{{ section.settings.bullet2_bold }}</strong> {{ section.settings.bullet2_rest }}</div>
           <div>💪 <strong>{{ section.settings.bullet3_bold }}</strong> {{ section.settings.bullet3_rest }}</div>
           <div>🏆 <strong>{{ section.settings.bullet4_bold }}</strong> {{ section.settings.bullet4_rest }}</div>
         </div>
-        <div style="margin-top:1rem; display:flex; align-items:center; gap: 1rem; flex-wrap:wrap;">
-          <span class="fit-price">{{ section.settings.price_text }}</span>
+        <div style="margin-top:1rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;">
+          <span style="font-weight:800;font-size:1.4rem;">{{ section.settings.price_text }}</span>
           <a href="{{ section.settings.product_url }}" class="fit-btn">{{ section.settings.product_cta_text }}</a>
         </div>
       </div>
@@ -106,6 +290,7 @@ Why this fixes deployment:
   </div>
 </section>
 
+<!-- =================== Community =================== -->
 <section class="fit-section fit-section--alt fit-center">
   <div class="fit-container">
     <h2 class="fit-title">{{ section.settings.community_heading }}</h2>
@@ -119,10 +304,11 @@ Why this fixes deployment:
   </div>
 </section>
 
+<!-- =================== Final CTA =================== -->
 <section class="fit-section fit-section--dark fit-center">
   <div class="fit-container">
     <h2 class="fit-title" style="color:#fff;">{{ section.settings.final_heading }}</h2>
-    <p class="fit-subtitle" style="color:#ddd; max-width:900px; margin-left:auto; margin-right:auto;">{{ section.settings.final_copy }}</p>
+    <p class="fit-subtitle" style="color:#ddd;max-width:900px;margin-left:auto;margin-right:auto;">{{ section.settings.final_copy }}</p>
     <a href="{{ section.settings.collection_url }}" class="fit-btn">{{ section.settings.final_cta_text }}</a>
   </div>
 </section>
@@ -131,55 +317,66 @@ Why this fixes deployment:
 {
   "name": "Fitsentive Landing",
   "settings": [
-    {"type":"url","id":"hero_video_url","label":"Hero video MP4 URL"},
-    {"type":"text","id":"hero_heading","label":"Hero heading","default":"Powering the Challenge: The Official Training Gear"},
-    {"type":"text","id":"hero_subheading","label":"Hero subheading","default":"Join the movement, or use the gear trusted by competitors to start your transformation."},
-    {"type":"text","id":"hero_cta_text","label":"Hero CTA text","default":"Shop Challenge Gear"},
+    { "type": "image_picker", "id": "hero_image", "label": "Hero image desktop" },
+    { "type": "image_picker", "id": "hero_image_mobile", "label": "Hero image mobile" },
+    { "type": "image_picker", "id": "mobile_ig_cover", "label": "Mobile IG cover (optional)" },
+    { "type": "text", "id": "hero_image_alt", "label": "Hero alt", "default": "Ativafit × Fitsentive" },
+    { "type": "text", "id": "hero_object_position", "label": "Hero focal point", "default": "center center" },
+    { "type": "url", "id": "hero_link_url", "label": "Hero link URL (desktop)" },
+    { "type": "checkbox", "id": "mobile_ig_on", "label": "Use IG link on mobile", "default": true },
+    { "type": "url", "id": "mobile_ig_url", "label": "Instagram URL (mobile)" },
 
-    {"type":"text","id":"partner_heading","label":"Partnership heading","default":"About The Partnership"},
-    {"type":"textarea","id":"partner_copy","label":"Partnership copy","default":"Ativafit's mission is to make home fitness accessible to everyone by providing innovative, high-quality, and easy-to-use equipment. This collaboration with Fitsentive perfectly embodies our commitment to supporting the fitness community and promoting a healthy lifestyle, empowering both pro coaches and enthusiasts to achieve their goals."},
-    {"type":"image_picker","id":"logo_left","label":"Left logo"},
-    {"type":"image_picker","id":"logo_right","label":"Right logo"},
-    {"type":"text","id":"challenge_title","label":"Challenge title","default":"The Challenge is ON"},
+    { "type": "text", "id": "partner_heading", "label": "Partner heading", "default": "About The Partnership" },
+    { "type": "textarea", "id": "partner_copy", "label": "Partner copy", "default": "Ativafit's mission is to make home fitness accessible..." },
+    { "type": "image_picker", "id": "logo_left", "label": "Logo left" },
+    { "type": "image_picker", "id": "logo_right", "label": "Logo right" },
+    { "type": "text", "id": "challenge_title", "label": "Challenge title", "default": "The Challenge is ON" },
 
-    {"type":"text","id":"star_heading","label":"Star products heading","default":"Challenge Star Product"},
-    {"type":"image_picker","id":"product_image","label":"Product image"},
-    {"type":"text","id":"product_title","label":"Product title","default":"Ativafit Spark Adjustable Dumbbell"},
+    { "type": "image_picker", "id": "challenge1", "label": "Challenge image 1" },
+    { "type": "text", "id": "challenge1_alt", "label": "Challenge alt 1" },
+    { "type": "image_picker", "id": "challenge2", "label": "Challenge image 2" },
+    { "type": "text", "id": "challenge2_alt", "label": "Challenge alt 2" },
+    { "type": "image_picker", "id": "challenge3", "label": "Challenge image 3" },
+    { "type": "text", "id": "challenge3_alt", "label": "Challenge alt 3" },
+    { "type": "image_picker", "id": "challenge4", "label": "Challenge image 4" },
+    { "type": "text", "id": "challenge4_alt", "label": "Challenge alt 4" },
 
-    {"type":"text","id":"bullet1_bold","label":"Bullet 1 bold","default":"Instant Adjustment:"},
-    {"type":"text","id":"bullet1_rest","label":"Bullet 1 rest","default":"Patented pull-and-slide system allows for quick weight changes with one hand, ensuring your workout flows without interruption."},
-    {"type":"text","id":"bullet2_bold","label":"Bullet 2 bold","default":"Five-in-One Design:"},
-    {"type":"text","id":"bullet2_rest","label":"Bullet 2 rest","default":"Replaces five sets of dumbbells, saving significant space in your home. A smart investment for big results."},
-    {"type":"text","id":"bullet3_bold","label":"Bullet 3 bold","default":"Solid Steel Build:"},
-    {"type":"text","id":"bullet3_rest","label":"Bullet 3 rest","default":"Crafted from high-quality solid steel plates with an eco-friendly coating for durability and a premium feel."},
-    {"type":"text","id":"bullet4_bold","label":"Bullet 4 bold","default":"Coach Recommended:"},
-    {"type":"text","id":"bullet4_rest","label":"Bullet 4 rest","default":"As the official equipment for the Fitsentive pro fitness challenge, its quality and professionalism are guaranteed."},
+    { "type": "text", "id": "star_heading", "label": "Star heading", "default": "Challenge Star Product" },
+    { "type": "image_picker", "id": "product_image", "label": "Product image" },
+    { "type": "text", "id": "product_title", "label": "Product title", "default": "Ativafit Spark Adjustable Dumbbell" },
 
-    {"type":"text","id":"price_text","label":"Price text","default":"$199.99"},
-    {"type":"url","id":"product_url","label":"Product URL"},
-    {"type":"text","id":"product_cta_text","label":"Product CTA text","default":"Shop Now"},
+    { "type": "text", "id": "bullet1_bold", "label": "Bullet 1 bold", "default": "Instant Adjustment:" },
+    { "type": "text", "id": "bullet1_rest", "label": "Bullet 1 rest", "default": "Patented pull-and-slide system..." },
+    { "type": "text", "id": "bullet2_bold", "label": "Bullet 2 bold", "default": "Five-in-One Design:" },
+    { "type": "text", "id": "bullet2_rest", "label": "Bullet 2 rest", "default": "Replaces five sets of dumbbells..." },
+    { "type": "text", "id": "bullet3_bold", "label": "Bullet 3 bold", "default": "Solid Steel Build:" },
+    { "type": "text", "id": "bullet3_rest", "label": "Bullet 3 rest", "default": "Crafted from high-quality solid steel..." },
+    { "type": "text", "id": "bullet4_bold", "label": "Bullet 4 bold", "default": "Coach Recommended:" },
+    { "type": "text", "id": "bullet4_rest", "label": "Bullet 4 rest", "default": "As the official equipment..." },
 
-    {"type":"text","id":"community_heading","label":"Community heading","default":"Join the #AtivaPeople Community"},
-    {"type":"text","id":"community_copy","label":"Community copy","default":"Share your Ativafit moments on social media and tag us for a chance to be featured here!"},
-    {"type":"image_picker","id":"gallery1","label":"Gallery 1"},
-    {"type":"image_picker","id":"gallery2","label":"Gallery 2"},
-    {"type":"image_picker","id":"gallery3","label":"Gallery 3"},
-    {"type":"image_picker","id":"gallery4","label":"Gallery 4"},
+    { "type": "text", "id": "price_text", "label": "Price", "default": "$199.99" },
+    { "type": "url", "id": "product_url", "label": "Product URL" },
+    { "type": "text", "id": "product_cta_text", "label": "Product CTA", "default": "Shop Now" },
 
-    {"type":"text","id":"final_heading","label":"Final heading","default":"Ready for Your Challenge?"},
-    {"type":"textarea","id":"final_copy","label":"Final copy","default":"Whether you're joining the Fitsentive challenge or starting your own home fitness plan, Ativafit will be your most reliable partner."},
-    {"type":"url","id":"collection_url","label":"Collection URL"},
-    {"type":"text","id":"final_cta_text","label":"Final CTA text","default":"Shop All Challenge Gear"}
+    { "type": "text", "id": "community_heading", "label": "Community heading", "default": "Join the #AtivaPeople Community" },
+    { "type": "text", "id": "community_copy", "label": "Community copy", "default": "Share your Ativafit moments..." },
+    { "type": "image_picker", "id": "gallery1", "label": "Gallery 1" },
+    { "type": "image_picker", "id": "gallery2", "label": "Gallery 2" },
+    { "type": "image_picker", "id": "gallery3", "label": "Gallery 3" },
+    { "type": "image_picker", "id": "gallery4", "label": "Gallery 4" },
+
+    { "type": "text", "id": "final_heading", "label": "Final heading", "default": "Ready for Your Challenge?" },
+    { "type": "textarea", "id": "final_copy", "label": "Final copy", "default": "Whether you're joining the Fitsentive challenge..." },
+    { "type": "url", "id": "collection_url", "label": "Collection URL" },
+    { "type": "text", "id": "final_cta_text", "label": "Final CTA", "default": "Shop All Challenge Gear" }
   ],
   "blocks": [
-    {"type":"thumb","name":"Video/Image thumb","settings":[
-      {"type":"image_picker","id":"thumb","label":"Thumbnail image"},
-      {"type":"text","id":"alt","label":"Alt text"}
+    { "type": "thumb", "name": "Thumb", "settings": [
+      { "type": "image_picker", "id": "thumb", "label": "Thumbnail" },
+      { "type": "text", "id": "alt", "label": "Alt text" }
     ]}
   ],
-  "max_blocks": 4,
-  "presets": [
-    {"name":"Fitsentive Landing"}
-  ]
+  "max_blocks": 8,
+  "presets": [{ "name": "Fitsentive" }]
 }
 {% endschema %}
