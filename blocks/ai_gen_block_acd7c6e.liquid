@@ -1,0 +1,199 @@
+{% doc %}
+  @prompt
+    Set a H2 headling, reading " Your Home, Your Gym". The words "Home" should be highlighted in a contrasting color (hex #eb701f).
+    Below that, set a H4 headline, reading "An exclusive discount will be apllied at checkout.", and highlight it in a contrasting color (hex #eb701f).
+    The headlines should be middle-centered.
+    Please also enable us to edit the font size, paddings or margins,, Please also set the text editable., Please set the font weight of the subheadline 500, I need ensure a space between "Your" and "Home"
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-headline-block-{{ ai_gen_id }} {
+    text-align: center;
+    padding: {{ block.settings.padding_top }}px {{ block.settings.padding_horizontal }}px {{ block.settings.padding_bottom }}px;
+    margin: {{ block.settings.margin_top }}px 0 {{ block.settings.margin_bottom }}px;
+  }
+
+  .ai-headline-block__h2-{{ ai_gen_id }} {
+    font-size: {{ block.settings.h2_font_size }}px;
+    color: {{ block.settings.h2_color }};
+    margin: 0 0 {{ block.settings.spacing_between_headlines }}px;
+    line-height: 1.2;
+  }
+
+  .ai-headline-block__h2-highlight-{{ ai_gen_id }} {
+    color: {{ block.settings.h2_highlight_color }};
+  }
+
+  .ai-headline-block__h4-{{ ai_gen_id }} {
+    font-size: {{ block.settings.h4_font_size }}px;
+    color: {{ block.settings.h4_color }};
+    font-weight: 500;
+    margin: 0;line-height: 1.3;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-headline-block__h2-{{ ai_gen_id }} {
+      font-size: {{ block.settings.h2_font_size | times: 0.8 }}px;
+    }
+
+    .ai-headline-block__h4-{{ ai_gen_id }} {
+      font-size: {{ block.settings.h4_font_size | times: 0.9 }}px;
+    }
+  }
+{% endstyle %}<div class="ai-headline-block-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <h2 class="ai-headline-block__h2-{{ ai_gen_id }}">
+    {{ block.settings.h2_text_before }} <span class="ai-headline-block__h2-highlight-{{ ai_gen_id }}">{{ block.settings.h2_highlight_text }}</span>{{ block.settings.h2_text_after }}
+  </h2>
+  <h4 class="ai-headline-block__h4-{{ ai_gen_id }}">
+    {{ block.settings.h4_text }}
+  </h4>
+</div>
+
+{% schema %}
+{
+  "name": "Home gym headlines",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Main headline (H2)"
+    },
+    {
+      "type": "text",
+      "id": "h2_text_before",
+      "label": "Text before highlight",
+      "default": "Your"
+    },
+    {
+      "type": "text",
+      "id": "h2_highlight_text",
+      "label": "Highlighted text",
+      "default": "Home"
+    },
+    {
+      "type": "text",
+      "id": "h2_text_after",
+      "label": "Text after highlight",
+      "default": ", Your Gym"
+    },
+    {
+      "type": "range",
+      "id": "h2_font_size",
+      "label": "Font size",
+      "min": 16,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "color",
+      "id": "h2_color",
+      "label": "Text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "h2_highlight_color",
+      "label": "Highlight color",
+      "default": "#eb701f"
+    },
+    {
+      "type": "header",
+      "content": "Subheadline (H4)"
+    },
+    {
+      "type": "text",
+      "id": "h4_text",
+      "label": "Subheadline text",
+      "default": "An exclusive discount will be applied at checkout."
+    },
+    {
+      "type": "range",
+      "id": "h4_font_size",
+      "label": "Font size",
+      "min": 12,
+      "max": 36,
+      "step": 1,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "color",
+      "id": "h4_color",
+      "label": "Text color",
+      "default": "#eb701f"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "spacing_between_headlines",
+      "label": "Space between headlines",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_horizontal",
+      "label": "Left and right padding",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "margin_top",
+      "label": "Top margin",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom",
+      "label": "Bottom margin",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Home gym headlines"
+    }
+  ]
+}
+{% endschema %}

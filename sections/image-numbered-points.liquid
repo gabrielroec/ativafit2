@@ -1,0 +1,644 @@
+{%- liquid
+  assign section_id = 'tt-image-numbered-' | append: section.id
+  assign image_alt = section.settings.image_alt | default: section.settings.image.alt
+  assign content_alignment = section.settings.content_alignment | default: 'left'
+  assign layout = section.settings.layout | default: 'image-left'
+  assign corner_radius = section.settings.image_corner_radius | default: 20
+  assign max_width = section.settings.max_width | default: 1280
+  assign gap = section.settings.gap | default: 32
+  assign number_style = section.settings.number_style | default: 'decimal'
+  assign enable_reveal = section.settings.enable_reveal | default: false
+-%}
+
+<section id="{{ section_id }}" class="tt-image-numbered" 
+         style="--tt-in-max-width: {{ max_width }}px; --tt-in-gap: {{ gap }}px; --tt-in-radius: {{ corner_radius }}px;"
+         data-enable-reveal="{{ enable_reveal }}">
+  
+  {%- if section.settings.section_heading != blank -%}
+    <div class="tt-image-numbered__header">
+      <h2 class="tt-image-numbered__heading">{{ section.settings.section_heading }}</h2>
+    </div>
+  {%- endif -%}
+
+  <div class="tt-image-numbered__container">
+    <div class="tt-image-numbered__grid tt-image-numbered__grid--{{ layout }}">
+      
+      {%- comment -%} Image Column {%- endcomment -%}
+      <div class="tt-image-numbered__image-column">
+        {%- if section.settings.image != blank -%}
+          <div class="tt-image-numbered__image-wrapper">
+            <img src="{{ section.settings.image | image_url: width: 800 }}"
+                 alt="{{ image_alt }}"
+                 loading="lazy"
+                 decoding="async"
+                 width="{{ section.settings.image.width }}"
+                 height="{{ section.settings.image.height }}"
+                 sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 40vw"
+                 class="tt-image-numbered__image">
+          </div>
+        {%- else -%}
+          <div class="tt-image-numbered__placeholder">
+            <svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="400" height="300" fill="#f5f5f5"/>
+              <path d="M150 120L250 120L200 180L150 120Z" fill="#ddd"/>
+              <circle cx="200" cy="100" r="20" fill="#ddd"/>
+              <text x="200" y="240" text-anchor="middle" fill="#999" font-family="Arial, sans-serif" font-size="14">Add an image</text>
+            </svg>
+          </div>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%} Content Column {%- endcomment -%}
+      <div class="tt-image-numbered__content-column tt-image-numbered__content-column--{{ content_alignment }}">
+        {%- if section.blocks.size > 0 -%}
+          <ol class="tt-image-numbered__points tt-image-numbered__points--{{ number_style }}">
+            {%- for block in section.blocks -%}
+              {%- case block.type -%}
+                {%- when 'point' -%}
+                  <li class="tt-image-numbered__point{% if block.settings.emphasis %} tt-image-numbered__point--emphasis{% endif %}{% if block.settings.spacing_top == 'dense' %} tt-image-numbered__point--dense{% endif %}" 
+                      {{ block.shopify_attributes }}>
+                    
+                    <div class="tt-image-numbered__point-content">
+                      {%- if block.settings.title != blank -%}
+                        <h2 class="tt-image-numbered__point-title">
+                          {%- if block.settings.custom_number != blank -%}
+                            {{ block.settings.custom_number }}.
+                          {%- else -%}
+                            {{ forloop.index }}.
+                          {%- endif -%}
+                          {{ block.settings.title }}
+                        </h2>
+                      {%- endif -%}
+                      
+                      {%- if block.settings.description != blank -%}
+                        <div class="tt-image-numbered__point-description">
+                          {{ block.settings.description }}
+                        </div>
+                      {%- endif -%}
+                      
+                      {%- if block.settings.icon != blank -%}
+                        <div class="tt-image-numbered__point-icon" aria-hidden="true">
+                          <img src="{{ block.settings.icon | image_url: width: 24 }}"
+                               alt=""
+                               width="24"
+                               height="24"
+                               loading="lazy">
+                        </div>
+                      {%- endif -%}
+                    </div>
+                  </li>
+              {%- endcase -%}
+            {%- endfor -%}
+          </ol>
+        {%- else -%}
+          <div class="tt-image-numbered__empty">
+            <p>Add numbered points to display your content</p>
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  #{{ section_id }} {
+    --tt-in-bg-color: {{ section.settings.background_color | default: '#ffffff' }};
+    --tt-in-content-bg: {{ section.settings.content_bg_color | default: 'transparent' }};
+    --tt-in-text-color: {{ section.settings.text_color | default: '#333333' }};
+    --tt-in-number-color: {{ section.settings.number_color | default: '#eb701f' }};
+    --tt-in-number-bg: {{ section.settings.number_bg_color | default: 'transparent' }};
+    --tt-in-shadow: {% if section.settings.show_shadow %}0 4px 20px rgba(0,0,0,0.1){% else %}none{% endif %};
+  }
+
+  .tt-image-numbered {
+    background-color: var(--tt-in-bg-color);
+    padding: {{ section.settings.padding_top | default: 60 }}px 0 {{ section.settings.padding_bottom | default: 60 }}px;
+    color: var(--tt-in-text-color);
+  }
+
+  .tt-image-numbered__container {
+    max-width: var(--tt-in-max-width);
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .tt-image-numbered__header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .tt-image-numbered__heading {
+    font-family: 'Barlow', sans-serif;
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 1.2;
+    margin: 0;
+    color: var(--tt-in-text-color);
+  }
+
+  .tt-image-numbered__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-in-gap);
+    align-items: center;
+  }
+
+  .tt-image-numbered__grid--image-right {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .tt-image-numbered__grid--image-right .tt-image-numbered__image-column {
+    order: 2;
+  }
+
+  .tt-image-numbered__grid--image-right .tt-image-numbered__content-column {
+    order: 1;
+  }
+
+  .tt-image-numbered__image-column {
+    position: relative;
+  }
+
+  .tt-image-numbered__image-wrapper {
+    position: relative;
+    border-radius: var(--tt-in-radius);
+    overflow: hidden;
+    box-shadow: var(--tt-in-shadow);
+  }
+
+  .tt-image-numbered__image {
+    width: 100%;
+    height: 522px;
+    object-fit: cover;
+    display: block;
+    border-radius: var(--tt-in-radius);
+  }
+
+  .tt-image-numbered__placeholder {
+    width: 100%;
+    height: 522px;
+    background-color: #f5f5f5;
+    border-radius: var(--tt-in-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed #ddd;
+  }
+
+  .tt-image-numbered__content-column {
+    background-color: var(--tt-in-content-bg);
+    padding: 20px 0;
+  }
+
+  .tt-image-numbered__content-column--center {
+    text-align: center;
+  }
+
+  .tt-image-numbered__points {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    counter-reset: point-counter;
+  }
+
+  .tt-image-numbered__point {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .tt-image-numbered__point--dense {
+    margin-bottom: 16px;
+  }
+
+  .tt-image-numbered__point:last-child {
+    margin-bottom: 0;
+  }
+
+
+
+  .tt-image-numbered__point-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tt-image-numbered__point-title {
+    font-family: 'Barlow', sans-serif;
+    font-weight: 500;
+    font-style: normal;
+    font-size: 26px;
+    line-height: 30px;
+    letter-spacing: 0%;
+    margin: 0 0 8px 0;
+    color: var(--tt-in-text-color);
+  }
+
+  .tt-image-numbered__point--emphasis .tt-image-numbered__point-title {
+    font-weight: 700;
+  }
+
+  .tt-image-numbered__point-description {
+    font-family: 'Barlow', sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 22px;
+    line-height: 30px;
+    letter-spacing: 0%;
+    color: var(--tt-in-text-color);
+    margin: 0;
+  }
+
+  .tt-image-numbered__point-description p {
+    margin: 0 0 8px 0;
+  }
+
+  .tt-image-numbered__point-description p:last-child {
+    margin-bottom: 0;
+  }
+
+  .tt-image-numbered__point-icon {
+    margin-top: 8px;
+  }
+
+  .tt-image-numbered__point-icon img {
+    width: 24px;
+    height: 24px;
+    opacity: 0.7;
+  }
+
+  .tt-image-numbered__empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+    font-style: italic;
+  }
+
+  /* Responsive Design */
+  @media (min-width: 768px) {
+    .tt-image-numbered__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .tt-image-numbered__grid--image-right {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .tt-image-numbered__heading {
+      font-size: 40px;
+    }
+
+    .tt-image-numbered__point-number {
+      width: 48px;
+      height: 48px;
+      font-size: 20px;
+    }
+
+    .tt-image-numbered__point-title {
+      font-size: 22px;
+    }
+
+    .tt-image-numbered__point-description {
+      font-size: 18px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .tt-image-numbered__container {
+      padding: 0 40px;
+    }
+
+    .tt-image-numbered__heading {
+      font-size: 48px;
+    }
+  }
+
+  /* Reveal Animation */
+  .tt-image-numbered[data-enable-reveal="true"] .tt-image-numbered__point {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .tt-image-numbered[data-enable-reveal="true"] .tt-image-numbered__point.tt-image-numbered__point--visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Focus States */
+  .tt-image-numbered__point:focus-visible {
+    outline: 2px solid var(--tt-in-number-color);
+    outline-offset: 4px;
+    border-radius: 8px;
+  }
+</style>
+
+{%- if enable_reveal -%}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const section = document.getElementById('{{ section_id }}');
+    if (!section || section.dataset.enableReveal !== 'true') return;
+
+    const points = section.querySelectorAll('.tt-image-numbered__point');
+    if (points.length === 0) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('tt-image-numbered__point--visible');
+        }
+      });
+    }, {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    });
+
+    points.forEach((point, index) => {
+      point.style.transitionDelay = `${index * 0.1}s`;
+      observer.observe(point);
+    });
+  });
+</script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Image + Numbered Points",
+  "tag": "section",
+  "class": "tt-image-numbered-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Image Position",
+      "options": [
+        {
+          "value": "image-left",
+          "label": "Image Left"
+        },
+        {
+          "value": "image-right",
+          "label": "Image Right"
+        }
+      ],
+      "default": "image-left"
+    },
+    {
+      "type": "text",
+      "id": "section_heading",
+      "label": "Section Heading",
+      "info": "Optional heading above the content"
+    },
+    {
+      "type": "header",
+      "content": "Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "text",
+      "id": "image_alt",
+      "label": "Image Alt Text",
+      "info": "Override the image alt text"
+    },
+    {
+      "type": "range",
+      "id": "image_corner_radius",
+      "label": "Image Corner Radius",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "checkbox",
+      "id": "show_shadow",
+      "label": "Show Image Shadow",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "select",
+      "id": "content_alignment",
+      "label": "Content Alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "select",
+      "id": "number_style",
+      "label": "Number Style",
+      "options": [
+        {
+          "value": "decimal",
+          "label": "Decimal (1, 2, 3)"
+        },
+        {
+          "value": "leading-zero",
+          "label": "Leading Zero (01, 02, 03)"
+        },
+        {
+          "value": "circle",
+          "label": "Filled Circle"
+        }
+      ],
+      "default": "decimal"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "content_bg_color",
+      "label": "Content Background Color",
+      "info": "Optional background for content area"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "number_color",
+      "label": "Number Color",
+      "default": "#eb701f"
+    },
+    {
+      "type": "color",
+      "id": "number_bg_color",
+      "label": "Number Background Color",
+      "info": "Only applies to decimal and leading-zero styles"
+    },
+    {
+      "type": "header",
+      "content": "Layout Settings"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Maximum Width",
+      "min": 800,
+      "max": 1600,
+      "step": 40,
+      "unit": "px",
+      "default": 1280
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Gap Between Columns",
+      "min": 16,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top Padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom Padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 60
+    },
+    {
+      "type": "header",
+      "content": "Animation"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_reveal",
+      "label": "Enable Reveal Animation",
+      "info": "Animate points as they come into view",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "point",
+      "name": "Numbered Point",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Point Title"
+        },
+        {
+          "type": "richtext",
+          "id": "description",
+          "label": "Description",
+          "default": "<p>Add your point description here.</p>"
+        },
+        {
+          "type": "text",
+          "id": "custom_number",
+          "label": "Custom Number",
+          "info": "Override the automatic numbering"
+        },
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "Icon",
+          "info": "Optional small icon next to the point"
+        },
+        {
+          "type": "checkbox",
+          "id": "emphasis",
+          "label": "Emphasize Title",
+          "info": "Make the title bold",
+          "default": false
+        },
+        {
+          "type": "select",
+          "id": "spacing_top",
+          "label": "Spacing",
+          "options": [
+            {
+              "value": "normal",
+              "label": "Normal"
+            },
+            {
+              "value": "dense",
+              "label": "Dense"
+            }
+          ],
+          "default": "normal"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image + Numbered Points",
+      "blocks": [
+        {
+          "type": "point",
+          "settings": {
+            "title": "Easy Setup",
+            "description": "<p>Get started in minutes with our simple setup process.</p>"
+          }
+        },
+        {
+          "type": "point",
+          "settings": {
+            "title": "Professional Quality",
+            "description": "<p>Built with premium materials for lasting durability.</p>"
+          }
+        },
+        {
+          "type": "point",
+          "settings": {
+            "title": "Great Value",
+            "description": "<p>Get maximum value with our competitive pricing.</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

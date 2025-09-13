@@ -1,0 +1,310 @@
+{%- liquid
+  assign section_id = 'tt-section-title-' | append: section.id
+  assign title_text = section.settings.title_text | default: ''
+  assign highlight_text = section.settings.highlight_text | default: ''
+  assign subtitle_text = section.settings.subtitle_text | default: ''
+  assign alignment = section.settings.alignment | default: 'center'
+  assign title_size = section.settings.title_size | default: 48
+  assign subtitle_size = section.settings.subtitle_size | default: 18
+  assign highlight_color = section.settings.highlight_color | default: '#eb701f'
+  assign text_color = section.settings.text_color | default: '#333333'
+  assign subtitle_color = section.settings.subtitle_color | default: '#666666'
+  assign max_width = section.settings.max_width | default: 800
+  assign padding_top = section.settings.padding_top | default: 60
+  assign padding_bottom = section.settings.padding_bottom | default: 60
+-%}
+
+<section
+  id="{{ section_id }}"
+  class="tt-section-title"
+  style="--tt-st-max-width: {{ max_width }}px; --tt-st-title-size: {{ title_size }}px; --tt-st-subtitle-size: {{ subtitle_size }}px; --tt-st-highlight-color: {{ highlight_color }}; --tt-st-text-color: {{ text_color }}; --tt-st-subtitle-color: {{ subtitle_color }};">
+
+  <div class="tt-section-title__container tt-section-title__container--{{ alignment }}">
+    {%- if title_text != blank -%}
+      <h2 class="tt-section-title__heading">
+        {%- if highlight_text != blank -%}
+          <span
+            class="tt-section-title__text"
+            data-title="{{ title_text | escape }}"
+            data-highlight="{{ highlight_text | escape }}">{{ title_text }}</span>
+        {%- else -%}
+          {{ title_text }}
+        {%- endif -%}
+      </h2>
+    {%- endif -%}
+
+    {%- if subtitle_text != blank -%}
+      <p class="tt-section-title__subtitle">{{ subtitle_text }}</p>
+    {%- endif -%}
+  </div>
+</section>
+
+<style>
+  #{{ section_id }}
+{
+  --tt-st-bg-color: {{ section.settings.background_color | default: 'transparent' }};
+}
+
+.tt-section-title {
+  background-color: var(--tt-st-bg-color);
+  padding: {{ padding_top }}
+  px 0{{ padding_bottom }}px;
+}
+
+.tt-section-title__container {
+  max-width: var(--tt-st-max-width);
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.tt-section-title__container--left {
+  text-align: left;
+}
+
+.tt-section-title__container--center {
+  text-align: center;
+}
+
+.tt-section-title__container--right {
+  text-align: right;
+}
+
+.tt-section-title__heading {
+  font-family: 'Barlow'
+  , sans-serif;
+  font-weight: 700;
+  font-style: normal;
+  font-size: var(--tt-st-title-size);
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: var(--tt-st-text-color);
+  margin: 0 0 16px;
+}
+
+.tt-section-title__highlight {
+  color: var(--tt-st-highlight-color);
+  position: relative;
+}
+
+.tt-section-title__highlight::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: var(--tt-st-highlight-color);
+  opacity: 0.3;
+  z-index: -1;
+}
+
+.tt-section-title__subtitle {
+  font-family: 'Barlow'
+  , sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: var(--tt-st-subtitle-size);
+  line-height: 1.5;
+  letter-spacing: 0;
+  color: var(--tt-st-subtitle-color);
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .tt-section-title__heading {
+    font-size: calc(var(--tt-st-title-size) * 0.75);
+  }
+
+  .tt-section-title__subtitle {
+    font-size: calc(var(--tt-st-subtitle-size) * 0.9);
+  }
+
+  .tt-section-title__container {
+    padding: 0 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tt-section-title__heading {
+    font-size: calc(var(--tt-st-title-size) * 0.65);
+  }
+
+  .tt-section-title__subtitle {
+    font-size: calc(var(--tt-st-subtitle-size) * 0.85);
+  }
+}
+
+/* Animation for highlight */
+.tt-section-title__highlight {
+  transition: color 0.3s ease;
+}
+
+/* Focus states for accessibility */
+.tt-section-title__heading:focus-visible {
+  outline: 2px solid var(--tt-st-highlight-color);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+</style>
+
+<script>
+   document.addEventListener('DOMContentLoaded', function() {
+   const highlightElements = document.querySelectorAll('.tt-section-title__text[data-title][data-highlight]');
+   
+   highlightElements.forEach(function(element) {
+     const title = element.getAttribute('data-title');
+     const highlight = element.getAttribute('data-highlight');
+     
+     if (title && highlight) {
+       const highlightedTitle = title.replace(new RegExp(highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '<span class="tt-section-title__highlight">' + highlight + '</span>');
+       element.innerHTML = highlightedTitle;
+     }
+   });
+   });
+</script>
+
+{% schema %}
+  {
+    "name": "Section Title",
+    "tag": "section",
+    "class": "tt-section-title-section",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Content"
+      },
+      {
+        "type": "text",
+        "id": "title_text",
+        "label": "Title Text",
+        "default": "Your Amazing Title",
+        "info": "Enter the complete title text"
+      },
+      {
+        "type": "text",
+        "id": "highlight_text",
+        "label": "Highlight Text",
+        "default": "Amazing",
+        "info": "Copy and paste the EXACT sequence of words from the title that should be highlighted (including spaces and punctuation)"
+      },
+      {
+        "type": "textarea",
+        "id": "subtitle_text",
+        "label": "Subtitle",
+        "default": "Add a descriptive subtitle to support your main title and provide additional context to your visitors.",
+        "info": "Optional subtitle below the main title"
+      }, {
+        "type": "header",
+        "content": "Layout"
+      }, {
+        "type": "select",
+        "id": "alignment",
+        "label": "Text Alignment",
+        "options": [
+          {
+            "value": "left",
+            "label": "Left"
+          }, {
+            "value": "center",
+            "label": "Center"
+          }, {
+            "value": "right",
+            "label": "Right"
+          }
+        ],
+        "default": "center"
+      }, {
+        "type": "range",
+        "id": "max_width",
+        "label": "Maximum Width",
+        "min": 400,
+        "max": 1200,
+        "step": 40,
+        "unit": "px",
+        "default": 800
+      }, {
+        "type": "header",
+        "content": "Typography"
+      }, {
+        "type": "range",
+        "id": "title_size",
+        "label": "Title Font Size",
+        "min": 24,
+        "max": 80,
+        "step": 2,
+        "unit": "px",
+        "default": 48
+      }, {
+        "type": "range",
+        "id": "subtitle_size",
+        "label": "Subtitle Font Size",
+        "min": 14,
+        "max": 32,
+        "step": 1,
+        "unit": "px",
+        "default": 18
+      }, {
+        "type": "header",
+        "content": "Colors"
+      }, {
+        "type": "color",
+        "id": "background_color",
+        "label": "Background Color",
+        "default": "transparent"
+      }, {
+        "type": "color",
+        "id": "text_color",
+        "label": "Title Color",
+        "default": "#333333"
+      }, {
+        "type": "color",
+        "id": "highlight_color",
+        "label": "Highlight Color",
+        "default": "#eb701f"
+      }, {
+        "type": "color",
+        "id": "subtitle_color",
+        "label": "Subtitle Color",
+        "default": "#666666"
+      }, {
+        "type": "header",
+        "content": "Spacing"
+      }, {
+        "type": "range",
+        "id": "padding_top",
+        "label": "Top Padding",
+        "min": 0,
+        "max": 120,
+        "step": 4,
+        "unit": "px",
+        "default": 60
+      }, {
+        "type": "range",
+        "id": "padding_bottom",
+        "label": "Bottom Padding",
+        "min": 0,
+        "max": 120,
+        "step": 4,
+        "unit": "px",
+        "default": 60
+      }
+    ],
+    "presets": [
+      {
+        "name": "Section Title",
+        "settings": {
+          "title_text": "Why Choose Our Products?",
+          "highlight_text": "Choose",
+          "subtitle_text": "Discover the features that make our products stand out from the competition.",
+          "alignment": "center",
+          "title_size": 48,
+          "subtitle_size": 18,
+          "highlight_color": "#eb701f",
+          "text_color": "#333333",
+          "subtitle_color": "#666666"
+        }
+      }
+    ]
+  }
+{% endschema %}
