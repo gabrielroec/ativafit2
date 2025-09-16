@@ -1,3 +1,8 @@
+{%- comment -%}
+  这是一个 Shopify Liquid 文件。
+  我们为这个模块添加了标题和正文文本字号的自定义控制功能。
+{%- endcomment -%}
+
 {%- case section.settings.text_width -%}
   {%- when 'narrow' -%}
     {%- assign container_classes = 'container container--narrow' -%}
@@ -12,10 +17,10 @@
 <section class="section section--text-centered" data-section-id="{{ section.id }}" data-section-type="rich-text">
   <div class="{{ container_classes }}">
     {%- if section.settings.title != blank -%}
-      <h2 class="heading h1">{{ section.settings.title | escape }}</h2>
+      <h2 class="heading h1" style="font-size: {{ section.settings.title_font_size }}px;">{{ section.settings.title | escape }}</h2>
     {%- endif -%}
 
-    <div class="rte">
+    <div class="rte" style="font-size: {{ section.settings.content_font_size }}px;">
       {{ section.settings.content }}
 
       {%- if section.settings.button_link != blank and section.settings.button_text != blank -%}
@@ -56,10 +61,30 @@
       "default": "Your title"
     },
     {
+      "type": "range",
+      "id": "title_font_size",
+      "min": 24,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading font size",
+      "default": 36
+    },
+    {
       "type": "richtext",
       "id": "content",
       "label": "Text",
       "default": "<p>Use this text to share information about your brand with your customers.<br>Describe a product, share announcements, or welcome customers to your store.</p>"
+    },
+    {
+      "type": "range",
+      "id": "content_font_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Text font size",
+      "default": 16
     },
     {
       "type": "text",
@@ -83,3 +108,4 @@
   ]
 }
 {% endschema %}
+

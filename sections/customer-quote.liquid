@@ -17,19 +17,53 @@
     font-weight: 700;
     font-style: normal;
     font-size: {{ section.settings.quote_size_desktop }}px;
-    line-height: 100%;
+    line-height: 1.2;
     letter-spacing: 0;
     text-align: center;
     color: {{ section.settings.text_color }};
     margin: 0 auto;
     max-width: 1070px;
+    position: relative;
+    padding: 40px 60px;
   }
 
   .customer-quote__quotation-marks {
-    font-size: 1.5em;
-    color: #000000;
+    font-size: 7em;
+    color: #EB701F;
+    font-weight: 700;
+    line-height: 0.8;
+    position: absolute;
+    z-index: 1;
   }
 
+  .customer-quote__quotation-marks--top {
+    top: 0;
+    left: 10px;
+  }
+
+  .customer-quote__quotation-marks--bottom {
+    bottom: 0;
+    right: 40px;
+    transform: rotate(180deg);
+  }
+
+  .customer-quote__content {
+    position: relative;
+    z-index: 2;
+  }
+  @media (max-width: 1024px) {
+
+    .customer-quote__quotation-marks--top {
+      top: 0;
+      left: 0;
+    }
+
+    .customer-quote__quotation-marks--bottom {
+      bottom: 0;
+      right: 0;
+      transform: rotate(180deg);
+    }
+  }
   @media (max-width: 768px) {
     .customer-quote {
       padding: 40px 0;
@@ -37,6 +71,11 @@
 
     .customer-quote__text {
       font-size: {{ section.settings.quote_size_mobile }}px;
+      padding: 30px 40px;
+    }
+
+    .customer-quote__quotation-marks {
+      font-size: 5em;
     }
   }
 {%- endstyle -%}
@@ -45,8 +84,9 @@
   <div class="customer-quote__container">
     {%- if section.settings.quote_text != blank -%}
       <blockquote class="customer-quote__text">
-        <span class="customer-quote__quotation-marks">"</span>
-        {{ section.settings.quote_text }}<span class="customer-quote__quotation-marks">"</span>
+        <span class="customer-quote__quotation-marks customer-quote__quotation-marks--top">"</span>
+        <span class="customer-quote__content">{{ section.settings.quote_text }}</span>
+        <span class="customer-quote__quotation-marks customer-quote__quotation-marks--bottom">"</span>
       </blockquote>
     {%- endif -%}
   </div>

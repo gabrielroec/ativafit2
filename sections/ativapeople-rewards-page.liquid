@@ -1,0 +1,446 @@
+{% comment %}
+  Shopify Section File: AtivaPeople Rewards Page (Richtext Benefits, Fixed)
+{% endcomment %}
+
+<!-- 临时启用 Tailwind（主题未集成时使用；若主题已自带可删除这两行） -->
+<script>
+  window.tailwind = window.tailwind || {};
+  window.tailwind.config = { corePlugins: { preflight: false } };
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+  :root {
+    --ativa-black: #000000;
+    --ativa-white: #FFFFFF;
+    --ativa-orange: #FF7332;
+    --ativa-grey: #F3F4F6;
+    --text-primary: #111827;
+    --text-secondary: #4B5563;
+  }
+  .ativapeople-body {
+    font-family: 'Barlow', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    background-color: var(--ativa-white);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  .ativapeople-body h1, .ativapeople-body h2, .ativapeople-body h3, .ativapeople-body h4 { font-weight: 700; }
+  .ativapeople-body .brand-gradient-text {
+    background: linear-gradient(90deg, var(--ativa-orange), #F55D1C);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .ativapeople-body .cta-button {
+    background-color: var(--ativa-orange);
+    color: var(--ativa-white);
+    font-weight: 600;
+    border-radius: 9999px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 14px 0 rgba(255, 115, 50, 0.3);
+  }
+  .ativapeople-body .cta-button:hover { transform: translateY(-3px); box-shadow: 0 6px 20px 0 rgba(255, 115, 50, 0.4); }
+  .ativapeople-body .tab-button[aria-selected="true"] { border-color: var(--ativa-orange); color: var(--ativa-orange); font-weight: 600; }
+  .ativapeople-body .tab-button[aria-selected="false"] { border-color: transparent; color: var(--text-secondary); }
+  .ativapeople-body .form-input { border: 1px solid #D1D5DB; transition: all 0.2s ease-in-out; }
+  .ativapeople-body .form-input:focus { outline: none; border-color: var(--ativa-orange); box-shadow: 0 0 0 3px rgba(255, 115, 50, 0.2); }
+  .ativapeople-body .content-card { background-color: var(--ativa-white); border: 1px solid #e0e0e0; border-radius: 1rem; transition: all 0.3s ease; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+  .ativapeople-body .content-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+  .ativapeople-body .faq-item summary { cursor: pointer; outline: none; }
+  .ativapeople-body .faq-item summary::-webkit-details-marker { display: none; }
+  .ativapeople-body .form-errors { color:#ef4444; border:1px solid #ef4444; background:#fee2e2; padding:1rem; border-radius:.5rem; margin-bottom:1.5rem; }
+</style>
+
+<div class="ativapeople-body">
+  <!-- Section 1: Hero Banner -->
+  <header class="relative bg-black text-white overflow-hidden">
+    <div class="absolute inset-0">
+      {% if section.settings.hero_bg_image %}
+        <img src="{{ section.settings.hero_bg_image | image_url: width: 1920 }}" class="w-full h-full object-cover opacity-40" alt="{{ section.settings.hero_bg_image.alt | escape }}" loading="lazy">
+      {% else %}
+        <div class="w-full h-full bg-black"></div>
+      {% endif %}
+      <div class="absolute inset-0 bg-black opacity-60"></div>
+    </div>
+    <div class="relative max-w-7xl mx-auto px-6 lg:px-8 py-24 md:py-40 text-center">
+      <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight">
+        {{ section.settings.hero_headline_part1 }}
+        <span class="brand-gradient-text">{{ section.settings.hero_headline_part2_gradient }}</span>
+      </h1>
+      <p class="mt-6 max-w-3xl mx-auto text-lg md:text-xl text-gray-300">{{ section.settings.hero_subheading | escape }}</p>
+      <div class="mt-10">
+        <a href="#join-section" class="inline-block px-10 py-4 text-lg cta-button">{{ section.settings.hero_button_text | escape }}</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Section 2: More Than a Program, It's a Partnership -->
+    <section class="py-16 md:py-24 bg-white">
+      <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl md:text-4xl font-bold tracking-tight">
+            {{ section.settings.partnership_headline_part1 }}
+            <span class="brand-gradient-text">{{ section.settings.partnership_headline_part2_gradient }}</span>
+          </h2>
+          <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">
+            {{ section.settings.partnership_subheading | escape }}
+          </p>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          <!-- Left: benefits list -->
+          <div class="text-left">
+            <div class="space-y-10">
+
+              <!-- Benefit 1 -->
+              <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-orange-100 text-orange-500">
+                  <!-- shield/check icon -->
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.286z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-lg font-bold">{{ section.settings.benefit1_title | escape }}</h3>
+                  {%- if section.settings.benefit1_desc_rte != blank -%}
+                    <div class="mt-2 text-gray-600 leading-relaxed">{{ section.settings.benefit1_desc_rte }}</div>
+                  {%- elsif section.settings.benefit1_desc != blank -%}
+                    <div class="mt-2 text-gray-600 leading-relaxed">{{ section.settings.benefit1_desc | escape | newline_to_br }}</div>
+                  {%- endif -%}
+                </div>
+              </div>
+
+              <!-- Benefit 2 -->
+              <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-orange-100 text-orange-500">
+                  <!-- bulb icon -->
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-lg font-bold">{{ section.settings.benefit2_title | escape }}</h3>
+                  {%- if section.settings.benefit2_desc_rte != blank -%}
+                    <div class="mt-2 text-gray-600 leading-relaxed">{{ section.settings.benefit2_desc_rte }}</div>
+                  {%- elsif section.settings.benefit2_desc != blank -%}
+                    <div class="mt-2 text-gray-600 leading-relaxed">{{ section.settings.benefit2_desc | escape | newline_to_br }}</div>
+                  {%- endif -%}
+                </div>
+              </div>
+
+              <!-- Benefit 3 -->
+              <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-orange-100 text-orange-500">
+                  <!-- key/lock icon -->
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-lg font-bold">{{ section.settings.benefit3_title | escape }}</h3>
+                  {%- if section.settings.benefit3_desc_rte != blank -%}
+                    <div class="mt-2 text-gray-600 leading-relaxed">{{ section.settings.benefit3_desc_rte }}</div>
+                  {%- elsif section.settings.benefit3_desc != blank -%}
+                    <div class="mt-2 text-gray-600 leading-relaxed">{{ section.settings.benefit3_desc | escape | newline_to_br }}</div>
+                  {%- endif -%}
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Right: image -->
+          <div class="mt-10 lg:mt-0">
+            {% if section.settings.partnership_image %}
+              <img src="{{ section.settings.partnership_image | image_url: width: 600 }}"
+                   class="rounded-lg shadow-xl w-full"
+                   alt="{{ section.settings.partnership_image.alt | escape }}"
+                   loading="lazy">
+            {% else %}
+              <div class="rounded-lg shadow-xl w-full bg-gray-100 aspect-[6/5] flex items-center justify-center">
+                <p class="text-gray-400">Add an image</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Ways to Earn Points -->
+    <section class="py-16 md:py-24 bg-gray-50">
+      <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl md:text-4xl font-bold tracking-tight">
+            {{ section.settings.earn_headline_part1 }}
+            <span class="brand-gradient-text">{{ section.settings.earn_headline_part2_gradient }}</span>
+          </h2>
+          <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">{{ section.settings.earn_subheading | escape }}</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div class="content-card p-6">
+            <h3 class="font-bold text-xl mb-4">Basics & Shopping</h3>
+            <ul class="space-y-3 text-gray-600">
+              <li class="flex justify-between items-baseline"><span>Spend $1</span> <span class="font-bold text-lg text-orange-500">{{ section.settings.points_spend }} Points</span></li>
+              <li class="flex justify-between items-baseline"><span>Sign Up</span> <span class="font-bold text-lg text-orange-500">{{ section.settings.points_signup }} Points</span></li>
+              <li class="flex justify-between items-baseline"><span>Subscribe to Newsletter</span> <span class="font-bold text-lg text-orange-500">{{ section.settings.points_newsletter }} Points</span></li>
+              <li class="flex justify-between items-baseline"><span>Provide Feedback</span> <span class="font-bold text-lg text-orange-500">{{ section.settings.points_feedback }} Points</span></li>
+            </ul>
+          </div>
+          <div class="content-card p-6 border-2 border-orange-500 relative">
+            <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-3 py-1 rounded-full border-2 border-orange-500 text-xs font-bold text-orange-500">High Value</div>
+            <h3 class="font-bold text-xl mb-4">Share Your Story & Insights</h3>
+            <ul class="space-y-3 text-gray-600">
+              <li class="flex justify-between items-baseline"><span>Complete a Customer Survey</span> <span class="font-bold text-lg text-orange-500">{{ section.settings.points_survey }} Points</span></li>
+              <li class="flex justify-between items-baseline"><span>Photo Review on Ativafit.com</span> <span class="font-bold text-lg text-orange-500">{{ section.settings.points_photo_review }} Points</span></li>
+              <li class="flex justify-between items-baseline"><span>Post (Instagram/Facebook)</span> <span class="font-bold text-lg text-orange-500">{{ section.settings.points_social_post }} Points</span></li>
+              <li class="flex justify-between items-baseline"><span>Video Review (Reel/TikTok)</span> <span class="font-bold text-xl text-orange-500">🔥 {{ section.settings.points_video_review }} Points</span></li>
+            </ul>
+          </div>
+          <div class="content-card p-6">
+            <h3 class="font-bold text-xl mb-4">Build the Community</h3>
+            <ul class="space-y-3 text-gray-600">
+              <li class="flex justify-between items-baseline"><span>In-depth Review (Reddit)</span> <span class="font-bold text-lg text-orange-500">{{ section.settings.points_reddit }} Points</span></li>
+              <li>
+                <div class="flex justify-between items-baseline"><span>Refer a Friend</span><span class="font-bold text-xl text-orange-500">🚀 {{ section.settings.points_referral }} Points</span></div>
+                <p class="text-xs text-gray-500 mt-1 pl-1">*Points are awarded after their first purchase.</p>
+              </li>
+              <li class="flex justify-between items-baseline"><span>Follow Us on Social</span> <span class="font-bold text-lg text-orange-500">{{ section.settings.points_follow }} Points/ea</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- How to Claim UGC Points -->
+        <div id="claim-section" class="mt-16 max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg text-center">
+          {% if customer %}
+            <div id="claim-logged-in">
+              <svg class="mx-auto h-12 w-12 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.311a12.062 12.062 0 01-7.5 0c-1.453 0-2.64-.56-3.646-1.49a12.028 12.028 0 01-3.646-1.49c-1.286-1.285-1.99-2.982-1.99-4.738s.703-3.453 1.99-4.738z" /></svg>
+              <h3 class="mt-4 text-2xl font-bold">{{ section.settings.claim_headline | escape }}</h3>
+              <p class="mt-4 max-w-2xl mx-auto text-gray-600">{{ section.settings.claim_subheading | escape }}</p>
+              <div class="mt-8"><a href="{{ section.settings.claim_button_link }}" target="_blank" class="inline-block px-8 py-3 cta-button">{{ section.settings.claim_button_text | escape }}</a></div>
+              <p class="mt-4 text-xs text-gray-500">{{ section.settings.claim_note | escape }}</p>
+            </div>
+          {% else %}
+            <div id="claim-logged-out">
+              <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
+              <h3 class="mt-4 text-2xl font-bold">{{ section.settings.claim_headline | escape }}</h3>
+              <p class="mt-4 max-w-2xl mx-auto text-gray-600">Please log in or create an account to submit your content and claim your points.</p>
+              <div class="mt-8"><a href="#join-section" class="inline-block px-8 py-3 cta-button">Log In or Sign Up to Submit</a></div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Your Exclusive Rewards Vault -->
+    <section class="py-16 md:py-24 bg-white">
+      <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <div class="text-center">
+          <h2 class="text-3xl md:text-4xl font-bold tracking-tight">
+            {{ section.settings.rewards_headline_part1 }}
+            <span class="brand-gradient-text">{{ section.settings.rewards_headline_part2_gradient }}</span>
+          </h2>
+        </div>
+
+        <div class="mt-16 grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <!-- Column 1 — light card -->
+          <div class="content-card p-8 flex flex-col" style="background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%); border:1px solid #e5e7eb; border-radius: 1rem;">
+            <h3 class="text-2xl font-bold">{{ section.settings.rewards_col1_title }}</h3>
+            <div class="mt-6 space-y-4 flex-grow">
+              {{ section.settings.rewards_col1_content }}
+            </div>
+          </div>
+
+          <!-- Column 2 — light card with orange border -->
+          <div class="content-card p-8 flex flex-col relative" style="background: linear-gradient(180deg, #FFFFFF 0%, #FFF6F0 100%); border:2px solid #FF7332; border-radius: 1rem;">
+            <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-3 py-1 rounded-full border-2 border-orange-500 text-xs font-bold text-orange-500 shadow-sm">Most Popular</div>
+            <h3 class="text-2xl font-bold">{{ section.settings.rewards_col2_title }}</h3>
+            <div class="mt-6 space-y-4 flex-grow">
+              {{ section.settings.rewards_col2_content }}
+            </div>
+          </div>
+
+          <!-- Column 3 — dark gradient card -->
+          <div class="content-card p-8 flex flex-col text-white relative overflow-hidden" style="background: linear-gradient(180deg, #111827 0%, #0B1220 100%); border: none; border-radius: 1rem;">
+            <div class="pointer-events-none absolute -top-10 right-0 w-[60%] h-[60%]" style="background: radial-gradient(600px 250px at 100% 0%, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 60%);"></div>
+            <h3 class="text-2xl font-bold relative z-10">{{ section.settings.rewards_col3_title }}</h3>
+            <div class="mt-6 space-y-5 flex-grow relative z-10">
+              {{ section.settings.rewards_col3_content }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: Frequently Asked Questions (FAQ) -->
+    {% if section.blocks.size > 0 %}
+      <section class="py-16 md:py-24 bg-gray-50">
+        <div class="max-w-3xl mx-auto px-6 lg:px-8">
+          <div class="text-center">
+            <h2 class="text-3xl md:text-4xl font-bold">{{ section.settings.faq_headline | escape }}</h2>
+          </div>
+          <div class="mt-12 space-y-4">
+            {% for block in section.blocks %}
+              <details class="faq-item group bg-white p-6 rounded-lg shadow-sm" {{ block.shopify_attributes }}>
+                <summary class="flex items-center justify-between font-semibold text-lg">
+                  {{ block.settings.question | escape }}
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </summary>
+                <div class="mt-4 text-gray-600">{{ block.settings.answer }}</div>
+              </details>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+    {% endif %}
+
+    <!-- Section 6: Ready to Join? Let's Go! -->
+    <section id="join-section" class="py-16 md:py-24" style="background-color: var(--ativa-black);">
+      <div class="max-w-lg mx-auto px-6">
+        <div class="bg-white p-8 md:p-12 rounded-2xl shadow-xl">
+          <div class="text-center">
+            <h2 class="text-3xl font-bold">
+              {{ section.settings.join_headline_part1 }}
+              <span class="brand-gradient-text">{{ section.settings.join_headline_part2_gradient }}</span>
+            </h2>
+          </div>
+          <div class="mt-8 border-b border-gray-200">
+            <nav class="-mb-px flex justify-center space-x-8" aria-label="Tabs">
+              <button onclick="showTab('register')" aria-controls="form-register" role="tab" aria-selected="true" class="whitespace-nowrap py-4 px-1 border-b-2 text-base md:text-lg tab-button">Create Account</button>
+              <button onclick="showTab('login')" aria-controls="form-login" role="tab" aria-selected="false" class="whitespace-nowrap py-4 px-1 border-b-2 text-base md:text-lg tab-button">Log In</button>
+            </nav>
+          </div>
+
+          <div id="form-register" role="tabpanel" class="mt-8">
+            {% form 'create_customer', novalidate: 'novalidate' %}
+              {% if form.errors %}<div class="form-errors">{{ form.errors | default_errors }}</div>{% endif %}
+              <div class="space-y-6">
+                <div><label for="reg-name" class="block text-sm font-medium text-gray-700">Full Name</label><input id="reg-name" name="customer[first_name]" type="text" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
+                <div><label for="reg-email" class="block text-sm font-medium text-gray-700">Email Address</label><input id="reg-email" name="customer[email]" type="email" autocomplete="email" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
+                <div><label for="reg-password" class="block text-sm font-medium text-gray-700">Password</label><input id="reg-password" name="customer[password]" type="password" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
+                <div class="pt-2"><button type="submit" class="w-full flex justify-center py-3 px-4 text-lg cta-button">Create Account & Earn {{ section.settings.points_signup }} Points</button></div>
+              </div>
+            {% endform %}
+          </div>
+
+          <div id="form-login" role="tabpanel" class="mt-8 hidden">
+            {% form 'customer_login', novalidate: 'novalidate' %}
+              {% if form.errors %}<div class="form-errors">{{ form.errors | default_errors }}</div>{% endif %}
+              <div class="space-y-6">
+                <div><label for="login-email" class="block text-sm font-medium text-gray-700">Email Address</label><input id="login-email" name="customer[email]" type="email" autocomplete="email" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
+                <div><label for="login-password" class="block text-sm font-medium text-gray-700">Password</label><input id="login-password" name="customer[password]" type="password" autocomplete="current-password" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
+                <div class="text-right"><a href="{{ routes.account_recover_url }}" class="text-sm font-medium text-orange-600 hover:text-orange-500">Forgot password?</a></div>
+                <div class="pt-2"><button type="submit" class="w-full flex justify-center py-3 px-4 text-lg cta-button">Log In</button></div>
+              </div>
+            {% endform %}
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-black">
+    <div class="max-w-7xl mx-auto py-12 px-6 lg:px-8 text-center text-gray-400 text-sm">
+      <p>&copy; {{ 'now' | date: "%Y" }} AtivaFit. All Rights Reserved. STRONGER TOGETHER.</p>
+    </div>
+  </footer>
+</div>
+
+<script>
+  function showTab(tabName) {
+    const tabs = document.querySelectorAll('[role="tab"]');
+    const tabPanels = document.querySelectorAll('[role="tabpanel"]');
+    tabs.forEach(tab => { const sel = tab.getAttribute('aria-controls') === `form-${tabName}`; tab.setAttribute('aria-selected', sel); });
+    tabPanels.forEach(panel => { const sel = panel.id === `form-${tabName}`; if (sel) panel.classList.remove('hidden'); else panel.classList.add('hidden'); });
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+    const loginForm = document.getElementById('form-login');
+    if (loginForm && loginForm.querySelector('.form-errors')) { showTab('login'); } else { showTab('register'); }
+  });
+</script>
+
+{% schema %}
+{
+  "name": "AtivaPeople Rewards Page",
+  "settings": [
+    { "type": "header", "content": "1. Hero Banner" },
+    { "type": "image_picker", "id": "hero_bg_image", "label": "Background Image" },
+    { "type": "text", "id": "hero_headline_part1", "label": "Headline (Part 1)", "default": "Every Effort You Make Deserves to Be" },
+    { "type": "text", "id": "hero_headline_part2_gradient", "label": "Headline (Gradient Part 2)", "default": "Rewarded." },
+    { "type": "textarea", "id": "hero_subheading", "label": "Subheading", "default": "Become a founding member of AtivaPeople. Let your sweat and shares earn you exclusive honors and help build our community from the ground up." },
+    { "type": "text", "id": "hero_button_text", "label": "Button Text", "default": "Join Now & Unlock 200 Welcome Points" },
+
+    { "type": "header", "content": "2. Partnership Section" },
+    { "type": "text", "id": "partnership_headline_part1", "label": "Headline (Part 1)", "default": "More Than a Program, It's a" },
+    { "type": "text", "id": "partnership_headline_part2_gradient", "label": "Headline (Gradient Part 2)", "default": "Partnership" },
+    { "type": "textarea", "id": "partnership_subheading", "label": "Subheading", "default": "This is more than a program; it's the beginning of a movement. As an early member, you get to build it with us." },
+    { "type": "image_picker", "id": "partnership_image", "label": "Image" },
+
+    { "type": "text", "id": "benefit1_title", "label": "Benefit 1 Title", "default": "Enjoy Peace of Mind" },
+    { "type": "textarea", "id": "benefit1_desc", "label": "(Legacy) Benefit 1 Description" },
+    { "type": "richtext", "id": "benefit1_desc_rte", "label": "Benefit 1 Description (Richtext)" },
+
+    { "type": "text", "id": "benefit2_title", "label": "Benefit 2 Title", "default": "Shape Our Future Products" },
+    { "type": "textarea", "id": "benefit2_desc", "label": "(Legacy) Benefit 2 Description" },
+    { "type": "richtext", "id": "benefit2_desc_rte", "label": "Benefit 2 Description (Richtext)" },
+
+    { "type": "text", "id": "benefit3_title", "label": "Benefit 3 Title", "default": "Get Exclusive Access" },
+    { "type": "textarea", "id": "benefit3_desc", "label": "(Legacy) Benefit 3 Description" },
+    { "type": "richtext", "id": "benefit3_desc_rte", "label": "Benefit 3 Description (Richtext)" },
+
+    { "type": "header", "content": "3. Ways to Earn Points" },
+    { "type": "text", "id": "earn_headline_part1", "label": "Headline (Part 1)", "default": "Turn Your Actions Into" },
+    { "type": "text", "id": "earn_headline_part2_gradient", "label": "Headline (Gradient Part 2)", "default": "Points" },
+    { "type": "textarea", "id": "earn_subheading", "label": "Subheading", "default": "We reward every step of your growth. Here's how to start earning." },
+    { "type": "image_picker", "id": "earn_image", "label": "Image" },
+    { "type": "number", "id": "points_spend", "label": "Points for $1 Spent", "default": 5 },
+    { "type": "number", "id": "points_signup", "label": "Points for Sign Up", "default": 200 },
+    { "type": "number", "id": "points_newsletter", "label": "Points for Newsletter Subscription", "default": 100 },
+    { "type": "number", "id": "points_feedback", "label": "Points for Providing Feedback", "default": 150 },
+    { "type": "number", "id": "points_survey", "label": "Points for Customer Survey", "default": 400 },
+    { "type": "number", "id": "points_photo_review", "label": "Points for Photo Review", "default": 400 },
+    { "type": "number", "id": "points_social_post", "label": "Points for Social Post (IG/FB)", "default": 400 },
+    { "type": "number", "id": "points_video_review", "label": "Points for Video Review (Reel/TikTok)", "default": 800 },
+    { "type": "number", "id": "points_reddit", "label": "Points for Reddit Review", "default": 600 },
+    { "type": "number", "id": "points_referral", "label": "Points for Referral", "default": 1000 },
+    { "type": "number", "id": "points_follow", "label": "Points for Social Follow", "default": 50 },
+
+    { "type": "header", "content": "4. UGC Claim Section" },
+    { "type": "text", "id": "claim_headline", "label": "Headline", "default": "How to Claim Your UGC Points" },
+    { "type": "textarea", "id": "claim_subheading", "label": "Subheading (for logged-in users)", "default": "Shared your AtivaFit story? Awesome! Just submit the post link, and we'll manually add the points to your account after a quick review." },
+    { "type": "text", "id": "claim_button_text", "label": "Button Text", "default": "Submit Your Post Link Here" },
+    { "type": "url", "id": "claim_button_link", "label": "Button Link (to Google Form, etc.)", "default": "/" },
+    { "type": "text", "id": "claim_note", "label": "Note", "default": "*Post must be public and include #ativapeople. Limit one claim per category, per month.*" },
+
+    { "type": "header", "content": "5. Rewards Vault" },
+    { "type": "text", "id": "rewards_headline_part1", "label": "Headline (Part 1)", "default": "Your Exclusive" },
+    { "type": "text", "id": "rewards_headline_part2_gradient", "label": "Headline (Gradient Part 2)", "default": "Rewards Vault" },
+    { "type": "text", "id": "rewards_col1_title", "label": "Column 1 Title", "default": "Instant Power-Ups (Coupons)" },
+    { "type": "richtext", "id": "rewards_col1_content", "label": "Column 1 Content" },
+    { "type": "text", "id": "rewards_col2_title", "label": "Column 2 Title", "default": "Lifestyle Rewards (Gift Cards)" },
+    { "type": "richtext", "id": "rewards_col2_content", "label": "Column 2 Content" },
+    { "type": "text", "id": "rewards_col3_title", "label": "Column 3 Title", "default": "Exclusive Community Perks" },
+    { "type": "richtext", "id": "rewards_col3_content", "label": "Column 3 Content" },
+
+    { "type": "header", "content": "6. FAQ Section" },
+    { "type": "text", "id": "faq_headline", "label": "Headline", "default": "Still Have Questions?" },
+
+    { "type": "header", "content": "7. Join Section" },
+    { "type": "text", "id": "join_headline_part1", "label": "Headline (Part 1)", "default": "Your Journey" },
+    { "type": "text", "id": "join_headline_part2_gradient", "label": "Headline (Gradient Part 2)", "default": "Starts Now" }
+  ],
+  "blocks": [
+    {
+      "type": "faq_item",
+      "name": "FAQ Item",
+      "settings": [
+        { "type": "text", "id": "question", "label": "Question", "default": "Sample Question?" },
+        { "type": "richtext", "id": "answer", "label": "Answer", "default": "<p>This is the answer to the sample question.</p>" }
+      ]
+    }
+  ],
+  "presets": [
+    { "name": "AtivaPeople Rewards Page" }
+  ]
+}
+{% endschema %}
