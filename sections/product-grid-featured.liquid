@@ -1,387 +1,214 @@
-{%- comment -%} 
-    ============================================
-    PRODUCT GRID FEATURED SECTION
-    ============================================
-     
-    Esta section cria um grid de produtos em destaque com: 
-    - Título e subtítulo centralizados 
-    - Grid responsivo de 4 produtos no desktop, 1 no mobile 
-    - Cards com design limpo e botão de compra destacado 
-    - Schema configurável para seleção de produtos
-     
-    Uso: Adicione esta section em qualquer template através do editor do Shopify 
-{%- endcomment -%}
+{% comment %} 
+                                                                                                            Product Grid Featured Section 
+                                                                                                            - Renders a section with title, subtitle and up to 4 product cards 
+                                                                                                            - Each card shows image, title (orange), description, price, and "Add to Cart" button 
+                                                                                                            - Fully responsive and editable via Theme Editor 
+{% endcomment %}
 
-{%- comment -%} 
-      ============================================
-      ESTILOS CSS SCOPED
-      ============================================
-      Todos os estilos são encapsulados dentro da section para evitar conflitos
-{%- endcomment -%}
-{%- style -%}
-  /* Container principal da section */
-  .product-grid-featured {
-    padding: 60px 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-    font-family: "Barlow"
-    , sans-serif;
-  }
-
-  /* Header com título e subtítulo */
-  .product-grid-featured__header {
-    text-align: center;
-    margin-bottom: 48px;
-  }
-
-  .product-grid-featured__title {
-    font-size: 32px;
-    font-weight: bold;
-    color: #000;
-    margin-bottom: 8px;
-    line-height: 1.2;
-  }
-
-  .product-grid-featured__subtitle {
-    font-size: 16px;
-    color: #666;
-    margin: 0;
-    line-height: 1.4;
-  }
-
-  /* Grid de produtos */
-  .product-grid-featured__grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 24px;
-    align-items: start;
-  }
-
-  /* Card individual do produto */
-  .product-grid-featured__card {
-    background: #F8F8F8;
-    border-radius: 24px;
-    padding: 24px;
-    text-align: center;
-    transition: transform 0.3s ease
-    , box-shadow 0.3s ease;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .product-grid-featured__card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  }
-
-  /* Imagem do produto */
-  .product-grid-featured__image {
-    width: 100%;
-    height: auto;
-    object-fit: contain;
-    margin-bottom: 16px;
-    border-radius: 12px;
-    background: #fff;
-    padding: 16px;
-  }
-
-  /* Título do produto */
-  .product-grid-featured__product-title {
-    color: #F37021;
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 8px;
-    line-height: 1.3;
-    min-height: 46px;
-    /* Altura fixa para alinhamento */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* Descrição do produto */
-  .product-grid-featured__description {
-    font-size: 14px;
-    color: #333;
-    margin-bottom: 12px;
-    line-height: 1.4;
-    min-height: 60px;
-    /* Altura fixa para alinhamento */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* Preço do produto */
-  .product-grid-featured__price {
-    font-weight: bold;
-    font-size: 16px;
-    margin-bottom: 12px;
-    color: #000;
-  }
-
-  /* Botão de adicionar ao carrinho */
-  .product-grid-featured__button {
-    background: #F37021;
-    color: #fff;
-    font-weight: bold;
-    border-radius: 8px;
-    padding: 12px 24px;
-    font-size: 14px;
-    border: none;
-    cursor: pointer;
-    width: 100%;
-    transition: background-color 0.3s ease
-    , transform 0.2s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .product-grid-featured__button:hover {
-    background: #e55a0f;
-    transform: translateY(-1px);
-  }
-
-  .product-grid-featured__button:active {
-    transform: translateY(0);
-  }
-
-  /* Estado de produto indisponível */
-  .product-grid-featured__button:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  /* Badge de desconto */
-  .product-grid-featured__discount-badge {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    background: #F37021;
-    color: #fff;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: bold;
-  }
-
-  /* Responsividade - Tablet */
-  @media screen and (max-width: 1024px) {
-    .product-grid-featured__grid {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
-    }
-
-    .product-grid-featured {
-      padding: 40px 20px;
-    }
-  }
-
-  /* Responsividade - Mobile */
-  @media screen and (max-width: 768px) {
-    .product-grid-featured {
-      padding: 40px 15px;
-    }
-
-    .product-grid-featured__title {
-      font-size: 28px;
-    }
-
-    .product-grid-featured__subtitle {
-      font-size: 14px;
-    }
-
-    .product-grid-featured__header {
-      margin-bottom: 32px;
-    }
-
-    .product-grid-featured__grid {
-      grid-template-columns: 1fr;
-      gap: 16px;
-    }
-
-    .product-grid-featured__card {
-      padding: 20px;
-    }
-
-    .product-grid-featured__product-title {
-      font-size: 16px;
-      min-height: auto;
-    }
-
-    .product-grid-featured__description {
-      font-size: 13px;
-      min-height: auto;
-    }
-  }
-
-  /* Responsividade - Mobile pequeno */
-  @media screen and (max-width: 480px) {
-    .product-grid-featured {
-      padding: 30px 10px;
-    }
-
-    .product-grid-featured__title {
-      font-size: 24px;
-    }
-
-    .product-grid-featured__card {
-      padding: 16px;
-    }
-  }
-{%- endstyle -%}
-
-{%- comment -%} 
-    ============================================
-    HTML DA SECTION
-    ============================================ 
-{%- endcomment -%}
 <section class="product-grid-featured">
-  {%- comment -%} Header com título e subtítulo {%- endcomment -%}
-  <div class="product-grid-featured__header">
-    {%- comment -%} Título principal - usa configuração do schema ou padrão {%- endcomment -%}
-    <h1 class="product-grid-featured__title">
-      {{ section.settings.section_title | default: "Unlock the Full Workout Universe" }}
-    </h1>
+  <div class="container">
+    <!-- Header -->
+    <h2 class="pgf-title">{{ section.settings.section_title | replace: 'Universe', '<span class="pgf-highlight">Universe</span>' }}</h2>
+    <p class="pgf-subtitle">{{ section.settings.section_subtitle }}</p>
 
-    {%- comment -%} Subtítulo - usa configuração do schema ou padrão {%- endcomment -%}
-    <p class="product-grid-featured__subtitle">
-      {{ section.settings.section_subtitle | default: "Combine with these accessories to unlock over 50 new exercises." }}
-    </p>
-  </div>
-
-  {%- comment -%} Verifica se há produtos selecionados {%- endcomment -%}
-  {% if section.settings.products != blank and section.settings.products.size > 0 %}
-    {%- comment -%} Grid de produtos {%- endcomment -%}
-    <div class="product-grid-featured__grid">
-      {%- comment -%} Loop através dos produtos selecionados {%- endcomment -%}
-      {% for product in section.settings.products limit: 4 %}
-        <div class="product-grid-featured__card">
-
-
-          {%- comment -%} Imagem do produto {%- endcomment -%}
-          {% if product.featured_image != blank %}
-            <img
-              src="{{ product.featured_image | img_url: '400x400' }}"
-              alt="{{ product.title | escape }}"
-              class="product-grid-featured__image"
-              loading="lazy"
-              width="400"
-              height="400">
-          {% else %}
-            {%- comment -%} Placeholder se não houver imagem {%- endcomment -%}
-            <div class="product-grid-featured__image" style="background: #fff; display: flex; align-items: center; justify-content: center; min-height: 200px;">
-              <span style="color: #999;">Sem imagem</span>
-            </div>
-          {% endif %}
-
-          {%- comment -%} Título do produto {%- endcomment -%}
-          <h3 class="product-grid-featured__product-title">
-            {{ product.title }}
-          </h3>
-
-          {%- comment -%} Descrição do produto (limitada a 20 palavras) {%- endcomment -%}
-          <p class="product-grid-featured__description">
-            {{ product.description | truncatewords: 20 }}
-          </p>
-
-          {%- comment -%} Preço do produto {%- endcomment -%}
-          <div class="product-grid-featured__price">
-            {% assign current_variant = product.selected_or_first_available_variant %}
-            {% if current_variant.price > 0 %}
-              {{ current_variant.price | money }}
-              {% if current_variant.compare_at_price and current_variant.compare_at_price > current_variant.price %}
-                <span style="text-decoration: line-through; color: #999; margin-left: 8px;">
-                  {{ current_variant.compare_at_price | money }}
-                </span>
-              {% endif %}
-            {% else %}
-              Preço não disponível
-            {% endif %}
-          </div>
-
-          {%- comment -%} Botão de adicionar ao carrinho {%- endcomment -%}
-          {% if product.available and current_variant != blank %}
-            <form
-              action="/cart/add"
-              method="post"
-              enctype="multipart/form-data">
+    <!-- Grid -->
+    <div class="pgf-grid">
+      {% for block in section.blocks %}
+        {% assign product = all_products[block.settings.product] %}
+        {% if product %}
+          <div class="pgf-card">
+            <a href="{{ product.url }}" class="pgf-image-link">
+              <img
+                src="{{ product.featured_image | image_url: width: 500 }}"
+                alt="{{ product.title }}"
+                loading="lazy"
+                width="500"
+                height="300"
+                class="pgf-image" />
+            </a>
+            <h3 class="pgf-product-title">{{ product.title }}</h3>
+            <p class="pgf-description">{{ block.settings.product_description }}</p>
+            <p class="pgf-price bold">{{ product.price | money }}</p>
+            <form method="post" action="{{ routes.cart_add_url }}">
               <input
                 type="hidden"
                 name="id"
-                value="{{ current_variant.id }}">
-              <input
-                type="hidden"
-                name="quantity"
-                value="1">
-              <button
-                type="submit"
-                class="product-grid-featured__button"
-                {% unless product.available %}
-                disabled{% endunless %}>
-                {% if product.available %}
-                  Add to Cart
-                {% else %}
-                  Sold Out
-                {% endif %}
-              </button>
+                value="{{ product.variants.first.id }}">
+              <button type="submit" class="pgf-button">Shop</button>
             </form>
-          {% else %}
-            <button class="product-grid-featured__button" disabled>
-              Sold Out
-            </button>
-          {% endif %}
-        </div>
+          </div>
+        {% endif %}
       {% endfor %}
     </div>
-  {% else %}
-    {%- comment -%} Mensagem quando não há produtos selecionados {%- endcomment -%}
-    <div style="text-align: center; padding: 40px; color: #666;">
-      <p>Nenhum produto selecionado. Configure os produtos nas configurações da section.</p>
-    </div>
-  {% endif %}
+  </div>
+
+  <style>
+    .product-grid-featured {
+      padding: 60px 20px 0;
+      background: #ffffff;
+    }
+
+    .product-grid-featured .container {
+      max-width: 1200px;
+      margin: 0 auto !important;
+      padding: 0 !important;
+    }
+
+    .pgf-title {
+      text-align: center;
+  
+      font-weight: 700;
+      margin-bottom: 0 !important;
+    }
+
+    .pgf-highlight {
+      color: #F37021;
+    }
+
+    .pgf-subtitle {
+      text-align: center;
+      font-size: 16px;
+      margin-top: 8px !important;
+      margin-bottom: 40px !important;
+    }
+
+    .pgf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px;
+    }
+
+    .pgf-card {
+      background: #f8f8f8;
+      border-radius: 24px;
+      padding: 24px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .pgf-image-link {
+      display: block;
+      text-decoration: none;
+      margin-bottom: 16px;
+    }
+
+    .pgf-image {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+      transition: transform 0.3s ease;
+    }
+
+    .pgf-image-link:hover .pgf-image {
+      transform: scale(1.05);
+    }
+
+    .pgf-product-title {
+      color: #F37021;
+      font-size: 22px!important;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .pgf-description {
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 12px;
+    }
+
+    .pgf-price {
+      font-size: 22px !important;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+
+    .pgf-button {
+      background: #F37021;
+      color: #ffffff;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      padding: 2px 24px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+      width: 100%;
+    }
+
+    .pgf-button:hover {
+      background: #d85c1a;
+    }
+
+    @media (max-width: 768px) {
+      .pgf-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  <script>
+    // JS reservado para futuras interações
+    document.addEventListener('DOMContentLoaded', function () {
+      // Optional JS hook
+    });
+  </script>
 </section>
 
-{%- comment -%} 
-    ============================================
-    SCHEMA DE CONFIGURAÇÃO
-    ============================================
-    Define as configurações disponíveis no editor do Shopify 
-{%- endcomment -%}
 {% schema %}
   {
     "name": "Product Grid Featured",
     "tag": "section",
-    "class": "section",
+    "class": "product-grid-featured",
     "settings": [
       {
         "type": "text",
         "id": "section_title",
-        "label": "Título da Section",
-        "default": "Unlock the Full Workout Universe",
-        "info": "Título principal exibido no topo da section"
+        "label": "Section Title",
+        "default": "Unlock the Full Workout Universe"
       }, {
         "type": "text",
         "id": "section_subtitle",
-        "label": "Subtítulo da Section",
-        "default": "Combine with these accessories to unlock over 50 new exercises.",
-        "info": "Texto descritivo abaixo do título"
-      }, {
-        "type": "product_list",
-        "id": "products",
-        "label": "Produtos em Destaque",
-        "limit": 4,
-        "info": "Selecione até 4 produtos para exibir no grid"
+        "label": "Section Subtitle",
+        "default": "Combine with these accessories to unlock over 50 new exercises."
       }
     ],
+    "blocks": [
+      {
+        "type": "product",
+        "name": "Product",
+        "settings": [
+          {
+            "type": "product",
+            "id": "product",
+            "label": "Select Product"
+          }, {
+            "type": "textarea",
+            "id": "product_description",
+            "label": "Product Description",
+            "info": "Write a custom description for this product"
+          }
+        ]
+      }
+    ],
+    "max_blocks": 4,
     "presets": [
       {
         "name": "Product Grid Featured",
-        "settings": {
-          "section_title": "Unlock the Full Workout Universe",
-          "section_subtitle": "Combine with these accessories to unlock over 50 new exercises."
-        }
+        "category": "Products",
+        "blocks": [
+          {
+            "type": "product"
+          }, {
+            "type": "product"
+          }, {
+            "type": "product"
+          }, {
+            "type": "product"
+          }
+        ]
       }
     ]
   }

@@ -170,14 +170,16 @@
   }
   
   .tt-compare-trio__container {
-    max-width: 1200px;
+    max-width: 100%;
+    width: 100%;
     margin: 0 auto;
     padding: 0 20px;
+    box-sizing: border-box;
   }
   
   .tt-compare-trio__grid {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 0;
     align-items: stretch;
   }
@@ -192,8 +194,9 @@
     display: flex;
     flex-direction: column;
     transition: none;
-    max-width: none;
     margin: 0!important;
+    width: 100%;
+    min-width: 0;
   }
   
   .tt-compare-trio__card--highlight {
@@ -231,7 +234,7 @@
     background-color: #EB701F;
     color: #ffffff;
   }
-  
+ 
   
   .tt-compare-trio__image {
     margin: 0!important;
@@ -265,6 +268,9 @@
     display: block;
     width: 100%;
     text-decoration: none;
+  }
+  .tt-compare-trio__image-link:nth-child(2) {
+   width: 360px!important
   }
   
   .tt-compare-trio__image img {
@@ -545,23 +551,60 @@
   }
   
   /* Tablet styles */
-  @media (min-width: 768px) {
+  @media (max-width: 1200px) and (min-width: 769px) {
     .tt-compare-trio__grid {
-      grid-template-columns: repeat(2, 1fr);
-      
-
+      grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .tt-compare-trio__container {
+      padding: 0 20px;
+    }
+    
+    .tt-compare-trio__card {
+      width: 100%;
+      max-width: none;
+    }
+  }
+  
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    .tt-compare-trio__grid {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    
+    .tt-compare-trio__container {
+      padding: 0 15px;
+    }
+    
+    .tt-compare-trio__card {
+      margin-bottom: 0;
+      width: 100%;
+    }
+    
+    /* Reset padding for mobile */
+    .tt-compare-trio__card:nth-child(1) .tt-compare-trio__image,
+    .tt-compare-trio__card:nth-child(2) .tt-compare-trio__image,
+    .tt-compare-trio__card:nth-child(3) .tt-compare-trio__image {
+      padding: 0 20px 20px 20px;
+    }
+    
+    .tt-compare-trio__card:nth-child(1) .tt-compare-trio__content,
+    .tt-compare-trio__card:nth-child(2) .tt-compare-trio__content,
+    .tt-compare-trio__card:nth-child(3) .tt-compare-trio__content {
+      padding: 20px;
     }
   }
   
   /* Desktop styles */
-  @media (min-width: 1024px) {
-    .tt-compare-trio__grid {
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0;
-    }
-    
+  @media (min-width: 1201px) {
     .tt-compare-trio__container {
       padding: 0 40px;
+    }
+    
+    .tt-compare-trio__card {
+      width: 100%;
+      max-width: none;
     }
   }
   
@@ -574,12 +617,14 @@
   .tt-compare-trio__card {
     height: 100%;
   }
-  @media (max-width: 1024px) {
-    .tt-compare-trio__grid {
-      gap: 40px!important;
+
+  {%- endif -%}
+
+   @media (max-width: 1024px) {
+    .tt-compare-trio__badge{
+      width: 70%!important;
     }
   }
-  {%- endif -%}
 </style>
 
 <script>
