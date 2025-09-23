@@ -8,9 +8,12 @@
           {% when 'slide' %}
             <div class="hero-banner__slide {% if forloop.first %}active{% endif %}" {{ block.shopify_attributes }}>
               {% if block.settings.slide_link != blank %}
-                <a href="{{ block.settings.slide_link }}" class="hero-banner__slide-link" aria-label="Navigate to slide content">
+                <a
+                  href="{{ block.settings.slide_link }}"
+                  class="hero-banner__slide-link"
+                  aria-label="Navigate to slide content">
               {% endif %}
-              
+
               <div class="hero-banner__media-container">
                 {% if block.settings.video_source == 'upload' and block.settings.video_file != blank %}
                   <video
@@ -26,13 +29,9 @@
                   <div class="hero-banner__video-wrapper" data-video-type="{{ block.settings.video_source }}">
                     {% case block.settings.video_source %}
                       {% when 'youtube' %}
-                        <div
-                          class="hero-banner__video"
-                          data-video-id="{{ block.settings.video_url | split: 'v=' | last }}"></div>
+                        <div class="hero-banner__video" data-video-id="{{ block.settings.video_url | split: 'v=' | last }}"></div>
                       {% when 'vimeo' %}
-                        <div
-                          class="hero-banner__video"
-                          data-video-id="{{ block.settings.video_url | split: '/' | last }}"></div>
+                        <div class="hero-banner__video" data-video-id="{{ block.settings.video_url | split: '/' | last }}"></div>
                     {% endcase %}
                   </div>
                 {% else %}
@@ -48,14 +47,16 @@
               </div>
 
               <div class="hero-banner__overlay" style="background-color: {{ block.settings.overlay_color | color_modify: 'alpha', block.settings.overlay_opacity }}"></div>
-              
+
               {% if block.settings.slide_link != blank %}
                 </a>
               {% endif %}
 
               <div class="hero-banner__content">
                 <div class="hero-banner__text-container">
-                  <h1 class="hero-banner__title black">{{ block.settings.title }}</h1>
+                  {% if block.settings.title != blank %}
+                    <h1 class="hero-banner__title black">{{ block.settings.title }}</h1>
+                  {% endif %}
                   <p class="hero-banner__subtitle regular">{{ block.settings.subtitle }}</p>
                   <div class="hero-banner__buttons">
                     {%- if block.settings.button_1_text != blank and block.settings.button_1_link != blank -%}
@@ -91,7 +92,8 @@
 
                 {% if block.settings.product_handle != blank %}
                   {% assign selected_product = all_products[block.settings.product_handle] %}
-                  {% render 'product-card-custom', product: selected_product %}
+                  {% render 'product-card-custom'
+                    , product: selected_product %}
                 {% endif %}
               </div>
             </div>
@@ -103,7 +105,10 @@
     {% if section.blocks.size > 1 %}
       <div class="hero-banner__dots">
         {% for block in section.blocks %}
-          <button class="hero-banner__dot {% if forloop.first %}active{% endif %}" data-slide="{{ forloop.index0 }}" aria-label="Go to slide {{ forloop.index }}"></button>
+          <button
+            class="hero-banner__dot {% if forloop.first %}active{% endif %}"
+            data-slide="{{ forloop.index0 }}"
+            aria-label="Go to slide {{ forloop.index }}"></button>
         {% endfor %}
       </div>
     {% endif %}
@@ -347,43 +352,43 @@
 
   /* Responsive */
   @media screen and (max-width: 1420px) {
-    .hero-banner{
+    .hero-banner {
       height: 75vh;
     }
   }
   @media screen and (max-width: 1300px) {
-    .hero-banner{
+    .hero-banner {
       height: 70vh;
     }
   }
   @media screen and (max-width: 1200px) {
-    .hero-banner{
+    .hero-banner {
       height: 65vh;
     }
   }
   @media screen and (max-width: 1100px) {
-    .hero-banner{
+    .hero-banner {
       height: 60vh;
     }
   }
   @media screen and (max-width: 1024px) {
-    .hero-banner{
+    .hero-banner {
       height: 55vh;
     }
   }
-    @media screen and (max-width: 921px) {
-      .hero-banner{
-        height: 50vh;
-      }
+  @media screen and (max-width: 921px) {
+    .hero-banner {
+      height: 50vh;
     }
+  }
   @media screen and (max-width: 845px) {
-    .hero-banner{
+    .hero-banner {
       height: 40vh;
     }
   }
 
   @media screen and (max-width: 768px) {
-     .hero-banner{
+    .hero-banner {
       height: 85vh;
     }
     .hero-banner__image--desktop {
@@ -405,42 +410,42 @@
     .hero-banner__scroll-indicator {
       bottom: 60px;
     }
-    .hero-banner__text-container{
+    .hero-banner__text-container {
       margin-top: 330px;
     }
   }
   @media screen and (max-width: 663px) {
-    .hero-banner{
+    .hero-banner {
       height: 70vh;
     }
   }
-   @media screen and (max-width: 531px) {
-    .hero-banner{
+  @media screen and (max-width: 531px) {
+    .hero-banner {
       height: 60vh;
     }
   }
-  
+
   @media screen and (max-width: 473px) {
-    .hero-banner{
+    .hero-banner {
       height: 50vh;
     }
   }
   @media screen and (max-width: 387px) {
-    .hero-banner{
+    .hero-banner {
       height: 45vh;
     }
   }
-   @media screen and (max-height: 896px) {
- .hero-banner{
-      height: 65vh!important;
+  @media screen and (max-height: 896px) {
+    .hero-banner {
+      height: 65vh !important;
     }
   }
   @media screen and (max-height: 667px) {
- .hero-banner{
-      height: 70vh!important;
+    .hero-banner {
+      height: 70vh !important;
     }
   }
-  
+
 {% endstyle %}
 
 <script>
@@ -761,227 +766,200 @@
 </script>
 
 {% schema %}
-{
-  "name": "Hero Banner Carousel",
-  "max_blocks": 5,
-  "settings": [
-    {
-      "type": "checkbox",
-      "id": "show_scroll_indicator",
-      "label": "Show Scroll Indicator",
-      "default": true
-    }
-  ],
-  "blocks": [
-    {
-      "type": "slide",
-      "name": "Slide",
-      "settings": [
-        {
-          "type": "header",
-          "content": "Media"
-        },
-        {
-          "type": "select",
-          "id": "media_type",
-          "label": "Media Type",
-          "options": [
-            {
-              "value": "image",
-              "label": "Image/GIF"
-            },
-            {
-              "value": "video",
-              "label": "Video"
-            }
-          ],
-          "default": "image"
-        },
-        {
-          "type": "image_picker",
-          "id": "background_image",
-          "label": "Desktop Background Image/GIF",
-          "info": "Recommended size: 2000x1100px. Supports GIF animation"
-        },
-        {
-          "type": "image_picker",
-          "id": "background_image_mobile",
-          "label": "Mobile Background Image/GIF",
-          "info": "Recommended size: 800x1000px. Supports GIF animation. If not set, will use desktop image"
-        },
-        {
-          "type": "select",
-          "id": "video_source",
-          "label": "Video Source",
-          "options": [
-            {
-              "value": "youtube",
-              "label": "YouTube"
-            },
-            {
-              "value": "vimeo",
-              "label": "Vimeo"
-            }
-          ],
-          "default": "youtube"
-        },
-        {
-          "type": "video_url",
-          "id": "video_url",
-          "label": "Video URL",
-          "accept": ["youtube", "vimeo"],
-          "info": "Add your YouTube or Vimeo video URL"
-        },
-        {
-          "type": "header",
-          "content": "Content"
-        },
-        {
-          "type": "text",
-          "id": "title",
-          "label": "Title",
-          "default": "START WHERE YOU ARE."
-        },
-        {
-          "type": "text",
-          "id": "subtitle",
-          "label": "Subtitle",
-          "default": "YOUR HOME FOR FITNESS FREEDOM"
-        },
-        {
-          "type": "header",
-          "content": "Overlay"
-        },
-        {
-          "type": "color",
-          "id": "overlay_color",
-          "label": "Overlay Color",
-          "default": "#000000"
-        },
-        {
-          "type": "range",
-          "id": "overlay_opacity",
-          "label": "Overlay Opacity",
-          "min": 0,
-          "max": 1,
-          "step": 0.1,
-          "default": 0.3
-        },
-        {
-          "type": "product",
-          "id": "product_handle",
-          "label": "Product Card"
-        },
-        {
-          "type": "text",
-          "id": "button_1_text",
-          "label": "Button 1 Text",
-          "default": "SHOP NOW"
-        },
-        {
-          "type": "url",
-          "id": "button_1_link",
-          "label": "Button 1 Link"
-        },
-        {
-          "type": "color",
-          "id": "button_1_text_color",
-          "label": "Button 1 Text Color",
-          "default": "#ffffff"
-        },
-        {
-          "type": "color",
-          "id": "button_1_border_color",
-          "label": "Button 1 Border Color",
-          "default": "#ffffff"
-        },
-        {
-          "type": "color",
-          "id": "button_1_bg_color",
-          "label": "Button 1 Background Color",
-          "default": "rgba(0,0,0,0)"
-        },
-        {
-          "type": "color",
-          "id": "button_1_bg_color_hover",
-          "label": "Button 1 Background Color (Hover)",
-          "default": "#ffffff"
-        },
-        {
-          "type": "color",
-          "id": "button_1_text_color_hover",
-          "label": "Button 1 Text Color (Hover)",
-          "default": "#111111"
-        },
-        {
-          "type": "text",
-          "id": "button_2_text",
-          "label": "Button 2 Text",
-          "default": "EXPLORE COLLECTION"
-        },
-        {
-          "type": "url",
-          "id": "button_2_link",
-          "label": "Button 2 Link"
-        },
-        {
-          "type": "color",
-          "id": "button_2_text_color",
-          "label": "Button 2 Text Color",
-          "default": "#ffffff"
-        },
-        {
-          "type": "color",
-          "id": "button_2_border_color",
-          "label": "Button 2 Border Color",
-          "default": "#ffffff"
-        },
-        {
-          "type": "color",
-          "id": "button_2_bg_color",
-          "label": "Button 2 Background Color",
-          "default": "rgba(255,255,255,0.1)"
-        },
-        {
-          "type": "color",
-          "id": "button_2_bg_color_hover",
-          "label": "Button 2 Background Color (Hover)",
-          "default": "#ffffff"
-        },
-        {
-          "type": "color",
-          "id": "button_2_text_color_hover",
-          "label": "Button 2 Text Color (Hover)",
-          "default": "#111111"
-        },
-        {
-          "type": "text",
-          "id": "buy_btn_text",
-          "label": "Buy Button Text",
-          "default": "Buy Now"
-        },
-        {
-          "type": "url",
-          "id": "slide_link",
-          "label": "Slide Link (Optional)",
-          "info": "Add a link to make the entire slide clickable"
-        }
-      ]
-    }
-  ],
-  "presets": [
-    {
-      "name": "Hero Banner Carousel",
-      "blocks": [
-        {
-          "type": "slide",
-          "settings": {
-            "title": "START WHERE YOU ARE.",
-            "subtitle": "YOUR HOME FOR FITNESS FREEDOM"
+  {
+    "name": "Hero Banner Carousel",
+    "max_blocks": 5,
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "show_scroll_indicator",
+        "label": "Show Scroll Indicator",
+        "default": true
+      }
+    ],
+    "blocks": [
+      {
+        "type": "slide",
+        "name": "Slide",
+        "settings": [
+          {
+            "type": "header",
+            "content": "Media"
+          },
+          {
+            "type": "select",
+            "id": "media_type",
+            "label": "Media Type",
+            "options": [
+              {
+                "value": "image",
+                "label": "Image/GIF"
+              }, {
+                "value": "video",
+                "label": "Video"
+              }
+            ],
+            "default": "image"
+          },
+          {
+            "type": "image_picker",
+            "id": "background_image",
+            "label": "Desktop Background Image/GIF",
+            "info": "Recommended size: 2000x1100px. Supports GIF animation"
+          },
+          {
+            "type": "image_picker",
+            "id": "background_image_mobile",
+            "label": "Mobile Background Image/GIF",
+            "info": "Recommended size: 800x1000px. Supports GIF animation. If not set, will use desktop image"
+          }, {
+            "type": "select",
+            "id": "video_source",
+            "label": "Video Source",
+            "options": [
+              {
+                "value": "youtube",
+                "label": "YouTube"
+              }, {
+                "value": "vimeo",
+                "label": "Vimeo"
+              }
+            ],
+            "default": "youtube"
+          }, {
+            "type": "video_url",
+            "id": "video_url",
+            "label": "Video URL",
+            "accept": ["youtube", "vimeo"],
+            "info": "Add your YouTube or Vimeo video URL"
+          }, {
+            "type": "header",
+            "content": "Content"
+          }, {
+            "type": "text",
+            "id": "title",
+            "label": "Title",
+            "default": "START WHERE YOU ARE."
+          }, {
+            "type": "text",
+            "id": "subtitle",
+            "label": "Subtitle",
+            "default": "YOUR HOME FOR FITNESS FREEDOM"
+          }, {
+            "type": "header",
+            "content": "Overlay"
+          }, {
+            "type": "color",
+            "id": "overlay_color",
+            "label": "Overlay Color",
+            "default": "#000000"
+          }, {
+            "type": "range",
+            "id": "overlay_opacity",
+            "label": "Overlay Opacity",
+            "min": 0,
+            "max": 1,
+            "step": 0.1,
+            "default": 0.3
+          }, {
+            "type": "product",
+            "id": "product_handle",
+            "label": "Product Card"
+          }, {
+            "type": "text",
+            "id": "button_1_text",
+            "label": "Button 1 Text",
+            "default": "SHOP NOW"
+          }, {
+            "type": "url",
+            "id": "button_1_link",
+            "label": "Button 1 Link"
+          }, {
+            "type": "color",
+            "id": "button_1_text_color",
+            "label": "Button 1 Text Color",
+            "default": "#ffffff"
+          }, {
+            "type": "color",
+            "id": "button_1_border_color",
+            "label": "Button 1 Border Color",
+            "default": "#ffffff"
+          }, {
+            "type": "color",
+            "id": "button_1_bg_color",
+            "label": "Button 1 Background Color",
+            "default": "rgba(0,0,0,0)"
+          }, {
+            "type": "color",
+            "id": "button_1_bg_color_hover",
+            "label": "Button 1 Background Color (Hover)",
+            "default": "#ffffff"
+          }, {
+            "type": "color",
+            "id": "button_1_text_color_hover",
+            "label": "Button 1 Text Color (Hover)",
+            "default": "#111111"
+          }, {
+            "type": "text",
+            "id": "button_2_text",
+            "label": "Button 2 Text",
+            "default": "EXPLORE COLLECTION"
+          }, {
+            "type": "url",
+            "id": "button_2_link",
+            "label": "Button 2 Link"
+          }, {
+            "type": "color",
+            "id": "button_2_text_color",
+            "label": "Button 2 Text Color",
+            "default": "#ffffff"
+          }, {
+            "type": "color",
+            "id": "button_2_border_color",
+            "label": "Button 2 Border Color",
+            "default": "#ffffff"
+          }, {
+            "type": "color",
+            "id": "button_2_bg_color",
+            "label": "Button 2 Background Color",
+            "default": "rgba(255,255,255,0.1)"
+          }, {
+            "type": "color",
+            "id": "button_2_bg_color_hover",
+            "label": "Button 2 Background Color (Hover)",
+            "default": "#ffffff"
+          }, {
+            "type": "color",
+            "id": "button_2_text_color_hover",
+            "label": "Button 2 Text Color (Hover)",
+            "default": "#111111"
+          }, {
+            "type": "text",
+            "id": "buy_btn_text",
+            "label": "Buy Button Text",
+            "default": "Buy Now"
+          }, {
+            "type": "url",
+            "id": "slide_link",
+            "label": "Slide Link (Optional)",
+            "info": "Add a link to make the entire slide clickable"
           }
-        }
-      ]
-    }
-  ]
-}
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Hero Banner Carousel",
+        "blocks": [
+          {
+            "type": "slide",
+            "settings": {
+              "title": "START WHERE YOU ARE.",
+              "subtitle": "YOUR HOME FOR FITNESS FREEDOM"
+            }
+          }
+        ]
+      }
+    ]
+  }
 {% endschema %}
