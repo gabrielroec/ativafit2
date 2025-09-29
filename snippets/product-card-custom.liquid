@@ -1,7 +1,7 @@
 {%- comment -%} 
-                                                                                                      Salve este arquivo como /snippets/product-card.liquid
-                                                                                                      Inclua na sua coleção ou em qualquer template assim: 
-                                                                                                      {% render 'product-card', product: product %} 
+                                                                                                            Salve este arquivo como /snippets/product-card.liquid
+                                                                                                            Inclua na sua coleção ou em qualquer template assim: 
+                                                                                                            {% render 'product-card', product: product %} 
 {%- endcomment -%}
 
 {% comment %}Debug info{% endcomment %}
@@ -22,7 +22,8 @@
         border: 1px solid #D9D9D9;
         overflow: hidden;
         transition: transform 0.3s;
-        font-family: "Barlow", sans-serif;
+        font-family: "Barlow"
+        , sans-serif;
         text-decoration: none;
         display: flex;
         flex-direction: column;
@@ -63,8 +64,8 @@
       }
 
       .product-title {
-        font-size: 18px!important;
-        font-weight: 700!important;
+        font-size: 18px !important;
+        font-weight: 700 !important;
         line-height: 1.2;
         font-weight: bold;
         color: #000;
@@ -279,7 +280,7 @@
       /* MEDIA QUERIES */
       @media screen and (max-width: 768px) {
         .product-card {
-          height: 530px!important;
+          height: 530px !important;
           display: flex;
           flex-direction: column;
         }
@@ -327,7 +328,7 @@
           font-size: 14px;
           margin-bottom: 10px;
           flex-shrink: 0;
-          min-height: fit-content!important;
+          min-height: fit-content !important;
           display: flex;
           flex-direction: row;
           justify-content: flex-start;
@@ -378,46 +379,49 @@
         }
       }
 
-      /* @media screen and (max-width: 480px) {
-        {%- if request.page_type == 'collection' -%}
-          .product-card {
-            height: 500px !important;
-            max-width: none;
-          }
 
-          .product-card img {
-            height: 220px;
-          }
+      /*
+   @media screen and (max-width: 480px) {
+   {%- if request.page_type == 'collection' -%}
+   .product-card {
+   height: 500px !important;
+   max-width: none;
+   }
 
-          .static-info {
-            padding: 10px;
-          }
+   .product-card img {
+   height: 220px;
+   }
 
-          .product-title {
-            font-size: 13px;
-            margin-bottom: 6px;
-          }
+   .static-info {
+   padding: 10px;
+   }
 
-          .price {
-            font-size: 13px;
-          }
+   .product-title {
+   font-size: 13px;
+   margin-bottom: 6px;
+   }
 
-          .mobile-btn {
-            padding: 8px;
-            font-size: 13px;
-          }
-        {%- else -%}
-        .product-card {
-          height: 440px;
-          max-width: 250px !important;
-          margin: 0 auto;
-        }
+   .price {
+   font-size: 13px;
+   }
 
-        .product-card img {
-          height: 220px;
-        }
-      {%- endif -%}
-    } */
+   .mobile-btn {
+   padding: 8px;
+   font-size: 13px;
+   }
+   {%- else -%}
+   .product-card {
+   height: 440px;
+   max-width: 250px !important;
+   margin: 0 auto;
+   }
+
+   .product-card img {
+   height: 220px;
+   }
+   {%- endif -%}
+   }
+*/
     </style>
 
     {%- comment -%} — BADGE DE DESCONTO - Sempre calculado baseado na diferença entre preço original e atual {%- endcomment -%}
@@ -657,6 +661,72 @@
           if (quantityInput) quantityInput.value = quantity;
           if (qtyDisplay) qtyDisplay.textContent = quantity;
         }
+
+        // Intercepta o envio do formulário para mostrar notificação
+        form.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          
+          const submitButton = form.querySelector('button[type="submit"]');
+          const originalText = submitButton.textContent;
+          const productTitle = card.querySelector('.product-title')?.textContent || 'Product';
+          
+          // Desabilita o botão e mostra loading
+          submitButton.disabled = true;
+          submitButton.textContent = 'Adding...';
+          
+          try {
+            const formData = new FormData(form);
+            const response = await fetch('/cart/add.js', {
+              method: 'POST',
+              body: formData
+            });
+            
+            if (response.ok) {
+              const result = await response.json();
+              
+              // Atualiza contador do carrinho
+              const cartData = await fetch('/cart.js').then(res => res.json());
+              const cartCountElement = document.querySelector('.header__cart-count');
+              if (cartCountElement) {
+                cartCountElement.textContent = cartData.item_count;
+              }
+              
+              // Mostra notificação de sucesso PRIMEIRO
+              if (window.CartNotification) {
+                window.CartNotification.success(`${productTitle} has been added to cart!`, 'Product Added!');
+              }
+              
+              // Aguarda a notificação aparecer e depois abre o mini-cart
+              setTimeout(() => {
+                if (window.theme && window.theme.miniCart) {
+                  window.theme.miniCart.open();
+                }
+              }, 300);
+              
+              // Remove o estado "Adding..." após notificação aparecer
+              setTimeout(() => {
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
+              }, 200);
+              
+            } else {
+              const error = await response.json();
+              throw new Error(error.message || 'Error adding product');
+            }
+            
+          } catch (error) {
+            console.error('Erro ao adicionar produto:', error);
+            
+            // Mostra notificação de erro
+            if (window.CartNotification) {
+              window.CartNotification.error('Unable to add product to cart. Please try again.', 'Error adding product');
+            }
+            
+            // Restaura o botão em caso de erro
+            submitButton.disabled = false;
+            submitButton.textContent = originalText;
+          }
+        });
       });
     });
   </script>

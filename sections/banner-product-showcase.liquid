@@ -46,8 +46,9 @@
     margin-bottom: 24px;
   }
 
+  /* Title size is adjustable via schema */
   .banner-product-showcase__title {
-    font-size: 40px !important;
+    font-size: {{ section.settings.title_font_size | default: 40 }}px !important;
     font-weight: 900;
     line-height: 100%;
     margin: 0;
@@ -61,40 +62,19 @@
     font-size: 16px;
     transition: color 0.3s ease;
   }
+  .banner-product-showcase__button:hover { color: #c23d12; }
 
-  .banner-product-showcase__button:hover {
-    color: #c23d12;
-  }
-
-  /* Estilos do Carrossel */
+  /* Carousel */
   .banner-product-showcase__carousel-container {
     position: relative;
     width: 100%;
-    padding-bottom: 50px;
-    /* Espaço para os dots */
+    padding-bottom: 50px; /* room for dots */
   }
+  .banner-product-showcase__carousel { width: 100%; overflow-x: hidden; overflow-y: visible; }
+  .banner-product-showcase__carousel .swiper-wrapper { display: flex; align-items: stretch; }
+  .banner-product-showcase__carousel .swiper-slide { width: auto !important; flex-shrink: 0; height: fit-content; display: flex; align-items: center; }
 
-  .banner-product-showcase__carousel {
-    width: 100%;
-    overflow-x: hidden;
-    overflow-y: visible;
-  }
-
-  .banner-product-showcase__carousel .swiper-wrapper {
-    display: flex;
-    align-items: stretch;
-  }
-
-  .banner-product-showcase__carousel .swiper-slide {
-    width: auto !important;
-    /* Força largura automática */
-    flex-shrink: 0;
-    height: fit-content;
-    display: flex;
-    align-items: center;
-  }
-
-  /* Indicadores - centralizados no bottom */
+  /* Dots */
   .banner-product-showcase__pagination {
     position: absolute !important;
     bottom: 0 !important;
@@ -104,57 +84,18 @@
     text-align: center;
     margin-top: 0;
   }
+  .banner-product-showcase__pagination .swiper-pagination-bullet { width: 12px; height: 12px; background: #ccc; border-radius: 50%; margin: 0 5px; cursor: pointer; transition: background 0.3s ease; opacity: 1; }
+  .banner-product-showcase__pagination .swiper-pagination-bullet-active { background: #EB701F; }
 
-  .banner-product-showcase__pagination .swiper-pagination-bullet {
-    width: 12px;
-    height: 12px;
-    background: #ccc;
-    border-radius: 50%;
-    margin: 0 5px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-    opacity: 1;
+  @media screen and (max-width: 768px) {
+    .banner-product-showcase { padding: 0 10px; }
+    .banner-product-showcase__grid { flex-direction: column; }
+    .banner-product-showcase__banner, .banner-product-showcase__products-area { width: 100%; }
+    .banner-product-showcase__title { font-size: {{ section.settings.title_font_size_mobile | default: 36 }}px !important; }
   }
 
-  .banner-product-showcase__pagination .swiper-pagination-bullet-active {
-    background: #EB701F;
-  }
-
-  @media screen and (max-width: 1024px) {}
-
-@media screen and (max-width: 768px) {
-  .banner-product-showcase {
-    padding: 0 10px;
-  }
-
-  .banner-product-showcase__grid {
-    flex-direction: column;
-  }
-
-  .banner-product-showcase__banner,
-  .banner-product-showcase__products-area {
-    width: 100%;
-  }
-
-
-  .banner-product-showcase__title {
-    font-size: 48px;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  .banner-product-showcase__title {
-    font-size: 36px;
-    letter-spacing: -1px;
-  }
-
-
-}
-.swiper-horizontal > .swiper-pagination-bullets.swiper-pagination-bullets-dynamic,
-.swiper-pagination-horizontal.swiper-pagination-bullets.swiper-pagination-bullets-dynamic {
-  overflow: visible;
-  transform: translateY(-25px) !important;
-}
+  .swiper-horizontal > .swiper-pagination-bullets.swiper-pagination-bullets-dynamic,
+  .swiper-pagination-horizontal.swiper-pagination-bullets.swiper-pagination-bullets-dynamic { overflow: visible; transform: translateY(-25px) !important; }
 {%- endstyle -%}
 
 <div class="banner-product-showcase">
@@ -162,42 +103,40 @@
     {% if section.settings.title != blank %}
       <h2 class="banner-product-showcase__title">{{ section.settings.title }}</h2>
     {% endif %}
-    <a href="{{ section.settings.button_link }}" class="banner-product-showcase__button condensed-bold">
-      {{ section.settings.button_text }}
-    </a>
+    {% if section.settings.button_link != blank and section.settings.button_text != blank %}
+      <a href="{{ section.settings.button_link }}" class="banner-product-showcase__button condensed-bold">{{ section.settings.button_text }}</a>
+    {% endif %}
   </div>
+
   <div class="banner-product-showcase__grid">
     <div class="banner-product-showcase__banner">
       {% if section.settings.banner_image != blank %}
-        <img
-          src="{{ section.settings.banner_image | img_url: '1000x' }}"
-          alt="Banner"
-          width="1000"
-          height="700"
-          class="banner-product-showcase__banner-image">
+        <img src="{{ section.settings.banner_image | img_url: '1000x' }}" alt="Banner" width="1000" height="700" class="banner-product-showcase__banner-image">
       {% else %}
-        <span style="color: #999;">Banner não disponível</span>
+        <span style="color:#999;">Banner não disponível</span>
       {% endif %}
     </div>
 
     <div class="banner-product-showcase__products-area">
       <div class="banner-product-showcase__carousel-container">
-        <div class="banner-product-showcase__carousel swiper">
+        <div id="carousel-{{ section.id }}" class="banner-product-showcase__carousel swiper">
           <div class="swiper-wrapper">
+            {% assign has_products = false %}
             {% for block in section.blocks %}
               {% if block.type == 'product' and block.settings.product != blank %}
+                {% assign has_products = true %}
                 {% assign product = all_products[block.settings.product] %}
                 <div class="swiper-slide">
-                  {% render 'product-card-custom'
-                    , product: product %}
+                  {% render 'product-card-custom', product: product %}
                 </div>
               {% endif %}
             {% endfor %}
           </div>
         </div>
-
-        <!-- Indicadores -->
         <div class="banner-product-showcase__pagination" id="carousel-pagination-{{ section.id }}"></div>
+        {% unless has_products %}
+          <p style="margin-top:10px;color:#888;">No products added to this section yet.</p>
+        {% endunless %}
       </div>
     </div>
   </div>
@@ -205,92 +144,39 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar o Swiper para o carrossel
-    const carousel = new Swiper('.banner-product-showcase__carousel', {
-      slidesPerView: 'auto', /* Permite largura automática dos slides */
+    var el = document.querySelector('#carousel-{{ section.id }}');
+    if (!el || typeof Swiper === 'undefined') { return; }
+    new Swiper(el, {
+      slidesPerView: 'auto',
       spaceBetween: 20,
       centeredSlides: false,
       loop: false,
-      
-      // Paginação
-      pagination: {
-        el: '#carousel-pagination-{{ section.id }}',
-        clickable: true,
-        dynamicBullets: true,
-      },
-      
-      // Configurações responsivas
+      pagination: { el: '#carousel-pagination-{{ section.id }}', clickable: true, dynamicBullets: true },
       breakpoints: {
-        320: {
-          slidesPerView: 'auto',
-          spaceBetween: 10,
-        },
-        768: {
-          slidesPerView: 'auto',
-          spaceBetween: 15,
-        },
-        1024: {
-          slidesPerView: 'auto',
-          spaceBetween: 20,
-        }
+        320:  { slidesPerView: 'auto', spaceBetween: 10 },
+        768:  { slidesPerView: 'auto', spaceBetween: 15 },
+        1024: { slidesPerView: 'auto', spaceBetween: 20 }
       }
     });
   });
 </script>
 
 {% schema %}
-  {
-    "name": "Banner + Carousel",
-    "settings": [
-      {
-        "type": "image_picker",
-        "id": "banner_image",
-        "label": "Banner Image"
-      }, {
-        "type": "text",
-        "id": "title",
-        "label": "Title",
-        "default": "TRENDING"
-      }, {
-        "type": "text",
-        "id": "button_text",
-        "label": "Button Text",
-        "default": "SHOP ALL TREND"
-      }, {
-        "type": "url",
-        "id": "button_link",
-        "label": "Button Link"
-      }
-    ],
-    "blocks": [
-      {
-        "type": "product",
-        "name": "Product",
-        "settings": [
-          {
-            "type": "product",
-            "id": "product",
-            "label": "Select Product"
-          }
-        ]
-      }
-    ],
-    "presets": [
-      {
-        "name": "Banner + Carousel",
-        "settings": {},
-        "blocks": [
-          {
-            "type": "product"
-          }, {
-            "type": "product"
-          }, {
-            "type": "product"
-          }, {
-            "type": "product"
-          }
-        ]
-      }
-    ]
-  }
+{
+  "name": "Banner + Carousel",
+  "settings": [
+    { "type": "image_picker", "id": "banner_image", "label": "Banner Image" },
+    { "type": "text", "id": "title", "label": "Title", "default": "TRENDING" },
+    { "type": "range", "id": "title_font_size", "label": "Title Font Size – Desktop", "min": 20, "max": 96, "step": 1, "unit": "px", "default": 40 },
+    { "type": "range", "id": "title_font_size_mobile", "label": "Title Font Size – Mobile", "min": 16, "max": 64, "step": 1, "unit": "px", "default": 36 },
+    { "type": "text", "id": "button_text", "label": "Button Text", "default": "SHOP ALL TREND" },
+    { "type": "url", "id": "button_link", "label": "Button Link" }
+  ],
+  "blocks": [
+    { "type": "product", "name": "Product", "settings": [ { "type": "product", "id": "product", "label": "Select Product" } ] }
+  ],
+  "presets": [
+    { "name": "Banner + Carousel", "settings": {}, "blocks": [ { "type": "product" }, { "type": "product" }, { "type": "product" }, { "type": "product" } ] }
+  ]
+}
 {% endschema %}

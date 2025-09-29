@@ -13845,6 +13845,15 @@
             if (response.ok) {
               target.removeAttribute("disabled"); // We simply trigger an event so the mini-cart can re-render
 
+              // Mostra notificação de sucesso PRIMEIRO
+              if (window.CartNotification) {
+                const productTitle =
+                  formElement.closest(".product-card")?.querySelector(".product-title")?.textContent ||
+                  formElement.closest(".product-item")?.querySelector(".product-item__title")?.textContent ||
+                  "Product";
+                window.CartNotification.success(`${productTitle} has been added to cart!`, "Product Added!");
+              }
+
               _this.element.dispatchEvent(
                 new CustomEvent("product:added", {
                   bubbles: true,
@@ -13856,6 +13865,11 @@
               );
             } else {
               target.removeAttribute("disabled");
+
+              // Mostra notificação de erro
+              if (window.CartNotification) {
+                window.CartNotification.error("Unable to add product to cart. Please try again.", "Error adding product");
+              }
             }
           });
           event.preventDefault();

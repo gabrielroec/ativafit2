@@ -1,0 +1,360 @@
+{%- comment -%} 
+  Cart Notification Toast Component - iOS Style
+  Este snippet cria um sistema de notificação toast moderno e fluido estilo iOS 
+{%- endcomment -%}
+
+<div
+  id="cart-notification"
+  class="cart-notification"
+  aria-hidden="true">
+  <div class="cart-notification__content">
+    <div class="cart-notification__icon">
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round" />
+      </svg>
+    </div>
+    <div class="cart-notification__text">
+      <h4 class="cart-notification__title">Product Added!</h4>
+      <p class="cart-notification__message">The item has been successfully added to your cart.</p>
+    </div>
+    <button class="cart-notification__close" aria-label="Close notification">
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M18 6L6 18M6 6L18 18"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round" />
+      </svg>
+    </button>
+  </div>
+</div>
+
+<style>
+  .cart-notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-120%);
+    z-index: 9999;
+    max-width: 400px;
+    width: 90%;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15)
+    , 0 0 0 1px rgba(0, 0, 0, 0.05);
+    border: none;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    font-family: 'Barlow'
+    , sans-serif;
+    overflow: hidden;
+    will-change: transform
+    , opacity;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  .cart-notification.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+
+  .cart-notification__content {
+    display: flex;
+    align-items: flex-start;
+    padding: 20px;
+    gap: 16px;
+  }
+
+  .cart-notification__icon {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-top: 2px;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  }
+
+  .cart-notification__text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .cart-notification__title {
+    font-size: 17px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 6px;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+
+  .cart-notification__message {
+    font-size: 15px;
+    color: #6b7280;
+    margin: 0;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+  }
+
+  .cart-notification__close {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    color: #9ca3af;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    margin-top: 2px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cart-notification__close:hover {
+    color: #6b7280;
+    background: #f3f4f6;
+  }
+
+  .cart-notification__close:focus {
+    outline: 2px solid #EB701F;
+    outline-offset: 2px;
+  }
+
+  /* Estados especiais */
+  .cart-notification.error .cart-notification__icon {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  }
+
+  .cart-notification.warning .cart-notification__icon {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+  }
+
+  /* Responsividade */
+  @media screen and (max-width: 480px) {
+    .cart-notification {
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-120%);
+      width: calc(100% - 32px);
+      max-width: none;
+    }
+
+    .cart-notification__content {
+      padding: 18px;
+    }
+
+    .cart-notification__title {
+      font-size: 16px;
+    }
+
+    .cart-notification__message {
+      font-size: 14px;
+    }
+
+    .cart-notification__icon {
+      width: 40px;
+      height: 40px;
+    }
+  }
+
+  /* Modo escuro */
+  @media (prefers-color-scheme: dark) {
+    .cart-notification {
+      background: #1f2937;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3)
+      , 0 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+
+    .cart-notification__title {
+      color: #f9fafb;
+    }
+
+    .cart-notification__message {
+      color: #d1d5db;
+    }
+
+    .cart-notification__close {
+      color: #9ca3af;
+    }
+
+    .cart-notification__close:hover {
+      color: #d1d5db;
+      background: #374151;
+    }
+  }
+
+  /* Animação de entrada suave */
+  @keyframes slideInTop {
+    0% {
+      transform: translateX(-50%) translateY(-120%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideOutTop {
+    0% {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(-50%) translateY(-120%);
+      opacity: 0;
+    }
+  }
+
+  .cart-notification.animate-in {
+    animation: slideInTop 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .cart-notification.animate-out {
+    animation: slideOutTop 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+</style>
+
+<script>
+  class CartNotification {
+    constructor() {
+      this.notification = document.getElementById('cart-notification');
+      this.closeButton = this.notification?.querySelector('.cart-notification__close');
+      this.titleElement = this.notification?.querySelector('.cart-notification__title');
+      this.messageElement = this.notification?.querySelector('.cart-notification__message');
+      this.iconElement = this.notification?.querySelector('.cart-notification__icon');
+      
+      this.timeoutId = null;
+      this.isVisible = false;
+      
+      this.init();
+    }
+  
+    init() {
+      if (!this.notification) return;
+  
+      // Event listeners
+      this.closeButton?.addEventListener('click', () => this.hide());
+      
+      // Auto-hide após 1.5 segundos
+      this.notification.addEventListener('mouseenter', () => this.clearTimeout());
+      this.notification.addEventListener('mouseleave', () => this.setAutoHide());
+      
+      // Fechar com ESC
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && this.isVisible) {
+          this.hide();
+        }
+      });
+    }
+  
+    show(options = {}) {
+      if (!this.notification) return;
+  
+      const {
+        title = 'Product Added!',
+        message = 'The item has been successfully added to your cart.',
+        type = 'success',
+        duration = 1500
+      } = options;
+  
+      // Atualiza o conteúdo ANTES de mostrar
+      if (this.titleElement) this.titleElement.textContent = title;
+      if (this.messageElement) this.messageElement.textContent = message;
+      
+      // Atualiza o tipo/ícone ANTES de mostrar
+      this.notification.className = `cart-notification ${type}`;
+      
+      // Mostra a notificação de forma fluida
+      this.notification.setAttribute('aria-hidden', 'false');
+      this.notification.classList.add('show', 'animate-in');
+      this.isVisible = true;
+      
+      // Auto-hide
+      this.setAutoHide(duration);
+      
+      // Remove a classe de animação após a animação
+      setTimeout(() => {
+        this.notification?.classList.remove('animate-in');
+      }, 400);
+    }
+  
+    hide() {
+      if (!this.notification || !this.isVisible) return;
+  
+      this.clearTimeout();
+      this.notification.classList.add('animate-out');
+      
+      setTimeout(() => {
+        this.notification?.classList.remove('show', 'animate-out');
+        this.notification?.setAttribute('aria-hidden', 'true');
+        this.isVisible = false;
+      }, 300);
+    }
+  
+    setAutoHide(duration = 1500) {
+      this.clearTimeout();
+      this.timeoutId = setTimeout(() => {
+        this.hide();
+      }, duration);
+    }
+  
+    clearTimeout() {
+      if (this.timeoutId) {
+        clearTimeout(this.timeoutId);
+        this.timeoutId = null;
+      }
+    }
+  
+    // Métodos estáticos para diferentes tipos de notificação
+    static success(message, title = 'Success!') {
+      const notification = window.cartNotification || new CartNotification();
+      notification.show({ title, message, type: 'success' });
+    }
+  
+    static error(message, title = 'Error!') {
+      const notification = window.cartNotification || new CartNotification();
+      notification.show({ title, message, type: 'error' });
+    }
+  
+    static warning(message, title = 'Warning!') {
+      const notification = window.cartNotification || new CartNotification();
+      notification.show({ title, message, type: 'warning' });
+    }
+  }
+  
+  // Inicializa quando o DOM estiver pronto
+  document.addEventListener('DOMContentLoaded', () => {
+    window.cartNotification = new CartNotification();
+  });
+  
+  // Disponibiliza globalmente para uso em outros scripts
+  window.CartNotification = CartNotification;
+</script>

@@ -1,0 +1,56 @@
+{%- comment -%} 
+    Arquivo de teste para demonstrar o sistema de notificação
+    Este arquivo pode ser incluído temporariamente para testar as notificações 
+{%- endcomment -%}
+
+<div style="position: fixed; bottom: 20px; left: 20px; z-index: 10000; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 1px solid #e5e7eb;">
+  <h4 style="margin: 0 0 10px 0; font-size: 16px; color: #111827;">Notification Test</h4>
+  <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+    <button onclick="testSuccess()" style="background: #10b981; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">Success</button>
+    <button onclick="testError()" style="background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">Error</button>
+    <button onclick="testWarning()" style="background: #f59e0b; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">Warning</button>
+    <button onclick="testCartAdd()" style="background: #EB701F; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">Cart</button>
+  </div>
+</div>
+
+<script>
+  function testSuccess() {
+    if (window.CartNotification) {
+      window.CartNotification.success('This is a success notification test!', 'Success Test');
+    } else {
+      alert('Notification system not loaded');
+    }
+  }
+  
+  function testError() {
+    if (window.CartNotification) {
+      window.CartNotification.error('This is an error notification test!', 'Error Test');
+    } else {
+      alert('Notification system not loaded');
+    }
+  }
+  
+  function testWarning() {
+    if (window.CartNotification) {
+      window.CartNotification.warning('This is a warning notification test!', 'Warning Test');
+    } else {
+      alert('Notification system not loaded');
+    }
+  }
+  
+  function testCartAdd() {
+    if (window.CartNotification) {
+      window.CartNotification.success('Test product has been added to cart!', 'Product Added!');
+    } else {
+      alert('Notification system not loaded');
+    }
+  }
+  
+  // Remove o painel de teste após 30 segundos
+  setTimeout(() => {
+    const testPanel = document.querySelector('[style*="position: fixed"][style*="bottom: 20px"]');
+    if (testPanel) {
+      testPanel.remove();
+    }
+  }, 30000);
+</script>

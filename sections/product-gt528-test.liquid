@@ -2586,24 +2586,37 @@
           return response.json();
         })
         .then(data => {
-          // Sucesso - feedback visual
-          btn.textContent = 'ADDED TO CART!';
-          btn.style.background = '#28a745';
+          // Mostra notificação de sucesso PRIMEIRO
+          if (window.CartNotification) {
+            const productTitle = document.querySelector('.product-name')?.textContent || 'Product';
+            window.CartNotification.success(`${productTitle} has been added to cart!`, 'Product Added!');
+          }
           
-          // Atualizar contador do carrinho se existir
-          updateCartCount();
-          
+          // Feedback visual do botão (após notificação aparecer)
           setTimeout(() => {
-            btn.textContent = originalText;
-            btn.style.background = '#EB701F';
-            btn.disabled = false;
-            btn.style.opacity = '1';
-          }, 2000);
+            btn.textContent = 'ADDED TO CART!';
+            btn.style.background = '#28a745';
+            
+            // Atualizar contador do carrinho se existir
+            updateCartCount();
+            
+            setTimeout(() => {
+              btn.textContent = originalText;
+              btn.style.background = '#EB701F';
+              btn.disabled = false;
+              btn.style.opacity = '1';
+            }, 2000);
+          }, 200);
         })
         .catch(error => {
           console.error('Erro:', error);
           
-          // Erro - feedback visual
+          // Mostra notificação de erro
+          if (window.CartNotification) {
+            window.CartNotification.error('Unable to add product to cart. Please try again.', 'Error adding product');
+          }
+          
+          // Erro - feedback visual do botão
           btn.textContent = 'ERROR - TRY AGAIN';
           btn.style.background = '#dc3545';
           

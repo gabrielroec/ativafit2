@@ -60,14 +60,18 @@
                     
                     <div class="tt-image-numbered__point-content">
                       {%- if block.settings.title != blank -%}
-                        <h4 class="tt-image-numbered__point-title">
-                          {%- if block.settings.custom_number != blank -%}
-                            {{ block.settings.custom_number }}.
-                          {%- else -%}
-                            {{ forloop.index }}.
-                          {%- endif -%}
-                          {{ block.settings.title }}
-                        </h4>
+                        <div class="tt-image-numbered__point-header">
+                          <h4 class="tt-image-numbered__point-number">
+                            {%- if block.settings.custom_number != blank -%}
+                              {{ block.settings.custom_number }}
+                            {%- else -%}
+                              {{ forloop.index }}.
+                            {%- endif -%}
+                          </h4>
+                          <h4 class="tt-image-numbered__point-title">
+                            {{ block.settings.title }}
+                          </h4>
+                        </div>
                       {%- endif -%}
                       
                       {%- if block.settings.description != blank -%}
@@ -234,15 +238,34 @@
     flex-direction: column;
   }
 
-  .tt-image-numbered__point-title {
-    font-family: 'Barlow', sans-serif !important;
+  .tt-image-numbered__point-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .tt-image-numbered__point-number {
+        font-family: 'Barlow', sans-serif !important;
     font-weight: 500 !important;
     font-style: normal;
     font-size: 22px;
     line-height: 30px;
     letter-spacing: 0%;
-    margin: 0 0 8px 0;
+    margin: 0;
     color: var(--tt-in-text-color);
+  }
+
+  .tt-image-numbered__point-title {
+   font-family: 'Barlow', sans-serif !important;
+    font-weight: 500 !important;
+    font-style: normal;
+    font-size: 22px;
+    line-height: 30px;
+    letter-spacing: 0%;
+    margin: 0;
+    color: var(--tt-in-text-color);
+    flex: 1;
   }
 
   .tt-image-numbered__point--emphasis .tt-image-numbered__point-title {
@@ -299,11 +322,6 @@
       font-size: 40px;
     }
 
-    .tt-image-numbered__point-number {
-      width: 48px;
-      height: 48px;
-      font-size: 20px;
-    }
 
     .tt-image-numbered__point-title {
       font-size: 22px;

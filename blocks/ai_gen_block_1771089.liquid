@@ -1,0 +1,483 @@
+{% doc %}
+  @prompt
+    Layout: A two-column layout. The left column should contain an image, and the right column should contain a heading, a sub-heading, and a descriptive paragraph. This section should be fully responsive, with the content stacking vertically on mobile devices, with the image above the text. The section should also have a top margin to create space between it and the banner above.
+    
+    Image:
+    
+    The image should be on the left side of the section.
+    
+    It should have a rounded border to match the attached reference.
+    
+    It should scale fluidly to fit the container.
+    
+    Text Content:
+    
+    The text should be on the right side of the section.
+    
+    The text should include a heading, sub-heading, and a main paragraph.
+    
+    The paragraph should use a <p> tag.
+    
+    The font size and line spacing of the paragraph should be editable via the Shopify theme customizer.
+    
+    Styling:
+    
+    The entire section should have a clean, modern aesthetic.
+    
+    Use a sans-serif font for all text.
+    
+    Ensure there is adequate spacing between the image and the text.
+    
+    Settings:
+    
+    The section should include settings for a user to upload their own image.
+    
+    The heading, sub-heading, and paragraph text should all be editable.
+    
+    The font size and line spacing for the paragraph text should be adjustable., please enable us to set word wrap on the Paragraph text, I want to further edit the paragraph. Please enable us to bolden the text, change the font size, or set a couple paragraphs there.
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-two-column-section-{{ ai_gen_id }} {
+    margin-top: {{ block.settings.top_margin }}px;
+    padding: {{ block.settings.section_padding }}px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .ai-two-column-container-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: {{ block.settings.column_gap }}px;align-items: center;
+  }
+
+  .ai-image-column-{{ ai_gen_id }} {
+    width: 100%;
+  }
+
+  .ai-image-wrapper-{{ ai_gen_id }} {
+    width: 100%;
+    border-radius: {{ block.settings.image_border_radius }}px;
+    overflow: hidden;
+  }
+
+  .ai-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: {{ block.settings.image_border_radius }}px;
+  }
+
+  .ai-image-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    aspect-ratio: 4/3;
+    background-color: #f4f4f4;
+    border-radius: {{ block.settings.image_border_radius }}px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .ai-image-placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-empty-state-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 16px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 4px;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .ai-text-column-{{ ai_gen_id }} {
+    font-family: {{ block.settings.font_family.family }}, sans-serif;
+    font-weight: {{ block.settings.font_family.weight }};
+  }
+
+  .ai-heading-{{ ai_gen_id }} {
+    font-size: {{ block.settings.heading_size }}px;
+    color: {{ block.settings.heading_color }};
+    margin: 0 0 {{ block.settings.heading_margin }}px 0;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .ai-subheading-{{ ai_gen_id }} {
+    font-size: {{ block.settings.subheading_size }}px;
+    color: {{ block.settings.subheading_color }};
+    margin: 0 0 {{ block.settings.subheading_margin }}px 0;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  .ai-paragraph-content-{{ ai_gen_id }} {
+    font-size: {{ block.settings.paragraph_font_size }}px;
+    line-height: {{ block.settings.paragraph_line_height }};
+    color: {{ block.settings.paragraph_color }};
+    word-wrap: {{ block.settings.paragraph_word_wrap }};
+    overflow-wrap: {{ block.settings.paragraph_word_wrap }};
+    font-weight: {{ block.settings.paragraph_font_weight }};
+  }
+
+  .ai-paragraph-content-{{ ai_gen_id }} p {
+    margin: 0 0 {{ block.settings.paragraph_spacing }}px 0;
+  }
+
+  .ai-paragraph-content-{{ ai_gen_id }} p:last-child {
+    margin-bottom: 0;
+  }
+
+  .ai-paragraph-content-{{ ai_gen_id }} strong,
+  .ai-paragraph-content-{{ ai_gen_id }} b {
+    font-weight:700;
+  }
+
+  .ai-paragraph-content-{{ ai_gen_id }} em,
+  .ai-paragraph-content-{{ ai_gen_id }} i {
+    font-style: italic;
+  }
+
+  .ai-paragraph-content-{{ ai_gen_id }} u {
+    text-decoration: underline;
+  }
+
+  .ai-paragraph-content-{{ ai_gen_id }} a {
+    color: {{ block.settings.link_color }};
+    text-decoration: underline;
+  }
+
+  .ai-paragraph-content-{{ ai_gen_id }} a:hover {
+    opacity: 0.8;
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-two-column-container-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+      gap: {{ block.settings.mobile_gap }}px;
+    }
+
+    .ai-image-column-{{ ai_gen_id }} {
+      order: 1;
+    }
+
+    .ai-text-column-{{ ai_gen_id }} {
+      order: 2;
+    }
+
+    .ai-heading-{{ ai_gen_id }} {
+      font-size: {{ block.settings.heading_size | times: 0.85 }}px;
+    }
+
+    .ai-subheading-{{ ai_gen_id }} {
+      font-size: {{ block.settings.subheading_size | times: 0.9 }}px;
+    }
+
+    .ai-paragraph-content-{{ ai_gen_id }} {
+      font-size: {{ block.settings.paragraph_font_size | times: 0.95 }}px;
+    }
+  }
+{% endstyle %}<div class="ai-two-column-section-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-two-column-container-{{ ai_gen_id }}">
+    <div class="ai-image-column-{{ ai_gen_id }}">
+      {% if block.settings.image %}
+        <div class="ai-image-wrapper-{{ ai_gen_id }}">
+          <img
+            src="{{ block.settings.image | image_url: width: 800 }}"
+            alt="{{ block.settings.image.alt | escape }}"
+            class="ai-image-{{ ai_gen_id }}"
+            loading="lazy"
+            width="{{ block.settings.image.width }}"
+            height="{{ block.settings.image.height }}"
+          ></div>
+      {% else %}
+        <div class="ai-image-placeholder-{{ ai_gen_id }}">
+          {{ 'image' | placeholder_svg_tag }}<div class="ai-empty-state-{{ ai_gen_id }}">
+            Add an image
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="ai-text-column-{{ ai_gen_id }}">
+      {% if block.settings.heading != blank %}
+        <h2 class="ai-heading-{{ ai_gen_id }}">{{ block.settings.heading }}</h2>
+      {% endif %}
+
+      {% if block.settings.subheading != blank %}
+        <h3 class="ai-subheading-{{ ai_gen_id }}">{{ block.settings.subheading }}</h3>
+      {% endif %}
+
+      {% if block.settings.paragraph != blank %}
+        <div class="ai-paragraph-content-{{ ai_gen_id }}">
+          {{ block.settings.paragraph }}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Two column content",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Image border radius",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "About our story"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Crafting quality since 2020"
+    },
+    {
+      "type": "richtext",
+      "id": "paragraph",
+      "label": "Paragraph content",
+      "default": "<p>We believe in creating products that not only meet your needs but exceed your expectations. Our commitment to quality and innovation drives everything we do, from the initial design concept to the final product delivery.</p><p><strong>Quality is our priority.</strong> Every product undergoes rigorous testing to ensure it meets our high standards before reaching your hands.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "font_picker",
+      "id": "font_family",
+      "label": "Font",
+      "default": "helvetica_n4"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 20,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading size",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "subheading_size",
+      "min": 14,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "label": "Subheading size",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "paragraph_font_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Paragraph font size",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "paragraph_line_height",
+      "min": 1,
+      "max": 2,
+      "step": 0.1,
+      "label": "Paragraph line height",
+      "default": 1.6
+    },
+    {
+      "type": "select",
+      "id": "paragraph_font_weight",
+      "label": "Paragraph font weight",
+      "options": [
+        {
+          "value": "300",
+          "label": "Light"
+        },
+        {
+          "value": "400",
+          "label": "Normal"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi-bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ],
+      "default": "400"
+    },
+    {
+      "type": "range",
+      "id": "paragraph_spacing",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Space between paragraphs",
+      "default": 16
+    },
+    {
+      "type": "select",
+      "id": "paragraph_word_wrap",
+      "label": "Paragraph word wrap",
+      "options": [
+        {
+          "value": "normal",
+          "label": "Normal"
+        },
+        {
+          "value": "break-word",
+          "label": "Break long words"
+        },
+        {
+          "value": "anywhere",
+          "label": "Break anywhere"
+        }
+      ],
+      "default": "break-word"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "label": "Subheading color",
+      "default": "#666666"
+    },
+    {
+      "type": "color",
+      "id": "paragraph_color",
+      "label": "Paragraph color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "link_color",
+      "label": "Link color",
+      "default": "#0066cc"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "top_margin",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Top margin",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "section_padding",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "px",
+      "label": "Section padding",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "column_gap",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Gap between columns",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "mobile_gap",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "label": "Mobile gap",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "heading_margin",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading bottom margin",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "subheading_margin",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Subheading bottom margin",
+      "default": 20
+    }
+  ],
+  "presets": [
+    {
+      "name": "Two column content"
+    }
+  ]
+}
+{% endschema %}

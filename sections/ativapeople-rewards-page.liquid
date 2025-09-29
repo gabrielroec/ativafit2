@@ -154,7 +154,7 @@
           <div class="flex-1 w-full md:w-1/2 h-[520px]">
             {% if section.settings.partnership_image %}
               <img src="{{ section.settings.partnership_image | image_url: width: 600 }}"
-                   class="rounded-lg shadow-xl w-full h-full"
+                   class="rounded-lg shadow-xl w-full h-full object-cover"
                    alt="{{ section.settings.partnership_image.alt | escape }}"
                    loading="lazy">
             {% else %}
@@ -351,36 +351,49 @@
               <span class="brand-gradient-text">{{ section.settings.join_headline_part2_gradient }}</span>
             </h2>
           </div>
-          <div class="mt-8 border-b border-gray-200">
-            <nav class="-mb-px flex justify-center space-x-8" aria-label="Tabs">
-              <button onclick="showTab('register')" aria-controls="form-register" role="tab" aria-selected="true" class="whitespace-nowrap py-4 px-1 border-b-2 text-base md:text-lg tab-button">Create Account</button>
-              <button onclick="showTab('login')" aria-controls="form-login" role="tab" aria-selected="false" class="whitespace-nowrap py-4 px-1 border-b-2 text-base md:text-lg tab-button">Log In</button>
-            </nav>
-          </div>
-
-          <div id="form-register" role="tabpanel" class="mt-8">
-            {% form 'create_customer', novalidate: 'novalidate' %}
-              {% if form.errors %}<div class="form-errors">{{ form.errors | default_errors }}</div>{% endif %}
-              <div class="space-y-6">
-                <div><label for="reg-name" class="block text-sm font-medium text-gray-700">Full Name</label><input id="reg-name" name="customer[first_name]" type="text" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
-                <div><label for="reg-email" class="block text-sm font-medium text-gray-700">Email Address</label><input id="reg-email" name="customer[email]" type="email" autocomplete="email" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
-                <div><label for="reg-password" class="block text-sm font-medium text-gray-700">Password</label><input id="reg-password" name="customer[password]" type="password" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
-                <div class="pt-2"><button type="submit" class="w-full flex justify-center py-3 px-4 text-lg cta-button">Create Account & Earn {{ section.settings.points_signup }} Points</button></div>
+          {% if customer %}
+            <div class="logged-in-message text-center">
+              <h3 class="mt-4 text-2xl font-bold">Welcome back, {{ customer.first_name }}!</h3>
+              <div class="mt-4 flex justify-center space-x-4">
+                <a href="/account" class="inline-block px-8 py-3 cta-button">View Profile</a>
+                <a href="/collections/all" class="inline-block px-8 py-3 cta-button">Shop Now</a>
               </div>
-            {% endform %}
-          </div>
+            </div>
+          {% else %}
+            <!-- Registration and Login Forms -->
+            <div class="mt-8 border-b border-gray-200">
+              <nav class="-mb-px flex justify-center space-x-8" aria-label="Tabs">
+                <button onclick="showTab('register')" aria-controls="form-register" role="tab" aria-selected="true" class="whitespace-nowrap py-4 px-1 border-b-2 text-base md:text-lg tab-button">Create Account</button>
+                <button onclick="showTab('login')" aria-controls="form-login" role="tab" aria-selected="false" class="whitespace-nowrap py-4 px-1 border-b-2 text-base md:text-lg tab-button">Log In</button>
+              </nav>
+            </div>
 
-          <div id="form-login" role="tabpanel" class="mt-8 hidden">
-            {% form 'customer_login', novalidate: 'novalidate' %}
-              {% if form.errors %}<div class="form-errors">{{ form.errors | default_errors }}</div>{% endif %}
-              <div class="space-y-6">
-                <div><label for="login-email" class="block text-sm font-medium text-gray-700">Email Address</label><input id="login-email" name="customer[email]" type="email" autocomplete="email" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
-                <div><label for="login-password" class="block text-sm font-medium text-gray-700">Password</label><input id="login-password" name="customer[password]" type="password" autocomplete="current-password" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
-                <div class="text-right"><a href="{{ routes.account_recover_url }}" class="text-sm font-medium text-orange-600 hover:text-orange-500">Forgot password?</a></div>
-                <div class="pt-2"><button type="submit" class="w-full flex justify-center py-3 px-4 text-lg cta-button">Log In</button></div>
-              </div>
-            {% endform %}
-          </div>
+            <div id="form-register" role="tabpanel" class="mt-8">
+              {% form 'create_customer', novalidate: 'novalidate' %}
+                {% if form.errors %}<div class="form-errors">{{ form.errors | default_errors }}</div>{% endif %}
+                {% if form.posted_successfully? %}<div class="form-success">Account created successfully! Please check your email to verify your account.</div>{% endif %}
+                <div class="space-y-6">
+                  <div><label for="reg-name" class="block text-sm font-medium text-gray-700">Full Name</label><input id="reg-name" name="customer[first_name]" type="text" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
+                  <div><label for="reg-email" class="block text-sm font-medium text-gray-700">Email Address</label><input id="reg-email" name="customer[email]" type="email" autocomplete="email" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
+                  <div><label for="reg-password" class="block text-sm font-medium text-gray-700">Password</label><input id="reg-password" name="customer[password]" type="password" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
+                  <div class="pt-2"><button type="submit" class="w-full flex justify-center py-3 px-4 text-lg cta-button">Create Account & Earn {{ section.settings.points_signup }} Points</button></div>
+                </div>
+              {% endform %}
+            </div>
+
+            <div id="form-login" role="tabpanel" class="mt-8 hidden">
+              {% form 'customer_login', novalidate: 'novalidate' %}
+                {% if form.errors %}<div class="form-errors">{{ form.errors | default_errors }}</div>{% endif %}
+                {% if form.posted_successfully? %}<div class="form-success">Logged in successfully!</div>{% endif %}
+                <div class="space-y-6">
+                  <div><label for="login-email" class="block text-sm font-medium text-gray-700">Email Address</label><input id="login-email" name="customer[email]" type="email" autocomplete="email" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
+                  <div><label for="login-password" class="block text-sm font-medium text-gray-700">Password</label><input id="login-password" name="customer[password]" type="password" autocomplete="current-password" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
+                  <div class="text-right"><a href="{{ routes.account_recover_url }}" class="text-sm font-medium text-orange-600 hover:text-orange-500">Forgot password?</a></div>
+                  <div class="pt-2"><button type="submit" class="w-full flex justify-center py-3 px-4 text-lg cta-button">Log In</button></div>
+                </div>
+              {% endform %}
+            </div>
+          {% endif %}
         </div>
       </div>
     </section>

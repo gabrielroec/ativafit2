@@ -1,4 +1,5 @@
-<!-- Simple Banner Only Image Section with Text + Adjustable Position + Adjustable Line Gap -->
+<!-- Simple Banner with per-device positions; mobile rules only apply under 1024px,
+     desktop rules only apply at/over 1024px. No cross-contamination. -->
 <section id="sb-{{ section.id }}" class="simple-banner-only-image">
   {%- liquid
     assign desktop_image = section.settings.desktop_image
@@ -8,103 +9,120 @@
     assign preload_image = section.settings.preload_image
     assign section_bg_color = section.settings.section_bg_color | default: 'transparent'
     assign text_color = section.settings.text_color | default: '#ffffff'
-    assign text_align = section.settings.text_align | default: 'left'
-    assign text_anchor = section.settings.text_anchor | default: 'top-left'
-    assign text_pos_x_mobile = section.settings.text_pos_x_mobile | default: 10
-    assign text_pos_y_mobile = section.settings.text_pos_y_mobile | default: 50
-    assign text_pos_x_desktop = section.settings.text_pos_x_desktop | default: 10
-    assign text_pos_y_desktop = section.settings.text_pos_y_desktop | default: 50
-    assign heading_body_gap_mobile = section.settings.heading_body_gap_mobile | default: 10
+
+    assign content_position_mobile  = section.settings.content_position_mobile  | default: 'center'
+    assign content_position_desktop = section.settings.content_position_desktop | default: 'center'
+
+    assign heading_body_gap_mobile  = section.settings.heading_body_gap_mobile  | default: 10
     assign heading_body_gap_desktop = section.settings.heading_body_gap_desktop | default: 12
+
+    assign image_brightness_pct = section.settings.image_brightness_pct | default: 100
+    assign image_contrast_pct   = section.settings.image_contrast_pct   | default: 100
+    assign image_opacity_pct    = section.settings.image_opacity_pct    | default: 100
+
+    assign img_brightness = image_brightness_pct | times: 0.01
+    assign img_contrast   = image_contrast_pct   | times: 0.01
+    assign img_opacity    = image_opacity_pct    | times: 0.01
   -%}
 
-  <div class="banner-wrapper">
+  <div class="banner-wrapper"
+       style="--img-b: {{ img_brightness }}; --img-c: {{ img_contrast }}; --img-o: {{ img_opacity }};">
     {%- if link_url != blank -%}<a href="{{ link_url }}" class="banner-link">{%- endif -%}
-    
-    {%- if desktop_image -%}
-      <img
-        src="{{ desktop_image | image_url: width: 2000 }}"
-        alt="{{ alt_text }}"
-        class="banner-image banner-image-desktop"
-        loading="{% if preload_image %}eager{% else %}lazy{% endif %}"
-        width="{{ desktop_image.width }}"
-        height="{{ desktop_image.height }}">
-      <img
-        src="{{ mobile_image | default: desktop_image | image_url: width: 1000 }}"
-        alt="{{ mobile_image.alt | default: desktop_image.alt | default: alt_text }}"
-        class="banner-image banner-image-mobile"
-        loading="{% if preload_image %}eager{% else %}lazy{% endif %}"
-        width="{{ mobile_image.width | default: desktop_image.width }}"
-        height="{{ mobile_image.height | default: desktop_image.height }}">
 
-      <!-- Text Overlay -->
-      <div class="banner-text" style="color: {{ text_color }}; text-align: {{ text_align }};">
+    {%- if desktop_image -%}
+      <img src="{{ desktop_image | image_url: width: 2000 }}"
+           alt="{{ alt_text }}"
+           class="banner-image banner-image-desktop"
+           loading="{% if preload_image %}eager{% else %}lazy{% endif %}"
+           width="{{ desktop_image.width }}" height="{{ desktop_image.height }}">
+      <img src="{{ mobile_image | default: desktop_image | image_url: width: 1000 }}"
+           alt="{{ mobile_image.alt | default: desktop_image.alt | default: alt_text }}"
+           class="banner-image banner-image-mobile"
+           loading="{% if preload_image %}eager{% else %}lazy{% endif %}"
+           width="{{ mobile_image.width | default: desktop_image.width }}"
+           height="{{ mobile_image.height | default: desktop_image.height }}">
+
+      <!-- Text Overlay: mobile uses class; desktop uses data attribute -->
+      <div class="banner-text banner-text-{{ content_position_mobile }}"
+           data-pos-desktop="{{ content_position_desktop }}"
+           style="color: {{ text_color }};">
         <h2>{{ section.settings.heading_text }}</h2>
         <p>{{ section.settings.body_text }}</p>
       </div>
     {%- else -%}
-      <div class="banner-placeholder">
-        <p>Add an image to display your banner</p>
-      </div>
+      <div class="banner-placeholder"><p>Add an image to display your banner</p></div>
     {%- endif -%}
-    
+
     {%- if link_url != blank -%}</a>{%- endif -%}
   </div>
 </section>
 
 <style>
-  .banner-text h2{
-    font-size: 40px!important;
-  }
+  /* Base */
   #sb-{{ section.id }} {
     background-color: {{ section_bg_color }};
     padding-top: {{ section.settings.padding_top_mobile | default: 0 }}px;
     padding-bottom: {{ section.settings.padding_bottom_mobile | default: 0 }}px;
-    --pos-x: {{ text_pos_x_mobile }}%;
-    --pos-y: {{ text_pos_y_mobile }}%;
     --gap: {{ heading_body_gap_mobile }}px;
+    --inset-x: 48px; /* preview defaults */
+    --inset-y: 48px;
   }
-
-  #sb-{{ section.id }} .banner-wrapper { width: 100%; position: relative; }
-  #sb-{{ section.id }} .banner-link { display: block; text-decoration: none; }
-  #sb-{{ section.id }} .banner-image { width: 100%; height: auto; display: block; object-fit: contain; }
+  #sb-{{ section.id }} .banner-wrapper { width: 100%; position: relative; display: flex; align-items: center; justify-content: center; min-height: 300px; }
+  #sb-{{ section.id }} .banner-link { display: flex; text-decoration: none; width: 100%; height: 100%; position: relative; }
+  #sb-{{ section.id }} .banner-image { width: 100%; height: auto; display: block; object-fit: contain;
+    filter: brightness(var(--img-b,1)) contrast(var(--img-c,1)); opacity: var(--img-o,1);
+  }
   #sb-{{ section.id }} .banner-image-desktop { display: none; }
-  #sb-{{ section.id }} .banner-image-mobile { display: block; }
+  #sb-{{ section.id }} .banner-image-mobile  { display: block; }
+  #sb-{{ section.id }} .banner-text { position: absolute; width: 100%; max-width: 100%; padding: 20px; z-index: 2; box-sizing: border-box; }
+  #sb-{{ section.id }} .banner-text h2 { margin: 0 0 var(--gap) 0; }
+  #sb-{{ section.id }} .banner-text p  { margin: 0; }
+  #sb-{{ section.id }} .banner-placeholder { width: 100%; min-height: 200px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; color: #666; font-size: 16px; }
 
-  #sb-{{ section.id }} .banner-text {
-    position: absolute;
-    font-size: 40px!important;
-    left: var(--pos-x);
-    top: var(--pos-y);
-    max-width: 80%;
-    {% if text_anchor == 'center' %}
-      transform: translate(-50%, -50%);
-    {% else %}
-      transform: translate(0, 0);
-    {% endif %}
-  }
-  #sb-{{ section.id }} .banner-text h2 { font-size: {{ section.settings.heading_font_size_mobile | default: 32 }}px; margin: 0 0 var(--gap) 0; }
-  #sb-{{ section.id }} .banner-text p { font-size: {{ section.settings.body_font_size_mobile | default: 18 }}px; margin: 0; }
+  /* MOBILE (<= 1023px): ONLY here we define class-based positions */
+  @media (max-width: 1023px) {
+    #sb-{{ section.id }} { --gap: {{ heading_body_gap_mobile }}px; }
+    #sb-{{ section.id }} .banner-text h2 { font-size: {{ section.settings.heading_font_size_mobile | default: 32 }}px; }
+    #sb-{{ section.id }} .banner-text p  { font-size: {{ section.settings.body_font_size_mobile   | default: 18 }}px; }
 
-  #sb-{{ section.id }} .banner-placeholder {
-    width: 100%; min-height: 200px; background-color: #f5f5f5;
-    display: flex; align-items: center; justify-content: center;
-    color: #666; font-size: 16px;
+    #sb-{{ section.id }} .banner-text-top    { top: 20px;  left: 50%; transform: translateX(-50%); text-align: center; }
+    #sb-{{ section.id }} .banner-text-bottom { bottom: 20px; left: 50%; transform: translateX(-50%); text-align: center; }
+    #sb-{{ section.id }} .banner-text-left   { left: 20px;  top: 50%; transform: translateY(-50%); text-align: left; }
+    #sb-{{ section.id }} .banner-text-right  { right: 20px; top: 50%; transform: translateY(-50%); text-align: right; }
+    #sb-{{ section.id }} .banner-text-center { top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
   }
 
-  /* Desktop styles */
+  /* DESKTOP (>= 1024px): class-based positions are NOT defined at all; we use data-pos-desktop */
   @media (min-width: 1024px) {
     #sb-{{ section.id }} {
       padding-top: {{ section.settings.padding_top_desktop | default: 0 }}px;
       padding-bottom: {{ section.settings.padding_bottom_desktop | default: 0 }}px;
-      --pos-x: {{ text_pos_x_desktop }}%;
-      --pos-y: {{ text_pos_y_desktop }}%;
       --gap: {{ heading_body_gap_desktop }}px;
+      --inset-x: {{ section.settings.desktop_inset_x | default: 48 }}px;
+      --inset-y: {{ section.settings.desktop_inset_y | default: 48 }}px;
     }
+    #sb-{{ section.id }} .banner-wrapper { min-height: 100%!important; }
     #sb-{{ section.id }} .banner-image-desktop { display: block; }
-    #sb-{{ section.id }} .banner-image-mobile { display: none; }
+    #sb-{{ section.id }} .banner-image-mobile  { display: none; }
+
+    /* Default desktop = centered */
+    #sb-{{ section.id }} .banner-text {
+      padding-left: var(--inset-x);
+      padding-right: var(--inset-x);
+      top: 50%; left: 50%; transform: translate(-50%, -50%);
+      text-align: center;
+      max-width: calc(100% - (var(--inset-x) * 2));
+      font-size: {{ section.settings.body_font_size_desktop | default: 18 }}px; /* base for p */
+    }
     #sb-{{ section.id }} .banner-text h2 { font-size: {{ section.settings.heading_font_size_desktop | default: 40 }}px; }
-    #sb-{{ section.id }} .banner-text p { font-size: {{ section.settings.body_font_size_desktop | default: 18 }}px; }
+    #sb-{{ section.id }} .banner-text p  { font-size: {{ section.settings.body_font_size_desktop   | default: 18 }}px; }
+
+    /* Position overrides by data attribute */
+    #sb-{{ section.id }} .banner-text[data-pos-desktop="top"]    { top: var(--inset-y);   bottom: auto; left: 50%; transform: translateX(-50%); text-align: center; }
+    #sb-{{ section.id }} .banner-text[data-pos-desktop="bottom"] { bottom: var(--inset-y); top: auto;   left: 50%; transform: translateX(-50%); text-align: center; }
+    #sb-{{ section.id }} .banner-text[data-pos-desktop="left"]   { top: 50%; left: var(--inset-x); right: auto; transform: translateY(-50%); text-align: left; max-width: none; }
+    #sb-{{ section.id }} .banner-text[data-pos-desktop="right"]  { top: 50%; right: var(--inset-x); left: auto; transform: translateY(-50%); text-align: right; max-width: none; }
+    #sb-{{ section.id }} .banner-text[data-pos-desktop="center"] { max-width: calc(100% - (var(--inset-x) * 2)); }
   }
 </style>
 
@@ -123,20 +141,27 @@
     { "type": "text", "id": "heading_text", "label": "Heading (H2)", "default": "Your Heading Here" },
     { "type": "text", "id": "body_text", "label": "Body Text", "default": "Your descriptive text here." },
     { "type": "color", "id": "text_color", "label": "Text Color", "default": "#ffffff" },
-    { "type": "select", "id": "text_align", "label": "Text Alignment", "default": "left", "options": [ {"value": "left", "label": "Left"}, {"value": "center", "label": "Center"}, {"value": "right", "label": "Right"} ] },
-    { "type": "range", "id": "text_pos_x_mobile", "label": "Text Position X (Mobile)", "min": 0, "max": 100, "step": 1, "unit": "%", "default": 10 },
-    { "type": "range", "id": "text_pos_y_mobile", "label": "Text Position Y (Mobile)", "min": 0, "max": 100, "step": 1, "unit": "%", "default": 50 },
-    { "type": "range", "id": "text_pos_x_desktop", "label": "Text Position X (Desktop)", "min": 0, "max": 100, "step": 1, "unit": "%", "default": 10 },
-    { "type": "range", "id": "text_pos_y_desktop", "label": "Text Position Y (Desktop)", "min": 0, "max": 100, "step": 1, "unit": "%", "default": 50 },
-    { "type": "select", "id": "text_anchor", "label": "Anchor", "default": "top-left", "options": [ {"value": "top-left", "label": "Top-left"}, {"value": "center", "label": "Center"} ] },
+
+    { "type": "header", "content": "Content Position" },
+    { "type": "select", "id": "content_position_mobile",  "label": "Content Position – Mobile",  "default": "center", "options": [ {"value": "top",    "label": "Top"}, {"value": "bottom", "label": "Bottom"}, {"value": "left", "label": "Left"}, {"value": "right", "label": "Right"}, {"value": "center", "label": "Center"} ] },
+    { "type": "select", "id": "content_position_desktop", "label": "Content Position – Desktop", "default": "center", "options": [ {"value": "top", "label": "Top"}, {"value": "bottom", "label": "Bottom"}, {"value": "left", "label": "Left"}, {"value": "right", "label": "Right"}, {"value": "center", "label": "Center"} ] },
 
     { "type": "header", "content": "Font Sizes" },
-    { "type": "range", "id": "heading_font_size_mobile", "label": "Heading Font Size – Mobile", "min": 16, "max": 64, "step": 1, "unit": "px", "default": 32 },
+    { "type": "range", "id": "heading_font_size_mobile",  "label": "Heading Font Size – Mobile",  "min": 16, "max": 64, "step": 1, "unit": "px", "default": 32 },
     { "type": "range", "id": "heading_font_size_desktop", "label": "Heading Font Size – Desktop", "min": 20, "max": 96, "step": 1, "unit": "px", "default": 40 },
-    { "type": "range", "id": "body_font_size_mobile", "label": "Body Font Size – Mobile", "min": 12, "max": 28, "step": 1, "unit": "px", "default": 18 },
-    { "type": "range", "id": "body_font_size_desktop", "label": "Body Font Size – Desktop", "min": 12, "max": 32, "step": 1, "unit": "px", "default": 18 },
-    { "type": "range", "id": "heading_body_gap_mobile", "label": "Heading-Body Gap (Mobile)", "min": 0, "max": 40, "step": 2, "unit": "px", "default": 10 },
-    { "type": "range", "id": "heading_body_gap_desktop", "label": "Heading-Body Gap (Desktop)", "min": 0, "max": 60, "step": 2, "unit": "px", "default": 12 },
+    { "type": "range", "id": "body_font_size_mobile",     "label": "Body Font Size – Mobile",     "min": 12, "max": 28, "step": 1, "unit": "px", "default": 18 },
+    { "type": "range", "id": "body_font_size_desktop",    "label": "Body Font Size – Desktop",    "min": 12, "max": 32, "step": 1, "unit": "px", "default": 18 },
+    { "type": "range", "id": "heading_body_gap_mobile",   "label": "Heading-Body Gap (Mobile)",   "min": 0, "max": 40, "step": 2, "unit": "px", "default": 10 },
+    { "type": "range", "id": "heading_body_gap_desktop",  "label": "Heading-Body Gap (Desktop)",  "min": 0, "max": 60, "step": 2, "unit": "px", "default": 12 },
+
+    { "type": "header", "content": "Desktop Safe Insets" },
+    { "type": "range", "id": "desktop_inset_x", "label": "Desktop Horizontal Inset", "min": 0, "max": 200, "step": 2, "unit": "px", "default": 48 },
+    { "type": "range", "id": "desktop_inset_y", "label": "Desktop Vertical Inset",   "min": 0, "max": 200, "step": 2, "unit": "px", "default": 48 },
+
+    { "type": "header", "content": "Image Adjustments" },
+    { "type": "range", "id": "image_brightness_pct", "label": "Image Brightness (%)", "min": 50, "max": 200, "step": 5, "default": 100 },
+    { "type": "range", "id": "image_contrast_pct",   "label": "Image Contrast (%)",   "min": 50, "max": 200, "step": 5, "default": 100 },
+    { "type": "range", "id": "image_opacity_pct",    "label": "Image Opacity (%)",    "min": 50, "max": 100, "step": 5, "default": 100 },
 
     { "type": "header", "content": "Link" },
     { "type": "url", "id": "link_url", "label": "Banner Link URL", "info": "Make the entire banner clickable (optional)" },
@@ -148,11 +173,11 @@
     { "type": "color", "id": "section_bg_color", "label": "Background Color", "default": "transparent" },
 
     { "type": "header", "content": "Spacing - Mobile" },
-    { "type": "range", "id": "padding_top_mobile", "label": "Top Padding (Mobile)", "min": 0, "max": 100, "step": 4, "unit": "px", "default": 0 },
+    { "type": "range", "id": "padding_top_mobile",    "label": "Top Padding (Mobile)",    "min": 0, "max": 100, "step": 4, "unit": "px", "default": 0 },
     { "type": "range", "id": "padding_bottom_mobile", "label": "Bottom Padding (Mobile)", "min": 0, "max": 100, "step": 4, "unit": "px", "default": 0 },
 
     { "type": "header", "content": "Spacing - Desktop" },
-    { "type": "range", "id": "padding_top_desktop", "label": "Top Padding (Desktop)", "min": 0, "max": 200, "step": 8, "unit": "px", "default": 0 },
+    { "type": "range", "id": "padding_top_desktop",    "label": "Top Padding (Desktop)",    "min": 0, "max": 200, "step": 8, "unit": "px", "default": 0 },
     { "type": "range", "id": "padding_bottom_desktop", "label": "Bottom Padding (Desktop)", "min": 0, "max": 200, "step": 8, "unit": "px", "default": 0 }
   ],
   "presets": [ { "name": "Simple Banner with Text" } ]

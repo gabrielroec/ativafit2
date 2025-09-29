@@ -132,14 +132,12 @@ class CartDrawer {
         await this.loadCartData();
         this.updateCartCount();
         this.open();
-        this.showAddedNotification(result);
       } else {
         const error = await response.json();
-        this.showError(error.message || "Error adding product");
+        console.error("Error adding product:", error.message || "Error adding product");
       }
     } catch (error) {
       console.error("Cart add error:", error);
-      this.showError("Error adding product");
     }
   }
 
@@ -151,7 +149,6 @@ class CartDrawer {
       return this.cartData;
     } catch (error) {
       console.error("Error loading cart:", error);
-      this.showError("Error loading cart");
     }
   }
 
@@ -387,11 +384,9 @@ class CartDrawer {
         this.updateCartCount();
       } else {
         console.error("Failed to update quantity");
-        this.showError("Failed to update quantity");
       }
     } catch (error) {
       console.error("Error updating quantity:", error);
-      this.showError("Error updating quantity");
     }
   }
 
@@ -413,11 +408,9 @@ class CartDrawer {
         this.updateCartCount();
       } else {
         console.error("Failed to remove item");
-        this.showError("Failed to remove item");
       }
     } catch (error) {
       console.error("Error removing item:", error);
-      this.showError("Error removing item");
     }
   }
 
@@ -439,54 +432,6 @@ class CartDrawer {
       style: "currency",
       currency: "USD",
     }).format(cents / 100);
-  }
-
-  showAddedNotification(product) {
-    // Create temporary notification
-    const notification = document.createElement("div");
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #4CAF50;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 4px;
-      z-index: 10000;
-      font-size: 14px;
-      animation: slideIn 0.3s ease;
-      font-weight: 600;
-    `;
-    notification.innerHTML = `<span class="bold">${product.product_title} added to cart!</span>`;
-
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-      notification.remove();
-    }, 3000);
-  }
-
-  showError(message) {
-    const notification = document.createElement("div");
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #f44336;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 4px;
-      z-index: 10000;
-      font-size: 14px;
-      font-weight: 600;
-    `;
-    notification.innerHTML = `<span class="bold">${message}</span>`;
-
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-      notification.remove();
-    }, 4000);
   }
 
   async open() {

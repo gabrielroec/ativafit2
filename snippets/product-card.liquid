@@ -30,7 +30,8 @@
   .title-pairs-well-with {
     font-size: 24px;
     font-weight: bold;
-    font-family: 'Barlow', sans-serif;
+    font-family: 'Barlow'
+    , sans-serif;
     margin: 0 0 10px;
     padding: 0;
   }
@@ -125,23 +126,38 @@
         const cartData = await fetch('/cart.js').then(res => res.json());
         document.querySelector('.header__cart-count').textContent = cartData.item_count;
         
-        // Utiliza o mecanismo próprio do tema para abrir o mini-cart
-        toggleMiniCart();
+        // Mostra notificação de sucesso PRIMEIRO
+        if (window.CartNotification) {
+          const productTitle = button.closest('.product-card-lp').querySelector('.product-card-lp__title')?.textContent || 'Product';
+          window.CartNotification.success(`${productTitle} has been added to cart!`, 'Product Added!');
+        }
 
-        // Feedback visual de sucesso
-        button.innerHTML = '✓';
-        button.style.background = 'linear-gradient(to right, #4CAF50, #45a049)';
-        
-        // Restaura o botão após 2 segundos
+        // Aguarda a notificação aparecer e depois abre o mini-cart
         setTimeout(() => {
-          button.disabled = false;
-          button.innerHTML = '<span class="icon">+</span>';
-          button.style.background = '';
-          button.style.opacity = '1';
-        }, 2000);
+          toggleMiniCart();
+        }, 300);
+
+        // Feedback visual de sucesso (após notificação aparecer)
+        setTimeout(() => {
+          button.innerHTML = '✓';
+          button.style.background = 'linear-gradient(to right, #4CAF50, #45a049)';
+          
+          // Restaura o botão após 2 segundos
+          setTimeout(() => {
+            button.disabled = false;
+            button.innerHTML = '<span class="icon">+</span>';
+            button.style.background = '';
+            button.style.opacity = '1';
+          }, 2000);
+        }, 200);
 
       } catch (error) {
         console.error('Erro:', error);
+        
+        // Mostra notificação de erro
+        if (window.CartNotification) {
+          window.CartNotification.error('Unable to add product to cart. Please try again.', 'Error adding product');
+        }
         
         // Feedback visual de erro
         button.innerHTML = '×';
