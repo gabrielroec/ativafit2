@@ -53,7 +53,7 @@
     font-family: Barlow;
     font-weight: 600 !important;
     font-style: SemiBold;
-    font-size: 36px;
+    font-size: 36px!important;
     leading-trim: NONE;
     line-height: 42px;
     letter-spacing: 0;
@@ -71,6 +71,7 @@
     line-height: 42px;
     letter-spacing: 0;
     text-decoration: line-through;
+    margin-bottom: 0 !important;
 
   }
   /* Wrapper */
@@ -347,6 +348,164 @@
     object-fit: cover;
     transition: opacity 0.3s ease;
     pointer-events: none;
+  }
+
+  /* Video Container */
+  .main-video-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+  }
+
+  .main-video-container video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 20px;
+  }
+
+  .video-play-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .main-video-container:hover .video-play-overlay {
+    opacity: 1;
+  }
+
+  /* Esconde o ícone de play quando o vídeo está tocando */
+  .main-video-container.video-playing .video-play-overlay {
+    opacity: 0;
+  }
+
+  .main-video-container.video-playing:hover .video-play-overlay {
+    opacity: 0;
+  }
+
+  /* Thumbnail Video Styles */
+  .thumbnail-container {
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .video-thumbnail-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.95;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    z-index: 2;
+    background: #EB701F;
+    border-radius: 50%;
+    padding: 12px;
+    box-shadow: 0 4px 12px rgba(235, 112, 31, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+  }
+
+  .video-thumbnail-overlay svg {
+    width: 20px;
+    height: 20px;
+    margin-left: 2px;
+    /* Ajuste fino para centralizar o triângulo */
+  }
+
+  .video-thumbnail-overlay svg path {
+    fill: white;
+  }
+
+  .thumbnail-container:hover .video-thumbnail-overlay {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.15);
+    background: #d65a0f;
+    box-shadow: 0 6px 16px rgba(235, 112, 31, 0.6);
+  }
+
+  .thumbnail-container.active .video-thumbnail-overlay {
+    opacity: 1;
+    background: #EB701F;
+    transform: translate(-50%, -50%) scale(1.1);
+    box-shadow: 0 4px 12px rgba(235, 112, 31, 0.5);
+  }
+
+  /* Fullscreen Video Styles */
+  .fullscreen-video {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    border-radius: 8px;
+    user-select: none;
+    -webkit-user-select: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  }
+
+  .fullscreen-thumb-container {
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .fullscreen-video-thumbnail-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.95;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    z-index: 2;
+    background: #EB701F;
+    border-radius: 50%;
+    padding: 8px;
+    box-shadow: 0 3px 10px rgba(235, 112, 31, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+  }
+
+  .fullscreen-video-thumbnail-overlay svg {
+    width: 16px;
+    height: 16px;
+    margin-left: 1px;
+    /* Ajuste fino para centralizar o triângulo */
+  }
+
+  .fullscreen-video-thumbnail-overlay svg path {
+    fill: white;
+  }
+
+  .fullscreen-thumb-container:hover .fullscreen-video-thumbnail-overlay {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.15);
+    background: #d65a0f;
+    box-shadow: 0 4px 12px rgba(235, 112, 31, 0.6);
+  }
+
+  .fullscreen-thumb-container.active .fullscreen-video-thumbnail-overlay {
+    opacity: 1;
+    background: #EB701F;
+    transform: translate(-50%, -50%) scale(1.1);
+    box-shadow: 0 3px 10px rgba(235, 112, 31, 0.5);
   }
 
   /* Indicador de swipe */
@@ -1212,6 +1371,7 @@
   @media (min-width: 1024px) {
     .product-name-container .product-price-container {
       display: flex !important;
+      align-items: center !important;
     }
   }
 
@@ -1314,6 +1474,57 @@
       width: 90px !important;
     }
   }
+
+  /* Rivyo Reviews Styling */
+  .rivyoReviewWidget {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .rivyoReviewIcon {
+    display: flex !important;
+    gap: 3px !important;
+    line-height: 0 !important;
+    flex-direction: row !important;
+  }
+
+  .rivyoReviewRatingIcon {
+    color: #EB701F;
+    font-size: 18px;
+    position: relative;
+    display: inline-block;
+  }
+
+  .rivyoReviewAverage {
+    font-family: Barlow;
+    font-weight: 400 !important;
+    font-size: 18px;
+    line-height: 24px;
+    letter-spacing: 0;
+    color: #333;
+  }
+
+  .rivyoReviewAverageCount {
+    font-weight: 600 !important;
+    color: #EB701F;
+  }
+
+  .reviewRateCount {
+    color: #666;
+  }
+
+  .rivyoReviewEmpty {
+    color: #ddd;
+  }
+
+  .rivyoReviewFill {
+    color: #EB701F;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
 </style>
 <section class="pp-full">
   <section class="container container-product-page">
@@ -1323,21 +1534,53 @@
         <h1 class="product-name">{{ section.settings.product_title | default: product.title }}</h1>
         <p class="product-subtitle">{{ section.settings.product_subtitle | default: "Sculpt & Tone with Style.\nYour Home, Your Boutique Gym." }}</p>
         <div class="review">
-          <svg
-            width="125"
-            height="22"
-            viewBox="0 0 125 22"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg">
-            <path d="M10.8568 0L13.2943 7.50186H21.1822L14.8008 12.1383L17.2383 19.6401L10.8568 15.0037L4.47533 19.6401L6.91284 12.1383L0.531369 7.50186H8.4193L10.8568 0Z" fill="#EB701F" />
-            <path d="M36.6781 0L39.1156 7.50186H47.0035L40.6221 12.1383L43.0596 19.6401L36.6781 15.0037L30.2966 19.6401L32.7341 12.1383L26.3527 7.50186H34.2406L36.6781 0Z" fill="#EB701F" />
-            <path d="M62.4999 0L64.9374 7.50186H72.8253L66.4438 12.1383L68.8813 19.6401L62.4999 15.0037L56.1184 19.6401L58.5559 12.1383L52.1744 7.50186H60.0624L62.4999 0Z" fill="#EB701F" />
-            <path d="M88.3216 0L90.7591 7.50186H98.6471L92.2656 12.1383L94.7031 19.6401L88.3216 15.0037L81.9402 19.6401L84.3777 12.1383L77.9962 7.50186H85.8841L88.3216 0Z" fill="#EB701F" />
-            <path d="M114.143 0L116.581 7.50186H124.469L118.087 12.1383L120.525 19.6401L114.143 15.0037L107.762 19.6401L110.199 12.1383L103.818 7.50186H111.706L114.143 0Z" fill="#EB701F" />
-          </svg>
-          <p class="review-text">
-            {{ section.settings.review_text | default: "5.0 (463 Reviews)" }}
-          </p>
+          <div class="rivyoReviewWidget rivyoWidgetTrigger" data-rating="4.57" style="display:none;">
+            <div class="rivyoReviewIcon" style="display:flex; gap:3px; line-height: 0; flex-direction: row">
+                  <div class="rivyoReviewRatingIcon">
+                    <svg fill="#ffcf47" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="20px" height="20px" viewBox="0 0 475.075 475.075" style="enable-background:new 0 0 475.075 475.075;" xml:space="preserve"><g><path d="M475.075,186.573c0-7.043-5.328-11.42-15.992-13.135L315.766,152.6L251.529,22.694c-3.614-7.804-8.281-11.704-13.99-11.704   c-5.708,0-10.372,3.9-13.989,11.704L159.31,152.6L15.986,173.438C5.33,175.153,0,179.53,0,186.573c0,3.999,2.38,8.567,7.139,13.706   l103.924,101.068L86.51,444.096c-0.381,2.666-0.57,4.575-0.57,5.712c0,3.997,0.998,7.374,2.996,10.136   c1.997,2.766,4.993,4.142,8.992,4.142c3.428,0,7.233-1.137,11.42-3.423l128.188-67.386l128.197,67.386   c4.004,2.286,7.81,3.423,11.416,3.423c3.819,0,6.715-1.376,8.713-4.142c1.992-2.758,2.991-6.139,2.991-10.136   c0-2.471-0.096-4.374-0.287-5.712l-24.555-142.749l103.637-101.068C472.604,195.33,475.075,190.76,475.075,186.573z"></path></g></svg>
+                  </div>
+                
+
+                  <div class="rivyoReviewRatingIcon">
+                    <svg fill="#ffcf47" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="20px" height="20px" viewBox="0 0 475.075 475.075" style="enable-background:new 0 0 475.075 475.075;" xml:space="preserve"><g><path d="M475.075,186.573c0-7.043-5.328-11.42-15.992-13.135L315.766,152.6L251.529,22.694c-3.614-7.804-8.281-11.704-13.99-11.704   c-5.708,0-10.372,3.9-13.989,11.704L159.31,152.6L15.986,173.438C5.33,175.153,0,179.53,0,186.573c0,3.999,2.38,8.567,7.139,13.706   l103.924,101.068L86.51,444.096c-0.381,2.666-0.57,4.575-0.57,5.712c0,3.997,0.998,7.374,2.996,10.136   c1.997,2.766,4.993,4.142,8.992,4.142c3.428,0,7.233-1.137,11.42-3.423l128.188-67.386l128.197,67.386   c4.004,2.286,7.81,3.423,11.416,3.423c3.819,0,6.715-1.376,8.713-4.142c1.992-2.758,2.991-6.139,2.991-10.136   c0-2.471-0.096-4.374-0.287-5.712l-24.555-142.749l103.637-101.068C472.604,195.33,475.075,190.76,475.075,186.573z"></path></g></svg>
+                  </div>
+                
+
+                  <div class="rivyoReviewRatingIcon">
+                    <svg fill="#ffcf47" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="20px" height="20px" viewBox="0 0 475.075 475.075" style="enable-background:new 0 0 475.075 475.075;" xml:space="preserve"><g><path d="M475.075,186.573c0-7.043-5.328-11.42-15.992-13.135L315.766,152.6L251.529,22.694c-3.614-7.804-8.281-11.704-13.99-11.704   c-5.708,0-10.372,3.9-13.989,11.704L159.31,152.6L15.986,173.438C5.33,175.153,0,179.53,0,186.573c0,3.999,2.38,8.567,7.139,13.706   l103.924,101.068L86.51,444.096c-0.381,2.666-0.57,4.575-0.57,5.712c0,3.997,0.998,7.374,2.996,10.136   c1.997,2.766,4.993,4.142,8.992,4.142c3.428,0,7.233-1.137,11.42-3.423l128.188-67.386l128.197,67.386   c4.004,2.286,7.81,3.423,11.416,3.423c3.819,0,6.715-1.376,8.713-4.142c1.992-2.758,2.991-6.139,2.991-10.136   c0-2.471-0.096-4.374-0.287-5.712l-24.555-142.749l103.637-101.068C472.604,195.33,475.075,190.76,475.075,186.573z"></path></g></svg>
+                  </div>
+                
+
+                  <div class="rivyoReviewRatingIcon">
+                    <svg fill="#ffcf47" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="20px" height="20px" viewBox="0 0 475.075 475.075" style="enable-background:new 0 0 475.075 475.075;" xml:space="preserve"><g><path d="M475.075,186.573c0-7.043-5.328-11.42-15.992-13.135L315.766,152.6L251.529,22.694c-3.614-7.804-8.281-11.704-13.99-11.704   c-5.708,0-10.372,3.9-13.989,11.704L159.31,152.6L15.986,173.438C5.33,175.153,0,179.53,0,186.573c0,3.999,2.38,8.567,7.139,13.706   l103.924,101.068L86.51,444.096c-0.381,2.666-0.57,4.575-0.57,5.712c0,3.997,0.998,7.374,2.996,10.136   c1.997,2.766,4.993,4.142,8.992,4.142c3.428,0,7.233-1.137,11.42-3.423l128.188-67.386l128.197,67.386   c4.004,2.286,7.81,3.423,11.416,3.423c3.819,0,6.715-1.376,8.713-4.142c1.992-2.758,2.991-6.139,2.991-10.136   c0-2.471-0.096-4.374-0.287-5.712l-24.555-142.749l103.637-101.068C472.604,195.33,475.075,190.76,475.075,186.573z"></path></g></svg>
+                  </div>
+                
+
+                  <div class="rivyoReviewRatingIcon">
+                    <span class="rivyoReviewEmpty">
+                      <svg fill="#ffcf47" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="20px" height="20px" viewBox="0 0 475.075 475.075" style="enable-background:new 0 0 475.075 475.075;" xml:space="preserve"><g><path d="M475.075,186.573c0-7.043-5.328-11.42-15.992-13.135L315.766,152.6L251.529,22.694c-3.614-7.804-8.281-11.704-13.99-11.704   c-5.708,0-10.372,3.9-13.989,11.704L159.31,152.6L15.986,173.438C5.33,175.153,0,179.53,0,186.573c0,3.999,2.38,8.567,7.139,13.706   l103.924,101.068L86.51,444.096c-0.381,2.666-0.57,4.575-0.57,5.712c0,3.997,0.998,7.374,2.996,10.136   c1.997,2.766,4.993,4.142,8.992,4.142c3.428,0,7.233-1.137,11.42-3.423l128.188-67.386l128.197,67.386   c4.004,2.286,7.81,3.423,11.416,3.423c3.819,0,6.715-1.376,8.713-4.142c1.992-2.758,2.991-6.139,2.991-10.136   c0-2.471-0.096-4.374-0.287-5.712l-24.555-142.749l103.637-101.068C472.604,195.33,475.075,190.76,475.075,186.573z"></path></g></svg>
+                    </span><span class="rivyoReviewFill" style="width:57%">
+                        <svg fill="#ffcf47" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="20px" height="20px" viewBox="0 0 475.075 475.075" style="enable-background:new 0 0 475.075 475.075;" xml:space="preserve"><g><path d="M475.075,186.573c0-7.043-5.328-11.42-15.992-13.135L315.766,152.6L251.529,22.694c-3.614-7.804-8.281-11.704-13.99-11.704   c-5.708,0-10.372,3.9-13.989,11.704L159.31,152.6L15.986,173.438C5.33,175.153,0,179.53,0,186.573c0,3.999,2.38,8.567,7.139,13.706   l103.924,101.068L86.51,444.096c-0.381,2.666-0.57,4.575-0.57,5.712c0,3.997,0.998,7.374,2.996,10.136   c1.997,2.766,4.993,4.142,8.992,4.142c3.428,0,7.233-1.137,11.42-3.423l128.188-67.386l128.197,67.386   c4.004,2.286,7.81,3.423,11.416,3.423c3.819,0,6.715-1.376,8.713-4.142c1.992-2.758,2.991-6.139,2.991-10.136   c0-2.471-0.096-4.374-0.287-5.712l-24.555-142.749l103.637-101.068C472.604,195.33,475.075,190.76,475.075,186.573z"></path></g></svg>
+                      </span></div>
+                
+            </div>
+            
+            <span class="rivyoReviewAverage">
+              <span class="rivyoReviewAverageCount">4.6
+              </span>
+              <span class="reviewRateCount">
+                <span class="rivyoReviewAverageBracket">(</span>
+                <span class="ratingCount">7</span>
+                <span class="ratingLabel">
+                  Reviews</span>
+                <span class="rivyoReviewAverageBracket">)</span>
+              </span>
+            </span>
+            
+          </div>
+
+          <!-- Fallback para quando não há reviews do Rivyo -->
+          
         </div>
         <div class="product-price-container desktop-only">
           <p class="product-price">{{ product.selected_or_first_available_variant.price | money }}</p>
@@ -1352,12 +1595,46 @@
         <!-- Imagem Principal -->
         <div class="main-image" id="mainImageContainer">
           {%- if product.featured_media -%}
-            <img
-              id="mainImage"
+            <!-- Container de Vídeo (sempre presente) -->
+            <div
+              class="main-video-container"
+              id="mainVideoContainer"
+              style="display: none;">
+          <video
+            id="mainVideo"
+            controls
+                disablepictureinpicture
+                controlslist="nodownload"
+            preload="metadata"
+            width="800"
+                height="600">
+            <source src="" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+              <div class="video-play-overlay">
+                <svg
+                  width="60"
+                  height="60"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    fill="rgba(0,0,0,0.7)" />
+                  <path d="M10 8L16 12L10 16V8Z" fill="white" />
+                </svg>
+              </div>
+            </div>
+
+          <!-- Imagem Principal (sempre presente) -->
+          <img
+            id="mainImage"
               src="{{ product.featured_media | image_url: width: 800 }}"
               alt="{{ product.featured_media.alt | escape }}"
-              width="800"
-              height="800"
+            width="800"
+            height="800"
               loading="lazy">
           {%- endif -%}
 
@@ -1437,7 +1714,21 @@
                 src=""
                 alt=""
                 width="1200"
-                height="900">
+                height="900"
+                style="display: none;">
+              <video
+                class="fullscreen-video"
+                id="fullscreenVideo"
+                controls
+                disablepictureinpicture
+                controlslist="nodownload"
+                preload="metadata"
+                width="1200"
+                height="900"
+                style="display: none;">
+                <source src="" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
               <button
                 class="fullscreen-nav fullscreen-prev"
                 onclick="changeFullscreenImage(-1)"
@@ -1478,14 +1769,35 @@
             <div class="fullscreen-thumbnails">
               <div class="fullscreen-thumbnails-container" id="fullscreenThumbnailsContainer">
                 {%- for media in product.media -%}
-                  <img
-                    class="fullscreen-thumb{% if media.id == product.featured_media.id %} active{% endif %}"
-                    src="{{ media | image_url: width: 150 }}"
-                    alt="{{ media.alt | escape }}"
-                    width="150"
-                    height="113"
-                    onclick="changeFullscreenImageByIndex({{ forloop.index0 }})"
-                    data-fullsize="{{ media | image_url: width: 1200 }}">
+                  <div class="fullscreen-thumb-container{% if media.id == product.featured_media.id %} active{% endif %}" onclick="changeFullscreenMediaByIndex({{ forloop.index0 }})">
+                  {%- if media.media_type == 'video' -%}
+                      <img
+                        class="fullscreen-thumb fullscreen-thumb-video"
+                        src="{{ media.preview_image | image_url: width: 150 }}"
+                        alt="{{ media.alt | escape }}"
+                        width="150"
+                        height="113"
+                        data-video-src="{{ media.sources[0].url }}">
+                      <div class="fullscreen-video-thumbnail-overlay">
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg">
+                          <path d="M8 5V19L19 12L8 5Z" fill="white" />
+                        </svg>
+                    </div>
+                  {%- else -%}
+                    <img
+                        class="fullscreen-thumb"
+                      src="{{ media | image_url: width: 150 }}"
+                      alt="{{ media.alt | escape }}"
+                      width="150"
+                      height="113"
+                      data-fullsize="{{ media | image_url: width: 1200 }}">
+                  {%- endif -%}
+                  </div>
                 {%- endfor -%}
               </div>
             </div>
@@ -1497,14 +1809,35 @@
           <div class="thumbnails-scroll">
             <div class="thumbnails">
               {%- for media in product.media -%}
-                <img
-                  class="thumbnail{% if media.id == product.featured_media.id %} active{% endif %}"
-                  src="{{ media | image_url: width: 150 }}"
-                  alt="{{ media.alt | escape }}"
-                  width="150"
-                  height="150"
-                  onclick="changeMainImage('{{ media | image_url: width: 800 }}', this)"
-                  loading="lazy">
+                <div class="thumbnail-container{% if media.id == product.featured_media.id %} active{% endif %}" onclick="changeMainMedia({{ forloop.index0 }}, this)">
+                {%- if media.media_type == 'video' -%}
+                    <img
+                      class="thumbnail thumbnail-video"
+                      src="{{ media.preview_image | image_url: width: 150 }}"
+                      alt="{{ media.alt | escape }}"
+                      width="150"
+                      height="150"
+                      loading="lazy">
+                    <div class="video-thumbnail-overlay">
+                      <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 5V19L19 12L8 5Z" fill="white" />
+                      </svg>
+                  </div>
+                {%- else -%}
+                  <img
+                      class="thumbnail"
+                    src="{{ media | image_url: width: 150 }}"
+                    alt="{{ media.alt | escape }}"
+                    width="150"
+                    height="150"
+                    loading="lazy">
+                {%- endif -%}
+                </div>
               {%- endfor -%}
             </div>
           </div>
@@ -1706,6 +2039,7 @@
       </div>
 
     </div>
+
     <script>
       // GALERIA SIMPLES - JavaScript puro
       let currentIndex = 0;
@@ -1728,26 +2062,64 @@
       // Variáveis para modal em tela cheia
       let fullscreenCurrentIndex = 0;
       
-      // Função para trocar imagem principal
-      function changeMainImage(newSrc, clickedThumb) {
+      // Função para trocar mídia principal (imagem ou vídeo)
+      function changeMainMedia(mediaIndex, clickedThumb) {
         // Se estava fazendo drag, não executa o clique
         if (isDragging || hasMoved) {
           return;
         }
         
+        const mediaData = {{ product.media | json }};
+        const media = mediaData[mediaIndex];
+        
+        if (!media) return;
+        
         const mainImage = document.getElementById('mainImage');
-        if (mainImage) {
-          mainImage.src = newSrc;
-        }
+        const mainVideo = document.getElementById('mainVideo');
+        const mainVideoContainer = document.getElementById('mainVideoContainer');
         
         // Remove active de todas as miniaturas
-        const thumbnails = document.querySelectorAll('.thumbnail');
-        thumbnails.forEach(thumb => thumb.classList.remove('active'));
+        const thumbnailContainers = document.querySelectorAll('.thumbnail-container');
+        thumbnailContainers.forEach(container => container.classList.remove('active'));
         
         // Adiciona active na miniatura clicada
         if (clickedThumb) {
           clickedThumb.classList.add('active');
-          currentIndex = Array.from(thumbnails).indexOf(clickedThumb);
+          currentIndex = mediaIndex;
+        }
+        
+        if (media.media_type === 'video') {
+          // Mostra vídeo e esconde imagem
+          if (mainImage) mainImage.style.display = 'none';
+          if (mainVideoContainer) {
+            mainVideoContainer.style.display = 'flex';
+        if (mainVideo) {
+              mainVideo.src = media.sources[0].url;
+              mainVideo.load(); // Recarrega o vídeo
+              
+              // Adiciona event listeners para controlar o ícone de play
+              mainVideo.addEventListener('play', function() {
+                mainVideoContainer.classList.add('video-playing');
+              });
+              
+              mainVideo.addEventListener('pause', function() {
+                mainVideoContainer.classList.remove('video-playing');
+              });
+              
+              mainVideo.addEventListener('ended', function() {
+                mainVideoContainer.classList.remove('video-playing');
+              });
+            }
+          }
+        } else {
+          // Mostra imagem e esconde vídeo
+          if (mainVideoContainer) mainVideoContainer.style.display = 'none';
+          if (mainImage) {
+            mainImage.style.display = 'block';
+            mainImage.src = media.preview_image ? 
+              media.preview_image.src.replace('150', '800') : 
+              media.src.replace('150', '800');
+          }
         }
         
         updateMainNavButtons();
@@ -1758,15 +2130,56 @@
         console.log('openFullscreen chamada');
         const modal = document.getElementById('fullscreenModal');
         const fullscreenImage = document.getElementById('fullscreenImage');
+        const fullscreenVideo = document.getElementById('fullscreenVideo');
         const mainImage = document.getElementById('mainImage');
+        const mainVideo = document.getElementById('mainVideo');
+        const mainVideoContainer = document.getElementById('mainVideoContainer');
         
-        if (modal && fullscreenImage && mainImage) {
+        if (modal && fullscreenImage && fullscreenVideo) {
           console.log('Abrindo galeria em tela cheia...');
           
-          // Define a imagem principal
-          fullscreenImage.src = mainImage.src.replace('800', '1200');
-          fullscreenImage.alt = mainImage.alt;
+          const mediaData = {{ product.media | json }};
+          const currentMedia = mediaData[currentIndex];
+          
           fullscreenCurrentIndex = currentIndex;
+          
+          if (currentMedia && currentMedia.media_type === 'video') {
+            // Mostra vídeo e esconde imagem no modal
+            fullscreenImage.style.display = 'none';
+            fullscreenVideo.style.display = 'block';
+            fullscreenVideo.src = currentMedia.sources[0].url;
+            fullscreenVideo.load();
+            
+            // Adiciona event listeners para controlar o ícone de play no fullscreen
+            fullscreenVideo.addEventListener('play', function() {
+              // Remove qualquer classe de playing anterior
+              document.querySelectorAll('.main-video-container').forEach(container => {
+                container.classList.remove('video-playing');
+              });
+            });
+            
+            fullscreenVideo.addEventListener('pause', function() {
+              // Remove qualquer classe de playing anterior
+              document.querySelectorAll('.main-video-container').forEach(container => {
+                container.classList.remove('video-playing');
+              });
+            });
+            
+            fullscreenVideo.addEventListener('ended', function() {
+              // Remove qualquer classe de playing anterior
+              document.querySelectorAll('.main-video-container').forEach(container => {
+                container.classList.remove('video-playing');
+              });
+            });
+          } else {
+            // Mostra imagem e esconde vídeo no modal
+            fullscreenVideo.style.display = 'none';
+            fullscreenImage.style.display = 'block';
+            if (mainImage) {
+            fullscreenImage.src = mainImage.src.replace('800', '1200');
+            fullscreenImage.alt = mainImage.alt;
+            }
+          }
           
           // Atualiza miniaturas ativas no modal
           updateFullscreenThumbnails();
@@ -1804,38 +2217,71 @@
       
       // Função para atualizar miniaturas no modal em tela cheia
       function updateFullscreenThumbnails() {
-        const fullscreenThumbs = document.querySelectorAll('.fullscreen-thumb');
-        fullscreenThumbs.forEach((thumb, index) => {
-          thumb.classList.remove('active');
+        const fullscreenThumbContainers = document.querySelectorAll('.fullscreen-thumb-container');
+        fullscreenThumbContainers.forEach((container, index) => {
+          container.classList.remove('active');
           if (index === fullscreenCurrentIndex) {
-            thumb.classList.add('active');
+            container.classList.add('active');
             // Faz scroll para mostrar a miniatura ativa
-            thumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            container.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
           }
         });
       }
       
       // Função para navegar no modal em tela cheia (com navegação cíclica)
       function changeFullscreenImage(direction) {
-        const fullscreenThumbs = document.querySelectorAll('.fullscreen-thumb');
-        if (fullscreenThumbs.length === 0) return;
+        const mediaData = {{ product.media | json }};
+        if (mediaData.length === 0) return;
         
         // Navegação cíclica no modal
         fullscreenCurrentIndex += direction;
-        if (fullscreenCurrentIndex >= fullscreenThumbs.length) {
-          fullscreenCurrentIndex = 0; // Volta para a primeira imagem
+        if (fullscreenCurrentIndex >= mediaData.length) {
+          fullscreenCurrentIndex = 0; // Volta para a primeira mídia
         } else if (fullscreenCurrentIndex < 0) {
-          fullscreenCurrentIndex = fullscreenThumbs.length - 1; // Vai para a última imagem
+          fullscreenCurrentIndex = mediaData.length - 1; // Vai para a última mídia
         }
         
-        const targetThumb = fullscreenThumbs[fullscreenCurrentIndex];
-        
-        if (targetThumb) {
-          const newSrc = targetThumb.getAttribute('data-fullsize');
+        const currentMedia = mediaData[fullscreenCurrentIndex];
           const fullscreenImage = document.getElementById('fullscreenImage');
-          if (fullscreenImage && newSrc) {
-            fullscreenImage.src = newSrc;
-            fullscreenImage.alt = targetThumb.alt;
+          const fullscreenVideo = document.getElementById('fullscreenVideo');
+          
+        if (currentMedia && fullscreenImage && fullscreenVideo) {
+          if (currentMedia.media_type === 'video') {
+            // Mostra vídeo e esconde imagem
+            fullscreenImage.style.display = 'none';
+            fullscreenVideo.style.display = 'block';
+            fullscreenVideo.src = currentMedia.sources[0].url;
+            fullscreenVideo.load();
+            
+            // Adiciona event listeners para controlar o ícone de play no fullscreen
+            fullscreenVideo.addEventListener('play', function() {
+              // Remove qualquer classe de playing anterior
+              document.querySelectorAll('.main-video-container').forEach(container => {
+                container.classList.remove('video-playing');
+              });
+            });
+            
+            fullscreenVideo.addEventListener('pause', function() {
+              // Remove qualquer classe de playing anterior
+              document.querySelectorAll('.main-video-container').forEach(container => {
+                container.classList.remove('video-playing');
+              });
+            });
+            
+            fullscreenVideo.addEventListener('ended', function() {
+              // Remove qualquer classe de playing anterior
+              document.querySelectorAll('.main-video-container').forEach(container => {
+                container.classList.remove('video-playing');
+              });
+            });
+          } else {
+            // Mostra imagem e esconde vídeo
+            fullscreenVideo.style.display = 'none';
+              fullscreenImage.style.display = 'block';
+            fullscreenImage.src = currentMedia.preview_image ? 
+              currentMedia.preview_image.src.replace('150', '1200') : 
+              currentMedia.src.replace('150', '1200');
+            fullscreenImage.alt = currentMedia.alt || '';
           }
           
           // Atualiza miniaturas ativas
@@ -1843,45 +2289,79 @@
         }
       }
       
-      // Função para mudar imagem clicando na miniatura
-      function changeFullscreenImageByIndex(index) {
-        const fullscreenThumbs = document.querySelectorAll('.fullscreen-thumb');
-        if (index < 0 || index >= fullscreenThumbs.length) return;
+      // Função para mudar mídia clicando na miniatura do fullscreen
+      function changeFullscreenMediaByIndex(index) {
+        const mediaData = {{ product.media | json }};
+        if (index < 0 || index >= mediaData.length) return;
         
         fullscreenCurrentIndex = index;
-        const targetThumb = fullscreenThumbs[index];
+        const currentMedia = mediaData[index];
+        const fullscreenImage = document.getElementById('fullscreenImage');
+        const fullscreenVideo = document.getElementById('fullscreenVideo');
         
-        if (targetThumb) {
-          const newSrc = targetThumb.getAttribute('data-fullsize');
-          const fullscreenImage = document.getElementById('fullscreenImage');
-          if (fullscreenImage && newSrc) {
-            fullscreenImage.src = newSrc;
-            fullscreenImage.alt = targetThumb.alt;
-          }
-          
-          // Atualiza miniaturas ativas
-          updateFullscreenThumbnails();
+        if (currentMedia && fullscreenImage && fullscreenVideo) {
+          if (currentMedia.media_type === 'video') {
+            // Mostra vídeo e esconde imagem
+            fullscreenImage.style.display = 'none';
+            fullscreenVideo.style.display = 'block';
+            fullscreenVideo.src = currentMedia.sources[0].url;
+            fullscreenVideo.load();
+            
+            // Adiciona event listeners para controlar o ícone de play no fullscreen
+            fullscreenVideo.addEventListener('play', function() {
+              // Remove qualquer classe de playing anterior
+              document.querySelectorAll('.main-video-container').forEach(container => {
+                container.classList.remove('video-playing');
+              });
+            });
+            
+            fullscreenVideo.addEventListener('pause', function() {
+              // Remove qualquer classe de playing anterior
+              document.querySelectorAll('.main-video-container').forEach(container => {
+                container.classList.remove('video-playing');
+              });
+            });
+            
+            fullscreenVideo.addEventListener('ended', function() {
+              // Remove qualquer classe de playing anterior
+              document.querySelectorAll('.main-video-container').forEach(container => {
+                container.classList.remove('video-playing');
+              });
+            });
+        } else {
+            // Mostra imagem e esconde vídeo
+            fullscreenVideo.style.display = 'none';
+            fullscreenImage.style.display = 'block';
+            fullscreenImage.src = currentMedia.preview_image ? 
+              currentMedia.preview_image.src.replace('150', '1200') : 
+              currentMedia.src.replace('150', '1200');
+            fullscreenImage.alt = currentMedia.alt || '';
+        }
+        
+        // Atualiza miniaturas ativas
+        updateFullscreenThumbnails();
         }
       }
       
-      // Função para navegar pelas imagens principais (com navegação cíclica)
+      // Função para navegar pelas mídias principais (com navegação cíclica)
       function changeImage(direction) {
-        const thumbnails = document.querySelectorAll('.thumbnail');
-        if (thumbnails.length === 0) return;
+        const mediaData = {{ product.media | json }};
+        if (mediaData.length === 0) return;
         
         // Navegação cíclica
         currentIndex += direction;
-        if (currentIndex >= thumbnails.length) {
-          currentIndex = 0; // Volta para a primeira imagem
+        if (currentIndex >= mediaData.length) {
+          currentIndex = 0; // Volta para a primeira mídia
         } else if (currentIndex < 0) {
-          currentIndex = thumbnails.length - 1; // Vai para a última imagem
+          currentIndex = mediaData.length - 1; // Vai para a última mídia
         }
         
-        const targetThumb = thumbnails[currentIndex];
+        const currentMedia = mediaData[currentIndex];
+        const thumbnailContainers = document.querySelectorAll('.thumbnail-container');
+        const targetThumb = thumbnailContainers[currentIndex];
         
         if (targetThumb) {
-          const newSrc = targetThumb.src.replace('150', '800');
-          changeMainImage(newSrc, targetThumb);
+          changeMainMedia(currentIndex, targetThumb);
           
           // Move as miniaturas para mostrar a ativa
           scrollToActiveThumbnail();
@@ -1892,12 +2372,12 @@
       function scrollThumbs(direction) {
         const thumbnailsContainer = document.querySelector('.thumbnails');
         const thumbnailsScroll = document.querySelector('.thumbnails-scroll');
-        const thumbnails = document.querySelectorAll('.thumbnail');
+        const thumbnailContainers = document.querySelectorAll('.thumbnail-container');
         
-        if (!thumbnailsContainer || !thumbnailsScroll || thumbnails.length <= 5) return;
+        if (!thumbnailsContainer || !thumbnailsScroll || thumbnailContainers.length <= 5) return;
         
         const scrollWidth = thumbnailsScroll.offsetWidth;
-        const totalWidth = thumbnails.length * thumbnailWidth;
+        const totalWidth = thumbnailContainers.length * thumbnailWidth;
         const maxOffset = totalWidth - scrollWidth;
         
         thumbnailsOffset += direction * (thumbnailWidth * 2); // Move 2 miniaturas por vez
@@ -1913,24 +2393,24 @@
       function updateMainNavButtons() {
         const prevBtn = document.querySelector('.main-prev');
         const nextBtn = document.querySelector('.main-next');
-        const thumbnails = document.querySelectorAll('.thumbnail');
+        const mediaData = {{ product.media | json }};
         
         if (!prevBtn || !nextBtn) return;
         
         prevBtn.disabled = currentIndex <= 0;
-        nextBtn.disabled = currentIndex >= thumbnails.length - 1;
+        nextBtn.disabled = currentIndex >= mediaData.length - 1;
       }
       
       // Função para mover as miniaturas para mostrar a ativa
       function scrollToActiveThumbnail() {
-        const thumbnails = document.querySelectorAll('.thumbnail');
+        const thumbnailContainers = document.querySelectorAll('.thumbnail-container');
         const thumbnailsScroll = document.querySelector('.thumbnails-scroll');
         
-        if (thumbnails.length <= 5 || !thumbnailsScroll) return;
+        if (thumbnailContainers.length <= 5 || !thumbnailsScroll) return;
         
-        const activeThumb = thumbnails[currentIndex];
+        const activeThumb = thumbnailContainers[currentIndex];
         const scrollWidth = thumbnailsScroll.offsetWidth;
-        const totalWidth = thumbnails.length * thumbnailWidth;
+        const totalWidth = thumbnailContainers.length * thumbnailWidth;
         
         // Calcula a posição ideal para mostrar a miniatura ativa
         let idealOffset = currentIndex * thumbnailWidth - (scrollWidth / 2) + (thumbnailWidth / 2);
@@ -1944,8 +2424,60 @@
         }
       }
       
+      // Função para inicializar a mídia principal
+      function initializeMainMedia() {
+        const mediaData = {{ product.media | json }};
+        const featuredMedia = {{ product.featured_media | json }};
+        
+        if (!featuredMedia || mediaData.length === 0) return;
+        
+        // Encontra o índice da mídia principal
+        const featuredIndex = mediaData.findIndex(media => media.id === featuredMedia.id);
+        if (featuredIndex !== -1) {
+          currentIndex = featuredIndex;
+          
+          // Se a mídia principal é um vídeo, mostra o vídeo
+          if (featuredMedia.media_type === 'video') {
+            const mainVideoContainer = document.getElementById('mainVideoContainer');
+        const mainVideo = document.getElementById('mainVideo');
+            const mainImage = document.getElementById('mainImage');
+            
+            if (mainVideoContainer && mainVideo && mainImage) {
+              mainImage.style.display = 'none';
+              mainVideoContainer.style.display = 'flex';
+              mainVideo.src = featuredMedia.sources[0].url;
+              mainVideo.load();
+              
+              // Adiciona event listeners para controlar o ícone de play
+              mainVideo.addEventListener('play', function() {
+                mainVideoContainer.classList.add('video-playing');
+              });
+              
+              mainVideo.addEventListener('pause', function() {
+                mainVideoContainer.classList.remove('video-playing');
+              });
+              
+              mainVideo.addEventListener('ended', function() {
+                mainVideoContainer.classList.remove('video-playing');
+              });
+            }
+          }
+          
+          // Atualiza as miniaturas ativas
+          const thumbnailContainers = document.querySelectorAll('.thumbnail-container');
+          thumbnailContainers.forEach((container, index) => {
+            container.classList.remove('active');
+            if (index === featuredIndex) {
+              container.classList.add('active');
+            }
+          });
+        }
+      }
+      
       // Inicializa quando o DOM estiver pronto
       document.addEventListener('DOMContentLoaded', function() {
+        // Inicializa a mídia principal
+        initializeMainMedia();
         updateMainNavButtons();
         
         // Adiciona eventos de drag nas miniaturas
@@ -2127,12 +2659,12 @@
         if (!isDragging) return;
         
         const newOffset = startOffset + (startX - currentX);
-        const thumbnails = document.querySelectorAll('.thumbnail');
+        const thumbnailContainers = document.querySelectorAll('.thumbnail-container');
         const thumbnailsScroll = document.querySelector('.thumbnails-scroll');
         
-        if (thumbnailsScroll && thumbnails.length > 5) {
+        if (thumbnailsScroll && thumbnailContainers.length > 5) {
           const scrollWidth = thumbnailsScroll.offsetWidth;
-          const totalWidth = thumbnails.length * thumbnailWidth;
+          const totalWidth = thumbnailContainers.length * thumbnailWidth;
           const maxOffset = totalWidth - scrollWidth;
           
           thumbnailsOffset = Math.max(0, Math.min(maxOffset, newOffset));
@@ -2234,7 +2766,7 @@
         if (thumbnailsContainer) {
           thumbnailsContainer.style.transform = 'translateX(0px)';
         }
-                updateNavButtons();
+        updateMainNavButtons();
         });
       
       // PRODUCT VARIANTS & QUANTITY FUNCTIONS
@@ -2384,14 +2916,15 @@
       
       // Função para atualizar a miniatura ativa
       function updateActiveThumbnail(imageSrc) {
-        const thumbnails = document.querySelectorAll('.thumbnail');
-        thumbnails.forEach(thumb => {
-          thumb.classList.remove('active');
+        const thumbnailContainers = document.querySelectorAll('.thumbnail-container');
+        thumbnailContainers.forEach((container, index) => {
+          container.classList.remove('active');
+          const thumbnail = container.querySelector('.thumbnail');
           // Se a miniatura corresponde à nova imagem principal, marca como ativa
-          if (thumb.src === imageSrc || thumb.src.replace('150', '800') === imageSrc) {
-            thumb.classList.add('active');
+          if (thumbnail && (thumbnail.src === imageSrc || thumbnail.src.replace('150', '800') === imageSrc)) {
+            container.classList.add('active');
             // Atualiza o índice atual
-            currentIndex = Array.from(thumbnails).indexOf(thumb);
+            currentIndex = index;
           }
         });
         
@@ -2595,7 +3128,7 @@
           // Feedback visual do botão (após notificação aparecer)
           setTimeout(() => {
             btn.textContent = 'ADDED TO CART!';
-            btn.style.background = '#28a745';
+            btn.style.background = '#c7d93b';
             
             // Atualizar contador do carrinho se existir
             updateCartCount();

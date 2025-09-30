@@ -129,15 +129,33 @@ class CartDrawer {
           console.log("Stored discount data for variant:", variantId, discountInfo);
         }
 
+        // Success notification is handled by theme.js to avoid duplication
+
         await this.loadCartData();
         this.updateCartCount();
         this.open();
+
+        // Show internal notification in the cart drawer AFTER opening
+        setTimeout(() => {
+          const productTitle = result.product_title || "Product";
+          this.showInternalNotification(`${productTitle} has been added to your cart!`, "success");
+        }, 100);
       } else {
         const error = await response.json();
         console.error("Error adding product:", error.message || "Error adding product");
+
+        // Error notification is handled by theme.js to avoid duplication
+
+        // Show internal error notification in the cart drawer
+        this.showInternalNotification(error.message || "Unable to add product to cart. Please try again.", "error");
       }
     } catch (error) {
       console.error("Cart add error:", error);
+
+      // Error notification is handled by theme.js to avoid duplication
+
+      // Show internal error notification in the cart drawer
+      this.showInternalNotification("Unable to add product to cart. Please try again.", "error");
     }
   }
 
@@ -450,6 +468,109 @@ class CartDrawer {
     this.overlay.classList.remove("active");
     this.drawer.classList.remove("open");
     document.body.style.overflow = "";
+  }
+
+  showInternalNotification(message, type = "success") {
+    // Only show if drawer is open
+    if (!this.isOpen) {
+      console.log("Cart drawer is not open, skipping internal notification");
+      return;
+    }
+
+    // Remove any existing internal notification
+    const existingNotification = this.drawer.querySelector(".cart-drawer-internal-notification");
+    if (existingNotification) {
+      existingNotification.remove();
+    }
+
+    // Create notification element
+    const notification = document.createElement("div");
+    notification.className = `cart-drawer-internal-notification ${type}`;
+
+    // Add inline styles identical to external notification (dark mode)
+    notification.style.cssText = `
+      margin: 15px;
+      background: #1f2937;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
+      border: none;
+      overflow: hidden;
+      transform: translateY(0);
+      opacity: 1;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      font-family: 'Barlow', sans-serif;
+      will-change: transform, opacity;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    `;
+
+    const iconSvg =
+      type === "success"
+        ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+           <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" 
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+         </svg>`
+        : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+           <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" 
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+         </svg>`;
+
+    const iconStyle =
+      type === "success"
+        ? "background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);"
+        : "background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);";
+
+    notification.innerHTML = `
+      <div class="cart-drawer-internal-notification__content" style="display: flex; align-items: flex-start; padding: 20px; gap: 16px;">
+        <div class="cart-drawer-internal-notification__icon" style="flex-shrink: 0; width: 44px; height: 44px; ${iconStyle} border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; margin-top: 2px;">
+          ${iconSvg}
+        </div>
+        <div class="cart-drawer-internal-notification__text" style="flex: 1; min-width: 0;">
+          <h4 class="cart-drawer-internal-notification__title" style="font-size: 17px; font-weight: 600; color: #f9fafb; margin: 0 0 6px; line-height: 1.25; letter-spacing: -0.01em;">Product Added!</h4>
+          <p class="cart-drawer-internal-notification__message" style="font-size: 15px; color: #d1d5db; margin: 0; line-height: 1.4; letter-spacing: -0.01em;">${message}</p>
+        </div>
+        <button class="cart-drawer-internal-notification__close" aria-label="Close notification" style="flex-shrink: 0; background: none; border: none; padding: 8px; cursor: pointer; color: #9ca3af; border-radius: 8px; transition: all 0.2s ease; margin-top: 2px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    `;
+
+    // Add to drawer content
+    const content = this.drawer.querySelector(".cart-drawer-content");
+    if (!content) {
+      console.error("Cart drawer content not found");
+      return;
+    }
+
+    content.insertBefore(notification, content.firstChild);
+    console.log("Internal notification added to cart drawer:", message);
+
+    // Add event listener for close button
+    const closeButton = notification.querySelector(".cart-drawer-internal-notification__close");
+    closeButton.addEventListener("click", () => {
+      notification.classList.add("cart-drawer-internal-notification--hide");
+      setTimeout(() => notification.remove(), 300);
+    });
+
+    // Add hover styles for close button (dark mode)
+    closeButton.addEventListener("mouseenter", () => {
+      closeButton.style.color = "#d1d5db";
+      closeButton.style.background = "#374151";
+    });
+    closeButton.addEventListener("mouseleave", () => {
+      closeButton.style.color = "#9ca3af";
+      closeButton.style.background = "none";
+    });
+
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.classList.add("cart-drawer-internal-notification--hide");
+        setTimeout(() => notification.remove(), 300);
+      }
+    }, 3000);
   }
 }
 

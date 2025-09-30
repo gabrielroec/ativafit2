@@ -1,6 +1,6 @@
 {%- comment -%} 
-  Cart Notification Toast Component - iOS Style
-  Este snippet cria um sistema de notificação toast moderno e fluido estilo iOS 
+      Cart Notification Toast Component - iOS Style
+      Este snippet cria um sistema de notificação toast moderno e fluido estilo iOS 
 {%- endcomment -%}
 
 <div
@@ -253,6 +253,7 @@
       
       this.timeoutId = null;
       this.isVisible = false;
+      this.lastShowTime = 0;
       
       this.init();
     }
@@ -277,14 +278,31 @@
   
     show(options = {}) {
       if (!this.notification) return;
-  
+
+      // Prevent multiple notifications from showing simultaneously
+      if (this.isVisible) {
+        console.log('Notification already visible, skipping duplicate call');
+        return;
+      }
+
+      // Debounce: prevent calls within 100ms of each other
+      const now = Date.now();
+      if (now - this.lastShowTime < 100) {
+        console.log('Notification call too soon, debouncing');
+        return;
+      }
+      this.lastShowTime = now;
+
       const {
         title = 'Product Added!',
         message = 'The item has been successfully added to your cart.',
         type = 'success',
         duration = 1500
       } = options;
-  
+
+      // Clear any existing timeout
+      this.clearTimeout();
+
       // Atualiza o conteúdo ANTES de mostrar
       if (this.titleElement) this.titleElement.textContent = title;
       if (this.messageElement) this.messageElement.textContent = message;
@@ -352,7 +370,10 @@
   
   // Inicializa quando o DOM estiver pronto
   document.addEventListener('DOMContentLoaded', () => {
-    window.cartNotification = new CartNotification();
+    // Only create one instance globally
+    if (!window.cartNotification) {
+      window.cartNotification = new CartNotification();
+    }
   });
   
   // Disponibiliza globalmente para uso em outros scripts
