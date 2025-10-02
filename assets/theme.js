@@ -1287,8 +1287,15 @@
             return;
           }
 
-          this.element.querySelector('[data-action="toggle-menu"]').setAttribute("aria-expanded", "true");
-          this.element.querySelector('[data-type="menu"]').setAttribute("aria-hidden", "false");
+          var toggleMenuElement = this.element.querySelector('[data-action="toggle-menu"]');
+          var menuElement = this.element.querySelector('[data-type="menu"]');
+
+          if (toggleMenuElement) {
+            toggleMenuElement.setAttribute("aria-expanded", "true");
+          }
+          if (menuElement) {
+            menuElement.setAttribute("aria-hidden", "false");
+          }
           this.isNavigationVisible = true;
         },
         /**
@@ -1301,8 +1308,15 @@
           var _this2 = this;
 
           if (!this.useInlineNavigation) {
-            this.element.querySelector('[data-action="toggle-menu"]').setAttribute("aria-expanded", "false");
-            this.element.querySelector('[data-type="menu"]').setAttribute("aria-hidden", "true");
+            var toggleMenuElement = this.element.querySelector('[data-action="toggle-menu"]');
+            var menuElement = this.element.querySelector('[data-type="menu"]');
+
+            if (toggleMenuElement) {
+              toggleMenuElement.setAttribute("aria-expanded", "false");
+            }
+            if (menuElement) {
+              menuElement.setAttribute("aria-hidden", "true");
+            }
           }
 
           this.isNavigationVisible = false;
@@ -1591,8 +1605,15 @@
           this._computeDrawerHeight();
 
           this.isOpen = true;
-          document.querySelector('[aria-controls="mobile-collection-filters"]').setAttribute("aria-expanded", "true");
-          document.getElementById("mobile-collection-filters").setAttribute("aria-hidden", "false");
+          var mobileFiltersToggle = document.querySelector('[aria-controls="mobile-collection-filters"]');
+          var mobileFilters = document.getElementById("mobile-collection-filters");
+
+          if (mobileFiltersToggle) {
+            mobileFiltersToggle.setAttribute("aria-expanded", "true");
+          }
+          if (mobileFilters) {
+            mobileFilters.setAttribute("aria-hidden", "false");
+          }
           document.body.classList.add("no-mobile-scroll");
         },
       },
@@ -1604,8 +1625,15 @@
           }
 
           this.isOpen = false;
-          document.querySelector('[aria-controls="mobile-collection-filters"]').setAttribute("aria-expanded", "false");
-          document.getElementById("mobile-collection-filters").setAttribute("aria-hidden", "true");
+          var mobileFiltersToggle = document.querySelector('[aria-controls="mobile-collection-filters"]');
+          var mobileFilters = document.getElementById("mobile-collection-filters");
+
+          if (mobileFiltersToggle) {
+            mobileFiltersToggle.setAttribute("aria-expanded", "false");
+          }
+          if (mobileFilters) {
+            mobileFilters.setAttribute("aria-hidden", "true");
+          }
           document.body.classList.remove("no-mobile-scroll");
         },
       },
@@ -4031,7 +4059,11 @@
 
             case "external_video":
               if (this.element.getAttribute("data-media-host") === "youtube") {
-                this.player.playVideo();
+                if (this.player && typeof this.player.playVideo === "function") {
+                  this.player.playVideo();
+                } else {
+                  console.warn("YouTube player not ready or playVideo method not available");
+                }
               } else {
                 this.player.player();
               } // If we're using YouTube, we have to focus the parent div (as it's not possible to directly focus an iframe)
@@ -13657,17 +13689,21 @@
         this.element.querySelector(".product-block-list__wrapper").style.minHeight = "".concat(productInfoElement.clientHeight, "px");
 
         if (window.ResizeObserver) {
-          this.productInfoResizeObserver = new ResizeObserver(function (event) {
-            if (event[0].contentBoxSize) {
-              _this.element.querySelector(".product-block-list__wrapper").style.minHeight = "".concat(
-                event[0].contentBoxSize[0].blockSize,
-                "px"
-              );
-            } else {
-              _this.element.querySelector(".product-block-list__wrapper").style.minHeight = "".concat(event[0].contentRect.height, "px");
-            }
-          });
-          this.productInfoResizeObserver.observe(productInfoElement);
+          try {
+            this.productInfoResizeObserver = new ResizeObserver(function (event) {
+              if (event[0].contentBoxSize) {
+                _this.element.querySelector(".product-block-list__wrapper").style.minHeight = "".concat(
+                  event[0].contentBoxSize[0].blockSize,
+                  "px"
+                );
+              } else {
+                _this.element.querySelector(".product-block-list__wrapper").style.minHeight = "".concat(event[0].contentRect.height, "px");
+              }
+            });
+            this.productInfoResizeObserver.observe(productInfoElement);
+          } catch (error) {
+            console.warn("ResizeObserver failed to initialize:", error);
+          }
         }
 
         if (this.options["infoOverflowScroll"]) {
@@ -13699,7 +13735,11 @@
           }
 
           if (window.ResizeObserver && this.productInfoResizeObserver) {
-            this.productInfoResizeObserver.disconnect();
+            try {
+              this.productInfoResizeObserver.disconnect();
+            } catch (error) {
+              console.warn("ResizeObserver disconnect failed:", error);
+            }
           }
 
           this.delegateElement.off();
@@ -13913,22 +13953,26 @@
             cartWrapperElement.style.minHeight = "".concat(cartRecapScrollerElement.clientHeight, "px");
 
             if (window.ResizeObserver) {
-              var resizeObserver = new ResizeObserver(function (entries) {
-                var _iterator = _createForOfIteratorHelper(entries),
-                  _step;
+              try {
+                var resizeObserver = new ResizeObserver(function (entries) {
+                  var _iterator = _createForOfIteratorHelper(entries),
+                    _step;
 
-                try {
-                  for (_iterator.s(); !(_step = _iterator.n()).done; ) {
-                    var entry = _step.value;
-                    cartWrapperElement.style.minHeight = "".concat(parseInt(entry.contentRect.height), "px");
+                  try {
+                    for (_iterator.s(); !(_step = _iterator.n()).done; ) {
+                      var entry = _step.value;
+                      cartWrapperElement.style.minHeight = "".concat(parseInt(entry.contentRect.height), "px");
+                    }
+                  } catch (err) {
+                    _iterator.e(err);
+                  } finally {
+                    _iterator.f();
                   }
-                } catch (err) {
-                  _iterator.e(err);
-                } finally {
-                  _iterator.f();
-                }
-              });
-              resizeObserver.observe(cartRecapScrollerElement);
+                });
+                resizeObserver.observe(cartRecapScrollerElement);
+              } catch (error) {
+                console.warn("Cart ResizeObserver failed to initialize:", error);
+              }
             }
           }
         },
@@ -14491,12 +14535,16 @@
           // and if that's the case we force Flickity to resize
 
           if (window.ResizeObserver && this.flickityInstance) {
-            this.resizeObserver = new ResizeObserver(function () {
-              _this2.flickityInstance.resize();
-            });
-            this.element.querySelectorAll(".product-item").forEach(function (item) {
-              _this2.resizeObserver.observe(item);
-            });
+            try {
+              this.resizeObserver = new ResizeObserver(function () {
+                _this2.flickityInstance.resize();
+              });
+              this.element.querySelectorAll(".product-item").forEach(function (item) {
+                _this2.resizeObserver.observe(item);
+              });
+            } catch (error) {
+              console.warn("Carousel ResizeObserver failed to initialize:", error);
+            }
           }
         },
         /**
@@ -15691,12 +15739,16 @@
           // and if that's the case we force Flickity to resize
 
           if (window.ResizeObserver && this.flickityInstance) {
-            this.resizeObserver = new ResizeObserver(function () {
-              _this2.flickityInstance.resize();
-            });
-            this.element.querySelectorAll(".product-item").forEach(function (item) {
-              _this2.resizeObserver.observe(item);
-            });
+            try {
+              this.resizeObserver = new ResizeObserver(function () {
+                _this2.flickityInstance.resize();
+              });
+              this.element.querySelectorAll(".product-item").forEach(function (item) {
+                _this2.resizeObserver.observe(item);
+              });
+            } catch (error) {
+              console.warn("Carousel ResizeObserver failed to initialize:", error);
+            }
           }
         },
       },
@@ -15883,13 +15935,17 @@
               // and if that's the case we force Flickity to resize
 
               if (window.ResizeObserver && _this.flickityInstance) {
-                _this.resizeObserver = new ResizeObserver(function () {
-                  _this.flickityInstance.resize();
-                });
+                try {
+                  _this.resizeObserver = new ResizeObserver(function () {
+                    _this.flickityInstance.resize();
+                  });
 
-                _this.element.querySelectorAll(".product-item").forEach(function (item) {
-                  _this.resizeObserver.observe(item);
-                });
+                  _this.element.querySelectorAll(".product-item").forEach(function (item) {
+                    _this.resizeObserver.observe(item);
+                  });
+                } catch (error) {
+                  console.warn("Carousel ResizeObserver failed to initialize:", error);
+                }
               }
             });
           });

@@ -286,7 +286,15 @@
     // Quando o player estiver pronto
     function onPlayerReady(event) {
       if (!isNative) {
-        event.target.playVideo();
+        if (player && typeof player.playVideo === 'function') {
+        if (player && typeof player.playVideo === 'function') {
+          player.playVideo();
+        } else {
+          console.warn('YouTube player not ready or playVideo method not available');
+        }
+        } else {
+          console.warn('YouTube player not ready or playVideo method not available');
+        }
         updateMuteButton(true);
       }
     }
@@ -345,10 +353,18 @@
       } else if (player && typeof player.getPlayerState === 'function') {
         const state = player.getPlayerState();
         if (state === YT.PlayerState.PLAYING) {
+        if (player && typeof player.pauseVideo === 'function') {
           player.pauseVideo();
+        } else {
+          console.warn('YouTube player not ready or pauseVideo method not available');
+        }
           playPauseButton.setAttribute('aria-label', '{{ section.settings.play_button_label }}');
         } else {
+        if (player && typeof player.playVideo === 'function') {
           player.playVideo();
+        } else {
+          console.warn('YouTube player not ready or playVideo method not available');
+        }
           playPauseButton.setAttribute('aria-label', '{{ section.settings.pause_button_label }}');
         }
       }

@@ -1,3 +1,85 @@
+<style>
+  /* --- Hero Banner for Collection --- */
+  .collection-hero {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 2rem; /* 与下方内容的间距 */
+    background-color: #f0f0f0; /* 图片加载前的背景色 */
+  }
+
+  .collection-hero__image-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+
+  .collection-hero__image-container picture,
+.collection-hero__image-container img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+  .collection-hero__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3); /* 深色蒙层，让文字更清晰 */
+    z-index: 2;
+  }
+
+  .collection-hero__content {
+    position: relative;
+    z-index: 3;
+    color: #FFFFFF; /* 文字颜色 */
+    text-align: center;
+    padding: 5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 280px;
+  }
+
+  .collection-hero__title {
+    font-size: 3rem; /* 标题字体大小 */
+    font-weight: 700;
+    margin: 0 0 1rem;
+    color: inherit;
+  }
+
+  .collection-hero__description {
+    font-size: 1.125rem;
+    max-width: 650px;
+    line-height: 1.5;
+  }
+
+  .collection-hero__description a {
+    color: inherit;
+    text-decoration: underline;
+  }
+
+  /* 移动端响应式样式 */
+  @media (max-width: 768px) {
+    .collection-hero__content {
+      padding: 3rem 1.5rem;
+      min-height: 200px;
+    }
+    .collection-hero__title {
+      font-size: 2.2rem;
+    }
+    .collection-hero__description {
+      font-size: 1rem;
+    }
+  }
+</style>
+
 {%- comment -%}We start by creating a lot of useful variables !{%- endcomment -%}
 
 {%- assign color_label = 'color,colour,couleur,cor,colore,farbe,색,色,カラー,färg,farve,szín,barva' | split: ',' -%}
@@ -280,7 +362,46 @@
 
       {%- paginate collection.products by items_per_page -%}
         <div {% if has_filters %}class="layout__section"{% endif %}>
-          <div class="collection">
+          {%- if section.settings.show_hero_banner -%}
+  {%- comment -%}
+    1. 获取桌面版图片，如果不存在则使用系列主图作为后备。
+    2. 只有在桌面版图片存在的情况下，才继续渲染Banner。
+  {%- endcomment -%}
+  {%- assign desktop_image = section.settings.hero_banner_image_desktop | default: collection.image -%}
+  
+  {%- if desktop_image -%}
+    {%- comment -%} 获取移动版图片，如果不存在则使用桌面版图片作为后备。 {%- endcomment -%}
+    {%- assign mobile_image = section.settings.hero_banner_image_mobile | default: desktop_image -%}
+
+    <div class="collection-hero">
+      <div class="collection-hero__image-container">
+        <picture>
+          <source
+            media="(max-width: 768px)"
+            srcset="{{ mobile_image | image_url: width: 600 }} 1x, {{ mobile_image | image_url: width: 1200 }} 2x">
+          <source
+            media="(min-width: 769px)"
+            srcset="{{ desktop_image | image_url: width: 1600 }} 1x, {{ desktop_image | image_url: width: 3200 }} 2x">
+          
+          <img
+            src="{{ desktop_image | image_url: width: 1600 }}"
+            alt="{{ collection.title | escape }}"
+            loading="lazy"
+            width="{{ desktop_image.width }}"
+            height="{{ desktop_image.height }}">
+        </picture>
+      </div>
+      <div class="collection-hero__overlay"></div>
+      <div class="collection-hero__content">
+        <h1 class="collection-hero__title">{{ collection.title }}</h1>
+        {%- if collection.description != blank -%}
+          <div class="collection-hero__description rte">{{ collection.description }}</div>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endif -%}
+{%- endif -%}
+<div class="collection">
             {%- unless collection.template_suffix == 'brand' -%}
               {%- if section.settings.show_collection_image and collection.image and collection.all_products_count > 0 -%}
                 {%- if section.settings.collection_image_size == 'preserve_ratio' -%}
@@ -337,23 +458,26 @@
                           </div>
                         {%- endif -%}
 
-                        <div class="collection__meta-inner">
-                          <h1 class="collection__title heading h1">
-                            {%- if collection.handle == 'all' -%}
-                              {{- 'collection.general.all_products' | t -}}
-                            {%- else -%}
-                              {{- collection.title -}}
-                            {%- endif -%}
-                          </h1>
+                        {%- unless section.settings.show_hero_banner -%}
+  <div class="collection__meta-inner">
+    <h1 class="collection__title heading h1">
+      {%- if collection.handle == 'all' -%}
+        {{- 'collection.general.all_products' | t -}}
+      {%- else -%}
+        {{- collection.title -}}
+      {%- endif -%}
+    </h1>
 
-                          {%- assign offset = paginate.current_offset | plus: 1 -%}
-                          {%- assign page_size = paginate.current_offset | plus: paginate.page_size | at_most: paginate.items -%}
+    {%- assign offset = paginate.current_offset | plus: 1 -%}
+    {%- assign page_size = paginate.current_offset | plus: paginate.page_size | at_most: paginate.items -%}
 
-                          <p class="collection__products-count collection__products-count-total text--small hidden-lap-and-up">{{ 'collection.general.products_count' | t: count: collection.products_count }}</p>
-                          <p class="collection__products-count collection__products-count-showing text--small hidden-pocket hidden-desk">{{ 'collection.general.showing_count' | t: offset: offset, page_size: page_size, count: paginate.items }}</p>
-                        </div>
+    <p class="collection__products-count collection__products-count-total text--small hidden-lap-and-up">{{ 'collection.general.products_count' | t: count: collection.products_count }}</p>
+    <p class="collection__products-count collection__products-count-showing text--small hidden-pocket hidden-desk">{{ 'collection.general.showing_count' | t: offset: offset, page_size: page_size, count: paginate.items }}</p>
+  </div>
+{%- endunless -%}
                       </div>
 
+                    {%- unless section.settings.show_hero_banner -%}
                       {%- if collection.description != blank -%}
                         {%- assign allow_collapse_description = false -%}
 
@@ -374,6 +498,7 @@
                           {%- endif -%}
                         </div>
                       {%- endif -%}
+                    {%- endunless -%}  
                     </div>
                   </div>
                 </header>
@@ -775,6 +900,29 @@
 {
   "name": "Collection",
   "settings": [
+    {
+      "type": "header",
+      "content": "Hero Banner"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_hero_banner",
+      "label": "Show hero banner",
+      "info": "Replaces the default collection header with a large banner.",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_banner_image_desktop",
+      "label": "Desktop banner image",
+      "info": "推荐横向图片 (例如 16:9 比例)。如果未设置，将使用系列主图。"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_banner_image_mobile",
+      "label": "Mobile banner image",
+      "info": "推荐竖向或方形图片 (例如 3:4 或 1:1 比例)。如果未设置，将使用桌面端图片。"
+    },
     {
       "type": "checkbox",
       "id": "show_collection_image",
