@@ -48,7 +48,8 @@
 
   /* Title size is adjustable via schema */
   .banner-product-showcase__title {
-    font-size: {{ section.settings.title_font_size | default: 40 }}px !important;
+    font-size: {{ section.settings.title_font_size | default: 30 }}
+    px !important;
     font-weight: 900;
     line-height: 100%;
     margin: 0;
@@ -62,17 +63,33 @@
     font-size: 16px;
     transition: color 0.3s ease;
   }
-  .banner-product-showcase__button:hover { color: #c23d12; }
+  .banner-product-showcase__button:hover {
+    color: #c23d12;
+  }
 
   /* Carousel */
   .banner-product-showcase__carousel-container {
     position: relative;
     width: 100%;
-    padding-bottom: 50px; /* room for dots */
+    padding-bottom: 50px;
+    /* room for dots */
   }
-  .banner-product-showcase__carousel { width: 100%; overflow-x: hidden; overflow-y: visible; }
-  .banner-product-showcase__carousel .swiper-wrapper { display: flex; align-items: stretch; }
-  .banner-product-showcase__carousel .swiper-slide { width: auto !important; flex-shrink: 0; height: fit-content; display: flex; align-items: center; }
+  .banner-product-showcase__carousel {
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: visible;
+  }
+  .banner-product-showcase__carousel .swiper-wrapper {
+    display: flex;
+    align-items: stretch;
+  }
+  .banner-product-showcase__carousel .swiper-slide {
+    width: auto !important;
+    flex-shrink: 0;
+    height: fit-content;
+    display: flex;
+    align-items: center;
+  }
 
   /* Dots */
   .banner-product-showcase__pagination {
@@ -84,18 +101,42 @@
     text-align: center;
     margin-top: 0;
   }
-  .banner-product-showcase__pagination .swiper-pagination-bullet { width: 12px; height: 12px; background: #ccc; border-radius: 50%; margin: 0 5px; cursor: pointer; transition: background 0.3s ease; opacity: 1; }
-  .banner-product-showcase__pagination .swiper-pagination-bullet-active { background: #EB701F; }
+  .banner-product-showcase__pagination .swiper-pagination-bullet {
+    width: 12px;
+    height: 12px;
+    background: #ccc;
+    border-radius: 50%;
+    margin: 0 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    opacity: 1;
+  }
+  .banner-product-showcase__pagination .swiper-pagination-bullet-active {
+    background: #EB701F;
+  }
 
   @media screen and (max-width: 768px) {
-    .banner-product-showcase { padding: 0 10px; }
-    .banner-product-showcase__grid { flex-direction: column; }
-    .banner-product-showcase__banner, .banner-product-showcase__products-area { width: 100%; }
-    .banner-product-showcase__title { font-size: {{ section.settings.title_font_size_mobile | default: 36 }}px !important; }
+    .banner-product-showcase {
+      padding: 0 10px;
+    }
+    .banner-product-showcase__grid {
+      flex-direction: column;
+    }
+    .banner-product-showcase__banner,
+    .banner-product-showcase__products-area {
+      width: 100%;
+    }
+    .banner-product-showcase__title {
+      font-size: {{ section.settings.title_font_size_mobile | default: 36 }}
+      px !important;
+    }
   }
 
   .swiper-horizontal > .swiper-pagination-bullets.swiper-pagination-bullets-dynamic,
-  .swiper-pagination-horizontal.swiper-pagination-bullets.swiper-pagination-bullets-dynamic { overflow: visible; transform: translateY(-25px) !important; }
+  .swiper-pagination-horizontal.swiper-pagination-bullets.swiper-pagination-bullets-dynamic {
+    overflow: visible;
+    transform: translateY(-25px) !important;
+  }
 {%- endstyle -%}
 
 <div class="banner-product-showcase">
@@ -111,7 +152,12 @@
   <div class="banner-product-showcase__grid">
     <div class="banner-product-showcase__banner">
       {% if section.settings.banner_image != blank %}
-        <img src="{{ section.settings.banner_image | img_url: '1000x' }}" alt="Banner" width="1000" height="700" class="banner-product-showcase__banner-image">
+        <img
+          src="{{ section.settings.banner_image | img_url: '1000x' }}"
+          alt="Banner"
+          width="1000"
+          height="700"
+          class="banner-product-showcase__banner-image">
       {% else %}
         <span style="color:#999;">Banner não disponível</span>
       {% endif %}
@@ -127,7 +173,8 @@
                 {% assign has_products = true %}
                 {% assign product = all_products[block.settings.product] %}
                 <div class="swiper-slide">
-                  {% render 'product-card-custom', product: product %}
+                  {% render 'product-card-custom'
+                    , product: product %}
                 </div>
               {% endif %}
             {% endfor %}
@@ -162,21 +209,79 @@
 </script>
 
 {% schema %}
-{
-  "name": "Banner + Carousel",
-  "settings": [
-    { "type": "image_picker", "id": "banner_image", "label": "Banner Image" },
-    { "type": "text", "id": "title", "label": "Title", "default": "TRENDING" },
-    { "type": "range", "id": "title_font_size", "label": "Title Font Size – Desktop", "min": 20, "max": 96, "step": 1, "unit": "px", "default": 40 },
-    { "type": "range", "id": "title_font_size_mobile", "label": "Title Font Size – Mobile", "min": 16, "max": 64, "step": 1, "unit": "px", "default": 36 },
-    { "type": "text", "id": "button_text", "label": "Button Text", "default": "SHOP ALL TREND" },
-    { "type": "url", "id": "button_link", "label": "Button Link" }
-  ],
-  "blocks": [
-    { "type": "product", "name": "Product", "settings": [ { "type": "product", "id": "product", "label": "Select Product" } ] }
-  ],
-  "presets": [
-    { "name": "Banner + Carousel", "settings": {}, "blocks": [ { "type": "product" }, { "type": "product" }, { "type": "product" }, { "type": "product" } ] }
-  ]
-}
+  {
+    "name": "Banner + Carousel",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "banner_image",
+        "label": "Banner Image"
+      },
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Title",
+        "default": "TRENDING"
+      },
+      {
+        "type": "range",
+        "id": "title_font_size",
+        "label": "Title Font Size – Desktop",
+        "min": 20,
+        "max": 96,
+        "step": 1,
+        "unit": "px",
+        "default": 40
+      },
+      {
+        "type": "range",
+        "id": "title_font_size_mobile",
+        "label": "Title Font Size – Mobile",
+        "min": 16,
+        "max": 64,
+        "step": 1,
+        "unit": "px",
+        "default": 36
+      }, {
+        "type": "text",
+        "id": "button_text",
+        "label": "Button Text",
+        "default": "SHOP ALL TREND"
+      }, {
+        "type": "url",
+        "id": "button_link",
+        "label": "Button Link"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "product",
+        "name": "Product",
+        "settings": [
+          {
+            "type": "product",
+            "id": "product",
+            "label": "Select Product"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Banner + Carousel",
+        "settings": {},
+        "blocks": [
+          {
+            "type": "product"
+          }, {
+            "type": "product"
+          }, {
+            "type": "product"
+          }, {
+            "type": "product"
+          }
+        ]
+      }
+    ]
+  }
 {% endschema %}

@@ -138,7 +138,10 @@ class CartDrawer {
         // Show internal notification in the cart drawer AFTER opening
         setTimeout(() => {
           const productTitle = result.product_title || "Product";
-          this.showInternalNotification(`${productTitle} has been added to your cart!`, "success");
+          this.showInternalNotification(
+            'Join <a href="https://www.ativafit.com/pages/ativapeople-rewards-program" target="_blank" style="color: #eb701f; text-decoration: underline; font-weight: bold;">AtivaPeople</a> & get 10% off your first order.',
+            "success"
+          );
         }, 100);
       } else {
         const error = await response.json();

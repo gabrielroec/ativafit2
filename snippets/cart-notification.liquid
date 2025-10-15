@@ -1,6 +1,6 @@
 {%- comment -%} 
-      Cart Notification Toast Component - iOS Style
-      Este snippet cria um sistema de notificação toast moderno e fluido estilo iOS 
+                              Cart Notification Toast Component - iOS Style
+                              Este snippet cria um sistema de notificação toast moderno e fluido estilo iOS 
 {%- endcomment -%}
 
 <div
@@ -25,7 +25,12 @@
     </div>
     <div class="cart-notification__text">
       <h4 class="cart-notification__title">Product Added!</h4>
-      <p class="cart-notification__message">The item has been successfully added to your cart.</p>
+      <p class="cart-notification__message">Join
+        <a
+          href="https://www.ativafit.com/pages/ativapeople-rewards-program"
+          target="_blank"
+          style="color: #eb701f; text-decoration: underline; font-weight: bold;">AtivaPeople</a>
+        & get 10% off your first order.</p>
     </div>
     <button class="cart-notification__close" aria-label="Close notification">
       <svg
@@ -304,8 +309,8 @@
       this.clearTimeout();
 
       // Atualiza o conteúdo ANTES de mostrar
-      if (this.titleElement) this.titleElement.textContent = title;
-      if (this.messageElement) this.messageElement.textContent = message;
+      if (this.titleElement) this.titleElement.innerHTML = title;
+      if (this.messageElement) this.messageElement.innerHTML = message;
       
       // Atualiza o tipo/ícone ANTES de mostrar
       this.notification.className = `cart-notification ${type}`;
@@ -352,19 +357,52 @@
     }
   
     // Métodos estáticos para diferentes tipos de notificação
-    static success(message, title = 'Success!') {
+    static success(messageOrOptions, title = 'Success!') {
       const notification = window.cartNotification || new CartNotification();
-      notification.show({ title, message, type: 'success' });
+      
+      // Se for um objeto, usa as propriedades do objeto
+      if (typeof messageOrOptions === 'object' && messageOrOptions !== null) {
+        notification.show({ 
+          title: messageOrOptions.title || 'Success!', 
+          message: messageOrOptions.message || 'Success!', 
+          type: messageOrOptions.type || 'success' 
+        });
+      } else {
+        // Se for string, usa a sintaxe antiga
+        notification.show({ title, message: messageOrOptions, type: 'success' });
+      }
     }
   
-    static error(message, title = 'Error!') {
+    static error(messageOrOptions, title = 'Error!') {
       const notification = window.cartNotification || new CartNotification();
-      notification.show({ title, message, type: 'error' });
+      
+      // Se for um objeto, usa as propriedades do objeto
+      if (typeof messageOrOptions === 'object' && messageOrOptions !== null) {
+        notification.show({ 
+          title: messageOrOptions.title || 'Error!', 
+          message: messageOrOptions.message || 'Error!', 
+          type: messageOrOptions.type || 'error' 
+        });
+      } else {
+        // Se for string, usa a sintaxe antiga
+        notification.show({ title, message: messageOrOptions, type: 'error' });
+      }
     }
-  
-    static warning(message, title = 'Warning!') {
+
+    static warning(messageOrOptions, title = 'Warning!') {
       const notification = window.cartNotification || new CartNotification();
-      notification.show({ title, message, type: 'warning' });
+      
+      // Se for um objeto, usa as propriedades do objeto
+      if (typeof messageOrOptions === 'object' && messageOrOptions !== null) {
+        notification.show({ 
+          title: messageOrOptions.title || 'Warning!', 
+          message: messageOrOptions.message || 'Warning!', 
+          type: messageOrOptions.type || 'warning' 
+        });
+      } else {
+        // Se for string, usa a sintaxe antiga
+        notification.show({ title, message: messageOrOptions, type: 'warning' });
+      }
     }
   }
   
