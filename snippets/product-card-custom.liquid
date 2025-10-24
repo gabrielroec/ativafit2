@@ -1,7 +1,7 @@
 {%- comment -%} 
-                                                                                                                    Salve este arquivo como /snippets/product-card.liquid
-                                                                                                                    Inclua na sua coleção ou em qualquer template assim: 
-                                                                                                                    {% render 'product-card', product: product %} 
+                                                                                                                      Salve este arquivo como /snippets/product-card.liquid
+                                                                                                                      Inclua na sua coleção ou em qualquer template assim: 
+                                                                                                                      {% render 'product-card', product: product %} 
 {%- endcomment -%}
 
 {% comment %}Debug info{% endcomment %}
@@ -666,6 +666,26 @@
         form.addEventListener('submit', async function(e) {
           e.preventDefault();
           
+          // Previne múltiplas execuções simultâneas
+          if (form.dataset.processing === 'true') {
+            console.log("Form already being processed, skipping duplicate submission");
+            return;
+          }
+          
+          // Adiciona proteção adicional com timestamp
+          const now = Date.now();
+          if (form.dataset.lastSubmission && (now - parseInt(form.dataset.lastSubmission)) < 2000) {
+            console.log("Form submitted too recently, skipping duplicate submission");
+            return;
+          }
+          form.dataset.lastSubmission = now.toString();
+          
+          console.log("Product-card-custom.liquid intercepted form submission");
+          
+          // Marca o formulário como processando e já processado
+          form.dataset.processing = 'true';
+          form.dataset.handledByProductCard = 'true';
+          
           const submitButton = form.querySelector('button[type="submit"]');
           const originalText = submitButton.textContent;
           const productTitle = card.querySelector('.product-title')?.textContent || 'Product';
@@ -676,6 +696,13 @@
           
           try {
             const formData = new FormData(form);
+            
+            console.log("Sending to cart:", {
+              variantId: formData.get('id'),
+              quantity: formData.get('quantity'),
+              productTitle: productTitle
+            });
+            
             const response = await fetch('/cart/add.js', {
               method: 'POST',
               body: formData
@@ -691,6 +718,13 @@
                 cartCountElement.textContent = cartData.item_count;
               }
               
+              // Atualiza o cart drawer se estiver disponível
+              if (window.cartDrawer) {
+                await window.cartDrawer.loadCartData();
+                window.cartDrawer.updateCartCount();
+                window.cartDrawer.updateRecommendedSection();
+              }
+              
               // Mostra notificação de sucesso PRIMEIRO
               if (window.CartNotification) {
                 window.CartNotification.success({
@@ -700,9 +734,11 @@
                 });
               }
               
-              // Aguarda a notificação aparecer e depois abre o mini-cart
+              // Aguarda a notificação aparecer e depois abre o cart drawer
               setTimeout(() => {
-                if (window.theme && window.theme.miniCart) {
+                if (window.cartDrawer) {
+                  window.cartDrawer.open();
+                } else if (window.theme && window.theme.miniCart) {
                   window.theme.miniCart.open();
                 }
               }, 300);
@@ -711,6 +747,10 @@
               setTimeout(() => {
                 submitButton.disabled = false;
                 submitButton.textContent = originalText;
+                // Remove as marcações após processamento
+                delete form.dataset.handledByProductCard;
+                delete form.dataset.processing;
+                delete form.dataset.lastSubmission;
               }, 200);
               
             } else {
@@ -729,6 +769,10 @@
             // Restaura o botão em caso de erro
             submitButton.disabled = false;
             submitButton.textContent = originalText;
+            // Remove as marcações em caso de erro
+            delete form.dataset.handledByProductCard;
+            delete form.dataset.processing;
+            delete form.dataset.lastSubmission;
           }
         });
       });

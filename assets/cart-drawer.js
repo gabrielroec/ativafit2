@@ -5,6 +5,65 @@ class CartDrawer {
     this.isOpen = false;
     this.cartData = null;
 
+    // Recommended products configuration with contextual rules
+    this.recommendationRules = {
+      // Default recommendations (when no specific product is in cart)
+      default: [
+        {
+          id: "31292579512403",
+          title: "Ativafit Atlas Dumbbell Stand for Home Workout",
+          price: "$129.99",
+          image: "//ativafit-tech.myshopify.com/cdn/shop/files/img_v3_0289_53efa24e-f544-4df6-bc1c-6dab8ca3e69g_600x600.png?v=1708515072",
+          alt: "Ativafit Atlas Dumbbell Stand for Home Workout",
+        },
+        {
+          id: "31292578431059",
+          title: "Ativafit Anchor Adjustable Multi-purpose Foldable Home Workout Bench",
+          price: "$139.99",
+          image: "//ativafit-tech.myshopify.com/cdn/shop/files/DBBench.png?v=1686016009&width=600",
+          alt: "Ativafit Anchor Adjustable Multi-purpose Foldable Home Workout Bench",
+        },
+      ],
+
+      // Recommendations when Spark Dumbbell is in cart
+      "spark-dumbbell": [
+        {
+          id: "31292578431059",
+          title: "Ativafit Anchor Adjustable Multi-purpose Foldable Home Workout Bench",
+          price: "$139.99",
+          image: "//ativafit-tech.myshopify.com/cdn/shop/files/DBBench.png?v=1686016009&width=600",
+          alt: "Ativafit Anchor Adjustable Multi-purpose Foldable Home Workout Bench",
+        },
+        {
+          id: "31292579512403",
+          title: "Ativafit Atlas Dumbbell Stand for Home Workout",
+          price: "$129.99",
+          image: "//ativafit-tech.myshopify.com/cdn/shop/files/img_v3_0289_53efa24e-f544-4df6-bc1c-6dab8ca3e69g_600x600.png?v=1708515072",
+          alt: "Ativafit Atlas Dumbbell Stand for Home Workout",
+        },
+      ],
+
+      // Recommendations when Lava 66 Lb or Flare 88 Lb is in cart (HIGH PRIORITY)
+      "heavy-dumbbells": [
+        {
+          id: "32365968261203",
+          title: "Ativafit Apex Pro Adjustable Weight Bench",
+          price: "$229.99",
+          originalPrice: "$259.99",
+          image: "//www.ativafit.com/cdn/shop/files/proadjustableweightbench45.png?v=1753925502&width=600",
+          alt: "Ativafit Apex Pro Adjustable Weight Bench",
+          hasDiscount: true,
+        },
+        {
+          id: "31292579512403",
+          title: "Ativafit Atlas Dumbbell Stand for Home Workout",
+          price: "$129.99",
+          image: "//www.ativafit.com/cdn/shop/files/img_v3_0289_53efa24e-f544-4df6-bc1c-6dab8ca3e69g.png?v=1708515072&width=600",
+          alt: "Ativafit Atlas Dumbbell Stand for Home Workout",
+        },
+      ],
+    };
+
     this.init();
   }
 
@@ -50,9 +109,19 @@ class CartDrawer {
       }
     });
 
-    // Product card form submissions
+    // Product card form submissions - Only handle if not already handled by product-card-custom.liquid
     document.addEventListener("submit", (e) => {
       if (e.target.matches(".product-card form") || e.target.closest(".product-card form")) {
+        console.log("Cart-drawer intercepted form submission");
+
+        // Check if this form is already being handled by product-card-custom.liquid
+        if (e.target.dataset.handledByProductCard === "true" || e.target.dataset.processing === "true") {
+          console.log("Form already handled by product-card-custom.liquid, skipping cart-drawer processing");
+          return; // Let product-card-custom.liquid handle it
+        }
+
+        console.log("Processing form with cart-drawer");
+        // Only handle forms that don't have the custom handling
         e.preventDefault();
         this.addToCart(e.target);
       }
@@ -67,6 +136,12 @@ class CartDrawer {
   }
 
   async addToCart(form) {
+    // Prevent double processing if form is already handled by product-card-custom.liquid
+    if (form.dataset.handledByProductCard === "true" || form.dataset.processing === "true") {
+      console.log("Form already handled by product-card-custom.liquid, skipping cart-drawer processing");
+      return;
+    }
+
     const formData = new FormData(form);
 
     // Capture discount data from the product card HTML
@@ -135,6 +210,9 @@ class CartDrawer {
         this.updateCartCount();
         this.open();
 
+        // Update recommended products section
+        this.updateRecommendedSection();
+
         // Show internal notification in the cart drawer AFTER opening
         setTimeout(() => {
           const productTitle = result.product_title || "Product";
@@ -187,6 +265,7 @@ class CartDrawer {
           <div class="cart-drawer-empty-text regular">Your cart is empty</div>
           <a href="/collections/all" class="cart-drawer-continue bold">Continue Shopping</a>
         </div>
+        ${this.renderRecommendedProducts()}
       `;
       return;
     }
@@ -199,6 +278,7 @@ class CartDrawer {
       <div class="cart-drawer-items">
         ${items}
       </div>
+      ${this.renderRecommendedProducts()}
       <div class="cart-drawer-footer">
         ${savingsInfo}
         ${discounts}
@@ -374,6 +454,100 @@ class CartDrawer {
     return "";
   }
 
+  // Determine which recommendation set to use based on cart content with priority system
+  getRecommendationContext() {
+    if (!this.cartData || !this.cartData.items) {
+      return "default";
+    }
+
+    // Check for heavy dumbbells first (HIGH PRIORITY)
+    const heavyDumbbellsInCart = this.cartData.items.some(
+      (item) =>
+        (item.product_title && item.product_title.toLowerCase().includes("lava") && item.product_title.toLowerCase().includes("66")) ||
+        (item.product_title.toLowerCase().includes("flare") && item.product_title.toLowerCase().includes("88"))
+    );
+
+    // Check if Spark Dumbbell is in cart (LOWER PRIORITY)
+    const sparkDumbbellInCart = this.cartData.items.some(
+      (item) =>
+        item.product_title && item.product_title.toLowerCase().includes("spark") && item.product_title.toLowerCase().includes("dumbbell")
+    );
+
+    console.log(
+      "Cart items:",
+      this.cartData.items.map((item) => item.product_title)
+    );
+    console.log("Heavy Dumbbells (Lava/Flare) in cart:", heavyDumbbellsInCart);
+    console.log("Spark Dumbbell in cart:", sparkDumbbellInCart);
+
+    // Priority system: Heavy dumbbells > Spark dumbbell > default
+    if (heavyDumbbellsInCart) {
+      console.log("Recommendation context: heavy-dumbbells (HIGH PRIORITY)");
+      return "heavy-dumbbells";
+    } else if (sparkDumbbellInCart) {
+      console.log("Recommendation context: spark-dumbbell");
+      return "spark-dumbbell";
+    }
+
+    console.log("Recommendation context: default");
+    return "default";
+  }
+
+  // Get products that are NOT in the cart based on current context
+  getAvailableRecommendedProducts() {
+    const context = this.getRecommendationContext();
+    const recommendedProducts = this.recommendationRules[context] || this.recommendationRules.default;
+
+    if (!this.cartData || !this.cartData.items) {
+      return recommendedProducts;
+    }
+
+    const cartVariantIds = this.cartData.items.map((item) => item.variant_id.toString());
+    return recommendedProducts.filter((product) => !cartVariantIds.includes(product.id));
+  }
+
+  renderRecommendedProducts() {
+    const availableProducts = this.getAvailableRecommendedProducts();
+
+    // Don't show section if no products available
+    if (availableProducts.length === 0) {
+      return "";
+    }
+
+    const productsHtml = availableProducts
+      .map(
+        (product) => `
+      <div class="cart-drawer-product-card">
+        <div class="cart-drawer-product-image">
+          <img src="${product.image}" alt="${product.alt}" loading="lazy">
+        </div>
+        <div class="cart-drawer-product-info">
+          <h4 class="cart-drawer-product-title bold">${product.title}</h4>
+          <div class="cart-drawer-product-price">
+            <span class="current-price bold">${product.price}</span>
+            ${product.hasDiscount && product.originalPrice ? `<span class="old-price regular">${product.originalPrice}</span>` : ""}
+          </div>
+          <form action="/cart/add" method="post" class="cart-drawer-product-form">
+            <input type="hidden" name="id" value="${product.id}">
+            <input type="hidden" name="quantity" value="1">
+            <button type="submit" class="cart-drawer-add-btn">ADD</button>
+          </form>
+        </div>
+      </div>
+    `
+      )
+      .join("");
+
+    return `
+      <div class="cart-drawer-recommended">
+        <h3 class="cart-drawer-recommended-title bold">Recommended for you</h3>
+        <div class="cart-drawer-recommended-products">
+          ${productsHtml}
+        </div>
+      </div>
+    `;
+  }
+
   bindCartEvents() {
     // Prevent quantity input from going below 1
     this.drawer.querySelectorAll(".cart-drawer-quantity-input").forEach((input) => {
@@ -381,6 +555,14 @@ class CartDrawer {
         if (parseInt(e.target.value) < 1) {
           e.target.value = 1;
         }
+      });
+    });
+
+    // Bind recommended product form submissions
+    this.drawer.querySelectorAll(".cart-drawer-product-form").forEach((form) => {
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        this.addToCart(e.target);
       });
     });
   }
@@ -403,6 +585,8 @@ class CartDrawer {
       if (response.ok) {
         await this.loadCartData();
         this.updateCartCount();
+        // Update recommended products section
+        this.updateRecommendedSection();
       } else {
         console.error("Failed to update quantity");
       }
@@ -427,6 +611,8 @@ class CartDrawer {
       if (response.ok) {
         await this.loadCartData();
         this.updateCartCount();
+        // Update recommended products section
+        this.updateRecommendedSection();
       } else {
         console.error("Failed to remove item");
       }
@@ -446,6 +632,33 @@ class CartDrawer {
         });
       })
       .catch((error) => console.error("Error updating cart count:", error));
+  }
+
+  updateRecommendedSection() {
+    const content = this.drawer.querySelector(".cart-drawer-content");
+    if (!content) return;
+
+    const recommendedSection = content.querySelector(".cart-drawer-recommended");
+    const newRecommendedHtml = this.renderRecommendedProducts();
+
+    if (recommendedSection) {
+      if (newRecommendedHtml) {
+        // Update existing section
+        recommendedSection.outerHTML = newRecommendedHtml;
+      } else {
+        // Remove section if no products available
+        recommendedSection.remove();
+      }
+    } else if (newRecommendedHtml) {
+      // Add section if it doesn't exist but products are available
+      const footer = content.querySelector(".cart-drawer-footer");
+      if (footer) {
+        footer.insertAdjacentHTML("beforebegin", newRecommendedHtml);
+      }
+    }
+
+    // Re-bind events for new recommended products
+    this.bindCartEvents();
   }
 
   formatMoney(cents) {
@@ -588,6 +801,198 @@ style.textContent = `
   @keyframes slideIn {
     from { transform: translateX(100%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
+  }
+
+  /* Recommended Products Styles - Minimalist Design */
+  .cart-drawer-recommended {
+    padding: 24px 20px;
+    border-top: 1px solid #f1f3f4;
+    background: #fafbfc;
+  }
+
+  .cart-drawer-recommended-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: #6b7280;
+    margin: 0 0 20px 0;
+    text-align: left;
+    letter-spacing: 0.01em;
+  }
+
+  .cart-drawer-recommended-products {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .cart-drawer-product-card {
+    display: flex;
+    background: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 16px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cart-drawer-product-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .cart-drawer-product-card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+
+  .cart-drawer-product-card:hover::before {
+    opacity: 1;
+  }
+
+  .cart-drawer-product-image {
+    width: 72px;
+    height: 72px;
+    flex-shrink: 0;
+    margin-right: 16px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f8fafc;
+  }
+
+  .cart-drawer-product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+  }
+
+  .cart-drawer-product-card:hover .cart-drawer-product-image img {
+    transform: scale(1.05);
+  }
+
+  .cart-drawer-product-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 0;
+  }
+
+  .cart-drawer-product-title {
+    font-size: 14px!important;
+    font-weight: 500;
+    color: #374151;
+    margin: 0 0 6px 0;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    letter-spacing: -0.01em;
+  }
+
+  .cart-drawer-product-price {
+    margin-bottom: 12px;
+  }
+
+  .cart-drawer-product-price .current-price {
+    font-size: 15px;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .cart-drawer-product-price .old-price {
+    font-size: 13px;
+    font-weight: 500;
+    color: #9ca3af;
+    text-decoration: line-through;
+    margin-left: 8px;
+  }
+
+  .cart-drawer-product-form {
+    margin: 0;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .cart-drawer-add-btn {
+    background: #f8fafc;
+    color: #6b7280;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    width: fit-content;
+    letter-spacing: 0.01em;
+  }
+
+  .cart-drawer-add-btn:hover {
+    background: #eb701f;
+    color: #fff;
+    border-color: #eb701f;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(235, 112, 31, 0.2);
+  }
+
+  .cart-drawer-add-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 4px rgba(235, 112, 31, 0.2);
+  }
+
+  /* Mobile adjustments */
+  @media screen and (max-width: 768px) {
+    .cart-drawer-recommended {
+      padding: 20px 16px;
+    }
+
+    .cart-drawer-recommended-title {
+      font-size: 15px;
+      margin-bottom: 16px;
+    }
+
+    .cart-drawer-product-card {
+      padding: 14px;
+      border-radius: 10px;
+    }
+
+    .cart-drawer-product-image {
+      width: 64px;
+      height: 64px;
+      margin-right: 14px;
+      border-radius: 6px;
+    }
+
+    .cart-drawer-product-title {
+      font-size: 13px;
+      margin-bottom: 5px;
+      line-height: 1.3;
+    }
+
+    .cart-drawer-product-price {
+      margin-bottom: 10px;
+    }
+
+    .cart-drawer-product-price .current-price {
+      font-size: 14px;
+    }
+
+    .cart-drawer-add-btn {
+      padding: 7px 14px;
+      font-size: 12px;
+      border-radius: 6px;
+    }
   }
 `;
 document.head.appendChild(style);

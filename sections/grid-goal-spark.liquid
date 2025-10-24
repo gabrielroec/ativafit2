@@ -4,7 +4,8 @@
   }
 
   .grid-goal-spark__heading {
-    font-family: 'Barlow', sans-serif !important;
+    font-family: 'Barlow'
+    , sans-serif !important;
     font-weight: 700 !important;
     font-size: 40px;
     line-height: 42px;
@@ -65,7 +66,8 @@
   }
 
   .grid-goal-spark__title {
-    font-family: 'Barlow', sans-serif !important;
+    font-family: 'Barlow'
+    , sans-serif !important;
     font-weight: 700 !important;
     font-size: 30px;
     line-height: 31px;
@@ -77,7 +79,8 @@
   }
 
   .grid-goal-spark__quote {
-    font-family: 'Barlow', sans-serif !important;
+    font-family: 'Barlow'
+    , sans-serif !important;
     font-weight: 500 !important;
     font-style: italic;
     font-size: 18px;
@@ -100,14 +103,6 @@
       font-size: 32px;
       line-height: 36px;
       margin-bottom: 40px;
-    }
-
-    .grid-goal-spark__desktop {
-      display: none;
-    }
-
-    .grid-goal-spark__mobile {
-      display: block;
     }
 
     .grid-goal-spark__grid {
@@ -138,13 +133,9 @@
     }
   }
 
-  /* Desktop/Tablet Grid */
-  .grid-goal-spark__desktop {
-    display: block;
-  }
-
-  .grid-goal-spark__mobile {
-    display: none;
+  /* Container dinâmico */
+  .grid-goal-spark__dynamic-container {
+    width: 100%;
   }
 
   /* Mobile Components */
@@ -191,7 +182,8 @@
   }
 
   .mobile-card__title {
-    font-family: 'Barlow', sans-serif !important;
+    font-family: 'Barlow'
+    , sans-serif !important;
     font-weight: 700 !important;
     font-size: 30px;
     line-height: 31px;
@@ -203,7 +195,8 @@
   }
 
   .mobile-card__quote {
-    font-family: 'Barlow', sans-serif !important;
+    font-family: 'Barlow'
+    , sans-serif !important;
     font-weight: 500 !important;
     font-style: italic;
     font-size: 18px;
@@ -250,33 +243,6 @@
       line-height: 36px;
       margin-bottom: 40px;
     }
-
-    .grid-goal-spark__desktop {
-      display: none !important;
-    }
-
-    .grid-goal-spark__mobile {
-      display: block !important;
-    }
-
-    /* Garantir que o mobile slider seja visível */
-    .mobile-slider-container {
-      display: block !important;
-      visibility: visible !important;
-      opacity: 1 !important;
-    }
-
-    .mobile-card {
-      display: block !important;
-    }
-
-    .mobile-card.hidden {
-      display: none !important;
-    }
-
-    .mobile-dots {
-      display: flex !important;
-    }
   }
 {%- endstyle -%}
 
@@ -295,232 +261,218 @@
     {%- endif -%}
 
     {%- if section.blocks.size > 0 -%}
-      <!-- Desktop/Tablet Grid -->
-      <div class="grid-goal-spark__desktop">
-        <div class="grid-goal-spark__grid">
-          {%- for block in section.blocks -%}
-            <div class="grid-goal-spark__card" {{ block.shopify_attributes }}>
-              <div class="grid-goal-spark__image">
-                {%- if block.settings.card_image != blank -%}
-                  <img
-                    src="{{ block.settings.card_image | img_url: '400x450' }}"
-                    alt="{{ block.settings.card_image.alt | default: block.settings.card_title }}"
-                    width="400"
-                    height="450"
-                    loading="lazy">
-                {%- else -%}
-                  {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-image' }}
-                {%- endif -%}
-              </div>
-              <div class="grid-goal-spark__content">
-                {%- if block.settings.card_title != blank -%}
-                  <h3 class="grid-goal-spark__title">{{ block.settings.card_title | escape }}</h3>
-                {%- endif -%}
-
-                {%- if block.settings.card_quote_part1 != blank -%}
-                  <p class="grid-goal-spark__quote">
-                    "{{ block.settings.card_quote_part1 }}
-                    {%- if block.settings.card_spark_text != blank -%}
-                      <span class="grid-goal-spark__spark-text">{{ block.settings.card_spark_text }}</span>
-                    {%- endif -%}
-                    {{ block.settings.card_quote_part2 }}"
-                  </p>
-                {%- endif -%}
-              </div>
-            </div>
-          {%- endfor -%}
-        </div>
-      </div>
-
-      <!-- Mobile Slider -->
-      <div class="grid-goal-spark__mobile" id="mobile-slider-{{ section.id }}">
-        <div class="mobile-slider-container">
-          <div class="mobile-slide active" data-slide="0">
-            {%- for block in section.blocks -%}
-              <div
-                class="mobile-card{% unless forloop.first %} hidden{% endunless %}"
-                data-card="{{ forloop.index0 }}"
-                {{ block.shopify_attributes }}>
-                <div class="mobile-card__image">
-                  {%- if block.settings.card_image != blank -%}
-                    <img
-                      src="{{ block.settings.card_image | img_url: '400x450' }}"
-                      alt="{{ block.settings.card_image.alt | default: block.settings.card_title }}"
-                      width="400"
-                      height="450"
-                      loading="lazy">
-                  {%- else -%}
-                    {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-image' }}
-                  {%- endif -%}
-                </div>
-                <div class="mobile-card__content">
-                  {%- if block.settings.card_title != blank -%}
-                    <h3 class="mobile-card__title">{{ block.settings.card_title | escape }}</h3>
-                  {%- endif -%}
-
-                  {%- if block.settings.card_quote_part1 != blank -%}
-                    <p class="mobile-card__quote">
-                      "{{ block.settings.card_quote_part1 }}
-                      {%- if block.settings.card_spark_text != blank -%}
-                        <span class="mobile-card__spark-text">{{ block.settings.card_spark_text }}</span>
-                      {%- endif -%}
-                      {{ block.settings.card_quote_part2 }}"
-                    </p>
-                  {%- endif -%}
-                </div>
-              </div>
-            {%- endfor -%}
-          </div>
-        </div>
-
-        {%- if section.blocks.size > 1 -%}
-          <div class="mobile-dots" id="mobile-dots-{{ section.id }}">
-            {%- for block in section.blocks -%}
-              <button class="mobile-dot{% if forloop.first %} active{% endif %}" data-slide="{{ forloop.index0 }}"></button>
-            {%- endfor -%}
-          </div>
-        {%- endif -%}
+      <!-- Container dinâmico que será preenchido pelo JavaScript -->
+      <div id="dynamic-content-{{ section.id }}" class="grid-goal-spark__dynamic-container">
+        <!-- Conteúdo será inserido aqui pelo JavaScript -->
       </div>
     {%- endif -%}
   </div>
 </section>
 
+<!-- Templates HTML para renderização dinâmica -->
+<script type="text/template" id="desktop-template-{{ section.id }}">
+  <div class="grid-goal-spark__desktop">
+    <div class="grid-goal-spark__grid">
+      {%- for block in section.blocks -%}
+        <div class="grid-goal-spark__card" {{ block.shopify_attributes }}>
+          <div class="grid-goal-spark__image">
+            {%- if block.settings.card_image != blank -%}
+              <img
+                src="{{ block.settings.card_image | image_url: width: 400 }}"
+                alt="{{ block.settings.card_image.alt | default: block.settings.card_title }}"
+                width="400"
+                height="450"
+                loading="lazy">
+            {%- else -%}
+              {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-image' }}
+            {%- endif -%}
+          </div>
+          <div class="grid-goal-spark__content">
+            {%- if block.settings.card_title != blank -%}
+              <h3 class="grid-goal-spark__title">{{ block.settings.card_title | escape }}</h3>
+            {%- endif -%}
+
+            {%- if block.settings.card_quote_part1 != blank -%}
+              <p class="grid-goal-spark__quote">
+                "{{ block.settings.card_quote_part1 }}
+                {%- if block.settings.card_spark_text != blank -%}
+                  <span class="grid-goal-spark__spark-text">{{ block.settings.card_spark_text }}</span>
+                {%- endif -%}
+                {{ block.settings.card_quote_part2 }}"
+              </p>
+            {%- endif -%}
+          </div>
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</script>
+
+<script type="text/template" id="mobile-template-{{ section.id }}">
+  <div class="grid-goal-spark__mobile" id="mobile-slider-{{ section.id }}">
+    <div class="mobile-slider-container">
+      <div class="mobile-slide active" data-slide="0">
+        {%- for block in section.blocks -%}
+          <div
+            class="mobile-card{% unless forloop.first %} hidden{% endunless %}"
+            data-card="{{ forloop.index0 }}"
+            {{ block.shopify_attributes }}>
+            <div class="mobile-card__image">
+              {%- if block.settings.card_image != blank -%}
+                <img
+                  src="{{ block.settings.card_image | image_url: width: 400 }}"
+                  alt="{{ block.settings.card_image.alt | default: block.settings.card_title }}"
+                  width="400"
+                  height="450"
+                  loading="lazy">
+              {%- else -%}
+                {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-image' }}
+              {%- endif -%}
+            </div>
+            <div class="mobile-card__content">
+              {%- if block.settings.card_title != blank -%}
+                <h3 class="mobile-card__title">{{ block.settings.card_title | escape }}</h3>
+              {%- endif -%}
+
+              {%- if block.settings.card_quote_part1 != blank -%}
+                <p class="mobile-card__quote">
+                  "{{ block.settings.card_quote_part1 }}
+                  {%- if block.settings.card_spark_text != blank -%}
+                    <span class="mobile-card__spark-text">{{ block.settings.card_spark_text }}</span>
+                  {%- endif -%}
+                  {{ block.settings.card_quote_part2 }}"
+                </p>
+              {%- endif -%}
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+
+    {%- if section.blocks.size > 1 -%}
+      <div class="mobile-dots" id="mobile-dots-{{ section.id }}">
+        {%- for block in section.blocks -%}
+          <button class="mobile-dot{% if forloop.first %} active{% endif %}" data-slide="{{ forloop.index0 }}"></button>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </div>
+</script>
+
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    console.log('Grid Goal Spark: DOM Content Loaded');
-    
     const sectionId = '{{ section.id }}';
-    console.log('Grid Goal Spark: Section ID:', sectionId);
+    const dynamicContainer = document.getElementById('dynamic-content-' + sectionId);
+    const desktopTemplate = document.getElementById('desktop-template-' + sectionId);
+    const mobileTemplate = document.getElementById('mobile-template-' + sectionId);
     
-    const mobileSlider = document.getElementById('mobile-slider-' + sectionId);
-    console.log('Grid Goal Spark: Mobile Slider Element:', mobileSlider);
-    
-    const mobileDotsContainer = document.getElementById('mobile-dots-' + sectionId);
-    console.log('Grid Goal Spark: Mobile Dots Container:', mobileDotsContainer);
-    
-    if (!mobileSlider) {
-      console.error('Grid Goal Spark: Mobile slider not found!');
-      return;
-    }
-    
-    const mobileCards = mobileSlider.querySelectorAll('.mobile-card');
-    console.log('Grid Goal Spark: Mobile Cards Found:', mobileCards.length);
-    
-    if (mobileCards.length === 0) {
-      console.error('Grid Goal Spark: No mobile cards found!');
+    if (!dynamicContainer || !desktopTemplate || !mobileTemplate) {
+      console.error('Grid Goal Spark: Templates not found!');
       return;
     }
     
     let currentSlide = 0;
+    let isMobile = window.innerWidth <= 1024;
     
-    function showMobileSlide(index) {
-      console.log('Grid Goal Spark: Showing slide:', index);
+    function renderContent() {
+      const newIsMobile = window.innerWidth <= 1024;
       
-      // Validate index
-      if (index < 0 || index >= mobileCards.length) {
-        console.error('Grid Goal Spark: Invalid slide index:', index);
-        return;
-      }
-      
-      // Hide all cards
-      mobileCards.forEach((card, i) => {
-        const isHidden = i !== index;
-        card.classList.toggle('hidden', isHidden);
-        console.log(`Grid Goal Spark: Card ${i} hidden:`, isHidden);
-      });
-      
-      // Update dots
-      if (mobileDotsContainer) {
-        const mobileDots = mobileDotsContainer.querySelectorAll('.mobile-dot');
-        mobileDots.forEach((dot, i) => {
-          const isActive = i === index;
-          dot.classList.toggle('active', isActive);
-          console.log(`Grid Goal Spark: Dot ${i} active:`, isActive);
-        });
-      }
-      
-      currentSlide = index;
-      console.log('Grid Goal Spark: Current slide updated to:', currentSlide);
-    }
-    
-    function nextSlide() {
-      const newSlide = currentSlide < mobileCards.length - 1 ? currentSlide + 1 : 0;
-      console.log('Grid Goal Spark: Next slide from', currentSlide, 'to', newSlide);
-      showMobileSlide(newSlide);
-    }
-    
-    function prevSlide() {
-      const newSlide = currentSlide > 0 ? currentSlide - 1 : mobileCards.length - 1;
-      console.log('Grid Goal Spark: Previous slide from', currentSlide, 'to', newSlide);
-      showMobileSlide(newSlide);
-    }
-    
-    // Add click events to dots
-    if (mobileDotsContainer) {
-      const mobileDots = mobileDotsContainer.querySelectorAll('.mobile-dot');
-      console.log('Grid Goal Spark: Adding click events to', mobileDots.length, 'dots');
-      
-      mobileDots.forEach((dot, index) => {
-        dot.addEventListener('click', () => {
-          console.log('Grid Goal Spark: Dot clicked:', index);
-          showMobileSlide(index);
-        });
-      });
-    }
-    
-    // Touch/swipe support - igual ao sistema das video reviews
-    let touchStartX = 0;
-    let touchMoved = false;
-    
-    mobileSlider.addEventListener('touchstart', (e) => {
-      if (window.innerWidth > 1024) return;
-      touchStartX = e.touches[0].clientX;
-      touchMoved = false;
-      console.log('Grid Goal Spark: Touch start at X:', touchStartX);
-    }, { passive: true });
-    
-    mobileSlider.addEventListener('touchmove', (e) => {
-      if (window.innerWidth > 1024) return;
-      const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
-      if (deltaX > 15) {
-        touchMoved = true;
-        e.preventDefault();
-        console.log('Grid Goal Spark: Touch moved, delta X:', deltaX);
-      }
-    }, { passive: false });
-    
-    mobileSlider.addEventListener('touchend', (e) => {
-      if (window.innerWidth > 1024 || !touchMoved) return;
-      
-      const touchEndX = e.changedTouches[0].clientX;
-      const deltaX = touchEndX - touchStartX;
-      const threshold = 75;
-      
-      console.log('Grid Goal Spark: Touch end, delta X:', deltaX, 'threshold:', threshold);
-      
-      if (Math.abs(deltaX) > threshold) {
-        if (deltaX > 0 && currentSlide > 0) {
-          console.log('Grid Goal Spark: Swipe right, going to previous slide');
-          showMobileSlide(currentSlide - 1);
-        } else if (deltaX < 0 && currentSlide < mobileCards.length - 1) {
-          console.log('Grid Goal Spark: Swipe left, going to next slide');
-          showMobileSlide(currentSlide + 1);
+      // Só re-renderiza se mudou o tipo de layout
+      if (newIsMobile !== isMobile) {
+        isMobile = newIsMobile;
+        
+        // Limpa o container
+        dynamicContainer.innerHTML = '';
+        
+        // Renderiza o template apropriado
+        if (isMobile) {
+          dynamicContainer.innerHTML = mobileTemplate.innerHTML;
+          initializeMobileSlider();
+        } else {
+          dynamicContainer.innerHTML = desktopTemplate.innerHTML;
         }
       }
-    }, { passive: true });
+    }
     
-    // Initialize mobile slider
-    console.log('Grid Goal Spark: Initializing mobile slider...');
+    function initializeMobileSlider() {
+      const mobileSlider = document.getElementById('mobile-slider-' + sectionId);
+      const mobileDotsContainer = document.getElementById('mobile-dots-' + sectionId);
+      
+      if (!mobileSlider) return;
+      
+      const mobileCards = mobileSlider.querySelectorAll('.mobile-card');
+      if (mobileCards.length === 0) return;
+      
+      function showMobileSlide(index) {
+        if (index < 0 || index >= mobileCards.length) return;
+        
+        mobileCards.forEach((card, i) => {
+          card.classList.toggle('hidden', i !== index);
+        });
+        
+        if (mobileDotsContainer) {
+          const mobileDots = mobileDotsContainer.querySelectorAll('.mobile-dot');
+          mobileDots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === index);
+          });
+        }
+        
+        currentSlide = index;
+      }
+      
+      // Add click events to dots
+      if (mobileDotsContainer) {
+        const mobileDots = mobileDotsContainer.querySelectorAll('.mobile-dot');
+        mobileDots.forEach((dot, index) => {
+          dot.addEventListener('click', () => showMobileSlide(index));
+        });
+      }
+      
+      // Touch/swipe support
+      let touchStartX = 0;
+      let touchMoved = false;
+      
+      mobileSlider.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+        touchMoved = false;
+      }, { passive: true });
+      
+      mobileSlider.addEventListener('touchmove', (e) => {
+        const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
+        if (deltaX > 15) {
+          touchMoved = true;
+          e.preventDefault();
+        }
+      }, { passive: false });
+      
+      mobileSlider.addEventListener('touchend', (e) => {
+        if (!touchMoved) return;
+        
+        const touchEndX = e.changedTouches[0].clientX;
+        const deltaX = touchEndX - touchStartX;
+        const threshold = 75;
+        
+        if (Math.abs(deltaX) > threshold) {
+          if (deltaX > 0 && currentSlide > 0) {
+            showMobileSlide(currentSlide - 1);
+          } else if (deltaX < 0 && currentSlide < mobileCards.length - 1) {
+            showMobileSlide(currentSlide + 1);
+          }
+        }
+      }, { passive: true });
+      
+      showMobileSlide(0);
+    }
     
-    // Verificar estrutura HTML
-    console.log('Grid Goal Spark: HTML Structure Check:');
-    console.log('- Mobile Slider:', mobileSlider.outerHTML);
-    console.log('- Mobile Cards:', Array.from(mobileCards).map(card => card.outerHTML));
-    console.log('- Mobile Dots:', mobileDotsContainer ? mobileDotsContainer.outerHTML : 'Not found');
+    // Renderiza o conteúdo inicial
+    renderContent();
     
-    showMobileSlide(0);
-    
-    console.log('Grid Goal Spark: Mobile slider initialized successfully with', mobileCards.length, 'cards');
+    // Escuta mudanças no tamanho da tela
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(renderContent, 100);
+    });
   });
 </script>
 

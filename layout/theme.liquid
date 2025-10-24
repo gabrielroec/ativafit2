@@ -224,8 +224,7 @@
 
     <!-- Google Tag Manager -->
     <!--
-      <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-      })(window,document,'script','dataLayer','GTM-M985N39');</script>
+      <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);  })(window,document,'script','dataLayer','GTM-M985N39');</script>
     -->
     <!-- End Google Tag Manager -->
 
@@ -251,11 +250,11 @@
     </script>
 
     <!-- Reddit Pixel -->
-<script>
-!function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);rdt('init','t2_w2f9doa7');rdt('track', 'PageVisit');
-</script>
-<!-- DO NOT MODIFY UNLESS TO REPLACE A USER IDENTIFIER -->
-<!-- End Reddit Pixel -->
+    <script>
+      !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);rdt('init','t2_w2f9doa7');rdt('track', 'PageVisit');
+  </script>
+    <!-- DO NOT MODIFY UNLESS TO REPLACE A USER IDENTIFIER -->
+    <!-- End Reddit Pixel -->
     {% render 'digismoothie-candyrack' %}
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ 'swiper.min.css' | asset_url }}">
@@ -295,6 +294,30 @@
       background-color: #fff !important;
       background: #fff !important;
     }
+
+    /* Bundle Builder H3 Styles */
+    .bndlr-product-title-h3 {
+      font-family: 'Barlow'
+      , sans-serif !important;
+      font-weight: 500 !important;
+      font-size: 16px !important;
+      line-height: 1.4 !important;
+      color: #333 !important;
+      margin: 0 !important;
+      text-decoration: none !important;
+      display: block !important;
+    }
+
+    .bndlr-product-title-h3:hover {
+      color: #EB701F !important;
+      text-decoration: underline !important;
+    }
+
+    /* Garantir que os estilos do Bundle Builder sejam mantidos */
+    .bndlr-product-title-h3.bndlr-product-title {
+    ;
+    /* Herda todos os estilos da classe original */
+  }
   </style>
 
   <!-- Técnica 5: JavaScript para forçar estilo com máxima prioridade -->
@@ -415,5 +438,196 @@
 
     {%- comment -%} Error Handler Script {%- endcomment -%}
     <script src="{{ 'error-handler.js' | asset_url }}" defer></script>
+
+    {%- comment -%} Bundle Builder Title Converter Script {%- endcomment -%}
+    <script>
+      /**
+       * Bundle Builder Title Converter
+       * Converte títulos de produtos do Bundle Builder para elementos H3 semânticos
+       */
+      (function() {
+        'use strict';
+        
+        // Configurações
+        const CONFIG = {
+          // Seletor para encontrar títulos de produtos do Bundle Builder
+          titleSelector: '.bndlr-product-title',
+          // Seletor para encontrar H2 vazios do Bundle Builder
+          emptyH2Selector: '.bndlr-bundle-title',
+          // Classe CSS para manter estilos visuais
+          titleClass: 'bndlr-product-title',
+          // Atributos a serem preservados
+          preserveAttributes: ['href', 'target', 'title', 'class'],
+          // Delay para aguardar carregamento dinâmico
+          checkInterval: 500,
+          // Máximo de tentativas
+          maxAttempts: 20
+        };
+        
+        let attempts = 0;
+        
+        /**
+         * Converte um elemento de título para H3
+         * @param {HTMLElement} titleElement - Elemento do título
+         */
+        function convertTitleToH3(titleElement) {
+          if (!titleElement || titleElement.tagName === 'H3') {
+            return;
+          }
+          
+          try {
+            // Cria o novo elemento H3
+            const h3Element = document.createElement('h3');
+            
+            // Preserva atributos importantes
+            CONFIG.preserveAttributes.forEach(attr => {
+              if (titleElement.hasAttribute(attr)) {
+                h3Element.setAttribute(attr, titleElement.getAttribute(attr));
+              }
+            });
+            
+            // Adiciona classe específica para Bundle Builder
+            h3Element.classList.add('bndlr-product-title-h3');
+            
+            // Copia o conteúdo (texto e elementos filhos)
+            h3Element.innerHTML = titleElement.innerHTML;
+            
+            // Substitui o elemento original
+            titleElement.parentNode.replaceChild(h3Element, titleElement);
+            
+            console.log('Bundle Builder: Título convertido para H3:', h3Element.textContent.trim());
+            
+          } catch (error) {
+            console.warn('Bundle Builder: Erro ao converter título:', error);
+          }
+        }
+        
+        /**
+         * Remove elementos H2 vazios do Bundle Builder
+         * @param {HTMLElement} h2Element - Elemento H2 vazio
+         */
+        function removeEmptyH2(h2Element) {
+          if (!h2Element || h2Element.tagName !== 'H2') {
+            return;
+          }
+          
+          try {
+            // Verifica se o H2 está vazio (sem texto ou apenas espaços)
+            const textContent = h2Element.textContent.trim();
+            
+            if (textContent === '' || textContent.length === 0) {
+              // Remove o elemento vazio
+              h2Element.remove();
+              console.log('Bundle Builder: H2 vazio removido');
+            }
+            
+          } catch (error) {
+            console.warn('Bundle Builder: Erro ao remover H2 vazio:', error);
+          }
+        }
+        
+        /**
+         * Processa todos os elementos do Bundle Builder
+         */
+        function processBundleElements() {
+          const titleElements = document.querySelectorAll(CONFIG.titleSelector);
+          const emptyH2Elements = document.querySelectorAll(CONFIG.emptyH2Selector);
+          
+          let hasElements = false;
+          
+          // Processa títulos de produtos
+          if (titleElements.length > 0) {
+            console.log(`Bundle Builder: Encontrados ${titleElements.length} títulos para converter`);
+            titleElements.forEach(convertTitleToH3);
+            hasElements = true;
+          }
+          
+          // Processa H2 vazios
+          if (emptyH2Elements.length > 0) {
+            console.log(`Bundle Builder: Encontrados ${emptyH2Elements.length} H2 para verificar`);
+            emptyH2Elements.forEach(removeEmptyH2);
+            hasElements = true;
+          }
+          
+          // Se não encontrou elementos, tenta novamente
+          if (!hasElements) {
+            attempts++;
+            if (attempts < CONFIG.maxAttempts) {
+              setTimeout(processBundleElements, CONFIG.checkInterval);
+            }
+            return;
+          }
+          
+          // Para o processo quando todos os elementos foram processados
+          attempts = CONFIG.maxAttempts;
+        }
+        
+        /**
+         * Observer para detectar mudanças dinâmicas no DOM
+         */
+        function setupMutationObserver() {
+          const observer = new MutationObserver(function(mutations) {
+            let shouldCheck = false;
+            
+            mutations.forEach(function(mutation) {
+              if (mutation.type === 'childList') {
+                // Verifica se novos elementos Bundle Builder foram adicionados
+                mutation.addedNodes.forEach(function(node) {
+                  if (node.nodeType === Node.ELEMENT_NODE) {
+                    if (node.classList && node.classList.contains('bndlr-product')) {
+                      shouldCheck = true;
+                    } else if (node.querySelector && node.querySelector('.bndlr-product-title')) {
+                      shouldCheck = true;
+                    } else if (node.classList && node.classList.contains('bndlr-bundle-title')) {
+                      shouldCheck = true;
+                    } else if (node.querySelector && node.querySelector('.bndlr-bundle-title')) {
+                      shouldCheck = true;
+                    }
+                  }
+                });
+              }
+            });
+            
+            if (shouldCheck) {
+              // Aguarda um pouco para garantir que o DOM foi totalmente atualizado
+              setTimeout(processBundleElements, 100);
+            }
+          });
+          
+          // Inicia a observação
+          observer.observe(document.body, {
+            childList: true,
+            subtree: true
+          });
+          
+          console.log('Bundle Builder: MutationObserver configurado');
+        }
+        
+        /**
+         * Inicializa o conversor
+         */
+        function init() {
+          // Executa imediatamente
+          processBundleElements();
+          
+          // Configura observer para mudanças dinâmicas
+          setupMutationObserver();
+          
+          // Executa quando o DOM estiver carregado
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', processBundleElements);
+          }
+          
+          // Executa quando a página estiver totalmente carregada
+          window.addEventListener('load', processBundleElements);
+          
+          console.log('Bundle Builder: Conversor de elementos inicializado');
+        }
+        
+        // Inicializa quando o script carrega
+        init();
+        
+      })();
+    </script>
   </body>
 </html>

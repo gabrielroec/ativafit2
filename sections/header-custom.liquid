@@ -270,7 +270,8 @@
     top: -8px;
     right: -8px;
     font-size: 11px;
-    font-family: 'Barlow', sans-serif !important;
+    font-family: 'Barlow'
+    , sans-serif !important;
     font-weight: 600;
     width: 20px;
     height: 20px;
@@ -662,7 +663,11 @@
       </div>
       <!-- Links à direita -->
       <div class="header-actions">
-        <a href="{{ routes.search_url }}" class="header-search">
+        <a
+          href="#"
+          class="header-search"
+          id="header-search-btn"
+          onclick="return false;">
           <svg
             width="32"
             height="32"
@@ -676,7 +681,6 @@
               fill="#EB701F" />
             <path d="M24.7264 23.3951L20.2891 18.9395C21.4304 17.6322 22.0559 15.9773 22.0551 14.2675C22.0551 10.2603 18.6782 7 14.5275 7C10.3769 7 7 10.2603 7 14.2675C7 18.2747 10.3769 21.535 14.5275 21.535C16.0857 21.535 17.5706 21.0812 18.8402 20.2199L23.3112 24.7093C23.4981 24.8967 23.7494 25 24.0188 25C24.2738 25 24.5156 24.9062 24.6992 24.7355C24.8866 24.5611 24.9947 24.322 24.9998 24.0708C25.0049 23.8195 24.9066 23.5765 24.7264 23.3951ZM14.5275 8.89587C17.5955 8.89587 20.0914 11.3055 20.0914 14.2675C20.0914 17.2295 17.5955 19.6391 14.5275 19.6391C11.4596 19.6391 8.96371 17.2295 8.96371 14.2675C8.96371 11.3055 11.4596 8.89587 14.5275 8.89587Z" fill="white" />
           </svg>
-
         </a>
         <a href="{{ routes.account_url }}" class="header-account">
           <svg
@@ -792,11 +796,11 @@
         </div>
       {%- endfor -%}
     </div>
-  </nav>
-</div>
+  </nav></div>
 
-<script>
-  class HeaderManager {
+<!-- Search Autocomplete Component -->
+{% render 'search-autocomplete' %}
+class HeaderManager {  
     constructor() {
       this.header = document.getElementById('header-wrapper');
       this.spacer = document.getElementById('header-spacer');
@@ -905,6 +909,76 @@
     new CartManager();
   }
   
+  // Search Autocomplete Integration
+  class SearchIntegration {
+    constructor() {
+      this.searchBtn = document.getElementById('header-search-btn');
+      this.init();
+    }
+    
+    init() {
+      if (!this.searchBtn) return;
+      
+      // Override default search behavior
+      this.searchBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Search button clicked, opening autocomplete...');
+        this.openSearch();
+        return false;
+      });
+      
+      // Add keyboard shortcut (Ctrl/Cmd + K)
+      document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+          e.preventDefault();
+          this.openSearch();
+        }
+      });
+    }
+    
+    openSearch() {
+      console.log('Attempting to open search autocomplete...');
+      console.log('window.searchAutocomplete exists:', !!window.searchAutocomplete);
+      
+      if (window.searchAutocomplete) {
+        window.searchAutocomplete.open();
+      } else {
+        console.log('SearchAutocomplete not ready, waiting...');
+        // Wait a bit and try again
+        setTimeout(() => {
+          if (window.searchAutocomplete) {
+            window.searchAutocomplete.open();
+          } else {
+            console.error('SearchAutocomplete still not available');
+          }
+        }, 100);
+      }
+    }
+  }
+  
+  // Initialize Search Integration
+  function initializeSearchIntegration() {
+    new SearchIntegration();
+    console.log('Search integration initialized');
+  }
+  
+  // Listen for autocomplete ready event
+  document.addEventListener('searchAutocompleteReady', initializeSearchIntegration);
+  
+  // Also try to initialize immediately if autocomplete is already ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.searchAutocomplete) {
+        initializeSearchIntegration();
+      }
+    });
+  } else {
+    if (window.searchAutocomplete) {
+      initializeSearchIntegration();
+    }
+  }
+  
   document.addEventListener('DOMContentLoaded', function() {
     const openBtn = document.getElementById('header-mobile-menu-open');
     const closeBtn = document.getElementById('header-mobile-menu-close');
@@ -946,64 +1020,60 @@
         item.classList.toggle('open');
       });
     });
-  });
-</script>
-
-{% schema %}
-  {
-    "name": "Header Custom",
-    "settings": [
-      {
-        "type": "image_picker",
-        "id": "logo",
-        "label": "Logo",
-        "info": "400 x 120px .png recommended"
-      },
-      {
-        "type": "range",
-        "id": "logo_max_width",
-        "min": 50,
-        "max": 300,
-        "step": 5,
-        "unit": "px",
-        "label": "Logo width",
-        "default": 120
-      },
-      {
-        "type": "range",
-        "id": "mobile_logo_max_width",
-        "min": 50,
-        "max": 170,
-        "step": 5,
-        "unit": "px",
-        "label": "Mobile logo width",
-        "default": 100
-      },
-      {
-        "type": "link_list",
-        "id": "navigation_menu",
-        "label": "Menu"
-      }, {
-        "type": "select",
-        "id": "desktop_navigation_open_trigger",
-        "label": "Open dropdown on...",
-        "options": [
-          {
-            "value": "hover",
-            "label": "Hover"
-          }, {
-            "value": "click",
-            "label": "Click"
-          }
-        ],
-        "default": "hover"
-      }
-    ],
-    "presets": [
-      {
-        "name": "Header Custom",
-        "category": "Header"
-      }
-    ]
-  }
-{% endschema %}
+  });</script>{% schema %}
+{
+  "name": "Header Custom",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo",
+      "info": "400 x 120px .png recommended"
+    },
+    {
+      "type": "range",
+      "id": "logo_max_width",
+      "min": 50,
+      "max": 300,
+      "step": 5,
+      "unit": "px",
+      "label": "Logo width",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "mobile_logo_max_width",
+      "min": 50,
+      "max": 170,
+      "step": 5,
+      "unit": "px",
+      "label": "Mobile logo width",
+      "default": 100
+    },
+    {
+      "type": "link_list",
+      "id": "navigation_menu",
+      "label": "Menu"
+    }, {
+      "type": "select",
+      "id": "desktop_navigation_open_trigger",
+      "label": "Open dropdown on...",
+      "options": [
+        {
+          "value": "hover",
+          "label": "Hover"
+        }, {
+          "value": "click",
+          "label": "Click"
+        }
+      ],
+      "default": "hover"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Header Custom",
+      "category": "Header"
+    }
+  ]
+}{% endschema %}
