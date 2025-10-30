@@ -259,9 +259,6 @@
     transform: scale(1);
   }
 
-  .header-actions a:hover {
-    transform: scale(1.1);
-  }
 
   .cart-count {
     color: #ffffff;
@@ -565,6 +562,120 @@
     z-index: 5;
   }
 
+  /* Search Overlay Styles */
+  .header-search-wrapper {
+    position: relative;
+  }
+
+  .header-search-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: scale(1);
+  }
+
+  .header-search-toggle:hover {
+    transform: scale(1.1);
+  }
+
+  .header-search-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .header-search-overlay.show {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .header-search-overlay__backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+  }
+
+  .header-search-overlay__content {
+    position: relative;
+    background: #fff;
+    margin: 60px auto 0;
+    max-width: 1120px;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    transform: translateY(-20px);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .header-search-overlay.show .header-search-overlay__content {
+    transform: translateY(0);
+  }
+
+  .header-search-overlay__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 24px 0;
+  }
+
+  .header-search-overlay__header h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+  }
+
+  .header-search-overlay__close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    color: #6b7280;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .header-search-overlay__close:hover {
+    background: #f3f4f6;
+    color: #111827;
+  }
+
+  .header-search-overlay__body {
+    padding: 24px;
+  }
+
+  /* Mobile adjustments for search overlay */
+  @media screen and (max-width: 768px) {
+    .header-search-overlay__content {
+      margin: 20px;
+      max-width: none;
+      border-radius: 12px;
+    }
+
+    .header-search-overlay__header {
+      padding: 20px 20px 0;
+    }
+
+    .header-search-overlay__header h2 {
+      font-size: 18px;
+    }
+
+    .header-search-overlay__body {
+      padding: 20px;
+    }
+  }
+
 {%- endstyle -%}
 
 <!-- Adiciona um elemento para compensar o espaço do header quando sticky -->
@@ -663,25 +774,55 @@
       </div>
       <!-- Links à direita -->
       <div class="header-actions">
-        <a
-          href="#"
-          class="header-search"
-          id="header-search-btn"
-          onclick="return false;">
-          <svg
-            width="32"
-            height="32"
-            viewBox="0 0 32 32"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg">
-            <rect
+        <div class="header-search-wrapper">
+          <button
+            class="header-search-toggle"
+            id="header-search-toggle"
+            aria-label="Open search">
+            <svg
               width="32"
               height="32"
-              rx="16"
-              fill="#EB701F" />
-            <path d="M24.7264 23.3951L20.2891 18.9395C21.4304 17.6322 22.0559 15.9773 22.0551 14.2675C22.0551 10.2603 18.6782 7 14.5275 7C10.3769 7 7 10.2603 7 14.2675C7 18.2747 10.3769 21.535 14.5275 21.535C16.0857 21.535 17.5706 21.0812 18.8402 20.2199L23.3112 24.7093C23.4981 24.8967 23.7494 25 24.0188 25C24.2738 25 24.5156 24.9062 24.6992 24.7355C24.8866 24.5611 24.9947 24.322 24.9998 24.0708C25.0049 23.8195 24.9066 23.5765 24.7264 23.3951ZM14.5275 8.89587C17.5955 8.89587 20.0914 11.3055 20.0914 14.2675C20.0914 17.2295 17.5955 19.6391 14.5275 19.6391C11.4596 19.6391 8.96371 17.2295 8.96371 14.2675C8.96371 11.3055 11.4596 8.89587 14.5275 8.89587Z" fill="white" />
-          </svg>
-        </a>
+              viewBox="0 0 32 32"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <rect
+                width="32"
+                height="32"
+                rx="16"
+                fill="#EB701F" />
+              <path d="M24.7264 23.3951L20.2891 18.9395C21.4304 17.6322 22.0559 15.9773 22.0551 14.2675C22.0551 10.2603 18.6782 7 14.5275 7C10.3769 7 7 10.2603 7 14.2675C7 18.2747 10.3769 21.535 14.5275 21.535C16.0857 21.535 17.5706 21.0812 18.8402 20.2199L23.3112 24.7093C23.4981 24.8967 23.7494 25 24.0188 25C24.2738 25 24.5156 24.9062 24.6992 24.7355C24.8866 24.5611 24.9947 24.322 24.9998 24.0708C25.0049 23.8195 24.9066 23.5765 24.7264 23.3951ZM14.5275 8.89587C17.5955 8.89587 20.0914 11.3055 20.0914 14.2675C20.0914 17.2295 17.5955 19.6391 14.5275 19.6391C11.4596 19.6391 8.96371 17.2295 8.96371 14.2675C8.96371 11.3055 11.4596 8.89587 14.5275 8.89587Z" fill="white" />
+            </svg>
+          </button>
+
+          <!-- Search Overlay -->
+          <div class="header-search-overlay" id="header-search-overlay">
+            <div class="header-search-overlay__backdrop"></div>
+            <div class="header-search-overlay__content">
+              <div class="header-search-overlay__header">
+                <h2>Search Products</h2>
+                <button
+                  class="header-search-overlay__close"
+                  id="header-search-overlay-close"
+                  aria-label="Close search">
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none">
+                    <path
+                      d="M18 6L6 18M6 6L18 18"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round" />
+                  </svg>
+                </button>
+              </div>
+              <div class="header-search-overlay__body">
+                {% render 'search-autocomplete' %}
+              </div>
+            </div>
+          </div>
+        </div>
         <a href="{{ routes.account_url }}" class="header-account">
           <svg
             width="32"
@@ -796,11 +937,11 @@
         </div>
       {%- endfor -%}
     </div>
-  </nav></div>
+  </nav>
+</div>
 
-<!-- Search Autocomplete Component -->
-{% render 'search-autocomplete' %}
-class HeaderManager {  
+<script>
+  class HeaderManager {
     constructor() {
       this.header = document.getElementById('header-wrapper');
       this.spacer = document.getElementById('header-spacer');
@@ -909,76 +1050,6 @@ class HeaderManager {
     new CartManager();
   }
   
-  // Search Autocomplete Integration
-  class SearchIntegration {
-    constructor() {
-      this.searchBtn = document.getElementById('header-search-btn');
-      this.init();
-    }
-    
-    init() {
-      if (!this.searchBtn) return;
-      
-      // Override default search behavior
-      this.searchBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log('Search button clicked, opening autocomplete...');
-        this.openSearch();
-        return false;
-      });
-      
-      // Add keyboard shortcut (Ctrl/Cmd + K)
-      document.addEventListener('keydown', (e) => {
-        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-          e.preventDefault();
-          this.openSearch();
-        }
-      });
-    }
-    
-    openSearch() {
-      console.log('Attempting to open search autocomplete...');
-      console.log('window.searchAutocomplete exists:', !!window.searchAutocomplete);
-      
-      if (window.searchAutocomplete) {
-        window.searchAutocomplete.open();
-      } else {
-        console.log('SearchAutocomplete not ready, waiting...');
-        // Wait a bit and try again
-        setTimeout(() => {
-          if (window.searchAutocomplete) {
-            window.searchAutocomplete.open();
-          } else {
-            console.error('SearchAutocomplete still not available');
-          }
-        }, 100);
-      }
-    }
-  }
-  
-  // Initialize Search Integration
-  function initializeSearchIntegration() {
-    new SearchIntegration();
-    console.log('Search integration initialized');
-  }
-  
-  // Listen for autocomplete ready event
-  document.addEventListener('searchAutocompleteReady', initializeSearchIntegration);
-  
-  // Also try to initialize immediately if autocomplete is already ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      if (window.searchAutocomplete) {
-        initializeSearchIntegration();
-      }
-    });
-  } else {
-    if (window.searchAutocomplete) {
-      initializeSearchIntegration();
-    }
-  }
-  
   document.addEventListener('DOMContentLoaded', function() {
     const openBtn = document.getElementById('header-mobile-menu-open');
     const closeBtn = document.getElementById('header-mobile-menu-close');
@@ -1020,60 +1091,163 @@ class HeaderManager {
         item.classList.toggle('open');
       });
     });
-  });</script>{% schema %}
-{
-  "name": "Header Custom",
-  "settings": [
-    {
-      "type": "image_picker",
-      "id": "logo",
-      "label": "Logo",
-      "info": "400 x 120px .png recommended"
-    },
-    {
-      "type": "range",
-      "id": "logo_max_width",
-      "min": 50,
-      "max": 300,
-      "step": 5,
-      "unit": "px",
-      "label": "Logo width",
-      "default": 120
-    },
-    {
-      "type": "range",
-      "id": "mobile_logo_max_width",
-      "min": 50,
-      "max": 170,
-      "step": 5,
-      "unit": "px",
-      "label": "Mobile logo width",
-      "default": 100
-    },
-    {
-      "type": "link_list",
-      "id": "navigation_menu",
-      "label": "Menu"
-    }, {
-      "type": "select",
-      "id": "desktop_navigation_open_trigger",
-      "label": "Open dropdown on...",
-      "options": [
-        {
-          "value": "hover",
-          "label": "Hover"
-        }, {
-          "value": "click",
-          "label": "Click"
+  });
+
+  // Search Overlay Manager
+  class SearchOverlayManager {
+    constructor() {
+      this.toggleBtn = document.getElementById('header-search-toggle');
+      this.closeBtn = document.getElementById('header-search-overlay-close');
+      this.overlay = document.getElementById('header-search-overlay');
+      this.backdrop = this.overlay?.querySelector('.header-search-overlay__backdrop');
+      this.searchInput = document.getElementById('search-autocomplete-input');
+      
+      this.init();
+    }
+
+    init() {
+      if (!this.toggleBtn || !this.overlay) {
+        console.log('SearchOverlayManager: Elements not found', {
+          toggleBtn: !!this.toggleBtn,
+          overlay: !!this.overlay
+        });
+        return;
+      }
+
+      console.log('SearchOverlayManager: Initialized successfully');
+
+      // Open search overlay
+      this.toggleBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        console.log('Search button clicked - opening overlay');
+        this.openOverlay();
+      });
+      
+      // Close search overlay
+      this.closeBtn?.addEventListener('click', () => this.closeOverlay());
+      this.backdrop?.addEventListener('click', () => this.closeOverlay());
+      
+      // Close on escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && this.overlay.classList.contains('show')) {
+          this.closeOverlay();
         }
-      ],
-      "default": "hover"
+      });
     }
-  ],
-  "presets": [
-    {
-      "name": "Header Custom",
-      "category": "Header"
+
+    openOverlay() {
+      console.log('Opening search overlay');
+      this.overlay.classList.add('show');
+      document.body.style.overflow = 'hidden';
+      
+      // Focus search input after animation
+      setTimeout(() => {
+        if (this.searchInput) {
+          this.searchInput.focus();
+          console.log('Search input focused');
+        }
+      }, 300);
     }
-  ]
-}{% endschema %}
+
+    closeOverlay() {
+      this.overlay.classList.remove('show');
+      document.body.style.overflow = '';
+      
+      // Clear search input
+      if (this.searchInput) {
+        this.searchInput.value = '';
+        this.searchInput.dispatchEvent(new Event('input'));
+      }
+    }
+  }
+
+  // Initialize Search Overlay Manager
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('DOM loaded, initializing SearchOverlayManager');
+      new SearchOverlayManager();
+    });
+  } else {
+    console.log('DOM already loaded, initializing SearchOverlayManager immediately');
+    new SearchOverlayManager();
+  }
+
+  // Emergency fallback - remove any old search links
+  document.addEventListener('DOMContentLoaded', () => {
+    const oldSearchLinks = document.querySelectorAll('a[href="/search"], a[href*="search"]');
+    oldSearchLinks.forEach(link => {
+      if (link.classList.contains('header-search')) {
+        console.log('Found old search link, removing href');
+        link.removeAttribute('href');
+        link.style.cursor = 'pointer';
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const overlay = document.getElementById('header-search-overlay');
+          if (overlay) {
+            overlay.classList.add('show');
+            document.body.style.overflow = 'hidden';
+          }
+        });
+      }
+    });
+  });
+</script>
+
+{% schema %}
+  {
+    "name": "Header Custom",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "logo",
+        "label": "Logo",
+        "info": "400 x 120px .png recommended"
+      },
+      {
+        "type": "range",
+        "id": "logo_max_width",
+        "min": 50,
+        "max": 300,
+        "step": 5,
+        "unit": "px",
+        "label": "Logo width",
+        "default": 120
+      },
+      {
+        "type": "range",
+        "id": "mobile_logo_max_width",
+        "min": 50,
+        "max": 170,
+        "step": 5,
+        "unit": "px",
+        "label": "Mobile logo width",
+        "default": 100
+      },
+      {
+        "type": "link_list",
+        "id": "navigation_menu",
+        "label": "Menu"
+      }, {
+        "type": "select",
+        "id": "desktop_navigation_open_trigger",
+        "label": "Open dropdown on...",
+        "options": [
+          {
+            "value": "hover",
+            "label": "Hover"
+          }, {
+            "value": "click",
+            "label": "Click"
+          }
+        ],
+        "default": "hover"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Header Custom",
+        "category": "Header"
+      }
+    ]
+  }
+{% endschema %}

@@ -296,12 +296,57 @@
     gap: 20px;
     justify-content: space-around;
   }
-  .benefits div {
+  
+  .benefit-item {
     display: flex;
     align-items: center;
     flex-direction: column;
+    gap: 8px;
+    position: relative;
   }
-  .benefits div span {
+  
+  /* Ícone posicionado no top right da imagem */
+  .benefit-item img {
+    position: relative;
+  }
+  
+  .benefit-info-btn {
+    position: absolute;
+    top: -10px;
+    right: -20px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #e5e5e5;
+    border-radius: 50%;
+    padding: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 2;
+  }
+  
+  .benefit-info-btn:hover {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+  
+  .benefit-info-btn:focus {
+    outline: 2px solid #EB701F;
+    outline-offset: 2px;
+  }
+  
+  .benefit-info-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  
+  .benefit-text {
     font-family: Barlow;
     font-weight: 400 !important;
     font-style: Regular;
@@ -874,10 +919,14 @@
       align-items: flex-start !important;
       justify-content: flex-start !important;
     }
-    .benefits div {
-      flex-direction: row;
+    
+    .benefit-item {
+      flex-direction: row !important;
+      align-items: center !important;
+      width: 100%;
     }
-    .benefits div span {
+    
+    .benefit-text {
       max-width: 100% !important;
       text-align: left;
     }
@@ -1904,38 +1953,59 @@
         <span class="feature-line">{{ section.settings.feature_line_2 | default: "Comfort Grip | Compact Storage" }}</span>
       </p>
       <div class="benefits">
-        <div>
-          {% if section.settings.benefit_icon_1 %}
-            <img
-              src="{{ section.settings.benefit_icon_1 | image_url: width: 37 }}"
-              alt="{{ section.settings.benefit_text_1 }}"
-              width="37"
-              height="25"
-              style="width: 37px; height: 25px; object-fit: contain;">
-          {% endif %}
-          <span>{{ section.settings.benefit_text_1 | default: "Free Shipping within the U.S." }}</span>
+        <div class="benefit-item">
+          <div style="position: relative;">
+            {% if section.settings.benefit_icon_1 %}
+              <img
+                src="{{ section.settings.benefit_icon_1 | image_url: width: 37 }}"
+                alt="{{ section.settings.benefit_text_1 }}"
+                width="37"
+                height="25"
+                style="width: 37px; height: 25px; object-fit: contain;">
+            {% endif %}
+            {% comment %} <button class="benefit-info-btn" type="button" aria-label="More information about {{ section.settings.benefit_text_1 }}">
+              <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" role="presentation" class="icon icon-info" viewBox="0 0 1024 1024" width="20" height="20">
+                <path fill="#c2c8ce" d="M512 0c281.6 0 512 230.4 512 512s-230.4 512-512 512S0 793.6 0 512 230.4 0 512 0zm0 716.8c-42.667 0-76.8 34.133-76.8 68.267s34.133 68.266 76.8 68.266 76.8-34.133 76.8-68.266S554.667 716.8 512 716.8zm17.067-529.067c-136.534 0-221.867 76.8-221.867 187.734h128c0-51.2 34.133-85.334 93.867-85.334 51.2 0 85.333 34.134 85.333 76.8-8.533 42.667-17.067 59.734-68.267 93.867l-17.066 8.533c-59.734 34.134-85.334 76.8-85.334 153.6v25.6H563.2v-25.6c0-42.666 17.067-68.266 76.8-102.4 68.267-34.133 93.867-85.333 93.867-153.6 17.066-110.933-68.267-179.2-204.8-179.2z"></path>
+              </svg>
+            </button> {% endcomment %}
+          </div>
+          <span class="benefit-text">{{ section.settings.benefit_text_1 | default: "Free Shipping within the U.S." }}</span>
         </div>
-        <div>
-          {% if section.settings.benefit_icon_2 %}
-            <img
-              src="{{ section.settings.benefit_icon_2 | image_url: width: 37 }}"
-              alt="{{ section.settings.benefit_text_2 }}"
-              width="37"
-              height="25"
-              style="width: 37px; height: 25px; object-fit: contain;">
-          {% endif %}
-          <span>{{ section.settings.benefit_text_2 | default: "Free Shipping within the U.S." }}</span>
+        <div class="benefit-item">
+          <div style="position: relative;">
+            {% if section.settings.benefit_icon_2 %}
+              <img
+                src="{{ section.settings.benefit_icon_2 | image_url: width: 37 }}"
+                alt="{{ section.settings.benefit_text_2 }}"
+                width="37"
+                height="25"
+                style="width: 37px; height: 25px; object-fit: contain;">
+            {% endif %}
+            {% comment %} <button class="benefit-info-btn" type="button" aria-label="More information about {{ section.settings.benefit_text_2 }}">
+              <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" role="presentation" class="icon icon-info" viewBox="0 0 1024 1024" width="20" height="20">
+                <path fill="#c2c8ce" d="M512 0c281.6 0 512 230.4 512 512s-230.4 512-512 512S0 793.6 0 512 230.4 0 512 0zm0 716.8c-42.667 0-76.8 34.133-76.8 68.267s34.133 68.266 76.8 68.266 76.8-34.133 76.8-68.266S554.667 716.8 512 716.8zm17.067-529.067c-136.534 0-221.867 76.8-221.867 187.734h128c0-51.2 34.133-85.334 93.867-85.334 51.2 0 85.333 34.134 85.333 76.8-8.533 42.667-17.067 59.734-68.267 93.867l-17.066 8.533c-59.734 34.134-85.334 76.8-85.334 153.6v25.6H563.2v-25.6c0-42.666 17.067-68.266 76.8-102.4 68.267-34.133 93.867-85.333 93.867-153.6 17.066-110.933-68.267-179.2-204.8-179.2z"></path>
+              </svg>
+            </button> {% endcomment %}
+          </div>
+          <span class="benefit-text">{{ section.settings.benefit_text_2 | default: "Free Shipping within the U.S." }}</span>
         </div>
-        <div>
-          {% if section.settings.benefit_icon_3 %}
-            <img
-              src="{{ section.settings.benefit_icon_3 | image_url: width: 37 }}"
-              alt="{{ section.settings.benefit_text_3 }}"
-              width="37"
-              height="25"
-              style="width: 37px; height: 25px; object-fit: contain;">
-          {% endif %}
-          <span>{{ section.settings.benefit_text_3 | default: "Lifetime Customer Support" }}</span>
+        <div class="benefit-item">
+          <div style="position: relative;">
+            {% if section.settings.benefit_icon_3 %}
+              <img
+                src="{{ section.settings.benefit_icon_3 | image_url: width: 37 }}"
+                alt="{{ section.settings.benefit_text_3 }}"
+                width="37"
+                height="25"
+                style="width: 37px; height: 25px; object-fit: contain;">
+            {% endif %}
+            {% comment %} <button class="benefit-info-btn" type="button" aria-label="More information about {{ section.settings.benefit_text_3 }}">
+              <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" role="presentation" class="icon icon-info" viewBox="0 0 1024 1024" width="20" height="20">
+                <path fill="#c2c8ce" d="M512 0c281.6 0 512 230.4 512 512s-230.4 512-512 512S0 793.6 0 512 230.4 0 512 0zm0 716.8c-42.667 0-76.8 34.133-76.8 68.267s34.133 68.266 76.8 68.266 76.8-34.133 76.8-68.266S554.667 716.8 512 716.8zm17.067-529.067c-136.534 0-221.867 76.8-221.867 187.734h128c0-51.2 34.133-85.334 93.867-85.334 51.2 0 85.333 34.134 85.333 76.8-8.533 42.667-17.067 59.734-68.267 93.867l-17.066 8.533c-59.734 34.134-85.334 76.8-85.334 153.6v25.6H563.2v-25.6c0-42.666 17.067-68.266 76.8-102.4 68.267-34.133 93.867-85.333 93.867-153.6 17.066-110.933-68.267-179.2-204.8-179.2z"></path>
+              </svg>
+            </button> {% endcomment %}
+          </div>
+          <span class="benefit-text">{{ section.settings.benefit_text_3 | default: "Lifetime Customer Support" }}</span>
         </div>
       </div>
 
@@ -3443,6 +3513,39 @@
         "id": "benefit_text_3",
         "label": "Benefit Text 3",
         "default": "Lifetime Customer Support"
+      }, {
+        "type": "header",
+        "content": "Benefit Popup Contents"
+      }, {
+        "type": "text",
+        "id": "benefit_popup_title_1",
+        "label": "Popup 1 Title",
+        "default": "FREE SHIPPING"
+      }, {
+        "type": "html",
+        "id": "benefit_popup_content_1",
+        "label": "Popup 1 Content",
+        "default": "<p>Our goal is to provide you with the greatest transportation options no matter where you live. Every day, we give services to hundreds of consumers worldwide, and we endeavor to provide you with the best possible service.</p><p><strong>Order Processing Time</strong></p><ul><li>Processing time is the time between when you place the order and we ship your order.</li><li>Most orders are processed within 48 business hours. Orders on the weekend may take longer.</li><li>Our warehouse operates Monday - Friday during standard business hours. During holidays we make every effort to reduce delays.</li></ul>"
+      }, {
+        "type": "text",
+        "id": "benefit_popup_title_2",
+        "label": "Popup 2 Title",
+        "default": "45 DAYS PRICE PROTECTION"
+      }, {
+        "type": "html",
+        "id": "benefit_popup_content_2",
+        "label": "Popup 2 Content",
+        "default": "<p>WalkingPad will give you a refund for the difference in price if the item you bought from our official website is available for a lower price within 45 days. Given that other versions of WalkingPads are sold in other countries, we will only protect your price for the same version in the same country you bought it.</p><p>Please <a href=\"#\">Contact us</a> with your order number if you need help.</p>"
+      }, {
+        "type": "text",
+        "id": "benefit_popup_title_3",
+        "label": "Popup 3 Title",
+        "default": "LIFETIME CUSTOMER SUPPORT"
+      }, {
+        "type": "html",
+        "id": "benefit_popup_content_3",
+        "label": "Popup 3 Content",
+        "default": "<p>We provide lifetime customer support for all products purchased from Ativafit. Our dedicated support team is here to help you with any questions, concerns, or technical assistance you may need.</p><p><strong>Support Channels</strong></p><ul><li>Email support: <a href=\"mailto:services@ativafit.com\">services@ativafit.com</a></li><li>Phone support: Available Monday-Friday, 9 AM - 5 PM EST</li><li>Live chat: Available on our website during business hours</li></ul>"
       }
     ],
     "blocks": [
@@ -3578,3 +3681,253 @@
     ]
   }
 {% endschema %}
+
+<!-- Benefit Info Popups -->
+<!-- Modal 1 -->
+<div class="halo-popup" id="benefit-popup-1">
+  <div class="halo-popup-wrapper">
+    <div class="halo-popup-header">
+      <h5 class="halo-popup-title">{{ section.settings.benefit_popup_title_1 }}</h5>
+      <button type="button" class="halo-popup-close" data-close-benefit="1" aria-label="Close">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20" height="20"><path d="M 38.982422 6.9707031 A 2.0002 2.0002 0 0 0 37.585938 7.5859375 L 24 21.171875 L 10.414062 7.5859375 A 2.0002 2.0002 0 0 0 8.9785156 6.9804688 A 2.0002 2.0002 0 0 0 7.5859375 10.414062 L 21.171875 24 L 7.5859375 37.585938 A 2.0002 2.0002 0 1 0 10.414062 40.414062 L 24 26.828125 L 37.585938 40.414062 A 2.0002 2.0002 0 1 0 40.414062 37.585938 L 26.828125 24 L 40.414062 10.414062 A 2.0002 2.0002 0 0 0 38.982422 6.9707031 z"></path></svg>
+        Close
+      </button>
+    </div>
+    <div class="halo-popup-content">
+      {{ section.settings.benefit_popup_content_1 }}
+    </div>
+  </div>
+</div>
+
+<!-- Modal 2 -->
+<div class="halo-popup" id="benefit-popup-2">
+  <div class="halo-popup-wrapper">
+    <div class="halo-popup-header">
+      <h5 class="halo-popup-title">{{ section.settings.benefit_popup_title_2 }}</h5>
+      <button type="button" class="halo-popup-close" data-close-benefit="2" aria-label="Close">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20" height="20"><path d="M 38.982422 6.9707031 A 2.0002 2.0002 0 0 0 37.585938 7.5859375 L 24 21.171875 L 10.414062 7.5859375 A 2.0002 2.0002 0 0 0 8.9785156 6.9804688 A 2.0002 2.0002 0 0 0 7.5859375 10.414062 L 21.171875 24 L 7.5859375 37.585938 A 2.0002 2.0002 0 1 0 10.414062 40.414062 L 24 26.828125 L 37.585938 40.414062 A 2.0002 2.0002 0 1 0 40.414062 37.585938 L 26.828125 24 L 40.414062 10.414062 A 2.0002 2.0002 0 0 0 38.982422 6.9707031 z"></path></svg>
+        Close
+      </button>
+    </div>
+    <div class="halo-popup-content">
+      {{ section.settings.benefit_popup_content_2 }}
+    </div>
+  </div>
+</div>
+
+<!-- Modal 3 -->
+<div class="halo-popup" id="benefit-popup-3">
+  <div class="halo-popup-wrapper">
+    <div class="halo-popup-header">
+      <h5 class="halo-popup-title">{{ section.settings.benefit_popup_title_3 }}</h5>
+      <button type="button" class="halo-popup-close" data-close-benefit="3" aria-label="Close">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20" height="20"><path d="M 38.982422 6.9707031 A 2.0002 2.0002 0 0 0 37.585938 7.5859375 L 24 21.171875 L 10.414062 7.5859375 A 2.0002 2.0002 0 0 0 8.9785156 6.9804688 A 2.0002 2.0002 0 0 0 7.5859375 10.414062 L 21.171875 24 L 7.5859375 37.585938 A 2.0002 2.0002 0 1 0 10.414062 40.414062 L 24 26.828125 L 37.585938 40.414062 A 2.0002 2.0002 0 1 0 40.414062 37.585938 L 26.828125 24 L 40.414062 10.414062 A 2.0002 2.0002 0 0 0 38.982422 6.9707031 z"></path></svg>
+        Close
+      </button>
+    </div>
+    <div class="halo-popup-content">
+      {{ section.settings.benefit_popup_content_3 }}
+    </div>
+  </div>
+</div>
+
+<style>
+/* Benefit Popup Styles */
+.halo-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.halo-popup.is-show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.halo-popup-wrapper {
+  background: #fff;
+  border-radius: 8px;
+  max-width: 800px;
+  max-height: 90vh;
+  width: 90%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  position: relative;
+}
+
+.halo-popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.halo-popup-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #232323;
+}
+
+.halo-popup-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  font-size: 14px;
+  color: #666;
+  transition: color 0.2s ease;
+}
+
+.halo-popup-close:hover {
+  color: #EB701F;
+}
+
+.halo-popup-close svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+.halo-popup-content {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.halo-popup-content p {
+  margin: 0 0 16px 0;
+  line-height: 1.6;
+  color: #4d4d4d;
+}
+
+.halo-popup-content p:last-child {
+  margin-bottom: 0;
+}
+
+.halo-popup-content strong {
+  color: #232323;
+  font-weight: 600;
+}
+
+.halo-popup-content ul {
+  margin: 0 0 16px 0;
+  padding-left: 24px;
+  color: #4d4d4d;
+}
+
+.halo-popup-content li {
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.halo-popup-content table {
+  margin: 16px 0;
+}
+
+.halo-popup-content a {
+  color: #EB701F;
+  text-decoration: underline;
+}
+
+.halo-popup-content a:hover {
+  color: #d65b0f;
+}
+
+@media (max-width: 768px) {
+  .halo-popup-wrapper {
+    width: 95%;
+    max-height: 85vh;
+  }
+  
+  .halo-popup-header {
+    padding: 16px 20px;
+  }
+  
+  .halo-popup-title {
+    font-size: 18px;
+  }
+  
+  .halo-popup-content {
+    padding: 20px;
+  }
+  
+  .halo-popup-content table {
+    font-size: 12px;
+  }
+}
+</style>
+
+<script>
+// Benefit Popup Handler
+document.addEventListener('DOMContentLoaded', function() {
+  const benefitButtons = document.querySelectorAll('.benefit-info-btn');
+  
+  benefitButtons.forEach((button, index) => {
+    button.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const popupId = 'benefit-popup-' + (index + 1);
+      const popup = document.getElementById(popupId);
+      
+      if (popup) {
+        popup.classList.add('is-show');
+        document.body.style.overflow = 'hidden';
+      }
+    });
+  });
+  
+  // Close buttons
+  const closeButtons = document.querySelectorAll('[data-close-benefit]');
+  closeButtons.forEach(button => {
+    button.addEventListener('click', function(e) {
+      const benefitId = button.getAttribute('data-close-benefit');
+      const popup = document.getElementById('benefit-popup-' + benefitId);
+      
+      if (popup) {
+        popup.classList.remove('is-show');
+        document.body.style.overflow = '';
+      }
+    });
+  });
+  
+  // Close on backdrop click
+  const popups = document.querySelectorAll('.halo-popup');
+  popups.forEach(popup => {
+    popup.addEventListener('click', function(e) {
+      if (e.target === popup) {
+        popup.classList.remove('is-show');
+        document.body.style.overflow = '';
+      }
+    });
+  });
+  
+  // Close on Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      popups.forEach(popup => {
+        if (popup.classList.contains('is-show')) {
+          popup.classList.remove('is-show');
+          document.body.style.overflow = '';
+        }
+      });
+    }
+  });
+});
+</script>

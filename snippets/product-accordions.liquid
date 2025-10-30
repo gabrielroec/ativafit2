@@ -1,0 +1,66 @@
+{% comment %} 
+  Product Accordions Component
+   
+  Renders product accordions from section blocks.
+   
+  Accepts: 
+  - section: {Object} Section object with accordion blocks
+   
+  Usage:
+  {% render 'product-accordions', section: section %} 
+{% endcomment %}
+
+{%- if section.blocks.size > 0 -%}
+  <div class="product-accordion_new">
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'accordion_item' -%}
+        <div class="accordion-item_new" {{ block.shopify_attributes }}>
+          <button
+            class="accordion-header_new"
+            type="button"
+            onclick="toggleAccordion(this)"
+            aria-expanded="false">
+            <span class="accordion-title_new">{{ block.settings.title }}</span>
+            <span class="accordion-icon_new">+</span>
+          </button>
+
+          <div class="accordion-content_new">
+            <div class="accordion-body_new">
+              {%- case block.settings.content_type -%}
+                {%- when 'text' -%}
+                  {%- if block.settings.text_content != blank -%}
+                    <div class="rte">{{ block.settings.text_content }}</div>
+                  {%- endif -%}
+
+                {%- when 'list' -%}
+                  <ul class="accordion-list_new">
+                    {%- if block.settings.item_1 != blank -%}
+                      <li>{{ block.settings.item_1 }}</li>
+                    {%- endif -%}
+                    {%- if block.settings.item_2 != blank -%}
+                      <li>{{ block.settings.item_2 }}</li>
+                    {%- endif -%}
+                    {%- if block.settings.item_3 != blank -%}
+                      <li>{{ block.settings.item_3 }}</li>
+                    {%- endif -%}
+                    {%- if block.settings.item_4 != blank -%}
+                      <li>{{ block.settings.item_4 }}</li>
+                    {%- endif -%}
+                    {%- if block.settings.item_5 != blank -%}
+                      <li>{{ block.settings.item_5 }}</li>
+                    {%- endif -%}
+                  </ul>
+              {%- endcase -%}
+
+              {%- if block.settings.show_link and block.settings.link_url != blank -%}
+                <a href="{{ block.settings.link_url }}" class="accordion-link_new">
+                  {{ block.settings.link_text | default: "Learn more" }}
+                </a>
+              {%- endif -%}
+            </div>
+          </div>
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+{%- endif -%}

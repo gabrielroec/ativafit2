@@ -1,0 +1,118 @@
+{% comment %}
+  Product Benefits Component
+  
+  Renders product benefits with SVG icons and info buttons.
+  Supports both old settings (benefit_icon_X, benefit_text_X) and new settings (benefit_X_svg, benefit_X_title).
+  
+  Accepts:
+  - section: {Object} Section object for settings
+  
+  Usage:
+  {% render 'product-benefits', section: section %}
+{% endcomment %}
+
+{%- if section.settings.show_benefits -%}
+<div class="benefits_new">
+  <!-- Benefit 1: Free Shipping -->
+  {%- assign benefit_1_show = section.settings.benefit_1_enabled | default: true -%}
+  {%- assign benefit_1_title = section.settings.benefit_1_title | default: section.settings.benefit_text_1 -%}
+  {%- assign benefit_1_desc = section.settings.benefit_1_description -%}
+  {%- if benefit_1_show and benefit_1_title != blank -%}
+  <div class="benefit-item_new">
+    <button class="benefit-info-btn_new" type="button" aria-label="More information about {{ benefit_1_title }}">
+      <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" role="presentation" class="icon icon-info" viewBox="0 0 1024 1024" width="20" height="20">
+        <path fill="#c2c8ce" d="M512 0c281.6 0 512 230.4 512 512s-230.4 512-512 512S0 793.6 0 512 230.4 0 512 0zm0 716.8c-42.667 0-76.8 34.133-76.8 68.267s34.133 68.266 76.8 68.266 76.8-34.133 76.8-68.266S554.667 716.8 512 716.8zm17.067-529.067c-136.534 0-221.867 76.8-221.867 187.734h128c0-51.2 34.133-85.334 93.867-85.334 51.2 0 85.333 34.134 85.333 76.8-8.533 42.667-17.067 59.734-68.267 93.867l-17.066 8.533c-59.734 34.134-85.334 76.8-85.334 153.6v25.6H563.2v-25.6c0-42.666 17.067-68.266 76.8-102.4 68.267-34.133 93.867-85.333 93.867-153.6 17.066-110.933-68.267-179.2-204.8-179.2z"></path>
+      </svg>
+    </button>
+    <div class="benefit-icon-wrapper_new">
+      {%- if section.settings.benefit_1_svg != blank -%}
+        {{ section.settings.benefit_1_svg }}
+      {%- elsif section.settings.benefit_icon_1 != blank -%}
+        <img src="{{ section.settings.benefit_icon_1 | image_url: width: 45 }}" alt="{{ benefit_1_title }}" width="45" height="30">
+      {%- endif -%}
+    </div>
+    <div class="benefit-content_new">
+      <h4 class="benefit-title_new">{{ benefit_1_title }}</h4>
+      {%- if benefit_1_desc != blank -%}
+        <p class="benefit-description_new">{{ benefit_1_desc }}</p>
+      {%- endif -%}
+    </div>
+  </div>
+  {%- endif -%}
+
+  <!-- Benefit 2: Warranty -->
+  {%- assign benefit_2_show = section.settings.benefit_2_enabled | default: true -%}
+  {%- assign benefit_2_title = section.settings.benefit_2_title | default: section.settings.benefit_text_2 -%}
+  {%- assign benefit_2_desc = section.settings.benefit_2_description -%}
+  {%- if benefit_2_show and benefit_2_title != blank -%}
+  <div class="benefit-item_new">
+    <div class="benefit-icon-wrapper_new">
+      {%- if section.settings.benefit_2_svg != blank -%}
+        {{ section.settings.benefit_2_svg }}
+      {%- elsif section.settings.benefit_icon_2 != blank -%}
+        <img src="{{ section.settings.benefit_icon_2 | image_url: width: 45 }}" alt="{{ benefit_2_title }}" width="45" height="30">
+      {%- endif -%}
+      <button class="benefit-info-btn_new" type="button" aria-label="More information about {{ benefit_2_title }}">
+        <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" role="presentation" class="icon icon-info" viewBox="0 0 1024 1024" width="20" height="20">
+          <path fill="#c2c8ce" d="M512 0c281.6 0 512 230.4 446512 512s-230.4 512-512 512S0 793.6 0 512 230.4 0 512 0zm0 716.8c-42.667 0-76.8 34.133-76.浮动8 68.267s34.133 68.266 76.8 68.266 76.8-34.133 76.8-68.266S554.667 716.8 512 716.8zm17.067-529.067c-136.534 0-221.867 76.8-221.867 187.734h128c0-51.2 34.133-85.334 93.867-85.334 51.2 0 85.333 34.134 85.333 76.8-8.533 42.667-17.067 59.734-68.267 93.867l-17.066 8.533c-59.734 34.134-85.334 76.8-85.334 153.6v25.6H563.2v-25.6c0-42.666 17.067-68.266 76.8-102.4 68.267-34.133 93.867-85.333 93.867-153.6 17.066-110.933-68.267-179.2-204.8-179.2z"></path>
+        </svg>
+      </button>
+    </div>
+    <div class="benefit-content_new">
+      <h4 class="benefit-title_new">{{ benefit_2_title }}</h4>
+      <p class="benefit-description_new">{{ benefit_2_desc }} {%- if section.settings.benefit_2_link_url != blank -%}<a href="{{ section.settings.benefit_2_link_url }}" class="benefit-link_new">{{ section.settings.benefit_2_link_text }}</a>{%- endif -%}</p>
+    </div>
+  </div>
+  {%- endif -%}
+
+  <!-- Benefit 3: Worry-Free Purchase -->
+  {%- assign benefit_3_show = section.settings.benefit_3_enabled | default: true -%}
+  {%- assign benefit_3_title = section.settings.benefit_3_title | default: section.settings.benefit_text_3 -%}
+  {%- assign benefit_3_desc = section.settings.benefit_3_description -%}
+  {%- if benefit_3_show and benefit_3_title != blank -%}
+  <div class="benefit-item_new">
+    <div class="benefit-icon-wrapper_new">
+      {%- if section.settings.benefit_3_svg != blank -%}
+        {{ section.settings.benefit_3_svg }}
+      {%- elsif section.settings.benefit_icon_3 != blank -%}
+        <img src="{{ section.settings.benefit_icon_3 | image_url: width: 45 }}" alt="{{ benefit_3_title }}" width="45" height="30">
+      {%- endif -%}
+      <button class="benefit-info-btn_new" type="button" aria-label="More information about {{ benefit_3_title }}">
+        <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" role="presentation" class="icon icon-info" viewBox="0 0 1024 1024" width="20" height="20">
+          <path fill="#c2c8ce" d="M512 0c281.6 0 512 230.4 512 512s-230.4 512-512 512S0 793.6 0 512 230.4 0 512 0zm0 716.8c-42.667 0-76.8 34.133-76.8 68.267s34.133 68.266 76.8 68.266 76.8-34.133 76.8-68.266S554.667 716.8 512 716.8zm17.067-529.067c-136.534 0-221.867 76.8-221.867 187.734h128c0-51.2 34.133-85.334 93.867-85.334 51.2 0 85.333 34.134 85.333 76.8-8.533 42.667-17.067 59.734-68.267 93.867l-17.066 8.533c-59.734 34.134-85.334 76.8-85.334 153.6v25.6H563.2v-25.6c0-42.666 17.067-68.266 76.8-102.4 68.267-34.133 93.867-85.333 93.867-153.6 17.066-110.933-68.267-179.2-204.8-179.2z"></path>
+        </svg>
+      </button>
+    </div>
+    <div class="benefit-content_new">
+      <h4 class="benefit-title_new">{{ benefit_3_title }}</h4>
+      <p class="benefit-description_new">{{ benefit_3_desc }} {%- if section.settings.benefit_3_link_url != blank -%}<a href="{{ section.settings.benefit_3_link_url }}" class="benefit-link_new">{{ section.settings.benefit_3_link_text }}</a>{%- endif -%}</p>
+    </div>
+  </div>
+  {%- endif -%}
+
+  <!-- Benefit 4: HSA/FSA -->
+  {%- assign benefit_4_show = section.settings.benefit_4_enabled | default: true -%}
+  {%- assign benefit_4_title = section.settings.benefit_4_title -%}
+  {%- assign benefit_4_desc = section.settings.benefit_4_description -%}
+  {%- if benefit_4_show and benefit_4_title != blank -%}
+  <div class="benefit-item_new">
+    <div class="benefit-icon-wrapper_new">
+      {%- if section.settings.benefit_4_svg != blank -%}
+        {{ section.settings.benefit_4_svg }}
+      {%- endif -%}
+      <button class="benefit-info-btn_new" type="button" aria-label="More information about {{ benefit_4_title }}">
+        <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" role="presentation" class="icon icon-info" viewBox="0 0 1024 1024" width="20" height="20">
+          <path fill="#c2c8ce" d="M512 0c281.6 0 512 230.4 512 512s-230.4 512-512 512S0 793.6 0 512 230.4 0 512 0zm0 716.8c-42.667 0-76.8 34.133-76.8 68.267s34.133 68.266 76.8 68.266 76.8-34.133 76.8-68.266S554.667 716.8 512 716.8zm17.067-529.067c-136.534 0-221.867 76.8-221.867 187.734h128c0-51.2 34.133-85.334 93.867-85.334 51.2 0 85.333 34.134 85.333 76.8-8.533 42.667-17.067 59.734-68.267 93.867l-17.066 8.533c-59.734 34.134-85.334 76.8-85.334 153.6v25.6H563.2v-25.6c0-42.666 17.067-68.266 76.8-102.4 68.267-34.133 93.867-85.333 93.867-153.6 17.066-110.933-68.267-179.2-204.8-179.2z"></path>
+        </svg>
+      </button>
+    </div>
+    <div class="benefit-content_new">
+      <h4 class="benefit-title_new">{{ benefit_4_title }}</h4>
+      {%- if benefit_4_desc != blank -%}
+        <p class="benefit-description_new">{{ benefit_4_desc }}</p>
+      {%- endif -%}
+    </div>
+  </div>
+  {%- endif -%}
+</div>
+{%- endif -%}

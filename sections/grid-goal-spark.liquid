@@ -97,6 +97,27 @@
     color: #EB701F;
   }
 
+  /* Desktop/Mobile Visibility */
+  @media (max-width: 1024px) {
+    .desktop-only {
+      display: none !important;
+    }
+
+    .mobile-only {
+      display: block !important;
+    }
+  }
+
+  @media (min-width: 1025px) {
+    .desktop-only {
+      display: block !important;
+    }
+
+    .mobile-only {
+      display: none !important;
+    }
+  }
+
   /* Responsive */
   @media (max-width: 1024px) {
     .grid-goal-spark__heading {
@@ -261,139 +282,123 @@
     {%- endif -%}
 
     {%- if section.blocks.size > 0 -%}
-      <!-- Container dinâmico que será preenchido pelo JavaScript -->
-      <div id="dynamic-content-{{ section.id }}" class="grid-goal-spark__dynamic-container">
-        <!-- Conteúdo será inserido aqui pelo JavaScript -->
+      <!-- Desktop Grid -->
+      <div class="grid-goal-spark__desktop desktop-only">
+        <div class="grid-goal-spark__grid">
+          {%- for block in section.blocks -%}
+            <div class="grid-goal-spark__card" {{ block.shopify_attributes }}>
+              <div class="grid-goal-spark__image">
+                {%- if block.settings.card_image != blank -%}
+                  <img
+                    src="{{ block.settings.card_image | image_url: width: 400 }}"
+                    alt="{{ block.settings.card_image.alt | default: block.settings.card_title }}"
+                    width="400"
+                    height="450"
+                    loading="lazy">
+                {%- else -%}
+                  {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-image' }}
+                {%- endif -%}
+              </div>
+              <div class="grid-goal-spark__content">
+                {%- if block.settings.card_title != blank -%}
+                  <h3 class="grid-goal-spark__title">{{ block.settings.card_title | escape }}</h3>
+                {%- endif -%}
+
+                {%- if block.settings.card_quote_part1 != blank -%}
+                  <p class="grid-goal-spark__quote">
+                    "{{ block.settings.card_quote_part1 }}
+                    {%- if block.settings.card_spark_text != blank -%}
+                      <span class="grid-goal-spark__spark-text">{{ block.settings.card_spark_text }}</span>
+                    {%- endif -%}
+                    {{ block.settings.card_quote_part2 }}"
+                  </p>
+                {%- endif -%}
+              </div>
+            </div>
+          {%- endfor -%}
+        </div>
+      </div>
+
+      <!-- Mobile Slider -->
+      <div class="grid-goal-spark__mobile mobile-only" id="mobile-slider-{{ section.id }}">
+        <div class="mobile-slider-container">
+          {%- for block in section.blocks -%}
+            <div
+              class="mobile-card{% unless forloop.first %} hidden{% endunless %}"
+              data-card="{{ forloop.index0 }}"
+              {{ block.shopify_attributes }}>
+              <div class="mobile-card__image">
+                {%- if block.settings.card_image != blank -%}
+                  <img
+                    src="{{ block.settings.card_image | image_url: width: 400 }}"
+                    alt="{{ block.settings.card_image.alt | default: block.settings.card_title }}"
+                    width="400"
+                    height="450"
+                    loading="lazy">
+                {%- else -%}
+                  {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-image' }}
+                {%- endif -%}
+              </div>
+              <div class="mobile-card__content">
+                {%- if block.settings.card_title != blank -%}
+                  <h3 class="mobile-card__title">{{ block.settings.card_title | escape }}</h3>
+                {%- endif -%}
+
+                {%- if block.settings.card_quote_part1 != blank -%}
+                  <p class="mobile-card__quote">
+                    "{{ block.settings.card_quote_part1 }}
+                    {%- if block.settings.card_spark_text != blank -%}
+                      <span class="mobile-card__spark-text">{{ block.settings.card_spark_text }}</span>
+                    {%- endif -%}
+                    {{ block.settings.card_quote_part2 }}"
+                  </p>
+                {%- endif -%}
+              </div>
+            </div>
+          {%- endfor -%}
+        </div>
+
+        {%- if section.blocks.size > 1 -%}
+          <div class="mobile-dots" id="mobile-dots-{{ section.id }}">
+            {%- for block in section.blocks -%}
+              <button class="mobile-dot{% if forloop.first %} active{% endif %}" data-slide="{{ forloop.index0 }}"></button>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
       </div>
     {%- endif -%}
   </div>
 </section>
 
-<!-- Templates HTML para renderização dinâmica -->
-<script type="text/template" id="desktop-template-{{ section.id }}">
-  <div class="grid-goal-spark__desktop">
-    <div class="grid-goal-spark__grid">
-      {%- for block in section.blocks -%}
-        <div class="grid-goal-spark__card" {{ block.shopify_attributes }}>
-          <div class="grid-goal-spark__image">
-            {%- if block.settings.card_image != blank -%}
-              <img
-                src="{{ block.settings.card_image | image_url: width: 400 }}"
-                alt="{{ block.settings.card_image.alt | default: block.settings.card_title }}"
-                width="400"
-                height="450"
-                loading="lazy">
-            {%- else -%}
-              {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-image' }}
-            {%- endif -%}
-          </div>
-          <div class="grid-goal-spark__content">
-            {%- if block.settings.card_title != blank -%}
-              <h3 class="grid-goal-spark__title">{{ block.settings.card_title | escape }}</h3>
-            {%- endif -%}
-
-            {%- if block.settings.card_quote_part1 != blank -%}
-              <p class="grid-goal-spark__quote">
-                "{{ block.settings.card_quote_part1 }}
-                {%- if block.settings.card_spark_text != blank -%}
-                  <span class="grid-goal-spark__spark-text">{{ block.settings.card_spark_text }}</span>
-                {%- endif -%}
-                {{ block.settings.card_quote_part2 }}"
-              </p>
-            {%- endif -%}
-          </div>
-        </div>
-      {%- endfor -%}
-    </div>
-  </div>
-</script>
-
-<script type="text/template" id="mobile-template-{{ section.id }}">
-  <div class="grid-goal-spark__mobile" id="mobile-slider-{{ section.id }}">
-    <div class="mobile-slider-container">
-      <div class="mobile-slide active" data-slide="0">
-        {%- for block in section.blocks -%}
-          <div
-            class="mobile-card{% unless forloop.first %} hidden{% endunless %}"
-            data-card="{{ forloop.index0 }}"
-            {{ block.shopify_attributes }}>
-            <div class="mobile-card__image">
-              {%- if block.settings.card_image != blank -%}
-                <img
-                  src="{{ block.settings.card_image | image_url: width: 400 }}"
-                  alt="{{ block.settings.card_image.alt | default: block.settings.card_title }}"
-                  width="400"
-                  height="450"
-                  loading="lazy">
-              {%- else -%}
-                {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-image' }}
-              {%- endif -%}
-            </div>
-            <div class="mobile-card__content">
-              {%- if block.settings.card_title != blank -%}
-                <h3 class="mobile-card__title">{{ block.settings.card_title | escape }}</h3>
-              {%- endif -%}
-
-              {%- if block.settings.card_quote_part1 != blank -%}
-                <p class="mobile-card__quote">
-                  "{{ block.settings.card_quote_part1 }}
-                  {%- if block.settings.card_spark_text != blank -%}
-                    <span class="mobile-card__spark-text">{{ block.settings.card_spark_text }}</span>
-                  {%- endif -%}
-                  {{ block.settings.card_quote_part2 }}"
-                </p>
-              {%- endif -%}
-            </div>
-          </div>
-        {%- endfor -%}
-      </div>
-    </div>
-
-    {%- if section.blocks.size > 1 -%}
-      <div class="mobile-dots" id="mobile-dots-{{ section.id }}">
-        {%- for block in section.blocks -%}
-          <button class="mobile-dot{% if forloop.first %} active{% endif %}" data-slide="{{ forloop.index0 }}"></button>
-        {%- endfor -%}
-      </div>
-    {%- endif -%}
-  </div>
-</script>
-
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const sectionId = '{{ section.id }}';
-    const dynamicContainer = document.getElementById('dynamic-content-' + sectionId);
-    const desktopTemplate = document.getElementById('desktop-template-' + sectionId);
-    const mobileTemplate = document.getElementById('mobile-template-' + sectionId);
     
-    if (!dynamicContainer || !desktopTemplate || !mobileTemplate) {
-      console.error('Grid Goal Spark: Templates not found!');
-      return;
-    }
+    // Responsividade Desktop/Mobile
+    const desktopContainer = document.querySelector('.desktop-only');
+    const mobileContainer = document.querySelector('.mobile-only');
     
-    let currentSlide = 0;
-    let isMobile = window.innerWidth <= 1024;
-    
-    function renderContent() {
-      const newIsMobile = window.innerWidth <= 1024;
-      
-      // Só re-renderiza se mudou o tipo de layout
-      if (newIsMobile !== isMobile) {
-        isMobile = newIsMobile;
-        
-        // Limpa o container
-        dynamicContainer.innerHTML = '';
-        
-        // Renderiza o template apropriado
-        if (isMobile) {
-          dynamicContainer.innerHTML = mobileTemplate.innerHTML;
-          initializeMobileSlider();
-        } else {
-          dynamicContainer.innerHTML = desktopTemplate.innerHTML;
-        }
+    function handleResize() {
+      if (window.innerWidth > 1024) {
+        desktopContainer.style.display = 'block';
+        mobileContainer.style.display = 'none';
+      } else {
+        desktopContainer.style.display = 'none';
+        mobileContainer.style.display = 'block';
       }
     }
     
+    // Set initial state
+    handleResize();
+    
+    // Listen for resize
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(handleResize, 100);
+    });
+    
+    // Mobile Slider Functionality
     function initializeMobileSlider() {
       const mobileSlider = document.getElementById('mobile-slider-' + sectionId);
       const mobileDotsContainer = document.getElementById('mobile-dots-' + sectionId);
@@ -402,6 +407,8 @@
       
       const mobileCards = mobileSlider.querySelectorAll('.mobile-card');
       if (mobileCards.length === 0) return;
+      
+      let currentSlide = 0;
       
       function showMobileSlide(index) {
         if (index < 0 || index >= mobileCards.length) return;
@@ -441,9 +448,8 @@
         const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
         if (deltaX > 15) {
           touchMoved = true;
-          e.preventDefault();
         }
-      }, { passive: false });
+      }, { passive: true });
       
       mobileSlider.addEventListener('touchend', (e) => {
         if (!touchMoved) return;
@@ -464,15 +470,7 @@
       showMobileSlide(0);
     }
     
-    // Renderiza o conteúdo inicial
-    renderContent();
-    
-    // Escuta mudanças no tamanho da tela
-    let resizeTimeout;
-    window.addEventListener('resize', () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(renderContent, 100);
-    });
+    initializeMobileSlider();
   });
 </script>
 

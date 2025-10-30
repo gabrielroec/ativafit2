@@ -1,0 +1,1113 @@
+{% comment %} 
+  Product Main Section - Refactored
+   
+  Professional product page section following Shopify 2.0 best practices.
+  Uses modular snippets for better organization and maintainability.
+   
+  Accepts: 
+  - product: {Object} Product object
+   
+  Dependencies: 
+  - product-gallery.liquid snippet 
+  - product-info.liquid snippet 
+  - product-benefits.liquid snippet 
+  - product-add-to-cart.liquid snippet 
+  - product-accordions.liquid snippet 
+  - product-benefit-popups.liquid snippet 
+  - product-main-section.css asset 
+{% endcomment %}
+
+{{ 'product-main-section.css' | asset_url | stylesheet_tag }}
+
+<section
+  class="pp-full_new"
+  data-section-id="{{ section.id }}"
+  data-section-type="product-main">
+  <div class="container container-product-page_new">
+    <div class="product-main_new">
+
+      <!-- Product Gallery -->
+      {% render 'product-gallery'
+        , product: product
+        , section: section %}
+
+      <!-- Product Information -->
+      <div class="product-info-wrapper_new">
+      {% render 'product-info'
+        , product: product
+        , section: section %}
+
+        <!-- Benefits Section -->
+        {% render 'product-benefits'
+          , section: section %}
+
+        <!-- Mobile Price (shown only on mobile) -->
+        {%- if section.settings.show_mobile_price -%}
+          <div class="product-price-container_new mobile-only_new">
+            <p class="product-price_new">{{ product.selected_or_first_available_variant.price | money }}</p>
+            {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
+              <p class="product-price-original_new">{{ product.selected_or_first_available_variant.compare_at_price | money }}</p>
+            {%- endif -%}
+          </div>
+      {%- endif -%}
+
+        <!-- Add to Cart Section -->
+      {% render 'product-add-to-cart'
+        , product: product
+        , section: section %}
+
+        <!-- Accordions -->
+        {% render 'product-accordions'
+          , section: section %}
+      </div>
+
+    </div>
+  </div></section>
+
+<!-- Benefit Popups -->
+{% render 'product-benefit-popups'
+  , section: section %}
+
+<script>
+  // ====================================================================
+  // PRODUCT MAIN SECTION JAVASCRIPT
+  // ====================================================================
+  
+  (function() {
+    'use strict';
+    
+    const ProductGallery = {
+      currentIndex: 0,
+      thumbnailsOffset: 0,
+      thumbnailWidth: 88,
+      isDragging: false,
+      startX: 0,
+      startOffset: 0,
+      dragThreshold: 10,
+      hasMoved: false,
+      isSwiping: false,
+      swipeStartX: 0,
+      swipeStartY: 0,
+      swipeThreshold: 50,
+      fullscreenCurrentIndex: 0,
+      mediaData: {{ product.media | json }},
+      
+      // Change main media (image or video)
+      changeMainMedia(mediaIndex, clickedThumb) {
+        if (this.isDragging || this.hasMoved) return;
+        
+        const media = this.mediaData[mediaIndex];
+        if (!media) return;
+        
+        const mainImage = document.getElementById('mainImage_new');
+        const mainVideo = document.getElementById('mainVideo_new');
+        const mainVideoContainer = document.getElementById('mainVideoContainer_new');
+        
+        // Update active thumbnails
+        document.querySelectorAll('.thumbnail-container_new').forEach(container => 
+          container.classList.remove('active_new')
+        );
+        
+        if (clickedThumb) {
+          clickedThumb.classList.add('active_new');
+          this.currentIndex = mediaIndex;
+        }
+        
+        if (media.media_type === 'video') {
+          if (mainImage) mainImage.style.display = 'none';
+          if (mainVideoContainer) {
+            mainVideoContainer.style.display = 'flex';
+            if (mainVideo) {
+              mainVideo.src = media.sources[0].url;
+              mainVideo.load();
+              
+              // Video event listeners
+              mainVideo.addEventListener('play', () => mainVideoContainer.classList.add('video-playing_new'));
+              mainVideo.addEventListener('pause', () => mainVideoContainer.classList.remove('video-playing_new'));
+              mainVideo.addEventListener('ended', () => mainVideoContainer.classList.remove('video-playing_new'));
+              mainVideo.addEventListener('loadeddata', () => {
+                mainVideo.play().catch(err => console.log('Auto-play blocked:', err));
+              });
+            }
+          }
+        } else {
+          if (mainVideoContainer) mainVideoContainer.style.display = 'none';
+          if (mainImage) {
+            mainImage.style.display = 'block';
+            mainImage.src = media.preview_image ? 
+              media.preview_image.src.replace('150', '800') : 
+              media.src.replace('150', '800');
+          }
+        }
+        
+        this.updateMainNavButtons();
+      },
+      
+      // Navigate through images
+      changeImage(direction) {
+        if (this.mediaData.length === 0) return;
+        
+        this.currentIndex += direction;
+        if (this.currentIndex >= this.mediaData.length) this.currentIndex = 0;
+        if (this.currentIndex < 0) this.currentIndex = this.mediaData.length - 1;
+        
+        const thumbnailContainers = document.querySelectorAll('.thumbnail-container_new');
+        const targetThumb = thumbnailContainers[this.currentIndex];
+        
+        if (targetThumb) {
+          this.changeMainMedia(this.currentIndex, targetThumb);
+          this.scrollToActiveThumbnail();
+        }
+      },
+      
+      // Update navigation button states
+      updateMainNavButtons() {
+        const prevBtn = document.querySelector('.main-prev_new');
+        const nextBtn = document.querySelector('.main-next_new');
+        
+        if (!prevBtn || !nextBtn || !this.mediaData) return;
+        
+        prevBtn.disabled = this.currentIndex <= 0;
+        nextBtn.disabled = this.currentIndex >= this.mediaData.length - 1;
+      },
+      
+      // Scroll to active thumbnail
+      scrollToActiveThumbnail() {
+        const thumbnailContainers = document.querySelectorAll('.thumbnail-container_new');
+        const thumbnailsScroll = document.querySelector('.thumbnails-scroll_new');
+        
+        if (thumbnailContainers.length <= 5 || !thumbnailsScroll) return;
+        
+        const scrollWidth = thumbnailsScroll.offsetWidth;
+        const totalWidth = thumbnailContainers.length * this.thumbnailWidth;
+        
+        let idealOffset = this.currentIndex * this.thumbnailWidth - (scrollWidth / 2) + (this.thumbnailWidth / 2);
+        idealOffset = Math.max(0, Math.min(totalWidth - scrollWidth, idealOffset));
+        
+        this.thumbnailsOffset = idealOffset;
+        
+        const thumbnailsContainer = document.querySelector('.thumbnails_new');
+        if (thumbnailsContainer) {
+          thumbnailsContainer.style.transform = `translateX(-${this.thumbnailsOffset}px)`;
+        }
+      },
+      
+      // Initialize main media
+      initializeMainMedia() {
+        const featuredMedia = {{ product.featured_media | json }};
+        if (!featuredMedia || this.mediaData.length === 0) return;
+        
+        const featuredIndex = this.mediaData.findIndex(media => media.id === featuredMedia.id);
+        if (featuredIndex !== -1) {
+          this.currentIndex = featuredIndex;
+          
+          if (featuredMedia.media_type === 'video') {
+            const mainVideoContainer = document.getElementById('mainVideoContainer_new');
+            const mainVideo = document.getElementById('mainVideo_new');
+            const mainImage = document.getElementById('mainImage_new');
+            
+            if (mainVideoContainer && mainVideo && mainImage) {
+              mainImage.style.display = 'none';
+              mainVideoContainer.style.display = 'flex';
+              mainVideo.src = featuredMedia.sources[0].url;
+              mainVideo.load();
+              
+              mainVideo.addEventListener('play', () => mainVideoContainer.classList.add('video-playing_new'));
+              mainVideo.addEventListener('pause', () => mainVideoContainer.classList.remove('video-playing_new'));
+              mainVideo.addEventListener('ended', () => mainVideoContainer.classList.remove('video-playing_new'));
+              mainVideo.addEventListener('loadeddata', () => {
+                mainVideo.play().catch(err => console.log('Auto-play blocked:', err));
+              });
+            }
+          }
+          
+          // Update active thumbnails
+          document.querySelectorAll('.thumbnail-container_new').forEach((container, index) => {
+            container.classList.remove('active_new');
+            if (index === featuredIndex) container.classList.add('active_new');
+          });
+        }
+      },
+      
+      // Setup event listeners
+      setupEventListeners() {
+        // Main image container click/swipe events
+        const mainImageContainer = document.getElementById('mainImageContainer_new');
+        if (mainImageContainer) {
+          mainImageContainer.addEventListener('click', (e) => {
+            if (e.target.closest('.main-nav_new')) return;
+            this.openFullscreen();
+          });
+          
+          mainImageContainer.addEventListener('touchstart', this.startSwipe.bind(this), { passive: true });
+          mainImageContainer.addEventListener('touchmove', this.onSwipe.bind(this), { passive: false });
+          mainImageContainer.addEventListener('touchend', this.stopSwipe.bind(this), { passive: true });
+        }
+        
+        // Thumbnails drag events
+        const thumbnailsContainer = document.querySelector('.thumbnails_new');
+        if (thumbnailsContainer) {
+          thumbnailsContainer.addEventListener('mousedown', this.startDrag.bind(this));
+          thumbnailsContainer.addEventListener('touchstart', this.startDrag.bind(this), { passive: false });
+          thumbnailsContainer.addEventListener('selectstart', (e) => {
+            if (this.isDragging) e.preventDefault();
+          });
+        }
+        
+        // Fullscreen modal events
+        const fullscreenModal = document.getElementById('fullscreenModal_new');
+        if (fullscreenModal) {
+          document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && fullscreenModal.classList.contains('active_new')) {
+              this.closeFullscreen();
+            }
+          });
+          
+          fullscreenModal.addEventListener('click', (e) => {
+            if (e.target === fullscreenModal) this.closeFullscreen();
+          });
+          
+          const closeBtn = fullscreenModal.querySelector('.fullscreen-close_new');
+          if (closeBtn) {
+            closeBtn.addEventListener('click', (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              this.closeFullscreen();
+            });
+          }
+        }
+        
+        // Hide swipe indicator after 3 seconds
+        setTimeout(() => {
+          const swipeIndicator = document.getElementById('swipeIndicator_new');
+          if (swipeIndicator) swipeIndicator.classList.add('hidden_new');
+        }, 3000);
+        
+        // Window resize
+        window.addEventListener('resize', () => {
+          this.thumbnailsOffset = 0;
+          const container = document.querySelector('.thumbnails_new');
+          if (container) container.style.transform = 'translateX(0px)';
+          this.updateMainNavButtons();
+        });
+      },
+      
+      // Swipe functions
+      startSwipe(e) {
+        this.isSwiping = false;
+        this.swipeStartX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
+        this.swipeStartY = e.type === 'mousedown' ? e.clientY : e.touches[0].clientY;
+      },
+      
+      onSwipe(e) {
+        if (!this.isSwiping) {
+          const currentX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
+          const currentY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
+          const deltaX = Math.abs(this.swipeStartX - currentX);
+          const deltaY = Math.abs(this.swipeStartY - currentY);
+          
+          if (deltaX > 10 && deltaX > deltaY) {
+            this.isSwiping = true;
+            e.preventDefault();
+          }
+        }
+        
+        if (this.isSwiping) e.preventDefault();
+      },
+      
+      stopSwipe(e) {
+        if (this.isSwiping) {
+          const currentX = e.type === 'mouseup' ? e.clientX : e.changedTouches[0].clientX;
+          const deltaX = Math.abs(this.swipeStartX - currentX);
+          
+          if (deltaX > this.swipeThreshold) {
+            if (this.swipeStartX > currentX) {
+              this.changeImage(1);
+            } else {
+              this.changeImage(-1);
+            }
+          }
+        }
+        
+        this.isSwiping = false;
+      },
+      
+      // Drag functions
+      startDrag(e) {
+        this.isDragging = false;
+        this.hasMoved = false;
+        this.startX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
+        this.startOffset = this.thumbnailsOffset;
+        
+        if (e.type === 'mousedown') {
+          document.addEventListener('mousemove', this.onDrag.bind(this));
+          document.addEventListener('mouseup', this.stopDrag.bind(this));
+        } else {
+          document.addEventListener('touchmove', this.onDrag.bind(this));
+          document.addEventListener('touchend', this.stopDrag.bind(this));
+        }
+      },
+      
+      onDrag(e) {
+        const currentX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
+        const deltaX = Math.abs(this.startX - currentX);
+        
+        if (!this.hasMoved && deltaX > this.dragThreshold) {
+          this.isDragging = true;
+          this.hasMoved = true;
+          document.body.style.cursor = 'grabbing';
+          document.body.style.userSelect = 'none';
+        }
+        
+        if (!this.isDragging) return;
+        
+        e.preventDefault();
+        const newOffset = this.startOffset + (this.startX - currentX);
+        const thumbnailContainers = document.querySelectorAll('.thumbnail-container_new');
+        const thumbnailsScroll = document.querySelector('.thumbnails-scroll_new');
+        
+        if (thumbnailsScroll && thumbnailContainers.length > 5) {
+          const scrollWidth = thumbnailsScroll.offsetWidth;
+          const totalWidth = thumbnailContainers.length * this.thumbnailWidth;
+          const maxOffset = totalWidth - scrollWidth;
+          
+          this.thumbnailsOffset = Math.max(0, Math.min(maxOffset, newOffset));
+          
+          const thumbnailsContainer = document.querySelector('.thumbnails_new');
+          if (thumbnailsContainer) {
+            thumbnailsContainer.style.transform = `translateX(-${this.thumbnailsOffset}px)`;
+          }
+        }
+      },
+      
+      stopDrag() {
+        this.isDragging = false;
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        
+        document.removeEventListener('mousemove', this.onDrag);
+        document.removeEventListener('mouseup', this.stopDrag);
+        document.removeEventListener('touchmove', this.onDrag);
+        document.removeEventListener('touchend', this.stopDrag);
+        
+        setTimeout(() => { this.hasMoved = false; }, 50);
+      },
+      
+      // Fullscreen functions
+      openFullscreen() {
+        const modal = document.getElementById('fullscreenModal_new');
+        const fullscreenImage = document.getElementById('fullscreenImage_new');
+        const fullscreenVideo = document.getElementById('fullscreenVideo_new');
+        const mainImage = document.getElementById('mainImage_new');
+        
+        if (modal && fullscreenImage && fullscreenVideo) {
+          const currentMedia = this.mediaData[this.currentIndex];
+          this.fullscreenCurrentIndex = this.currentIndex;
+          
+          if (currentMedia && currentMedia.media_type === 'video') {
+            fullscreenImage.style.display = 'none';
+            fullscreenVideo.style.display = 'block';
+            fullscreenVideo.src = currentMedia.sources[0].url;
+            fullscreenVideo.load();
+            fullscreenVideo.addEventListener('loadeddata', () => {
+              fullscreenVideo.play().catch(err => console.log('Auto-play blocked:', err));
+            });
+          } else {
+            fullscreenVideo.style.display = 'none';
+            fullscreenImage.style.display = 'block';
+            if (mainImage) {
+              fullscreenImage.src = mainImage.src.replace('800', '1200');
+              fullscreenImage.alt = mainImage.alt;
+            }
+          }
+          
+          this.updateFullscreenThumbnails();
+          modal.style.display = 'flex';
+          modal.classList.add('active_new');
+          document.body.classList.add('modal-open_new');
+        }
+      },
+      
+      closeFullscreen() {
+        const modal = document.getElementById('fullscreenModal_new');
+        if (modal) {
+          modal.classList.remove('active_new');
+          modal.style.display = 'none';
+          document.body.classList.remove('modal-open_new');
+        }
+      },
+      
+      changeFullscreenImage(direction) {
+        if (this.mediaData.length === 0) return;
+        
+        this.fullscreenCurrentIndex += direction;
+        if (this.fullscreenCurrentIndex >= this.mediaData.length) this.fullscreenCurrentIndex = 0;
+        if (this.fullscreenCurrentIndex < 0) this.fullscreenCurrentIndex = this.mediaData.length - 1;
+        
+        const currentMedia = this.mediaData[this.fullscreenCurrentIndex];
+        const fullscreenImage = document.getElementById('fullscreenImage_new');
+        const fullscreenVideo = document.getElementById('fullscreenVideo_new');
+        
+        if (currentMedia && fullscreenImage && fullscreenVideo) {
+          if (currentMedia.media_type === 'video') {
+            fullscreenImage.style.display = 'none';
+            fullscreenVideo.style.display = 'block';
+            fullscreenVideo.src = currentMedia.sources[0].url;
+            fullscreenVideo.load();
+            fullscreenVideo.addEventListener('loadeddata', () => {
+              fullscreenVideo.play().catch(err => console.log('Auto-play blocked:', err));
+            });
+          } else {
+            fullscreenVideo.style.display = 'none';
+            fullscreenImage.style.display = 'block';
+            fullscreenImage.src = currentMedia.preview_image ? 
+              currentMedia.preview_image.src.replace('150', '1200') : 
+              currentMedia.src.replace('150', '1200');
+            fullscreenImage.alt = currentMedia.alt || '';
+          }
+          
+          this.updateFullscreenThumbnails();
+        }
+      },
+      
+      changeFullscreenMediaByIndex(index) {
+        if (index < 0 || index >= this.mediaData.length) return;
+        this.fullscreenCurrentIndex = index;
+        this.changeFullscreenImage(0);
+      },
+      
+      updateFullscreenThumbnails() {
+        document.querySelectorAll('.fullscreen-thumb-container_new').forEach((container, index) => {
+          container.classList.remove('active_new');
+          if (index === this.fullscreenCurrentIndex) {
+            container.classList.add('active_new');
+            container.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          }
+        });
+      },
+      
+      // Initialize gallery
+      init() {
+        this.initializeMainMedia();
+        this.updateMainNavButtons();
+        this.setupEventListeners();
+      }
+    };
+    
+    // Make gallery functions global for onclick handlers
+    window.changeMainMedia = (index, thumb) => ProductGallery.changeMainMedia(index, thumb);
+    window.changeImage = (direction) => ProductGallery.changeImage(direction);
+    window.openFullscreen = () => ProductGallery.openFullscreen();
+    window.closeFullscreen = () => ProductGallery.closeFullscreen();
+    window.changeFullscreenImage = (direction) => ProductGallery.changeFullscreenImage(direction);
+    window.changeFullscreenMediaByIndex = (index) => ProductGallery.changeFullscreenMediaByIndex(index);
+    
+    // ====================================================================
+    // VARIANT & CART FUNCTIONS
+    // ====================================================================
+    
+    const ProductVariants = {
+      variants: {{ product.variants | json }},
+      
+      updateVariant() {
+        let selectedVariant = null;
+        const variantSelector = document.getElementById('variant-selector_new');
+        
+        if (variantSelector) {
+          const selectedVariantId = parseInt(variantSelector.value);
+          selectedVariant = this.variants.find(v => v.id === selectedVariantId);
+        }
+        
+        if (selectedVariant) {
+          this.updatePrice(selectedVariant);
+          this.updateMainImageForVariant(selectedVariant);
+          
+          const buyItNowVariantId = document.getElementById('buy-it-now-variant-id');
+          if (buyItNowVariantId) buyItNowVariantId.value = selectedVariant.id;
+        }
+      },
+      
+      updatePrice(variant) {
+        document.querySelectorAll('.product-price_new').forEach(el => {
+          if (el) el.textContent = Shopify.formatMoney(variant.price, window.theme.moneyFormat || '${{amount}}');
+        });
+        
+        document.querySelectorAll('.product-price-original_new').forEach(el => {
+          if (variant.compare_at_price > variant.price) {
+            el.textContent = Shopify.formatMoney(variant.compare_at_price, window.theme.moneyFormat || '${{amount}}');
+            el.style.display = 'block';
+          } else {
+            el.style.display = 'none';
+          }
+        });
+      },
+      
+      updateMainImageForVariant(variant) {
+        const mainImage = document.getElementById('mainImage_new');
+        if (!mainImage || !variant.featured_image) return;
+        
+        mainImage.src = variant.featured_image.src;
+        mainImage.alt = variant.featured_image.alt || variant.title;
+      }
+    };
+    
+    window.updateVariant = () => ProductVariants.updateVariant();
+    
+    // ====================================================================
+    // ADD TO CART FUNCTION
+    // ====================================================================
+    
+    window.addToCart = async function() {
+      const variantId = ProductVariants.variants[0]?.id || {{ product.selected_or_first_available_variant.id }};
+      const quantity = parseInt(document.getElementById('quantity_new')?.value || 1);
+      const btn = document.querySelector('.add-to-cart-btn_new');
+      
+      if (!variantId) {
+        alert('Please select a product variant');
+        return;
+      }
+      
+      const originalText = btn.textContent;
+      btn.textContent = 'ADDING...';
+      btn.disabled = true;
+      btn.style.opacity = '0.7';
+      
+      try {
+        const response = await fetch('/cart/add.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            items: [{ id: variantId, quantity: quantity }]
+          })
+        });
+        
+        if (!response.ok) throw new Error('Error adding to cart');
+        
+        const data = await response.json();
+        
+        // Show success notification
+        if (window.CartNotification) {
+          const productTitle = document.querySelector('.product-name_new')?.textContent || 'Product';
+          window.CartNotification.success({
+            title: "Product Added!",
+            message: 'Join <a href="https://www.ativafit.com/pages/ativapeople-rewards-program" target="_blank" style="color: #eb701f; text-decoration: underline; font-weight: bold;">AtivaPeople</a> & get 10% off your first order.',
+            type: "success"
+          });
+        }
+        
+        // Update cart counter
+        if (window.updateCartCount) window.updateCartCount();
+        
+        btn.textContent = 'ADDED ✓';
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.disabled = false;
+          btn.style.opacity = '1';
+        }, 2000);
+        
+      } catch (error) {
+        console.error('Add to cart error:', error);
+        alert('Error adding product to cart. Please try again.');
+        btn.textContent = originalText;
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }
+    };
+    
+    // ====================================================================
+    // ACCORDION FUNCTION
+    // ====================================================================
+    
+    window.toggleAccordion = function(header) {
+      const content = header.nextElementSibling;
+      const icon = header.querySelector('.accordion-icon_new');
+      const isActive = content.classList.contains('active_new');
+      
+      // Remove active from all
+      document.querySelectorAll('.accordion-header_new').forEach(item => item.classList.remove('active_new'));
+      document.querySelectorAll('.accordion-content_new').forEach(item => item.classList.remove('active_new'));
+      document.querySelectorAll('.accordion-icon_new').forEach(item => item.textContent = '+');
+      
+      // Toggle current
+      if (!isActive) {
+        header.classList.add('active_new');
+        content.classList.add('active_new');
+        icon.textContent = '-';
+      }
+    };
+    
+    // ====================================================================
+    // BENEFIT POPUPS
+    // ====================================================================
+    
+    const BenefitPopups = {
+      init() {
+        const benefitButtons = document.querySelectorAll('.benefit-info-btn_new');
+        
+        benefitButtons.forEach((button, index) => {
+          button.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const popupId = 'benefit-popup-' + (index + 1);
+            const popup = document.getElementById(popupId);
+            
+            if (popup) {
+              popup.classList.add('is-show');
+              document.body.style.overflow = 'hidden';
+            }
+          });
+        });
+        
+        // Close buttons
+        document.querySelectorAll('[data-close-benefit]').forEach(button => {
+          button.addEventListener('click', () => {
+            const benefitId = button.getAttribute('data-close-benefit');
+            const popup = document.getElementById('benefit-popup-' + benefitId);
+            
+            if (popup) {
+              popup.classList.remove('is-show');
+              document.body.style.overflow = '';
+            }
+          });
+        });
+        
+        // Close on backdrop click
+        document.querySelectorAll('.halo-popup').forEach(popup => {
+          popup.addEventListener('click', (e) => {
+            if (e.target === popup) {
+              popup.classList.remove('is-show');
+              document.body.style.overflow = '';
+            }
+          });
+        });
+        
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            document.querySelectorAll('.halo-popup.is-show').forEach(popup => {
+              popup.classList.remove('is-show');
+              document.body.style.overflow = '';
+            });
+          }
+        });
+      }
+    };
+    
+    // ====================================================================
+    // INITIALIZATION
+    // ====================================================================
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      ProductGallery.init();
+      BenefitPopups.init();
+    });
+    
+  })();
+</script>
+
+{% schema %}
+  {
+    "name": "Product Main",
+    "class": "product-main-section",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Product Information"
+      },
+      {
+        "type": "text",
+        "id": "product_title",
+        "label": "Custom Product Title",
+        "info": "Leave blank to use product title"
+      },
+      {
+        "type": "textarea",
+        "id": "product_subtitle",
+        "label": "Product Subtitle",
+        "info": "Tagline or description below title"
+      },
+      {
+        "type": "header",
+        "content": "Reviews"
+      }, {
+        "type": "checkbox",
+        "id": "show_reviews",
+        "label": "Show Reviews",
+        "default": true
+      }, {
+        "type": "text",
+        "id": "review_text",
+        "label": "Review Text",
+        "default": "4.7 (47 Reviews)"
+      }, {
+        "type": "header",
+        "content": "Features"
+      }, {
+        "type": "checkbox",
+        "id": "show_features",
+        "label": "Show Features",
+        "default": true
+      }, {
+        "type": "text",
+        "id": "feature_line_1",
+        "label": "Feature Line 1",
+        "default": "Secure Grip | 12 Weight Levels | Security Lock"
+      }, {
+        "type": "text",
+        "id": "feature_line_2",
+        "label": "Feature Line 2",
+        "default": "All-Steel Strength | Built for Progress"
+      }, {
+        "type": "header",
+        "content": "Pricing"
+      }, {
+        "type": "checkbox",
+        "id": "show_mobile_price",
+        "label": "Show Mobile Price",
+        "default": true,
+        "info": "Displays price below benefits on mobile"
+      }, {
+        "type": "checkbox",
+        "id": "show_ativapeople_badge",
+        "label": "Show AtivaPeople Badge",
+        "default": true
+      }, {
+        "type": "html",
+        "id": "ativapeople_badge_text",
+        "label": "AtivaPeople Badge Text",
+        "default": "Get an extra <strong>10% Off</strong> Join <a href=\"https://www.ativafit.com/pages/ativapeople-rewards-program\" target=\"_blank\">AtivaPeople</a>"
+      }, {
+        "type": "header",
+        "content": "Payment Options"
+      }, {
+        "type": "checkbox",
+        "id": "show_payment_options",
+        "label": "Show Payment Options",
+        "default": true
+      }, {
+        "type": "html",
+        "id": "payment_text",
+        "label": "Payment Text",
+        "default": "Pay in 4 interest-free installments or from <strong>$X/mo</strong> with"
+      }, {
+        "type": "checkbox",
+        "id": "show_shop_pay_logo",
+        "label": "Show Shop Pay Logo",
+        "default": true
+      }, {
+        "type": "text",
+        "id": "learn_more_text",
+        "label": "Learn More Text",
+        "default": "Learn more"
+      }, {
+        "type": "url",
+        "id": "learn_more_payment_url",
+        "label": "Learn More URL"
+      }, {
+        "type": "header",
+        "content": "Benefits Section"
+      }, {
+        "type": "checkbox",
+        "id": "show_benefits",
+        "label": "Show Benefits",
+        "default": true
+      }, {
+        "type": "paragraph",
+        "content": "=== Benefit 1: Free Shipping ==="
+      }, {
+        "type": "checkbox",
+        "id": "benefit_1_enabled",
+        "label": "Enable Benefit 1",
+        "default": true
+      }, {
+        "type": "text",
+        "id": "benefit_1_title",
+        "label": "Benefit 1 Title",
+        "default": "Free Shipping within the U.S."
+      }, {
+        "type": "textarea",
+        "id": "benefit_1_description",
+        "label": "Benefit 1 Description",
+        "default": "Standard shipping in 3–7 days."
+      }, {
+        "type": "html",
+        "id": "benefit_1_svg",
+        "label": "Benefit 1 SVG Icon",
+        "info": "Paste the complete SVG code"
+      }, {
+        "type": "text",
+        "id": "benefit_1_popup_title",
+        "label": "Benefit 1 Popup Title"
+      }, {
+        "type": "html",
+        "id": "benefit_1_popup_content",
+        "label": "Benefit 1 Popup Content"
+      }, {
+        "type": "paragraph",
+        "content": "=== Benefit 2: Warranty ==="
+      }, {
+        "type": "checkbox",
+        "id": "benefit_2_enabled",
+        "label": "Enable Benefit 2",
+        "default": true
+      }, {
+        "type": "text",
+        "id": "benefit_2_title",
+        "label": "Benefit 2 Title",
+        "default": "1-Year Warranty Included"
+      }, {
+        "type": "textarea",
+        "id": "benefit_2_description",
+        "label": "Benefit 2 Description",
+        "default": "2-Year as members."
+      }, {
+        "type": "text",
+        "id": "benefit_2_link_text",
+        "label": "Benefit 2 Link Text",
+        "default": "Learn more"
+      }, {
+        "type": "url",
+        "id": "benefit_2_link_url",
+        "label": "Benefit 2 Link URL"
+      }, {
+        "type": "html",
+        "id": "benefit_2_svg",
+        "label": "Benefit 2 SVG Icon",
+        "info": "Paste the complete SVG code"
+      }, {
+        "type": "text",
+        "id": "benefit_2_popup_title",
+        "label": "Benefit 2 Popup Title"
+      }, {
+        "type": "html",
+        "id": "benefit_2_popup_content",
+        "label": "Benefit 2 Popup Content"
+      }, {
+        "type": "paragraph",
+        "content": "=== Benefit 3: Worry-Free Purchase ==="
+      }, {
+        "type": "checkbox",
+        "id": "benefit_3_enabled",
+        "label": "Enable Benefit 3",
+        "default": true
+      }, {
+        "type": "text",
+        "id": "benefit_3_title",
+        "label": "Benefit 3 Title",
+        "default": "Worry-Free Purchase"
+      }, {
+        "type": "textarea",
+        "id": "benefit_3_description",
+        "label": "Benefit 3 Description",
+        "default": "Cancel within 24 hrs, return within 30 days."
+      }, {
+        "type": "text",
+        "id": "benefit_3_link_text",
+        "label": "Benefit 3 Link Text",
+        "default": "Learn more"
+      }, {
+        "type": "url",
+        "id": "benefit_3_link_url",
+        "label": "Benefit 3 Link URL"
+      }, {
+        "type": "html",
+        "id": "benefit_3_svg",
+        "label": "Benefit 3 SVG Icon",
+        "info": "Paste the complete SVG code"
+      }, {
+        "type": "text",
+        "id": "benefit_3_popup_title",
+        "label": "Benefit 3 Popup Title"
+      }, {
+        "type": "html",
+        "id": "benefit_3_popup_content",
+        "label": "Benefit 3 Popup Content"
+      }, {
+        "type": "paragraph",
+        "content": "=== Benefit 4: HSA/FSA ==="
+      }, {
+        "type": "checkbox",
+        "id": "benefit_4_enabled",
+        "label": "Enable Benefit 4",
+        "default": true
+      }, {
+        "type": "text",
+        "id": "benefit_4_title",
+        "label": "Benefit 4 Title",
+        "default": "Pay with HSA/FSA"
+      }, {
+        "type": "textarea",
+        "id": "benefit_4_description",
+        "label": "Benefit 4 Description",
+        "default": "Save 30% when you pay with flex."
+      }, {
+        "type": "html",
+        "id": "benefit_4_svg",
+        "label": "Benefit 4 SVG Icon",
+        "info": "Paste the complete SVG code"
+      }, {
+        "type": "text",
+        "id": "benefit_4_popup_title",
+        "label": "Benefit 4 Popup Title"
+      }, {
+        "type": "html",
+        "id": "benefit_4_popup_content",
+        "label": "Benefit 4 Popup Content"
+      }, {
+        "type": "header",
+        "content": "Variant Selector"
+      }, {
+        "type": "checkbox",
+        "id": "show_variant_selector",
+        "label": "Show Variant Selector",
+        "default": true
+      }, {
+        "type": "text",
+        "id": "variant_label",
+        "label": "Variant Label",
+        "default": "Select Option"
+      }, {
+        "type": "header",
+        "content": "Quantity Selector"
+      }, {
+        "type": "checkbox",
+        "id": "show_quantity_selector",
+        "label": "Show Quantity Selector",
+        "default": true
+      }, {
+        "type": "text",
+        "id": "quantity_label",
+        "label": "Quantity Label",
+        "default": "Quantity"
+      }, {
+        "type": "header",
+        "content": "Buttons"
+      }, {
+        "type": "text",
+        "id": "add_to_cart_text",
+        "label": "Add to Cart Button Text",
+        "default": "Add to Cart"
+      }, {
+        "type": "checkbox",
+        "id": "show_buy_it_now",
+        "label": "Show Buy It Now Button",
+        "default": false
+      }, {
+        "type": "text",
+        "id": "buy_it_now_text",
+        "label": "Buy It Now Button Text",
+        "default": "Buy It Now"
+      }, {
+        "type": "checkbox",
+        "id": "show_ativapeople_cta",
+        "label": "Show AtivaPeople CTA",
+        "default": false
+      }, {
+        "type": "html",
+        "id": "ativapeople_cta_text",
+        "label": "AtivaPeople CTA Text",
+        "default": "Join <a href=\"#\">AtivaPeople</a> for exclusive rewards"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "accordion_item",
+        "name": "Accordion Item",
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Title",
+            "default": "Accordion Title"
+          },
+          {
+            "type": "select",
+            "id": "content_type",
+            "label": "Content Type",
+            "options": [
+              {
+                "value": "text",
+                "label": "Rich Text"
+              }, {
+                "value": "list",
+                "label": "List Items"
+              }
+            ],
+            "default": "text"
+          },
+          {
+            "type": "richtext",
+            "id": "text_content",
+            "label": "Content",
+            "info": "Used when Content Type is 'Rich Text'"
+          },
+          {
+            "type": "html",
+            "id": "item_1",
+            "label": "List Item 1",
+            "info": "Supports HTML. Used when Content Type is 'List Items'"
+          }, {
+            "type": "html",
+            "id": "item_2",
+            "label": "List Item 2"
+          }, {
+            "type": "html",
+            "id": "item_3",
+            "label": "List Item 3"
+          }, {
+            "type": "html",
+            "id": "item_4",
+            "label": "List Item 4"
+          }, {
+            "type": "html",
+            "id": "item_5",
+            "label": "List Item 5"
+          }, {
+            "type": "header",
+            "content": "Optional Link"
+          }, {
+            "type": "checkbox",
+            "id": "show_link",
+            "label": "Show Link",
+            "default": false
+          }, {
+            "type": "text",
+            "id": "link_text",
+            "label": "Link Text",
+            "default": "Learn more"
+          }, {
+            "type": "url",
+            "id": "link_url",
+            "label": "Link URL"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Product Main Section",
+        "blocks": [
+          {
+            "type": "accordion_item",
+            "settings": {
+              "title": "Key Features",
+              "content_type": "text"
+            }
+          }, {
+            "type": "accordion_item",
+            "settings": {
+              "title": "Shipping & Returns",
+              "content_type": "text"
+            }
+          }, {
+            "type": "accordion_item",
+            "settings": {
+              "title": "Warranty & Support",
+              "content_type": "text"
+            }
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}

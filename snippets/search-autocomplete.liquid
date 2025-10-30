@@ -1,335 +1,214 @@
 {%- comment -%} 
-    Search Autocomplete Component
-    Modern Shopify 2.0 implementation with product tiles 
+  Search Autocomplete Component
+   
+  Usage: {% render 'search-autocomplete' %}
+   
+  Features: 
+  - Real-time product search 
+  - Product tiles with image and price 
+  - Keyboard navigation 
+  - Mobile responsive 
+  - Debounced API calls 
 {%- endcomment -%}
 
 <div class="search-autocomplete" id="search-autocomplete">
-  <div class="search-autocomplete__overlay" id="search-overlay"></div>
+  <div class="search-autocomplete__input-wrapper">
+    <input
+      type="text"
+      class="search-autocomplete__input"
+      id="search-autocomplete-input"
+      placeholder="Search products..."
+      autocomplete="off"
+      aria-expanded="false"
+      aria-haspopup="listbox"
+      aria-label="Search products">
 
-  <div class="search-autocomplete__container" id="search-container">
-    <div class="search-autocomplete__header">
-      <div class="search-autocomplete__input-container">
-        <svg
-          class="search-autocomplete__input-icon"
-          width="20"
-          height="20"
-          viewBox="0 0 20 20"
-          fill="none">
-          <path
-            d="M19 19L13 13M15 8C15 11.866 11.866 15 8 15C4.134 15 1 11.866 1 8C1 4.134 4.134 1 8 1C11.866 1 15 4.134 15 8Z"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round" />
-        </svg>
-        <input
-          type="text"
-          class="search-autocomplete__input"
-          id="search-input"
-          placeholder="Search products..."
-          autocomplete="off">
-        <button
-          class="search-autocomplete__clear"
-          id="search-clear"
-          aria-label="Clear search">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none">
-            <path
-              d="M12 4L4 12M4 4L12 12"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round" />
-          </svg>
-        </button>
-      </div>
-      <button
-        class="search-autocomplete__close"
-        id="search-close"
-        aria-label="Close search">
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 20 20"
-          fill="none">
-          <path
-            d="M15 5L5 15M5 5L15 15"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round" />
-        </svg>
-      </button>
+    <button
+      type="button"
+      class="search-autocomplete__clear"
+      id="search-autocomplete-clear"
+      aria-label="Clear search"
+      style="display: none;">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 16 16"
+        fill="none">
+        <path
+          d="M12 4L4 12M4 4L12 12"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round" />
+      </svg>
+    </button>
+
+    <button
+      type="submit"
+      class="search-autocomplete__submit"
+      aria-label="Submit search">
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none">
+        <path
+          d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round" />
+      </svg>
+    </button>
+  </div>
+
+  <div
+    class="search-autocomplete__results"
+    id="search-autocomplete-results"
+    role="listbox"
+    aria-label="Search results">
+
+    <div class="search-autocomplete__loading" id="search-autocomplete-loading">
+      <div class="search-autocomplete__spinner"></div>
+      <span>Searching...</span>
     </div>
 
-    <div class="search-autocomplete__content" id="search-content">
-      <!-- Welcome state -->
-      <div class="search-autocomplete__welcome" id="search-welcome">
-        <div class="search-autocomplete__welcome-icon">
-          <svg
-            width="48"
-            height="48"
-            viewBox="0 0 48 48"
-            fill="none">
-            <path
-              d="M19 19L13 13M15 8C15 11.866 11.866 15 8 15C4.134 15 1 11.866 1 8C1 4.134 4.134 1 8 1C11.866 1 15 4.134 15 8Z"
-              stroke="#EB701F"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round" />
-          </svg>
-        </div>
-        <h4>Search Products</h4>
-        <p>Start typing to find your perfect fitness equipment</p>
-        <div class="search-autocomplete__shortcuts">
-          <span class="search-autocomplete__shortcut">Press
-            <kbd>Enter</kbd>
-            to search</span>
-          <span class="search-autocomplete__shortcut">Press
-            <kbd>Esc</kbd>
-            to close</span>
-        </div>
-      </div>
-
-      <!-- Loading state -->
-      <div
-        class="search-autocomplete__loading"
-        id="search-loading"
-        style="display: none;">
-        <div class="search-autocomplete__spinner"></div>
-        <p>Searching products...</p>
-      </div>
-
+    <div class="search-autocomplete__content" id="search-autocomplete-content">
       <!-- Results will be populated here -->
-      <div
-        class="search-autocomplete__results"
-        id="search-results"
-        style="display: none;"></div>
-
-      <!-- No results state -->
-      <div
-        class="search-autocomplete__no-results"
-        id="search-no-results"
-        style="display: none;">
-        <div class="search-autocomplete__no-results-icon">
-          <svg
-            width="48"
-            height="48"
-            viewBox="0 0 48 48"
-            fill="none">
-            <path d="M24 4C13.5 4 5 12.5 5 23S13.5 42 24 42S43 33.5 43 23S34.5 4 24 4ZM24 38C15.7 38 9 31.3 9 23S15.7 8 24 8S39 14.7 39 23S32.3 38 24 38Z" fill="#9CA3AF" />
-            <path d="M24 16C20.7 16 18 18.7 18 22S20.7 28 24 28S30 25.3 30 22S27.3 16 24 16ZM24 24C22.9 24 22 23.1 22 22S22.9 20 24 20S26 20.9 26 22S25.1 24 24 24Z" fill="#9CA3AF" />
-          </svg>
-        </div>
-        <h4>No products found</h4>
-        <p>Try searching with different keywords</p>
-      </div>
-
-      <!-- Error state -->
-      <div
-        class="search-autocomplete__error"
-        id="search-error"
-        style="display: none;">
-        <div class="search-autocomplete__error-icon">
-          <svg
-            width="48"
-            height="48"
-            viewBox="0 0 48 48"
-            fill="none">
-            <path d="M24 4C13.5 4 5 12.5 5 23S13.5 42 24 42S43 33.5 43 23S34.5 4 24 4ZM24 38C15.7 38 9 31.3 9 23S15.7 8 24 8S39 14.7 39 23S32.3 38 24 38Z" fill="#EF4444" />
-            <path d="M24 16C20.7 16 18 18.7 18 22S20.7 28 24 28S30 25.3 30 22S27.3 16 24 16ZM24 24C22.9 24 22 23.1 22 22S22.9 20 24 20S26 20.9 26 22S25.1 24 24 24Z" fill="#EF4444" />
-          </svg>
-        </div>
-        <h4>Search Error</h4>
-        <p>Something went wrong. Please try again.</p>
-      </div>
     </div>
 
-    <div class="search-autocomplete__footer">
-      <a href="{{ routes.search_url }}" class="search-autocomplete__view-all">
-        View all results
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 16 16"
-          fill="none">
-          <path
-            d="M6 12L10 8L6 4"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round" />
-        </svg>
-      </a>
+    <div class="search-autocomplete__no-results" id="search-autocomplete-no-results">
+      <svg
+        width="48"
+        height="48"
+        viewBox="0 0 24 24"
+        fill="none">
+        <path
+          d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round" />
+      </svg>
+      <p>No products found</p>
+      <span>Try different keywords</span>
     </div>
   </div>
 </div>
 
 <style>
   .search-autocomplete {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1000;
-    display: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  .search-autocomplete.active {
-    display: block;
-    opacity: 1;
-  }
-
-  .search-autocomplete__overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
-  }
-
-  .search-autocomplete__container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 90%;
-    max-width: 800px;
-    max-height: 80vh;
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-    overflow: hidden;
-    animation: searchSlideIn 0.3s ease-out;
-  }
-
-  @keyframes searchSlideIn {
-    from {
-      opacity: 0;
-      transform: translate(-50%, -60%);
-    }
-    to {
-      opacity: 1;
-      transform: translate(-50%, -50%);
-    }
-  }
-
-  .search-autocomplete__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 24px 32px;
-    border-bottom: 1px solid #E5E7EB;
-    background: #F9FAFB;
-    gap: 16px;
-  }
-
-  .search-autocomplete__input-container {
     position: relative;
-    flex: 1;
-    max-width: 500px;
-  }
-
-  .search-autocomplete__input {
     width: 100%;
-    padding: 16px 48px;
-    border: 2px solid #E5E7EB;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 500;
-    color: #111827;
-    background: #fff;
-    transition: all 0.2s ease;
-    outline: none;
+    max-width: 100%;
   }
 
-  .search-autocomplete__input:focus {
-    border-color: #EB701F;
+  .search-autocomplete__input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+  }
+
+  .search-autocomplete__input-wrapper:focus-within {
+    border-color: #eb701f;
     box-shadow: 0 0 0 3px rgba(235, 112, 31, 0.1);
   }
 
+  .search-autocomplete__input {
+    flex: 1;
+    padding: 16px 20px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    font-family: 'Barlow'
+    , sans-serif;
+    background: transparent;
+    color: #111827;
+  }
+
   .search-autocomplete__input::placeholder {
-    color: #9CA3AF;
-    font-weight: 400;
+    color: #9ca3af;
   }
 
-  .search-autocomplete__input-icon {
-    position: absolute;
-    left: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #9CA3AF;
-    pointer-events: none;
-  }
-
-  .search-autocomplete__clear {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
+  .search-autocomplete__clear,
+  .search-autocomplete__submit {
     background: none;
     border: none;
-    color: #9CA3AF;
+    padding: 12px;
     cursor: pointer;
-    padding: 4px;
-    border-radius: 4px;
+    color: #6b7280;
     transition: all 0.2s ease;
-    display: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  .search-autocomplete__clear:hover {
-    background: #F3F4F6;
-    color: #6B7280;
+  .search-autocomplete__clear:hover,
+  .search-autocomplete__submit:hover {
+    color: #eb701f;
+    transform: scale(1.1);
   }
 
-  .search-autocomplete__clear.visible {
-    display: block;
-  }
-
-  .search-autocomplete__close {
-    background: none;
-    border: none;
-    color: #6B7280;
-    cursor: pointer;
-    padding: 8px;
+  .search-autocomplete__submit {
+    background: #eb701f;
+    color: #fff;
     border-radius: 8px;
-    transition: all 0.2s ease;
+    margin: 4px;
   }
 
-  .search-autocomplete__close:hover {
-    background: #E5E7EB;
-    color: #374151;
+  .search-autocomplete__submit:hover {
+    background: #d65b0f;
+    color: #fff;
+    transform: scale(1.05);
   }
 
-  .search-autocomplete__content {
-    padding: 24px 32px;
-    max-height: 60vh;
+  .search-autocomplete__results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-height: 400px;
     overflow-y: auto;
+    margin-top: 8px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .search-autocomplete__results.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
   }
 
   .search-autocomplete__loading {
-    display: flex;
-    flex-direction: column;
+    display: none;
     align-items: center;
     justify-content: center;
-    padding: 40px 0;
-    color: #6B7280;
+    gap: 12px;
+    padding: 24px;
+    color: #6b7280;
+  }
+
+  .search-autocomplete__loading.show {
+    display: flex;
   }
 
   .search-autocomplete__spinner {
-    width: 32px;
-    height: 32px;
-    border: 3px solid #E5E7EB;
-    border-top: 3px solid #EB701F;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e5e7eb;
+    border-top: 2px solid #eb701f;
     border-radius: 50%;
     animation: spin 1s linear infinite;
-    margin-bottom: 16px;
   }
 
   @keyframes spin {
@@ -341,43 +220,54 @@
     }
   }
 
-  .search-autocomplete__results {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
+  .search-autocomplete__content {
+    padding: 8px;
   }
 
-  .search-autocomplete__product-tile {
-    background: #fff;
-    border: 1px solid #E5E7EB;
-    border-radius: 12px;
-    padding: 16px;
-    transition: all 0.2s ease;
-    cursor: pointer;
+  .search-autocomplete__product {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 8px;
     text-decoration: none;
     color: inherit;
+    transition: all 0.2s ease;
+    cursor: pointer;
   }
 
-  .search-autocomplete__product-tile:hover {
-    border-color: #EB701F;
-    box-shadow: 0 4px 12px rgba(235, 112, 31, 0.15);
-    transform: translateY(-2px);
+  .search-autocomplete__product:hover,
+  .search-autocomplete__product.highlighted {
+    background: #f9fafb;
+    transform: translateX(4px);
   }
 
   .search-autocomplete__product-image {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
+    width: 120px;
+    height: 120px;
     border-radius: 8px;
-    margin-bottom: 12px;
+    overflow: hidden;
+    background: #f3f4f6;
+    flex-shrink: 0;
+  }
+
+  .search-autocomplete__product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .search-autocomplete__product-info {
+    flex: 1;
+    min-width: 0;
   }
 
   .search-autocomplete__product-title {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
     color: #111827;
-    margin: 0 0 8px;
-    line-height: 1.4;
+    margin: 0 0 4px;
+    line-height: 1.3;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -385,426 +275,402 @@
   }
 
   .search-autocomplete__product-price {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .search-autocomplete__product-price-current {
-    font-size: 18px;
-    font-weight: 700;
-    color: #EB701F;
-  }
-
-  .search-autocomplete__product-price-original {
     font-size: 14px;
-    color: #9CA3AF;
+    font-weight: 600;
+    color: #eb701f;
+  }
+
+  .search-autocomplete__product-compare-price {
+    font-size: 12px;
+    color: #9ca3af;
     text-decoration: line-through;
+    margin-left: 8px;
   }
 
-  .search-autocomplete__product-badge {
-    background: #10B981;
-    color: #fff;
-    font-size: 12px;
-    font-weight: 600;
-    padding: 4px 8px;
-    border-radius: 4px;
-    margin-left: auto;
-  }
-
-  .search-autocomplete__welcome {
-    text-align: center;
-    padding: 40px 0;
-    color: #6B7280;
-  }
-
-  .search-autocomplete__welcome-icon {
-    margin-bottom: 16px;
-  }
-
-  .search-autocomplete__welcome h4 {
-    font-size: 18px;
-    font-weight: 600;
-    color: #374151;
-    margin: 0 0 8px;
-  }
-
-  .search-autocomplete__welcome p {
-    font-size: 14px;
-    margin: 0 0 24px;
-  }
-
-  .search-autocomplete__shortcuts {
-    display: flex;
+  .search-autocomplete__no-results {
+    display: none;
     flex-direction: column;
-    gap: 8px;
     align-items: center;
-  }
-
-  .search-autocomplete__shortcut {
-    font-size: 12px;
-    color: #9CA3AF;
-  }
-
-  .search-autocomplete__shortcut kbd {
-    background: #F3F4F6;
-    border: 1px solid #D1D5DB;
-    border-radius: 4px;
-    padding: 2px 6px;
-    font-size: 11px;
-    font-family: monospace;
-    color: #374151;
-  }
-
-  .search-autocomplete__no-results,
-  .search-autocomplete__error {
+    justify-content: center;
+    padding: 40px 20px;
     text-align: center;
-    padding: 40px 0;
-    color: #6B7280;
+    color: #6b7280;
   }
 
-  .search-autocomplete__no-results-icon,
-  .search-autocomplete__error-icon {
+  .search-autocomplete__no-results.show {
+    display: flex;
+  }
+
+  .search-autocomplete__no-results svg {
     margin-bottom: 16px;
+    opacity: 0.5;
   }
 
-  .search-autocomplete__no-results h4,
-  .search-autocomplete__error h4 {
-    font-size: 18px;
+  .search-autocomplete__no-results p {
+    font-size: 16px;
     font-weight: 600;
+    margin: 0 0 4px;
     color: #374151;
-    margin: 0 0 8px;
   }
 
-  .search-autocomplete__no-results p,
-  .search-autocomplete__error p {
+  .search-autocomplete__no-results span {
     font-size: 14px;
-    margin: 0;
+    color: #9ca3af;
   }
 
-  .search-autocomplete__footer {
-    padding: 20px 32px;
-    border-top: 1px solid #E5E7EB;
-    background: #F9FAFB;
-    text-align: center;
-  }
-
-  .search-autocomplete__view-all {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: #EB701F;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 14px;
-    transition: color 0.2s ease;
-  }
-
-  .search-autocomplete__view-all:hover {
-    color: #D65A0F;
-  }
-
-  /* Mobile responsiveness */
-  @media (max-width: 768px) {
-    .search-autocomplete__container {
-      width: 95%;
-      max-height: 85vh;
-    }
-
-    .search-autocomplete__header {
-      padding: 16px 20px;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .search-autocomplete__input-container {
-      max-width: none;
+  /* Mobile Styles */
+  @media screen and (max-width: 768px) {
+    .search-autocomplete {
+      max-width: 100%;
     }
 
     .search-autocomplete__input {
-      padding: 14px 44px;
+      padding: 14px 16px;
       font-size: 16px;
-    }
-
-    .search-autocomplete__input-icon {
-      left: 14px;
-    }
-
-    .search-autocomplete__clear {
-      right: 10px;
-    }
-
-    .search-autocomplete__content,
-    .search-autocomplete__footer {
-      padding: 16px 20px;
+      /* Prevents zoom on iOS */
     }
 
     .search-autocomplete__results {
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 16px;
+      max-height: 300px;
+    }
+
+    .search-autocomplete__product {
+      padding: 10px;
     }
 
     .search-autocomplete__product-image {
-      height: 140px;
+      width: 50px;
+      height: 50px;
+    }
+
+    .search-autocomplete__product-title {
+      font-size: 13px;
+    }
+
+    .search-autocomplete__product-price {
+      font-size: 13px;
     }
   }
 </style>
 
 <script>
   class SearchAutocomplete {
-    constructor() {
-      this.container = document.getElementById('search-autocomplete');
-      this.overlay = document.getElementById('search-overlay');
-      this.closeBtn = document.getElementById('search-close');
-      this.input = document.getElementById('search-input');
-      this.clearBtn = document.getElementById('search-clear');
-      this.content = document.getElementById('search-content');
-      this.welcome = document.getElementById('search-welcome');
-      this.results = document.getElementById('search-results');
-      this.loading = document.getElementById('search-loading');
-      this.noResults = document.getElementById('search-no-results');
-      this.error = document.getElementById('search-error');
-      
-      this.searchTimeout = null;
-      this.isOpen = false;
-      
-      this.init();
-    }
+  constructor() {
+    this.input = document.getElementById('search-autocomplete-input');
+    this.clearBtn = document.getElementById('search-autocomplete-clear');
+    this.submitBtn = document.getElementById('search-autocomplete-submit');
+    this.results = document.getElementById('search-autocomplete-results');
+    this.loading = document.getElementById('search-autocomplete-loading');
+    this.content = document.getElementById('search-autocomplete-content');
+    this.noResults = document.getElementById('search-autocomplete-no-results');
     
-    init() {
-      // Close on overlay click
-      this.overlay.addEventListener('click', () => this.close());
-      
-      // Close on close button click
-      this.closeBtn.addEventListener('click', () => this.close());
-      
-      // Clear input on clear button click
-      this.clearBtn.addEventListener('click', () => this.clearInput());
-      
-      // Handle input changes
-      this.input.addEventListener('input', (e) => {
-        this.handleInputChange(e.target.value);
-      });
-      
-      // Handle Enter key
-      this.input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          this.performSearch();
-        }
-      });
-      
-      // Close on escape key
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && this.isOpen) {
-          this.close();
-        }
-      });
-      
-      // Prevent body scroll when open
-      this.container.addEventListener('transitionend', () => {
-        if (this.isOpen) {
-          document.body.style.overflow = 'hidden';
-        } else {
-          document.body.style.overflow = '';
-        }
+    this.debounceTimer = null;
+    this.currentQuery = '';
+    this.selectedIndex = -1;
+    this.products = [];
+    
+    this.init();
+  }
+  
+  init() {
+    if (!this.input) return;
+  
+    // Input events
+    this.input.addEventListener('input', (e) => this.handleInput(e));
+    this.input.addEventListener('focus', () => this.handleFocus());
+    this.input.addEventListener('keydown', (e) => this.handleKeydown(e));
+  
+    // Clear button
+    this.clearBtn?.addEventListener('click', () => this.clearSearch());
+  
+    // Submit button
+    this.submitBtn?.addEventListener('click', () => this.handleSubmit());
+  
+    // Click outside to close
+    document.addEventListener('click', (e) => this.handleClickOutside(e));
+  
+    // Form submission
+    const form = this.input.closest('form');
+    if (form) {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        this.handleSubmit();
       });
     }
-    
-    open(query = '') {
-      this.isOpen = true;
-      this.container.classList.add('active');
+  }
+  
+  handleInput(e) {
+    const query = e.target.value.trim();
+    this.currentQuery = query;
+  
+    // Show/hide clear button
+    if (this.clearBtn) {
+      this.clearBtn.style.display = query ? 'flex' : 'none';
+    }
+  
+    // Clear previous timer
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+    }
+  
+    if (query.length < 2) {
+      this.hideResults();
+      return;
+    }
+  
+    // Debounce search
+    this.debounceTimer = setTimeout(() => {
+      this.searchProducts(query);
+    }, 300);
+  }
+  
+  handleFocus() {
+    if (this.currentQuery.length >= 2 && this.products.length > 0) {
+      this.showResults();
+    }
+  }
+  
+  handleKeydown(e) {
+    if (!this.results.classList.contains('show')) return;
+  
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        this.navigateDown();
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        this.navigateUp();
+        break;
+      case 'Enter':
+        e.preventDefault();
+        this.selectCurrent();
+        break;
+      case 'Escape':
+        this.hideResults();
+        this.input.blur();
+        break;
+    }
+  }
+  
+  handleClickOutside(e) {
+    if (!e.target.closest('.search-autocomplete')) {
+      this.hideResults();
+    }
+  }
+  
+  handleSubmit() {
+    if (this.selectedIndex >= 0 && this.products[this.selectedIndex]) {
+      // Navigate to selected product
+      window.location.href = this.products[this.selectedIndex].url;
+    } else if (this.currentQuery) {
+      // Navigate to search results
+      window.location.href = `/search?q=${encodeURIComponent(this.currentQuery)}`;
+    }
+  }
+  
+  async searchProducts(query) {
+    this.showLoading();
+
+    try {
+      // 1) Predictive Search para obter handles
+      const suggestUrl = `/search/suggest.json?q=${encodeURIComponent(query)}&resources[type]=product&resources[limit]=8`;
+      const suggestResponse = await fetch(suggestUrl, { credentials: 'same-origin' });
       
-      // Focus input and set initial value
-      setTimeout(() => {
-        this.input.focus();
-        if (query) {
-          this.input.value = query;
-          this.handleInputChange(query);
-        }
-      }, 100);
-    }
-    
-    close() {
-      this.isOpen = false;
-      this.container.classList.remove('active');
-      document.body.style.overflow = '';
-      this.clearInput();
-    }
-    
-    clearInput() {
-      this.input.value = '';
-      this.clearBtn.classList.remove('visible');
-      this.showWelcome();
-    }
-    
-    handleInputChange(value) {
-      // Show/hide clear button
-      if (value.trim()) {
-        this.clearBtn.classList.add('visible');
-      } else {
-        this.clearBtn.classList.remove('visible');
-        this.showWelcome();
-        return;
+      if (!suggestResponse.ok) {
+        throw new Error('Suggest failed');
       }
+
+      const data = await suggestResponse.json();
+      const rawProducts = data?.resources?.results?.products || [];
       
-      // Perform search with debounce
-      this.search(value);
-    }
-    
-    performSearch() {
-      const query = this.input.value.trim();
-      if (query) {
-        window.location.href = `/search?q=${encodeURIComponent(query)}`;
-      }
-    }
-    
-    async search(query) {
-      if (!query.trim()) {
-        this.showNoResults();
-        return;
-      }
-      
-      this.showLoading();
-      
-      try {
-        // Clear previous timeout
-        if (this.searchTimeout) {
-          clearTimeout(this.searchTimeout);
-        }
-        
-        // Debounce search requests
-        this.searchTimeout = setTimeout(async () => {
-          const response = await fetch(`/search/suggest.json?q=${encodeURIComponent(query)}&resources[type]=product&resources[limit]=8`);
-          
-          if (!response.ok) {
-            throw new Error('Search failed');
+      // Garante unicidade por handle (evita duplicados)
+      const byHandle = new Map();
+      rawProducts.forEach(p => { 
+        if (p && p.handle) byHandle.set(p.handle, p); 
+      });
+
+      // 2) Enriquecer com /products/<handle>.js (preço/compare/imagens consistentes)
+      const enriched = await Promise.all(
+        Array.from(byHandle.keys()).map(async (handle) => {
+          try {
+            const productResponse = await fetch(`/products/${handle}.js`, { credentials: 'same-origin' });
+            
+            if (!productResponse.ok) {
+              console.warn(`Failed to fetch product data for ${handle}`);
+              return null;
+            }
+            
+            const productData = await productResponse.json();
+
+            // Preço: pegue do variant "mais barato" (ou o primeiro disponível)
+            const variants = productData?.variants || [];
+            const available = variants.filter(v => v.available);
+            const variant = (available.length ? available : variants)[0];
+
+            if (!variant) {
+              console.warn(`No variants found for ${handle}`);
+              return null;
+            }
+
+            // Imagem destaque
+            const imageUrl = productData?.images && productData.images.length > 0
+              ? productData.images[0]
+              : (byHandle.get(handle)?.featured_image?.url || null);
+
+            return {
+              title: productData?.title || byHandle.get(handle)?.title || '',
+              url: productData?.url || `/products/${handle}`,
+              image: imageUrl,
+              priceCents: variant.price || 0, // já vem em centavos
+              compareAtCents: variant.compare_at_price || 0,
+              available: variant.available
+            };
+          } catch (err) {
+            console.error(`Error enriching product ${handle}:`, err);
+            return null;
           }
-          
-          const data = await response.json();
-          this.displayResults(data.resources.results.products || []);
-        }, 300);
-        
-      } catch (err) {
-        console.error('Search error:', err);
-        this.showError();
+        })
+      );
+
+      this.products = enriched.filter(Boolean);
+      this.renderResults(this.products);
+      
+    } catch (error) {
+      console.error('Search error:', error);
+      this.showNoResults();
+    }
+  }
+  
+  renderResults(products) {
+    this.hideLoading();
+
+    if (products.length === 0) {
+      this.showNoResults();
+      return;
+    }
+
+    const money = (cents) => {
+      // Use Shopify.formatMoney se existir para respeitar moeda/locale da loja
+      if (window.Shopify && typeof window.Shopify.formatMoney === 'function') {
+        return window.Shopify.formatMoney(cents, window.Shopify.money_format || '${{amount}}');
       }
-    }
-    
-    showLoading() {
-      this.loading.style.display = 'flex';
-      this.welcome.style.display = 'none';
-      this.results.style.display = 'none';
-      this.noResults.style.display = 'none';
-      this.error.style.display = 'none';
-    }
-    
-    displayResults(products) {
-      this.loading.style.display = 'none';
-      this.welcome.style.display = 'none';
-      this.error.style.display = 'none';
-      
-      if (products.length === 0) {
-        this.showNoResults();
-        return;
-      }
-      
-      this.results.style.display = 'grid';
-      this.noResults.style.display = 'none';
-      
-      this.results.innerHTML = products.map(product => this.createProductTile(product)).join('');
-      
-      // Add click handlers to product tiles
-      this.results.querySelectorAll('.search-autocomplete__product-tile').forEach(tile => {
-        tile.addEventListener('click', (e) => {
-          e.preventDefault();
-          window.location.href = tile.href;
-        });
-      });
-    }
-    
-    createProductTile(product) {
-      const image = product.featured_image || product.images?.[0];
-      const imageUrl = image ? image.replace('.jpg', '_300x300.jpg') : '{{ "no-image.png" | asset_url }}';
-      
-      const price = product.price;
-      const comparePrice = product.compare_at_price;
-      const hasDiscount = comparePrice && comparePrice > price;
-      
+      // fallback
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' })
+        .format((cents || 0) / 100);
+    };
+
+    const html = products.map((product, index) => {
+      // Imagem com width parameter
+      const imgUrl = product.image
+        ? (product.image.includes('?') ? `${product.image}&width=120&height=120&crop=center` : `${product.image}?width=120&height=120&crop=center`)
+        : null;
+
+      const hasCompare = product.compareAtCents && product.compareAtCents > product.priceCents;
+
       return `
-        <a href="/products/${product.handle}" class="search-autocomplete__product-tile">
-          <img 
-            src="${imageUrl}" 
-            alt="${product.title}" 
-            class="search-autocomplete__product-image"
-            loading="lazy"
-          >
-          <h4 class="search-autocomplete__product-title">${product.title}</h4>
-          <div class="search-autocomplete__product-price">
-            <span class="search-autocomplete__product-price-current">
-              ${this.formatPrice(price)}
-            </span>
-            ${hasDiscount ? `
-              <span class="search-autocomplete__product-price-original">
-                ${this.formatPrice(comparePrice)}
-              </span>
-              <span class="search-autocomplete__product-badge">
-                ${Math.round(((comparePrice - price) / comparePrice) * 100)}% OFF
-              </span>
-            ` : ''}
+        <a href="${product.url}" class="search-autocomplete__product" data-index="${index}">
+          <div class="search-autocomplete__product-image">
+            ${
+              imgUrl
+                ? `<img src="${imgUrl}" alt="${(product.title || '').replace(/"/g, '&quot;')}" loading="lazy">`
+                : '<div style="background:#f3f4f6;width:100%;height:100%;"></div>'
+            }
+          </div>
+          <div class="search-autocomplete__product-info">
+            <h3 class="search-autocomplete__product-title">${product.title}</h3>
+            <div class="search-autocomplete__product-price">
+              ${money(product.priceCents)}
+              ${hasCompare ? `<span class="search-autocomplete__product-compare-price">${money(product.compareAtCents)}</span>` : ''}
+            </div>
           </div>
         </a>
       `;
-    }
-    
-    formatPrice(price) {
-      return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD'
-      }).format(price / 100);
-    }
-    
-    showNoResults() {
-      this.loading.style.display = 'none';
-      this.welcome.style.display = 'none';
-      this.results.style.display = 'none';
-      this.error.style.display = 'none';
-      this.noResults.style.display = 'block';
-    }
-    
-    showError() {
-      this.loading.style.display = 'none';
-      this.welcome.style.display = 'none';
-      this.results.style.display = 'none';
-      this.noResults.style.display = 'none';
-      this.error.style.display = 'block';
-    }
-    
-    showWelcome() {
-      this.welcome.style.display = 'block';
-      this.loading.style.display = 'none';
-      this.results.style.display = 'none';
-      this.noResults.style.display = 'none';
-      this.error.style.display = 'none';
-    }
+    }).join('');
+
+    this.content.innerHTML = html;
+    this.showResults();
+    this.selectedIndex = -1;
+
+    // Add click handlers
+    this.content.querySelectorAll('.search-autocomplete__product').forEach((item, index) => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.href = products[index].url;
+      });
+    });
   }
   
-  // Initialize when DOM is ready
-  function initializeSearchAutocomplete() {
-    if (document.getElementById('search-autocomplete')) {
-      window.searchAutocomplete = new SearchAutocomplete();
-      console.log('SearchAutocomplete initialized');
-      
-      // Dispatch event to notify other components
-      document.dispatchEvent(new CustomEvent('searchAutocompleteReady'));
+  navigateDown() {
+    this.selectedIndex = Math.min(this.selectedIndex + 1, this.products.length - 1);
+    this.updateHighlight();
+  }
+  
+  navigateUp() {
+    this.selectedIndex = Math.max(this.selectedIndex - 1, -1);
+    this.updateHighlight();
+  }
+  
+  updateHighlight() {
+    const items = this.content.querySelectorAll('.search-autocomplete__product');
+    items.forEach((item, index) => {
+      item.classList.toggle('highlighted', index === this.selectedIndex);
+    });
+  }
+  
+  selectCurrent() {
+    if (this.selectedIndex >= 0 && this.products[this.selectedIndex]) {
+      window.location.href = this.products[this.selectedIndex].url;
     } else {
-      console.error('Search autocomplete container not found');
+      this.handleSubmit();
     }
   }
   
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeSearchAutocomplete);
-  } else {
-    initializeSearchAutocomplete();
+  clearSearch() {
+    this.input.value = '';
+    this.currentQuery = '';
+    this.hideResults();
+    this.clearBtn.style.display = 'none';
+    this.input.focus();
   }
+  
+  showLoading() {
+    this.loading.classList.add('show');
+    this.content.style.display = 'none';
+    this.noResults.classList.remove('show');
+    this.results.classList.add('show');
+  }
+  
+  hideLoading() {
+    this.loading.classList.remove('show');
+    this.content.style.display = 'block';
+  }
+  
+  showResults() {
+    this.results.classList.add('show');
+    this.input.setAttribute('aria-expanded', 'true');
+    // O scroll já está bloqueado pelo overlay no header
+  }
+  
+  hideResults() {
+    this.results.classList.remove('show');
+    this.input.setAttribute('aria-expanded', 'false');
+    this.selectedIndex = -1;
+    // O scroll será restaurado quando o overlay fechar
+  }
+  
+  showNoResults() {
+    this.hideLoading();
+    this.content.style.display = 'none';
+    this.noResults.classList.add('show');
+    this.results.classList.add('show');
+  }
+}
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => new SearchAutocomplete());
+} else {
+  new SearchAutocomplete();
+}
 </script>

@@ -1,147 +1,95 @@
-{%- assign selected_variant = product.selected_or_first_available_variant -%}
-{%- assign product_form_id = 'product_form_' | append: section.id | append: product.id -%}
+{% comment %}
+  Product Info Component
+  Renders product information including title, subtitle, price, reviews, and features.
+  Accepts:
+  - product: {Object} Product object
+  - section: {Object} Section object for settings
+  Usage:
+  {% render 'product-info', product: product, section: section %}
+{% endcomment %}
 
-<div class="card {% if product.media.size > 0 %}card--collapsed{% endif %} {% if template.name == 'product' %}card--sticky{% endif %}">
-  {%- if section.settings.enable_image_zoom -%}
-    <div id="product-zoom-{{ section.id }}" class="product__zoom-wrapper"></div>
+<div class="product-info-container_new">
+  <!-- Product Title -->
+  <h1 class="product-name_new">
+    {%- if section.settings.product_title != blank -%}
+      {{ section.settings.product_title }}
+    {%- else -%}
+      {{ product.title }}
+    {%- endif -%}
+  </h1>
+
+  <!-- Product Subtitle -->
+  {%- if section.settings.product_subtitle != blank -%}
+    <p class="product-subtitle_new">{{ section.settings.product_subtitle }}</p>
   {%- endif -%}
 
-  <div class="card__section">
-    {%- form 'product', product, id: product_form_id, class: 'product-form' -%}
-      {%- for block in section.blocks -%}
-        {%- case block.type -%}
-          {%- when 'product_meta' -%}
-            {%- render 'product-meta', product: product, block: block -%}
+  <!-- Reviews -->
+  {%- if section.settings.show_reviews and section.settings.review_text != blank -%}
+    <div class="review_new">
+      <div class="stars_new">
+        {%- for i in (1..5) -%}
+          <svg
+            fill="#ffcf47"
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 475.075 475.075">
+            <path d="M475.075,186.573c0-7.043-5.328-11.42-15.992-13.135L315.766,152.6L251.529,22.694c-3.614-7.804-8.281-11.704-13.99-11.704   c-5.708,0-10.372,3.9-13.989,11.704L159.31,152.6L15.986,173.438C5.33,175.153,0,179.53,0,186.573c0,3.999,2.38,8.567,7.139,13.706   l103.924,101.068L86.51,444.096c-0.381,2.666-0.57,4.575-0.57,5.712c0,3.997,0.998,7.374,2.996,10.136   c1.997,2.766,4.993,4.142,8.992,4.142c3.428,0,7.233-1.137,11.42-3.423l128.188-67.386l128.197,67.386   c4.004,2.286,7.81,3.423,11.416,3.423c3.819,0,6.715-1.376,8.713-4.142c1.992-2.758,2.991-6.139,2.991-10.136   c0-2.471-0.096-4.374-0.287-5.712l-24.555-142.749l103.637-101.068C472.604,195.33,475.075,190.76,475.075,186.573z" />
+          </svg>
+        {%- endfor -%}
+      </div>
+      <p class="review-text_new">{{ section.settings.review_text }}</p>
+    </div>
+  {%- endif -%}
 
-          {%- when 'variant_selector' -%}
-            {%- render 'product-variant-selector', product: product, form: form, block: block -%}
+  <!-- Feature Lines -->
+  {%- if section.settings.show_features -%}
+    {%- if section.settings.feature_line_1 != blank -%}
+      <p class="product-features-text_new">{{ section.settings.feature_line_1 }}</p>
+    {%- endif -%}
+    {%- if section.settings.feature_line_2 != blank -%}
+      <p class="product-features-text_new">{{ section.settings.feature_line_2 }}</p>
+    {%- endif -%}
+  {%- endif -%}
 
-          {%- when 'buy_buttons' -%}
-            {%- render 'product-buy-buttons', product: product, form: form, block: block -%}
-
-          {%- when 'text' -%}
-            {%- if block.settings.content != blank -%}
-              <div class="product-meta__text rte" {{ block.shopify_attributes }}>
-                {{- block.settings.content -}}
-              </div>
-            {%- endif -%}
-
-          {%- when 'button' -%}
-            {%- if block.settings.text != blank -%}
-              <a href="{{ block.settings.link }}" class="product-meta__button button button--primary" {{ block.shopify_attributes }}>{{ block.settings.text | escape }}</a>
-            {%- endif -%}
-
-          {%- when 'store_pickup' -%}
-            {%- comment -%}The availability container will be added automatically if there is store pickup available{%- endcomment -%}
-            <div class="product-meta__store-availability-container" {{ block.shopify_attributes }}>
-              {%- render 'store-availability', product_variant: product.selected_or_first_available_variant -%}
-            </div>
-
-          {%- when 'featured_description' -%}
-            {%- comment -%}This is only shown on the featured product section{%- endcomment -%}
-            {%- if product.description != blank -%}
-              <div class="product-meta__description rte" {{ block.shopify_attributes }}>
-                {{ product.description | remove: 'data-section-type="product"' }}
-              </div>
-            {%- endif -%}
-
-          {%- when '@app' -%}
-            {%- render block -%}
-        {%- endcase -%}
-      {%- endfor -%}
-
-      {%- assign product_meta_block = section.blocks | where: 'type', 'product_meta' | first -%}
-
-      {%- if product_meta_block != blank and product_meta_block.settings.show_share_buttons -%}
-        <div class="product-meta__share-buttons hidden-tablet-and-up">
-          <span class="text--strong">{{ 'product.general.share' | t }}</span>
-
-          {%- assign share_url = shop.url | append: product.url | url_param_escape -%}
-          {%- assign twitter_text = product.title | url_param_escape -%}
-          {%- assign pinterest_description = product.description | strip_html | truncatewords: 15 | url_param_escape -%}
-          {%- assign pinterest_image = product.featured_media | img_url: '1024x' | prepend: 'https:' -%}
-
-          <ul class="social-media__item-list list--unstyled" role="list">
-            <li class="social-media__item social-media__item--facebook">
-              <a href="https://www.facebook.com/sharer.php?u={{ share_url }}" target="_blank" rel="noopener" aria-label="{{ 'general.social.facebook_share' | t }}">{%- render 'icon', icon: 'facebook' -%}</a>
-            </li>
-
-            <li class="social-media__item social-media__item--pinterest">
-              <a href="https://pinterest.com/pin/create/button/?url={{ share_url }}{% if pinterest_image != blank %}&media={{ pinterest_image }}{% endif %}&description={{ pinterest_description }}" target="_blank" rel="noopener" aria-label="{{ 'general.social.pinterest_pin' | t }}">{%- render 'icon', icon: 'pinterest' -%}</a>
-            </li>
-
-            <li class="social-media__item social-media__item--twitter">
-              <a href="https://twitter.com/share?{% if twitter_text != blank %}text={{twitter_text}}&{% endif %}url={{ share_url }}" target="_blank" rel="noopener" aria-label="{{ 'general.social.twitter_tweet' | t }}">{%- render 'icon', icon: 'twitter' -%}</a>
-            </li>
-
-            <li class="social-media__item">
-              <a href="mailto:?&subject={{ product.title | escape }}&body={{ share_url }}" aria-label="{{ 'general.social.email_share' | t }}">{% render 'icon', icon: 'email' %}</a>
-            </li>
-          </ul>
-        </div>
+  <!-- Desktop Price -->
+  <div class="product-price-section_new">
+    <div class="product-price-container_new">
+      <p class="product-price_new">{{ product.selected_or_first_available_variant.price | money }}</p>
+      {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
+        <p class="product-price-original_new">{{ product.selected_or_first_available_variant.compare_at_price | money }}</p>
       {%- endif -%}
-    {%- endform -%}
+    </div>
+
+    <!-- AtivaPeople Badge -->
+    {%- if section.settings.show_ativapeople_badge -%}
+      <div class="ativapeople-badge_new">
+        {{ section.settings.ativapeople_badge_text }}
+      </div>
+    {%- endif -%}
   </div>
 
-  {% comment %}
-  ------------------------------------------------------------------------------
-  Product Data. This must be outputted for all products (including home page).
-
-  IMPORTANT: THIS CODE IS VITAL. DO NOT EDIT IT NOR REMOVE IT. MAKE SURE TO KEEP
-  THE EXACT SAME ATTRIBUTES.
-  ------------------------------------------------------------------------------
-  {% endcomment %}
-
-  {%- assign variant_selector_block = section.blocks | where: 'type', 'variant_selector' | first -%}
-
-  <script type="application/json" data-product-json>
-    {
-      "product": {{ product | json }},
-      "template": {{ product.template_suffix | json }},
-      "options_with_values": {{ product.options_with_values | json }},
-      "selected_variant_id": {{ selected_variant.id }}
-      {%- if variant_selector_block.settings.show_inventory_quantity -%}
-        ,"inventories": {
-          {%- for variant in product.variants -%}
-            {%- if variant.inventory_management -%}
-              {%- if variant.available and variant.inventory_management -%}
-                {%- if variant.inventory_quantity <= 0 and variant.requires_shipping -%}
-                  {%- if variant.incoming -%}
-                    {%- capture next_incoming_date -%}{{ variant.next_incoming_date | date: format: 'date' }}{%- endcapture -%}
-                    {%- capture inventory_message -%}{{ 'product.form.incoming_stock' | t: next_incoming_date: next_incoming_date }}{%- endcapture -%}
-                  {%- else -%}
-                    {%- capture inventory_message -%}{{ 'product.form.oversell_stock' | t }}{%- endcapture -%}
-                  {%- endif -%}
-                {%- elsif variant_selector_block.settings.low_inventory_threshold > 0 -%}
-                  {%- if variant.inventory_quantity <= variant_selector_block.settings.low_inventory_threshold -%}
-                    {%- capture inventory_message -%}{{ 'product.form.low_stock_with_quantity_count' | t: count: variant.inventory_quantity }}{%- endcapture -%}
-                  {%- else -%}
-                    {%- capture inventory_message -%}{{ 'product.form.in_stock_with_quantity_count' | t: count: variant.inventory_quantity }}{%- endcapture -%}
-                  {%- endif -%}
-                {%- else -%}
-                  {%- capture inventory_message -%}{{ 'product.form.in_stock' | t }}{%- endcapture -%}
-                {%- endif -%}
-              {%- else -%}
-                {%- if variant.incoming -%}
-                  {%- capture next_incoming_date -%}{{ variant.next_incoming_date | date: format: 'date' }}{%- endcapture -%}
-                  {%- capture inventory_message -%}{{ 'product.form.incoming_stock' | t: next_incoming_date: next_incoming_date }}{%- endcapture -%}
-                {%- else -%}
-                  {%- capture inventory_message -%}{{ 'product.form.sold_out' | t }}{%- endcapture -%}
-                {%- endif -%}
-              {%- endif -%} 
-            {%- else -%}
-              {%- capture inventory_message -%}{{ 'product.form.in_stock' | t }}{%- endcapture -%}
-            {%- endif -%}
-
-            "{{ variant.id }}": {
-              "inventory_management": {{ variant.inventory_management | json }},
-              "inventory_policy": {{ variant.inventory_policy | json }},
-              "inventory_quantity": {{ variant.inventory_quantity | json }},
-              "inventory_message": {{ inventory_message | json }}
-            }{% unless forloop.last %},{% endunless %}
-          {%- endfor -%}
-        }
-      {%- endif -%}
-    }
-  </script>
+  <!-- Payment Options -->
+  {%- if section.settings.show_payment_options and section.settings.payment_text != blank -%}
+    <div class="payment-options">
+      <p class="payment-text_new">
+        {%- assign product_price = product.selected_or_first_available_variant.price -%}
+        {%- assign installment_price = product_price | divided_by: 4 -%}
+        {%- assign monthly_price = product_price | divided_by: 12 -%}
+        {{ section.settings.payment_text }}
+        {%- if section.settings.show_shop_pay_logo -%}
+          <img
+            src="{{ 'shop-pay.png' | asset_url }}"
+            alt="Shop Pay"
+            class="shop-pay-logo_new"
+            width="78"
+            height="18"
+            loading="lazy">
+        {%- endif -%}
+        {%- if section.settings.learn_more_payment_url != blank -%}
+          <a href="{{ section.settings.learn_more_payment_url }}" class="learn-more-link_new">{{ section.settings.learn_more_text | default: "Learn more" }}</a>
+        {%- endif -%}
+      </p>
+    </div>
+  {%- endif -%}
 </div>
