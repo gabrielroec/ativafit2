@@ -1,20 +1,20 @@
 {% comment %} 
-    Product Main Section - Refactored
-     
-    Professional product page section following Shopify 2.0 best practices.
-    Uses modular snippets for better organization and maintainability.
-     
-    Accepts: 
-    - product: {Object} Product object
-     
-    Dependencies: 
-    - product-gallery.liquid snippet 
-    - product-info.liquid snippet 
-    - product-benefits.liquid snippet 
-    - product-add-to-cart.liquid snippet 
-    - product-accordions.liquid snippet 
-    - product-benefit-popups.liquid snippet 
-    - product-main-section.css asset 
+                                      Product Main Section - Refactored
+                                       
+                                      Professional product page section following Shopify 2.0 best practices.
+                                      Uses modular snippets for better organization and maintainability.
+                                       
+                                      Accepts: 
+                                      - product: {Object} Product object
+                                       
+                                      Dependencies: 
+                                      - product-gallery.liquid snippet 
+                                      - product-info.liquid snippet 
+                                      - product-benefits.liquid snippet 
+                                      - product-add-to-cart.liquid snippet 
+                                      - product-accordions.liquid snippet 
+                                      - product-benefit-popups.liquid snippet 
+                                      - product-main-section.css asset 
 {% endcomment %}
 
 {{ 'product-main-section.css' | asset_url | stylesheet_tag }}
@@ -37,8 +37,19 @@
         , product: product
         , section: section %}
 
+        <!-- Add to Cart Section -->
+      {% render 'product-add-to-cart'
+        , product: product
+        , section: section %}
+        <!-- Accordions -->
+      {% render 'product-accordions'
+        , section: section %}
         <!-- Benefits Section -->
-        {% render 'product-benefits'
+      {% render 'product-benefits'
+        , section: section %}
+
+        <!-- Pairs Well With Section -->
+        {% render 'product-pairs-well-with'
           , section: section %}
 
         <!-- Mobile Price (shown only on mobile) -->
@@ -49,16 +60,9 @@
               <p class="product-price-original_new">{{ product.selected_or_first_available_variant.compare_at_price | money }}</p>
             {%- endif -%}
           </div>
-      {%- endif -%}
+        {%- endif -%}
 
-        <!-- Add to Cart Section -->
-      {% render 'product-add-to-cart'
-        , product: product
-        , section: section %}
 
-        <!-- Accordions -->
-        {% render 'product-accordions'
-          , section: section %}
       </div>
 
     </div>
@@ -521,9 +525,49 @@
         if (selectedVariant) {
           this.updatePrice(selectedVariant);
           this.updateMainImageForVariant(selectedVariant);
+          this.updateProductForm(selectedVariant);
+          this.updateDynamicCheckout(selectedVariant);
+        }
+      },
+      
+      updateProductForm(variant) {
+        // Update hidden input in the main product form
+        const productForm = document.querySelector('.product-form_new');
+        if (productForm && variant) {
+          const variantInput = productForm.querySelector('input[name="id"]');
+          if (variantInput) {
+            variantInput.value = variant.id;
+          }
           
-          const buyItNowVariantId = document.getElementById('buy-it-now-variant-id');
-          if (buyItNowVariantId) buyItNowVariantId.value = selectedVariant.id;
+          // Update select[name="id"] if it exists
+          const variantSelect = productForm.querySelector('select[name="id"]');
+          if (variantSelect) {
+            variantSelect.value = variant.id;
+          }
+          
+          // Update shopify-payment-terms component if it exists
+          const paymentTerms = productForm.querySelector('shopify-payment-terms');
+          if (paymentTerms) {
+            paymentTerms.setAttribute('variant-id', variant.id);
+          }
+        }
+      },
+      
+      updateDynamicCheckout(variant) {
+        // Dynamic checkout buttons are automatically updated by Shopify
+        // But we can trigger a refresh if needed
+        const dynamicCheckout = document.querySelector('[id^="dynamic-checkout"]');
+        if (dynamicCheckout && variant) {
+          // Shopify handles this automatically, but we ensure the form is updated
+          const productForm = document.querySelector('.product-form_new');
+          if (productForm) {
+            // Trigger form change event to update Shopify's dynamic checkout
+            const event = new Event('change', { bubbles: true });
+            const variantInput = productForm.querySelector('input[name="id"]');
+            if (variantInput) {
+              variantInput.dispatchEvent(event);
+            }
+          }
         }
       },
       
@@ -644,16 +688,22 @@
       init() {
         const benefitButtons = document.querySelectorAll('.benefit-info-btn_new');
         
-        benefitButtons.forEach((button, index) => {
+        benefitButtons.forEach((button) => {
           button.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            const popupId = 'benefit-popup-' + (index + 1);
-            const popup = document.getElementById(popupId);
+            const benefitId = button.getAttribute('data-benefit-popup');
             
-            if (popup) {
-              popup.classList.add('is-show');
-              document.body.style.overflow = 'hidden';
+            if (benefitId) {
+              const popupId = 'benefit-popup-' + benefitId;
+              const popup = document.getElementById(popupId);
+              
+              if (popup) {
+                popup.classList.add('is-show');
+                document.body.style.overflow = 'hidden';
+              } else {
+                console.warn('Popup não encontrado para benefit:', popupId);
+              }
             }
           });
         });
@@ -700,6 +750,21 @@
     document.addEventListener('DOMContentLoaded', () => {
       ProductGallery.init();
       BenefitPopups.init();
+      
+      // Ensure shopify-payment-terms component is displayed in product form
+      const ensurePaymentTermsVisible = () => {
+        const paymentTerms = document.querySelector('.payment-options-form shopify-payment-terms, .product-form_new shopify-payment-terms');
+        if (paymentTerms) {
+          // Force component to be visible
+          paymentTerms.style.display = 'block';
+          paymentTerms.style.visibility = 'visible';
+          paymentTerms.style.opacity = '1';
+        }
+      };
+      
+      ensurePaymentTermsVisible();
+      // Also check after a delay in case Shopify scripts load later
+      setTimeout(ensurePaymentTermsVisible, 1000);
     });
     
   })();
@@ -781,8 +846,15 @@
         "content": "Payment Options"
       }, {
         "type": "checkbox",
+        "id": "show_payment_button",
+        "label": "Show Dynamic Checkout Buttons",
+        "info": "Displays Shop Pay, Apple Pay, Google Pay buttons",
+        "default": true
+      }, {
+        "type": "checkbox",
         "id": "show_payment_options",
-        "label": "Show Payment Options",
+        "label": "Show Payment Terms",
+        "info": "Displays Shop Pay Installments banner",
         "default": true
       }, {
         "type": "html",
@@ -803,6 +875,62 @@
         "type": "url",
         "id": "learn_more_payment_url",
         "label": "Learn More URL"
+      }, {
+        "type": "checkbox",
+        "id": "show_payment_icons",
+        "label": "Show Payment Icons",
+        "info": "Displays accepted payment method icons (Visa, Mastercard, etc.)",
+        "default": true
+      }, {
+        "type": "text",
+        "id": "payment_types_filter",
+        "label": "Payment Types Filter",
+        "info": "Comma-separated list of payment types to show (e.g., visa,master,american_express,paypal,shop_pay). Leave blank to show all enabled payment types."
+      }, {
+        "type": "header",
+        "content": "Pairs Well With"
+      }, {
+        "type": "checkbox",
+        "id": "show_pairs_well_with",
+        "label": "Show Pairs Well With Section",
+        "default": true
+      }, {
+        "type": "text",
+        "id": "pairs_well_with_title",
+        "label": "Section Title",
+        "default": "PAIRS WELL WITH"
+      }, {
+        "type": "checkbox",
+        "id": "pairs_well_with_show_random",
+        "label": "Show Random Products if No Blocks",
+        "default": true,
+        "info": "If no products are selected in blocks, show random products from the collection"
+      }, {
+        "type": "collection",
+        "id": "pairs_well_with_collection",
+        "label": "Collection for Random Products",
+        "info": "Collection to pick random products from when no blocks are selected"
+      }, {
+        "type": "text",
+        "id": "pairs_well_with_add_to_cart_text",
+        "label": "Add to Cart Button Text",
+        "default": "ADD TO CART",
+        "info": "Used for the pairs well with section"
+      }, {
+        "type": "checkbox",
+        "id": "pairs_well_with_auto_play",
+        "label": "Auto Play Slider",
+        "default": false,
+        "info": "Automatically rotate through products"
+      }, {
+        "type": "range",
+        "id": "pairs_well_with_auto_play_interval",
+        "label": "Auto Play Interval (seconds)",
+        "min": 3,
+        "max": 10,
+        "step": 1,
+        "default": 5,
+        "info": "Time between automatic slides"
       }, {
         "type": "header",
         "content": "Benefits Section"
@@ -834,14 +962,6 @@
         "id": "benefit_1_svg",
         "label": "Benefit 1 SVG Icon",
         "info": "Paste the complete SVG code"
-      }, {
-        "type": "text",
-        "id": "benefit_1_popup_title",
-        "label": "Benefit 1 Popup Title"
-      }, {
-        "type": "html",
-        "id": "benefit_1_popup_content",
-        "label": "Benefit 1 Popup Content"
       }, {
         "type": "paragraph",
         "content": "=== Benefit 2: Warranty ==="
@@ -875,14 +995,6 @@
         "label": "Benefit 2 SVG Icon",
         "info": "Paste the complete SVG code"
       }, {
-        "type": "text",
-        "id": "benefit_2_popup_title",
-        "label": "Benefit 2 Popup Title"
-      }, {
-        "type": "html",
-        "id": "benefit_2_popup_content",
-        "label": "Benefit 2 Popup Content"
-      }, {
         "type": "paragraph",
         "content": "=== Benefit 3: Worry-Free Purchase ==="
       }, {
@@ -915,14 +1027,6 @@
         "label": "Benefit 3 SVG Icon",
         "info": "Paste the complete SVG code"
       }, {
-        "type": "text",
-        "id": "benefit_3_popup_title",
-        "label": "Benefit 3 Popup Title"
-      }, {
-        "type": "html",
-        "id": "benefit_3_popup_content",
-        "label": "Benefit 3 Popup Content"
-      }, {
         "type": "paragraph",
         "content": "=== Benefit 4: HSA/FSA ==="
       }, {
@@ -945,14 +1049,6 @@
         "id": "benefit_4_svg",
         "label": "Benefit 4 SVG Icon",
         "info": "Paste the complete SVG code"
-      }, {
-        "type": "text",
-        "id": "benefit_4_popup_title",
-        "label": "Benefit 4 Popup Title"
-      }, {
-        "type": "html",
-        "id": "benefit_4_popup_content",
-        "label": "Benefit 4 Popup Content"
       }, {
         "type": "header",
         "content": "Variant Selector"
@@ -986,7 +1082,8 @@
         "type": "text",
         "id": "add_to_cart_text",
         "label": "Add to Cart Button Text",
-        "default": "Add to Cart"
+        "default": "Add to Cart",
+        "info": "Used for main add to cart button (pairs well with section has its own setting)"
       }, {
         "type": "checkbox",
         "id": "show_buy_it_now",
@@ -1050,6 +1147,16 @@
     ],
     "blocks": [
       {
+        "type": "pairs_well_with_product",
+        "name": "Pairs Well With Product",
+        "settings": [
+          {
+            "type": "product",
+            "id": "product",
+            "label": "Product"
+          }
+        ]
+      }, {
         "type": "accordion_item",
         "name": "Accordion Item",
         "settings": [

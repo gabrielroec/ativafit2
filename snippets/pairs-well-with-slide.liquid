@@ -1,0 +1,80 @@
+{% comment %} 
+  Pairs Well With Slide
+   
+  Renders a single slide for the "Pairs Well With" section.
+   
+  Accepts: 
+  - product: {Object} Product object 
+  - section: {Object} Section object for settings 
+  - slide_index: {Number} Index of the slide (0-based) 
+  - is_first: {Boolean} Whether this is the first slide
+   
+  Usage:
+  {% render 'pairs-well-with-slide', product: product, section: section, slide_index: 0, is_first: true %} 
+{% endcomment %}
+
+{%- if product != blank -%}
+  <div class="pairs-well-with-slide_new {% if is_first %}active_new{% endif %}" data-slide-index="{{ slide_index }}">
+    <div class="pairs-well-with-content_new">
+      {%- comment -%} Product Image {%- endcomment -%}
+      <div class="pairs-well-with-image-wrapper_new">
+        {%- if product.featured_image != blank -%}
+          <a href="{{ product.url }}" class="pairs-well-with-image-link_new">
+            <img
+              src="{{ product.featured_image | image_url: width: 600 }}"
+              alt="{{ product.title }}"
+              class="pairs-well-with-image_new"
+              width="600"
+              height="600"
+              loading="{% if is_first %}eager{% else %}lazy{% endif %}">
+          </a>
+        {%- else -%}
+          <div class="pairs-well-with-image-placeholder_new">
+            {{ 'product-1' | placeholder_svg_tag: 'pairs-well-with-image_new' }}
+          </div>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%} Product Info {%- endcomment -%}
+      <div class="pairs-well-with-info-wrapper_new">
+        <h3 class="pairs-well-with-product-title_new">
+          <a href="{{ product.url }}">{{ product.title }}</a>
+        </h3>
+
+        {%- assign selected_variant = product.selected_or_first_available_variant -%}
+        <div class="pairs-well-with-price_new">
+          <span class="pairs-well-with-price-current_new">{{ selected_variant.price | money }}</span>
+          {%- if selected_variant.compare_at_price > selected_variant.price -%}
+            <span class="pairs-well-with-price-original_new">{{ selected_variant.compare_at_price | money }}</span>
+          {%- endif -%}
+        </div>
+
+        {%- if product.available and selected_variant -%}
+          {%- form 'product'
+            , product
+            , class: 'pairs-well-with-form_new' -%}
+            <input
+              type="hidden"
+              name="id"
+              value="{{ selected_variant.id }}">
+            <button
+              type="submit"
+              name="add"
+              class="pairs-well-with-add-btn_new"
+              aria-label="Add {{ product.title }} to cart">
+              {{ section.settings.pairs_well_with_add_to_cart_text | default: 'ADD TO CART' }}
+            </button>
+          {%- endform -%}
+        {%- else -%}
+          <button
+            type="button"
+            class="pairs-well-with-add-btn_new"
+            disabled
+            aria-label="Sold out">
+            Sold Out
+          </button>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+{%- endif -%}

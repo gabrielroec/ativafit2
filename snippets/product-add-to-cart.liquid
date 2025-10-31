@@ -1,137 +1,97 @@
 {% comment %} 
-  Product Add to Cart Component
-   
-  Renders variant selector, quantity selector, and add to cart buttons.
-   
-  Accepts: 
-  - product: {Object} Product object 
-  - section: {Object} Section object for settings
-   
-  Usage:
-  {% render 'product-add-to-cart', product: product, section: section %} 
+                    Product Add to Cart Component
+                     
+                    Renders variant selector, add to cart button, and Shopify native helpers:
+                    - Dynamic checkout buttons (Shop Pay, Apple Pay, Google Pay)
+                    - Payment terms (Shop Pay Installments)
+                     
+                    Accepts: 
+                    - product: {Object} Product object 
+                    - section: {Object} Section object for settings
+                     
+                    Usage:
+                    {% render 'product-add-to-cart', product: product, section: section %} 
 {% endcomment %}
 
-<!-- Variant Selector (if product has multiple variants) -->
-{%- if product.variants.size > 1 and section.settings.show_variant_selector -%}
-  <div class="variant-selector-wrapper_new">
-    <label for="variant-selector_new">{{ section.settings.variant_label | default: "Select Option" }}</label>
-    <select
-      id="variant-selector_new"
-      class="variant-selector_new"
-      onchange="updateVariant()">
-      {%- for variant in product.variants -%}
-        <option
-          value="{{ variant.id }}"
-          {% if variant == product.selected_or_first_available_variant %}
-          selected{% endif %}
-          {% unless variant.available %}
-          disabled{% endunless %}>
-          {{ variant.title }}
-          {%- unless variant.available %}
-            - Sold Out{% endunless -%}
-        </option>
-      {%- endfor -%}
-    </select>
-  </div>
-{%- endif -%}
+{%- assign selected_variant = product.selected_or_first_available_variant -%}
+{%- assign product_form_id = 'product-form-' | append: section.id -%}
 
-<!-- Quantity Selector -->
-{%- if section.settings.show_quantity_selector -%}
-  <div class="quantity-wrapper_new">
-    <label for="quantity_new" class="quantity-label_new">{{ section.settings.quantity_label | default: "Quantity" }}</label>
-    <div class="quantity-selector_new">
-      <button
-        type="button"
-        class="quantity-btn_new quantity-decrease_new"
-        onclick="updateQuantity(-1)"
-        aria-label="Decrease quantity">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2">
-          <line
-            x1="5"
-            y1="12"
-            x2="19"
-            y2="12"></line>
-        </svg>
-      </button>
-      <input
-        type="number"
-        id="quantity_new"
-        name="quantity"
-        value="1"
-        min="1"
-        class="quantity-input_new"
-        onchange="validateQuantity()"
-        aria-label="Quantity">
-      <button
-        type="button"
-        class="quantity-btn_new quantity-increase_new"
-        onclick="updateQuantity(1)"
-        aria-label="Increase quantity">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2">
-          <line
-            x1="12"
-            y1="5"
-            x2="12"
-            y2="19"></line>
-          <line
-            x1="5"
-            y1="12"
-            x2="19"
-            y2="12"></line>
-        </svg>
-      </button>
+  {%- form 'product'
+    , product
+    , id: product_form_id
+    , class: 'product-form_new' -%}
+  <!-- Hidden variant input (updated dynamically) -->
+  <input
+    type="hidden"
+    name="id"
+    value="{{ selected_variant.id }}"
+    id="product-variant-id-{{ section.id }}">
+
+  <!-- Variant Selector (if product has multiple variants) -->
+  {%- if product.variants.size > 1 and section.settings.show_variant_selector -%}
+    <div class="variant-selector-wrapper_new">
+      <label for="variant-selector_new">{{ section.settings.variant_label | default: "Select Option" }}</label>
+      <select
+        id="variant-selector_new"
+        class="variant-selector_new"
+        name="id"
+        onchange="updateVariant()">
+        {%- for variant in product.variants -%}
+          <option
+            value="{{ variant.id }}"
+            {% if variant == selected_variant %}
+            selected{% endif %}
+            {% unless variant.available %}
+            disabled{% endunless %}>
+            {{ variant.title }}
+            {%- unless variant.available %}
+              - Sold Out{% endunless -%}
+          </option>
+        {%- endfor -%}
+      </select>
     </div>
-  </div>
-{%- endif -%}
+  {%- endif -%}
 
-<!-- Add to Cart Button -->
-<button
-  type="button"
-  class="add-to-cart-btn_new"
-  onclick="addToCart()"
-  aria-label="{{ section.settings.add_to_cart_text | default: 'Add to cart' }}">
-  {{ section.settings.add_to_cart_text | default: 'Add to Cart' }}
-</button>
+  <!-- Add to Cart Button - First -->
+  {%- if selected_variant.available -%}
 
-<!-- Buy It Now Button (if enabled) -->
-{%- if section.settings.show_buy_it_now -%}
-  <form
-    action="{{ routes.cart_add_url }}"
-    method="post"
-    enctype="multipart/form-data"
-    id="buy-it-now-form">
-    <input
-      type="hidden"
-      name="id"
-      id="buy-it-now-variant-id"
-      value="{{ product.selected_or_first_available_variant.id }}">
-    <input
-      type="hidden"
-      name="quantity"
-      value="1">
+    <!-- Payment Terms (Shop Pay Installments) - Second -->
+    {%- if section.settings.show_payment_options -%}
+      <div class="payment-options-form">
+        {{ form | payment_terms }}
+      </div>
+    {%- endif -%}
+
     <button
       type="submit"
-      name="checkout"
-      class="buy-it-now-btn_new"
-      aria-label="{{ section.settings.buy_it_now_text | default: 'Buy it now' }}">
-      {{ section.settings.buy_it_now_text | default: 'Buy It Now' }}
+      name="add"
+      class="add-to-cart-btn_new"
+      aria-label="{{ section.settings.add_to_cart_text | default: 'Add to cart' }}">
+      {{ section.settings.add_to_cart_text | default: 'Add to Cart' }}
     </button>
-  </form>
-{%- endif -%}
+
+
+    <!-- Dynamic Checkout Buttons (Shop Pay, Apple Pay, Google Pay) - Third -->
+    {%- if section.settings.show_payment_button -%}
+      <div id="dynamic-checkout-{{ section.id }}">
+        {{ form | payment_button }}
+      </div>
+    {%- endif -%}
+  {%- else -%}
+    <button
+      type="button"
+      class="add-to-cart-btn_new"
+      disabled
+      aria-label="Sold out">
+      Sold Out
+    </button>
+  {%- endif -%}
+{%- endform -%}
+
+<!-- Payment Icons (Accepted Payment Methods) - Always shown -->
+<div class="payment-icons_new">
+  <img src="https://www.ativafit.com/cdn/shop/files/bank_e49b0ef7-0b7d-46e6-b59d-f28b627ed7a3_1024x1024.png?v=1707126791" alt="Accepted payment methods" class="payment-icons__static-image_new" width="1024" height="1024" loading="lazy">
+</div>
 
 <!-- AtivaPeople CTA (if enabled) -->
 {%- if section.settings.show_ativapeople_cta -%}
@@ -139,24 +99,3 @@
     {{ section.settings.ativapeople_cta_text }}
   </p>
 {%- endif -%}
-
-<script>
-  // Quantity functions
-  function updateQuantity(change) {
-    const quantityInput = document.getElementById('quantity_new');
-    let currentQuantity = parseInt(quantityInput.value) || 1;
-    let newQuantity = currentQuantity + change;
-    
-    if (newQuantity < 1) newQuantity = 1;
-    quantityInput.value = newQuantity;
-  }
-  
-  function validateQuantity() {
-    const quantityInput = document.getElementById('quantity_new');
-    let quantity = parseInt(quantityInput.value);
-    
-    if (isNaN(quantity) || quantity < 1) {
-      quantityInput.value = 1;
-    }
-  }
-</script>

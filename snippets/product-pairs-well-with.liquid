@@ -1,0 +1,449 @@
+{% comment %} 
+                                Product Pairs Well With Component
+                                 
+                                Renders a carousel of related/complementary products (up to 5 products).
+                                 
+                                Accepts: 
+                                - section: {Object} Section object for settings
+                                 
+                                Usage:
+                                {% render 'product-pairs-well-with', section: section %} 
+{% endcomment %}
+
+{%- if section.settings.show_pairs_well_with -%}
+  <div class="pairs-well-with_new" id="pairs-well-with-{{ section.id }}">
+    {%- if section.settings.pairs_well_with_title != blank -%}
+      <h2 class="pairs-well-with-title_new">{{ section.settings.pairs_well_with_title }}</h2>
+    {%- endif -%}
+
+    <div class="pairs-well-with-slider_new">
+      {%- assign product_count = 0 -%}
+      {%- assign has_blocks = false -%}
+
+      {%- comment -%} First, count products from blocks {%- endcomment -%}
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'pairs_well_with_product' and block.settings.product != blank -%}
+          {%- assign has_blocks = true -%}
+          {%- assign selected_product = all_products[block.settings.product] -%}
+          {%- if selected_product != blank -%}
+            {%- assign product_count = product_count | plus: 1 -%}
+          {%- endif -%}
+        {%- endif -%}
+      {%- endfor -%}
+
+      {%- comment -%} If no blocks, count random products {%- endcomment -%}
+      {%- if has_blocks == false and section.settings.pairs_well_with_show_random and product_count == 0 -%}
+        {%- assign random_collection = collections[section.settings.pairs_well_with_collection] -%}
+        {%- if random_collection == blank -%}
+          {%- assign random_collection = collections.all -%}
+        {%- endif -%}
+
+        {%- if random_collection.products.size > 0 -%}
+          {%- assign current_product_handle = product.handle -%}
+          {%- assign shown_count = 0 -%}
+
+          {%- for random_product in random_collection.products -%}
+            {%- if shown_count >= 5 -%}
+              {%- break -%}
+            {%- endif -%}
+
+            {%- if random_product.available and random_product.handle != current_product_handle -%}
+              {%- assign shown_count = shown_count | plus: 1 -%}
+              {%- assign product_count = product_count | plus: 1 -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endif -%}
+
+      {%- if product_count > 0 -%}
+        <div class="pairs-well-with-container_new">
+          {%- assign slide_index = 0 -%}
+
+          {%- comment -%} First, render products from blocks {%- endcomment -%}
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'pairs_well_with_product' and block.settings.product != blank -%}
+              {%- assign slide_product = all_products[block.settings.product] -%}
+              {%- if slide_product != blank -%}
+                {%- render 'pairs-well-with-slide'
+                  , product: slide_product
+                  , section: section
+                  , slide_index: slide_index
+                  , is_first: forloop.first -%}
+                {%- assign slide_index = slide_index | plus: 1 -%}
+              {%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+
+          {%- comment -%} If no blocks, render random products {%- endcomment -%}
+          {%- if has_blocks == false and section.settings.pairs_well_with_show_random -%}
+            {%- assign random_collection = collections[section.settings.pairs_well_with_collection] -%}
+            {%- if random_collection == blank -%}
+              {%- assign random_collection = collections.all -%}
+            {%- endif -%}
+
+            {%- if random_collection.products.size > 0 -%}
+              {%- assign current_product_handle = product.handle -%}
+              {%- assign shown_count = 0 -%}
+
+              {%- for random_product in random_collection.products -%}
+                {%- if shown_count >= 5 -%}
+                  {%- break -%}
+                {%- endif -%}
+
+                {%- if random_product.available and random_product.handle != current_product_handle -%}
+                  {%- if shown_count == 0 and slide_index == 0 -%}
+                    {%- render 'pairs-well-with-slide'
+                      , product: random_product
+                      , section: section
+                      , slide_index: slide_index
+                      , is_first: true -%}
+                  {%- else -%}
+                    {%- render 'pairs-well-with-slide'
+                      , product: random_product
+                      , section: section
+                      , slide_index: slide_index
+                      , is_first: false -%}
+                  {%- endif -%}
+                  {%- assign shown_count = shown_count | plus: 1 -%}
+                  {%- assign slide_index = slide_index | plus: 1 -%}
+                {%- endif -%}
+              {%- endfor -%}
+            {%- endif -%}
+          {%- endif -%}
+        </div>
+
+        {%- comment -%} Navigation dots {%- endcomment -%}
+        {%- if product_count > 1 -%}
+          <div class="pairs-well-with-dots_new" id="pairs-well-with-dots-{{ section.id }}">
+            {%- for i in (1..product_count) -%}
+              <button
+                type="button"
+                class="pairs-well-with-dot_new {% if forloop.first %}active_new{% endif %}"
+                data-slide-index="{{ forloop.index0 }}"
+                aria-label="Go to slide {{ forloop.index }}"></button>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+      {%- endif -%}
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const sliderId = 'pairs-well-with-{{ section.id }}';
+      const slider = document.querySelector(`#${sliderId}`);
+      const container = slider?.querySelector('.pairs-well-with-container_new');
+      const slides = container?.querySelectorAll('.pairs-well-with-slide_new');
+      const dots = slider?.querySelectorAll('.pairs-well-with-dot_new');
+      
+      if (!container || !slider || !slides || slides.length <= 1) return;
+      
+      let currentIndex = 0;
+      let autoPlayInterval = null;
+      
+      const updateSlider = () => {
+        // Hide all slides
+        slides.forEach((slide, index) => {
+          slide.classList.toggle('active_new', index === currentIndex);
+        });
+        
+        // Update dots
+        if (dots && dots.length > 0) {
+          dots.forEach((dot, index) => {
+            dot.classList.toggle('active_new', index === currentIndex);
+          });
+        }
+      };
+      
+      // Dot navigation
+      if (dots && dots.length > 0) {
+        dots.forEach((dot, index) => {
+          dot.addEventListener('click', () => {
+            currentIndex = index;
+            updateSlider();
+            {%- if section.settings.pairs_well_with_auto_play -%}
+              stopAutoPlay();
+              startAutoPlay();
+            {%- endif -%}
+          });
+        });
+      }
+      
+      // Touch/swipe support
+      let touchStartX = 0;
+      let touchStartY = 0;
+      let isDragging = false;
+      
+      container.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        isDragging = true;
+      }, { passive: true });
+      
+      container.addEventListener('touchend', (e) => {
+        if (!isDragging) return;
+        
+        const touchEndX = e.changedTouches[0].clientX;
+        const touchEndY = e.changedTouches[0].clientY;
+        const diffX = touchStartX - touchEndX;
+        const diffY = touchStartY - touchEndY;
+        
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+          if (diffX > 0 && currentIndex < slides.length - 1) {
+            currentIndex++;
+          } else if (diffX < 0 && currentIndex > 0) {
+            currentIndex--;
+          }
+          updateSlider();
+          {%- if section.settings.pairs_well_with_auto_play -%}
+            stopAutoPlay();
+            startAutoPlay();
+          {%- endif -%}
+        }
+        
+        isDragging = false;
+      }, { passive: true });
+      
+      // Auto-play (optional)
+      const startAutoPlay = () => {
+        {%- if section.settings.pairs_well_with_auto_play -%}
+          if (autoPlayInterval) clearInterval(autoPlayInterval);
+          
+          autoPlayInterval = setInterval(() => {
+            currentIndex = (currentIndex + 1) % slides.length;
+            updateSlider();
+          }, {{ section.settings.pairs_well_with_auto_play_interval | default: 5000 }});
+        {%- endif -%}
+      };
+      
+      const stopAutoPlay = () => {
+        if (autoPlayInterval) {
+          clearInterval(autoPlayInterval);
+          autoPlayInterval = null;
+        }
+      };
+      
+      {%- if section.settings.pairs_well_with_auto_play -%}
+        startAutoPlay();
+        
+        // Pause on hover
+        slider.addEventListener('mouseenter', stopAutoPlay);
+        slider.addEventListener('mouseleave', startAutoPlay);
+      {%- endif -%}
+      
+      // Initialize
+      updateSlider();
+    })();
+  </script>
+
+  <style>
+    .pairs-well-with_new {
+      margin-top: 20px;
+      padding: 0 20px;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .pairs-well-with-title_new {
+      font-size: 18px !important;
+      font-weight: 700;
+      color: #EB701F;
+      margin-bottom: 30px;
+      text-align: left;
+    }
+
+    .pairs-well-with-slider_new {
+      position: relative;
+      width: 100%;
+    }
+
+    .pairs-well-with-container_new {
+      position: relative;
+      width: 100%;
+    }
+
+    .pairs-well-with-slide_new {
+      display: none;
+      width: 100%;
+    }
+
+    .pairs-well-with-slide_new.active_new {
+      display: block;
+    }
+
+    .pairs-well-with-content_new {
+      display: flex;
+      gap: 30px;
+      align-items: center;
+    }
+
+  
+
+    .pairs-well-with-image-link_new {
+      display: block;
+      width: 100%;
+      aspect-ratio: 1;
+      background: #F2F2F2;
+      width: 200px;
+      height: 130px;
+      border-radius: 20px;
+    }
+
+    .pairs-well-with-image_new {
+      width: 200px;
+      height: 130px;
+      object-fit: contain;
+      padding: 20px;
+      display: block;
+    }
+
+    .pairs-well-with-image-placeholder_new {
+      width: 100%;
+      aspect-ratio: 1;
+      background: #f9f9f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pairs-well-with-info-wrapper_new {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .pairs-well-with-product-title_new {
+      margin: 0 !important;
+      font-size: 18px !important;
+      font-weight: 600;
+      line-height: 18px!important;
+    }
+
+    .pairs-well-with-product-title_new a {
+      color: #000;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .pairs-well-with-product-title_new a:hover {
+      color: #EB701F;
+    }
+
+    .pairs-well-with-price_new {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .pairs-well-with-price-current_new {
+      font-size: 20px!important;
+      font-weight: 700;
+      color: #EB701F;
+    }
+
+    .pairs-well-with-price-original_new {
+      font-size: 15px!important;
+      color: #999;
+      text-decoration: line-through;
+    }
+
+    .pairs-well-with-form_new {
+      margin: 0;
+    }
+
+    .pairs-well-with-add-btn_new {
+      width: 100%;
+      max-width: fit-content!important;
+      padding: 4px 50px!important;
+      background: #EB701F;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .pairs-well-with-add-btn_new:hover:not(:disabled) {
+      background: #d85f0f;
+    }
+
+    .pairs-well-with-add-btn_new:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .pairs-well-with-dots_new {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .pairs-well-with-dot_new {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: none;
+      background: #fff;
+      border: 1px solid #000;
+      cursor: pointer;
+      padding: 0;
+      transition: all 0.3s ease;
+    }
+
+    .pairs-well-with-dot_new.active_new {
+      background: #000;
+      width: 32px;
+      border-radius: 6px;
+    }
+
+    @media (max-width: 768px) {
+      .pairs-well-with_new {
+        padding: 0 15px;
+        margin-top: 40px;
+      }
+
+      .pairs-well-with-title_new {
+        font-size: 24px;
+        margin-bottom: 20px;
+      }
+
+      .pairs-well-with-content_new {
+        flex-direction: column;
+        gap: 30px;
+      }
+
+      
+
+      .pairs-well-with-info-wrapper_new {
+        width: 100%;
+      }
+
+      .pairs-well-with-product-title_new {
+        font-size: 22px;
+      }
+
+      .pairs-well-with-price-current_new {
+        font-size: 28px;
+      }
+
+      .pairs-well-with-price-original_new {
+        font-size: 20px;
+      }
+
+      .pairs-well-with-add-btn_new {
+        max-width: 100%;
+        padding: 16px 24px;
+        font-size: 14px;
+      }
+
+      
+    }
+  </style>
+{%- endif -%}

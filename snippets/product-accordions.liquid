@@ -14,17 +14,18 @@
   <div class="product-accordion_new">
     {%- for block in section.blocks -%}
       {%- if block.type == 'accordion_item' -%}
-        <div class="accordion-item_new" {{ block.shopify_attributes }}>
+        {%- assign is_first = forloop.first -%}
+        <div class="accordion-item_new {% if is_first %}accordion-item-active_new{% endif %}" {{ block.shopify_attributes }}>
           <button
-            class="accordion-header_new"
+            class="accordion-header_new {% if is_first %}active_new{% endif %}"
             type="button"
             onclick="toggleAccordion(this)"
-            aria-expanded="false">
+            aria-expanded="{% if is_first %}true{% else %}false{% endif %}">
             <span class="accordion-title_new">{{ block.settings.title }}</span>
-            <span class="accordion-icon_new">+</span>
+            <span class="accordion-icon_new">{% if is_first %}-{% else %}+{% endif %}</span>
           </button>
 
-          <div class="accordion-content_new">
+          <div class="accordion-content_new {% if is_first %}active_new{% endif %}">
             <div class="accordion-body_new">
               {%- case block.settings.content_type -%}
                 {%- when 'text' -%}

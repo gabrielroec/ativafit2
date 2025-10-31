@@ -22,7 +22,10 @@
       <div class="reviews-slider-container" id="reviews-slider-{{ section.id }}">
         <div class="reviews-slider">
           {%- for block in section.blocks -%}
-            <div class="review-item" {{ block.shopify_attributes }} data-review-id="{{ forloop.index }}">
+            <div
+              class="review-item"
+              {{ block.shopify_attributes }}
+              data-review-id="{{ forloop.index }}">
               <div class="review-header">
                 <div class="review-avatar">
                   {%- if block.settings.customer_name != blank -%}
@@ -190,7 +193,7 @@
   .review-author-name {
     font-family: Barlow
     , sans-serif;
-    font-weight: 500 !important;
+
     font-style: Medium;
     font-size: 16px;
     line-height: 19px;
@@ -202,7 +205,7 @@
   .review-date {
     font-family: Barlow
     , sans-serif;
-    font-weight: 400 !important;
+
     font-style: Regular;
     font-size: 16px;
     line-height: 19px;
@@ -229,7 +232,7 @@
   .review-title {
     font-family: Barlow
     , sans-serif;
-    font-weight: 500 !important;
+
     font-style: Medium;
     font-size: 25px;
     line-height: 41px;
@@ -241,7 +244,7 @@
   .review-text {
     font-family: Barlow
     , sans-serif;
-    font-weight: 400 !important;
+
     font-style: Regular;
     font-size: 18px;
     line-height: 19px;
@@ -260,7 +263,7 @@
     color: #EB701F;
     font-family: Barlow
     , sans-serif;
-    font-weight: 500 !important;
+
     font-size: 16px;
     cursor: pointer;
     padding: 0;
@@ -497,7 +500,7 @@
   function getTotalSlides() {
     return Math.ceil(totalReviews / getReviewsPerSlide());
   }
-
+  
   function updateSlider() {
     const reviewsPerSlide = getReviewsPerSlide();
     const isMobile = window.innerWidth <= 768;
@@ -534,21 +537,21 @@
       }
     }
   }
-
+  
   function showSlide(slideIndex) {
     const isMobile = window.innerWidth <= 768;
     const maxSlide = isMobile ? totalReviews - 1 : getTotalSlides() - 1;
     currentSlide = Math.max(0, Math.min(slideIndex, maxSlide));
     updateSlider();
   }
-
+  
   function nextSlide() {
     const isMobile = window.innerWidth <= 768;
     const maxSlide = isMobile ? totalReviews - 1 : getTotalSlides() - 1;
     const nextIndex = (currentSlide + 1) % (maxSlide + 1);
     showSlide(nextIndex);
   }
-
+  
   // Desktop dot navigation
   if (desktopDotsContainer) {
     const desktopDots = desktopDotsContainer.querySelectorAll('.reviews-dot');
@@ -558,7 +561,7 @@
       });
     });
   }
-
+  
   // Mobile dot navigation
   if (mobileDotsContainer) {
     const mobileDots = mobileDotsContainer.querySelectorAll('.reviews-dot');
@@ -568,7 +571,7 @@
       });
     });
   }
-
+  
   // Auto-advance slider DISABLED - remove auto functionality
   let autoSlideInterval = null;
   
@@ -578,10 +581,10 @@
       autoSlideInterval = null;
     }
   }
-
+  
   // Initialize
   updateSlider();
-
+  
   // Handle window resize
   let resizeTimeout;
   window.addEventListener('resize', () => {
@@ -592,11 +595,11 @@
       updateSlider();
     }, 250);
   });
-
+  
   // Touch/Swipe support
   let startX = 0;
   let isDragging = false;
-
+  
   // Read More functionality
   function showReviewModal(reviewId) {
     const reviewItem = document.querySelector(`.review-item[data-review-id="${reviewId}"]`);
@@ -618,7 +621,7 @@
         fullReviewText = reviewText.textContent.replace(/\.\.\.Read More$/, '');
       }
     }
-
+  
     const modalContent = document.getElementById('review-modal-body');
     modalContent.innerHTML = `
       <div class="review-header">
@@ -630,34 +633,34 @@
         <p class="review-text">${fullReviewText}</p>
       </div>
     `;
-
+  
     const reviewModal = document.getElementById('review-modal');
     reviewModal.classList.add('show');
     reviewModal.addEventListener('click', closeReviewModal);
     modalContent.addEventListener('click', (e) => e.stopPropagation());
   }
-
+  
   function closeReviewModal() {
     const modal = document.getElementById('review-modal');
     modal.classList.remove('show');
     document.getElementById('review-modal-body').innerHTML = '';
   }
-
+  
   // Make showReviewModal function global
   window.showReviewModal = showReviewModal;
   window.closeReviewModal = closeReviewModal;
-
+  
   sliderContainer.addEventListener('touchstart', (e) => {
     startX = e.touches[0].clientX;
     isDragging = true;
     stopAutoSlide();
   });
-
+  
   sliderContainer.addEventListener('touchmove', (e) => {
     if (!isDragging) return;
     e.preventDefault();
   });
-
+  
   sliderContainer.addEventListener('touchend', (e) => {
     if (!isDragging) return;
     

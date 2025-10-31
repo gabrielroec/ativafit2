@@ -1,4 +1,8 @@
-<footer class="footer" data-section-id="{{ section.id }}" data-section-type="footer" role="contentinfo">
+<footer
+  class="footer"
+  data-section-id="{{ section.id }}"
+  data-section-type="footer"
+  role="contentinfo">
   <div class="container">
     <div class="footer__wrapper">
       {%- if section.blocks.size > 0 -%}
@@ -7,7 +11,12 @@
             {%- case block.type -%}
               {%- when 'text' -%}
                 <div class="footer__block-item footer__block-item--text" {{ block.shopify_attributes }}>
-                  <button class="footer__title heading h6" disabled aria-expanded="false" aria-controls="block-{{ block.id }}" data-action="toggle-collapsible">
+                  <button
+                    class="footer__title heading h6"
+                    disabled
+                    aria-expanded="false"
+                    aria-controls="block-{{ block.id }}"
+                    data-action="toggle-collapsible">
                     <span>{{ block.settings.title | escape }}</span>
                     <span class="plus-button"></span>
                   </button>
@@ -26,7 +35,12 @@
 
                 {%- unless menu.empty? -%}
                   <div class="footer__block-item footer__block-item--links" {{ block.shopify_attributes }}>
-                    <button class="footer__title heading h6 bold" disabled aria-expanded="false" aria-controls="block-{{ block.id }}" data-action="toggle-collapsible">
+                    <button
+                      class="footer__title heading h6 bold"
+                      disabled
+                      aria-expanded="false"
+                      aria-controls="block-{{ block.id }}"
+                      data-action="toggle-collapsible">
                       <span class="bold">{{ menu.title }}</span>
                       <span class="plus-button"></span>
                     </button>
@@ -54,7 +68,9 @@
                       <div class="footer__newsletter-text rte">{{ block.settings.subheading }}</div>
                     {%- endif -%}
 
-                    {%- form 'customer', id: 'footer-newsletter', class: 'footer__newsletter-form' -%}
+                    {%- form 'customer'
+                      , id: 'footer-newsletter'
+                      , class: 'footer__newsletter-form' -%}
                       {%- if form.posted_successfully? -%}
                         <p class="alert alert--success alert--center">{{ 'footer.newsletter.success' | t }}</p>
                       {%- else -%}
@@ -62,15 +78,23 @@
                           <p class="alert alert--error alert--center">{{ form.errors.messages['email'] }}</p>
                         {%- endif -%}
 
-                        <input type="hidden" name="contact[tags]" value="newsletter">
+                        <input
+                          type="hidden"
+                          name="contact[tags]"
+                          value="newsletter">
 
                         <div class="form__input-wrapper form__input-wrapper--labelled">
-                          <input type="email" id="footer[{{ section.id }}][contact][email]" name="contact[email]" class="form__field form__field--text" required="">
+                          <input
+                            type="email"
+                            id="footer[{{ section.id }}][contact][email]"
+                            name="contact[email]"
+                            class="form__field form__field--text"
+                            required="">
                           <label for="footer[{{ section.id }}][contact][email]" class="form__floating-label">{{ 'footer.newsletter.input' | t }}</label>
                           <button type="submit" class="form__submit form__submit--tight button button--primary footer-newsletter-button">{{ 'footer.newsletter.submit' | t }}</button>
                         </div>
 
-                       
+
                       {%- endif -%}
                     {%- endform -%}
                   </div>
@@ -91,31 +115,61 @@
 
         <div class="footer__aside-item footer__aside-item--localization regular {% if country_selector == false and locale_selector == false %}hidden-pocket{% endif %}">
           {%- if locale_selector or country_selector -%}
-            {%- form 'localization', id: 'localization_form_footer', class: 'footer__localization-form' -%}
+            {%- form 'localization'
+              , id: 'localization_form_footer'
+              , class: 'footer__localization-form' -%}
               {%- if locale_selector -%}
                 <div class="footer__localization-form-item">
-                  <input type="hidden" name="locale_code" value="{{ localization.language.iso_code }}">
+                  <input
+                    type="hidden"
+                    name="locale_code"
+                    value="{{ localization.language.iso_code }}">
                   <span class="visually-hidden">{{ 'footer.general.language' | t }}</span>
 
                   <div class="value-picker-wrapper">
-                    <button type="button" class="select-button select-button--mini" aria-haspopup="true" aria-expanded="false" aria-controls="footer-locale-picker" data-action="open-value-picker">
+                    <button
+                      type="button"
+                      class="select-button select-button--mini"
+                      aria-haspopup="true"
+                      aria-expanded="false"
+                      aria-controls="footer-locale-picker"
+                      data-action="open-value-picker">
                       {{- localization.language.endonym_name | capitalize -}}
-                      {%- render 'icon', icon: 'arrow-bottom' -%}
+                      {%- render 'icon'
+                        , icon: 'arrow-bottom' -%}
                     </button>
 
-                    <div id="footer-locale-picker" class="value-picker value-picker--small" data-picker-position="top" aria-hidden="true">
-                      {% render 'icon', icon: 'nav-triangle-borderless' %}
+                    <div
+                      id="footer-locale-picker"
+                      class="value-picker value-picker--small"
+                      data-picker-position="top"
+                      aria-hidden="true">
+                      {% render 'icon'
+                        , icon: 'nav-triangle-borderless' %}
 
                       <div class="value-picker__inner">
                         <header class="value-picker__header">
                           <span class="value-picker__title text--strong">{{ 'footer.general.language' | t }}</span>
-                          <button type="button" class="value-picker__close" data-action="close-value-picker" aria-controls="footer-locale-picker" aria-label="{{ 'general.accessibility.close' | t }}">{% render 'icon', icon: 'close' %}</button>
+                          <button
+                            type="button"
+                            class="value-picker__close"
+                            data-action="close-value-picker"
+                            aria-controls="footer-locale-picker"
+                            aria-label="{{ 'general.accessibility.close' | t }}">{% render 'icon'
+, icon: 'close' %}</button>
                         </header>
 
                         <ul class="value-picker__choice-list" role="list">
                           {%- for language in localization.available_languages -%}
                             <li class="value-picker__choice-list-item">
-                              <button type="submit" name="locale_code" class="value-picker__choice-item" value="{{ language.iso_code }}" {% if language.iso_code == localization.language.iso_code %}aria-current="true"{% endif %}>
+                              <button
+                                type="submit"
+                                name="locale_code"
+                                class="value-picker__choice-item"
+                                value="{{ language.iso_code }}"
+                                {% if language.iso_code == localization.language.iso_code %}
+                                aria-current="true"
+                                {% endif %}>
                                 {{- language.endonym_name | capitalize -}}
                               </button>
                             </li>
@@ -129,29 +183,61 @@
 
               {%- if country_selector -%}
                 <div class="footer__localization-form-item">
-                  <input type="hidden" name="country_code" value="{{ localization.country.iso_code }}">
+                  <input
+                    type="hidden"
+                    name="country_code"
+                    value="{{ localization.country.iso_code }}">
                   <span class="visually-hidden">{{ 'footer.general.country' | t }}</span>
 
                   <div class="value-picker-wrapper">
-                    <button type="button" class="select-button select-button--mini" aria-haspopup="true" aria-expanded="false" aria-controls="footer-currency-picker" data-action="open-value-picker">
-                      {{- localization.country.name }} ({{ localization.country.currency.iso_code }} {% if localization.country.currency.symbol %}{{ localization.country.currency.symbol }}{%- endif -%})
-                      {%- render 'icon', icon: 'arrow-bottom' -%}
+                    <button
+                      type="button"
+                      class="select-button select-button--mini"
+                      aria-haspopup="true"
+                      aria-expanded="false"
+                      aria-controls="footer-currency-picker"
+                      data-action="open-value-picker">
+                      {{- localization.country.name }} ({{ localization.country.currency.iso_code }}
+                      {% if localization.country.currency.symbol %}
+                        {{ localization.country.currency.symbol }}{%- endif -%})
+                      {%- render 'icon'
+                        , icon: 'arrow-bottom' -%}
                     </button>
 
-                    <div id="footer-currency-picker" class="value-picker value-picker--auto value-picker--small" data-picker-position="top" aria-hidden="true">
-                      {% render 'icon', icon: 'nav-triangle-borderless' %}
+                    <div
+                      id="footer-currency-picker"
+                      class="value-picker value-picker--auto value-picker--small"
+                      data-picker-position="top"
+                      aria-hidden="true">
+                      {% render 'icon'
+                        , icon: 'nav-triangle-borderless' %}
 
                       <div class="value-picker__inner value-picker__inner--restrict">
                         <header class="value-picker__header">
                           <span class="value-picker__title text--strong">{{ 'footer.general.country' | t }}</span>
-                          <button type="button" class="value-picker__close" data-action="close-value-picker" aria-controls="footer-currency-picker" aria-label="{{ 'general.accessibility.close' | t }}">{% render 'icon', icon: 'close' %}</button>
+                          <button
+                            type="button"
+                            class="value-picker__close"
+                            data-action="close-value-picker"
+                            aria-controls="footer-currency-picker"
+                            aria-label="{{ 'general.accessibility.close' | t }}">{% render 'icon'
+, icon: 'close' %}</button>
                         </header>
 
                         <ul class="value-picker__choice-list" role="list">
                           {%- for country in localization.available_countries -%}
                             <li class="value-picker__choice-list-item">
-                              <button type="submit" name="country_code" class="value-picker__choice-item" value="{{ country.iso_code }}" {% if country.iso_code == localization.country.iso_code %}aria-current="true"{% endif %}>
-                                {{- country.name }} ({{ country.currency.iso_code }} {% if country.currency.symbol %}{{ country.currency.symbol }}{%- endif -%})
+                              <button
+                                type="submit"
+                                name="country_code"
+                                class="value-picker__choice-item"
+                                value="{{ country.iso_code }}"
+                                {% if country.iso_code == localization.country.iso_code %}
+                                aria-current="true"
+                                {% endif %}>
+                                {{- country.name }} ({{ country.currency.iso_code }}
+                                {% if country.currency.symbol %}
+                                  {{ country.currency.symbol }}{%- endif -%})
                               </button>
                             </li>
                           {%- endfor -%}
@@ -207,204 +293,200 @@
       <div class="business-info">
         <span class="business-name bold">ATIVAFIT AI INC.</span>
         <span class="business-address regular">16192 COASTAL HWY, LEWES, DE 19958, United States</span>
-        <span class="business-contact regular">Contact: <a href="mailto:services@ativafit.com" class="business-email">services@ativafit.com</a></span>
+        <span class="business-contact regular">Contact:
+          <a href="mailto:services@ativafit.com" class="business-email">services@ativafit.com</a>
+        </span>
       </div>
     </div>
   </div>
 </div>
 
 <style>
-.footer-business-bar {
-  background: #f8f8f8;
-  border-top: 1px solid #e0e0e0;
-  padding: 20px 0;
-  font-family: "Barlow", sans-serif;
-}
-
-.footer-business-content {
-  text-align: center;
-}
-
-.business-info {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: center;
-  justify-content: center;
-}
-
-.business-name {
-  font-size: 16px;
-  color: #333;
-  font-weight: 700 !important;
-}
-
-.business-address {
-  font-size: 14px;
-  color: #666;
-  font-weight: 400 !important;
-}
-
-.business-contact {
-  font-size: 14px;
-  color: #666;
-  font-weight: 400 !important;
-}
-
-.business-email {
-  color: #EB701F;
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.business-email:hover {
-  text-decoration: underline;
-}
-
-/* Responsive */
-@media screen and (min-width: 768px) {
-  .business-info {
-    flex-direction: row;
-    gap: 30px;
-  }
-  
-  .business-name, .business-address, .business-contact {
-    font-size: 15px;
-  }
-}
-
-@media screen and (max-width: 480px) {
   .footer-business-bar {
-    padding: 15px 0;
+    background: #f8f8f8;
+    border-top: 1px solid #e0e0e0;
+    padding: 20px 0;
+    font-family: "Barlow"
+    , sans-serif;
   }
-  
+
+  .footer-business-content {
+    text-align: center;
+  }
+
   .business-info {
-    gap: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
   }
-  
+
   .business-name {
+    font-size: 16px;
+    color: #333;
+    font-weight: 700 !important;
+  }
+
+  .business-address {
     font-size: 14px;
+    color: #666;
+
   }
-  
-  .business-address, .business-contact {
-    font-size: 12px;
+
+  .business-contact {
+    font-size: 14px;
+    color: #666;
+
   }
-}
+
+  .business-email {
+    color: #EB701F;
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .business-email:hover {
+    text-decoration: underline;
+  }
+
+  /* Responsive */
+  @media screen and (min-width: 768px) {
+    .business-info {
+      flex-direction: row;
+      gap: 30px;
+    }
+
+    .business-name,
+    .business-address,
+    .business-contact {
+      font-size: 15px;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .footer-business-bar {
+      padding: 15px 0;
+    }
+
+    .business-info {
+      gap: 6px;
+    }
+
+    .business-name {
+      font-size: 14px;
+    }
+
+    .business-address,
+    .business-contact {
+      font-size: 12px;
+    }
+  }
 </style>
 
 {% schema %}
-{
-  "name": "Footer",
-  "settings": [
-    {
-      "type": "checkbox",
-      "id": "show_social_media",
-      "label": "Show social media",
-      "info": "Make sure to have properly configured your social media in the theme settings.",
-      "default": true
-    },
-    {
-      "type": "checkbox",
-      "id": "show_payment_icons",
-      "label": "Show payment icons",
-      "default": true
-    },
-    {
-      "type": "header",
-      "content": "Language selector",
-      "info": "To add a language, go to your [language settings.](/admin/settings/languages)"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_locale_selector",
-      "label": "Show language selector",
-      "default": true
-    },
-    {
-      "type": "header",
-      "content": "Country/region selector",
-      "info": "To add a country/region, go to your [currency settings.](/admin/settings/payments)"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_country_selector",
-      "label": "Show country/region selector",
-      "default": true
-    }
-  ],
-  "blocks": [
-    {
-      "type": "text",
-      "name": "Text",
-      "settings": [
-        {
-          "type": "text",
-          "id": "title",
-          "label": "Heading",
-          "default": "About our store"
-        },
-        {
-          "type": "richtext",
-          "id": "content",
-          "label": "Content",
-          "default": "<p>Use this text area to tell your customers about your brand and vision. You can change it in the theme editor.</p>"
-        }
-      ]
-    },
-    {
-      "type": "links",
-      "name": "Links",
-      "settings": [
-        {
-          "type": "link_list",
-          "id": "menu",
-          "label": "Menu",
-          "info": "This menu won't show dropdown items."
-        }
-      ]
-    },
-    {
-      "type": "newsletter",
-      "name": "Newsletter",
-      "limit": 1,
-      "settings": [
-        {
-          "type": "paragraph",
-          "content": "Customers who subscribe will have their email address added to the \"accepts marketing\" [customer list](/admin/customers?query=&accepts_marketing=1)."
-        },
-        {
-          "type": "text",
-          "id": "title",
-          "label": "Heading",
-          "default": "Newsletter"
-        },
-        {
-          "type": "richtext",
-          "id": "subheading",
-          "label": "Subheading",
-          "default": "<p>A short sentence describing what someone will receive by subscribing</p>"
-        }
-      ]
-    }
-  ],
-  "default": {
+  {
+    "name": "Footer",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "show_social_media",
+        "label": "Show social media",
+        "info": "Make sure to have properly configured your social media in the theme settings.",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "show_payment_icons",
+        "label": "Show payment icons",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Language selector",
+        "info": "To add a language, go to your [language settings.](/admin/settings/languages)"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_locale_selector",
+        "label": "Show language selector",
+        "default": true
+      }, {
+        "type": "header",
+        "content": "Country/region selector",
+        "info": "To add a country/region, go to your [currency settings.](/admin/settings/payments)"
+      }, {
+        "type": "checkbox",
+        "id": "show_country_selector",
+        "label": "Show country/region selector",
+        "default": true
+      }
+    ],
     "blocks": [
       {
         "type": "text",
-        "settings": {}
-      },
-      {
+        "name": "Text",
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Heading",
+            "default": "About our store"
+          }, {
+            "type": "richtext",
+            "id": "content",
+            "label": "Content",
+            "default": "<p>Use this text area to tell your customers about your brand and vision. You can change it in the theme editor.</p>"
+          }
+        ]
+      }, {
         "type": "links",
-        "settings": {
-          "menu": "footer"
-        }
-      },
-      {
+        "name": "Links",
+        "settings": [
+          {
+            "type": "link_list",
+            "id": "menu",
+            "label": "Menu",
+            "info": "This menu won't show dropdown items."
+          }
+        ]
+      }, {
         "type": "newsletter",
-        "settings": {}
+        "name": "Newsletter",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "paragraph",
+            "content": "Customers who subscribe will have their email address added to the \"accepts marketing\" [customer list](/admin/customers?query=&accepts_marketing=1)."
+          }, {
+            "type": "text",
+            "id": "title",
+            "label": "Heading",
+            "default": "Newsletter"
+          }, {
+            "type": "richtext",
+            "id": "subheading",
+            "label": "Subheading",
+            "default": "<p>A short sentence describing what someone will receive by subscribing</p>"
+          }
+        ]
       }
-    ]
+    ],
+    "default": {
+      "blocks": [
+        {
+          "type": "text",
+          "settings": {}
+        }, {
+          "type": "links",
+          "settings": {
+            "menu": "footer"
+          }
+        }, {
+          "type": "newsletter",
+          "settings": {}
+        }
+      ]
+    }
   }
-}
 {% endschema %}
-

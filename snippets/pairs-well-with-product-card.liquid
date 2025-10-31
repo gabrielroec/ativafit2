@@ -1,0 +1,71 @@
+{% comment %}
+  Pairs Well With Product Card
+  
+  Renders a single product card for the "Pairs Well With" section.
+  
+  Accepts:
+  - product: {Object} Product object
+  - section: {Object} Section object for settings
+  
+  Usage:
+  {% render 'pairs-well-with-product-card', product: product, section: section %}
+{% endcomment %}
+
+{%- if product != blank -%}
+  <div class="pairs-well-with-card_new">
+    {%- if product.featured_image != blank -%}
+      <a href="{{ product.url }}" class="pairs-well-with-image-link_new">
+        <img
+          src="{{ product.featured_image | image_url: width: 400 }}"
+          alt="{{ product.title }}"
+          class="pairs-well-with-image_new"
+          width="400"
+          height="400"
+          loading="lazy">
+      </a>
+    {%- else -%}
+      <div class="pairs-well-with-image-placeholder_new">
+        {{ 'product-1' | placeholder_svg_tag: 'pairs-well-with-image_new' }}
+      </div>
+    {%- endif -%}
+
+    <div class="pairs-well-with-info_new">
+      <h3 class="pairs-well-with-product-title_new">
+        <a href="{{ product.url }}">{{ product.title }}</a>
+      </h3>
+
+      <div class="pairs-well-with-price_new">
+        {%- assign selected_variant = product.selected_or_first_available_variant -%}
+        <span class="pairs-well-with-price-current_new">{{ selected_variant.price | money }}</span>
+        {%- if selected_variant.compare_at_price > selected_variant.price -%}
+          <span class="pairs-well-with-price-original_new">{{ selected_variant.compare_at_price | money }}</span>
+        {%- endif -%}
+      </div>
+
+      {%- if product.available and selected_variant -%}
+        {%- form 'product', product, class: 'pairs-well-with-form_new' -%}
+          <input
+            type="hidden"
+            name="id"
+            value="{{ selected_variant.id }}">
+          <button
+            type="submit"
+            name="add"
+            class="pairs-well-with-add-btn_new"
+            aria-label="Add {{ product.title }} to cart">
+            {{ section.settings.pairs_well_with_add_to_cart_text | default: 'ADD TO CART' }}
+          </button>
+        {%- endform -%}
+      {%- else -%}
+        <button
+          type="button"
+          class="pairs-well-with-add-btn_new"
+          disabled
+          aria-label="Sold out">
+          Sold Out
+        </button>
+      {%- endif -%}
+    </div>
+  </div>
+{%- endif -%}
+
