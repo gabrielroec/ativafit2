@@ -97,29 +97,9 @@
     color: #EB701F;
   }
 
-  /* Desktop/Mobile Visibility */
-  @media (max-width: 1024px) {
-    .desktop-only {
-      display: none !important;
-    }
+  /* Desktop/Mobile Visibility - removido display none, agora usando remoção do DOM */
 
-    .mobile-only {
-      display: block !important;
-    }
-  }
-
-  @media (min-width: 1025px) {
-    .desktop-only {
-      display: block !important;
-    }
-
-    .mobile-only {
-      display: none !important;
-    }
-  }
-
-  /* Responsive */
-  @media (max-width: 1024px) {
+  /* Responsive */@media (max-width: 1024px) {
     .grid-goal-spark__heading {
       font-size: 32px;
       line-height: 36px;
@@ -283,7 +263,7 @@
 
     {%- if section.blocks.size > 0 -%}
       <!-- Desktop Grid -->
-      <div class="grid-goal-spark__desktop desktop-only">
+      <div class="grid-goal-spark__desktop">
         <div class="grid-goal-spark__grid">
           {%- for block in section.blocks -%}
             <div class="grid-goal-spark__card" {{ block.shopify_attributes }}>
@@ -320,7 +300,7 @@
       </div>
 
       <!-- Mobile Slider -->
-      <div class="grid-goal-spark__mobile mobile-only" id="mobile-slider-{{ section.id }}">
+      <div class="grid-goal-spark__mobile" id="mobile-slider-{{ section.id }}">
         <div class="mobile-slider-container">
           {%- for block in section.blocks -%}
             <div
@@ -371,107 +351,182 @@
 </section>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
+  (function() {
     const sectionId = '{{ section.id }}';
     
-    // Responsividade Desktop/Mobile
-    const desktopContainer = document.querySelector('.desktop-only');
-    const mobileContainer = document.querySelector('.mobile-only');
-    
-    function handleResize() {
-      if (window.innerWidth > 1024) {
-        desktopContainer.style.display = 'block';
-        mobileContainer.style.display = 'none';
-      } else {
-        desktopContainer.style.display = 'none';
-        mobileContainer.style.display = 'block';
+    function initializeSection() {
+      const section = document.querySelector('[data-section-id="' + sectionId + '"]');
+      if (!section) return;
+      
+      // Responsividade Desktop/Mobile - Remoção completa do DOM
+      let desktopContainer = section.querySelector('.grid-goal-spark__desktop');
+      let mobileContainer = section.querySelector('.grid-goal-spark__mobile');
+      
+      // Guardar backups apenas uma vez
+      const desktopBackup = desktopContainer ? desktopContainer.cloneNode(true) : null;
+      const mobileBackup = mobileContainer ? mobileContainer.cloneNode(true) : null;
+      
+      function handleResize() {
+        const isDesktop = window.innerWidth > 1024;
+        
+        // Buscar elementos novamente (podem ter sido removidos)
+        desktopContainer = section.querySelector('.grid-goal-spark__desktop');
+        mobileContainer = section.querySelector('.grid-goal-spark__mobile');
+        
+        if (isDesktop) {
+          // Desktop: remover mobile completamente do DOM
+          if (mobileContainer && mobileContainer.parentNode) {
+            mobileContainer.remove();
+            mobileContainer = null;
+          }
+          
+          // Garantir desktop existe
+          if (!desktopContainer && desktopBackup) {
+            const container = section.querySelector('.container');
+            if (container) {
+              const heading = container.querySelector('.grid-goal-spark__heading');
+              const newDesktop = desktopBackup.cloneNode(true);
+              if (heading) {
+                heading.insertAdjacentElement('afterend', newDesktop);
+              } else {
+                container.appendChild(newDesktop);
+              }
+              desktopContainer = newDesktop;
+            }
+          }
+        } else {
+          // Mobile: remover desktop completamente do DOM
+          if (desktopContainer && desktopContainer.parentNode) {
+            desktopContainer.remove();
+            desktopContainer = null;
+          }
+          
+          // Garantir mobile existe
+          if (!mobileContainer && mobileBackup) {
+            const container = section.querySelector('.container');
+            if (container) {
+              const heading = container.querySelector('.grid-goal-spark__heading');
+              const newMobile = mobileBackup.cloneNode(true);
+              // Remover atributo de inicialização se existir
+              if (newMobile.dataset.initialized) {
+                delete newMobile.dataset.initialized;
+              }
+              if (heading) {
+                heading.insertAdjacentElement('afterend', newMobile);
+              } else {
+                container.appendChild(newMobile);
+              }
+              mobileContainer = newMobile;
+              // Re-inicializar o slider mobile após restaurar
+              setTimeout(initializeMobileSlider, 100);
+            }
+          } else if (mobileContainer) {
+            // Se mobile já existe mas não está inicializado, inicializar
+            if (mobileContainer.dataset.initialized !== 'true') {
+              initializeMobileSlider();
+            }
+          }
+        }
       }
-    }
-    
-    // Set initial state
-    handleResize();
-    
-    // Listen for resize
-    let resizeTimeout;
-    window.addEventListener('resize', () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(handleResize, 100);
-    });
-    
-    // Mobile Slider Functionality
-    function initializeMobileSlider() {
-      const mobileSlider = document.getElementById('mobile-slider-' + sectionId);
-      const mobileDotsContainer = document.getElementById('mobile-dots-' + sectionId);
       
-      if (!mobileSlider) return;
-      
-      const mobileCards = mobileSlider.querySelectorAll('.mobile-card');
-      if (mobileCards.length === 0) return;
-      
-      let currentSlide = 0;
-      
-      function showMobileSlide(index) {
-        if (index < 0 || index >= mobileCards.length) return;
+      // Mobile Slider Functionality
+      function initializeMobileSlider() {
+        const currentMobileContainer = section.querySelector('.grid-goal-spark__mobile');
+        if (!currentMobileContainer) return;
         
-        mobileCards.forEach((card, i) => {
-          card.classList.toggle('hidden', i !== index);
-        });
+        // Evitar múltiplas inicializações
+        if (currentMobileContainer.dataset.initialized === 'true') return;
+        currentMobileContainer.dataset.initialized = 'true';
         
+        const mobileDotsContainer = currentMobileContainer.querySelector('.mobile-dots');
+        const mobileCards = currentMobileContainer.querySelectorAll('.mobile-card');
+        if (mobileCards.length === 0) return;
+        
+        let currentSlide = 0;
+        
+        function showMobileSlide(index) {
+          if (index < 0 || index >= mobileCards.length) return;
+          
+          mobileCards.forEach((card, i) => {
+            card.classList.toggle('hidden', i !== index);
+          });
+          
+          if (mobileDotsContainer) {
+            const mobileDots = mobileDotsContainer.querySelectorAll('.mobile-dot');
+            mobileDots.forEach((dot, i) => {
+              dot.classList.toggle('active', i === index);
+            });
+          }
+          
+          currentSlide = index;
+        }
+        
+        // Add click events to dots
         if (mobileDotsContainer) {
           const mobileDots = mobileDotsContainer.querySelectorAll('.mobile-dot');
-          mobileDots.forEach((dot, i) => {
-            dot.classList.toggle('active', i === index);
+          mobileDots.forEach((dot, index) => {
+            dot.addEventListener('click', () => showMobileSlide(index));
           });
         }
         
-        currentSlide = index;
-      }
-      
-      // Add click events to dots
-      if (mobileDotsContainer) {
-        const mobileDots = mobileDotsContainer.querySelectorAll('.mobile-dot');
-        mobileDots.forEach((dot, index) => {
-          dot.addEventListener('click', () => showMobileSlide(index));
-        });
-      }
-      
-      // Touch/swipe support
-      let touchStartX = 0;
-      let touchMoved = false;
-      
-      mobileSlider.addEventListener('touchstart', (e) => {
-        touchStartX = e.touches[0].clientX;
-        touchMoved = false;
-      }, { passive: true });
-      
-      mobileSlider.addEventListener('touchmove', (e) => {
-        const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
-        if (deltaX > 15) {
-          touchMoved = true;
-        }
-      }, { passive: true });
-      
-      mobileSlider.addEventListener('touchend', (e) => {
-        if (!touchMoved) return;
+        // Touch/swipe support
+        let touchStartX = 0;
+        let touchMoved = false;
         
-        const touchEndX = e.changedTouches[0].clientX;
-        const deltaX = touchEndX - touchStartX;
-        const threshold = 75;
+        currentMobileContainer.addEventListener('touchstart', (e) => {
+          touchStartX = e.touches[0].clientX;
+          touchMoved = false;
+        }, { passive: true });
         
-        if (Math.abs(deltaX) > threshold) {
-          if (deltaX > 0 && currentSlide > 0) {
-            showMobileSlide(currentSlide - 1);
-          } else if (deltaX < 0 && currentSlide < mobileCards.length - 1) {
-            showMobileSlide(currentSlide + 1);
+        currentMobileContainer.addEventListener('touchmove', (e) => {
+          const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
+          if (deltaX > 15) {
+            touchMoved = true;
           }
-        }
-      }, { passive: true });
+        }, { passive: true });
+        
+        currentMobileContainer.addEventListener('touchend', (e) => {
+          if (!touchMoved) return;
+          
+          const touchEndX = e.changedTouches[0].clientX;
+          const deltaX = touchEndX - touchStartX;
+          const threshold = 75;
+          
+          if (Math.abs(deltaX) > threshold) {
+            if (deltaX > 0 && currentSlide > 0) {
+              showMobileSlide(currentSlide - 1);
+            } else if (deltaX < 0 && currentSlide < mobileCards.length - 1) {
+              showMobileSlide(currentSlide + 1);
+            }
+          }
+        }, { passive: true });
+        
+        showMobileSlide(0);
+      }
       
-      showMobileSlide(0);
+      // Set initial state
+      handleResize();
+      
+      // Listen for resize
+      let resizeTimeout;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(handleResize, 100);
+      });
+      
+      // Inicializar slider mobile se estiver visível
+      if (window.innerWidth <= 1024) {
+        initializeMobileSlider();
+      }
     }
     
-    initializeMobileSlider();
-  });
+    // Inicializar quando o DOM estiver pronto
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeSection);
+    } else {
+      initializeSection();
+    }
+  })();
 </script>
 
 {% schema %}

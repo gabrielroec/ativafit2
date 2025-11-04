@@ -21,7 +21,7 @@
               <div class="strength-card__image">
                 {%- if block.settings.card_image != blank -%}
                   <img
-                    src="{{ block.settings.card_image | img_url: '400x450' }}"
+                    src="{{ block.settings.card_image | image_url: width: 400 }}"
                     alt="{{ block.settings.card_image.alt | default: block.settings.card_title }}"
                     width="400"
                     height="450"
@@ -64,7 +64,7 @@
                 <div class="mobile-card__image">
                   {%- if block.settings.card_image != blank -%}
                     <img
-                      src="{{ block.settings.card_image | img_url: '400x450' }}"
+                      src="{{ block.settings.card_image | image_url: width: 400 }}"
                       alt="{{ block.settings.card_image.alt | default: block.settings.card_title }}"
                       width="400"
                       height="450"
@@ -328,17 +328,9 @@
     max-width: 350px;
   }
 
-  /* Desktop/Tablet Grid */
-  .strength-cards-desktop {
-    display: block;
-  }
+  /* Desktop/Tablet Grid - removido display none, agora usando remoção do DOM */
 
-  .strength-cards-mobile {
-    display: none;
-  }
-
-  /* Mobile Components */
-  .mobile-slider-container {
+  /* Mobile Components */.mobile-slider-container {
     position: relative;
     width: 100%;
     overflow: visible;
@@ -451,34 +443,6 @@
       margin-bottom: 40px;
     }
 
-    .strength-cards-desktop {
-      display: none !important;
-    }
-
-    .strength-cards-mobile {
-      display: block !important;
-    }
-
-    /* No mobile, sempre usar slider - ESCONDER COMPLETAMENTE O GRID */
-    .strength-cards-grid {
-      display: none !important;
-      visibility: hidden !important;
-      opacity: 0 !important;
-      height: 0 !important;
-      overflow: hidden !important;
-    }
-
-    /* Garantir que o mobile slider seja visível */
-    .mobile-slider-container {
-      display: block !important;
-      visibility: visible !important;
-      opacity: 1 !important;
-    }
-
-    .mobile-card {
-      display: block !important;
-    }
-
     .mobile-card.hidden {
       display: none !important;
     }
@@ -547,167 +511,251 @@
 </style>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-  const sectionId = '{{ section.id }}';
-  const mobileSlider = document.getElementById('mobile-slider-' + sectionId);
-  const mobileDotsContainer = document.getElementById('mobile-dots-' + sectionId);
-  
-  if (!mobileSlider) return;
-  
-  const mobileCards = mobileSlider.querySelectorAll('.mobile-card');
-  
-  if (mobileCards.length === 0) return;
-  
-  let currentSlide = 0;
-  
-  function showMobileSlide(index) {
-    // Validate index
-    if (index < 0 || index >= mobileCards.length) {
-      return;
-    }
-    
-    // Hide all cards
-    mobileCards.forEach((card, i) => {
-      card.classList.toggle('hidden', i !== index);
-    });
-    
-    // Update dots
-    if (mobileDotsContainer) {
-      const mobileDots = mobileDotsContainer.querySelectorAll('.mobile-dot');
-      mobileDots.forEach((dot, i) => {
-        dot.classList.toggle('active', i === index);
-      });
-    }
-    
-    currentSlide = index;
-  }
-  
-  function nextSlide() {
-    const newSlide = currentSlide < mobileCards.length - 1 ? currentSlide + 1 : 0;
-    showMobileSlide(newSlide);
-  }
-  
-  function prevSlide() {
-    const newSlide = currentSlide > 0 ? currentSlide - 1 : mobileCards.length - 1;
-    showMobileSlide(newSlide);
-  }
-  
-  // Add click events to dots
-  if (mobileDotsContainer) {
-    const mobileDots = mobileDotsContainer.querySelectorAll('.mobile-dot');
-    mobileDots.forEach((dot, index) => {
-      dot.addEventListener('click', () => {
-        showMobileSlide(index);
-      });
-    });
-  }
-  
-  // Touch/swipe support - igual ao sistema das video reviews
-  let touchStartX = 0;
-  let touchMoved = false;
-  
-  mobileSlider.addEventListener('touchstart', (e) => {
-    if (window.innerWidth > 1024) return;
-    touchStartX = e.touches[0].clientX;
-    touchMoved = false;
-  }, { passive: true });
-  
-  mobileSlider.addEventListener('touchmove', (e) => {
-    if (window.innerWidth > 1024) return;
-    const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
-    if (deltaX > 15) {
-      touchMoved = true;
-      e.preventDefault();
-    }
-  }, { passive: false });
-  
-  mobileSlider.addEventListener('touchend', (e) => {
-    if (window.innerWidth > 1024 || !touchMoved) return;
-    
-    const touchEndX = e.changedTouches[0].clientX;
-    const deltaX = touchEndX - touchStartX;
-    const threshold = 75;
-    
-    if (Math.abs(deltaX) > threshold) {
-      if (deltaX > 0 && currentSlide > 0) {
-        showMobileSlide(currentSlide - 1);
-      } else if (deltaX < 0 && currentSlide < mobileCards.length - 1) {
-        showMobileSlide(currentSlide + 1);
-      }
-    }
-  }, { passive: true });
-  
-  // Initialize mobile slider
-  showMobileSlide(0);
-  
-  console.log('Mobile slider initialized with', mobileCards.length, 'cards');
-  });
-
-  // Desktop Layout Management
-  document.addEventListener('DOMContentLoaded', function() {
+  (function() {
     const sectionId = '{{ section.id }}';
-    const strengthCardsGrid = document.querySelector(`[data-section-id="${sectionId}"] .strength-cards-grid`);
     
-    if (!strengthCardsGrid) return;
-    
-    const strengthCards = strengthCardsGrid.querySelectorAll('.strength-card');
-    const totalCards = strengthCards.length;
-    
-    console.log('Total strength cards:', totalCards);
-    
-    // Função para aplicar layout responsivo
-    function applyResponsiveLayout() {
-      const windowWidth = window.innerWidth;
+    function initializeSection() {
+      const section = document.querySelector('[data-section-id="' + sectionId + '"]');
+      if (!section) return;
       
-      if (totalCards <= 3) {
-        // 3 itens ou menos: centralizar na mesma linha (SEM SCROLL)
-        strengthCardsGrid.classList.add('few-items');
-        strengthCardsGrid.classList.remove('many-items');
-        strengthCardsGrid.style.overflowX = 'visible';
+      // Responsividade Desktop/Mobile - Remoção completa do DOM
+      let desktopContainer = section.querySelector('.strength-cards-desktop');
+      let mobileContainer = section.querySelector('.strength-cards-mobile');
+      
+      // Guardar backups apenas uma vez
+      const desktopBackup = desktopContainer ? desktopContainer.cloneNode(true) : null;
+      const mobileBackup = mobileContainer ? mobileContainer.cloneNode(true) : null;
+      
+      function handleResize() {
+        const isDesktop = window.innerWidth > 1024;
         
-        // Calcular gap dinamicamente baseado na largura disponível
-        const containerWidth = windowWidth - 40; // 20px padding de cada lado
-        const cardMaxWidth = 415; // Largura máxima do card
-        const totalCardsWidth = totalCards * cardMaxWidth;
-        const availableSpace = containerWidth - totalCardsWidth;
+        // Buscar elementos novamente (podem ter sido removidos)
+        desktopContainer = section.querySelector('.strength-cards-desktop');
+        mobileContainer = section.querySelector('.strength-cards-mobile');
         
-        if (availableSpace > 0) {
-          // Se há espaço suficiente, usar gap padrão
-          const gap = Math.min(20, availableSpace / (totalCards + 1));
-          strengthCardsGrid.style.gap = gap + 'px';
+        if (isDesktop) {
+          // Desktop: remover mobile completamente do DOM
+          if (mobileContainer && mobileContainer.parentNode) {
+            mobileContainer.remove();
+            mobileContainer = null;
+          }
+          
+          // Garantir desktop existe
+          if (!desktopContainer && desktopBackup) {
+            const container = section.querySelector('.container');
+            if (container) {
+              const heading = container.querySelector('.goal-spark-title__heading');
+              const newDesktop = desktopBackup.cloneNode(true);
+              if (heading) {
+                heading.insertAdjacentElement('afterend', newDesktop);
+              } else {
+                container.appendChild(newDesktop);
+              }
+              desktopContainer = newDesktop;
+              // Re-inicializar layout desktop após restaurar
+              setTimeout(initializeDesktopLayout, 100);
+            }
+          } else if (desktopContainer) {
+            // Re-inicializar layout desktop se já existe
+            initializeDesktopLayout();
+          }
         } else {
-          // Se não há espaço suficiente, reduzir gap progressivamente
-          let gap = 20;
-          if (windowWidth <= 1024) gap = 8;
-          else if (windowWidth <= 1100) gap = 10;
-          else if (windowWidth <= 1200) gap = 12;
-          else if (windowWidth <= 1400) gap = 15;
-          else gap = 20;
-          strengthCardsGrid.style.gap = gap + 'px';
+          // Mobile: remover desktop completamente do DOM
+          if (desktopContainer && desktopContainer.parentNode) {
+            desktopContainer.remove();
+            desktopContainer = null;
+          }
+          
+          // Garantir mobile existe
+          if (!mobileContainer && mobileBackup) {
+            const container = section.querySelector('.container');
+            if (container) {
+              const heading = container.querySelector('.goal-spark-title__heading');
+              const newMobile = mobileBackup.cloneNode(true);
+              // Remover atributo de inicialização se existir
+              if (newMobile.dataset.initialized) {
+                delete newMobile.dataset.initialized;
+              }
+              if (heading) {
+                heading.insertAdjacentElement('afterend', newMobile);
+              } else {
+                container.appendChild(newMobile);
+              }
+              mobileContainer = newMobile;
+              // Re-inicializar o slider mobile após restaurar
+              setTimeout(initializeMobileSlider, 100);
+            }
+          } else if (mobileContainer) {
+            // Se mobile já existe mas não está inicializado, inicializar
+            if (mobileContainer.dataset.initialized !== 'true') {
+              initializeMobileSlider();
+            }
+          }
+        }
+      }
+      
+      // Mobile Slider Functionality
+      function initializeMobileSlider() {
+        const currentMobileContainer = section.querySelector('.strength-cards-mobile');
+        if (!currentMobileContainer) return;
+        
+        // Evitar múltiplas inicializações
+        if (currentMobileContainer.dataset.initialized === 'true') return;
+        currentMobileContainer.dataset.initialized = 'true';
+        
+        const mobileDotsContainer = currentMobileContainer.querySelector('.mobile-dots') || 
+                                     document.getElementById('mobile-dots-' + sectionId);
+        const mobileCards = currentMobileContainer.querySelectorAll('.mobile-card');
+        if (mobileCards.length === 0) return;
+        
+        let currentSlide = 0;
+        
+        function showMobileSlide(index) {
+          if (index < 0 || index >= mobileCards.length) return;
+          
+          mobileCards.forEach((card, i) => {
+            card.classList.toggle('hidden', i !== index);
+          });
+          
+          if (mobileDotsContainer) {
+            const mobileDots = mobileDotsContainer.querySelectorAll('.mobile-dot');
+            mobileDots.forEach((dot, i) => {
+              dot.classList.toggle('active', i === index);
+            });
+          }
+          
+          currentSlide = index;
         }
         
-        console.log('Applied centered responsive layout for', totalCards, 'cards at', windowWidth, 'px width, gap:', strengthCardsGrid.style.gap);
-      } else {
-        // Mais de 3 itens: scroll horizontal profissional
-        strengthCardsGrid.classList.add('many-items');
-        strengthCardsGrid.classList.remove('few-items');
-        strengthCardsGrid.style.overflowX = 'auto';
-        console.log('Applied scrollable layout for', totalCards, 'cards');
+        // Add click events to dots
+        if (mobileDotsContainer) {
+          const mobileDots = mobileDotsContainer.querySelectorAll('.mobile-dot');
+          mobileDots.forEach((dot, index) => {
+            dot.addEventListener('click', () => showMobileSlide(index));
+          });
+        }
+        
+        // Touch/swipe support
+        let touchStartX = 0;
+        let touchMoved = false;
+        
+        currentMobileContainer.addEventListener('touchstart', (e) => {
+          if (window.innerWidth > 1024) return;
+          touchStartX = e.touches[0].clientX;
+          touchMoved = false;
+        }, { passive: true });
+        
+        currentMobileContainer.addEventListener('touchmove', (e) => {
+          if (window.innerWidth > 1024) return;
+          const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
+          if (deltaX > 15) {
+            touchMoved = true;
+            e.preventDefault();
+          }
+        }, { passive: false });
+        
+        currentMobileContainer.addEventListener('touchend', (e) => {
+          if (window.innerWidth > 1024 || !touchMoved) return;
+          
+          const touchEndX = e.changedTouches[0].clientX;
+          const deltaX = touchEndX - touchStartX;
+          const threshold = 75;
+          
+          if (Math.abs(deltaX) > threshold) {
+            if (deltaX > 0 && currentSlide > 0) {
+              showMobileSlide(currentSlide - 1);
+            } else if (deltaX < 0 && currentSlide < mobileCards.length - 1) {
+              showMobileSlide(currentSlide + 1);
+            }
+          }
+        }, { passive: true });
+        
+        showMobileSlide(0);
+      }
+      
+      // Desktop Layout Management
+      function initializeDesktopLayout() {
+        const currentDesktopContainer = section.querySelector('.strength-cards-desktop');
+        if (!currentDesktopContainer) return;
+        
+        const strengthCardsGrid = currentDesktopContainer.querySelector('.strength-cards-grid');
+        if (!strengthCardsGrid) return;
+        
+        const strengthCards = strengthCardsGrid.querySelectorAll('.strength-card');
+        const totalCards = strengthCards.length;
+        
+        // Função para aplicar layout responsivo
+        function applyResponsiveLayout() {
+          const windowWidth = window.innerWidth;
+          
+          if (totalCards <= 3) {
+            // 3 itens ou menos: centralizar na mesma linha (SEM SCROLL)
+            strengthCardsGrid.classList.add('few-items');
+            strengthCardsGrid.classList.remove('many-items');
+            strengthCardsGrid.style.overflowX = 'visible';
+            
+            // Calcular gap dinamicamente baseado na largura disponível
+            const containerWidth = windowWidth - 40; // 20px padding de cada lado
+            const cardMaxWidth = 415; // Largura máxima do card
+            const totalCardsWidth = totalCards * cardMaxWidth;
+            const availableSpace = containerWidth - totalCardsWidth;
+            
+            if (availableSpace > 0) {
+              // Se há espaço suficiente, usar gap padrão
+              const gap = Math.min(20, availableSpace / (totalCards + 1));
+              strengthCardsGrid.style.gap = gap + 'px';
+            } else {
+              // Se não há espaço suficiente, reduzir gap progressivamente
+              let gap = 20;
+              if (windowWidth <= 1024) gap = 8;
+              else if (windowWidth <= 1100) gap = 10;
+              else if (windowWidth <= 1200) gap = 12;
+              else if (windowWidth <= 1400) gap = 15;
+              else gap = 20;
+              strengthCardsGrid.style.gap = gap + 'px';
+            }
+          } else {
+            // Mais de 3 itens: scroll horizontal profissional
+            strengthCardsGrid.classList.add('many-items');
+            strengthCardsGrid.classList.remove('few-items');
+            strengthCardsGrid.style.overflowX = 'auto';
+          }
+        }
+        
+        // Aplicar layout inicial
+        applyResponsiveLayout();
+        
+        // Aplicar layout quando a janela for redimensionada
+        let resizeTimeout;
+        window.addEventListener('resize', function() {
+          clearTimeout(resizeTimeout);
+          resizeTimeout = setTimeout(applyResponsiveLayout, 100);
+        });
+      }
+      
+      // Set initial state
+      handleResize();
+      
+      // Listen for resize
+      let resizeTimeout;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(handleResize, 100);
+      });
+      
+      // Inicializar slider mobile se estiver visível
+      if (window.innerWidth <= 1024) {
+        initializeMobileSlider();
       }
     }
     
-    // Aplicar layout inicial
-    applyResponsiveLayout();
-    
-    // Aplicar layout quando a janela for redimensionada
-    let resizeTimeout;
-    window.addEventListener('resize', function() {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(applyResponsiveLayout, 100);
-    });
-  });
-
-  // Mobile slider functionality complete
+    // Inicializar quando o DOM estiver pronto
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeSection);
+    } else {
+      initializeSection();
+    }
+  })();
 </script>
 
 {% schema %}
