@@ -1,20 +1,20 @@
 {% comment %} 
-                                      Product Main Section - Refactored
-                                       
-                                      Professional product page section following Shopify 2.0 best practices.
-                                      Uses modular snippets for better organization and maintainability.
-                                       
-                                      Accepts: 
-                                      - product: {Object} Product object
-                                       
-                                      Dependencies: 
-                                      - product-gallery.liquid snippet 
-                                      - product-info.liquid snippet 
-                                      - product-benefits.liquid snippet 
-                                      - product-add-to-cart.liquid snippet 
-                                      - product-accordions.liquid snippet 
-                                      - product-benefit-popups.liquid snippet 
-                                      - product-main-section.css asset 
+                                                        Product Main Section - Refactored
+                                                         
+                                                        Professional product page section following Shopify 2.0 best practices.
+                                                        Uses modular snippets for better organization and maintainability.
+                                                         
+                                                        Accepts: 
+                                                        - product: {Object} Product object
+                                                         
+                                                        Dependencies: 
+                                                        - product-gallery.liquid snippet 
+                                                        - product-info.liquid snippet 
+                                                        - product-benefits.liquid snippet 
+                                                        - product-add-to-cart.liquid snippet 
+                                                        - product-accordions.liquid snippet 
+                                                        - product-benefit-popups.liquid snippet 
+                                                        - product-main-section.css asset 
 {% endcomment %}
 
 {{ 'product-main-section.css' | asset_url | stylesheet_tag }}
@@ -23,7 +23,7 @@
   class="pp-full_new"
   data-section-id="{{ section.id }}"
   data-section-type="product-main">
-  <div class="container container-product-page_new">
+  <div class="container-product-page_new">
     <div class="product-main_new">
 
       <!-- Product Gallery -->
@@ -52,15 +52,15 @@
         {% render 'product-pairs-well-with'
           , section: section %}
 
-        <!-- Mobile Price (shown only on mobile) -->
-        {%- if section.settings.show_mobile_price -%}
-          <div class="product-price-container_new mobile-only_new">
-            <p class="product-price_new">{{ product.selected_or_first_available_variant.price | money }}</p>
-            {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
-              <p class="product-price-original_new">{{ product.selected_or_first_available_variant.compare_at_price | money }}</p>
-            {%- endif -%}
-          </div>
-        {%- endif -%}
+      <!-- Mobile Price (shown only on mobile) -->
+      {% comment %} {%- if section.settings.show_mobile_price -%}
+                  <div class="product-price-container_new mobile-only_new">
+                    <p class="product-price_new black">{{ product.selected_or_first_available_variant.price | money }}</p>
+                    {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
+                      <p class="product-price-original_new">{{ product.selected_or_first_available_variant.compare_at_price | money }}</p>
+                    {%- endif -%}
+                  </div>
+              {%- endif -%} {% endcomment %}
 
 
       </div>
@@ -686,13 +686,13 @@
     
     const BenefitPopups = {
       init() {
-        const benefitButtons = document.querySelectorAll('.benefit-info-btn_new');
+        const benefitLinks = document.querySelectorAll('.benefit-learn-more_new');
         
-        benefitButtons.forEach((button) => {
-          button.addEventListener('click', (e) => {
+        benefitLinks.forEach((link) => {
+          link.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            const benefitId = button.getAttribute('data-benefit-popup');
+            const benefitId = link.getAttribute('data-benefit-popup');
             
             if (benefitId) {
               const popupId = 'benefit-popup-' + benefitId;
