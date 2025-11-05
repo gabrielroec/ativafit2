@@ -1,20 +1,20 @@
 {% comment %} 
-                                                              Product Main Section - Refactored
-                                                               
-                                                              Professional product page section following Shopify 2.0 best practices.
-                                                              Uses modular snippets for better organization and maintainability.
-                                                               
-                                                              Accepts: 
-                                                              - product: {Object} Product object
-                                                               
-                                                              Dependencies: 
-                                                              - product-gallery.liquid snippet 
-                                                              - product-info.liquid snippet 
-                                                              - product-benefits.liquid snippet 
-                                                              - product-add-to-cart.liquid snippet 
-                                                              - product-accordions.liquid snippet 
-                                                              - product-benefit-popups.liquid snippet 
-                                                              - product-main-section.css asset 
+                                                                Product Main Section - Refactored
+                                                                 
+                                                                Professional product page section following Shopify 2.0 best practices.
+                                                                Uses modular snippets for better organization and maintainability.
+                                                                 
+                                                                Accepts: 
+                                                                - product: {Object} Product object
+                                                                 
+                                                                Dependencies: 
+                                                                - product-gallery.liquid snippet 
+                                                                - product-info.liquid snippet 
+                                                                - product-benefits.liquid snippet 
+                                                                - product-add-to-cart.liquid snippet 
+                                                                - product-accordions.liquid snippet 
+                                                                - product-benefit-popups.liquid snippet 
+                                                                - product-main-section.css asset 
 {% endcomment %}
 
 {{ 'product-main-section.css' | asset_url | stylesheet_tag }}
@@ -54,13 +54,13 @@
 
       <!-- Mobile Price (shown only on mobile) -->
       {% comment %} {%- if section.settings.show_mobile_price -%}
-                                          <div class="product-price-container_new mobile-only_new">
-                                            <p class="product-price_new black">{{ product.selected_or_first_available_variant.price | money }}</p>
-                                            {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
-                                              <p class="product-price-original_new">{{ product.selected_or_first_available_variant.compare_at_price | money }}</p>
-                                            {%- endif -%}
-                                          </div>
-                                {%- endif -%} {% endcomment %}
+                                                  <div class="product-price-container_new mobile-only_new">
+                                                    <p class="product-price_new black">{{ product.selected_or_first_available_variant.price | money }}</p>
+                                                    {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
+                                                      <p class="product-price-original_new">{{ product.selected_or_first_available_variant.compare_at_price | money }}</p>
+                                                    {%- endif -%}
+                                                  </div>
+                                      {%- endif -%} {% endcomment %}
 
 
       </div>
@@ -539,10 +539,22 @@
             variantInput.value = variant.id;
           }
           
+          // Update hidden variant input with section ID
+          const variantInputWithId = document.getElementById('product-variant-id-{{ section.id }}');
+          if (variantInputWithId) {
+            variantInputWithId.value = variant.id;
+          }
+          
           // Update select[name="id"] if it exists
           const variantSelect = productForm.querySelector('select[name="id"]');
           if (variantSelect) {
             variantSelect.value = variant.id;
+          }
+          
+          // Update variant selector if it exists
+          const variantSelector = document.getElementById('variant-selector_new');
+          if (variantSelector) {
+            variantSelector.value = variant.id;
           }
           
           // Update shopify-payment-terms component if it exists
@@ -659,6 +671,60 @@
     };
     
     // ====================================================================
+    // BUY IT NOW FUNCTION - Goes directly to checkout
+    // ====================================================================
+    
+    window.buyItNow = async function() {
+      // Get variant ID from form or selector
+      const variantInput = document.getElementById('product-variant-id-{{ section.id }}');
+      const variantSelector = document.getElementById('variant-selector_new');
+      let variantId = null;
+      
+      if (variantInput) {
+        variantId = parseInt(variantInput.value);
+      } else if (variantSelector) {
+        variantId = parseInt(variantSelector.value);
+      } else {
+        variantId = ProductVariants.variants[0]?.id || {{ product.selected_or_first_available_variant.id }};
+      }
+      
+      const quantity = parseInt(document.getElementById('quantity_new')?.value || 1);
+      const btn = document.querySelector('.buy-it-now-btn_new');
+      
+      if (!variantId) {
+        alert('Please select a product variant');
+        return;
+      }
+      
+      const originalText = btn.textContent;
+      btn.textContent = 'PROCESSING...';
+      btn.disabled = true;
+      btn.style.opacity = '0.7';
+      
+      try {
+        const response = await fetch('/cart/add.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            items: [{ id: variantId, quantity: quantity }]
+          })
+        });
+        
+        if (!response.ok) throw new Error('Error adding to cart');
+        
+        // Redirect to checkout immediately
+        window.location.href = '/checkout';
+        
+      } catch (error) {
+        console.error('Buy It Now error:', error);
+        alert('Error processing your order. Please try again.');
+        btn.textContent = originalText;
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }
+    };
+    
+    // ====================================================================
     // ACCORDION FUNCTION
     // ====================================================================
     
@@ -765,6 +831,62 @@
       ensurePaymentTermsVisible();
       // Also check after a delay in case Shopify scripts load later
       setTimeout(ensurePaymentTermsVisible, 1000);
+      
+      // Hide Shop Pay button if option is enabled
+      const hideShopPayButton = () => {
+        const hideShopPayContainer = document.querySelector('.hide-shop-pay_new');
+        if (hideShopPayContainer) {
+          // Hide entire shopify-payment-button container
+          const shopifyPaymentButtons = hideShopPayContainer.querySelectorAll('.shopify-payment-button');
+          shopifyPaymentButtons.forEach(btn => {
+            btn.style.display = 'none !important';
+          });
+          
+          // Hide Shop Pay button using various selectors
+          const shopPayButtons = hideShopPayContainer.querySelectorAll(
+            '[data-testid="shopify-pay-button"], ' +
+            '[aria-label*="Shop Pay"], ' +
+            'iframe[src*="shop-pay"], ' +
+            '.shopify-cleanslate [aria-label*="Shop Pay"], ' +
+            '.shopify-cleanslate button[data-testid="shopify-pay-button"]'
+          );
+          
+          shopPayButtons.forEach(btn => {
+            btn.style.display = 'none';
+            btn.style.visibility = 'hidden';
+          });
+          
+          // Also hide parent containers if they only contain Shop Pay
+          const shopPayIframes = hideShopPayContainer.querySelectorAll('iframe[src*="shop-pay"]');
+          shopPayIframes.forEach(iframe => {
+            const parent = iframe.closest('div');
+            if (parent && parent.querySelectorAll('iframe').length === 1) {
+              parent.style.display = 'none';
+            }
+            iframe.style.display = 'none';
+            iframe.style.visibility = 'hidden';
+          });
+        }
+      };
+      
+      // Run immediately and after delays to catch dynamically loaded buttons
+      hideShopPayButton();
+      setTimeout(hideShopPayButton, 500);
+      setTimeout(hideShopPayButton, 1500);
+      setTimeout(hideShopPayButton, 3000);
+      
+      // Also observe for dynamically added elements
+      const observer = new MutationObserver(() => {
+        hideShopPayButton();
+      });
+      
+      const dynamicCheckout = document.querySelector('.hide-shop-pay_new');
+      if (dynamicCheckout) {
+        observer.observe(dynamicCheckout, {
+          childList: true,
+          subtree: true
+        });
+      }
     });
     
   })();
@@ -909,12 +1031,19 @@
         "type": "checkbox",
         "id": "show_buy_it_now",
         "label": "Show Buy It Now Button",
-        "default": false
+        "default": false,
+        "info": "Adds a button that goes directly to checkout"
       }, {
         "type": "text",
         "id": "buy_it_now_text",
         "label": "Buy It Now Button Text",
         "default": "Buy It Now"
+      }, {
+        "type": "checkbox",
+        "id": "remove_shop_pay_button",
+        "label": "Remove Shop Pay Button",
+        "default": false,
+        "info": "Removes Shop Pay button from dynamic checkout buttons"
       }, {
         "type": "checkbox",
         "id": "show_ativapeople_cta",

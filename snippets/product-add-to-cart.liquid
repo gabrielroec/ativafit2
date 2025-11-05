@@ -1,16 +1,16 @@
 {% comment %} 
-                      Product Add to Cart Component
-                       
-                      Renders variant selector, add to cart button, and Shopify native helpers:
-                      - Dynamic checkout buttons (Shop Pay, Apple Pay, Google Pay)
-                      - Payment terms (Shop Pay Installments)
-                       
-                      Accepts: 
-                      - product: {Object} Product object 
-                      - section: {Object} Section object for settings
-                       
-                      Usage:
-                      {% render 'product-add-to-cart', product: product, section: section %} 
+                        Product Add to Cart Component
+                         
+                        Renders variant selector, add to cart button, and Shopify native helpers:
+                        - Dynamic checkout buttons (Shop Pay, Apple Pay, Google Pay)
+                        - Payment terms (Shop Pay Installments)
+                         
+                        Accepts: 
+                        - product: {Object} Product object 
+                        - section: {Object} Section object for settings
+                         
+                        Usage:
+                        {% render 'product-add-to-cart', product: product, section: section %} 
 {% endcomment %}
 
 {%- assign selected_variant = product.selected_or_first_available_variant -%}
@@ -71,10 +71,24 @@
       {{ section.settings.add_to_cart_text | default: 'Add to Cart' }}
     </button>
 
+    <!-- Buy It Now Button -->
+    {%- if section.settings.show_buy_it_now -%}
+      <button
+        type="button"
+        class="buy-it-now-btn_new"
+        onclick="buyItNow()"
+        aria-label="{{ section.settings.buy_it_now_text | default: 'Buy It Now' }}">
+        {{ section.settings.buy_it_now_text | default: 'Buy It Now' }}
+      </button>
+    {%- endif -%}
 
     <!-- Dynamic Checkout Buttons (Shop Pay, Apple Pay, Google Pay) - Third -->
     {%- if payment_options_block and payment_options_block.settings.show_dynamic_checkout -%}
-      <div id="dynamic-checkout-{{ section.id }}">
+      <div
+        id="dynamic-checkout-{{ section.id }}"
+        {% if section.settings.remove_shop_pay_button %}
+        class="hide-shop-pay_new"
+        {% endif %}>
         {{ form | payment_button }}
       </div>
     {%- endif -%}
