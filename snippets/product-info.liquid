@@ -18,7 +18,8 @@
     {%- endif -%}
   </h1>
   <!-- Reviews -->
-  {%- if section.settings.show_reviews and section.settings.review_text != blank -%}
+  {%- assign reviews_block = section.blocks | where: 'type', 'reviews' | first -%}
+  {%- if reviews_block and reviews_block.settings.enabled and reviews_block.settings.review_text != blank -%}
     <div class="review_new">
        <div class="review">
           <!-- Rivyo Product Badge Rating - Dinâmico -->
@@ -122,8 +123,18 @@
     <p class="product-subtitle_new">{{ section.settings.product_subtitle }}</p>
   {%- endif -%}
 
-
-
+  <!-- Features -->
+  {%- assign features_block = section.blocks | where: 'type', 'features' | first -%}
+  {%- if features_block and features_block.settings.enabled -%}
+    <div class="product-features_new">
+      {%- if features_block.settings.feature_line_1 != blank -%}
+        <p class="feature-line_new">{{ features_block.settings.feature_line_1 }}</p>
+      {%- endif -%}
+      {%- if features_block.settings.feature_line_2 != blank -%}
+        <p class="feature-line_new">{{ features_block.settings.feature_line_2 }}</p>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
 
   <!-- Desktop Price -->
   <div class="product-price-section_new">

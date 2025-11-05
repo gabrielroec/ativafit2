@@ -1,20 +1,21 @@
 {% comment %} 
-                    Product Add to Cart Component
-                     
-                    Renders variant selector, add to cart button, and Shopify native helpers:
-                    - Dynamic checkout buttons (Shop Pay, Apple Pay, Google Pay)
-                    - Payment terms (Shop Pay Installments)
-                     
-                    Accepts: 
-                    - product: {Object} Product object 
-                    - section: {Object} Section object for settings
-                     
-                    Usage:
-                    {% render 'product-add-to-cart', product: product, section: section %} 
+                      Product Add to Cart Component
+                       
+                      Renders variant selector, add to cart button, and Shopify native helpers:
+                      - Dynamic checkout buttons (Shop Pay, Apple Pay, Google Pay)
+                      - Payment terms (Shop Pay Installments)
+                       
+                      Accepts: 
+                      - product: {Object} Product object 
+                      - section: {Object} Section object for settings
+                       
+                      Usage:
+                      {% render 'product-add-to-cart', product: product, section: section %} 
 {% endcomment %}
 
 {%- assign selected_variant = product.selected_or_first_available_variant -%}
 {%- assign product_form_id = 'product-form-' | append: section.id -%}
+{%- assign payment_options_block = section.blocks | where: 'type', 'payment_options' | first -%}
 
   {%- form 'product'
     , product
@@ -56,7 +57,7 @@
   {%- if selected_variant.available -%}
 
     <!-- Payment Terms (Shop Pay Installments) - Second -->
-    {%- if section.settings.show_payment_options -%}
+    {%- if payment_options_block and payment_options_block.settings.show_payment_terms -%}
       <div class="payment-options-form">
         {{ form | payment_terms }}
       </div>
@@ -72,7 +73,7 @@
 
 
     <!-- Dynamic Checkout Buttons (Shop Pay, Apple Pay, Google Pay) - Third -->
-    {%- if section.settings.show_payment_button -%}
+    {%- if payment_options_block and payment_options_block.settings.show_dynamic_checkout -%}
       <div id="dynamic-checkout-{{ section.id }}">
         {{ form | payment_button }}
       </div>
@@ -88,10 +89,25 @@
   {%- endif -%}
 {%- endform -%}
 
-<!-- Payment Icons (Accepted Payment Methods) - Always shown -->
-<div class="payment-icons_new">
-  <img src="https://www.ativafit.com/cdn/shop/files/bank_e49b0ef7-0b7d-46e6-b59d-f28b627ed7a3_1024x1024.png?v=1707126791" alt="Accepted payment methods" class="payment-icons__static-image_new" width="1024" height="1024" loading="lazy">
-</div>
+<!-- Payment Icons (Accepted Payment Methods) - Shown if enabled -->
+{%- if payment_options_block and payment_options_block.settings.show_payment_icons -%}
+  <div class="payment-icons_new">
+    <img
+      src="https://www.ativafit.com/cdn/shop/files/bank_e49b0ef7-0b7d-46e6-b59d-f28b627ed7a3_1024x1024.png?v=1707126791"
+      alt="Accepted payment methods"
+      class="payment-icons__static-image_new"
+      width="1024"
+      height="1024"
+      loading="lazy">
+  </div>
+{%- endif -%}
+
+<!-- Payment Text (if enabled) -->
+{%- if payment_options_block and payment_options_block.settings.payment_text != blank -%}
+  <div class="payment-text_new">
+    {{ payment_options_block.settings.payment_text }}
+  </div>
+{%- endif -%}
 
 <!-- AtivaPeople CTA (if enabled) -->
 {%- if section.settings.show_ativapeople_cta -%}

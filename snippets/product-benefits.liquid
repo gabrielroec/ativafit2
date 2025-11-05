@@ -1,28 +1,29 @@
 {% comment %}
   Product Benefits Component
   Renders product benefits with SVG icons and info buttons.
-  Supports both old settings (benefit_icon_X, benefit_text_X) and new settings (benefit_X_svg, benefit_X_title).
+  Now uses blocks instead of settings for better organization.
   Accepts:
-  - section: {Object} Section object for settings
+  - section: {Object} Section object for settings and blocks
   Usage:
   {% render 'product-benefits', section: section %}
 {% endcomment %}
 
 {%- if section.settings.show_benefits -%}
   <div class="benefits_new">
-    <!-- Benefit 1: Free Shipping -->
-    {%- assign benefit_1_show = section.settings.benefit_1_enabled | default: true -%}
-    {%- assign benefit_1_title = section.settings.benefit_1_title | default: section.settings.benefit_text_1 -%}
-    {%- assign benefit_1_desc = section.settings.benefit_1_description -%}
-    {%- if benefit_1_show and benefit_1_title != blank -%}
+    {%- comment -%} Render benefits from blocks {%- endcomment -%}
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'benefit' -%}
+        {%- assign benefit_title = block.settings.title -%}
+        {%- assign benefit_desc = block.settings.description -%}
+        {%- if benefit_title != blank -%}
       <div class="benefit-item_new">
         <div class="benefit-icon-wrapper_new">
-          {%- if section.settings.benefit_1_svg != blank -%}
-            {{ section.settings.benefit_1_svg }}
-          {%- elsif section.settings.benefit_icon_1 != blank -%}
+          {%- if block.settings.svg_icon != blank -%}
+            {{ block.settings.svg_icon }}
+          {%- elsif block.settings.icon_image != blank -%}
             <img
-              src="{{ section.settings.benefit_icon_1 | image_url: width: 45 }}"
-              alt="{{ benefit_1_title }}"
+              src="{{ block.settings.icon_image | image_url: width: 45 }}"
+              alt="{{ benefit_title }}"
               width="45"
               height="30">
           {%- else -%}
@@ -60,221 +61,25 @@
           {%- endif -%}
         </div>
         <div class="benefit-content_new">
-          <h4 class="benefit-title_new">{{ benefit_1_title }}</h4>
-          {%- if benefit_1_desc != blank -%}
-            <p class="benefit-description_new">{{ benefit_1_desc }}
-              <a
-                href="#"
-                class="benefit-learn-more_new"
-                data-benefit-popup="1">Learn more</a>
+          <h4 class="benefit-title_new">{{ benefit_title }}</h4>
+          {%- if benefit_desc != blank -%}
+            <p class="benefit-description_new">
+              {{ benefit_desc }}
+              {%- if block.settings.show_learn_more -%}
+                <a
+                  href="#"
+                  class="benefit-learn-more_new"
+                  data-benefit-popup="{{ block.id }}">Learn more</a>
+              {%- endif -%}
+              {%- if block.settings.link_url != blank -%}
+                <a href="{{ block.settings.link_url }}" class="benefit-link_new">{{ block.settings.link_text | default: "Learn more" }}</a>
+              {%- endif -%}
             </p>
           {%- endif -%}
         </div>
       </div>
-  {%- endif -%}
-
-    <!-- Benefit 2: Warranty -->
-    {%- assign benefit_2_show = section.settings.benefit_2_enabled | default: true -%}
-    {%- assign benefit_2_title = section.settings.benefit_2_title | default: section.settings.benefit_text_2 -%}
-    {%- assign benefit_2_desc = section.settings.benefit_2_description -%}
-    {%- if benefit_2_show and benefit_2_title != blank -%}
-      <div class="benefit-item_new">
-        <div class="benefit-icon-wrapper_new">
-          {%- if section.settings.benefit_2_svg != blank -%}
-            {{ section.settings.benefit_2_svg }}
-          {%- elsif section.settings.benefit_icon_2 != blank -%}
-            <img
-              src="{{ section.settings.benefit_icon_2 | image_url: width: 45 }}"
-              alt="{{ benefit_2_title }}"
-              width="45"
-              height="30">
-          {%- else -%}
-            <!-- SVG placeholder para Warranty - substituir quando tiver o SVG correto -->
-            <svg
-              width="24"
-              height="36"
-              viewBox="0 0 24 36"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M5.07812 25.7078C7.05148 27.0336 9.43872 27.8123 12 27.8123C14.5606 27.8122 16.9426 27.0393 18.915 25.7146V34.1687C18.915 35.3558 17.5501 36.0336 16.5928 35.3533L16.502 35.283L12.2402 31.7273L12 31.5271L11.7598 31.7273L7.49219 35.283C6.53205 36.0773 5.07812 35.399 5.07812 34.1687V25.7078Z"
-                stroke="black"
-                stroke-width="0.75" />
-              <path
-                d="M12 0.375C18.4225 0.375 23.625 5.53876 23.625 11.9004C23.625 18.2621 18.4225 23.4258 12 23.4258C5.57748 23.4258 0.375 18.2621 0.375 11.9004C0.375034 5.53876 5.5775 0.375 12 0.375ZM19.6025 7.99414C19.0252 7.42846 18.1241 7.34312 17.4502 7.79004L17.3096 7.89355L11.3838 12.7363C10.9989 13.0514 10.4398 13.0247 10.0859 12.6738L8.11914 10.7236C7.45175 10.0618 6.36563 10.0618 5.69824 10.7236L5.55566 10.8652C4.88686 11.5288 4.88676 12.6109 5.55566 13.2744L9.40918 17.0957C10.0766 17.7574 11.1627 17.7575 11.8301 17.0957L12.1025 16.8252C12.1369 16.7911 12.1524 16.7749 12.1641 16.7656L12.165 16.7666L12.1689 16.7627L19.0029 11.1709V11.1787L19.6152 10.6768C20.3452 10.0786 20.4503 9.00688 19.8486 8.28027H19.8496L19.7256 8.12695L19.7217 8.12207L19.6025 7.99414Z"
-                stroke="black"
-                stroke-width="0.75" />
-            </svg>
-
-          {%- endif -%}
-        </div>
-        <div class="benefit-content_new">
-          <h4 class="benefit-title_new">{{ benefit_2_title }}</h4>
-          <p class="benefit-description_new">{{ benefit_2_desc }}
-            <a
-              href="#"
-              class="benefit-learn-more_new"
-              data-benefit-popup="2">Learn more</a>
-            {%- if section.settings.benefit_2_link_url != blank -%}
-              <a href="{{ section.settings.benefit_2_link_url }}" class="benefit-link_new">{{ section.settings.benefit_2_link_text }}</a>
-            {%- endif -%}
-          </p>
-        </div>
-      </div>
-  {%- endif -%}
-
-    <!-- Benefit 3: Worry-Free Purchase -->
-    {%- assign benefit_3_show = section.settings.benefit_3_enabled | default: true -%}
-    {%- assign benefit_3_title = section.settings.benefit_3_title | default: section.settings.benefit_text_3 -%}
-    {%- assign benefit_3_desc = section.settings.benefit_3_description -%}
-    {%- if benefit_3_show and benefit_3_title != blank -%}
-      <div class="benefit-item_new">
-        <div class="benefit-icon-wrapper_new">
-          {%- if section.settings.benefit_3_svg != blank -%}
-            {{ section.settings.benefit_3_svg }}
-          {%- elsif section.settings.benefit_icon_3 != blank -%}
-            <img
-              src="{{ section.settings.benefit_icon_3 | image_url: width: 45 }}"
-              alt="{{ benefit_3_title }}"
-              width="45"
-              height="30">
-          {%- else -%}
-            <svg
-              width="31"
-              height="37"
-              viewBox="0 0 31 37"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <g clip-path="url(#clip0_benefit3_{{ section.id }})">
-                <path
-                  d="M27.3621 36.6266H3.63719C1.7524 36.6266 0.256307 35.0055 0.373648 33.0857L1.84041 9.71884C1.95042 7.96334 3.38051 6.60376 5.10395 6.60376H25.8953C27.6187 6.60376 29.0488 7.97081 29.1588 9.71884L30.6256 33.0857C30.7429 35.0055 29.2542 36.6266 27.3621 36.6266Z"
-                  stroke="black"
-                  stroke-width="0.75"
-                  stroke-miterlimit="10" />
-                <path
-                  d="M10.6923 20.1621C11.9074 20.1621 12.8925 19.1587 12.8925 17.921C12.8925 16.6833 11.9074 15.6799 10.6923 15.6799C9.47722 15.6799 8.49219 16.6833 8.49219 17.921C8.49219 19.1587 9.47722 20.1621 10.6923 20.1621Z"
-                  stroke="black"
-                  stroke-width="0.75"
-                  stroke-miterlimit="10" />
-                <path d="M8.72015 9.71866C9.10493 9.71866 9.41686 9.40093 9.41686 9.00899C9.41686 8.61705 9.10493 8.29932 8.72015 8.29932C8.33537 8.29932 8.02344 8.61705 8.02344 9.00899C8.02344 9.40093 8.33537 9.71866 8.72015 9.71866Z" fill="black" />
-                <path d="M22.2866 9.71866C22.6713 9.71866 22.9833 9.40093 22.9833 9.00899C22.9833 8.61705 22.6713 8.29932 22.2866 8.29932C21.9018 8.29932 21.5898 8.61705 21.5898 9.00899C21.5898 9.40093 21.9018 9.71866 22.2866 9.71866Z" fill="black" />
-                <path
-                  d="M20.3076 20.1621C21.5227 20.1621 22.5077 19.1587 22.5077 17.921C22.5077 16.6833 21.5227 15.6799 20.3076 15.6799C19.0925 15.6799 18.1074 16.6833 18.1074 17.921C18.1074 19.1587 19.0925 20.1621 20.3076 20.1621Z"
-                  stroke="black"
-                  stroke-width="0.75"
-                  stroke-miterlimit="10" />
-                <path
-                  d="M22.5066 23.2771C22.5066 23.2771 22.5066 30.075 15.4955 30.075C8.48437 30.075 8.48438 23.2771 8.48438 23.2771"
-                  stroke="black"
-                  stroke-width="0.75"
-                  stroke-miterlimit="10" />
-                <path
-                  d="M22.3748 9.0092C21.5094 5.74471 25.4036 1.18787 17.0944 0.448323C16.0384 0.35121 14.9603 0.35121 13.9042 0.448323C5.59502 1.18787 9.48194 5.75965 8.62389 9.01667"
-                  stroke="black"
-                  stroke-width="0.75"
-                  stroke-miterlimit="10"
-                  stroke-linecap="round" />
-              </g>
-              <defs>
-                <clipPath id="clip0_benefit3_{{ section.id }}">
-                  <rect
-                    width="31"
-                    height="37"
-                    fill="white" />
-                </clipPath>
-              </defs>
-            </svg>
-          {%- endif -%}
-        </div>
-        <div class="benefit-content_new">
-          <h4 class="benefit-title_new">{{ benefit_3_title }}</h4>
-          <p class="benefit-description_new">{{ benefit_3_desc }}
-            <a
-              href="#"
-              class="benefit-learn-more_new"
-              data-benefit-popup="3">Learn more</a>
-            {%- if section.settings.benefit_3_link_url != blank -%}
-              <a href="{{ section.settings.benefit_3_link_url }}" class="benefit-link_new">{{ section.settings.benefit_3_link_text }}</a>
-            {%- endif -%}
-          </p>
-        </div>
-      </div>
-  {%- endif -%}
-
-    <!-- Benefit 4: HSA/FSA -->
-    {%- assign benefit_4_show = section.settings.benefit_4_enabled | default: true -%}
-    {%- assign benefit_4_title = section.settings.benefit_4_title -%}
-    {%- assign benefit_4_desc = section.settings.benefit_4_description -%}
-    {%- if benefit_4_show and benefit_4_title != blank -%}
-      <div class="benefit-item_new">
-        <div class="benefit-icon-wrapper_new">
-          {%- if section.settings.benefit_4_svg != blank -%}
-            {{ section.settings.benefit_4_svg }}
-          {%- else -%}
-            <svg
-              width="42"
-              height="36"
-              viewBox="0 0 42 36"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <g clip-path="url(#clip0_benefit4_{{ section.id }})">
-                <path
-                  d="M36.7006 6.2667V3.3255C36.7006 1.68373 35.3476 0.349365 33.6829 0.349365H3.37123C1.70653 0.349365 0.353516 1.68373 0.353516 3.3255V6.2667H36.7006Z"
-                  stroke="black"
-                  stroke-width="0.75"
-                  stroke-miterlimit="10" />
-                <path
-                  d="M36.7006 18.6253V10.9404H0.353516V23.0196C0.353516 24.6614 1.70653 25.9957 3.37123 25.9957H23.3901C23.3759 26.2053 23.3618 26.4149 23.3618 26.6315C23.3618 31.6057 27.4633 35.6507 32.507 35.6507C37.5507 35.6507 41.6522 31.6057 41.6522 26.6315C41.6522 23.1523 39.6404 20.1273 36.7006 18.6253Z"
-                  stroke="black"
-                  stroke-width="0.75"
-                  stroke-miterlimit="10"
-                  stroke-linecap="round" />
-                <path
-                  d="M37.3957 26.345L36.8715 25.828C36.7794 25.7372 36.6519 25.6883 36.5244 25.6883H33.5279V22.7331C33.5279 22.6074 33.4783 22.4816 33.3862 22.3908L32.855 21.8668C32.6637 21.6782 32.352 21.6782 32.1537 21.8668L31.6295 22.3838C31.5374 22.4746 31.4878 22.6004 31.4878 22.7261V25.6813H28.4913C28.3638 25.6813 28.2363 25.7302 28.1442 25.821L27.62 26.338C27.4287 26.5266 27.4287 26.834 27.62 27.0296L28.1513 27.5536C28.2434 27.6444 28.3709 27.6933 28.4984 27.6933H31.4949V30.6485C31.4949 30.7742 31.5444 30.9 31.6365 30.9908L32.1607 31.5078C32.352 31.6964 32.6637 31.6964 32.862 31.5078L33.3933 30.9838C33.4854 30.893 33.535 30.7673 33.535 30.6415V27.6863H36.5315C36.659 27.6863 36.7865 27.6374 36.8786 27.5466L37.4099 27.0226C37.6011 26.834 37.6011 26.5266 37.4099 26.331L37.3957 26.345Z"
-                  stroke="black"
-                  stroke-width="0.75"
-                  stroke-miterlimit="10" />
-                <path
-                  d="M11.2995 17.3259H3.93945V21.9997H11.2995V17.3259Z"
-                  stroke="black"
-                  stroke-width="0.75"
-                  stroke-miterlimit="10"
-                  stroke-linecap="round" />
-                <path
-                  d="M32.5074 33.1705C36.138 33.1705 39.0812 30.2679 39.0812 26.6873C39.0812 23.1067 36.138 20.2041 32.5074 20.2041C28.8768 20.2041 25.9336 23.1067 25.9336 26.6873C25.9336 30.2679 28.8768 33.1705 32.5074 33.1705Z"
-                  stroke="black"
-                  stroke-width="0.75"
-                  stroke-miterlimit="10"
-                  stroke-linecap="round" />
-              </g>
-              <defs>
-                <clipPath id="clip0_benefit4_{{ section.id }}">
-                  <rect
-                    width="42"
-                    height="36"
-                    fill="white" />
-                </clipPath>
-              </defs>
-            </svg>
-          {%- endif -%}
-        </div>
-        <div class="benefit-content_new">
-          <h4 class="benefit-title_new">{{ benefit_4_title }}</h4>
-          {%- if benefit_4_desc != blank -%}
-            <p class="benefit-description_new">{{ benefit_4_desc }}
-            <img
-                src="https://cdn.shopify.com/extensions/4c9cced7-c696-4014-8e97-6865c9427189/flex-pay-with-hsa-fsa-22/assets/large-standard-light.svg"
-                alt="Benefit 4"
-                width="70"
-                height="auto">  
-            <a
-                href="#"
-                class="benefit-learn-more_new"
-                data-benefit-popup="4">Learn more</a>
-              </p>
-          {%- endif -%}
-        </div>
-      </div>
-    {%- endif -%}
+        {%- endif -%}
+      {%- endif -%}
+    {%- endfor -%}
   </div>
 {%- endif -%}
