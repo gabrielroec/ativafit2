@@ -1,7 +1,7 @@
 {% comment %} 
                                 Product Pairs Well With Component
                                  
-                                Renders a carousel of related/complementary products from section blocks.
+                                Renders a carousel of related/complementary products (up to 5 products).
                                  
                                 Accepts: 
                                 - section: {Object} Section object for settings
@@ -18,10 +18,12 @@
 
     <div class="pairs-well-with-slider_new">
       {%- assign product_count = 0 -%}
+      {%- assign has_blocks = false -%}
 
-      {%- comment -%} Count products from blocks {%- endcomment -%}
+      {%- comment -%} First, count products from blocks {%- endcomment -%}
       {%- for block in section.blocks -%}
         {%- if block.type == 'pairs_well_with_product' and block.settings.product != blank -%}
+          {%- assign has_blocks = true -%}
           {%- assign selected_product = all_products[block.settings.product] -%}
           {%- if selected_product != blank -%}
             {%- assign product_count = product_count | plus: 1 -%}
@@ -29,11 +31,35 @@
         {%- endif -%}
       {%- endfor -%}
 
+      {%- comment -%} If no blocks, count random products {%- endcomment -%}
+      {%- if has_blocks == false and section.settings.pairs_well_with_show_random and product_count == 0 -%}
+        {%- assign random_collection = collections[section.settings.pairs_well_with_collection] -%}
+        {%- if random_collection == blank -%}
+          {%- assign random_collection = collections.all -%}
+        {%- endif -%}
+
+        {%- if random_collection.products.size > 0 -%}
+          {%- assign current_product_handle = product.handle -%}
+          {%- assign shown_count = 0 -%}
+
+          {%- for random_product in random_collection.products -%}
+            {%- if shown_count >= 5 -%}
+              {%- break -%}
+            {%- endif -%}
+
+            {%- if random_product.available and random_product.handle != current_product_handle -%}
+              {%- assign shown_count = shown_count | plus: 1 -%}
+              {%- assign product_count = product_count | plus: 1 -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endif -%}
+
       {%- if product_count > 0 -%}
         <div class="pairs-well-with-container_new">
           {%- assign slide_index = 0 -%}
 
-          {%- comment -%} Render products from blocks {%- endcomment -%}
+          {%- comment -%} First, render products from blocks {%- endcomment -%}
           {%- for block in section.blocks -%}
             {%- if block.type == 'pairs_well_with_product' and block.settings.product != blank -%}
               {%- assign slide_product = all_products[block.settings.product] -%}
@@ -47,6 +73,43 @@
               {%- endif -%}
             {%- endif -%}
           {%- endfor -%}
+
+          {%- comment -%} If no blocks, render random products {%- endcomment -%}
+          {%- if has_blocks == false and section.settings.pairs_well_with_show_random -%}
+            {%- assign random_collection = collections[section.settings.pairs_well_with_collection] -%}
+            {%- if random_collection == blank -%}
+              {%- assign random_collection = collections.all -%}
+            {%- endif -%}
+
+            {%- if random_collection.products.size > 0 -%}
+              {%- assign current_product_handle = product.handle -%}
+              {%- assign shown_count = 0 -%}
+
+              {%- for random_product in random_collection.products -%}
+                {%- if shown_count >= 5 -%}
+                  {%- break -%}
+                {%- endif -%}
+
+                {%- if random_product.available and random_product.handle != current_product_handle -%}
+                  {%- if shown_count == 0 and slide_index == 0 -%}
+                    {%- render 'pairs-well-with-slide'
+                      , product: random_product
+                      , section: section
+                      , slide_index: slide_index
+                      , is_first: true -%}
+                  {%- else -%}
+                    {%- render 'pairs-well-with-slide'
+                      , product: random_product
+                      , section: section
+                      , slide_index: slide_index
+                      , is_first: false -%}
+                  {%- endif -%}
+                  {%- assign shown_count = shown_count | plus: 1 -%}
+                  {%- assign slide_index = slide_index | plus: 1 -%}
+                {%- endif -%}
+              {%- endfor -%}
+            {%- endif -%}
+          {%- endif -%}
         </div>
 
         {%- comment -%} Navigation dots {%- endcomment -%}
