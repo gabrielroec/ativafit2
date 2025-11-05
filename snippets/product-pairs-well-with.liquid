@@ -1,13 +1,13 @@
 {% comment %} 
-                                Product Pairs Well With Component
-                                 
-                                Renders a carousel of related/complementary products (up to 5 products).
-                                 
-                                Accepts: 
-                                - section: {Object} Section object for settings
-                                 
-                                Usage:
-                                {% render 'product-pairs-well-with', section: section %} 
+                                    Product Pairs Well With Component
+                                     
+                                    Renders a carousel of related/complementary products (up to 5 products).
+                                     
+                                    Accepts: 
+                                    - section: {Object} Section object for settings
+                                     
+                                    Usage:
+                                    {% render 'product-pairs-well-with', section: section %} 
 {% endcomment %}
 
 {%- if section.settings.show_pairs_well_with -%}
@@ -79,11 +79,21 @@
       
       let currentIndex = 0;
       let autoPlayInterval = null;
+      let isTransitioning = false;
       
-      const updateSlider = () => {
-        // Hide all slides
+      const updateSlider = (direction = 'next') => {
+        if (isTransitioning) return;
+        isTransitioning = true;
+        
+        // Remove active class from all slides
         slides.forEach((slide, index) => {
-          slide.classList.toggle('active_new', index === currentIndex);
+          slide.classList.remove('active_new', 'slide-in_new', 'slide-out_new');
+          
+          if (index === currentIndex) {
+            slide.classList.add('active_new', 'slide-in_new');
+          } else if (index === currentIndex - 1 || (currentIndex === 0 && index === slides.length - 1)) {
+            slide.classList.add('slide-out_new');
+          }
         });
         
         // Update dots
@@ -92,14 +102,40 @@
             dot.classList.toggle('active_new', index === currentIndex);
           });
         }
+        
+        setTimeout(() => {
+          isTransitioning = false;
+        }, 300);
+      };
+      
+      const goToSlide = (index) => {
+        if (index < 0) index = slides.length - 1;
+        if (index >= slides.length) index = 0;
+        currentIndex = index;
+        updateSlider();
+      };
+      
+      const nextSlide = () => {
+        goToSlide(currentIndex + 1);
+        {%- if section.settings.pairs_well_with_auto_play -%}
+          stopAutoPlay();
+          startAutoPlay();
+        {%- endif -%}
+      };
+      
+      const prevSlide = () => {
+        goToSlide(currentIndex - 1);
+        {%- if section.settings.pairs_well_with_auto_play -%}
+          stopAutoPlay();
+          startAutoPlay();
+        {%- endif -%}
       };
       
       // Dot navigation
       if (dots && dots.length > 0) {
         dots.forEach((dot, index) => {
           dot.addEventListener('click', () => {
-            currentIndex = index;
-            updateSlider();
+            goToSlide(index);
             {%- if section.settings.pairs_well_with_auto_play -%}
               stopAutoPlay();
               startAutoPlay();
@@ -112,12 +148,20 @@
       let touchStartX = 0;
       let touchStartY = 0;
       let isDragging = false;
+      let touchThreshold = 50;
       
       container.addEventListener('touchstart', (e) => {
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
         isDragging = true;
+        container.style.userSelect = 'none';
+        container.style.webkitUserSelect = 'none';
       }, { passive: true });
+      
+      container.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+      }, { passive: false });
       
       container.addEventListener('touchend', (e) => {
         if (!isDragging) return;
@@ -127,21 +171,81 @@
         const diffX = touchStartX - touchEndX;
         const diffY = touchStartY - touchEndY;
         
-        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
-          if (diffX > 0 && currentIndex < slides.length - 1) {
-            currentIndex++;
-          } else if (diffX < 0 && currentIndex > 0) {
-            currentIndex--;
+        container.style.userSelect = '';
+        container.style.webkitUserSelect = '';
+        
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > touchThreshold) {
+          if (diffX > 0) {
+            // Swipe left - next slide
+            nextSlide();
+          } else {
+            // Swipe right - previous slide
+            prevSlide();
           }
-          updateSlider();
-          {%- if section.settings.pairs_well_with_auto_play -%}
-            stopAutoPlay();
-            startAutoPlay();
-          {%- endif -%}
         }
         
         isDragging = false;
       }, { passive: true });
+      
+      // Mouse drag support for desktop
+      let mouseDown = false;
+      let mouseStartX = 0;
+      let mouseStartY = 0;
+      
+      container.addEventListener('mousedown', (e) => {
+        // Prevent text selection
+        e.preventDefault();
+        mouseDown = true;
+        mouseStartX = e.clientX;
+        mouseStartY = e.clientY;
+        container.style.cursor = 'grabbing';
+        container.style.userSelect = 'none';
+        container.style.webkitUserSelect = 'none';
+        slider.style.userSelect = 'none';
+        slider.style.webkitUserSelect = 'none';
+      });
+      
+      document.addEventListener('mousemove', (e) => {
+        if (!mouseDown) return;
+        e.preventDefault();
+      });
+      
+      document.addEventListener('mouseup', (e) => {
+        if (!mouseDown) return;
+        
+        const diffX = mouseStartX - e.clientX;
+        const diffY = mouseStartY - e.clientY;
+        
+        container.style.cursor = 'grab';
+        container.style.userSelect = '';
+        container.style.webkitUserSelect = '';
+        slider.style.userSelect = '';
+        slider.style.webkitUserSelect = '';
+        
+        // Only trigger slide if horizontal movement is greater than vertical
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+          if (diffX > 0) {
+            // Drag left - next slide
+            nextSlide();
+          } else {
+            // Drag right - previous slide
+            prevSlide();
+          }
+        }
+        
+        mouseDown = false;
+      });
+      
+      // Keyboard navigation
+      container.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          prevSlide();
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          nextSlide();
+        }
+      });
       
       // Auto-play (optional)
       const startAutoPlay = () => {
@@ -149,8 +253,7 @@
           if (autoPlayInterval) clearInterval(autoPlayInterval);
           
           autoPlayInterval = setInterval(() => {
-            currentIndex = (currentIndex + 1) % slides.length;
-            updateSlider();
+            nextSlide();
           }, {{ section.settings.pairs_well_with_auto_play_interval | default: 5000 }});
         {%- endif -%}
       };
@@ -195,21 +298,67 @@
     .pairs-well-with-slider_new {
       position: relative;
       width: 100%;
+      overflow: hidden;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     .pairs-well-with-container_new {
       position: relative;
       width: 100%;
+      transition: transform 0.3s ease;
+      cursor: grab;
+    }
+
+    .pairs-well-with-container_new:active {
+      cursor: grabbing;
     }
 
     .pairs-well-with-slide_new {
       display: none;
       width: 100%;
+      opacity: 0;
+      transform: translateX(20px);
+      transition: opacity 0.3s ease
+      , transform 0.3s ease;
     }
 
     .pairs-well-with-slide_new.active_new {
       display: block;
+      opacity: 1;
+      transform: translateX(0);
     }
+
+    .pairs-well-with-slide_new.slide-in_new {
+      animation: slideIn 0.3s ease forwards;
+    }
+
+    .pairs-well-with-slide_new.slide-out_new {
+      animation: slideOut 0.3s ease forwards;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes slideOut {
+      from {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+    }
+
 
     .pairs-well-with-content_new {
       display: flex;
@@ -217,7 +366,6 @@
       align-items: center;
     }
 
-  
 
     .pairs-well-with-image-link_new {
       display: block;
@@ -257,7 +405,7 @@
       margin: 0 !important;
       font-size: 18px !important;
       font-weight: 600;
-      line-height: 18px!important;
+      line-height: 18px !important;
     }
 
     .pairs-well-with-product-title_new a {
@@ -278,13 +426,13 @@
     }
 
     .pairs-well-with-price-current_new {
-      font-size: 20px!important;
+      font-size: 20px !important;
       font-weight: 700;
       color: #EB701F;
     }
 
     .pairs-well-with-price-original_new {
-      font-size: 15px!important;
+      font-size: 15px !important;
       color: #999;
       text-decoration: line-through;
     }
@@ -295,8 +443,8 @@
 
     .pairs-well-with-add-btn_new {
       width: 100%;
-      max-width: fit-content!important;
-      padding: 4px 50px!important;
+      max-width: fit-content !important;
+      padding: 4px 50px !important;
       background: #EB701F;
       color: #fff;
       border: none;
@@ -358,8 +506,6 @@
         gap: 30px;
       }
 
-      
-
       .pairs-well-with-info-wrapper_new {
         width: 100%;
       }
@@ -381,8 +527,6 @@
         padding: 16px 24px;
         font-size: 14px;
       }
-
-      
     }
   </style>
 {%- endif -%}
