@@ -36,7 +36,7 @@
 
       .product-card img {
         width: 100%;
-        height: 314px;
+        height: 280px;
         display: block;
         object-fit: cover;
         background-image: linear-gradient(to top, #f9f9f9 0, #fff 100%);
@@ -69,8 +69,74 @@
         line-height: 1.2!important;
         font-weight: bold;
         color: #000;
-        margin: 0 0 8px !important;
-        flex: 1;
+        margin: 0 !important;
+        flex: 0!important;
+      }
+
+      .rivyoReviewWidget {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .rivyoReviewIcon {
+        display: flex;
+        gap: 0px;
+        line-height: 0;
+        flex-direction: row;
+      }
+
+      .rivyoReviewRatingIcon {
+        display: inline-flex;
+      }
+
+      .rivyoReviewRatingIcon svg {
+        width: 10px!important;
+        height: 10px!important;
+      }
+
+      .rivyoReviewAverage {
+        font-size: 12px;
+        color: #666;
+        font-family: "Barlow", sans-serif;
+      }
+
+      .rivyoReviewAverageCount {
+        font-weight: 600;
+        color: #000;
+      }
+
+      /* BADGES STYLES */
+      .pcard-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 0 0 10px 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .pcard-badge {
+        list-style: none;
+        border: 1.5px solid #EB701F;
+        color: #EB701F;
+        background: rgba(235, 112, 31, 0.08);
+        border-radius: 1000px;
+        padding: 4px;
+        font-size: 12px!important;
+        font-weight: 600;
+        line-height: 1.2;
+        font-family: "Barlow", sans-serif;
+        letter-spacing: 0.02em;
+        transition: all 0.2s ease;
+        box-shadow: 0 1px 2px rgba(235, 112, 31, 0.1);
+      }
+
+      .pcard-badge:hover {
+        background: rgba(235, 112, 31, 0.15);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(235, 112, 31, 0.2);
       }
 
       .price {
@@ -113,7 +179,7 @@
         align-items: stretch;
         gap: 4px;
         opacity: 1;
-        transform: translateX(-50%) translateY(0);
+        transform: translateX(-50%) translateY(-65%)!important;
         animation: slideUp 0.3s ease forwards;
       }
 
@@ -202,10 +268,7 @@
         background: #d65b0f;
       }
 
-      /* VARIANT SELECTOR */
-      .variant-selector {
-        margin-bottom: 8px;
-      }
+  
 
       .variant-options {
         display: flex;
@@ -322,6 +385,17 @@
         .variant-option label {
           font-size: 10px;
           padding: 3px 6px;
+        }
+
+        .pcard-badges {
+          gap: 4px;
+          margin: 0 0 8px 0;
+        }
+
+        .pcard-badge {
+          font-size: 10px;
+          padding: 4px 8px;
+          border-radius: 10px;
         }
 
         .price {
@@ -474,7 +548,82 @@
 
     {%- comment -%} — TÍTULO E PREÇOS (sempre visíveis) {%- endcomment -%}
     <div class="static-info">
+      {%- comment -%} — BADGES a partir de custom.benefit_one_liner (separadas por ",") {%- endcomment -%}
+      {%- assign badges_raw = product.metafields.custom.benefit_one_liner | default: '' -%}
+      {%- if badges_raw != blank -%}
+        {%- assign badges = badges_raw | split: ',' -%}
+        <ul class="pcard-badges" role="list">
+          {%- for b in badges -%}
+            {%- assign label = b | strip -%}
+            {%- if label != '' -%}
+              <li class="pcard-badge">{{ label }}</li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+      
       <p class="product-title-card-custom bold">{{ product.title }}</p>
+
+      {%- comment -%} — RIVYO REVIEW STARS BADGE {%- endcomment -%}
+      {%- assign productRivyoReview = product.metafields.product_schema -%}
+      {%- assign shopRivyoReview = shop.metafields.rivyo -%}
+      {%- assign shopRivyoReviewSetting = shopRivyoReview.setting.value -%}
+      {%- assign productRivyoRating = productRivyoReview.th_ratingValue | split:'.' | default: '0' -%}
+      {%- assign rivyoRatingSplit0 = productRivyoRating[0] | times: 1 -%}
+      {%- assign rivyoRatingSplit1 = productRivyoRating[1] | default: '00' -%}
+      {%- assign rivyoRatingCeil = productRivyoReview.th_ratingValue | ceil -%}
+      {% assign hide_non_ratting_review = shopRivyoReviewSetting.hide_empty_review | times: 1 %}
+      {% assign is_empty = false %}
+          
+      <div class="rivyoReviewWidget" data-rating="{{ productRivyoReview.th_ratingValue | default: '00' }}" style="display:none;">
+        <div class="rivyoReviewIcon" style="display:flex; gap:3px; line-height: 0; flex-direction: row">
+          {%- for i in (1..5) -%}
+            {% if i <= rivyoRatingSplit0 %}
+              <div class="rivyoReviewRatingIcon">
+                {{ shopRivyoReviewSetting.rating_icon }}
+              </div>
+            {% elsif i == rivyoRatingCeil %}
+              <div class="rivyoReviewRatingIcon" >
+                <span class="rivyoReviewEmpty">
+                  {{ shopRivyoReviewSetting.rating_icon }}
+                </span>
+                {%- unless rivyoRatingSplit1 == '00'-%}
+                  {%- assign width_value = rivyoRatingSplit1 -%}
+                  {%- if rivyoRatingSplit1.size == 1 -%}
+                    {%- assign width_value = rivyoRatingSplit1 | append: '0' -%}
+                  {%- endif -%}
+                  <span class="rivyoReviewFill" style="width:{{ width_value }}%">
+                    {{ shopRivyoReviewSetting.rating_icon }}
+                  </span>
+                {%- endunless -%}
+              </div>
+            {% else %}
+              {% if hide_non_ratting_review == 0 or rivyoRatingSplit0 != 0 %}
+                <div class="rivyoReviewRatingIcon" >
+                  <span class="rivyoReviewEmpty">
+                    {{ shopRivyoReviewSetting.rating_icon }}
+                  </span>
+                </div>
+              {% else %}
+                {% assign is_empty = true %}
+              {% endif %}
+            {% endif %}
+          {%- endfor -%}
+        </div>
+        {% if is_empty != true %}
+          <span class="rivyoReviewAverage">
+            <span class="rivyoReviewAverageCount">
+              {{- productRivyoReview.th_ratingValue | default: 0 | round: 1 }}
+            </span>
+            <span class="reviewRateCount">
+              <span class="rivyoReviewAverageBracket">(</span>
+              <span class="ratingCount">{{- productRivyoReview.th_ratingCount | default: 0 }}</span>
+              <span class="ratingLabel"> {{ shopRivyoReview.average_review_label }}</span>
+              <span class="rivyoReviewAverageBracket">)</span>
+            </span>
+          </span>
+        {% endif %}
+      </div>
 
       {%- comment -%} — SELETOR DE VARIANTES {%- endcomment -%}
       {% if product.variants.size > 1 %}
