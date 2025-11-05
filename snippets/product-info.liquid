@@ -9,6 +9,22 @@
 {% endcomment %}
 
 <div class="product-info-container_new">
+  <!-- Product Badges -->
+  {%- if section.settings.show_badges -%}
+    {%- assign badge_blocks = section.blocks | where: 'type', 'product_badge' -%}
+    {%- if badge_blocks.size > 0 -%}
+      <div class="product-badges_new">
+        {%- for block in badge_blocks -%}
+          {%- if block.settings.badge_text != blank -%}
+            <span class="product-badge_new" {{ block.shopify_attributes }}>
+              {{ block.settings.badge_text }}
+            </span>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  {%- endif -%}
+
   <!-- Product Title -->
   <h1 class="product-name_new">
     {%- if section.settings.product_title != blank -%}
@@ -121,19 +137,6 @@
   <!-- Product Subtitle -->
   {%- if section.settings.product_subtitle != blank -%}
     <p class="product-subtitle_new">{{ section.settings.product_subtitle }}</p>
-  {%- endif -%}
-
-  <!-- Features -->
-  {%- assign features_block = section.blocks | where: 'type', 'features' | first -%}
-  {%- if features_block and features_block.settings.enabled -%}
-    <div class="product-features_new">
-      {%- if features_block.settings.feature_line_1 != blank -%}
-        <p class="feature-line_new">{{ features_block.settings.feature_line_1 }}</p>
-      {%- endif -%}
-      {%- if features_block.settings.feature_line_2 != blank -%}
-        <p class="feature-line_new">{{ features_block.settings.feature_line_2 }}</p>
-      {%- endif -%}
-    </div>
   {%- endif -%}
 
   <!-- Desktop Price -->
