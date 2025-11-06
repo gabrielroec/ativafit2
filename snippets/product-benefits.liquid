@@ -65,13 +65,15 @@
           {%- if benefit_desc != blank -%}
             <p class="benefit-description_new">
               {{ benefit_desc }}
-              {%- if block.settings.show_learn_more -%}
+              {%- comment -%} Show popup link only if popup_title and popup_content are filled {%- endcomment -%}
+              {%- if block.settings.popup_title != blank and block.settings.popup_content != blank -%}
                 <a
                   href="#"
                   class="benefit-learn-more_new"
-                  data-benefit-popup="{{ block.id }}">Learn more</a>
-              {%- endif -%}
-              {%- if block.settings.link_url != blank -%}
+                  data-benefit-popup="{{ block.id }}"
+                  aria-label="Learn more about {{ benefit_title }}">{{ block.settings.link_text | default: "Learn more" }}</a>
+              {%- elsif block.settings.show_learn_more and block.settings.link_url != blank -%}
+                {%- comment -%} Fallback to external link if no popup content {%- endcomment -%}
                 <a href="{{ block.settings.link_url }}" class="benefit-link_new">{{ block.settings.link_text | default: "Learn more" }}</a>
               {%- endif -%}
             </p>
