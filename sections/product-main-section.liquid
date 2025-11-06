@@ -1,20 +1,20 @@
 {% comment %} 
-                                                                    Product Main Section - Refactored
-                                                                     
-                                                                    Professional product page section following Shopify 2.0 best practices.
-                                                                    Uses modular snippets for better organization and maintainability.
-                                                                     
-                                                                    Accepts: 
-                                                                    - product: {Object} Product object
-                                                                     
-                                                                    Dependencies: 
-                                                                    - product-gallery.liquid snippet 
-                                                                    - product-info.liquid snippet 
-                                                                    - product-benefits.liquid snippet 
-                                                                    - product-add-to-cart.liquid snippet 
-                                                                    - product-accordions.liquid snippet 
-                                                                    - product-benefit-popups.liquid snippet 
-                                                                    - product-main-section.css asset 
+                                                                      Product Main Section - Refactored
+                                                                       
+                                                                      Professional product page section following Shopify 2.0 best practices.
+                                                                      Uses modular snippets for better organization and maintainability.
+                                                                       
+                                                                      Accepts: 
+                                                                      - product: {Object} Product object
+                                                                       
+                                                                      Dependencies: 
+                                                                      - product-gallery.liquid snippet 
+                                                                      - product-info.liquid snippet 
+                                                                      - product-benefits.liquid snippet 
+                                                                      - product-add-to-cart.liquid snippet 
+                                                                      - product-accordions.liquid snippet 
+                                                                      - product-benefit-popups.liquid snippet 
+                                                                      - product-main-section.css asset 
 {% endcomment %}
 
 {{ 'product-main-section.css' | asset_url | stylesheet_tag }}
@@ -54,13 +54,13 @@
 
       <!-- Mobile Price (shown only on mobile) -->
       {% comment %} {%- if section.settings.show_mobile_price -%}
-                                                                  <div class="product-price-container_new mobile-only_new">
-                                                                    <p class="product-price_new black">{{ product.selected_or_first_available_variant.price | money }}</p>
-                                                                    {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
-                                                                      <p class="product-price-original_new">{{ product.selected_or_first_available_variant.compare_at_price | money }}</p>
-                                                                    {%- endif -%}
-                                                                  </div>
-                                                  {%- endif -%} {% endcomment %}
+                                                                          <div class="product-price-container_new mobile-only_new">
+                                                                            <p class="product-price_new black">{{ product.selected_or_first_available_variant.price | money }}</p>
+                                                                            {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
+                                                                              <p class="product-price-original_new">{{ product.selected_or_first_available_variant.compare_at_price | money }}</p>
+                                                                            {%- endif -%}
+                                                                          </div>
+                                                        {%- endif -%} {% endcomment %}
 
 
       </div>
@@ -584,18 +584,47 @@
       },
       
       updatePrice(variant) {
-        document.querySelectorAll('.product-price_new').forEach(el => {
-          if (el) el.textContent = Shopify.formatMoney(variant.price, window.theme.moneyFormat || '${{amount}}');
-        });
+        if (!variant) return;
         
-        document.querySelectorAll('.product-price-original_new').forEach(el => {
-          if (variant.compare_at_price > variant.price) {
-            el.textContent = Shopify.formatMoney(variant.compare_at_price, window.theme.moneyFormat || '${{amount}}');
-            el.style.display = 'block';
-          } else {
-            el.style.display = 'none';
+        // Helper function to format money with fallback
+        const formatMoney = (cents) => {
+          if (window.Shopify && typeof window.Shopify.formatMoney === 'function') {
+            const moneyFormat = window.theme?.moneyFormat || window.Shopify?.money_format || '${{amount}}';
+            return window.Shopify.formatMoney(cents, moneyFormat);
+          }
+          // Fallback: format as USD currency
+          return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD'
+          }).format((cents || 0) / 100);
+        };
+        
+        // Update main price
+        const priceElements = document.querySelectorAll('.product-price_new');
+        priceElements.forEach(el => {
+          if (el) {
+            el.textContent = formatMoney(variant.price);
           }
         });
+        
+        // Update compare at price (original price)
+        const comparePriceElements = document.querySelectorAll('.product-price-original_new');
+        comparePriceElements.forEach(el => {
+          if (el) {
+            if (variant.compare_at_price && variant.compare_at_price > variant.price) {
+              el.textContent = formatMoney(variant.compare_at_price);
+              el.style.display = 'block';
+            } else {
+              el.style.display = 'none';
+            }
+          }
+        });
+        
+        // Also update payment terms component if it exists
+        const paymentTerms = document.querySelector('shopify-payment-terms');
+        if (paymentTerms && variant.id) {
+          paymentTerms.setAttribute('variant-id', variant.id);
+        }
       },
       
       updateMainImageForVariant(variant) {
@@ -816,6 +845,22 @@
     document.addEventListener('DOMContentLoaded', () => {
       ProductGallery.init();
       BenefitPopups.init();
+      
+      // Initialize variant selector event listener
+      const variantSelector = document.getElementById('variant-selector_new');
+      if (variantSelector) {
+        // Add event listener in addition to onchange attribute
+        variantSelector.addEventListener('change', () => {
+          ProductVariants.updateVariant();
+        });
+        
+        // Initialize price with current selected variant
+        const currentVariantId = parseInt(variantSelector.value);
+        const currentVariant = ProductVariants.variants.find(v => v.id === currentVariantId);
+        if (currentVariant) {
+          ProductVariants.updatePrice(currentVariant);
+        }
+      }
       
       // Ensure shopify-payment-terms component is displayed in product form
       const ensurePaymentTermsVisible = () => {

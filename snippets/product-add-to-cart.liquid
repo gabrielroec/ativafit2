@@ -28,48 +28,50 @@
     value="{{ selected_variant.id }}"
     id="product-variant-id-{{ section.id }}">
 
-  <!-- Variant Selector (if product has multiple variants) -->
-  {%- if product.variants.size > 1 and section.settings.show_variant_selector -%}
-    <div class="variant-selector-wrapper_new">
-      <label for="variant-selector_new">{{ section.settings.variant_label | default: "Select Option" }}</label>
-      <select
-        id="variant-selector_new"
-        class="variant-selector_new"
-        name="id"
-        onchange="updateVariant()">
-        {%- for variant in product.variants -%}
-          <option
-            value="{{ variant.id }}"
-            {% if variant == selected_variant %}
-            selected{% endif %}
-            {% unless variant.available %}
-            disabled{% endunless %}>
-            {{ variant.title }}
-            {%- unless variant.available %}
-              - Sold Out{% endunless -%}
-          </option>
-        {%- endfor -%}
-      </select>
+  <!-- Payment Terms (Shop Pay Installments) - Before buttons -->
+  {%- if payment_options_block and payment_options_block.settings.show_payment_terms -%}
+    <div class="payment-options-form">
+      {{ form | payment_terms }}
     </div>
   {%- endif -%}
 
-  <!-- Add to Cart Button - First -->
+  <!-- Variant Selector + Add to Cart Button Container -->
   {%- if selected_variant.available -%}
+    <div class="variant-cart-row_new">
+      <!-- Variant Selector (if product has multiple variants) -->
+      {%- if product.variants.size > 1 and section.settings.show_variant_selector -%}
+        <div class="variant-selector-wrapper_new">
+          <label for="variant-selector_new">{{ section.settings.variant_label | default: "Select Option" }}</label>
+          <select
+            id="variant-selector_new"
+            class="variant-selector_new"
+            name="id"
+            onchange="updateVariant()">
+            {%- for variant in product.variants -%}
+              <option
+                value="{{ variant.id }}"
+                {% if variant == selected_variant %}
+                selected{% endif %}
+                {% unless variant.available %}
+                disabled{% endunless %}>
+                {{ variant.title }}
+                {%- unless variant.available %}
+                  - Sold Out{% endunless -%}
+              </option>
+            {%- endfor -%}
+          </select>
+        </div>
+      {%- endif -%}
 
-    <!-- Payment Terms (Shop Pay Installments) - Second -->
-    {%- if payment_options_block and payment_options_block.settings.show_payment_terms -%}
-      <div class="payment-options-form">
-        {{ form | payment_terms }}
-      </div>
-    {%- endif -%}
-
-    <button
-      type="submit"
-      name="add"
-      class="add-to-cart-btn_new"
-      aria-label="{{ section.settings.add_to_cart_text | default: 'Add to cart' }}">
-      {{ section.settings.add_to_cart_text | default: 'Add to Cart' }}
-    </button>
+      <!-- Add to Cart Button -->
+      <button
+        type="submit"
+        name="add"
+        class="add-to-cart-btn_new {% if product.variants.size > 1 and section.settings.show_variant_selector %}has-variant-selector_new{% endif %}"
+        aria-label="{{ section.settings.add_to_cart_text | default: 'Add to cart' }}">
+        {{ section.settings.add_to_cart_text | default: 'Add to Cart' }}
+      </button>
+    </div>
 
     <!-- Buy It Now Button -->
     {%- if section.settings.show_buy_it_now -%}

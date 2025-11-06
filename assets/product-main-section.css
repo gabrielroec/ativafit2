@@ -827,9 +827,22 @@ body.modal-open_new {
    VARIANT SELECTOR STYLES
    ====================================================================== */
 
-.variant-selector-wrapper_new {
-  flex: 0 0 auto;
+/* Variant Selector + Add to Cart Row Container */
+.variant-cart-row_new {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
   margin-bottom: 16px;
+}
+
+/* When there's no variant selector, button takes full width */
+.variant-cart-row_new:has(.add-to-cart-btn_new:not(.has-variant-selector_new)) .add-to-cart-btn_new {
+  width: 100%;
+}
+
+.variant-selector-wrapper_new {
+  margin-bottom: 0;
+  width: 30%;
 }
 
 .variant-selector-wrapper_new label {
@@ -839,11 +852,12 @@ body.modal-open_new {
   color: #333;
   display: block;
   margin-bottom: 8px;
+  display: none;
 }
 
 .variant-selector_new {
   width: 100%;
-  padding: 16px 20px;
+  padding: 0px 20px;
   border: 2px solid #ddd;
   border-radius: 8px;
   background: #fff;
@@ -858,6 +872,8 @@ body.modal-open_new {
   background-repeat: no-repeat;
   background-position: right 15px center;
   padding-right: 40px;
+  /* display: none; */
+  height: 53.66px;
 }
 
 .variant-selector_new:hover {
@@ -962,15 +978,18 @@ body.modal-open_new {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   border-radius: 8px;
+  flex-shrink: 0;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  margin-bottom: 0px;
 }
-.shopify-payment-button {
-  margin: 0px !important;
+
+/* When button is next to variant selector */
+.add-to-cart-btn_new.has-variant-selector_new {
+  white-space: nowrap;
+  width: 70%;
 }
+
 .add-to-cart-btn_new:hover {
   background: #d65a0f;
   transform: translateY(-1px);
@@ -1347,6 +1366,20 @@ body.modal-open_new {
   .thumbnail_new {
     width: 70px;
     height: 52.5px;
+  }
+
+  /* Variant selector + cart button row - stack on mobile */
+  .variant-cart-row_new {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .variant-selector-wrapper_new {
+    margin-bottom: 12px;
+  }
+
+  .add-to-cart-btn_new.has-variant-selector_new {
+    width: 100%;
   }
 
   .swipe-indicator_new {
