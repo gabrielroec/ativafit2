@@ -629,11 +629,52 @@
       },
       
       updateMainImageForVariant(variant) {
-        const mainImage = document.getElementById('mainImage_new');
-        if (!mainImage || !variant.featured_image) return;
+        if (!variant || !variant.featured_image) return;
         
-        mainImage.src = variant.featured_image.src;
-        mainImage.alt = variant.featured_image.alt || variant.title;
+        // Find the media index that matches the variant's featured image
+        const variantImageId = variant.featured_image.id;
+        const mediaIndex = this.mediaData.findIndex(media => {
+          // Check if this media matches the variant's featured image
+          if (media.media_type === 'image' && media.id === variantImageId) {
+            return true;
+          }
+          // Also check preview_image for videos (in case variant image is a video thumbnail)
+          if (media.preview_image && media.preview_image.id === variantImageId) {
+            return true;
+          }
+          return false;
+        });
+        
+        // If we found a matching media, switch to it
+        if (mediaIndex !== -1) {
+          // Update current index
+          this.currentIndex = mediaIndex;
+          
+          // Get the thumbnail container for this media
+          const thumbnailContainers = document.querySelectorAll('.thumbnail-container_new');
+          const targetThumb = thumbnailContainers[mediaIndex];
+          
+          if (targetThumb) {
+            // Use the existing changeMainMedia function to properly switch
+            this.changeMainMedia(mediaIndex, targetThumb);
+            this.scrollToActiveThumbnail();
+            this.updateMainNavButtons();
+          }
+        } else {
+          // Fallback: if we can't find the media, just update the image directly
+          const mainImage = document.getElementById('mainImage_new');
+          const mainVideoContainer = document.getElementById('mainVideoContainer_new');
+          
+          if (mainImage) {
+            // Hide video, show image
+            if (mainVideoContainer) {
+              mainVideoContainer.style.display = 'none';
+            }
+            mainImage.style.display = 'block';
+            mainImage.src = variant.featured_image.src.replace('150', '800');
+            mainImage.alt = variant.featured_image.alt || variant.title;
+          }
+        }
       }
     };
     
