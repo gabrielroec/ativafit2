@@ -1,20 +1,20 @@
 {% comment %} 
-                                                                                            Product Main Section - Refactored
-                                                                                             
-                                                                                            Professional product page section following Shopify 2.0 best practices.
-                                                                                            Uses modular snippets for better organization and maintainability.
-                                                                                             
-                                                                                            Accepts: 
-                                                                                            - product: {Object} Product object
-                                                                                             
-                                                                                            Dependencies: 
-                                                                                            - product-gallery.liquid snippet 
-                                                                                            - product-info.liquid snippet 
-                                                                                            - product-benefits.liquid snippet 
-                                                                                            - product-add-to-cart.liquid snippet 
-                                                                                            - product-accordions.liquid snippet 
-                                                                                            - product-benefit-popups.liquid snippet 
-                                                                                            - product-main-section.css asset 
+                                                                                              Product Main Section - Refactored
+                                                                                               
+                                                                                              Professional product page section following Shopify 2.0 best practices.
+                                                                                              Uses modular snippets for better organization and maintainability.
+                                                                                               
+                                                                                              Accepts: 
+                                                                                              - product: {Object} Product object
+                                                                                               
+                                                                                              Dependencies: 
+                                                                                              - product-gallery.liquid snippet 
+                                                                                              - product-info.liquid snippet 
+                                                                                              - product-benefits.liquid snippet 
+                                                                                              - product-add-to-cart.liquid snippet 
+                                                                                              - product-accordions.liquid snippet 
+                                                                                              - product-benefit-popups.liquid snippet 
+                                                                                              - product-main-section.css asset 
 {% endcomment %}
 
 {{ 'product-main-section.css' | asset_url | stylesheet_tag }}
@@ -55,13 +55,13 @@
 
       <!-- Mobile Price (shown only on mobile) -->
       {% comment %} {%- if section.settings.show_mobile_price -%}
-                                                                                                                                                                  <div class="product-price-container_new mobile-only_new">
-                                                                                                                                                                    <p class="product-price_new black">{{ product.selected_or_first_available_variant.price | money }}</p>
-                                                                                                                                                                    {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
-                                                                                                                                                                      <p class="product-price-original_new">{{ product.selected_or_first_available_variant.compare_at_price | money }}</p>
-                                                                                                                                                                    {%- endif -%}
-                                                                                                                                                                  </div>
-                                                                                                                          {%- endif -%} {% endcomment %}
+                                                                                                                                                                          <div class="product-price-container_new mobile-only_new">
+                                                                                                                                                                            <p class="product-price_new black">{{ product.selected_or_first_available_variant.price | money }}</p>
+                                                                                                                                                                            {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
+                                                                                                                                                                              <p class="product-price-original_new">{{ product.selected_or_first_available_variant.compare_at_price | money }}</p>
+                                                                                                                                                                            {%- endif -%}
+                                                                                                                                                                          </div>
+                                                                                                                                {%- endif -%} {% endcomment %}
 
 
       </div>
@@ -98,8 +98,8 @@
       mediaData: {{ product.media | json }},
       
       // Change main media (image or video)
-      changeMainMedia(mediaIndex, clickedThumb) {
-        if (this.isDragging || this.hasMoved) return;
+      changeMainMedia(mediaIndex, clickedThumb, force = false) {
+        if (!force && (this.isDragging || this.hasMoved)) return;
         
         const media = this.mediaData[mediaIndex];
         if (!media) return;
@@ -108,6 +108,9 @@
         const mainVideo = document.getElementById('mainVideo_new');
         const mainVideoContainer = document.getElementById('mainVideoContainer_new');
         
+        // Update current index
+        this.currentIndex = mediaIndex;
+        
         // Update active thumbnails
         document.querySelectorAll('.thumbnail-container_new').forEach(container => 
           container.classList.remove('active_new')
@@ -115,7 +118,12 @@
         
         if (clickedThumb) {
           clickedThumb.classList.add('active_new');
-          this.currentIndex = mediaIndex;
+        } else {
+          // If no thumbnail provided, find and activate the correct one
+          const thumbnailContainers = document.querySelectorAll('.thumbnail-container_new');
+          if (thumbnailContainers[mediaIndex]) {
+            thumbnailContainers[mediaIndex].classList.add('active_new');
+          }
         }
         
         if (media.media_type === 'video') {
@@ -629,11 +637,76 @@
       },
       
       updateMainImageForVariant(variant) {
-        const mainImage = document.getElementById('mainImage_new');
-        if (!mainImage || !variant.featured_image) return;
+        if (!variant || !variant.featured_image) return;
         
-        mainImage.src = variant.featured_image.src;
-        mainImage.alt = variant.featured_image.alt || variant.title;
+        // Find the media index that matches the variant's featured image
+        const variantImageId = variant.featured_image.id;
+        const variantImageSrc = variant.featured_image.src;
+        
+        const mediaIndex = ProductGallery.mediaData.findIndex(media => {
+          // Check if this media matches the variant's featured image by ID
+          if (media.media_type === 'image' && media.id === variantImageId) {
+            return true;
+          }
+          // Check by image source URL (normalize for comparison)
+          if (media.media_type === 'image' && media.src) {
+            const mediaSrcNormalized = media.src.split('?')[0]; // Remove query params
+            const variantSrcNormalized = variantImageSrc.split('?')[0];
+            if (mediaSrcNormalized === variantSrcNormalized || 
+                mediaSrcNormalized.includes(variantSrcNormalized) ||
+                variantSrcNormalized.includes(mediaSrcNormalized)) {
+              return true;
+            }
+          }
+          // Also check preview_image for videos (in case variant image is a video thumbnail)
+          if (media.preview_image) {
+            if (media.preview_image.id === variantImageId) {
+              return true;
+            }
+            if (media.preview_image.src) {
+              const previewSrcNormalized = media.preview_image.src.split('?')[0];
+              const variantSrcNormalized = variantImageSrc.split('?')[0];
+              if (previewSrcNormalized === variantSrcNormalized ||
+                  previewSrcNormalized.includes(variantSrcNormalized) ||
+                  variantSrcNormalized.includes(previewSrcNormalized)) {
+                return true;
+              }
+            }
+          }
+          return false;
+        });
+        
+        // If we found a matching media, switch to it
+        if (mediaIndex !== -1) {
+          // Update current index
+          ProductGallery.currentIndex = mediaIndex;
+          
+          // Get the thumbnail container for this media
+          const thumbnailContainers = document.querySelectorAll('.thumbnail-container_new');
+          const targetThumb = thumbnailContainers[mediaIndex];
+          
+          if (targetThumb) {
+            // Use the existing changeMainMedia function to properly switch
+            // Force the change to bypass drag checks
+            ProductGallery.changeMainMedia(mediaIndex, targetThumb, true);
+            ProductGallery.scrollToActiveThumbnail();
+            ProductGallery.updateMainNavButtons();
+          }
+        } else {
+          // Fallback: if we can't find the media, just update the image directly
+          const mainImage = document.getElementById('mainImage_new');
+          const mainVideoContainer = document.getElementById('mainVideoContainer_new');
+          
+          if (mainImage) {
+            // Hide video, show image
+            if (mainVideoContainer) {
+              mainVideoContainer.style.display = 'none';
+            }
+            mainImage.style.display = 'block';
+            mainImage.src = variant.featured_image.src.replace('150', '800');
+            mainImage.alt = variant.featured_image.alt || variant.title;
+          }
+        }
       }
     };
     
