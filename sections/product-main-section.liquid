@@ -108,6 +108,9 @@
         const mainVideo = document.getElementById('mainVideo_new');
         const mainVideoContainer = document.getElementById('mainVideoContainer_new');
         
+        // Update current index
+        this.currentIndex = mediaIndex;
+        
         // Update active thumbnails
         document.querySelectorAll('.thumbnail-container_new').forEach(container => 
           container.classList.remove('active_new')
@@ -115,7 +118,12 @@
         
         if (clickedThumb) {
           clickedThumb.classList.add('active_new');
-          this.currentIndex = mediaIndex;
+        } else {
+          // If no thumbnail provided, find and activate the correct one
+          const thumbnailContainers = document.querySelectorAll('.thumbnail-container_new');
+          if (thumbnailContainers[mediaIndex]) {
+            thumbnailContainers[mediaIndex].classList.add('active_new');
+          }
         }
         
         if (media.media_type === 'video') {
@@ -633,14 +641,37 @@
         
         // Find the media index that matches the variant's featured image
         const variantImageId = variant.featured_image.id;
+        const variantImageSrc = variant.featured_image.src;
+        
         const mediaIndex = ProductGallery.mediaData.findIndex(media => {
-          // Check if this media matches the variant's featured image
+          // Check if this media matches the variant's featured image by ID
           if (media.media_type === 'image' && media.id === variantImageId) {
             return true;
           }
+          // Check by image source URL (normalize for comparison)
+          if (media.media_type === 'image' && media.src) {
+            const mediaSrcNormalized = media.src.split('?')[0]; // Remove query params
+            const variantSrcNormalized = variantImageSrc.split('?')[0];
+            if (mediaSrcNormalized === variantSrcNormalized || 
+                mediaSrcNormalized.includes(variantSrcNormalized) ||
+                variantSrcNormalized.includes(mediaSrcNormalized)) {
+              return true;
+            }
+          }
           // Also check preview_image for videos (in case variant image is a video thumbnail)
-          if (media.preview_image && media.preview_image.id === variantImageId) {
-            return true;
+          if (media.preview_image) {
+            if (media.preview_image.id === variantImageId) {
+              return true;
+            }
+            if (media.preview_image.src) {
+              const previewSrcNormalized = media.preview_image.src.split('?')[0];
+              const variantSrcNormalized = variantImageSrc.split('?')[0];
+              if (previewSrcNormalized === variantSrcNormalized ||
+                  previewSrcNormalized.includes(variantSrcNormalized) ||
+                  variantSrcNormalized.includes(previewSrcNormalized)) {
+                return true;
+              }
+            }
           }
           return false;
         });
@@ -656,7 +687,8 @@
           
           if (targetThumb) {
             // Use the existing changeMainMedia function to properly switch
-            ProductGallery.changeMainMedia(mediaIndex, targetThumb);
+            // Force the change to bypass drag checks
+            ProductGallery.changeMainMedia(mediaIndex, targetThumb, true);
             ProductGallery.scrollToActiveThumbnail();
             ProductGallery.updateMainNavButtons();
           }
