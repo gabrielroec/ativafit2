@@ -98,8 +98,8 @@
       mediaData: {{ product.media | json }},
       
       // Change main media (image or video)
-      changeMainMedia(mediaIndex, clickedThumb) {
-        if (this.isDragging || this.hasMoved) return;
+      changeMainMedia(mediaIndex, clickedThumb, force = false) {
+        if (!force && (this.isDragging || this.hasMoved)) return;
         
         const media = this.mediaData[mediaIndex];
         if (!media) return;
@@ -633,7 +633,7 @@
         
         // Find the media index that matches the variant's featured image
         const variantImageId = variant.featured_image.id;
-        const mediaIndex = this.mediaData.findIndex(media => {
+        const mediaIndex = ProductGallery.mediaData.findIndex(media => {
           // Check if this media matches the variant's featured image
           if (media.media_type === 'image' && media.id === variantImageId) {
             return true;
@@ -648,7 +648,7 @@
         // If we found a matching media, switch to it
         if (mediaIndex !== -1) {
           // Update current index
-          this.currentIndex = mediaIndex;
+          ProductGallery.currentIndex = mediaIndex;
           
           // Get the thumbnail container for this media
           const thumbnailContainers = document.querySelectorAll('.thumbnail-container_new');
@@ -656,9 +656,9 @@
           
           if (targetThumb) {
             // Use the existing changeMainMedia function to properly switch
-            this.changeMainMedia(mediaIndex, targetThumb);
-            this.scrollToActiveThumbnail();
-            this.updateMainNavButtons();
+            ProductGallery.changeMainMedia(mediaIndex, targetThumb);
+            ProductGallery.scrollToActiveThumbnail();
+            ProductGallery.updateMainNavButtons();
           }
         } else {
           // Fallback: if we can't find the media, just update the image directly
