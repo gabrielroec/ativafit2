@@ -21,8 +21,6 @@
                 assign image_override = block.settings.image_override
                 assign price_mode = block.settings.price_mode
                 assign price_manual = block.settings.price_manual
-                assign cta_label = block.settings.cta_label
-                assign cta_action = block.settings.cta_action
 
                 # Product data
                 assign card_title = title_override | default: product.title
@@ -116,30 +114,30 @@
                     From {{ card_price }}
                   </div>
 
-                  {%- if cta_label != blank -%}
-                    <div class="tt-compare-trio__cta">
-                      {%- if cta_action == 'add_to_cart_ajax' and product.available -%}
-                        <button
-                          type="button"
-                          class="tt-compare-trio__button tt-compare-trio__button--ajax"
-                          data-product-id="{{ product.id }}"
-                          data-variant-id="{{ product.selected_or_first_available_variant.id }}"
-                          data-cart-add-url="{{ routes.cart_add_url }}"
-                          data-section-id="{{ section.id }}">
-                          {{ cta_label }}
-                        </button>
-                        <div
-                          class="tt-compare-trio__ajax-message"
-                          role="alert"
-                          aria-live="polite"
-                          style="display: none;"></div>
-                      {%- else -%}
-                        <a href="{{ card_url }}" class="tt-compare-trio__button tt-compare-trio__button--link">
-                          {{ cta_label }}
-                        </a>
-                      {%- endif -%}
-                    </div>
-                  {%- endif -%}
+                  <div class="tt-compare-trio__cta">
+                    {%- if product.available -%}
+                      {%- comment -%}Add to Cart Button{%- endcomment -%}
+                      <button
+                        type="button"
+                        class="tt-compare-trio__button tt-compare-trio__button--add-to-cart"
+                        data-product-id="{{ product.id }}"
+                        data-variant-id="{{ product.selected_or_first_available_variant.id }}"
+                        data-cart-add-url="{{ routes.cart_add_url }}"
+                        data-section-id="{{ section.id }}">
+                        Add to Cart
+                      </button>
+                      <div
+                        class="tt-compare-trio__ajax-message"
+                        role="alert"
+                        aria-live="polite"
+                        style="display: none;"></div>
+                    {%- endif -%}
+                    
+                    {%- comment -%}Learn More Button - Always shows "Learn More"{%- endcomment -%}
+                    <a href="{{ card_url }}" class="tt-compare-trio__button tt-compare-trio__button--link tt-compare-trio__button--learn-more">
+                      Learn More
+                    </a>
+                  </div>
                 </div>
               </article>
           {%- endcase -%}
@@ -503,8 +501,10 @@
   padding: 8px 20px !important;
   background-color: #ffffff;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 12px;
   flex: 1;
 }
 
@@ -516,9 +516,7 @@
   color: var(--ctc-cta-text);
   border: none;
   border-radius: 6px;
-  font-family: 'Barlow'
-  , sans-serif !important;
-
+  font-family: 'Barlow', sans-serif !important;
   font-style: normal;
   font-size: 14px;
   line-height: 20px;
@@ -529,7 +527,24 @@
   transition: all 0.2s ease;
 }
 
-.tt-compare-trio__button:hover {
+.tt-compare-trio__button--add-to-cart {
+  background-color: var(--ctc-cta-bg);
+  color: var(--ctc-cta-text);
+  font-weight: 600;
+}
+
+.tt-compare-trio__button--learn-more {
+  background-color: transparent;
+  color: var(--ctc-text-color);
+  border: 1px solid var(--ctc-border-color);
+}
+
+.tt-compare-trio__button--learn-more:hover {
+  background-color: var(--ctc-bg-color);
+  border-color: var(--ctc-text-color);
+}
+
+.tt-compare-trio__button:hover:not(.tt-compare-trio__button--learn-more) {
   background-color: var(--ctc-cta-hover-bg);
   color: var(--ctc-cta-hover-text);
   transform: translateY(-1px);
@@ -595,10 +610,10 @@
 
 @media (max-width: 1027px) {
   .tt-compare-trio__description p {
-    max-width: 220px !important;
+    max-width:210px !important;
   }
   .tt-compare-trio__title {
-    max-width: 290px !important;
+    max-width: 250px !important;
   }
 
 }
@@ -618,6 +633,23 @@
 
 /* Mobile styles */
 @media (max-width: 768px) {
+  .tt-compare-trio__cta{
+    gap: 4px !important;	
+  }
+  .tt-compare-trio__description,.tt-compare-trio__subtitle,.tt-compare-trio__weight,.tt-compare-trio__features,.tt-compare-trio__bullets, .tt-compare-trio__price{
+    padding: 4px 0 !important;
+  }
+  .tt-compare-trio__features p,.tt-compare-trio__description p{
+    max-width: 350px !important;
+  }
+    .tt-compare-trio__title{
+    max-width: 350px !important;
+    margin: 0 auto 4px !important;
+  }
+  .tt-compare-trio__image img{
+    height:180px
+
+  }
   .tt-compare-trio__grid {
     display: flex;
     grid-template-columns: none;
@@ -677,6 +709,7 @@
   .tt-compare-trio__card:nth-child(3) .tt-compare-trio__content {
     padding: 0;
   }
+
 }
 
 /* Desktop styles */
@@ -705,73 +738,130 @@
 
 @media (max-width: 1024px) {
   .tt-compare-trio__badge {
-    width: 70% !important;
+    width:150px!important;
   }
 }
 </style>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    const ajaxButtons = document.querySelectorAll('.tt-compare-trio__button--ajax');
+    // Handle both old ajax buttons and new add-to-cart buttons
+    const ajaxButtons = document.querySelectorAll('.tt-compare-trio__button--ajax, .tt-compare-trio__button--add-to-cart');
     
     ajaxButtons.forEach(function(button) {
       button.addEventListener('click', function(e) {
         e.preventDefault();
+        e.stopPropagation();
         
         const productId = this.dataset.productId;
         const variantId = this.dataset.variantId;
-        const cartAddUrl = this.dataset.cartAddUrl;
+        const cartAddUrl = this.dataset.cartAddUrl || '/cart/add.js';
         const sectionId = this.dataset.sectionId;
         const messageEl = this.parentNode.querySelector('.tt-compare-trio__ajax-message');
         
-        if (!variantId || !cartAddUrl) {
+        if (!variantId) {
           showMessage(messageEl, 'Product not available', 'error');
           return;
         }
         
+        // Prevent multiple submissions
+        if (this.dataset.processing === 'true') {
+          return;
+        }
+        
+        this.dataset.processing = 'true';
+        
         // Disable button during request
         this.disabled = true;
+        const originalText = this.textContent;
         this.textContent = 'Adding...';
         
-        // Add to cart
-        fetch(cartAddUrl, {
+        // Add to cart using the same method as product-main-section
+        fetch('/cart/add.js', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Accept': 'application/json'
+            'Content-Type': 'application/json'
           },
-          body: new URLSearchParams({
-            'id': variantId,
-            'quantity': '1'
+          body: JSON.stringify({
+            items: [{ id: parseInt(variantId), quantity: 1 }]
           })
         })
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok) {
+            return response.json().then(err => {
+              throw new Error(err.message || 'Unable to add item to cart');
+            });
+          }
+          return response.json();
+        })
         .then(data => {
-          if (data.status === 422) {
-            throw new Error(data.description || 'Unable to add item to cart');
+          // Update cart counter
+          return fetch('/cart.js').then(res => res.json());
+        })
+        .then(cartData => {
+          // Update cart counter in header
+          const cartCountElement = document.querySelector('.header__cart-count');
+          if (cartCountElement) {
+            cartCountElement.textContent = cartData.item_count;
           }
           
-          // Update cart drawer
-          return updateCartDrawer(sectionId);
+          // Update cart drawer if available
+          if (window.cartDrawer) {
+            return window.cartDrawer.loadCartData().then(() => {
+              window.cartDrawer.updateCartCount();
+              window.cartDrawer.updateRecommendedSection();
+            });
+          } else if (window.updateCartCount) {
+            window.updateCartCount();
+          }
         })
         .then(() => {
-          showMessage(messageEl, 'Added to cart!', 'success');
-          updateCartCount();
-          openCartDrawer();
+          // Show success notification FIRST
+          if (window.CartNotification) {
+            window.CartNotification.success({
+              title: "Product Added!",
+              message: 'Join <a href="https://www.ativafit.com/pages/ativapeople-rewards-program" target="_blank" style="color: #eb701f; text-decoration: underline; font-weight: bold;">AtivaPeople</a> & get 10% off your first order.',
+              type: "success"
+            });
+          } else {
+            showMessage(messageEl, 'Added to cart!', 'success');
+          }
+          
+          // Wait for notification to appear, then open cart drawer (PADRÃO)
+          setTimeout(() => {
+            if (window.cartDrawer) {
+              window.cartDrawer.open();
+            } else if (window.theme && window.theme.miniCart) {
+              window.theme.miniCart.open();
+            } else {
+              openCartDrawer();
+            }
+          }, 300);
+          
+          // Update button text
+          this.textContent = 'ADDED ✓';
+          setTimeout(() => {
+            this.textContent = originalText;
+            this.disabled = false;
+            delete this.dataset.processing;
+          }, 2000);
         })
         .catch(error => {
           console.error('Cart add error:', error);
-          showMessage(messageEl, error.message || 'Unable to add item to cart', 'error');
-        })
-        .finally(() => {
-          // Re-enable button
+          
+          // Show error notification
+          if (window.CartNotification) {
+            window.CartNotification.error('Unable to add product to cart. Please try again.', 'Error adding product');
+          } else {
+            showMessage(messageEl, error.message || 'Unable to add item to cart', 'error');
+          }
+          
+          // Reset button
+          this.textContent = originalText;
           this.disabled = false;
-          this.textContent = this.dataset.originalText || 'Add to Cart';
+          delete this.dataset.processing;
         });
       });
-      
-      // Store original text
-      button.dataset.originalText = button.textContent;
     });
     
     function showMessage(element, message, type) {
@@ -1128,22 +1218,21 @@
           }, {
             "type": "text",
             "id": "cta_label",
-            "label": "Button label",
-            "placeholder": "e.g., Shop Spark"
+            "label": "Learn More button label",
+            "placeholder": "e.g., Learn More",
+            "default": "Learn More"
           }, {
             "type": "select",
             "id": "cta_action",
-            "label": "Button action",
+            "label": "Learn More button action",
             "options": [
               {
                 "value": "link_to_product",
                 "label": "Link to product page"
-              }, {
-                "value": "add_to_cart_ajax",
-                "label": "Add to cart (AJAX)"
               }
             ],
-            "default": "link_to_product"
+            "default": "link_to_product",
+            "info": "The 'Add to Cart' button is always shown when product is available"
           }
         ]
       }
@@ -1160,7 +1249,7 @@
               "bullets_top_1": "Adjustable weight system",
               "bullets_top_2": "Space-saving design",
               "bullets_top_3": "Easy to store",
-              "cta_label": "Shop Starter"
+              "cta_label": "Learn More"
             }
           }, {
             "type": "card",
@@ -1170,7 +1259,7 @@
               "bullets_top_1": "Premium materials",
               "bullets_top_2": "Extended weight range",
               "bullets_top_3": "Professional quality",
-              "cta_label": "Shop Popular"
+              "cta_label": "Learn More"
             }
           }, {
             "type": "card",
@@ -1180,7 +1269,7 @@
               "bullets_top_1": "Heavy-duty construction",
               "bullets_top_2": "Maximum weight capacity",
               "bullets_top_3": "Commercial grade",
-              "cta_label": "Shop Pro"
+              "cta_label": "Learn More"
             }
           }
         ]
