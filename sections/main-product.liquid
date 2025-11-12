@@ -65,12 +65,12 @@
         <div class="product-block-list__wrapper">
           {%- if product.media.size > 0 -%}
             <div class="product-block-list__item product-block-list__item--gallery">
-              {% render 'product-gallery' %}
+              {% render 'product-gallery-old' %}
             </div>
           {%- endif -%}
 
           <div class="product-block-list__item product-block-list__item--info">
-            {%- render 'product-info' -%}
+            {%- render 'product-info-old' -%}
           </div>
 
           {%- for block in section.blocks -%}
@@ -409,7 +409,7 @@
   {%- else -%}
     {%- comment -%}We display the quick view within the product template so we can re-use the same settings{%- endcomment -%}
     <div class="featured-product">
-      {%- render 'product-gallery' -%}
+      {%- render 'product-gallery-old ' -%}
       {%- render 'product-info' -%}
     </div>
   {%- endif -%}
@@ -436,6 +436,178 @@
     } catch (error) {
       // Do nothing, this may happen in Safari in incognito mode
     }
+  })();
+
+  // ====================================================================
+  // ADD TO CART FUNCTIONALITY - Intercept button clicks
+  // ====================================================================
+  
+  (function() {
+    'use strict';
+    
+    // Function to add product to cart
+    async function addToCartCustom(event) {
+      // Prevent default behavior and theme's handler
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      
+      const btn = event.target.closest('button[data-action="add-to-cart"]');
+      if (!btn) return;
+      
+      // Prevent multiple submissions
+      if (btn.dataset.processing === 'true') {
+        return;
+      }
+      
+      btn.dataset.processing = 'true';
+      
+      // Find the form
+      const form = btn.closest('form');
+      if (!form) {
+        delete btn.dataset.processing;
+        return;
+      }
+      
+      // Get variant ID from form
+      const variantInput = form.querySelector('input[name="id"]');
+      const variantId = variantInput ? parseInt(variantInput.value) : {{ product.selected_or_first_available_variant.id }};
+      
+      // Get quantity
+      const quantityInput = form.querySelector('input[name="quantity"]');
+      const quantity = quantityInput ? parseInt(quantityInput.value) : 1;
+      
+      const originalText = btn.textContent;
+      
+      if (!variantId) {
+        alert('Please select a product variant');
+        delete btn.dataset.processing;
+        return;
+      }
+      
+      // Update button state
+      btn.disabled = true;
+      btn.style.opacity = '0.7';
+      btn.textContent = 'ADDING...';
+      
+      try {
+        const response = await fetch('/cart/add.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            items: [{ id: variantId, quantity: quantity }]
+          })
+        });
+        
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Error adding to cart');
+        }
+        
+        const data = await response.json();
+        
+        // Update cart counter
+        const cartData = await fetch('/cart.js').then(res => res.json());
+        const cartCountElement = document.querySelector('.header__cart-count');
+        if (cartCountElement) {
+          cartCountElement.textContent = cartData.item_count;
+        }
+        
+        // Update cart drawer if available
+        if (window.cartDrawer) {
+          await window.cartDrawer.loadCartData();
+          window.cartDrawer.updateCartCount();
+          window.cartDrawer.updateRecommendedSection();
+        } else if (window.updateCartCount) {
+          window.updateCartCount();
+        }
+        
+        // Show success notification FIRST
+        if (window.CartNotification) {
+          const productTitle = document.querySelector('.product-form h1, .card__title, [data-product-type="title"]')?.textContent || 'Product';
+          window.CartNotification.success({
+            title: "Product Added!",
+            message: 'Join <a href="https://www.ativafit.com/pages/ativapeople-rewards-program" target="_blank" style="color: #eb701f; text-decoration: underline; font-weight: bold;">AtivaPeople</a> & get 10% off your first order.',
+            type: "success"
+          });
+        }
+        
+        // Wait for notification to appear, then open cart drawer
+        setTimeout(() => {
+          if (window.cartDrawer) {
+            window.cartDrawer.open();
+          } else if (window.theme && window.theme.miniCart) {
+            window.theme.miniCart.open();
+          }
+        }, 300);
+        
+        // Update button text
+        btn.textContent = 'ADDED ✓';
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.disabled = false;
+          btn.style.opacity = '1';
+          delete btn.dataset.processing;
+        }, 2000);
+        
+      } catch (error) {
+        console.error('Add to cart error:', error);
+        
+        // Show error notification
+        if (window.CartNotification) {
+          window.CartNotification.error('Unable to add product to cart. Please try again.', 'Error adding product');
+        } else {
+          alert('Error adding product to cart. Please try again.');
+        }
+        
+        // Reset button
+        btn.textContent = originalText;
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        delete btn.dataset.processing;
+      }
+    }
+    
+    // Setup event listeners - use capture phase to intercept before theme
+    document.addEventListener('DOMContentLoaded', () => {
+      // Find all add to cart buttons
+      const addToCartButtons = document.querySelectorAll('button[data-action="add-to-cart"]');
+      
+      addToCartButtons.forEach(btn => {
+        // Use capture phase to intercept before theme's handler
+        btn.addEventListener('click', addToCartCustom, true);
+      });
+      
+      // Also listen for dynamically added buttons
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          mutation.addedNodes.forEach((node) => {
+            if (node.nodeType === 1) { // Element node
+              const buttons = node.querySelectorAll ? node.querySelectorAll('button[data-action="add-to-cart"]') : [];
+              buttons.forEach(btn => {
+                if (!btn.dataset.customHandler) {
+                  btn.dataset.customHandler = 'true';
+                  btn.addEventListener('click', addToCartCustom, true);
+                }
+              });
+              
+              // Check if the node itself is a button
+              if (node.matches && node.matches('button[data-action="add-to-cart"]')) {
+                if (!node.dataset.customHandler) {
+                  node.dataset.customHandler = 'true';
+                  node.addEventListener('click', addToCartCustom, true);
+                }
+              }
+            }
+          });
+        });
+      });
+      
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+    });
   })();
 </script>
 
