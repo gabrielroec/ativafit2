@@ -1,6 +1,6 @@
 <style>
 	.shane-pro-b4{
-		width: 100%; padding: 5vw 5%;
+		width: 100%; 
 		max-width: 1400px;
 		margin: 0 auto;
 
@@ -182,10 +182,46 @@
 		</div>
 	</div>
 	<script>
-		$(".b4-viewing-right>div").mouseenter(function(){
-			$(".b4-viewing-right>div").removeClass("active");
-			$(this).addClass("active");			
-		});
+		(function() {
+			function initHoverEffect() {
+				const cards = document.querySelectorAll('.b4-viewing-right>div');
+				
+				if (cards.length === 0) return;
+				
+				cards.forEach(function(card) {
+					card.addEventListener('mouseenter', function() {
+						// Remove active de todos os cards
+						cards.forEach(function(c) {
+							c.classList.remove('active');
+						});
+						// Adiciona active no card atual
+						this.classList.add('active');
+					});
+				});
+			}
+			
+			// Tentar inicializar quando o DOM estiver pronto
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', initHoverEffect);
+			} else {
+				initHoverEffect();
+			}
+			
+			// Também tentar com jQuery se estiver disponível (para compatibilidade)
+			if (typeof jQuery !== 'undefined') {
+				jQuery(document).ready(function($) {
+					$(".b4-viewing-right>div").on('mouseenter', function(){
+						$(".b4-viewing-right>div").removeClass("active");
+						$(this).addClass("active");
+					});
+				});
+			}
+			
+			// Para o Shopify Theme Editor
+			if (typeof Shopify !== 'undefined' && Shopify.designMode) {
+				document.addEventListener('shopify:section:load', initHoverEffect);
+			}
+		})();
 	</script>
 {% schema %}
   {
