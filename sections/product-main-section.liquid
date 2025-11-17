@@ -495,11 +495,29 @@
       },
       
       updateFullscreenThumbnails() {
-        document.querySelectorAll('.fullscreen-thumb-container_new').forEach((container, index) => {
+        const containers = document.querySelectorAll('.fullscreen-thumb-container_new');
+        const thumbnailsContainer = document.getElementById('fullscreenThumbnailsContainer_new');
+        
+        containers.forEach((container, index) => {
           container.classList.remove('active_new');
           if (index === this.fullscreenCurrentIndex) {
             container.classList.add('active_new');
-            container.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            
+            // Scroll suave para centralizar a thumbnail ativa
+            if (thumbnailsContainer && container) {
+              const containerRect = container.getBoundingClientRect();
+              const scrollContainerRect = thumbnailsContainer.getBoundingClientRect();
+              const scrollLeft = thumbnailsContainer.scrollLeft;
+              const containerLeft = containerRect.left - scrollContainerRect.left + scrollLeft;
+              const containerWidth = containerRect.width;
+              const scrollContainerWidth = scrollContainerRect.width;
+              const targetScroll = containerLeft - (scrollContainerWidth / 2) + (containerWidth / 2);
+              
+              thumbnailsContainer.scrollTo({
+                left: targetScroll,
+                behavior: 'smooth'
+              });
+            }
           }
         });
       },
