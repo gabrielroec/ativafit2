@@ -414,6 +414,11 @@
         const mainImage = document.getElementById('mainImage_new');
         
         if (modal && fullscreenImage && fullscreenVideo) {
+          // Garantir que o modal está no body
+          if (modal.parentNode !== document.body) {
+            document.body.appendChild(modal);
+          }
+          
           const currentMedia = this.mediaData[this.currentIndex];
           this.fullscreenCurrentIndex = this.currentIndex;
           
@@ -501,6 +506,12 @@
       
       // Initialize gallery
       init() {
+        // Mover modal para o body para garantir z-index máximo
+        const modal = document.getElementById('fullscreenModal_new');
+        if (modal && modal.parentNode !== document.body) {
+          document.body.appendChild(modal);
+        }
+        
         this.initializeMainMedia();
         this.updateMainNavButtons();
         this.setupEventListeners();
