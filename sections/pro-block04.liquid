@@ -117,6 +117,82 @@
 		opacity: 1;
 		transform: translateY(0);
 	}
+/* Slider para 1024px */
+@media (min-width: 769px) and (max-width: 1024px){
+	.b4-viewing-right{
+		position: relative;
+		overflow: hidden;
+		width: 100%;
+	}
+	.b4-viewing-right-wrapper{
+		display: flex;
+		transition: transform 0.4s ease;
+		width: 100%;
+	}
+	.b4-viewing-right>div{
+		min-width: 100%;
+		width: 100%;
+		flex-shrink: 0;
+		max-width: 100%;
+	}
+	.b4-slider-nav{
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+		background: #FF6100;
+		border: none;
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		cursor: pointer;
+		z-index: 10;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: #fff;
+		font-size: 20px;
+		transition: all 0.3s ease;
+		box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+	}
+	.b4-slider-nav:hover{
+		background: #e55a00;
+		transform: translateY(-50%) scale(1.1);
+	}
+	.b4-slider-nav.prev{
+		left: 10px;
+	}
+	.b4-slider-nav.next{
+		right: 10px;
+	}
+	.b4-slider-nav:disabled{
+		opacity: 0.4;
+		cursor: not-allowed;
+	}
+	.b4-slider-nav:disabled:hover{
+		transform: translateY(-50%) scale(1);
+	}
+	.b4-slider-dots{
+		display: flex;
+		justify-content: center;
+		gap: 8px;
+		margin-top: 20px;
+	}
+	.b4-slider-dot{
+		width: 10px;
+		height: 10px;
+		border-radius: 50%;
+		background: rgba(255, 255, 255, 0.4);
+		border: none;
+		cursor: pointer;
+		transition: all 0.3s ease;
+		padding: 0;
+	}
+	.b4-slider-dot.active{
+		background: #FF6100;
+		width: 24px;
+		border-radius: 5px;
+	}
+}
 @media (max-width: 768px){
 	.shane-pro-b4{
 		padding: 0px 20px 40px;
@@ -251,31 +327,36 @@
 			{% endif %}
 		</div>
 		<div class="b4-viewing-right">
-          {%- assign my_variable = 0 -%} 
-          {%- for block in section.blocks -%}
-            {%- assign my_variable = my_variable | plus: 1 -%} 
-			<div class="{% if my_variable==1 %}active{% endif %}">
-				<div class="viewing-head">you are viewing</div>
-				<div class="viewing-img"><img src="{{ block.settings.image | image_url }}" alt="{{ block.settings.image.alt }}"></div>
-				{% if section.settings.model1 != blank %}<div class="viewing-title">{{ block.settings.text01 }}</div>{% endif %}
-				{% if section.settings.weight != blank %}<div>{{ block.settings.text02 }}</div>{% endif %}
-				{% if section.settings.increment != blank %}<div>{{ block.settings.text03 }}</div>{% endif %}
-				{% if section.settings.dimension != blank %}<div>{{ block.settings.text04 }}</div>{% endif %}
-				{% if section.settings.package != blank %}<div>{{ block.settings.text05 }}</div>{% endif %}
-				{% if section.settings.material != blank %}<div>{{ block.settings.text06 }}</div>{% endif %}
-				{% if section.settings.handle1 != blank %}<div>{{ block.settings.text07 }}</div>{% endif %}
-				{% if section.settings.mechanism != blank %}<div>{{ block.settings.text08 }}</div>{% endif %}
-				{% if section.settings.price != blank %}
-					<div class="viewing-price">{{ block.settings.text09 }}</div>
-				{% endif %}
-				{% if section.settings.user != blank %}
-					<div>{{ block.settings.text10 }}</div>
-				{% endif %}
-				<div class="viewing-cart">
-					<a href="{{ block.settings.link }}"><input type="button" class="viewing-button" value="View More"></a>
-				</div>
+			<div class="b4-viewing-right-wrapper">
+				{%- assign my_variable = 0 -%} 
+				{%- for block in section.blocks -%}
+					{%- assign my_variable = my_variable | plus: 1 -%} 
+					<div class="{% if my_variable==1 %}active{% endif %}">
+						<div class="viewing-head">you are viewing</div>
+						<div class="viewing-img"><img src="{{ block.settings.image | image_url }}" alt="{{ block.settings.image.alt }}"></div>
+						{% if section.settings.model1 != blank %}<div class="viewing-title">{{ block.settings.text01 }}</div>{% endif %}
+						{% if section.settings.weight != blank %}<div>{{ block.settings.text02 }}</div>{% endif %}
+						{% if section.settings.increment != blank %}<div>{{ block.settings.text03 }}</div>{% endif %}
+						{% if section.settings.dimension != blank %}<div>{{ block.settings.text04 }}</div>{% endif %}
+						{% if section.settings.package != blank %}<div>{{ block.settings.text05 }}</div>{% endif %}
+						{% if section.settings.material != blank %}<div>{{ block.settings.text06 }}</div>{% endif %}
+						{% if section.settings.handle1 != blank %}<div>{{ block.settings.text07 }}</div>{% endif %}
+						{% if section.settings.mechanism != blank %}<div>{{ block.settings.text08 }}</div>{% endif %}
+						{% if section.settings.price != blank %}
+							<div class="viewing-price">{{ block.settings.text09 }}</div>
+						{% endif %}
+						{% if section.settings.user != blank %}
+							<div>{{ block.settings.text10 }}</div>
+						{% endif %}
+						<div class="viewing-cart">
+							<a href="{{ block.settings.link }}"><input type="button" class="viewing-button" value="View More"></a>
+						</div>
+					</div>
+				{% endfor %}
 			</div>
-          {% endfor %}
+			<button class="b4-slider-nav prev" aria-label="Previous">‹</button>
+			<button class="b4-slider-nav next" aria-label="Next">›</button>
+			<div class="b4-slider-dots"></div>
 		</div>
 	</div>
 	<script>
