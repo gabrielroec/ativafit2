@@ -3,10 +3,11 @@
 		width: 100%; 
 		max-width: 1400px;
 		margin: 0 auto;
+		padding-bottom:60px;
 
 	}
 	.shane-pro-b4 h2{
-		margin: 0; text-align: center; font-size: 2.4vw; font-weight: 400; line-height:3.2vw;
+		margin: 0; text-align: center; font-size: 2.4vw; font-weight: 400; line-height:3.2vw; padding-bottom:60px;
 	}
 	.shane-pro-b4>.text{
 		font-size: 14px; opacity: 0.6; width: 60%; margin:0.6vw auto 1vw!important; text-align: center; line-height:20px;
@@ -15,7 +16,7 @@
 		display: flex; width: 100%; justify-content: space-between; align-items: flex-start;
 	}
 	.b4-viewing-left{
-		width: 22%; font-size: 0.9vw; line-height: 2.4vw;
+		width: 22%; font-size: 0.9vw;
 	}
 	.b4-viewing-left>div:first-child{
 		margin-top: 15.8vw;
@@ -28,9 +29,6 @@
 	}
 	.b4-viewing-right .active{
 		border:1px solid #FF6100;
-	}
-	.b4-viewing-right>div>div{
-		line-height: 2.4vw;
 	}
 	.viewing-head{
 		font-size: 1.1vw; color: #fff; background-color: #ffffff; text-transform: uppercase; line-height: 2.8vw; border-radius: 8px 8px 0 0;
@@ -106,6 +104,10 @@
 @media (max-width: 768px){
 	.shane-pro-b4{
 		padding: 10vw 5% 7vw;
+		overflow-x: hidden;
+	}
+	.b4-viewing{
+		overflow-x: hidden;
 	}
 	.shane-pro-b4 h2{
 		font-size: 7.2vw; line-height:8vw; width: 90%; margin: auto;
@@ -114,22 +116,49 @@
 		width: 100%; margin:2vw auto 4vw!important; font-size: 4.6vw; line-height:5.4vw;
 	}
 	.b4-viewing-left{
-		width: 45%; font-size: 3.2vw; line-height: 8vw;
+		width: 45%; font-size: 3.2vw;
 	}
 	.b4-viewing-left>div:first-child{
 		margin-top: 38vw;
 	}
 	.b4-viewing-right{
-		width: 53%; font-size: 3.0vw; overflow-y: hidden;
+		width: 100%; font-size: 3.0vw; overflow-x: auto; overflow-y: hidden;
+		display: flex; gap: 20px; scroll-snap-type: x mandatory;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: thin;
+		padding: 0;
+		margin: 0;
+		scroll-padding-left: 0;
+		scroll-padding-right: 0;
+		scroll-behavior: smooth;
+	}
+	.b4-viewing-right::-webkit-scrollbar {
+		height: 4px;
+	}
+	.b4-viewing-right::-webkit-scrollbar-track {
+		background: rgba(255, 255, 255, 0.1);
+		border-radius: 2px;
+	}
+	.b4-viewing-right::-webkit-scrollbar-thumb {
+		background: rgba(255, 255, 255, 0.3);
+		border-radius: 2px;
 	}
 	.b4-viewing-right>div{
-		width: 100%; flex-shrink: 0; border-radius: 8px; overflow: hidden;
+		width: 100%; min-width: 100%; flex-shrink: 0; border-radius: 8px; overflow: hidden;
+		scroll-snap-align: start;
+		margin: 0;
+		box-sizing: border-box;
+		position: relative;
+	}
+	.b4-viewing-right>div:first-child{
+		scroll-margin-left: 0;
+		scroll-margin-right: 0;
 	}
 	.b4-viewing-right .active{
 		border:1px solid #FF6100;
 	}
 	.b4-viewing-right>div>div{
-		line-height: 3.4vw; height:8vw; display: flex; justify-content: center; align-items: center;
+		height:8vw; display: flex; justify-content: center; align-items: center;
 	}
 	.viewing-head{
 		font-size: 3.4vw;line-height: 8vw; border-radius: 8px 8px 0 0;
@@ -242,8 +271,21 @@
 		(function() {
 			function initHoverEffect() {
 				const cards = document.querySelectorAll('.b4-viewing-right>div');
+				const container = document.querySelector('.b4-viewing-right');
 				
 				if (cards.length === 0) return;
+				
+				// Garantir que o scroll comece na posição 0 (primeiro card totalmente visível)
+				if (container) {
+					container.scrollLeft = 0;
+					
+					// Verificar se está no mobile e garantir scroll inicial
+					if (window.innerWidth <= 768) {
+						setTimeout(function() {
+							container.scrollLeft = 0;
+						}, 100);
+					}
+				}
 				
 				cards.forEach(function(card) {
 					card.addEventListener('mouseenter', function() {
@@ -254,6 +296,25 @@
 						// Adiciona active no card atual
 						this.classList.add('active');
 					});
+					
+					// Para mobile: adicionar evento de toque
+					if (window.innerWidth <= 768) {
+						card.addEventListener('touchstart', function() {
+							cards.forEach(function(c) {
+								c.classList.remove('active');
+							});
+							this.classList.add('active');
+							
+							// Scroll suave para o card ativo
+							if (container) {
+								const cardLeft = this.offsetLeft;
+								container.scrollTo({
+									left: cardLeft,
+									behavior: 'smooth'
+								});
+							}
+						});
+					}
 				});
 			}
 			
@@ -271,6 +332,14 @@
 						$(".b4-viewing-right>div").removeClass("active");
 						$(this).addClass("active");
 					});
+					
+					// Garantir scroll inicial no mobile
+					if (window.innerWidth <= 768) {
+						var container = $(".b4-viewing-right")[0];
+						if (container) {
+							container.scrollLeft = 0;
+						}
+					}
 				});
 			}
 			
@@ -278,6 +347,14 @@
 			if (typeof Shopify !== 'undefined' && Shopify.designMode) {
 				document.addEventListener('shopify:section:load', initHoverEffect);
 			}
+			
+			// Reajustar scroll ao redimensionar a janela
+			window.addEventListener('resize', function() {
+				const container = document.querySelector('.b4-viewing-right');
+				if (container && window.innerWidth <= 768) {
+					container.scrollLeft = 0;
+				}
+			});
 		})();
 	</script>
 {% schema %}
