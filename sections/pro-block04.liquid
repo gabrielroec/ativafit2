@@ -499,10 +499,12 @@
 			}
 			
 			function initHoverEffect() {
-				const cards = document.querySelectorAll('.b4-viewing-right-wrapper>div, .b4-viewing-right>div');
 				const isTablet = window.innerWidth >= 769 && window.innerWidth <= 1024;
+				if (isTablet) return; // Não usar hover effect em tablet
 				
-				if (cards.length === 0 || isTablet) return;
+				// Para desktop (>1024px) - usar wrapper
+				const cards = document.querySelectorAll('.b4-viewing-right-wrapper>div');
+				if (cards.length === 0) return;
 				
 				cards.forEach(function(card) {
 					card.addEventListener('mouseenter', function() {
@@ -513,10 +515,12 @@
 						// Adiciona active no card atual
 						this.classList.add('active');
 					});
-					
-					// Para mobile: adicionar evento de toque
-					if (window.innerWidth <= 768) {
-						const container = document.querySelector('.b4-viewing-right');
+				});
+				
+				// Para mobile: adicionar evento de toque
+				if (window.innerWidth <= 768) {
+					const container = document.querySelector('.b4-viewing-right');
+					cards.forEach(function(card) {
 						card.addEventListener('touchstart', function() {
 							cards.forEach(function(c) {
 								c.classList.remove('active');
@@ -532,8 +536,8 @@
 								});
 							}
 						});
-					}
-				});
+					});
+				}
 			}
 			
 			// Inicializar quando o DOM estiver pronto
