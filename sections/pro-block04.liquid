@@ -416,7 +416,12 @@
 				createDots();
 				
 				function updateSlider() {
-					if (!isTablet) return;
+					const isTablet = checkIsTablet();
+					if (!isTablet) {
+						// Se não for tablet, resetar transform
+						wrapper.style.transform = 'translateX(0)';
+						return;
+					}
 					
 					const translateX = -currentIndex * 100;
 					wrapper.style.transform = 'translateX(' + translateX + '%)';
@@ -478,6 +483,7 @@
 				}
 				
 				// Inicializar
+				showHideControls();
 				updateSlider();
 				
 				// Reajustar ao redimensionar
@@ -485,12 +491,9 @@
 				window.addEventListener('resize', function() {
 					clearTimeout(resizeTimer);
 					resizeTimer = setTimeout(function() {
-						const newIsTablet = window.innerWidth >= 769 && window.innerWidth <= 1024;
-						if (newIsTablet !== isTablet) {
-							location.reload();
-						} else if (newIsTablet) {
-							updateSlider();
-						}
+						showHideControls();
+						createDots();
+						updateSlider();
 					}, 250);
 				});
 			}
