@@ -185,25 +185,69 @@
       justify-content: flex-start;
     }
     .b4-viewing-right {
-      flex: 1;
+      width: 100%;
       font-size: 14px;
+      overflow-x: auto;
       overflow-y: hidden;
+      display: flex;
+      gap: 20px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      padding: 0;
+      margin: 0;
+      scroll-padding-left: 0;
+      scroll-padding-right: 0;
+      scroll-behavior: smooth;
+    }
+    .b4-viewing-right::-webkit-scrollbar {
+      height: 4px;
+    }
+    .b4-viewing-right::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+    }
+    .b4-viewing-right::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 2px;
     }
     .b4-viewing-right > div {
       width: 100%;
+      min-width: 100%;
       flex-shrink: 0;
+      border-radius: 8px;
+      overflow: hidden;
+      scroll-snap-align: start;
+      margin: 0;
+      box-sizing: border-box;
+      position: relative;
+    }
+    .b4-viewing-right > div:first-child {
+      scroll-margin-left: 0;
+      scroll-margin-right: 0;
     }
     .b4-viewing-right .active {
       border: 1px solid #FF6100;
     }
     .b4-viewing-right > div > div {
+      min-height: 50px;
       display: flex;
       justify-content: center;
       align-items: center;
+      padding: 10px 0;
     }
     .viewing-head {
       font-size: 14px;
       line-height: 50px;
+      border-radius: 8px 8px 0 0;
+      opacity: 0;
+      transform: translateY(-100%);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .b4-viewing-right .active .viewing-head {
+      opacity: 1;
+      transform: translateY(0);
+      animation: slideDownFromTop 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .b4-viewing-right > div > div.viewing-img {
       height: 200px;
@@ -227,6 +271,15 @@
       line-height: 50px;
       font-size: 16px;
       width: 100%;
+      border-radius: 0 0 8px 8px;
+      opacity: 0;
+      transform: translateY(100%);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .b4-viewing-right .active .viewing-button {
+      opacity: 1;
+      transform: translateY(0);
+      animation: slideUpFromBottom 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
   }
