@@ -361,23 +361,117 @@
 	</div>
 	<script>
 		(function() {
-			function initHoverEffect() {
-				const cards = document.querySelectorAll('.b4-viewing-right>div');
+			function initSlider() {
 				const container = document.querySelector('.b4-viewing-right');
+				const wrapper = document.querySelector('.b4-viewing-right-wrapper');
+				const cards = document.querySelectorAll('.b4-viewing-right-wrapper>div');
+				const prevBtn = document.querySelector('.b4-slider-nav.prev');
+				const nextBtn = document.querySelector('.b4-slider-nav.next');
+				const dotsContainer = document.querySelector('.b4-slider-dots');
 				
-				if (cards.length === 0) return;
+				if (!container || !wrapper || cards.length === 0) return;
 				
-				// Garantir que o scroll comece na posição 0 (primeiro card totalmente visível)
-				if (container) {
-					container.scrollLeft = 0;
+				let currentIndex = 0;
+				const isTablet = window.innerWidth >= 769 && window.innerWidth <= 1024;
+				
+				// Criar dots
+				if (isTablet && dotsContainer) {
+					cards.forEach(function(_, index) {
+						const dot = document.createElement('button');
+						dot.className = 'b4-slider-dot' + (index === 0 ? ' active' : '');
+						dot.setAttribute('aria-label', 'Go to slide ' + (index + 1));
+						dot.addEventListener('click', function() {
+							goToSlide(index);
+						});
+						dotsContainer.appendChild(dot);
+					});
+				}
+				
+				function updateSlider() {
+					if (!isTablet) return;
 					
-					// Verificar se está no mobile e garantir scroll inicial
-					if (window.innerWidth <= 768) {
-						setTimeout(function() {
-							container.scrollLeft = 0;
-						}, 100);
+					const translateX = -currentIndex * 100;
+					wrapper.style.transform = 'translateX(' + translateX + '%)';
+					
+					// Atualizar botões
+					if (prevBtn) {
+						prevBtn.disabled = currentIndex === 0;
+					}
+					if (nextBtn) {
+						nextBtn.disabled = currentIndex === cards.length - 1;
+					}
+					
+					// Atualizar dots
+					const dots = document.querySelectorAll('.b4-slider-dot');
+					dots.forEach(function(dot, index) {
+						if (index === currentIndex) {
+							dot.classList.add('active');
+						} else {
+							dot.classList.remove('active');
+						}
+					});
+					
+					// Atualizar active nos cards
+					cards.forEach(function(card, index) {
+						if (index === currentIndex) {
+							card.classList.add('active');
+						} else {
+							card.classList.remove('active');
+						}
+					});
+				}
+				
+				function goToSlide(index) {
+					if (index < 0 || index >= cards.length) return;
+					currentIndex = index;
+					updateSlider();
+				}
+				
+				function nextSlide() {
+					if (currentIndex < cards.length - 1) {
+						currentIndex++;
+						updateSlider();
 					}
 				}
+				
+				function prevSlide() {
+					if (currentIndex > 0) {
+						currentIndex--;
+						updateSlider();
+					}
+				}
+				
+				// Event listeners para botões
+				if (prevBtn) {
+					prevBtn.addEventListener('click', prevSlide);
+				}
+				if (nextBtn) {
+					nextBtn.addEventListener('click', nextSlide);
+				}
+				
+				// Inicializar
+				updateSlider();
+				
+				// Reajustar ao redimensionar
+				let resizeTimer;
+				window.addEventListener('resize', function() {
+					clearTimeout(resizeTimer);
+					resizeTimer = setTimeout(function() {
+						const newIsTablet = window.innerWidth >= 769 && window.innerWidth <= 1024;
+						if (newIsTablet !== isTablet) {
+							location.reload();
+						} else if (newIsTablet) {
+							updateSlider();
+						}
+					}, 250);
+				});
+			}
+			
+			function initHoverEffect() {
+				const cards = document.querySelectorAll('.b4-viewing-right-wrapper>div, .b4-viewing-right>div');
+				const isTablet = window.innerWidth >= 769 && window.innerWidth <= 1024;
+				
+				if (cards.length === 0 || isTablet) return;
 				
 				cards.forEach(function(card) {
 					card.addEventListener('mouseenter', function() {
@@ -391,6 +485,7 @@
 					
 					// Para mobile: adicionar evento de toque
 					if (window.innerWidth <= 768) {
+						const container = document.querySelector('.b4-viewing-right');
 						card.addEventListener('touchstart', function() {
 							cards.forEach(function(c) {
 								c.classList.remove('active');
@@ -410,43 +505,24 @@
 				});
 			}
 			
-			// Tentar inicializar quando o DOM estiver pronto
+			// Inicializar quando o DOM estiver pronto
 			if (document.readyState === 'loading') {
-				document.addEventListener('DOMContentLoaded', initHoverEffect);
-			} else {
-				initHoverEffect();
-			}
-			
-			// Também tentar com jQuery se estiver disponível (para compatibilidade)
-			if (typeof jQuery !== 'undefined') {
-				jQuery(document).ready(function($) {
-					$(".b4-viewing-right>div").on('mouseenter', function(){
-						$(".b4-viewing-right>div").removeClass("active");
-						$(this).addClass("active");
-					});
-					
-					// Garantir scroll inicial no mobile
-					if (window.innerWidth <= 768) {
-						var container = $(".b4-viewing-right")[0];
-						if (container) {
-							container.scrollLeft = 0;
-						}
-					}
+				document.addEventListener('DOMContentLoaded', function() {
+					initSlider();
+					initHoverEffect();
 				});
+			} else {
+				initSlider();
+				initHoverEffect();
 			}
 			
 			// Para o Shopify Theme Editor
 			if (typeof Shopify !== 'undefined' && Shopify.designMode) {
-				document.addEventListener('shopify:section:load', initHoverEffect);
+				document.addEventListener('shopify:section:load', function() {
+					initSlider();
+					initHoverEffect();
+				});
 			}
-			
-			// Reajustar scroll ao redimensionar a janela
-			window.addEventListener('resize', function() {
-				const container = document.querySelector('.b4-viewing-right');
-				if (container && window.innerWidth <= 768) {
-					container.scrollLeft = 0;
-				}
-			});
 		})();
 	</script>
 {% schema %}
