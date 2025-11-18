@@ -34,14 +34,23 @@
 	.b4-viewing-right{
 		text-align: center; font-size: 14px; display: flex; justify-content: center; align-items: flex-start;
 	}
+	@media (min-width: 1025px){
+		.b4-viewing-right-wrapper{
+			gap: 40px;
+		}
+	}
 	@media (min-width: 1200px){
-		
+		.b4-viewing-right-wrapper{
+			gap: 60px;
+		}
 	}
 	@media (min-width: 1400px){
-		
+		.b4-viewing-right-wrapper{
+			gap: 80px;
+		}
 	}
-	.b4-viewing-right>div{
-		 border:1px solid #ffffff; border-radius: 8px; overflow: hidden;max-width: 300px;
+	.b4-viewing-right-wrapper>div{
+		border:1px solid #ffffff; border-radius: 8px; overflow: hidden; max-width: 300px; flex-shrink: 0;
 	}
 	.b4-viewing-right .active{
 		border:1px solid #FF6100;
@@ -91,9 +100,11 @@
 	.b4-viewing-right .active{
 		border:1px solid #FF6100;
 	}
+	.b4-viewing-right-wrapper>div.active .viewing-head,
 	.b4-viewing-right .active .viewing-head{
 		background-color: #FF6100;
 	}
+	.b4-viewing-right-wrapper>div.active .viewing-button,
 	.b4-viewing-right .active .viewing-button{
 		display: block;
 		opacity: 1;
@@ -111,6 +122,8 @@
 		}
 	}
 	/* Primeiro card já ativo por padrão - mostrar elementos sem animação inicial */
+	.b4-viewing-right-wrapper>div.active:first-of-type .viewing-head,
+	.b4-viewing-right-wrapper>div.active:first-of-type .viewing-button,
 	.b4-viewing-right>div.active:first-of-type .viewing-head,
 	.b4-viewing-right>div.active:first-of-type .viewing-button {
 		animation: none;
@@ -292,6 +305,7 @@
 		transform: translateY(100%);
 		transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 	}
+	.b4-viewing-right-wrapper>div.active .viewing-button,
 	.b4-viewing-right .active .viewing-button{
 		opacity: 1;
 		transform: translateY(0);
@@ -499,10 +513,12 @@
 			}
 			
 			function initHoverEffect() {
-				const cards = document.querySelectorAll('.b4-viewing-right-wrapper>div, .b4-viewing-right>div');
 				const isTablet = window.innerWidth >= 769 && window.innerWidth <= 1024;
+				if (isTablet) return; // Não usar hover effect em tablet
 				
-				if (cards.length === 0 || isTablet) return;
+				// Para desktop (>1024px) - usar wrapper
+				const cards = document.querySelectorAll('.b4-viewing-right-wrapper>div');
+				if (cards.length === 0) return;
 				
 				cards.forEach(function(card) {
 					card.addEventListener('mouseenter', function() {
@@ -513,10 +529,12 @@
 						// Adiciona active no card atual
 						this.classList.add('active');
 					});
-					
-					// Para mobile: adicionar evento de toque
-					if (window.innerWidth <= 768) {
-						const container = document.querySelector('.b4-viewing-right');
+				});
+				
+				// Para mobile: adicionar evento de toque
+				if (window.innerWidth <= 768) {
+					const container = document.querySelector('.b4-viewing-right');
+					cards.forEach(function(card) {
 						card.addEventListener('touchstart', function() {
 							cards.forEach(function(c) {
 								c.classList.remove('active');
@@ -532,8 +550,8 @@
 								});
 							}
 						});
-					}
-				});
+					});
+				}
 			}
 			
 			// Inicializar quando o DOM estiver pronto
