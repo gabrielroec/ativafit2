@@ -149,18 +149,36 @@
       let touchStartY = 0;
       let isDragging = false;
       let touchThreshold = 50;
+      let hasMoved = false;
       
       container.addEventListener('touchstart', (e) => {
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
         isDragging = true;
+        hasMoved = false;
         container.style.userSelect = 'none';
         container.style.webkitUserSelect = 'none';
       }, { passive: true });
       
       container.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
-        e.preventDefault();
+        
+        const touchCurrentX = e.touches[0].clientX;
+        const touchCurrentY = e.touches[0].clientY;
+        const diffX = Math.abs(touchStartX - touchCurrentX);
+        const diffY = Math.abs(touchStartY - touchCurrentY);
+        
+        // Se ainda não moveu o suficiente, não previne o scroll
+        if (!hasMoved && diffX < 10 && diffY < 10) {
+          return;
+        }
+        
+        hasMoved = true;
+        
+        // Só previne o scroll se o movimento for principalmente horizontal
+        if (diffX > diffY && diffX > 10) {
+          e.preventDefault();
+        }
       }, { passive: false });
       
       container.addEventListener('touchend', (e) => {
@@ -174,7 +192,8 @@
         container.style.userSelect = '';
         container.style.webkitUserSelect = '';
         
-        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > touchThreshold) {
+        // Só executa o swipe se foi um movimento horizontal claro
+        if (hasMoved && Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > touchThreshold) {
           if (diffX > 0) {
             // Swipe left - next slide
             nextSlide();
@@ -185,6 +204,7 @@
         }
         
         isDragging = false;
+        hasMoved = false;
       }, { passive: true });
       
       // Mouse drag support for desktop
