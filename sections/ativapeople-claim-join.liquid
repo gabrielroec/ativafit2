@@ -166,8 +166,8 @@
           <div class="logged-in-message text-center">
             <h3 class="mt-4 text-2xl font-bold">Welcome back, {{ customer.first_name }}!</h3>
             <div class="mt-4 flex justify-center space-x-4">
-              <a href="{{ routes.account_url }}" class="inline-block px-8 py-3 cta-button">View Profile</a>
-              <a href="{{ routes.all_products_collection_url }}" class="inline-block px-8 py-3 cta-button">Shop Now</a>
+              <a href="/account" class="inline-block px-8 py-3 cta-button">View Profile</a>
+              <a href="/collections/all" class="inline-block px-8 py-3 cta-button">Shop Now</a>
             </div>
           </div>
         {% else %}
@@ -285,124 +285,12 @@
     const loginForm = document.getElementById('form-login');
     if (loginForm && loginForm.querySelector('.form-errors')) { showTab('login'); } else { showTab('register'); }
   });
-
-  // Função para mover a claim-section para logo antes do #redeem (Ways to redeem points)
-  function moveClaimSection() {
-    console.log('[AtivaPeople] Tentando mover claim-section...');
-    
-    const redeemSection = document.getElementById('redeem');
-    const claimSectionWrapper = document.querySelector('.ativapeople-claim-join section:first-of-type');
-    const bonContent = document.querySelector('.bon-content');
-
-    console.log('[AtivaPeople] redeemSection:', redeemSection);
-    console.log('[AtivaPeople] claimSectionWrapper:', claimSectionWrapper);
-    console.log('[AtivaPeople] bonContent:', bonContent);
-
-    if (redeemSection && claimSectionWrapper && bonContent) {
-      // Verifica se já foi movida para evitar duplicação
-      if (!claimSectionWrapper.dataset.moved) {
-        // O #redeem pode ser o próprio .bon-item ou estar dentro de um
-        // Verificando a estrutura: <div id="redeem" class="bon-item ...">
-        let redeemItem = redeemSection;
-        if (!redeemSection.classList.contains('bon-item')) {
-          redeemItem = redeemSection.closest('.bon-item');
-        }
-        
-        console.log('[AtivaPeople] redeemItem:', redeemItem);
-
-        if (redeemItem && redeemItem.parentNode === bonContent) {
-          // Insere a claimSectionWrapper logo antes do redeemItem dentro do bonContent
-          bonContent.insertBefore(claimSectionWrapper, redeemItem);
-          
-          // Marca como movida para evitar mover novamente
-          claimSectionWrapper.dataset.moved = 'true';
-          console.log('[AtivaPeople] ✅ Seção movida com sucesso!');
-        } else {
-          console.log('[AtivaPeople] ❌ redeemItem não é filho direto de bonContent ou não encontrado');
-          console.log('[AtivaPeople] redeemItem.parentNode:', redeemItem ? redeemItem.parentNode : null);
-        }
-      } else {
-        console.log('[AtivaPeople] Seção já foi movida anteriormente');
-      }
-    } else {
-      console.log('[AtivaPeople] ❌ Elementos não encontrados');
-    }
-  }
-
-  // Tenta mover quando o DOM estiver pronto
-  function attemptMove() {
-    const redeemSection = document.getElementById('redeem');
-    const bonContent = document.querySelector('.bon-content');
-    const claimSectionWrapper = document.querySelector('.ativapeople-claim-join section:first-of-type');
-    
-    if (redeemSection && bonContent && claimSectionWrapper && !claimSectionWrapper.dataset.moved) {
-      moveClaimSection();
-      return claimSectionWrapper.dataset.moved === 'true';
-    }
-    return false;
-  }
-
-  // Função para iniciar as tentativas de mover
-  function startMoveAttempts() {
-    console.log('[AtivaPeople] Iniciando tentativas de mover...');
-    
-    // Tenta imediatamente
-    if (attemptMove()) return;
-    
-    // Tenta após 500ms
-    setTimeout(() => {
-      if (attemptMove()) return;
-      
-      // Tenta após 1.5s
-      setTimeout(() => {
-        if (attemptMove()) return;
-        
-        // Tenta após 3s
-        setTimeout(() => {
-          if (attemptMove()) return;
-          
-          // Última tentativa após 5s
-          setTimeout(() => {
-            attemptMove();
-          }, 2000);
-        }, 1500);
-      }, 1000);
-    }, 500);
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', startMoveAttempts);
-  } else {
-    startMoveAttempts();
-  }
-
-  // Observa mudanças no DOM para quando o Bon Loyalty carregar dinamicamente
-  const observer = new MutationObserver((mutations) => {
-    const claimSectionWrapper = document.querySelector('.ativapeople-claim-join section:first-of-type');
-    
-    if (claimSectionWrapper && claimSectionWrapper.dataset.moved === 'true') {
-      observer.disconnect();
-      return;
-    }
-    
-    const redeemSection = document.getElementById('redeem');
-    const bonContent = document.querySelector('.bon-content');
-    
-    if (redeemSection && claimSectionWrapper && bonContent && !claimSectionWrapper.dataset.moved) {
-      moveClaimSection();
-    }
-  });
-
-  // Inicia a observação no body para garantir que pegamos todas as mudanças
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true
-  });
 </script>
 
-{% comment %}
-  {% render 'globo_formbuilder_form', id: 'MTExNzkw' %}
-{% endcomment %}
+<div>
+  {% render 'globo_formbuilder_form'
+    , id: 'MTExNzkw' %}
+</div>
 
 {% schema %}
   {
