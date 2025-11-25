@@ -1,0 +1,177 @@
+{% comment %}
+  Shopify Section File: AtivaPeople Claim & Join Section
+  Contains the claim section and join/login section
+{% endcomment %}
+
+<script>
+  window.tailwind = window.tailwind || {};
+  window.tailwind.config = { corePlugins: { preflight: false } };
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+  :root {
+    --ativa-black: #000000;
+    --ativa-white: #FFFFFF;
+    --ativa-orange: #FF7332;
+    --ativa-grey: #F3F4F6;
+    --text-primary: #111827;
+    --text-secondary: #4B5563;
+  }
+  .ativapeople-claim-join {
+    font-family: 'Barlow', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    background-color: var(--ativa-white);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  .ativapeople-claim-join h1, .ativapeople-claim-join h2, .ativapeople-claim-join h3, .ativapeople-claim-join h4 { font-weight: 700 !important; }
+  .ativapeople-claim-join .brand-gradient-text {
+    background: linear-gradient(90deg, var(--ativa-orange), #F55D1C);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .ativapeople-claim-join .cta-button {
+    background-color: var(--ativa-orange);
+    color: var(--ativa-white);
+    font-weight: 600;
+    border-radius: 9999px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 14px 0 rgba(255, 115, 50, 0.3);
+  }
+  .ativapeople-claim-join .cta-button:hover { transform: translateY(-3px); box-shadow: 0 6px 20px 0 rgba(255, 115, 50, 0.4); }
+  .ativapeople-claim-join .tab-button[aria-selected="true"] { border-color: var(--ativa-orange); color: var(--ativa-orange); font-weight: 600; }
+  .ativapeople-claim-join .tab-button[aria-selected="false"] { border-color: transparent; color: var(--text-secondary); }
+  .ativapeople-claim-join .form-input { border: 1px solid #D1D5DB; transition: all 0.2s ease-in-out; }
+  .ativapeople-claim-join .form-input:focus { outline: none; border-color: var(--ativa-orange); box-shadow: 0 0 0 3px rgba(255, 115, 50, 0.2); }
+  .ativapeople-claim-join .form-errors { color:#ef4444; border:1px solid #ef4444; background:#fee2e2; padding:1rem; border-radius:.5rem; margin-bottom:1.5rem; }
+  .ativapeople-claim-join .form-success { color:#10b981; border:1px solid #10b981; background:#d1fae5; padding:1rem; border-radius:.5rem; margin-bottom:1.5rem; }
+</style>
+
+<div class="ativapeople-claim-join">
+  <section class="py-16 md:py-24 bg-gray-50">
+    <div class="max-w-[1400px] mx-auto">
+      <div id="claim-section" class="mt-16 max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg text-center">
+        {% if customer %}
+          <div id="claim-logged-in">
+            <svg class="mx-auto h-12 w-12 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.311a12.062 12.062 0 01-7.5 0c-1.453 0-2.64-.56-3.646-1.49a12.028 12.028 0 01-3.646-1.49c-1.286-1.285-1.99-2.982-1.99-4.738s.703-3.453 1.99-4.738z" /></svg>
+            <h3 class="mt-4 text-2xl font-bold">{{ section.settings.claim_headline | escape }}</h3>
+            <p class="mt-4 w-full text-center text-gray-600">{{ section.settings.claim_subheading | escape }}</p>
+            <div class="mt-8">
+              {% unless customer %}
+              <button type="button" class="inline-block px-8 py-3 cta-button globo-formbuilder-button-open" data-id="MTExNzkw">
+                {{ section.settings.claim_button_text | escape }}
+              </button>
+              {% endunless %}
+              <!-- Formulário Klaviyo apenas para usuários logados -->
+              {% if customer %}
+                <div class="klaviyo-form-Xgf5yx"></div>
+              {% endif %}
+            </div>
+          </div>
+          <p class="mt-4 text-xs text-gray-500">{{ section.settings.claim_note | escape }}</p>
+        {% else %}
+          <div id="claim-logged-out">
+            <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
+            <h3 class="mt-4 text-2xl font-bold">{{ section.settings.claim_headline | escape }}</h3>
+            <p class="mt-4 w-full text-center text-gray-600">Please log in or create an account to submit your content and claim your points.</p>
+            <div class="mt-8"><a href="#join-section" class="inline-block px-8 py-3 cta-button">Log In or Sign Up to Submit</a></div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  <section id="join-section" class="py-16 md:py-24" style="background-color: var(--ativa-black);">
+    <div class="max-w-lg mx-auto px-6">
+      <div class="bg-white p-8 md:p-12 rounded-2xl shadow-xl">
+        <div class="text-center">
+          <h2 class="text-3xl font-bold">
+            {{ section.settings.join_headline_part1 }}
+            <span class="brand-gradient-text">{{ section.settings.join_headline_part2_gradient }}</span>
+          </h2>
+        </div>
+        {% if customer %}
+          <div class="logged-in-message text-center">
+            <h3 class="mt-4 text-2xl font-bold">Welcome back, {{ customer.first_name }}!</h3>
+            <div class="mt-4 flex justify-center space-x-4">
+              <a href="/account" class="inline-block px-8 py-3 cta-button">View Profile</a>
+              <a href="/collections/all" class="inline-block px-8 py-3 cta-button">Shop Now</a>
+            </div>
+          </div>
+        {% else %}
+          <div class="mt-8 border-b border-gray-200">
+            <nav class="-mb-px flex justify-center space-x-8" aria-label="Tabs">
+              <button onclick="showTab('register')" aria-controls="form-register" role="tab" aria-selected="true" class="whitespace-nowrap py-4 px-1 border-b-2 text-base md:text-lg tab-button">Create Account</button>
+              <button onclick="showTab('login')" aria-controls="form-login" role="tab" aria-selected="false" class="whitespace-nowrap py-4 px-1 border-b-2 text-base md:text-lg tab-button">Log In</button>
+            </nav>
+          </div>
+
+          <div id="form-register" role="tabpanel" class="mt-8">
+            {% form 'create_customer', novalidate: 'novalidate' %}
+              {% if form.errors %}<div class="form-errors">{{ form.errors | default_errors }}</div>{% endif %}
+              {% if form.posted_successfully? %}<div class="form-success">Account created successfully! Please check your email to verify your account.</div>{% endif %}
+              <div class="space-y-6">
+                <div><label for="reg-name" class="block text-sm font-medium text-gray-700">Full Name</label><input id="reg-name" name="customer[first_name]" type="text" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
+                <div><label for="reg-email" class="block text-sm font-medium text-gray-700">Email Address</label><input id="reg-email" name="customer[email]" type="email" autocomplete="email" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
+                <div><label for="reg-password" class="block text-sm font-medium text-gray-700">Password</label><input id="reg-password" name="customer[password]" type="password" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
+                <div class="pt-2"><button type="submit" class="w-full flex justify-center py-3 px-4 text-lg cta-button">Create Account & Earn {{ section.settings.points_signup }} Points</button></div>
+              </div>
+            {% endform %}
+          </div>
+
+          <div id="form-login" role="tabpanel" class="mt-8 hidden">
+            {% form 'customer_login', novalidate: 'novalidate' %}
+              {% if form.errors %}<div class="form-errors">{{ form.errors | default_errors }}</div>{% endif %}
+              {% if form.posted_successfully? %}<div class="form-success">Logged in successfully!</div>{% endif %}
+              <div class="space-y-6">
+                <div><label for="login-email" class="block text-sm font-medium text-gray-700">Email Address</label><input id="login-email" name="customer[email]" type="email" autocomplete="email" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
+                <div><label for="login-password" class="block text-sm font-medium text-gray-700">Password</label><input id="login-password" name="customer[password]" type="password" autocomplete="current-password" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
+                <div class="text-right"><a href="{{ routes.account_recover_url }}" class="text-sm font-medium text-orange-600 hover:text-orange-500">Forgot password?</a></div>
+                <div class="pt-2"><button type="submit" class="w-full flex justify-center py-3 px-4 text-lg cta-button">Log In</button></div>
+              </div>
+            {% endform %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  function showTab(tabName) {
+    const tabs = document.querySelectorAll('[role="tab"]');
+    const tabPanels = document.querySelectorAll('[role="tabpanel"]');
+    tabs.forEach(tab => { const sel = tab.getAttribute('aria-controls') === `form-${tabName}`; tab.setAttribute('aria-selected', sel); });
+    tabPanels.forEach(panel => { const sel = panel.id === `form-${tabName}`; if (sel) panel.classList.remove('hidden'); else panel.classList.add('hidden'); });
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+    const loginForm = document.getElementById('form-login');
+    if (loginForm && loginForm.querySelector('.form-errors')) { showTab('login'); } else { showTab('register'); }
+  });
+</script>
+
+<div>
+  {% render 'globo_formbuilder_form', id: 'MTExNzkw' %}
+</div>
+
+{% schema %}
+{
+  "name": "AtivaPeople Claim & Join",
+  "settings": [
+    { "type": "header", "content": "Claim Section" },
+    { "type": "text", "id": "claim_headline", "label": "Headline", "default": "How to Claim Your UGC Points" },
+    { "type": "textarea", "id": "claim_subheading", "label": "Subheading (for logged-in users)", "default": "Shared your AtivaFit story? Awesome! Just submit the post link, and we'll manually add the points to your account after a quick review." },
+    { "type": "text", "id": "claim_button_text", "label": "Button Text", "default": "Submit Your Post Link Here" },
+    { "type": "text", "id": "claim_note", "label": "Note", "default": "*Post must be public and include #ativapeople. Limit one claim per category, per month.*" },
+    { "type": "header", "content": "Join Section" },
+    { "type": "text", "id": "join_headline_part1", "label": "Headline (Part 1)", "default": "Your Journey" },
+    { "type": "text", "id": "join_headline_part2_gradient", "label": "Headline (Gradient Part 2)", "default": "Starts Now" },
+    { "type": "number", "id": "points_signup", "label": "Points for Sign Up", "default": 200 }
+  ],
+  "presets": [
+    { "name": "AtivaPeople Claim & Join" }
+  ]
+}
+{% endschema %}
+
