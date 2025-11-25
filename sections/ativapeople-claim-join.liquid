@@ -295,18 +295,20 @@
       // Verifica se já foi movida para evitar duplicação
       if (!claimSectionWrapper.dataset.moved) {
         // Encontra o container pai do #earning (geralmente é um bon-item)
-        const earningParent = earningSection.closest('.bon-item') || earningSection.parentElement;
+        const earningItem = earningSection.closest('.bon-item');
+        const bonContent = document.querySelector('.bon-content');
         
-        if (earningParent && earningParent.nextSibling) {
-          // Insere após o elemento pai do #earning
-          earningParent.parentNode.insertBefore(claimSectionWrapper, earningParent.nextSibling);
-        } else if (earningParent) {
-          // Se não houver nextSibling, adiciona no final
-          earningParent.parentNode.appendChild(claimSectionWrapper);
+        if (earningItem && bonContent && claimSectionWrapper) {
+          // Insere a seção dentro de .bon-content logo após o .bon-item que contém #earning
+          if (earningItem.nextSibling) {
+            bonContent.insertBefore(claimSectionWrapper, earningItem.nextSibling);
+          } else {
+            bonContent.appendChild(claimSectionWrapper);
+          }
+          
+          // Marca como movida para evitar mover novamente
+          claimSectionWrapper.dataset.moved = 'true';
         }
-        
-        // Marca como movida para evitar mover novamente
-        claimSectionWrapper.dataset.moved = 'true';
       }
     }
   }
@@ -331,8 +333,13 @@
     const claimSectionWrapper = document.querySelector('.ativapeople-claim-join section:first-of-type');
     
     if (earningSection && claimSectionWrapper && !claimSectionWrapper.dataset.moved) {
-      moveClaimSection();
-      observer.disconnect();
+      const earningItem = earningSection.closest('.bon-item');
+      const bonContent = document.querySelector('.bon-content');
+      
+      if (earningItem && bonContent) {
+        moveClaimSection();
+        observer.disconnect();
+      }
     }
   });
 
