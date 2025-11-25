@@ -1,5 +1,5 @@
 {% comment %} 
-                      Shopify Section File: Loyalty UGC Claim & Join Section 
+              Shopify Section File: Loyalty UGC Claim & Join Section 
 {% endcomment %}
 
 <script>
@@ -93,8 +93,6 @@
 <div class="loyalty-body">
   <!-- UGC Claim Section -->
   <section class="py-16 md:py-24 bg-gray-50">
-    <div class="klaviyo-form-Xgf5yx"></div>
-
     <div class="max-w-[1400px] mx-auto">
       <div id="claim-section" class="mt-16 max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg text-center">
         {% if customer %}
@@ -137,6 +135,7 @@
             </svg>
             <h3 class="mt-4 text-2xl font-bold">{{ section.settings.claim_headline | escape }}</h3>
             <p class="mt-4 w-full text-center text-gray-600">{{ section.settings.claim_loggedout_text | escape }}</p>
+            <div class="klaviyo-form-Xgf5yx"></div>
             <div class="mt-8">
               <button onclick="openKlaviyoForm()" class="inline-block px-8 py-3 cta-button">{{ section.settings.claim_loggedout_button | escape }}</button>
             </div>
@@ -298,51 +297,19 @@
    }
    
    function openKlaviyoForm() {
-     console.log('Trying to open Klaviyo form...');
-     
-     // Method 1: Try the official Klaviyo API
+     // Trigger the Klaviyo form to open
      if (window.klaviyo) {
-       console.log('Using Klaviyo API');
        window.klaviyo.push(["openForm", "Xgf5yx"]);
-       return;
-     }
-     
-     // Method 2: Try KlaviyoSubscribe if it exists
-     if (window.KlaviyoSubscribe) {
-       console.log('Using KlaviyoSubscribe');
-       window.KlaviyoSubscribe.openModal('Xgf5yx');
-       return;
-     }
-     
-     // Method 3: Try to find and trigger the form button
-     const klaviyoButton = document.querySelector('[data-testid="klaviyo-form-Xgf5yx"] button, .klaviyo-form-Xgf5yx button');
-     if (klaviyoButton) {
-       console.log('Clicking Klaviyo button');
-       klaviyoButton.click();
-       return;
-     }
-     
-     // Method 4: Try to trigger the form div directly
-     const klaviyoForm = document.querySelector('.klaviyo-form-Xgf5yx');
-     if (klaviyoForm) {
-       console.log('Triggering form div');
-       // Try to trigger any click event listeners
-       klaviyoForm.dispatchEvent(new Event('click', {bubbles: true}));
-       // Try to focus if it's focusable
-       if (klaviyoForm.focus) klaviyoForm.focus();
-       return;
-     }
-     
-     // Method 5: Wait a bit and try again (in case Klaviyo is still loading)
-     console.log('Waiting for Klaviyo to load...');
-     setTimeout(() => {
-       if (window.klaviyo) {
-         window.klaviyo.push(["openForm", "Xgf5yx"]);
+     } else {
+       // Fallback - try to trigger by clicking the form element
+       const klaviyoForm = document.querySelector('.klaviyo-form-Xgf5yx');
+       if (klaviyoForm) {
+         klaviyoForm.click();
        } else {
-         // Final fallback - show alert
-         alert('Form is loading... Please try again in a moment or refresh the page.');
+         // Last resort - alert user to login first
+         alert('Please login or create an account first to submit your content.');
        }
-     }, 1000);
+     }
    }
    
    document.addEventListener('DOMContentLoaded', () => {
