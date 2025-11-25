@@ -48,94 +48,97 @@
   .ativapeople-claim-join .form-success { color:#10b981; border:1px solid #10b981; background:#d1fae5; padding:1rem; border-radius:.5rem; margin-bottom:1.5rem; }
 </style>
 
-<div class="ativapeople-claim-join">
-  <section class="py-16 md:py-24 bg-gray-50">
-    <div class="max-w-[1400px] mx-auto">
-      <div id="claim-section" class="mt-16 max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg text-center">
-        {% if customer %}
-          <div id="claim-logged-in">
-            <svg class="mx-auto h-12 w-12 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.311a12.062 12.062 0 01-7.5 0c-1.453 0-2.64-.56-3.646-1.49a12.028 12.028 0 01-3.646-1.49c-1.286-1.285-1.99-2.982-1.99-4.738s.703-3.453 1.99-4.738z" /></svg>
-            <h3 class="mt-4 text-2xl font-bold">{{ section.settings.claim_headline | escape }}</h3>
-            <p class="mt-4 w-full text-center text-gray-600">{{ section.settings.claim_subheading | escape }}</p>
-            <div class="mt-8">
-              {% unless customer %}
-              <button type="button" class="inline-block px-8 py-3 cta-button globo-formbuilder-button-open" data-id="MTExNzkw">
-                {{ section.settings.claim_button_text | escape }}
-              </button>
-              {% endunless %}
-              <!-- Formulário Klaviyo apenas para usuários logados -->
-              {% if customer %}
-                <div class="klaviyo-form-Xgf5yx"></div>
-              {% endif %}
+<!-- Container temporário que será movido para dentro do bon-body -->
+<div id="ativapeople-claim-join-temp" style="display: none;">
+  <div class="ativapeople-claim-join">
+    <section class="py-16 md:py-24 bg-gray-50">
+      <div class="max-w-[1400px] mx-auto">
+        <div id="claim-section" class="mt-16 max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg text-center">
+          {% if customer %}
+            <div id="claim-logged-in">
+              <svg class="mx-auto h-12 w-12 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.311a12.062 12.062 0 01-7.5 0c-1.453 0-2.64-.56-3.646-1.49a12.028 12.028 0 01-3.646-1.49c-1.286-1.285-1.99-2.982-1.99-4.738s.703-3.453 1.99-4.738z" /></svg>
+              <h3 class="mt-4 text-2xl font-bold">{{ section.settings.claim_headline | escape }}</h3>
+              <p class="mt-4 w-full text-center text-gray-600">{{ section.settings.claim_subheading | escape }}</p>
+              <div class="mt-8">
+                {% unless customer %}
+                <button type="button" class="inline-block px-8 py-3 cta-button globo-formbuilder-button-open" data-id="MTExNzkw">
+                  {{ section.settings.claim_button_text | escape }}
+                </button>
+                {% endunless %}
+                <!-- Formulário Klaviyo apenas para usuários logados -->
+                {% if customer %}
+                  <div class="klaviyo-form-Xgf5yx"></div>
+                {% endif %}
+              </div>
             </div>
-          </div>
-          <p class="mt-4 text-xs text-gray-500">{{ section.settings.claim_note | escape }}</p>
-        {% else %}
-          <div id="claim-logged-out">
-            <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
-            <h3 class="mt-4 text-2xl font-bold">{{ section.settings.claim_headline | escape }}</h3>
-            <p class="mt-4 w-full text-center text-gray-600">Please log in or create an account to submit your content and claim your points.</p>
-            <div class="mt-8"><a href="#join-section" class="inline-block px-8 py-3 cta-button">Log In or Sign Up to Submit</a></div>
-          </div>
-        {% endif %}
-      </div>
-    </div>
-  </section>
-
-  <section id="join-section" class="py-16 md:py-24" style="background-color: var(--ativa-black);">
-    <div class="max-w-lg mx-auto px-6">
-      <div class="bg-white p-8 md:p-12 rounded-2xl shadow-xl">
-        <div class="text-center">
-          <h2 class="text-3xl font-bold">
-            {{ section.settings.join_headline_part1 }}
-            <span class="brand-gradient-text">{{ section.settings.join_headline_part2_gradient }}</span>
-          </h2>
+            <p class="mt-4 text-xs text-gray-500">{{ section.settings.claim_note | escape }}</p>
+          {% else %}
+            <div id="claim-logged-out">
+              <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
+              <h3 class="mt-4 text-2xl font-bold">{{ section.settings.claim_headline | escape }}</h3>
+              <p class="mt-4 w-full text-center text-gray-600">Please log in or create an account to submit your content and claim your points.</p>
+              <div class="mt-8"><a href="#join-section" class="inline-block px-8 py-3 cta-button">Log In or Sign Up to Submit</a></div>
+            </div>
+          {% endif %}
         </div>
-        {% if customer %}
-          <div class="logged-in-message text-center">
-            <h3 class="mt-4 text-2xl font-bold">Welcome back, {{ customer.first_name }}!</h3>
-            <div class="mt-4 flex justify-center space-x-4">
-              <a href="/account" class="inline-block px-8 py-3 cta-button">View Profile</a>
-              <a href="/collections/all" class="inline-block px-8 py-3 cta-button">Shop Now</a>
-            </div>
-          </div>
-        {% else %}
-          <div class="mt-8 border-b border-gray-200">
-            <nav class="-mb-px flex justify-center space-x-8" aria-label="Tabs">
-              <button onclick="showTab('register')" aria-controls="form-register" role="tab" aria-selected="true" class="whitespace-nowrap py-4 px-1 border-b-2 text-base md:text-lg tab-button">Create Account</button>
-              <button onclick="showTab('login')" aria-controls="form-login" role="tab" aria-selected="false" class="whitespace-nowrap py-4 px-1 border-b-2 text-base md:text-lg tab-button">Log In</button>
-            </nav>
-          </div>
-
-          <div id="form-register" role="tabpanel" class="mt-8">
-            {% form 'create_customer', novalidate: 'novalidate' %}
-              {% if form.errors %}<div class="form-errors">{{ form.errors | default_errors }}</div>{% endif %}
-              {% if form.posted_successfully? %}<div class="form-success">Account created successfully! Please check your email to verify your account.</div>{% endif %}
-              <div class="space-y-6">
-                <div><label for="reg-name" class="block text-sm font-medium text-gray-700">Full Name</label><input id="reg-name" name="customer[first_name]" type="text" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
-                <div><label for="reg-email" class="block text-sm font-medium text-gray-700">Email Address</label><input id="reg-email" name="customer[email]" type="email" autocomplete="email" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
-                <div><label for="reg-password" class="block text-sm font-medium text-gray-700">Password</label><input id="reg-password" name="customer[password]" type="password" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
-                <div class="pt-2"><button type="submit" class="w-full flex justify-center py-3 px-4 text-lg cta-button">Create Account & Earn {{ section.settings.points_signup }} Points</button></div>
-              </div>
-            {% endform %}
-          </div>
-
-          <div id="form-login" role="tabpanel" class="mt-8 hidden">
-            {% form 'customer_login', novalidate: 'novalidate' %}
-              {% if form.errors %}<div class="form-errors">{{ form.errors | default_errors }}</div>{% endif %}
-              {% if form.posted_successfully? %}<div class="form-success">Logged in successfully!</div>{% endif %}
-              <div class="space-y-6">
-                <div><label for="login-email" class="block text-sm font-medium text-gray-700">Email Address</label><input id="login-email" name="customer[email]" type="email" autocomplete="email" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
-                <div><label for="login-password" class="block text-sm font-medium text-gray-700">Password</label><input id="login-password" name="customer[password]" type="password" autocomplete="current-password" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
-                <div class="text-right"><a href="{{ routes.account_recover_url }}" class="text-sm font-medium text-orange-600 hover:text-orange-500">Forgot password?</a></div>
-                <div class="pt-2"><button type="submit" class="w-full flex justify-center py-3 px-4 text-lg cta-button">Log In</button></div>
-              </div>
-            {% endform %}
-          </div>
-        {% endif %}
       </div>
-    </div>
-  </section>
+    </section>
+
+    <section id="join-section" class="py-16 md:py-24" style="background-color: var(--ativa-black);">
+      <div class="max-w-lg mx-auto px-6">
+        <div class="bg-white p-8 md:p-12 rounded-2xl shadow-xl">
+          <div class="text-center">
+            <h2 class="text-3xl font-bold">
+              {{ section.settings.join_headline_part1 }}
+              <span class="brand-gradient-text">{{ section.settings.join_headline_part2_gradient }}</span>
+            </h2>
+          </div>
+          {% if customer %}
+            <div class="logged-in-message text-center">
+              <h3 class="mt-4 text-2xl font-bold">Welcome back, {{ customer.first_name }}!</h3>
+              <div class="mt-4 flex justify-center space-x-4">
+                <a href="/account" class="inline-block px-8 py-3 cta-button">View Profile</a>
+                <a href="/collections/all" class="inline-block px-8 py-3 cta-button">Shop Now</a>
+              </div>
+            </div>
+          {% else %}
+            <div class="mt-8 border-b border-gray-200">
+              <nav class="-mb-px flex justify-center space-x-8" aria-label="Tabs">
+                <button onclick="showTab('register')" aria-controls="form-register" role="tab" aria-selected="true" class="whitespace-nowrap py-4 px-1 border-b-2 text-base md:text-lg tab-button">Create Account</button>
+                <button onclick="showTab('login')" aria-controls="form-login" role="tab" aria-selected="false" class="whitespace-nowrap py-4 px-1 border-b-2 text-base md:text-lg tab-button">Log In</button>
+              </nav>
+            </div>
+
+            <div id="form-register" role="tabpanel" class="mt-8">
+              {% form 'create_customer', novalidate: 'novalidate' %}
+                {% if form.errors %}<div class="form-errors">{{ form.errors | default_errors }}</div>{% endif %}
+                {% if form.posted_successfully? %}<div class="form-success">Account created successfully! Please check your email to verify your account.</div>{% endif %}
+                <div class="space-y-6">
+                  <div><label for="reg-name" class="block text-sm font-medium text-gray-700">Full Name</label><input id="reg-name" name="customer[first_name]" type="text" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
+                  <div><label for="reg-email" class="block text-sm font-medium text-gray-700">Email Address</label><input id="reg-email" name="customer[email]" type="email" autocomplete="email" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
+                  <div><label for="reg-password" class="block text-sm font-medium text-gray-700">Password</label><input id="reg-password" name="customer[password]" type="password" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
+                  <div class="pt-2"><button type="submit" class="w-full flex justify-center py-3 px-4 text-lg cta-button">Create Account & Earn {{ section.settings.points_signup }} Points</button></div>
+                </div>
+              {% endform %}
+            </div>
+
+            <div id="form-login" role="tabpanel" class="mt-8 hidden">
+              {% form 'customer_login', novalidate: 'novalidate' %}
+                {% if form.errors %}<div class="form-errors">{{ form.errors | default_errors }}</div>{% endif %}
+                {% if form.posted_successfully? %}<div class="form-success">Logged in successfully!</div>{% endif %}
+                <div class="space-y-6">
+                  <div><label for="login-email" class="block text-sm font-medium text-gray-700">Email Address</label><input id="login-email" name="customer[email]" type="email" autocomplete="email" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
+                  <div><label for="login-password" class="block text-sm font-medium text-gray-700">Password</label><input id="login-password" name="customer[password]" type="password" autocomplete="current-password" required class="mt-1 form-input block w-full px-4 py-3 rounded-md shadow-sm sm:text-sm"></div>
+                  <div class="text-right"><a href="{{ routes.account_recover_url }}" class="text-sm font-medium text-orange-600 hover:text-orange-500">Forgot password?</a></div>
+                  <div class="pt-2"><button type="submit" class="w-full flex justify-center py-3 px-4 text-lg cta-button">Log In</button></div>
+                </div>
+              {% endform %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+  </div>
 </div>
 
 <script>
