@@ -148,10 +148,78 @@
     tabs.forEach(tab => { const sel = tab.getAttribute('aria-controls') === `form-${tabName}`; tab.setAttribute('aria-selected', sel); });
     tabPanels.forEach(panel => { const sel = panel.id === `form-${tabName}`; if (sel) panel.classList.remove('hidden'); else panel.classList.add('hidden'); });
   }
-  document.addEventListener('DOMContentLoaded', () => {
-    const loginForm = document.getElementById('form-login');
-    if (loginForm && loginForm.querySelector('.form-errors')) { showTab('login'); } else { showTab('register'); }
+
+  // Função para inserir o conteúdo dentro do bon-body após #earning
+  function insertClaimJoinSection() {
+    const tempContainer = document.getElementById('ativapeople-claim-join-temp');
+    if (!tempContainer) return;
+
+    const earningSection = document.getElementById('earning');
+    const bonBody = document.querySelector('.bon-body');
+    const bonContent = document.querySelector('.bon-content');
+
+    // Tenta encontrar o elemento #earning dentro do bon-body ou bon-content
+    if (earningSection && (bonBody || bonContent)) {
+      const targetContainer = bonContent || bonBody;
+      const content = tempContainer.innerHTML;
+      
+      // Cria um novo elemento para inserir
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = content;
+      wrapper.className = 'ativapeople-claim-join-wrapper';
+      
+      // Insere logo após o elemento #earning
+      if (earningSection.nextSibling) {
+        targetContainer.insertBefore(wrapper, earningSection.nextSibling);
+      } else {
+        targetContainer.appendChild(wrapper);
+      }
+      
+      // Remove o container temporário
+      tempContainer.remove();
+      
+      // Inicializa os tabs
+      const loginForm = document.getElementById('form-login');
+      if (loginForm && loginForm.querySelector('.form-errors')) { 
+        showTab('login'); 
+      } else { 
+        showTab('register'); 
+      }
+    }
+  }
+
+  // Tenta inserir quando o DOM estiver pronto
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      // Aguarda um pouco para garantir que o Bon Loyalty carregou
+      setTimeout(insertClaimJoinSection, 500);
+      // Tenta novamente após mais tempo caso ainda não tenha carregado
+      setTimeout(insertClaimJoinSection, 2000);
+      setTimeout(insertClaimJoinSection, 5000);
+    });
+  } else {
+    setTimeout(insertClaimJoinSection, 500);
+    setTimeout(insertClaimJoinSection, 2000);
+    setTimeout(insertClaimJoinSection, 5000);
+  }
+
+  // Observa mudanças no DOM para quando o Bon Loyalty carregar dinamicamente
+  const observer = new MutationObserver((mutations) => {
+    const earningSection = document.getElementById('earning');
+    if (earningSection && document.getElementById('ativapeople-claim-join-temp')) {
+      insertClaimJoinSection();
+      observer.disconnect();
+    }
   });
+
+  // Inicia a observação
+  const bonBody = document.querySelector('.bon-body') || document.querySelector('.bon-content') || document.body;
+  if (bonBody) {
+    observer.observe(bonBody, {
+      childList: true,
+      subtree: true
+    });
+  }
 </script>
 
 <div>
