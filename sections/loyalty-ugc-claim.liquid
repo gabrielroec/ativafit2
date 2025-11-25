@@ -1,0 +1,249 @@
+{% comment %} 
+    Shopify Section File: Loyalty UGC Claim Section 
+{% endcomment %}
+
+<script>
+  window.tailwind = window.tailwind || {};
+  window.tailwind.config = { corePlugins: { preflight: false } };
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+  :root {
+    --ativa-black: #000000;
+    --ativa-white: #FFFFFF;
+    --ativa-orange: #FF7332;
+    --ativa-grey: #F3F4F6;
+    --text-primary: #111827;
+    --text-secondary: #4B5563;
+  }
+  .loyalty-body {
+    font-family: 'Barlow'
+    , ui-sans-serif
+    , system-ui
+    , -apple-system
+    , Segoe UI
+    , Roboto
+    , Helvetica
+    , Arial;
+    background-color: var(--ativa-white);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  .loyalty-body h1,
+  .loyalty-body h2,
+  .loyalty-body h3,
+  .loyalty-body h4 {
+    font-weight: 700 !important;
+  }
+  .loyalty-body .brand-gradient-text {
+    background: linear-gradient(90deg, var(--ativa-orange), #F55D1C);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .loyalty-body .cta-button {
+    background-color: var(--ativa-orange);
+    color: var(--ativa-white);
+    font-weight: 600;
+    border-radius: 9999px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 14px 0 rgba(255, 115, 50, 0.3);
+  }
+  .loyalty-body .cta-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px 0 rgba(255, 115, 50, 0.4);
+  }
+  .loyalty-body .form-input {
+    border: 1px solid #D1D5DB;
+    transition: all 0.2s ease-in-out;
+  }
+  .loyalty-body .form-input:focus {
+    outline: none;
+    border-color: var(--ativa-orange);
+    box-shadow: 0 0 0 3px rgba(255, 115, 50, 0.2);
+  }
+  .loyalty-body .form-errors {
+    color: #ef4444;
+    border: 1px solid #ef4444;
+    background: #fee2e2;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .loyalty-body .form-success {
+    color: #22c55e;
+    border: 1px solid #22c55e;
+    background: #f0fdf4;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .klaviyo-form-Xgf5yx {
+    display: none;
+  }
+  .klaviyo-popup-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9998;
+    align-items: center;
+    justify-content: center;
+  }
+  .klaviyo-popup-overlay.active {
+    display: flex;
+  }
+  .klaviyo-popup-content {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    z-index: 9999;
+  }
+  .klaviyo-popup-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s;
+  }
+  .klaviyo-popup-close:hover {
+    background: #f3f4f6;
+    color: #000;
+  }
+  .klaviyo-popup-content .klaviyo-form-Xgf5yx {
+    display: block !important;
+  }
+</style>
+
+<div class="loyalty-body">
+  <!-- Klaviyo Form (hidden by default) -->
+  <div class="klaviyo-form-Xgf5yx"></div>
+
+  <!-- Popup Modal -->
+  <div
+    id="klaviyo-popup-overlay"
+    class="klaviyo-popup-overlay"
+    onclick="closeKlaviyoPopup(event)">
+    <div class="klaviyo-popup-content" onclick="event.stopPropagation()">
+      <button
+        class="klaviyo-popup-close"
+        onclick="closeKlaviyoPopup()"
+        aria-label="Close">×</button>
+      <div class="klaviyo-form-Xgf5yx"></div>
+    </div>
+  </div>
+
+  <!-- UGC Claim Section -->
+  <section class="py-16 md:py-24 bg-gray-50">
+    <div class="max-w-[1400px] mx-auto">
+      <div id="claim-section" class="mt-16 max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg text-center">
+        <svg
+          class="mx-auto h-12 w-12 text-orange-500"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          aria-hidden="true">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.311a12.062 12.062 0 01-7.5 0c-1.453 0-2.64-.56-3.646-1.49a12.028 12.028 0 01-3.646-1.49c-1.286-1.285-1.99-2.982-1.99-4.738s.703-3.453 1.99-4.738z" />
+        </svg>
+        <h3 class="mt-4 text-2xl font-bold">{{ section.settings.claim_headline | escape }}</h3>
+        <p class="mt-4 w-full text-center text-gray-600">{{ section.settings.claim_subheading | escape }}</p>
+        <div class="mt-8">
+          <button onclick="openKlaviyoPopup()" class="inline-block px-8 py-3 cta-button">{{ section.settings.claim_button_text | default: "Submit Your Post Link Here" | escape }}</button>
+        </div>
+        <p class="mt-4 text-xs text-gray-500">{{ section.settings.claim_note | escape }}</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+   function openKlaviyoPopup() {
+     const overlay = document.getElementById('klaviyo-popup-overlay');
+     if (overlay) {
+       overlay.classList.add('active');
+       document.body.style.overflow = 'hidden';
+     }
+   }
+   
+   function closeKlaviyoPopup(event) {
+     if (event && event.target !== event.currentTarget) {
+       return;
+     }
+     const overlay = document.getElementById('klaviyo-popup-overlay');
+     if (overlay) {
+       overlay.classList.remove('active');
+       document.body.style.overflow = '';
+     }
+   }
+   
+   // Close popup on ESC key
+   document.addEventListener('keydown', function(e) {
+     if (e.key === 'Escape') {
+       closeKlaviyoPopup();
+     }
+   });
+</script>
+
+{% schema %}
+  {
+    "name": "Loyalty UGC Claim",
+    "settings": [
+      {
+        "type": "header",
+        "content": "UGC Claim Section"
+      },
+      {
+        "type": "text",
+        "id": "claim_headline",
+        "label": "Claim Headline",
+        "default": "How to Claim Your UGC Points"
+      },
+      {
+        "type": "textarea",
+        "id": "claim_subheading",
+        "label": "Claim Subheading",
+        "default": "Shared your AtivaFit story? Awesome! Just submit the post link, and we'll manually add the points to your account after a quick review."
+      },
+      {
+        "type": "text",
+        "id": "claim_button_text",
+        "label": "Claim Button Text",
+        "default": "Submit Your Post Link Here"
+      }, {
+        "type": "text",
+        "id": "claim_note",
+        "label": "Claim Note",
+        "default": "*Post must be public and include #ativapeople. Limit one claim per category, per month.*"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Loyalty UGC Claim"
+      }
+    ]
+  }
+{% endschema %}
