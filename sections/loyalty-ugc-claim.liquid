@@ -297,19 +297,51 @@
    }
    
    function openKlaviyoForm() {
-     // Trigger the Klaviyo form to open
+     console.log('Trying to open Klaviyo form...');
+     
+     // Method 1: Try the official Klaviyo API
      if (window.klaviyo) {
+       console.log('Using Klaviyo API');
        window.klaviyo.push(["openForm", "Xgf5yx"]);
-     } else {
-       // Fallback - try to trigger by clicking the form element
-       const klaviyoForm = document.querySelector('.klaviyo-form-Xgf5yx');
-       if (klaviyoForm) {
-         klaviyoForm.click();
-       } else {
-         // Last resort - alert user to login first
-         alert('Please login or create an account first to submit your content.');
-       }
+       return;
      }
+     
+     // Method 2: Try KlaviyoSubscribe if it exists
+     if (window.KlaviyoSubscribe) {
+       console.log('Using KlaviyoSubscribe');
+       window.KlaviyoSubscribe.openModal('Xgf5yx');
+       return;
+     }
+     
+     // Method 3: Try to find and trigger the form button
+     const klaviyoButton = document.querySelector('[data-testid="klaviyo-form-Xgf5yx"] button, .klaviyo-form-Xgf5yx button');
+     if (klaviyoButton) {
+       console.log('Clicking Klaviyo button');
+       klaviyoButton.click();
+       return;
+     }
+     
+     // Method 4: Try to trigger the form div directly
+     const klaviyoForm = document.querySelector('.klaviyo-form-Xgf5yx');
+     if (klaviyoForm) {
+       console.log('Triggering form div');
+       // Try to trigger any click event listeners
+       klaviyoForm.dispatchEvent(new Event('click', {bubbles: true}));
+       // Try to focus if it's focusable
+       if (klaviyoForm.focus) klaviyoForm.focus();
+       return;
+     }
+     
+     // Method 5: Wait a bit and try again (in case Klaviyo is still loading)
+     console.log('Waiting for Klaviyo to load...');
+     setTimeout(() => {
+       if (window.klaviyo) {
+         window.klaviyo.push(["openForm", "Xgf5yx"]);
+       } else {
+         // Final fallback - show alert
+         alert('Form is loading... Please try again in a moment or refresh the page.');
+       }
+     }, 1000);
    }
    
    document.addEventListener('DOMContentLoaded', () => {
