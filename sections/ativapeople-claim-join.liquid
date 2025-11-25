@@ -314,17 +314,25 @@
   }
 
   // Tenta mover quando o DOM estiver pronto
+  function attemptMove() {
+    const earningSection = document.getElementById('earning');
+    const bonContent = document.querySelector('.bon-content');
+    const claimSectionWrapper = document.querySelector('.ativapeople-claim-join section:first-of-type');
+    
+    if (earningSection && bonContent && claimSectionWrapper && !claimSectionWrapper.dataset.moved) {
+      moveClaimSection();
+      return true;
+    }
+    return false;
+  }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       // Aguarda um pouco para garantir que o Bon Loyalty carregou
-      setTimeout(moveClaimSection, 500);
-      setTimeout(moveClaimSection, 2000);
-      setTimeout(moveClaimSection, 5000);
+      setTimeout(() => attemptMove() || setTimeout(() => attemptMove() || setTimeout(attemptMove, 2000), 2000), 1000);
     });
   } else {
-    setTimeout(moveClaimSection, 500);
-    setTimeout(moveClaimSection, 2000);
-    setTimeout(moveClaimSection, 5000);
+    setTimeout(() => attemptMove() || setTimeout(() => attemptMove() || setTimeout(attemptMove, 2000), 2000), 1000);
   }
 
   // Observa mudanças no DOM para quando o Bon Loyalty carregar dinamicamente
