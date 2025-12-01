@@ -1,421 +1,576 @@
 <style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
   .shane-pro-b4 {
     width: 100%;
     max-width: 1400px;
     margin: 0 auto;
-    padding: 0 20px 60px;
+    padding: 40px 20px;
     box-sizing: border-box;
   }
-  .shane-pro-b4 h2 {
-    margin: 0;
+
+  .header {
     text-align: center;
-    font-size: 36px;
-    font-weight: 400;
+    margin-bottom: 50px;
+    background-color: #fff;
+  }
+
+  .header h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 16px;
     line-height: 1.3;
   }
-  @media (max-width: 1200px) {
-    .shane-pro-b4 h2 {
-      font-size: 32px;
-    }
-  }
-  @media (max-width: 992px) {
-    .shane-pro-b4 h2 {
-      font-size: 28px;
-    }
-  }
-  .shane-pro-b4 > .text {
-    font-size: 14px;
-    opacity: 0.6;
-    width: 600px;
-    max-width: calc(100% - 40px);
-    margin: 20px auto 0 !important;
-    text-align: center;
-    line-height: 20px;
-  }
-  .b4-viewing {
-    display: flex;
-    width: 100%;
-    justify-content: center !important;
-    gap: 100px;
-    align-items: flex-start;
-  }
-  .b4-viewing-left {
-    max-width: 100%;
-    font-size: 14px;
-    flex-shrink: 0;
-  }
-  .b4-viewing-left > div:first-child {
-    margin-top: 230px;
-  }
-  .b4-viewing-right {
-    text-align: center;
-    font-size: 14px;
-    display: flex;
-    justify-content: flex-end;
-    align-items: flex-start;
-    gap: 20px;
-  }
-  @media (min-width: 1200px) {}
-@media (min-width: 1400px) {}
-.b4-viewing-right > div {
-  border: 1px solid #ffffff;
-  border-radius: 8px;
-  overflow: hidden;
-  max-width: 300px;
-}
-.b4-viewing-right .active {
-  border: 1px solid #FF6100;
-}
-.viewing-head {
-  font-size: 14px;
-  color: #fff;
-  background-color: #ffffff;
-  text-transform: uppercase;
-  line-height: 40px;
-  border-radius: 8px 8px 0 0;
-  opacity: 0;
-  transform: translateY(-100%);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.b4-viewing-right .active .viewing-head {
-  opacity: 1;
-  transform: translateY(0);
-  animation: slideDownFromTop 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-@keyframes slideDownFromTop {
-  from {
-    opacity: 0;
-    transform: translateY(-100%);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-.viewing-img {
-  height: 180px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.viewing-img img {
-  height: 80%;
-}
-.viewing-title {
-  font-size: 16px;
-  font-weight: 600;
-}
-.viewing-price {
-  font-size: 18px;
-  font-weight: 600;
-}
-.viewing-cart {
-  height: 40px;
-}
-.viewing-cart .viewing-button {
-  width: 100%;
-  height: 100%;
-  line-height: 40px;
-  background-color: #FF6100;
-  color: #fff;
-  font-size: 16px;
-  border: 0;
-  margin: 0;
-  padding: 0;
-  cursor: pointer;
-  display: none;
-  border-radius: 0 0 8px 8px;
-  opacity: 0;
-  transform: translateY(100%);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.b4-viewing-right .active {
-  border: 1px solid #FF6100;
-}
-.b4-viewing-right .active .viewing-head {
-  background-color: #FF6100;
-}
-.b4-viewing-right .active .viewing-button {
-  display: block;
-  opacity: 1;
-  transform: translateY(0);
-  animation: slideUpFromBottom 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-@keyframes slideUpFromBottom {
-  from {
-    opacity: 0;
-    transform: translateY(100%);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-/* Primeiro card já ativo por padrão - mostrar elementos sem animação inicial */
-.b4-viewing-right > div.active:first-of-type .viewing-head,
-.b4-viewing-right > div.active:first-of-type .viewing-button {
-  animation: none;
-  opacity: 1;
-  transform: translateY(0);
-}
-@media (max-width: 1024px) and (min-width: 769px) {
-  .b4-viewing-right {
-    width: 100% !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    scroll-snap-type: x mandatory !important;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-    scroll-behavior: smooth;
-    padding-bottom: 10px;
-    gap: 0 !important;
-    justify-content: flex-start !important;
-  }
-  .b4-viewing-right::-webkit-scrollbar {
-    height: 6px;
-  }
-  .b4-viewing-right::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
-  }
-  .b4-viewing-right::-webkit-scrollbar-thumb {
-    background: rgba(255, 97, 0, 0.5);
-    border-radius: 3px;
-  }
-  .b4-viewing-right::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 97, 0, 0.7);
-  }
-  .b4-viewing-right > div {
-    width: 300px !important;
-    min-width: 300px !important;
-    max-width: 300px !important;
-    flex-shrink: 0 !important;
-    scroll-snap-align: start !important;
-    margin-right: 20px;
-    box-sizing: border-box;
-  }
-  .b4-viewing-right > div:last-child {
-    margin-right: 0;
-    padding-right: 20px;
-  }
-}
-@media (max-width: 768px) {
-  .b4-viewing-right {
-    width: 100% !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    scroll-snap-type: x mandatory !important;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-    scroll-behavior: smooth;
-    padding-bottom: 10px;
-    gap: 0 !important;
-    justify-content: flex-start !important;
-  }
-  .b4-viewing-right::-webkit-scrollbar {
-    height: 6px;
-  }
-  .b4-viewing-right::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
-  }
-  .b4-viewing-right::-webkit-scrollbar-thumb {
-    background: rgba(255, 97, 0, 0.5);
-    border-radius: 3px;
-  }
-  .b4-viewing-right::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 97, 0, 0.7);
-  }
-  .b4-viewing-right > div {
-    width: 300px !important;
-    min-width: 300px !important;
-    max-width: 300px !important;
-    flex-shrink: 0 !important;
-    scroll-snap-align: start !important;
-    margin-right: 20px;
-    box-sizing: border-box;
-  }
-  .b4-viewing-right > div:last-child {
-    margin-right: 0;
-    padding-right: 20px;
-  }
-}
 
+  .header .text {
+    font-size: 1.1rem;
+    color: #666;
+    max-width: 600px;
+    margin: 0 auto !important;
+    line-height: 1.6;
+
+  }
+
+  .scroll-indicator {
+    display: none;
+    text-align: center;
+    padding: 12px;
+    color: #888;
+    font-size: 0.85rem;
+    background: #f5f5f5;
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+
+  .scroll-indicator span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .scroll-indicator svg {
+    animation: scrollHint 1.5s ease-in-out infinite;
+  }
+
+  @keyframes scrollHint {
+    0,
+    100% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(8px);
+    }
+  }
+
+  .comparison-wrapper {
+    display: flex;
+    gap: 0;
+    background: #fff;
+    border-radius: 16px;
+    /* box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08); */
+    overflow: hidden;
+  }
+
+  /* Feature Labels Column */
+  .features-column {
+    flex-shrink: 0;
+    width: 200px;
+    background: #fff;
+    border-right: 1px solid #eee;
+  }
+
+  .feature-header {
+    height: 280px;
+    display: flex;
+    align-items: flex-end;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .feature-label {
+    padding: 16px 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #e65100;
+    border-bottom: 1px solid #eee;
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+  }
+
+  .feature-label:last-child {
+    border-bottom: none;
+  }
+
+  /* Products Container */
+  .products-container {
+    flex: 1;
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #ff6b00 #eee;
+  }
+
+  .products-container::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .products-container::-webkit-scrollbar-track {
+    background: #eee;
+  }
+
+  .products-container::-webkit-scrollbar-thumb {
+    background: #ff6b00;
+    border-radius: 3px;
+  }
+
+  /* Product Card */
+  .product-card {
+
+
+    scroll-snap-align: start;
+    border-right: 1px solid #eee;
+    position: relative;
+  }
+
+  .product-card:last-child {
+    border-right: none;
+  }
+
+  .product-card.featured {
+    background: linear-gradient(180deg, #fff5eb 0%, #fff 100%);
+  }
+
+  .product-card.featured::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: #ff6b00;
+  }
+
+  /* Product Header */
+  .product-header {
+    height: 280px;
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .badge {
+    background: #ff6b00;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 6px 16px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    display: inline-block;
+    margin-bottom: 10px;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+  }
+
+  .product-card.featured .badge {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .product-image {
+    width: 100%;
+    height: 140px;
+    object-fit: contain;
+    margin: 10px 0;
+    /* Máscara para remover fundo branco */
+    mix-blend-mode: multiply;
+    /* Alternativa: usar darken para fundos mais claros */
+    /* mix-blend-mode: darken; */
+    /* Se precisar de mais controle, pode usar filter também */
+    /* filter: contrast(1.1) brightness(1.05); */
+  }
+
+  .product-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    text-transform: uppercase;
+  }
+
+  /* Spec Rows */
+  .spec-value {
+    padding: 16px 20px;
+    font-size: 0.9rem;
+    color: #444;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .spec-value:last-child {
+    border-bottom: none;
+  }
+
+  .product-card.featured .spec-value {
+    font-weight: 500;
+    color: #333;
+  }
+
+  /* CTA Button */
+  .cta-section {
+    padding: 20px;
+    text-align: center;
+  }
+
+  .cta-button {
+    display: inline-block;
+    background: #ff6b00;
+    color: white;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 14px 40px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3);
+    border: 0;
+    cursor: pointer;
+  }
+
+  .cta-button:hover {
+    background: #e65100;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 0, 0.4);
+  }
+
+  /* Responsive Styles */
+  @media (max-width: 1200px) {
+    .header h2 {
+      font-size: 2rem;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    .features-column {
+      width: 160px;
+    }
+
+    .product-card {
+      min-width: 240px;
+    }
+  }
+
+  @media (max-width: 992px) {
+    .header h2 {
+      font-size: 1.75rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .shane-pro-b4 {
+      padding: 24px 12px;
+    }
+
+    .header h2 {
+      font-size: 1.75rem;
+    }
+
+    .header .text {
+      font-size: 0.95rem;
+    }
+
+    .scroll-indicator {
+      display: block;
+    }
+
+    .comparison-wrapper {
+      border-radius: 12px;
+    }
+
+    .features-column {
+      width: 120px;
+      position: sticky;
+      left: 0;
+      z-index: 10;
+      background: #fff;
+    }
+
+    .feature-header {
+      height: 240px;
+      padding: 12px;
+    }
+
+    .feature-label {
+      padding: 12px;
+      font-size: 0.75rem;
+      min-height: 48px;
+    }
+
+    .product-card {
+      min-width: 200px;
+    }
+
+    .product-header {
+      height: 240px;
+      padding: 12px;
+    }
+
+    .badge {
+      font-size: 0.6rem;
+      padding: 4px 10px;
+    }
+
+    .product-image {
+      height: 100px;
+    }
+
+    .product-name {
+      font-size: 0.8rem;
+    }
+
+    .spec-value {
+      padding: 12px;
+      font-size: 0.75rem;
+      min-height: 48px;
+    }
+
+    .cta-button {
+      padding: 10px 24px;
+      font-size: 0.85rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .features-column {
+      width: 100px;
+    }
+
+    .product-card {
+      min-width: 180px;
+    }
+
+    .feature-label,
+    .spec-value {
+      font-size: 0.7rem;
+      padding: 10px 8px;
+    }
+  }
 </style>
-<h2>{{ section.settings.heading }}</h2>
-<div class="text">
-  {{ section.settings.text }}
+
+<div class="header">
+  <h2>{{ section.settings.heading }}</h2>
+  <div class="text">
+    {{ section.settings.text }}
+  </div>
 </div>
-<div class="b4-viewing">
-  <div class="b4-viewing-left">
+
+<div class="scroll-indicator">
+  <span>
+    Deslize para ver mais produtos
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2">
+      <path d="M5 12h14M12 5l7 7-7 7" />
+    </svg>
+  </span>
+</div>
+
+<div class="comparison-wrapper">
+  <!-- Features Column -->
+  <div class="features-column">
+    <div class="feature-header"></div>
     {% if section.settings.model1 != blank %}
-      <div>{{ section.settings.model1 }}</div>
+      <div class="feature-label">{{ section.settings.model1 }}</div>
     {% endif %}
     {% if section.settings.weight != blank %}
-      <div>{{ section.settings.weight }}</div>
+      <div class="feature-label">{{ section.settings.weight }}</div>
     {% endif %}
     {% if section.settings.increment != blank %}
-      <div>{{ section.settings.increment }}</div>
+      <div class="feature-label">{{ section.settings.increment }}</div>
     {% endif %}
     {% if section.settings.dimension != blank %}
-      <div>{{ section.settings.dimension }}</div>
+      <div class="feature-label">{{ section.settings.dimension }}</div>
     {% endif %}
     {% if section.settings.package != blank %}
-      <div>{{ section.settings.package }}</div>
+      <div class="feature-label">{{ section.settings.package }}</div>
     {% endif %}
     {% if section.settings.material != blank %}
-      <div>{{ section.settings.material }}</div>
+      <div class="feature-label">{{ section.settings.material }}</div>
     {% endif %}
     {% if section.settings.handle1 != blank %}
-      <div>{{ section.settings.handle1 }}</div>
+      <div class="feature-label">{{ section.settings.handle1 }}</div>
     {% endif %}
     {% if section.settings.mechanism != blank %}
-      <div>{{ section.settings.mechanism }}</div>
-    {% endif %}
-    {% if section.settings.price != blank %}
-      <div>{{ section.settings.price }}</div>
+      <div class="feature-label">{{ section.settings.mechanism }}</div>
     {% endif %}
     {% if section.settings.user != blank %}
-      <div>{{ section.settings.user }}</div>
+      <div class="feature-label">{{ section.settings.user }}</div>
     {% endif %}
   </div>
-  <div class="b4-viewing-right">
+
+  <!-- Products Container (Scrollable) -->
+  <div class="products-container">
     {%- assign my_variable = 0 -%}
     {%- for block in section.blocks -%}
       {%- assign my_variable = my_variable | plus: 1 -%}
-      <div class="{% if my_variable==1 %}active{% endif %}">
-        <div class="viewing-head">you are viewing</div>
-        <div class="viewing-img"><img src="{{ block.settings.image | image_url }}" alt="{{ block.settings.image.alt }}"></div>
-        {% if section.settings.model1 != blank %}
-          <div class="viewing-title">{{ block.settings.text01 }}</div>
-        {% endif %}
+      <div class="product-card {% if my_variable==1 %}featured{% endif %}">
+        <div class="product-header">
+          <div>
+            <span class="badge">You Are Viewing</span>
+          </div>
+          <img
+            src="{{ block.settings.image | image_url }}"
+            alt="{{ block.settings.image.alt }}"
+            class="product-image"
+            width="{{ block.settings.image.width }}"
+            height="{{ block.settings.image.height }}">
+          {% if section.settings.model1 != blank %}
+            <h3 class="product-name">{{ block.settings.text01 }}</h3>
+          {% endif %}
+        </div>
         {% if section.settings.weight != blank %}
-          <div>{{ block.settings.text02 }}</div>
+          <div class="spec-value">{{ block.settings.text02 }}</div>
         {% endif %}
         {% if section.settings.increment != blank %}
-          <div>{{ block.settings.text03 }}</div>
+          <div class="spec-value">{{ block.settings.text03 }}</div>
         {% endif %}
         {% if section.settings.dimension != blank %}
-          <div>{{ block.settings.text04 }}</div>
+          <div class="spec-value">{{ block.settings.text04 }}</div>
         {% endif %}
         {% if section.settings.package != blank %}
-          <div>{{ block.settings.text05 }}</div>
+          <div class="spec-value">{{ block.settings.text05 }}</div>
         {% endif %}
         {% if section.settings.material != blank %}
-          <div>{{ block.settings.text06 }}</div>
+          <div class="spec-value">{{ block.settings.text06 }}</div>
         {% endif %}
         {% if section.settings.handle1 != blank %}
-          <div>{{ block.settings.text07 }}</div>
+          <div class="spec-value">{{ block.settings.text07 }}</div>
         {% endif %}
         {% if section.settings.mechanism != blank %}
-          <div>{{ block.settings.text08 }}</div>
-        {% endif %}
-        {% if section.settings.price != blank %}
-          <div class="viewing-price">{{ block.settings.text09 }}</div>
+          <div class="spec-value">{{ block.settings.text08 }}</div>
         {% endif %}
         {% if section.settings.user != blank %}
-          <div>{{ block.settings.text10 }}</div>
+          <div class="spec-value">{{ block.settings.text10 }}</div>
         {% endif %}
-        <div class="viewing-cart">
-          <a href="{{ block.settings.link }}"><input
-              type="button"
-              class="viewing-button"
-              value="View More"></a>
+        <div class="cta-section">
+          <a href="{{ block.settings.link }}" class="cta-button">View More</a>
         </div>
       </div>
     {% endfor %}
   </div>
 </div>
+
 <script>
-  		(function() {
-  			function initHoverEffect() {
-  				const cards = document.querySelectorAll('.b4-viewing-right>div');
-  				const container = document.querySelector('.b4-viewing-right');
+  (function() {
+    function initHoverEffect() {
+      const cards = document.querySelectorAll('.product-card');
+      const container = document.querySelector('.products-container');
   				
-  				if (cards.length === 0) return;
+      if (cards.length === 0) return;
   				
-  				// Garantir que o scroll comece na posição 0 (primeiro card totalmente visível)
-  				if (container) {
-  					container.scrollLeft = 0;
-  					
-  					// Verificar se está no mobile e garantir scroll inicial
-  					if (window.innerWidth <= 768) {
-  						setTimeout(function() {
-  							container.scrollLeft = 0;
-  						}, 100);
-  					}
-  				}
+      // Garantir que o scroll comece na posição 0 (primeiro card totalmente visível)
+      if (container) {
+        container.scrollLeft = 0;
+        
+        // Verificar se está no mobile e garantir scroll inicial
+        if (window.innerWidth <= 768) {
+          setTimeout(function() {
+            container.scrollLeft = 0;
+          }, 100);
+        }
+      }
   				
-  				cards.forEach(function(card) {
-  					card.addEventListener('mouseenter', function() {
-  						// Remove active de todos os cards
-  						cards.forEach(function(c) {
-  							c.classList.remove('active');
-  						});
-  						// Adiciona active no card atual
-  						this.classList.add('active');
-  					});
-  					
-  					// Para mobile: adicionar evento de toque
-  					if (window.innerWidth <= 768) {
-  						card.addEventListener('touchstart', function() {
-  							cards.forEach(function(c) {
-  								c.classList.remove('active');
-  							});
-  							this.classList.add('active');
-  							
-  							// Scroll suave para o card ativo
-  							if (container) {
-  								const cardLeft = this.offsetLeft;
-  								container.scrollTo({
-  									left: cardLeft,
-  									behavior: 'smooth'
-  								});
-  							}
-  						});
-  					}
-  				});
-  			}
-  			
-  			// Tentar inicializar quando o DOM estiver pronto
-  			if (document.readyState === 'loading') {
-  				document.addEventListener('DOMContentLoaded', initHoverEffect);
-  			} else {
-  				initHoverEffect();
-  			}
-  			
-  			// Também tentar com jQuery se estiver disponível (para compatibilidade)
-  			if (typeof jQuery !== 'undefined') {
-  				jQuery(document).ready(function($) {
-  					$(".b4-viewing-right>div").on('mouseenter', function(){
-  						$(".b4-viewing-right>div").removeClass("active");
-  						$(this).addClass("active");
-  					});
-  					
-  					// Garantir scroll inicial no mobile
-  					if (window.innerWidth <= 768) {
-  						var container = $(".b4-viewing-right")[0];
-  						if (container) {
-  							container.scrollLeft = 0;
-  						}
-  					}
-  				});
-  			}
-  			
-  			// Para o Shopify Theme Editor
-  			if (typeof Shopify !== 'undefined' && Shopify.designMode) {
-  				document.addEventListener('shopify:section:load', initHoverEffect);
-  			}
-  			
-  			// Reajustar scroll ao redimensionar a janela
-  			window.addEventListener('resize', function() {
-  				const container = document.querySelector('.b4-viewing-right');
-  				if (container && window.innerWidth <= 768) {
-  					container.scrollLeft = 0;
-  				}
-  			});
-  		})();
+      cards.forEach(function(card) {
+        card.addEventListener('mouseenter', function() {
+          // Remove featured de todos os cards
+          cards.forEach(function(c) {
+            c.classList.remove('featured');
+          });
+          // Adiciona featured no card atual
+          this.classList.add('featured');
+        });
+        
+        // Para mobile: adicionar evento de toque
+        if (window.innerWidth <= 768) {
+          card.addEventListener('touchstart', function() {
+            cards.forEach(function(c) {
+              c.classList.remove('featured');
+            });
+            this.classList.add('featured');
+            
+            // Scroll suave para o card ativo
+            if (container) {
+              const cardLeft = this.offsetLeft;
+              container.scrollTo({
+                left: cardLeft,
+                behavior: 'smooth'
+              });
+            }
+          });
+        }
+      });
+    }
+    
+    // Tentar inicializar quando o DOM estiver pronto
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initHoverEffect);
+    } else {
+      initHoverEffect();
+    }
+    
+    // Também tentar com jQuery se estiver disponível (para compatibilidade)
+    if (typeof jQuery !== 'undefined') {
+      jQuery(document).ready(function($) {
+        $(".product-card").on('mouseenter', function(){
+          $(".product-card").removeClass("featured");
+          $(this).addClass("featured");
+        });
+        
+        // Garantir scroll inicial no mobile
+        if (window.innerWidth <= 768) {
+          var container = $(".products-container")[0];
+          if (container) {
+            container.scrollLeft = 0;
+          }
+        }
+      });
+    }
+    
+    // Para o Shopify Theme Editor
+    if (typeof Shopify !== 'undefined' && Shopify.designMode) {
+      document.addEventListener('shopify:section:load', initHoverEffect);
+    }
+    
+    // Reajustar scroll ao redimensionar a janela
+    window.addEventListener('resize', function() {
+      const container = document.querySelector('.products-container');
+      if (container && window.innerWidth <= 768) {
+        container.scrollLeft = 0;
+      }
+    });
+  })();
 </script>
+
 {% schema %}
   {
     "name": "Pro block04",
