@@ -553,11 +553,20 @@
       
       updateVariant() {
         let selectedVariant = null;
-        const variantSelector = document.getElementById('variant-selector_new');
+        // Check both desktop and mobile selectors
+        const variantSelectorDesktop = document.getElementById('variant-selector_new');
+        const variantSelectorMobile = document.getElementById('variant-selector-mobile_new');
+        const variantSelector = variantSelectorDesktop || variantSelectorMobile;
         
         if (variantSelector) {
           const selectedVariantId = parseInt(variantSelector.value);
           selectedVariant = this.variants.find(v => v.id === selectedVariantId);
+          
+          // Sync both selectors
+          if (variantSelectorDesktop && variantSelectorMobile) {
+            variantSelectorDesktop.value = selectedVariantId;
+            variantSelectorMobile.value = selectedVariantId;
+          }
         }
         
         if (selectedVariant) {
@@ -589,10 +598,14 @@
             variantSelect.value = variant.id;
           }
           
-          // Update variant selector if it exists
-          const variantSelector = document.getElementById('variant-selector_new');
-          if (variantSelector) {
-            variantSelector.value = variant.id;
+          // Update variant selectors if they exist (both desktop and mobile)
+          const variantSelectorDesktop = document.getElementById('variant-selector_new');
+          const variantSelectorMobile = document.getElementById('variant-selector-mobile_new');
+          if (variantSelectorDesktop) {
+            variantSelectorDesktop.value = variant.id;
+          }
+          if (variantSelectorMobile) {
+            variantSelectorMobile.value = variant.id;
           }
           
           // Update shopify-payment-terms component if it exists
@@ -1001,19 +1014,42 @@
       ProductGallery.init();
       BenefitPopups.init();
       
-      // Initialize variant selector event listener
-      const variantSelector = document.getElementById('variant-selector_new');
-      if (variantSelector) {
-        // Add event listener in addition to onchange attribute
-        variantSelector.addEventListener('change', () => {
+      // Initialize variant selector event listeners (both desktop and mobile)
+      const variantSelectorDesktop = document.getElementById('variant-selector_new');
+      const variantSelectorMobile = document.getElementById('variant-selector-mobile_new');
+      
+      // Function to sync both selectors
+      const syncVariantSelectors = (sourceSelector, targetSelector) => {
+        if (targetSelector && sourceSelector) {
+          targetSelector.value = sourceSelector.value;
+        }
+      };
+      
+      // Initialize desktop selector
+      if (variantSelectorDesktop) {
+        variantSelectorDesktop.addEventListener('change', () => {
           ProductVariants.updateVariant();
+          syncVariantSelectors(variantSelectorDesktop, variantSelectorMobile);
         });
         
         // Initialize price with current selected variant
-        const currentVariantId = parseInt(variantSelector.value);
+        const currentVariantId = parseInt(variantSelectorDesktop.value);
         const currentVariant = ProductVariants.variants.find(v => v.id === currentVariantId);
         if (currentVariant) {
           ProductVariants.updatePrice(currentVariant);
+        }
+      }
+      
+      // Initialize mobile selector
+      if (variantSelectorMobile) {
+        variantSelectorMobile.addEventListener('change', () => {
+          ProductVariants.updateVariant();
+          syncVariantSelectors(variantSelectorMobile, variantSelectorDesktop);
+        });
+        
+        // Sync initial value from desktop if mobile exists
+        if (variantSelectorDesktop) {
+          variantSelectorMobile.value = variantSelectorDesktop.value;
         }
       }
       

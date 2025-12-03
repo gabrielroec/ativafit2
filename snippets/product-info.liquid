@@ -148,6 +148,32 @@
       {%- endif -%}
     </div>
 
+    <!-- Variant Selector for Mobile (only shown on mobile, next to price) -->
+    {%- if product.variants.size > 1 and section.settings.show_variant_selector -%}
+      {%- assign selected_variant = product.selected_or_first_available_variant -%}
+      <div class="variant-selector-wrapper_new variant-selector-mobile_new">
+        <label for="variant-selector-mobile_new" class="sr-only">{{ section.settings.variant_label | default: "Select Option" }}</label>
+        <select
+          id="variant-selector-mobile_new"
+          class="variant-selector_new variant-selector-mobile_new"
+          name="id"
+          onchange="updateVariant()">
+          {%- for variant in product.variants -%}
+            <option
+              value="{{ variant.id }}"
+              {% if variant == selected_variant %}
+              selected{% endif %}
+              {% unless variant.available %}
+              disabled{% endunless %}>
+              {{ variant.title }}
+              {%- unless variant.available %}
+                - Sold Out{% endunless -%}
+            </option>
+          {%- endfor -%}
+        </select>
+      </div>
+    {%- endif -%}
+
     <!-- AtivaPeople Badge -->
     {%- if section.settings.show_ativapeople_badge -%}
       <div class="ativapeople-badge_new">

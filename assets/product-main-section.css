@@ -126,6 +126,7 @@
   flex-direction: row;
   gap: 12px;
   margin-top: 0 !important;
+  flex-wrap: wrap;
 }
 
 .product-price-container_new {
@@ -922,6 +923,28 @@ body.modal-open_new {
   width: 30%;
 }
 
+/* Variant selector mobile - shown only on mobile, next to price */
+.variant-selector-mobile_new {
+  display: none !important;
+}
+
+/* Variant selector desktop - shown only on desktop, in form */
+.variant-selector-desktop_new {
+  display: block;
+}
+
+@media (min-width: 1025px) {
+  /* Ensure mobile selector is hidden on desktop */
+  .variant-selector-mobile_new {
+    display: none !important;
+  }
+  
+  /* Ensure desktop selector is visible on desktop */
+  .variant-selector-desktop_new {
+    display: block !important;
+  }
+}
+
 .variant-selector-wrapper_new label {
   font-family: "Barlow", sans-serif;
   font-weight: 600;
@@ -929,7 +952,24 @@ body.modal-open_new {
   color: #333;
   display: block;
   margin-bottom: 8px;
+}
+
+/* Hide label on mobile variant selector */
+.variant-selector-mobile_new label {
   display: none;
+}
+
+/* Screen reader only class */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 
 .variant-selector_new {
@@ -1618,8 +1658,32 @@ body.modal-open_new {
 
 @media (max-width: 1024px) {
   .product-price-section_new {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  /* Show mobile variant selector, hide desktop one */
+  .variant-selector-mobile_new {
+    display: block !important;
+    width: auto;
+    flex: 1;
+    min-width: 150px;
+    max-width: 200px;
+  }
+
+  .variant-selector-desktop_new {
+    display: none !important;
+  }
+
+  .variant-selector-mobile_new .variant-selector_new {
+    height: 53.66px;
+    margin: 0;
+  }
+
+  .variant-selector-mobile_new label {
+    display: none;
   }
   .show-desk {
     display: none;
