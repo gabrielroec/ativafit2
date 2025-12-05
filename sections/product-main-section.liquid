@@ -550,13 +550,24 @@
     
     const ProductVariants = {
       variants: {{ product.variants | json }},
+      currentSelector: null,
       
-      updateVariant() {
+      updateVariant(sourceSelector = null) {
         let selectedVariant = null;
         // Check both desktop and mobile selectors
         const variantSelectorDesktop = document.getElementById('variant-selector_new');
         const variantSelectorMobile = document.getElementById('variant-selector-mobile_new');
-        const variantSelector = variantSelectorDesktop || variantSelectorMobile;
+        
+        // Determine which selector to use
+        let variantSelector = sourceSelector;
+        if (!variantSelector) {
+          // Check which one is visible or recently interacted with
+          if (variantSelectorMobile && window.getComputedStyle(variantSelectorMobile).display !== 'none') {
+            variantSelector = variantSelectorMobile;
+          } else if (variantSelectorDesktop) {
+            variantSelector = variantSelectorDesktop;
+          }
+        }
         
         if (variantSelector) {
           const selectedVariantId = parseInt(variantSelector.value);
@@ -1027,9 +1038,9 @@
       
       // Initialize desktop selector
       if (variantSelectorDesktop) {
-        variantSelectorDesktop.addEventListener('change', () => {
-          ProductVariants.updateVariant();
-          syncVariantSelectors(variantSelectorDesktop, variantSelectorMobile);
+        variantSelectorDesktop.addEventListener('change', (e) => {
+          e.preventDefault();
+          ProductVariants.updateVariant(variantSelectorDesktop);
         });
         
         // Initialize price with current selected variant
@@ -1042,9 +1053,9 @@
       
       // Initialize mobile selector
       if (variantSelectorMobile) {
-        variantSelectorMobile.addEventListener('change', () => {
-          ProductVariants.updateVariant();
-          syncVariantSelectors(variantSelectorMobile, variantSelectorDesktop);
+        variantSelectorMobile.addEventListener('change', (e) => {
+          e.preventDefault();
+          ProductVariants.updateVariant(variantSelectorMobile);
         });
         
         // Sync initial value from desktop if mobile exists
