@@ -246,12 +246,84 @@
       setupEventListeners() {
         // Main image container click/swipe events
         const mainImageContainer = document.getElementById('mainImageContainer_new');
+        const mainImage = document.getElementById('mainImage_new');
+        
         if (mainImageContainer) {
-          mainImageContainer.addEventListener('click', (e) => {
-            if (e.target.closest('.main-nav_new')) return;
-            this.openFullscreen();
+          // Prevent native image drag
+          if (mainImage) {
+            mainImage.setAttribute('draggable', 'false');
+            mainImage.addEventListener('dragstart', (e) => {
+              e.preventDefault();
+              return false;
+            });
+            mainImage.addEventListener('selectstart', (e) => {
+              e.preventDefault();
+              return false;
+            });
+          }
+          
+          // Prevent drag on container
+          mainImageContainer.addEventListener('dragstart', (e) => {
+            e.preventDefault();
+            return false;
           });
           
+          mainImageContainer.addEventListener('selectstart', (e) => {
+            if (this.isSwiping) {
+              e.preventDefault();
+              return false;
+            }
+          });
+          
+          // Mouse events for desktop swipe
+          let mouseDown = false;
+          let mouseStartX = 0;
+          let mouseStartY = 0;
+          
+          mainImageContainer.addEventListener('mousedown', (e) => {
+            if (e.target.closest('.main-nav_new')) return;
+            mouseDown = true;
+            mouseStartX = e.clientX;
+            mouseStartY = e.clientY;
+            this.startSwipe(e);
+            mainImageContainer.style.cursor = 'grabbing';
+            
+            const handleMouseMove = (moveEvent) => {
+              if (!mouseDown) return;
+              this.onSwipe(moveEvent);
+            };
+            
+            const handleMouseUp = (upEvent) => {
+              if (!mouseDown) return;
+              mouseDown = false;
+              mainImageContainer.style.cursor = 'grab';
+              this.stopSwipe(upEvent);
+              document.removeEventListener('mousemove', handleMouseMove);
+              document.removeEventListener('mouseup', handleMouseUp);
+            };
+            
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+          });
+          
+          // Reset cursor if mouse leaves container
+          mainImageContainer.addEventListener('mouseleave', () => {
+            if (mouseDown) {
+              mouseDown = false;
+              mainImageContainer.style.cursor = 'grab';
+            }
+          });
+          
+          // Click event (only if not swiping)
+          mainImageContainer.addEventListener('click', (e) => {
+            if (e.target.closest('.main-nav_new')) return;
+            // Only open fullscreen if it wasn't a swipe
+            if (!this.isSwiping) {
+              this.openFullscreen();
+            }
+          });
+          
+          // Touch events for mobile swipe
           mainImageContainer.addEventListener('touchstart', this.startSwipe.bind(this), { passive: true });
           mainImageContainer.addEventListener('touchmove', this.onSwipe.bind(this), { passive: false });
           mainImageContainer.addEventListener('touchend', this.stopSwipe.bind(this), { passive: true });
@@ -260,8 +332,18 @@
         // Thumbnails drag events
         const thumbnailsContainer = document.querySelector('.thumbnails_new');
         if (thumbnailsContainer) {
-          thumbnailsContainer.addEventListener('mousedown', this.startDrag.bind(this));
-          thumbnailsContainer.addEventListener('touchstart', this.startDrag.bind(this), { passive: false });
+          thumbnailsContainer.addEventListener('mousedown', (e) => {
+            // Only start drag if not clicking on a thumbnail
+            if (!e.target.closest('.thumbnail-container_new')) {
+              this.startDrag(e);
+            }
+          });
+          thumbnailsContainer.addEventListener('touchstart', (e) => {
+            // Only start drag if not touching a thumbnail
+            if (!e.target.closest('.thumbnail-container_new')) {
+              this.startDrag(e);
+            }
+          }, { passive: false });
           thumbnailsContainer.addEventListener('selectstart', (e) => {
             if (this.isDragging) e.preventDefault();
           });
@@ -342,11 +424,21 @@
           }
         }
         
-        this.isSwiping = false;
+        // Reset isSwiping after a small delay to allow click detection
+        setTimeout(() => {
+          this.isSwiping = false;
+        }, 100);
       },
       
       // Drag functions
       startDrag(e) {
+        // Check if click was on a thumbnail - if so, don't start drag
+        const clickedThumbnail = e.target.closest('.thumbnail-container_new');
+        if (clickedThumbnail) {
+          // Allow the thumbnail click to work normally
+          return;
+        }
+        
         this.isDragging = false;
         this.hasMoved = false;
         this.startX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
@@ -393,8 +485,18 @@
         }
       },
       
-      stopDrag() {
+      stopDrag(e) {
+        // If it was a click (not a drag), don't do anything
+        if (!this.isDragging && !this.hasMoved) {
+          this.cleanupDrag();
+          return;
+        }
+        
         this.isDragging = false;
+        this.cleanupDrag();
+      },
+      
+      cleanupDrag() {
         document.body.style.cursor = '';
         document.body.style.userSelect = '';
         
