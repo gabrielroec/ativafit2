@@ -17,6 +17,29 @@
 {%- assign product_form_id = 'product-form-' | append: section.id -%}
 {%- assign payment_options_block = section.blocks | where: 'type', 'payment_options' | first -%}
 
+{%- comment -%} Check if waitlist should be shown for current variant {%- endcomment -%}
+{%- assign should_show_waitlist = false -%}
+{%- if section.settings.show_waitlist_button -%}
+  {%- if section.settings.waitlist_variant_ids == blank or section.settings.waitlist_variant_ids == '' -%}
+    {%- comment -%} No variant IDs specified, show for all variants {%- endcomment -%}
+    {%- assign should_show_waitlist = true -%}
+  {%- else -%}
+    {%- comment -%} Check if current variant ID or name is in the list {%- endcomment -%}
+    {%- assign selected_variant_id_string = selected_variant.id | append: '' -%}
+    {%- assign selected_variant_title = selected_variant.title | strip | downcase -%}
+    {%- assign variant_list = section.settings.waitlist_variant_ids | split: ',' -%}
+    {%- for variant_item in variant_list -%}
+      {%- assign variant_item_trimmed = variant_item | strip -%}
+      {%- assign variant_item_lower = variant_item_trimmed | downcase -%}
+      {%- comment -%} Check by ID (exact match, case-sensitive) or by name (case-insensitive) {%- endcomment -%}
+      {%- if variant_item_trimmed == selected_variant_id_string or variant_item_lower == selected_variant_title -%}
+        {%- assign should_show_waitlist = true -%}
+        {%- break -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+{%- endif -%}
+
   {%- form 'product'
     , product
     , id: product_form_id
@@ -63,18 +86,34 @@
         </div>
       {%- endif -%}
 
-      <!-- Add to Cart Button -->
+      <!-- Waitlist Button and Add to Cart Button (both rendered, JS controls visibility) -->
+      {%- comment -%} Debug: show_waitlist_button={{ section.settings.show_waitlist_button }}, waitlist_variant_ids={{ section.settings.waitlist_variant_ids }}, selected_variant.title={{ selected_variant.title }}, selected_variant.id={{ selected_variant.id }}, should_show_waitlist={{ should_show_waitlist }} {%- endcomment -%}
+      {%- if section.settings.show_waitlist_button -%}
+        {%- comment -%} Render waitlist button (hidden by default if variant doesn't match) {%- endcomment -%}
+        <button
+          type="button"
+          class="add-to-cart-btn_new waitlist-btn_new klaviyo_waitlist_trigger {% if product.variants.size > 1 and section.settings.show_variant_selector %}has-variant-selector_new{% endif %}"
+          data-klaviyo-form-id="{{ section.settings.klaviyo_form_id | escape }}"
+          data-variant-id="{{ selected_variant.id }}"
+          style="{% unless should_show_waitlist %}display: none;{% endunless %}"
+          aria-label="{{ section.settings.waitlist_button_text | default: 'Join the Waitlist' }}">
+          {{ section.settings.waitlist_button_text | default: 'Join the Waitlist' }}
+        </button>
+      {%- endif -%}
+      {%- comment -%} Render add to cart button (hidden if waitlist is active for this variant) {%- endcomment -%}
       <button
         type="submit"
         name="add"
         class="add-to-cart-btn_new {% if product.variants.size > 1 and section.settings.show_variant_selector %}has-variant-selector_new{% endif %}"
+        data-variant-id="{{ selected_variant.id }}"
+        style="{% if section.settings.show_waitlist_button and should_show_waitlist %}display: none;{% endif %}"
         aria-label="{{ section.settings.add_to_cart_text | default: 'Add to cart' }}">
         {{ section.settings.add_to_cart_text | default: 'Add to Cart' }}
       </button>
     </div>
 
-    <!-- Buy It Now Button -->
-    {%- if section.settings.show_buy_it_now -%}
+    <!-- Buy It Now Button (hidden when waitlist is active for current variant) -->
+    {%- if section.settings.show_buy_it_now and should_show_waitlist == false -%}
       <button
         type="button"
         class="buy-it-now-btn_new"

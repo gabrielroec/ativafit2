@@ -1,20 +1,20 @@
 {% comment %} 
-                                                                                                Product Main Section - Refactored
-                                                                                                 
-                                                                                                Professional product page section following Shopify 2.0 best practices.
-                                                                                                Uses modular snippets for better organization and maintainability.
-                                                                                                 
-                                                                                                Accepts: 
-                                                                                                - product: {Object} Product object
-                                                                                                 
-                                                                                                Dependencies: 
-                                                                                                - product-gallery.liquid snippet 
-                                                                                                - product-info.liquid snippet 
-                                                                                                - product-benefits.liquid snippet 
-                                                                                                - product-add-to-cart.liquid snippet 
-                                                                                                - product-accordions.liquid snippet 
-                                                                                                - product-benefit-popups.liquid snippet 
-                                                                                                - product-main-section.css asset 
+                                                                                                                      Product Main Section - Refactored
+                                                                                                                       
+                                                                                                                      Professional product page section following Shopify 2.0 best practices.
+                                                                                                                      Uses modular snippets for better organization and maintainability.
+                                                                                                                       
+                                                                                                                      Accepts: 
+                                                                                                                      - product: {Object} Product object
+                                                                                                                       
+                                                                                                                      Dependencies: 
+                                                                                                                      - product-gallery.liquid snippet 
+                                                                                                                      - product-info.liquid snippet 
+                                                                                                                      - product-benefits.liquid snippet 
+                                                                                                                      - product-add-to-cart.liquid snippet 
+                                                                                                                      - product-accordions.liquid snippet 
+                                                                                                                      - product-benefit-popups.liquid snippet 
+                                                                                                                      - product-main-section.css asset 
 {% endcomment %}
 
 {{ 'product-main-section.css' | asset_url | stylesheet_tag }}
@@ -55,13 +55,13 @@
 
       <!-- Mobile Price (shown only on mobile) -->
       {% comment %} {%- if section.settings.show_mobile_price -%}
-                                                                                                                                                                                  <div class="product-price-container_new mobile-only_new">
-                                                                                                                                                                                    <p class="product-price_new black">{{ product.selected_or_first_available_variant.price | money }}</p>
-                                                                                                                                                                                    {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
-                                                                                                                                                                                      <p class="product-price-original_new">{{ product.selected_or_first_available_variant.compare_at_price | money }}</p>
-                                                                                                                                                                                    {%- endif -%}
-                                                                                                                                                                                  </div>
-                                                                                                                                      {%- endif -%} {% endcomment %}
+                                                                                                                                                                                                                                                                          <div class="product-price-container_new mobile-only_new">
+                                                                                                                                                                                                                                                                            <p class="product-price_new black">{{ product.selected_or_first_available_variant.price | money }}</p>
+                                                                                                                                                                                                                                                                            {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
+                                                                                                                                                                                                                                                                              <p class="product-price-original_new">{{ product.selected_or_first_available_variant.compare_at_price | money }}</p>
+                                                                                                                                                                                                                                                                            {%- endif -%}
+                                                                                                                                                                                                                                                                          </div>
+                                                                                                                                                                                                        {%- endif -%} {% endcomment %}
 
 
       </div>
@@ -687,6 +687,86 @@
           this.updateMainImageForVariant(selectedVariant);
           this.updateProductForm(selectedVariant);
           this.updateDynamicCheckout(selectedVariant);
+          this.updateButtonsForVariant(selectedVariant);
+        }
+      },
+      
+      updateButtonsForVariant(variant) {
+        // Check if waitlist should be shown for this variant
+        const waitlistVariants = '{{ section.settings.waitlist_variant_ids | escape }}';
+        const showWaitlistGlobal = {{ section.settings.show_waitlist_button | json }};
+        
+        let shouldShowWaitlist = false;
+        
+        if (showWaitlistGlobal) {
+          if (!waitlistVariants || waitlistVariants.trim() === '') {
+            // No variants specified, show for all variants
+            shouldShowWaitlist = true;
+          } else {
+            // Check if current variant ID or name (title) is in the list
+            const variantList = waitlistVariants.split(',').map(item => item.trim().toLowerCase());
+            const variantIdString = variant.id.toString();
+            const variantTitle = variant.title ? variant.title.trim().toLowerCase() : '';
+            
+            // Check by ID (case-sensitive) or by name (case-insensitive)
+            const variantIdInList = variantList.some(item => item === variantIdString);
+            const variantNameInList = variantList.some(item => item === variantTitle);
+            
+            shouldShowWaitlist = variantIdInList || variantNameInList;
+            
+            // Debug log
+            console.log('Waitlist check:', {
+              variantId: variantIdString,
+              variantTitle: variant.title,
+              waitlistVariants: variantList,
+              shouldShow: shouldShowWaitlist
+            });
+          }
+        }
+        
+        // Get buttons - use more specific selectors
+        const addToCartBtn = document.querySelector('button[name="add"].add-to-cart-btn_new:not(.waitlist-btn_new)');
+        const waitlistBtn = document.querySelector('.waitlist-btn_new.klaviyo_waitlist_trigger');
+        const buyItNowBtn = document.querySelector('.buy-it-now-btn_new');
+        
+        console.log('Buttons found:', {
+          addToCartBtn: !!addToCartBtn,
+          waitlistBtn: !!waitlistBtn,
+          buyItNowBtn: !!buyItNowBtn,
+          shouldShowWaitlist: shouldShowWaitlist
+        });
+        
+        if (shouldShowWaitlist) {
+          // Show waitlist button, hide add to cart and buy it now
+          if (addToCartBtn) {
+            addToCartBtn.style.display = 'none';
+          }
+          if (waitlistBtn) {
+            waitlistBtn.style.display = '';
+            waitlistBtn.setAttribute('data-variant-id', variant.id);
+            // Update Klaviyo form ID if needed
+            const formId = waitlistBtn.getAttribute('data-klaviyo-form-id');
+            if (!formId || formId.trim() === '') {
+              console.warn('Klaviyo Form ID is missing from waitlist button');
+            }
+          } else {
+            console.warn('Waitlist button not found in DOM');
+          }
+          if (buyItNowBtn) {
+            buyItNowBtn.style.display = 'none';
+          }
+        } else {
+          // Show add to cart and buy it now, hide waitlist
+          if (addToCartBtn) {
+            addToCartBtn.style.display = '';
+            addToCartBtn.setAttribute('data-variant-id', variant.id);
+          }
+          if (waitlistBtn) {
+            waitlistBtn.style.display = 'none';
+          }
+          if (buyItNowBtn && {{ section.settings.show_buy_it_now | json }}) {
+            buyItNowBtn.style.display = '';
+          }
         }
       },
       
@@ -1150,6 +1230,7 @@
         const currentVariant = ProductVariants.variants.find(v => v.id === currentVariantId);
         if (currentVariant) {
           ProductVariants.updatePrice(currentVariant);
+          ProductVariants.updateButtonsForVariant(currentVariant);
         }
       }
       
@@ -1166,10 +1247,77 @@
         }
       }
       
+      // If no desktop selector, initialize buttons with first available variant
+      if (!variantSelectorDesktop && ProductVariants.variants.length > 0) {
+        const firstVariant = ProductVariants.variants.find(v => v.available) || ProductVariants.variants[0];
+        if (firstVariant) {
+          ProductVariants.updateButtonsForVariant(firstVariant);
+        }
+      }
+      
+      // ====================================================================
+      // KLAVIYO WAITLIST BUTTON TRIGGER (Must be before form submit handler)
+      // ====================================================================
+      // Following Klaviyo documentation: https://help.klaviyo.com/hc/en-us/articles/4418052317339
+      const waitlistButtons = document.querySelectorAll('.klaviyo_waitlist_trigger');
+      
+      if (waitlistButtons.length > 0) {
+        waitlistButtons.forEach(function(waitlistButton) {
+          let formId = waitlistButton.getAttribute('data-klaviyo-form-id');
+          
+          if (formId && formId.trim() !== '') {
+            // Extract Form ID if user accidentally pasted the full JavaScript code
+            // Look for pattern like ['openForm', 'Sr3xAi'] or "Sr3xAi" or 'Sr3xAi'
+            const formIdMatch = formId.match(/['"]([A-Za-z0-9]{6})['"]/);
+            if (formIdMatch) {
+              formId = formIdMatch[1];
+              console.log('Extracted Form ID from code:', formId);
+            }
+            
+            // Clean up: remove any JavaScript code, keep only the ID
+            formId = formId.trim();
+            
+            // Final validation: Form ID should be 6 alphanumeric characters
+            if (formId.length === 6 && /^[A-Za-z0-9]+$/.test(formId)) {
+              waitlistButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                
+                console.log('Klaviyo Waitlist Button clicked, Form ID:', formId);
+                
+                // Initialize Klaviyo onsite array if it doesn't exist
+                window._klOnsite = window._klOnsite || [];
+                
+                // Push the openForm command
+                window._klOnsite.push(['openForm', formId]);
+                
+                console.log('Klaviyo command pushed:', ['openForm', formId]);
+                
+                return false;
+              }, true); // Use capture phase to ensure it runs first
+            } else {
+              console.error('Invalid Klaviyo Form ID. Expected 6 alphanumeric characters (e.g., Sr3xAi). Got:', formId);
+              console.warn('Please enter only the Form ID (6 characters) in the "Klaviyo Form ID" field, not the JavaScript code.');
+            }
+          } else {
+            console.warn('Klaviyo Form ID is not configured for waitlist button.');
+          }
+        });
+      } else {
+        console.log('No Klaviyo waitlist buttons found on page');
+      }
+      
       // Intercept form submission to prevent redirect to /cart
       const productForm = document.querySelector('.product-form_new');
       if (productForm) {
         productForm.addEventListener('submit', async function(e) {
+          // Don't prevent if it's a waitlist button click
+          const clickedButton = e.target.querySelector('.klaviyo_waitlist_trigger:active, .klaviyo_waitlist_trigger:focus');
+          if (clickedButton) {
+            return; // Let the waitlist handler deal with it
+          }
+          
           e.preventDefault();
           
           // Prevent multiple submissions
@@ -1253,6 +1401,7 @@
           subtree: true
         });
       }
+      
     });
     
   })();
@@ -1420,6 +1569,30 @@
         "id": "ativapeople_cta_text",
         "label": "AtivaPeople CTA Text",
         "default": "Join <a href=\"#\">AtivaPeople</a> for exclusive rewards"
+      }, {
+        "type": "header",
+        "content": "Waitlist Button (Klaviyo)"
+      }, {
+        "type": "checkbox",
+        "id": "show_waitlist_button",
+        "label": "Show Join the Waitlist Button",
+        "default": false,
+        "info": "When enabled, replaces Add to Cart button with Waitlist button"
+      }, {
+        "type": "text",
+        "id": "waitlist_button_text",
+        "label": "Waitlist Button Text",
+        "default": "Join the Waitlist"
+      }, {
+        "type": "text",
+        "id": "klaviyo_form_id",
+        "label": "Klaviyo Form ID",
+        "info": "Enter the 6-digit Klaviyo form ID (e.g., Sr3xAi). Find this in your Klaviyo form editor URL."
+      }, {
+        "type": "text",
+        "id": "waitlist_variant_ids",
+        "label": "Waitlist Variants (Optional)",
+        "info": "Comma-separated list of variant IDs or names that should show the waitlist button. Leave empty to show for all variants. Examples: 123456789,987654321 or Sunrise,Midnight"
       }
     ],
     "blocks": [
