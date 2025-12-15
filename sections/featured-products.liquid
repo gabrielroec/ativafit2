@@ -317,19 +317,19 @@
       </div>
     </div>
 
-    <div class="featured-products__grid{% if request.design_mode %} shopify-design-mode{% endif %}">
-      {%- paginate display_collection.products by section.settings.products_per_page -%}
+    {%- paginate display_collection.products by section.settings.products_per_page -%}
+      <div class="featured-products__grid{% if request.design_mode %} shopify-design-mode{% endif %}">
         {% assign shown_products = '' %}
-          {%- for product in display_collection.products -%}
+        {%- for product in display_collection.products -%}
           {% comment %} Cria um identificador único combinando múltiplos campos {% endcomment %}
           {% assign product_sku = product.selected_or_first_available_variant.sku | default: 'no-sku' %}
           {% assign product_id = product.id %}
-        {% assign product_title_normalized = product.title | downcase | replace: ' ', '' | replace: '-', '' | replace: '|', '' %}
+          {% assign product_title_normalized = product.title | downcase | replace: ' ', '' | replace: '-', '' | replace: '|', '' %}
 
           {% comment %} Cria chaves únicas para verificação {% endcomment %}
           {% assign unique_key_sku = 'sku:' | append: product_sku %}
           {% assign unique_key_title = 'title:' | append: product_title_normalized %}
-        {% assign unique_key_handle = 'handle:' | append: product.handle %}
+          {% assign unique_key_handle = 'handle:' | append: product.handle %}
 
           {% comment %} Verifica se já foi mostrado usando qualquer uma das chaves {% endcomment %}
           {% assign is_duplicate = false %}
@@ -348,40 +348,38 @@
 
           {% unless is_duplicate %}
             <div class="featured-products__item">
-              {% render 'product-card-custom'
-                , product: product %}
-              {% render 'product-card-list'
-                , product: product %}
-          </div>
+              {% render 'product-card-custom', product: product %}
+              {% render 'product-card-list', product: product %}
+            </div>
 
             {% comment %} Adiciona todas as chaves aos produtos mostrados {% endcomment %}
             {% assign shown_products = shown_products | append: '|' | append: unique_key_sku | append: '|' | append: unique_key_title | append: '|' | append: unique_key_handle %}
           {% endunless %}
         {%- endfor -%}
+      </div>
 
-        {%- if paginate.pages > 1 -%}
-          <div class="featured-products__pagination">
-            {%- if paginate.previous -%}
-              <a href="{{ paginate.previous.url }}" class="featured-products__page-btn">Previous</a>
+      {%- if paginate.pages > 1 -%}
+        <div class="featured-products__pagination">
+          {%- if paginate.previous -%}
+            <a href="{{ paginate.previous.url }}" class="featured-products__page-btn">Previous</a>
+          {%- endif -%}
+
+          {%- for part in paginate.parts -%}
+            {%- if part.is_link -%}
+              <a href="{{ part.url }}" class="featured-products__page-btn">{{ part.title }}</a>
+            {%- else -%}
+              <span class="featured-products__page-btn{% if part.title == paginate.current_page %} active{% endif %}">
+                {{ part.title }}
+              </span>
             {%- endif -%}
+          {%- endfor -%}
 
-            {%- for part in paginate.parts -%}
-              {%- if part.is_link -%}
-                <a href="{{ part.url }}" class="featured-products__page-btn">{{ part.title }}</a>
-              {%- else -%}
-                <span class="featured-products__page-btn{% if part.title == paginate.current_page %} active{% endif %}">
-                  {{ part.title }}
-                </span>
-              {%- endif -%}
-            {%- endfor -%}
-
-            {%- if paginate.next -%}
-              <a href="{{ paginate.next.url }}" class="featured-products__page-btn">Next</a>
-            {%- endif -%}
-          </div>
-        {%- endif -%}
-      {%- endpaginate -%}
-    </div>
+          {%- if paginate.next -%}
+            <a href="{{ paginate.next.url }}" class="featured-products__page-btn">Next</a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    {%- endpaginate -%}
   {% else %}
     <div class="featured-products__empty">
       <p>No collection selected or collection is empty.</p>
