@@ -59,7 +59,8 @@
   {%- endif -%}
 
   <!-- Variant Selector + Add to Cart Button Container -->
-  {%- if selected_variant.available -%}
+  {%- comment -%} Show content if variant is available OR if waitlist is active (even if sold out) {%- endcomment -%}
+  {%- if selected_variant.available or should_show_waitlist -%}
     <div class="variant-cart-row_new">
       <!-- Variant Selector (if product has multiple variants) - Desktop only -->
       {%- if product.variants.size > 1 and section.settings.show_variant_selector -%}
@@ -100,20 +101,20 @@
           {{ section.settings.waitlist_button_text | default: 'Join the Waitlist' }}
         </button>
       {%- endif -%}
-      {%- comment -%} Render add to cart button (hidden if waitlist is active for this variant) {%- endcomment -%}
+      {%- comment -%} Render add to cart button (hidden if waitlist is active for this variant OR if variant is not available) {%- endcomment -%}
       <button
         type="submit"
         name="add"
         class="add-to-cart-btn_new {% if product.variants.size > 1 and section.settings.show_variant_selector %}has-variant-selector_new{% endif %}"
         data-variant-id="{{ selected_variant.id }}"
-        style="{% if section.settings.show_waitlist_button and should_show_waitlist %}display: none;{% endif %}"
+        style="{% if section.settings.show_waitlist_button and should_show_waitlist or selected_variant.available == false %}display: none;{% endif %}"
         aria-label="{{ section.settings.add_to_cart_text | default: 'Add to cart' }}">
         {{ section.settings.add_to_cart_text | default: 'Add to Cart' }}
       </button>
     </div>
 
-    <!-- Buy It Now Button (hidden when waitlist is active for current variant) -->
-    {%- if section.settings.show_buy_it_now and should_show_waitlist == false -%}
+    <!-- Buy It Now Button (hidden when waitlist is active for current variant OR when variant is not available) -->
+    {%- if section.settings.show_buy_it_now and should_show_waitlist == false and selected_variant.available -%}
       <button
         type="button"
         class="buy-it-now-btn_new"
@@ -124,7 +125,8 @@
     {%- endif -%}
 
     <!-- Dynamic Checkout Buttons (Shop Pay, Apple Pay, Google Pay) - Third -->
-    {%- if payment_options_block and payment_options_block.settings.show_dynamic_checkout -%}
+    {%- comment -%} Only show dynamic checkout if variant is available (not when waitlist is active) {%- endcomment -%}
+    {%- if payment_options_block and payment_options_block.settings.show_dynamic_checkout and selected_variant.available -%}
       <div
         id="dynamic-checkout-{{ section.id }}"
         {% if section.settings.remove_shop_pay_button %}
@@ -134,6 +136,7 @@
       </div>
     {%- endif -%}
   {%- else -%}
+    {%- comment -%} Only show "Sold Out" button if waitlist is NOT active {%- endcomment -%}
     <button
       type="button"
       class="add-to-cart-btn_new"
