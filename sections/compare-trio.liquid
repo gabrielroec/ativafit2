@@ -116,7 +116,7 @@
 
                   <div class="tt-compare-trio__cta">
                     {%- if product.available -%}
-                      {%- comment -%}Add to Cart Button{%- endcomment -%}
+                      {%- comment -%}Add to Cart Button - Available product{%- endcomment -%}
                       <button
                         type="button"
                         class="tt-compare-trio__button tt-compare-trio__button--add-to-cart"
@@ -131,6 +131,11 @@
                         role="alert"
                         aria-live="polite"
                         style="display: none;"></div>
+                    {%- else -%}
+                      {%- comment -%}Add to Cart Button - Sold out product (redirects to product page){%- endcomment -%}
+                      <a href="{{ card_url }}" class="tt-compare-trio__button tt-compare-trio__button--add-to-cart">
+                        Add to Cart
+                      </a>
                     {%- endif -%}
                     
                     {%- comment -%}Learn More Button - Always shows "Learn More"{%- endcomment -%}
@@ -746,7 +751,8 @@
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     // Handle both old ajax buttons and new add-to-cart buttons
-    const ajaxButtons = document.querySelectorAll('.tt-compare-trio__button--ajax, .tt-compare-trio__button--add-to-cart');
+    // Only process buttons with data attributes (available products), not links (sold out products)
+    const ajaxButtons = document.querySelectorAll('.tt-compare-trio__button--ajax, button.tt-compare-trio__button--add-to-cart[data-product-id]');
     
     ajaxButtons.forEach(function(button) {
       button.addEventListener('click', function(e) {
