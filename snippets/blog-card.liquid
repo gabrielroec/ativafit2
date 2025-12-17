@@ -1,0 +1,117 @@
+{%- comment -%}
+  Blog Card Snippet - Reutilizável para exibir cards de artigos
+  
+  Parâmetros aceitos:
+  - article: objeto do artigo (obrigatório)
+  - show_blog_tag: mostrar tag do blog (default: true)
+  - show_author: mostrar autor (default: true)
+  - show_date: mostrar data (default: true)
+  - show_read_time: mostrar tempo de leitura (default: true)
+  - image_aspect: proporção da imagem ('featured' ou 'card', default: 'card')
+  - classes: classes CSS adicionais (opcional)
+{%- endcomment -%}
+
+{%- liquid
+  assign show_blog_tag = show_blog_tag | default: true
+  assign show_author = show_author | default: true
+  assign show_date = show_date | default: true
+  assign show_read_time = show_read_time | default: true
+  assign image_aspect = image_aspect | default: 'card'
+  assign classes = classes | default: ''
+  
+  if article == blank
+    assign article_exists = false
+  else
+    assign article_exists = true
+  endif
+-%}
+
+{%- if article_exists -%}
+  <article class="blog-card {{ classes }}" itemscope itemtype="http://schema.org/Article">
+    <a href="{{ article.url }}" class="blog-card__link" aria-label="{{ article.title | escape }}">
+      {%- if article.image -%}
+        <div class="blog-card__image-wrapper">
+          {%- if image_aspect == 'featured' -%}
+            {%- assign sizes = '(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 60vw' -%}
+            {%- assign widths = '400,600,800,1000,1200,1400,1600,1800,2000' -%}
+          {%- else -%}
+            {%- assign sizes = '(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 33vw' -%}
+            {%- assign widths = '300,400,500,600,700,800,900,1000' -%}
+          {%- endif -%}
+          
+          {{- article.image | image_url: width: article.image.width | image_tag:
+            loading: 'lazy',
+            sizes: sizes,
+            widths: widths,
+            class: 'blog-card__image',
+            alt: article.image.alt | default: article.title | escape
+          -}}
+          
+          {%- if image_aspect == 'featured' -%}
+            <div class="blog-card__overlay"></div>
+          {%- endif -%}
+        </div>
+      {%- else -%}
+        <div class="blog-card__image-wrapper blog-card__image-wrapper--placeholder">
+          <div class="blog-card__placeholder">
+            {{ 'lifestyle-1' | placeholder_svg_tag: 'blog-card__placeholder-svg' }}
+          </div>
+        </div>
+      {%- endif -%}
+      
+      <div class="blog-card__content">
+        {%- if show_blog_tag and article.tags.size > 0 -%}
+          <span class="blog-card__tag" itemprop="articleSection">
+            {{ article.tags.first }}
+          </span>
+        {%- endif -%}
+        
+        <h2 class="blog-card__title" itemprop="headline">
+          {{ article.title }}
+        </h2>
+        
+        {%- if show_author or show_date -%}
+          <div class="blog-card__meta">
+            {%- if show_author and article.author != blank -%}
+              <span class="blog-card__meta-item" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <span itemprop="name">by {{ article.author }}</span>
+              </span>
+            {%- endif -%}
+            
+            {%- if show_author and show_date -%}
+              <span class="blog-card__meta-separator">·</span>
+            {%- endif -%}
+            
+            {%- if show_date -%}
+              <time class="blog-card__meta-item" datetime="{{ article.published_at | date: '%Y-%m-%d' }}" itemprop="datePublished">
+                {{ article.published_at | date: '%b %d, %Y' }}
+              </time>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+        
+        {%- if show_read_time -%}
+          {%- liquid
+            assign content_text = article.content | strip_html
+            assign words = content_text | split: ' ' | size
+            assign minutes = words | divided_by: 200.0 | ceil
+            if minutes < 1
+              assign minutes = 1
+            endif
+          -%}
+          <div class="blog-card__read-time">
+            Time to read: {{ minutes }} {% if minutes == 1 %}minute{% else %}minutes{% endif %}
+          </div>
+        {%- endif -%}
+      </div>
+    </a>
+  </article>
+{%- else -%}
+  {%- comment -%} Estado vazio caso o artigo não exista {%- endcomment -%}
+  <div class="blog-card blog-card--empty {{ classes }}">
+    <div class="blog-card__content">
+      <p class="blog-card__empty-text">Artigo não encontrado</p>
+    </div>
+  </div>
+{%- endif -%}
+

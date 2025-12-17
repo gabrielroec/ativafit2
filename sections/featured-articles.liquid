@@ -1,0 +1,837 @@
+{%- comment -%} 
+    Featured Articles Section
+     
+    Theme Editor Configuration: 
+    1. Select the featured article 
+    2. Select article for Card 1 
+    3. Select article for Card 2 
+    4. Select article for Card 3 
+    5. Customize Subscribe texts and colors 
+    6. Adjust padding and spacing 
+{%- endcomment -%}
+
+{%- liquid
+  assign featured_article = section.settings.featured_article
+  assign card_1_article = section.settings.card_1_article
+  assign card_2_article = section.settings.card_2_article
+  assign card_3_article = section.settings.card_3_article
+  assign show_subscribe = section.settings.show_subscribe
+
+  if featured_article != blank
+    assign featured = articles[featured_article]
+  else
+    assign featured = blank
+  endif
+
+  if card_1_article != blank
+    assign article_1 = articles[card_1_article]
+  else
+    assign article_1 = blank
+  endif
+
+  if card_2_article != blank
+    assign article_2 = articles[card_2_article]
+  else
+    assign article_2 = blank
+  endif
+
+  if card_3_article != blank
+    assign article_3 = articles[card_3_article]
+  else
+    assign article_3 = blank
+  endif
+
+  assign has_grid_articles = false
+  if article_1 != blank or article_2 != blank or article_3 != blank
+    assign has_grid_articles = true
+  endif
+-%}
+
+<section
+  data-section-id="{{ section.id }}"
+  data-section-type="featured-articles"
+  class="featured-articles"
+  style="
+    --section-bg: {{ section.settings.section_bg }};
+    --subscribe-bg: {{ section.settings.subscribe_bg }};
+    --button-bg: {{ section.settings.button_bg }};
+    --button-text: {{ section.settings.button_text_color }};
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    {% if section.settings.section_bg != blank %}background-color: var(--section-bg);{% endif %}
+  ">
+  <div class="featured-articles__container">
+    {%- if section.settings.title != blank -%}
+      <h2 class="featured-articles__section-title">{{ section.settings.title }}</h2>
+    {%- endif -%}
+
+    {%- if featured == blank and has_grid_articles == false -%}
+      {%- comment -%} Empty state when no articles are selected {%- endcomment -%}
+      <div class="featured-articles__empty">
+        <p class="featured-articles__empty-text">
+          Please select articles in the section settings.
+        </p>
+      </div>
+    {%- else -%}
+      {%- comment -%} Linha principal: Featured Article + Subscribe {%- endcomment -%}
+      <div class="featured-articles__top-row">
+        {%- comment -%} Artigo em destaque {%- endcomment -%}
+        <div class="featured-articles__featured">
+          {%- if featured != blank -%}
+            <article
+              class="featured-article"
+              itemscope
+              itemtype="http://schema.org/Article">
+              <a
+                href="{{ featured.url }}"
+                class="featured-article__link"
+                aria-label="{{ featured.title | escape }}">
+                {%- if featured.image -%}
+                  <div class="featured-article__image-wrapper">
+                    {{- featured.image | image_url: width: featured.image.width | image_tag:
+ loading: 'lazy',
+ sizes: '(max-width: 767px) 100vw, (max-width: 1023px) 100vw, 60vw',
+ widths: '400,600,800,1000,1200,1400,1600,1800,2000',
+ class: 'featured-article__image',
+ alt: featured.image.alt | default: featured.title | escape
+                    -}}
+                    <div class="featured-article__overlay"></div>
+                  </div>
+                {%- else -%}
+                  <div class="featured-article__image-wrapper featured-article__image-wrapper--placeholder">
+                    <div class="featured-article__placeholder">
+                      {{ 'lifestyle-1' | placeholder_svg_tag: 'featured-article__placeholder-svg' }}
+                    </div>
+                    <div class="featured-article__overlay"></div>
+                  </div>
+                {%- endif -%}
+
+                <div class="featured-article__content">
+                  {%- if featured.tags.size > 0 -%}
+                    <span class="featured-article__tag" itemprop="articleSection">
+                      {{ featured.tags.first }}
+                    </span>
+                  {%- endif -%}
+
+                  <h2 class="featured-article__title" itemprop="headline">
+                    {{ featured.title }}
+                  </h2>
+
+                  <div class="featured-article__meta">
+                    {%- if featured.author != blank -%}
+                      <span
+                        class="featured-article__meta-item"
+                        itemprop="author"
+                        itemscope
+                        itemtype="http://schema.org/Person">
+                        <span itemprop="name">by {{ featured.author }}</span>
+                      </span>
+                    {%- endif -%}
+
+                    {%- if featured.author != blank -%}
+                      <span class="featured-article__meta-separator">·</span>
+                    {%- endif -%}
+
+                    <time
+                      class="featured-article__meta-item"
+                      datetime="{{ featured.published_at | date: '%Y-%m-%d' }}"
+                      itemprop="datePublished">
+                      {{ featured.published_at | date: '%b %d, %Y' }}
+                    </time>
+                  </div>
+
+                  {%- liquid
+                    assign content_text = featured.content | strip_html
+                    assign words = content_text | split: ' ' | size
+                    assign minutes = words | divided_by: 200.0 | ceil
+                    if minutes < 1
+                      assign minutes = 1
+                    endif
+                  -%}
+                  <div class="featured-article__read-time">
+                    Time to read: {{ minutes }}
+                    {% if minutes == 1 %}minute{% else %}minutes{% endif %}
+                  </div>
+                </div>
+              </a>
+            </article>
+          {%- endif -%}
+        </div>
+
+        {%- comment -%} Subscribe Box {%- endcomment -%}
+        {%- if show_subscribe -%}
+          <div class="featured-articles__subscribe" style="{% if section.settings.subscribe_bg != blank %}background-color: var(--subscribe-bg);{% endif %}">
+            <h3 class="featured-articles__subscribe-title">
+              {{ section.settings.subscribe_heading | default: 'Subscribe' }}
+            </h3>
+
+            {%- if section.settings.subscribe_description != blank -%}
+              <p class="featured-articles__subscribe-description">
+                {{ section.settings.subscribe_description }}
+              </p>
+            {%- endif -%}
+
+            {%- assign newsletter_form_id = 'newsletter-' | append: section.id -%}
+            {%- form 'customer'
+              , id: newsletter_form_id
+              , class: 'featured-articles__subscribe-form' -%}
+              {%- if form.posted_successfully? -%}
+                <div
+                  class="featured-articles__subscribe-message featured-articles__subscribe-message--success"
+                  role="alert"
+                  aria-live="polite">
+                  {{ section.settings.subscribe_success_message | default: 'Thank you for subscribing!' }}
+                </div>
+              {%- else -%}
+                {%- if form.errors -%}
+                  <div
+                    class="featured-articles__subscribe-message featured-articles__subscribe-message--error"
+                    role="alert"
+                    aria-live="polite">
+                    {{ form.errors.messages['email'] | default: 'Error processing subscription. Please try again.' }}
+                  </div>
+                {%- endif -%}
+
+                <input
+                  type="hidden"
+                  name="contact[tags]"
+                  value="newsletter">
+
+                <div class="featured-articles__subscribe-input-wrapper">
+                  <label for="{{ newsletter_form_id }}-email" class="visually-hidden">
+                    {{ section.settings.subscribe_placeholder | default: 'Enter your email' }}
+                  </label>
+                  <input
+                    type="email"
+                    name="contact[email]"
+                    id="{{ newsletter_form_id }}-email"
+                    class="featured-articles__subscribe-input"
+                    placeholder="{{ section.settings.subscribe_placeholder | default: 'Enter your email' }}"
+                    required
+                    aria-required="true"
+                    autocomplete="email">
+                </div>
+
+                <button
+                  type="submit"
+                  class="featured-articles__subscribe-button"
+                  style="
+                    {% if section.settings.button_bg != blank %}background-color: var(--button-bg);{% endif %}
+                    {% if section.settings.button_text_color != blank %}color: var(--button-text);{% endif %}
+                  ">
+                  {{ section.settings.subscribe_button_text | default: 'Subscribe' }}
+                </button>
+              {%- endif -%}
+            {%- endform -%}
+          </div>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%} Grid of articles below {%- endcomment -%}
+      {%- if has_grid_articles -%}
+        <div class="featured-articles__grid">
+          {%- if article_1 != blank -%}
+            {%- render 'blog-card'
+              ,
+ article: article_1
+              ,
+ show_blog_tag: true
+              ,
+ show_author: true
+              ,
+ show_date: true
+              ,
+ show_read_time: true
+              ,
+ image_aspect: 'card'
+              ,
+ classes: 'featured-articles__grid-item'
+            -%}
+          {%- endif -%}
+
+          {%- if article_2 != blank -%}
+            {%- render 'blog-card'
+              ,
+ article: article_2
+              ,
+ show_blog_tag: true
+              ,
+ show_author: true
+              ,
+ show_date: true
+              ,
+ show_read_time: true
+              ,
+ image_aspect: 'card'
+              ,
+ classes: 'featured-articles__grid-item'
+            -%}
+          {%- endif -%}
+
+          {%- if article_3 != blank -%}
+            {%- render 'blog-card'
+              ,
+ article: article_3
+              ,
+ show_blog_tag: true
+              ,
+ show_author: true
+              ,
+ show_date: true
+              ,
+ show_read_time: true
+              ,
+ image_aspect: 'card'
+              ,
+ classes: 'featured-articles__grid-item'
+            -%}
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    {%- endif -%}
+  </div>
+</section>
+
+<style>
+  /* Featured Articles Section */
+  .featured-articles {
+    width: 100%;
+  }
+
+  .featured-articles__container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .featured-articles__section-title {
+    font-size: 36px;
+    font-weight: 700;
+    margin: 0 0 40px;
+    text-align: center;
+    color: #333;
+  }
+
+  .featured-articles__empty {
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .featured-articles__empty-text {
+    font-size: 16px;
+    color: #666;
+  }
+
+  /* Top Row: Featured + Subscribe */
+  .featured-articles__top-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+    margin-bottom: 50px;
+  }
+
+  /* Featured Article */
+  .featured-article {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease
+    , box-shadow 0.3s ease;
+  }
+
+  .featured-article:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  .featured-article__link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .featured-article__image-wrapper {
+    position: relative;
+    width: 100%;
+    padding-bottom: 60%;
+    overflow: hidden;
+    background: #f5f5f5;
+  }
+
+  .featured-article__image-wrapper--placeholder {
+    padding-bottom: 60%;
+  }
+
+  .featured-article__image,
+  .featured-article__placeholder-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .featured-article__placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f5f5f5;
+  }
+
+  .featured-article__overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 50%, transparent 100%);
+    pointer-events: none;
+  }
+
+  .featured-article__content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 30px;
+    color: #fff;
+    z-index: 1;
+  }
+
+  .featured-article__tag {
+    display: inline-block;
+    padding: 6px 14px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+  }
+
+  .featured-article__title {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0 0 12px;
+    color: #fff;
+  }
+
+  .featured-article__meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 8px;
+  }
+
+  .featured-article__meta-separator {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .featured-article__read-time {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  /* Subscribe Box */
+  .featured-articles__subscribe {
+    padding: 40px 30px;
+    border-radius: 12px;
+    background: #f8f8f8;
+  }
+
+  .featured-articles__subscribe-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 16px;
+    color: #333;
+  }
+
+  .featured-articles__subscribe-description {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #666;
+    margin: 0 0 24px;
+  }
+
+  .featured-articles__subscribe-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .featured-articles__subscribe-input-wrapper {
+    width: 100%;
+  }
+
+  .featured-articles__subscribe-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fff;
+    transition: border-color 0.3s ease;
+  }
+
+  .featured-articles__subscribe-input:focus {
+    outline: none;
+    border-color: #333;
+  }
+
+  .featured-articles__subscribe-button {
+    width: 100%;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.3s ease
+    , transform 0.2s ease;
+    background: #000;
+    color: #fff;
+  }
+
+  .featured-articles__subscribe-button:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  .featured-articles__subscribe-button:active {
+    transform: translateY(0);
+  }
+
+  .featured-articles__subscribe-button:focus {
+    outline: 2px solid #333;
+    outline-offset: 2px;
+  }
+
+  .featured-articles__subscribe-message {
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    text-align: center;
+  }
+
+  .featured-articles__subscribe-message--success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+  }
+
+  .featured-articles__subscribe-message--error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+  }
+
+  /* Grid de Artigos */
+  .featured-articles__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+
+  /* Blog Card Styles */
+  .blog-card {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease
+    , box-shadow 0.3s ease;
+  }
+
+  .blog-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  .blog-card__link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .blog-card__image-wrapper {
+    position: relative;
+    width: 100%;
+    padding-bottom: 60%;
+    overflow: hidden;
+    background: #f5f5f5;
+  }
+
+  .blog-card__image-wrapper--placeholder {
+    padding-bottom: 60%;
+  }
+
+  .blog-card__image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .blog-card__placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f5f5f5;
+  }
+
+  .blog-card__content {
+    padding: 24px;
+  }
+
+  .blog-card__tag {
+    display: inline-block;
+    padding: 6px 14px;
+    background: #f0f0f0;
+    color: #333;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+  }
+
+  .blog-card__title {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0 0 12px;
+    color: #333;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .blog-card__meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 8px;
+  }
+
+  .blog-card__meta-separator {
+    color: #999;
+  }
+
+  .blog-card__read-time {
+    font-size: 12px;
+    color: #999;
+  }
+
+  .blog-card--empty {
+    padding: 40px;
+    text-align: center;
+  }
+
+  .blog-card__empty-text {
+    color: #999;
+    font-size: 14px;
+  }
+
+  /* Visually Hidden Utility */
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* Responsividade - Tablet */
+  @media screen and (min-width: 768px) {
+    .featured-articles__top-row {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .featured-articles__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .featured-article__title {
+      font-size: 28px;
+    }
+  }
+
+  /* Responsividade - Desktop */
+  @media screen and (min-width: 1024px) {
+    .featured-articles__top-row {
+      grid-template-columns: 1.5fr 1fr;
+      gap: 40px;
+    }
+
+    .featured-articles__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .featured-article__title {
+      font-size: 32px;
+    }
+
+    .featured-articles__section-title {
+      font-size: 42px;
+      margin-bottom: 50px;
+    }
+  }
+</style>
+
+{% schema %}
+  {
+    "name": "Featured Articles",
+    "settings": [
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Section Title",
+        "default": "Featured Articles"
+      },
+      {
+        "type": "header",
+        "content": "Featured Article"
+      },
+      {
+        "type": "article",
+        "id": "featured_article",
+        "label": "Featured Article",
+        "info": "Select the article to display as featured"
+      },
+      {
+        "type": "header",
+        "content": "Article Cards"
+      }, {
+        "type": "article",
+        "id": "card_1_article",
+        "label": "Card 1 Article",
+        "info": "Select the article for the first card"
+      }, {
+        "type": "article",
+        "id": "card_2_article",
+        "label": "Card 2 Article",
+        "info": "Select the article for the second card"
+      }, {
+        "type": "article",
+        "id": "card_3_article",
+        "label": "Card 3 Article",
+        "info": "Select the article for the third card"
+      }, {
+        "type": "header",
+        "content": "Subscribe Box"
+      }, {
+        "type": "checkbox",
+        "id": "show_subscribe",
+        "label": "Show Subscribe Box",
+        "default": true
+      }, {
+        "type": "text",
+        "id": "subscribe_heading",
+        "label": "Subscribe Heading",
+        "default": "Subscribe"
+      }, {
+        "type": "textarea",
+        "id": "subscribe_description",
+        "label": "Subscribe Description",
+        "default": "Our weekly newsletter is your source of education and inspiration to help you create a corporate wellness program that actually matters."
+      }, {
+        "type": "text",
+        "id": "subscribe_placeholder",
+        "label": "Email Placeholder",
+        "default": "Enter your email"
+      }, {
+        "type": "text",
+        "id": "subscribe_button_text",
+        "label": "Button Text",
+        "default": "Subscribe"
+      }, {
+        "type": "text",
+        "id": "subscribe_success_message",
+        "label": "Success Message",
+        "default": "Thank you for subscribing!"
+      }, {
+        "type": "header",
+        "content": "Colors"
+      }, {
+        "type": "color",
+        "id": "section_bg",
+        "label": "Section Background",
+        "info": "Leave empty to use default color"
+      }, {
+        "type": "color",
+        "id": "subscribe_bg",
+        "label": "Subscribe Background",
+        "default": "#f8f8f8"
+      }, {
+        "type": "color",
+        "id": "button_bg",
+        "label": "Button Color",
+        "default": "#000000"
+      }, {
+        "type": "color",
+        "id": "button_text_color",
+        "label": "Button Text Color",
+        "default": "#ffffff"
+      }, {
+        "type": "header",
+        "content": "Spacing"
+      }, {
+        "type": "range",
+        "id": "padding_top",
+        "label": "Top Padding",
+        "min": 0,
+        "max": 120,
+        "step": 10,
+        "default": 60,
+        "unit": "px"
+      }, {
+        "type": "range",
+        "id": "padding_bottom",
+        "label": "Bottom Padding",
+        "min": 0,
+        "max": 120,
+        "step": 10,
+        "default": 60,
+        "unit": "px"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Featured Articles",
+        "settings": {
+          "title": "Featured Articles",
+          "show_subscribe": true
+        }
+      }
+    ]
+  }
+{% endschema %}
