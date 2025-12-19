@@ -1,25 +1,23 @@
-{%- comment -%}
+{%- comment -%} 
   Choose Your Topic Section
-  
-  Theme Editor Configuration:
-  1. Add blocks for each tab (each block = one blog tab)
-  2. Each block needs: tab_label, blog, default_active
-  3. Configure initial posts count and load more amount
+   
+  Theme Editor Configuration: 
+  1. Add blocks for each tab (each block = one blog tab) 
+  2. Each block needs: tab_label, blog, default_active 
+  3. Configure initial posts count and load more amount 
   4. Enable/disable search and filter
-  
-  How to add new tabs:
-  - Click "Add block" in Theme Editor
-  - Select "Blog Tab" block type
-  - Set tab label and select blog
-  - Mark as default_active if it should be the first active tab
+   
+  How to add new tabs: 
+  - Click "Add block" in Theme Editor 
+  - Select "Blog Tab" block type 
+  - Set tab label and select blog 
+  - Mark as default_active if it should be the first active tab 
 {%- endcomment -%}
 
 {%- liquid
-  assign initial_posts = section.settings.initial_posts_count | default: 9
-  assign load_more_count = section.settings.load_more_count | default: 6
   assign show_search = section.settings.show_search
   assign show_filter = section.settings.show_filter
-  
+
   comment Find the default active tab
   endcomment
   assign active_tab_id = blank
@@ -29,7 +27,7 @@
       break
     endif
   endfor
-  
+
   comment If no default active, use first block
   endcomment
   if active_tab_id == blank and section.blocks.size > 0
@@ -37,35 +35,33 @@
   endif
 -%}
 
-<section 
-  data-section-id="{{ section.id }}" 
+<section
+  data-section-id="{{ section.id }}"
   data-section-type="choose-your-topic"
   class="choose-your-topic"
   style="
     padding-top: {{ section.settings.padding_top }}px;
     padding-bottom: {{ section.settings.padding_bottom }}px;
     {% if section.settings.section_bg != blank %}background-color: {{ section.settings.section_bg }};{% endif %}
-  "
->
+  ">
   <div class="choose-your-topic__container">
     {%- if section.settings.title != blank -%}
       <h2 class="choose-your-topic__title">{{ section.settings.title }}</h2>
     {%- endif -%}
-    
+
     {%- if section.blocks.size > 0 -%}
       {%- comment -%} Tab Navigation {%- endcomment -%}
       <div class="choose-your-topic__tabs-wrapper">
-        <div 
-          class="choose-your-topic__tabs" 
+        <div
+          class="choose-your-topic__tabs"
           role="tablist"
-          aria-label="Blog topics"
-        >
+          aria-label="Blog topics">
           {%- for block in section.blocks -%}
             {%- assign is_active = false -%}
             {%- if block.id == active_tab_id -%}
               {%- assign is_active = true -%}
             {%- endif -%}
-            
+
             <button
               class="choose-your-topic__tab{% if is_active %} choose-your-topic__tab--active{% endif %}"
               role="tab"
@@ -74,30 +70,28 @@
               id="tab-{{ block.id }}"
               data-tab-id="{{ block.id }}"
               data-blog-handle="{% if block.settings.blog != blank %}{{ blogs[block.settings.blog].handle }}{% endif %}"
-              {{ block.shopify_attributes }}
-            >
+              {{ block.shopify_attributes }}>
               {{ block.settings.tab_label | default: 'Tab' }}
             </button>
           {%- endfor -%}
         </div>
       </div>
-      
+
       {%- comment -%} Filters and Search {%- endcomment -%}
       <div class="choose-your-topic__filters">
         {%- if show_filter -%}
           <div class="choose-your-topic__filter-wrapper">
             <label for="category-filter-{{ section.id }}" class="visually-hidden">Filter by category</label>
-            <select 
+            <select
               id="category-filter-{{ section.id }}"
               class="choose-your-topic__filter-select"
               data-filter="category"
-              aria-label="Filter by category"
-            >
+              aria-label="Filter by category">
               <option value="">All categories</option>
             </select>
           </div>
         {%- endif -%}
-        
+
         {%- if show_search -%}
           <div class="choose-your-topic__search-wrapper">
             <label for="search-input-{{ section.id }}" class="visually-hidden">Search articles</label>
@@ -107,21 +101,19 @@
               class="choose-your-topic__search-input"
               placeholder="Search articles"
               data-search="input"
-              aria-label="Search articles"
-            >
-            <button 
+              aria-label="Search articles">
+            <button
               type="button"
               class="choose-your-topic__search-clear"
               data-search="clear"
               aria-label="Clear search"
-              style="display: none;"
-            >
+              style="display: none;">
               ×
             </button>
           </div>
         {%- endif -%}
       </div>
-      
+
       {%- comment -%} Tab Panels {%- endcomment -%}
       <div class="choose-your-topic__panels">
         {%- for block in section.blocks -%}
@@ -129,9 +121,9 @@
           {%- if block.id == active_tab_id -%}
             {%- assign is_active = true -%}
           {%- endif -%}
-          
+
           {%- assign selected_blog = blogs[block.settings.blog] -%}
-          
+
           <div
             class="choose-your-topic__panel{% if is_active %} choose-your-topic__panel--active{% endif %}"
             role="tabpanel"
@@ -139,12 +131,11 @@
             aria-labelledby="tab-{{ block.id }}"
             data-panel-id="{{ block.id }}"
             data-blog-handle="{% if selected_blog != blank %}{{ selected_blog.handle }}{% endif %}"
-            {{ block.shopify_attributes }}
-          >
+            {{ block.shopify_attributes }}>
             {%- if selected_blog != blank and selected_blog.articles.size > 0 -%}
               {%- comment -%} Section Title (from active blog) {%- endcomment -%}
               <h3 class="choose-your-topic__panel-title">{{ selected_blog.title }}</h3>
-              
+
               {%- comment -%} Collect all unique tags from this blog {%- endcomment -%}
               {%- assign blog_tags_string = '' -%}
               {%- for article in selected_blog.articles -%}
@@ -160,58 +151,69 @@
                 {%- endfor -%}
               {%- endfor -%}
               {%- assign blog_tags = blog_tags_string | split: '|' -%}
-              
+
               {%- comment -%} Articles Grid {%- endcomment -%}
-              <div 
-                class="choose-your-topic__grid" 
+              <div
+                class="choose-your-topic__grid"
                 data-articles-container
                 data-initial-count="{{ initial_posts }}"
-                data-load-more-count="{{ load_more_count }}"
-              >
+                data-load-more-count="{{ load_more_count }}">
                 {%- assign articles_rendered = 0 -%}
                 {%- for article in selected_blog.articles -%}
                   {%- if articles_rendered < initial_posts -%}
-                    <div 
+                    <div
                       class="choose-your-topic__article-item"
                       data-article-id="{{ article.id }}"
                       data-article-title="{{ article.title | downcase | escape }}"
                       data-article-excerpt="{{ article.excerpt | default: article.content | strip_html | downcase | escape }}"
-                      data-article-tags="{% for tag in article.tags %}{{ tag | downcase | escape }}{% unless forloop.last %},{% endunless %}{% endfor %}"
-                    >
-                      {%- render 'blog-card',
-                        article: article,
-                        show_blog_tag: true,
-                        show_author: true,
-                        show_date: true,
-                        show_read_time: true,
-                        image_aspect: 'card',
-                        classes: 'choose-your-topic__card'
+                      data-article-tags="{% for tag in article.tags %}{{ tag | downcase | escape }}{% unless forloop.last %},{% endunless %}{% endfor %}">
+                      {%- render 'blog-card'
+                        ,
+ article: article
+                        ,
+ show_blog_tag: true
+                        ,
+ show_author: true
+                        ,
+ show_date: true
+                        ,
+ show_read_time: true
+                        ,
+ image_aspect: 'card'
+                        ,
+ classes: 'choose-your-topic__card'
                       -%}
                     </div>
                     {%- assign articles_rendered = articles_rendered | plus: 1 -%}
-                  {%- else -%}
+                    {%- else -%}
                     {%- comment -%} Hidden articles for load more {%- endcomment -%}
-                    <div 
+                    <div
                       class="choose-your-topic__article-item choose-your-topic__article-item--hidden"
                       data-article-id="{{ article.id }}"
                       data-article-title="{{ article.title | downcase | escape }}"
                       data-article-excerpt="{{ article.excerpt | default: article.content | strip_html | downcase | escape }}"
-                      data-article-tags="{% for tag in article.tags %}{{ tag | downcase | escape }}{% unless forloop.last %},{% endunless %}{% endfor %}"
-                    >
-                      {%- render 'blog-card',
-                        article: article,
-                        show_blog_tag: true,
-                        show_author: true,
-                        show_date: true,
-                        show_read_time: true,
-                        image_aspect: 'card',
-                        classes: 'choose-your-topic__card'
+                      data-article-tags="{% for tag in article.tags %}{{ tag | downcase | escape }}{% unless forloop.last %},{% endunless %}{% endfor %}">
+                      {%- render 'blog-card'
+                        ,
+ article: article
+                        ,
+ show_blog_tag: true
+                        ,
+ show_author: true
+                        ,
+ show_date: true
+                        ,
+ show_read_time: true
+                        ,
+ image_aspect: 'card'
+                        ,
+ classes: 'choose-your-topic__card'
                       -%}
                     </div>
                   {%- endif -%}
                 {%- endfor -%}
               </div>
-              
+
               {%- comment -%} Load More Button {%- endcomment -%}
               {%- if selected_blog.articles.size > initial_posts -%}
                 <div class="choose-your-topic__load-more-wrapper">
@@ -219,18 +221,17 @@
                     type="button"
                     class="choose-your-topic__load-more"
                     data-load-more
-                    aria-live="polite"
-                  >
+                    aria-live="polite">
                     {{ section.settings.load_more_text | default: 'Load more' }}
                   </button>
                 </div>
               {%- endif -%}
-              
+
               {%- comment -%} Empty State (hidden by default, shown via JS when filtered) {%- endcomment -%}
               <div class="choose-your-topic__empty" style="display: none;">
                 <p class="choose-your-topic__empty-text">No articles found</p>
               </div>
-              
+
               {%- comment -%} Store tags in data attribute for JS {%- endcomment -%}
               <script type="application/json" data-blog-tags>
                 [
@@ -262,13 +263,13 @@
   .choose-your-topic {
     width: 100%;
   }
-  
+
   .choose-your-topic__container {
     max-width: 1400px;
     margin: 0 auto;
     padding: 0 20px;
   }
-  
+
   .choose-your-topic__title {
     font-size: 42px;
     font-weight: 700;
@@ -276,7 +277,7 @@
     margin: 0 0 40px;
     color: #333;
   }
-  
+
   /* Tabs Navigation */
   .choose-your-topic__tabs-wrapper {
     margin-bottom: 30px;
@@ -284,18 +285,18 @@
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
-  
+
   .choose-your-topic__tabs-wrapper::-webkit-scrollbar {
     display: none;
   }
-  
+
   .choose-your-topic__tabs {
     display: flex;
     gap: 0;
     border-bottom: 2px solid #e5e5e5;
     min-width: fit-content;
   }
-  
+
   .choose-your-topic__tab {
     padding: 16px 24px;
     border: none;
@@ -312,21 +313,21 @@
     border-bottom: 3px solid transparent;
     margin-bottom: -2px;
   }
-  
+
   .choose-your-topic__tab:hover {
     color: #333;
   }
-  
+
   .choose-your-topic__tab--active {
     color: #000;
     border-bottom-color: #ff6b9d;
   }
-  
+
   .choose-your-topic__tab:focus {
     outline: 2px solid #333;
     outline-offset: 2px;
   }
-  
+
   /* Filters and Search */
   .choose-your-topic__filters {
     display: flex;
@@ -334,11 +335,11 @@
     margin-bottom: 40px;
     flex-wrap: wrap;
   }
-  
+
   .choose-your-topic__filter-wrapper {
     flex: 0 0 auto;
   }
-  
+
   .choose-your-topic__filter-select {
     padding: 12px 16px;
     border: 1px solid #ddd;
@@ -349,12 +350,12 @@
     min-width: 180px;
     transition: border-color 0.3s ease;
   }
-  
+
   .choose-your-topic__filter-select:focus {
     outline: none;
     border-color: #333;
   }
-  
+
   .choose-your-topic__search-wrapper {
     flex: 1;
     min-width: 200px;
@@ -362,7 +363,7 @@
     display: flex;
     align-items: center;
   }
-  
+
   .choose-your-topic__search-input {
     width: 100%;
     padding: 12px 40px 12px 16px;
@@ -371,12 +372,12 @@
     font-size: 14px;
     transition: border-color 0.3s ease;
   }
-  
+
   .choose-your-topic__search-input:focus {
     outline: none;
     border-color: #333;
   }
-  
+
   .choose-your-topic__search-clear {
     position: absolute;
     right: 12px;
@@ -394,37 +395,37 @@
     justify-content: center;
     transition: color 0.3s ease;
   }
-  
+
   .choose-your-topic__search-clear:hover {
     color: #333;
   }
-  
+
   .choose-your-topic__search-clear:focus {
     outline: 2px solid #333;
     outline-offset: 2px;
     border-radius: 2px;
   }
-  
+
   /* Tab Panels */
   .choose-your-topic__panels {
     position: relative;
   }
-  
+
   .choose-your-topic__panel {
     display: none;
   }
-  
+
   .choose-your-topic__panel--active {
     display: block;
   }
-  
+
   .choose-your-topic__panel-title {
     font-size: 32px;
     font-weight: 700;
     margin: 0 0 30px;
     color: #333;
   }
-  
+
   /* Articles Grid */
   .choose-your-topic__grid {
     display: grid;
@@ -432,68 +433,31 @@
     gap: 30px;
     margin-bottom: 40px;
   }
-  
+
   .choose-your-topic__article-item {
     opacity: 1;
     transition: opacity 0.3s ease;
   }
-  
-  .choose-your-topic__article-item--hidden {
-    display: none;
-  }
-  
+
   .choose-your-topic__article-item--filtered {
     display: none;
   }
-  
+
   .choose-your-topic__card {
     height: 100%;
   }
-  
-  /* Load More Button */
-  .choose-your-topic__load-more-wrapper {
-    text-align: center;
-    margin-top: 40px;
-  }
-  
-  .choose-your-topic__load-more {
-    padding: 14px 32px;
-    border: 2px solid #333;
-    border-radius: 8px;
-    background: transparent;
-    font-size: 14px;
-    font-weight: 600;
-    color: #333;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-  
-  .choose-your-topic__load-more:hover {
-    background: #333;
-    color: #fff;
-  }
-  
-  .choose-your-topic__load-more:focus {
-    outline: 2px solid #333;
-    outline-offset: 2px;
-  }
-  
-  .choose-your-topic__load-more:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  
+
   /* Empty State */
   .choose-your-topic__empty {
     text-align: center;
     padding: 60px 20px;
   }
-  
+
   .choose-your-topic__empty-text {
     font-size: 16px;
     color: #666;
   }
-  
+
   /* Visually Hidden */
   .visually-hidden {
     position: absolute;
@@ -506,33 +470,33 @@
     white-space: nowrap;
     border-width: 0;
   }
-  
+
   /* Responsive - Tablet */
   @media screen and (min-width: 768px) {
     .choose-your-topic__grid {
       grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .choose-your-topic__filters {
       flex-wrap: nowrap;
     }
-    
+
     .choose-your-topic__search-wrapper {
       flex: 1;
     }
   }
-  
+
   /* Responsive - Desktop */
   @media screen and (min-width: 1024px) {
     .choose-your-topic__title {
       font-size: 48px;
       margin-bottom: 50px;
     }
-    
+
     .choose-your-topic__grid {
       grid-template-columns: repeat(3, 1fr);
     }
-    
+
     .choose-your-topic__panel-title {
       font-size: 36px;
     }
@@ -551,7 +515,6 @@
         this.searchInput = section.querySelector('[data-search="input"]');
         this.searchClear = section.querySelector('[data-search="clear"]');
         this.filterSelect = section.querySelector('[data-filter="category"]');
-        this.loadMoreBtn = section.querySelector('[data-load-more]');
         this.activePanel = null;
         this.searchTimeout = null;
         
@@ -576,11 +539,6 @@
         // Filter select
         if (this.filterSelect) {
           this.filterSelect.addEventListener('change', (e) => this.handleFilter(e));
-        }
-        
-        // Load more
-        if (this.loadMoreBtn) {
-          this.loadMoreBtn.addEventListener('click', () => this.handleLoadMore());
         }
         
         // Initialize active panel
@@ -635,8 +593,6 @@
           }
         }
         
-        // Update load more button visibility
-        this.updateLoadMoreButton();
       }
       
       populateFilterSelect(tags) {
@@ -763,25 +719,6 @@
           }
         });
         
-        // Update button visibility
-        this.updateLoadMoreButton();
-      }
-      
-      updateLoadMoreButton() {
-        if (!this.activePanel || !this.loadMoreBtn) return;
-        
-        const container = this.activePanel.querySelector('[data-articles-container]');
-        if (!container) return;
-        
-        const hiddenArticles = this.activePanel.querySelectorAll(
-          '.choose-your-topic__article-item--hidden:not(.choose-your-topic__article-item--filtered)'
-        );
-        
-        if (hiddenArticles.length === 0) {
-          this.loadMoreBtn.style.display = 'none';
-        } else {
-          this.loadMoreBtn.style.display = 'inline-block';
-        }
       }
     }
     
@@ -804,161 +741,148 @@
 </script>
 
 {% schema %}
-{
-  "name": "Choose Your Topic",
-  "settings": [
-    {
-      "type": "text",
-      "id": "title",
-      "label": "Section Title",
-      "default": "Choose your topic"
-    },
-    {
-      "type": "header",
-      "content": "Articles Settings"
-    },
-    {
-      "type": "range",
-      "id": "initial_posts_count",
-      "label": "Initial Posts Count",
-      "min": 3,
-      "max": 18,
-      "step": 3,
-      "default": 9,
-      "info": "Number of articles shown initially"
-    },
-    {
-      "type": "range",
-      "id": "load_more_count",
-      "label": "Load More Count",
-      "min": 3,
-      "max": 12,
-      "step": 3,
-      "default": 6,
-      "info": "Number of articles loaded when clicking 'Load more'"
-    },
-    {
-      "type": "text",
-      "id": "load_more_text",
-      "label": "Load More Button Text",
-      "default": "Load more"
-    },
-    {
-      "type": "header",
-      "content": "Filters"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_search",
-      "label": "Show Search",
-      "default": true
-    },
-    {
-      "type": "checkbox",
-      "id": "show_filter",
-      "label": "Show Category Filter",
-      "default": true
-    },
-    {
-      "type": "header",
-      "content": "Spacing"
-    },
-    {
-      "type": "range",
-      "id": "padding_top",
-      "label": "Top Padding",
-      "min": 0,
-      "max": 120,
-      "step": 10,
-      "default": 60,
-      "unit": "px"
-    },
-    {
-      "type": "range",
-      "id": "padding_bottom",
-      "label": "Bottom Padding",
-      "min": 0,
-      "max": 120,
-      "step": 10,
-      "default": 60,
-      "unit": "px"
-    },
-    {
-      "type": "header",
-      "content": "Colors"
-    },
-    {
-      "type": "color",
-      "id": "section_bg",
-      "label": "Section Background",
-      "info": "Leave empty to use default color"
-    }
-  ],
-  "blocks": [
-    {
-      "type": "blog_tab",
-      "name": "Blog Tab",
-      "settings": [
-        {
-          "type": "text",
-          "id": "tab_label",
-          "label": "Tab Label",
-          "default": "Tab"
-        },
-        {
-          "type": "blog",
-          "id": "blog",
-          "label": "Blog",
-          "info": "Select the blog for this tab"
-        },
-        {
-          "type": "checkbox",
-          "id": "default_active",
-          "label": "Set as Default Active Tab",
-          "default": false,
-          "info": "Only one tab should be marked as active"
-        }
-      ]
-    }
-  ],
-  "presets": [
-    {
-      "name": "Choose Your Topic",
-      "blocks": [
-        {
-          "type": "blog_tab",
-          "settings": {
-            "tab_label": "Customer Stories",
-            "default_active": true
+  {
+    "name": "Choose Your Topic",
+    "settings": [
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Section Title",
+        "default": "Choose your topic"
+      },
+      {
+        "type": "header",
+        "content": "Articles Settings"
+      },
+      {
+        "type": "range",
+        "id": "initial_posts_count",
+        "label": "Initial Posts Count",
+        "min": 3,
+        "max": 18,
+        "step": 3,
+        "default": 9,
+        "info": "Number of articles shown initially"
+      },
+      {
+        "type": "range",
+        "id": "load_more_count",
+        "label": "Load More Count",
+        "min": 3,
+        "max": 12,
+        "step": 3,
+        "default": 6,
+        "info": "Number of articles loaded when clicking 'Load more'"
+      }, {
+        "type": "text",
+        "id": "load_more_text",
+        "label": "Load More Button Text",
+        "default": "Load more"
+      }, {
+        "type": "header",
+        "content": "Filters"
+      }, {
+        "type": "checkbox",
+        "id": "show_search",
+        "label": "Show Search",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "show_filter",
+        "label": "Show Category Filter",
+        "default": true
+      }, {
+        "type": "header",
+        "content": "Spacing"
+      }, {
+        "type": "range",
+        "id": "padding_top",
+        "label": "Top Padding",
+        "min": 0,
+        "max": 120,
+        "step": 10,
+        "default": 60,
+        "unit": "px"
+      }, {
+        "type": "range",
+        "id": "padding_bottom",
+        "label": "Bottom Padding",
+        "min": 0,
+        "max": 120,
+        "step": 10,
+        "default": 60,
+        "unit": "px"
+      }, {
+        "type": "header",
+        "content": "Colors"
+      }, {
+        "type": "color",
+        "id": "section_bg",
+        "label": "Section Background",
+        "info": "Leave empty to use default color"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "blog_tab",
+        "name": "Blog Tab",
+        "settings": [
+          {
+            "type": "text",
+            "id": "tab_label",
+            "label": "Tab Label",
+            "default": "Tab"
+          }, {
+            "type": "blog",
+            "id": "blog",
+            "label": "Blog",
+            "info": "Select the blog for this tab"
+          }, {
+            "type": "checkbox",
+            "id": "default_active",
+            "label": "Set as Default Active Tab",
+            "default": false,
+            "info": "Only one tab should be marked as active"
           }
-        },
-        {
-          "type": "blog_tab",
-          "settings": {
-            "tab_label": "Organizational Wellness"
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Choose Your Topic",
+        "blocks": [
+          {
+            "type": "blog_tab",
+            "settings": {
+              "tab_label": "Customer Stories",
+              "default_active": true
+            }
+          },
+          {
+            "type": "blog_tab",
+            "settings": {
+              "tab_label": "Organizational Wellness"
+            }
+          },
+          {
+            "type": "blog_tab",
+            "settings": {
+              "tab_label": "Personal Wellness"
+            }
+          },
+          {
+            "type": "blog_tab",
+            "settings": {
+              "tab_label": "Wellhub News"
+            }
+          }, {
+            "type": "blog_tab",
+            "settings": {
+              "tab_label": "Wellness Partners"
+            }
           }
-        },
-        {
-          "type": "blog_tab",
-          "settings": {
-            "tab_label": "Personal Wellness"
-          }
-        },
-        {
-          "type": "blog_tab",
-          "settings": {
-            "tab_label": "Wellhub News"
-          }
-        },
-        {
-          "type": "blog_tab",
-          "settings": {
-            "tab_label": "Wellness Partners"
-          }
-        }
-      ]
-    }
-  ]
-}
+        ]
+      }
+    ]
+  }
 {% endschema %}
-
