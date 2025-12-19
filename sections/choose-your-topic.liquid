@@ -1,17 +1,17 @@
 {%- comment -%} 
-  Choose Your Topic Section
-   
-  Theme Editor Configuration: 
-  1. Add blocks for each tab (each block = one blog tab) 
-  2. Each block needs: tab_label, blog, default_active 
-  3. Configure initial posts count and load more amount 
-  4. Enable/disable search and filter
-   
-  How to add new tabs: 
-  - Click "Add block" in Theme Editor 
-  - Select "Blog Tab" block type 
-  - Set tab label and select blog 
-  - Mark as default_active if it should be the first active tab 
+    Choose Your Topic Section
+     
+    Theme Editor Configuration: 
+    1. Add blocks for each tab (each block = one blog tab) 
+    2. Each block needs: tab_label, blog, default_active 
+    3. Configure initial posts count and load more amount 
+    4. Enable/disable search and filter
+     
+    How to add new tabs: 
+    - Click "Add block" in Theme Editor 
+    - Select "Blog Tab" block type 
+    - Set tab label and select blog 
+    - Mark as default_active if it should be the first active tab 
 {%- endcomment -%}
 
 {%- liquid
@@ -153,79 +153,33 @@
               {%- assign blog_tags = blog_tags_string | split: '|' -%}
 
               {%- comment -%} Articles Grid {%- endcomment -%}
-              <div
-                class="choose-your-topic__grid"
-                data-articles-container
-                data-initial-count="{{ initial_posts }}"
-                data-load-more-count="{{ load_more_count }}">
-                {%- assign articles_rendered = 0 -%}
+              <div class="choose-your-topic__grid" data-articles-container>
                 {%- for article in selected_blog.articles -%}
-                  {%- if articles_rendered < initial_posts -%}
-                    <div
-                      class="choose-your-topic__article-item"
-                      data-article-id="{{ article.id }}"
-                      data-article-title="{{ article.title | downcase | escape }}"
-                      data-article-excerpt="{{ article.excerpt | default: article.content | strip_html | downcase | escape }}"
-                      data-article-tags="{% for tag in article.tags %}{{ tag | downcase | escape }}{% unless forloop.last %},{% endunless %}{% endfor %}">
-                      {%- render 'blog-card'
-                        ,
+                  <div
+                    class="choose-your-topic__article-item"
+                    data-article-id="{{ article.id }}"
+                    data-article-title="{{ article.title | downcase | escape }}"
+                    data-article-excerpt="{{ article.excerpt | default: article.content | strip_html | downcase | escape }}"
+                    data-article-tags="{% for tag in article.tags %}{{ tag | downcase | escape }}{% unless forloop.last %},{% endunless %}{% endfor %}">
+                    {%- render 'blog-card'
+                      ,
  article: article
-                        ,
+                      ,
  show_blog_tag: true
-                        ,
+                      ,
  show_author: true
-                        ,
+                      ,
  show_date: true
-                        ,
+                      ,
  show_read_time: true
-                        ,
+                      ,
  image_aspect: 'card'
-                        ,
+                      ,
  classes: 'choose-your-topic__card'
-                      -%}
-                    </div>
-                    {%- assign articles_rendered = articles_rendered | plus: 1 -%}
-                    {%- else -%}
-                    {%- comment -%} Hidden articles for load more {%- endcomment -%}
-                    <div
-                      class="choose-your-topic__article-item choose-your-topic__article-item--hidden"
-                      data-article-id="{{ article.id }}"
-                      data-article-title="{{ article.title | downcase | escape }}"
-                      data-article-excerpt="{{ article.excerpt | default: article.content | strip_html | downcase | escape }}"
-                      data-article-tags="{% for tag in article.tags %}{{ tag | downcase | escape }}{% unless forloop.last %},{% endunless %}{% endfor %}">
-                      {%- render 'blog-card'
-                        ,
- article: article
-                        ,
- show_blog_tag: true
-                        ,
- show_author: true
-                        ,
- show_date: true
-                        ,
- show_read_time: true
-                        ,
- image_aspect: 'card'
-                        ,
- classes: 'choose-your-topic__card'
-                      -%}
-                    </div>
-                  {%- endif -%}
+                    -%}
+                  </div>
                 {%- endfor -%}
               </div>
-
-              {%- comment -%} Load More Button {%- endcomment -%}
-              {%- if selected_blog.articles.size > initial_posts -%}
-                <div class="choose-your-topic__load-more-wrapper">
-                  <button
-                    type="button"
-                    class="choose-your-topic__load-more"
-                    data-load-more
-                    aria-live="polite">
-                    {{ section.settings.load_more_text | default: 'Load more' }}
-                  </button>
-                </div>
-              {%- endif -%}
 
               {%- comment -%} Empty State (hidden by default, shown via JS when filtered) {%- endcomment -%}
               <div class="choose-your-topic__empty" style="display: none;">
@@ -751,34 +705,6 @@
         "default": "Choose your topic"
       },
       {
-        "type": "header",
-        "content": "Articles Settings"
-      },
-      {
-        "type": "range",
-        "id": "initial_posts_count",
-        "label": "Initial Posts Count",
-        "min": 3,
-        "max": 18,
-        "step": 3,
-        "default": 9,
-        "info": "Number of articles shown initially"
-      },
-      {
-        "type": "range",
-        "id": "load_more_count",
-        "label": "Load More Count",
-        "min": 3,
-        "max": 12,
-        "step": 3,
-        "default": 6,
-        "info": "Number of articles loaded when clicking 'Load more'"
-      }, {
-        "type": "text",
-        "id": "load_more_text",
-        "label": "Load More Button Text",
-        "default": "Load more"
-      }, {
         "type": "header",
         "content": "Filters"
       }, {
