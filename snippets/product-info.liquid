@@ -153,8 +153,19 @@
 
     <!-- AtivaPeople Badge -->
     {%- if section.settings.show_ativapeople_badge -%}
+      {%- liquid
+        assign current_price = product.selected_or_first_available_variant.price
+        assign discount_percentage = 10
+        assign discount_multiplier = 100 | minus: discount_percentage | divided_by: 100.0
+        assign discounted_price = current_price | times: discount_multiplier
+      -%}
+      
       <div class="ativapeople-badge_new">
-        {{ section.settings.ativapeople_badge_text }}
+          <div class="ativapeople-message">
+            <span class="ativapeople-text">Join <a href="/pages/membership" class="ativapeople-link">AtivaPeople</a> for the</span>
+            <span class="ativapeople-price">{{ discounted_price | money }}</span>
+            <span class="ativapeople-text">Member Price</span>
+          </div>
       </div>
     {%- endif -%}
   </div>
