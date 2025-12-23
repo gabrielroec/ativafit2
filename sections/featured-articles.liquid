@@ -10,6 +10,7 @@
                 6. Adjust padding and spacing 
 {%- endcomment -%}
 
+
 {%- liquid
   assign featured_article = section.settings.featured_article
   assign card_1_article = section.settings.card_1_article
@@ -309,7 +310,11 @@
     font-weight: 700;
     margin: 0 0 40px;
     text-align: left;
-    color: #333;
+    background: linear-gradient(135deg, #eb701f 0%, #d65a0f 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: fadeInLeft 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .featured-articles__empty {
@@ -336,14 +341,14 @@
     border-radius: 20px;
     overflow: hidden;
     background: #fff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease
-    , box-shadow 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .featured-article:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 12px 40px rgba(235, 112, 31, 0.15), 0 4px 20px rgba(0, 0, 0, 0.1);
   }
 
   .featured-article__link {
@@ -408,15 +413,22 @@
 
   .featured-article__tag {
     display: inline-block;
-    padding: 6px 14px;
-    background: rgba(255, 255, 255, 0.9);
-    color: #333;
-    border-radius: 20px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #eb701f 0%, #d65a0f 100%);
+    color: #fff;
+    border-radius: 25px;
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 12px;
+    box-shadow: 0 4px 12px rgba(235, 112, 31, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .featured-article__tag:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(235, 112, 31, 0.4);
   }
 
   .featured-article__title {
@@ -448,15 +460,28 @@
   /* Subscribe Box */
   .featured-articles__subscribe {
     padding: 40px 30px;
-    border-radius: 12px;
-    background: #f8f8f8;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+    border: 1px solid rgba(235, 112, 31, 0.1);
+    box-shadow: 0 4px 20px rgba(235, 112, 31, 0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+  }
+
+  .featured-articles__subscribe:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(235, 112, 31, 0.12);
+    border-color: rgba(235, 112, 31, 0.2);
   }
 
   .featured-articles__subscribe-title {
     font-size: 28px;
     font-weight: 700;
     margin: 0 0 16px;
-    color: #333;
+    background: linear-gradient(135deg, #eb701f 0%, #d65a0f 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
   .featured-articles__subscribe-description {
@@ -478,40 +503,68 @@
 
   .featured-articles__subscribe-input {
     width: 100%;
-    padding: 14px 16px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
+    padding: 16px 20px;
+    border: 2px solid #e5e5e5;
+    border-radius: 12px;
     font-size: 14px;
     background: #fff;
-    transition: border-color 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   }
 
   .featured-articles__subscribe-input:focus {
     outline: none;
-    border-color: #333;
+    border-color: #eb701f;
+    box-shadow: 0 0 0 3px rgba(235, 112, 31, 0.15), 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+
+  .featured-articles__subscribe-input:hover {
+    border-color: #eb701f;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
 
   .featured-articles__subscribe-button {
     width: 100%;
-    padding: 14px 24px;
+    padding: 16px 24px;
     border: none;
-    border-radius: 8px;
+    border-radius: 12px;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     cursor: pointer;
-    transition: opacity 0.3s ease
-    , transform 0.2s ease;
-    background: #000;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(135deg, #eb701f 0%, #d65a0f 100%);
     color: #fff;
+    box-shadow: 0 4px 12px rgba(235, 112, 31, 0.3);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .featured-articles__subscribe-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
   }
 
   .featured-articles__subscribe-button:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(235, 112, 31, 0.4);
+  }
+
+  .featured-articles__subscribe-button:hover::before {
+    left: 100%;
   }
 
   .featured-articles__subscribe-button:active {
-    transform: translateY(0);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(235, 112, 31, 0.3);
   }
 
   .featured-articles__subscribe-button:focus {
@@ -548,17 +601,18 @@
   /* Blog Card Styles */
   .blog-card {
     position: relative;
-    border-radius: 12px;
+    border-radius: 16px;
     overflow: hidden;
     background: #fff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease
-    , box-shadow 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(235, 112, 31, 0.05);
   }
 
   .blog-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 12px 40px rgba(235, 112, 31, 0.12), 0 4px 20px rgba(0, 0, 0, 0.1);
+    border-color: rgba(235, 112, 31, 0.2);
   }
 
   .blog-card__link {
@@ -606,15 +660,23 @@
 
   .blog-card__tag {
     display: inline-block;
-    padding: 6px 14px;
-    background: #f0f0f0;
-    color: #333;
-    border-radius: 20px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, rgba(235, 112, 31, 0.1) 0%, rgba(235, 112, 31, 0.15) 100%);
+    color: #eb701f;
+    border-radius: 25px;
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 12px;
+    border: 1px solid rgba(235, 112, 31, 0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .blog-card__tag:hover {
+    background: linear-gradient(135deg, #eb701f 0%, #d65a0f 100%);
+    color: #fff;
+    transform: translateY(-2px);
   }
 
   .blog-card__title {
@@ -704,6 +766,52 @@
       font-size: 42px;
       margin-bottom: 50px;
     }
+  }
+
+  /* Animations */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  /* Grid Animation */
+  .featured-articles__grid .blog-card {
+    animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+
+  .featured-articles__grid .blog-card:nth-child(1) { animation-delay: 0.1s; }
+  .featured-articles__grid .blog-card:nth-child(2) { animation-delay: 0.2s; }
+  .featured-articles__grid .blog-card:nth-child(3) { animation-delay: 0.3s; }
+
+  /* Loading States */
+  .featured-articles__container {
+    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   }
 </style>
 
