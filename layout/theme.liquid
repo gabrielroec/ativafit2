@@ -655,5 +655,284 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         
       })();
     </script>
+
+    {%- comment -%} Ativafit Brand Name Corrector Script {%- endcomment -%}
+    <script>
+      /**
+       * Ativafit Brand Name Corrector
+       * Corrige automaticamente "ativa fit" para "Ativafit" em todo o DOM
+       * Necessário porque o conteúdo é gerado dinamicamente pelo Shopify
+       */
+      (function() {
+        'use strict';
+        
+        // Configurações
+        const CONFIG = {
+          // Textos a serem corrigidos (case-insensitive)
+          searchPatterns: [
+            /ativa\s+fit/gi,
+            /Ativa\s+Fit/gi,
+            /ATIVA\s+FIT/gi,
+            /Ativa\s+fit/gi,
+            /ativa\s+Fit/gi
+          ],
+          // Texto de substituição
+          replacement: 'Ativafit',
+          // Elementos a serem ignorados
+          ignoreSelectors: [
+            'script',
+            'style',
+            'noscript',
+            'meta',
+            'link',
+            'title',
+            '[data-ativafit-corrected]' // Evita reprocessar elementos já corrigidos
+          ],
+          // Intervalo de verificação para conteúdo dinâmico
+          checkInterval: 1000,
+          // Máximo de tentativas
+          maxAttempts: 30
+        };
+        
+        let processedElements = new WeakSet();
+        let attempts = 0;
+        
+        /**
+         * Verifica se um elemento deve ser ignorado
+         * @param {HTMLElement} element - Elemento a verificar
+         * @returns {boolean} - true se deve ser ignorado
+         */
+        function shouldIgnoreElement(element) {
+          if (!element || !element.tagName) return true;
+          
+          const tagName = element.tagName.toLowerCase();
+          if (CONFIG.ignoreSelectors.includes(tagName)) return true;
+          
+          // Verifica se tem algum seletor de ignorar
+          for (const selector of CONFIG.ignoreSelectors) {
+            if (element.matches && element.matches(selector)) return true;
+            if (element.closest && element.closest(selector)) return true;
+          }
+          
+          return false;
+        }
+        
+        /**
+         * Substitui texto em um nó de texto
+         * @param {Text} textNode - Nó de texto
+         * @returns {boolean} - true se houve substituição
+         */
+        function replaceTextInNode(textNode) {
+          if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return false;
+          
+          let text = textNode.textContent;
+          let originalText = text;
+          let hasReplacement = false;
+          
+          // Aplica todas as substituições
+          CONFIG.searchPatterns.forEach(pattern => {
+            if (pattern.test(text)) {
+              text = text.replace(pattern, CONFIG.replacement);
+              hasReplacement = true;
+            }
+          });
+          
+          // Se houve substituição, atualiza o nó
+          if (hasReplacement && text !== originalText) {
+            textNode.textContent = text;
+            return true;
+          }
+          
+          return false;
+        }
+        
+        /**
+         * Processa um elemento e seus filhos recursivamente
+         * @param {HTMLElement} element - Elemento raiz
+         * @returns {number} - Número de substituições realizadas
+         */
+        function processElement(element) {
+          if (!element || shouldIgnoreElement(element)) return 0;
+          
+          // Evita reprocessar elementos já processados
+          if (processedElements.has(element)) return 0;
+          
+          let replacements = 0;
+          
+          try {
+            // Processa nós de texto diretamente filhos
+            const walker = document.createTreeWalker(
+              element,
+              NodeFilter.SHOW_TEXT,
+              {
+                acceptNode: function(node) {
+                  // Ignora nós dentro de elementos que devem ser ignorados
+                  let parent = node.parentElement;
+                  while (parent && parent !== element) {
+                    if (shouldIgnoreElement(parent)) {
+                      return NodeFilter.FILTER_REJECT;
+                    }
+                    parent = parent.parentElement;
+                  }
+                  return NodeFilter.FILTER_ACCEPT;
+                }
+              }
+            );
+            
+            const textNodes = [];
+            let node;
+            while (node = walker.nextNode()) {
+              textNodes.push(node);
+            }
+            
+            // Processa cada nó de texto
+            textNodes.forEach(textNode => {
+              if (replaceTextInNode(textNode)) {
+                replacements++;
+              }
+            });
+            
+            // Marca o elemento como processado se houve substituições
+            if (replacements > 0) {
+              processedElements.add(element);
+              element.setAttribute('data-ativafit-corrected', 'true');
+            }
+            
+          } catch (error) {
+            console.warn('Ativafit Corrector: Erro ao processar elemento:', error);
+          }
+          
+          return replacements;
+        }
+        
+        /**
+         * Processa todo o documento
+         * @returns {number} - Total de substituições realizadas
+         */
+        function processDocument() {
+          let totalReplacements = 0;
+          
+          try {
+            // Processa o body e seus filhos
+            if (document.body) {
+              totalReplacements += processElement(document.body);
+            }
+            
+            // Processa elementos específicos que podem ter conteúdo dinâmico
+            const dynamicSelectors = [
+              'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+              'p', 'span', 'div', 'a', 'li', 'td', 'th',
+              '[class*="title"]',
+              '[class*="name"]',
+              '[class*="brand"]'
+            ];
+            
+            dynamicSelectors.forEach(selector => {
+              try {
+                const elements = document.querySelectorAll(selector);
+                elements.forEach(element => {
+                  if (!processedElements.has(element)) {
+                    totalReplacements += processElement(element);
+                  }
+                });
+              } catch (e) {
+                // Ignora erros de seletor inválido
+              }
+            });
+            
+            if (totalReplacements > 0) {
+              console.log(`Ativafit Corrector: ${totalReplacements} substituição(ões) realizada(s)`);
+            }
+            
+          } catch (error) {
+            console.warn('Ativafit Corrector: Erro ao processar documento:', error);
+          }
+          
+          return totalReplacements;
+        }
+        
+        /**
+         * Configura MutationObserver para detectar mudanças dinâmicas
+         */
+        function setupMutationObserver() {
+          const observer = new MutationObserver(function(mutations) {
+            let shouldProcess = false;
+            
+            mutations.forEach(function(mutation) {
+              // Verifica se novos nós foram adicionados
+              if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                mutation.addedNodes.forEach(function(node) {
+                  if (node.nodeType === Node.ELEMENT_NODE && !shouldIgnoreElement(node)) {
+                    shouldProcess = true;
+                  } else if (node.nodeType === Node.TEXT_NODE) {
+                    shouldProcess = true;
+                  }
+                });
+              }
+              
+              // Verifica se texto foi modificado
+              if (mutation.type === 'characterData') {
+                shouldProcess = true;
+              }
+            });
+            
+            if (shouldProcess) {
+              // Aguarda um pouco para evitar processamento excessivo
+              setTimeout(() => {
+                processDocument();
+              }, 100);
+            }
+          });
+          
+          // Inicia a observação
+          observer.observe(document.body || document.documentElement, {
+            childList: true,
+            subtree: true,
+            characterData: true
+          });
+          
+          console.log('Ativafit Corrector: MutationObserver configurado');
+        }
+        
+        /**
+         * Inicializa o corretor
+         */
+        function init() {
+          // Aguarda o DOM estar pronto
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+              processDocument();
+              setupMutationObserver();
+            });
+          } else {
+            // DOM já está pronto
+            processDocument();
+            setupMutationObserver();
+          }
+          
+          // Processa após o carregamento completo
+          window.addEventListener('load', function() {
+            setTimeout(processDocument, 500);
+          });
+          
+          // Processa periodicamente para pegar conteúdo muito dinâmico
+          const intervalId = setInterval(function() {
+            attempts++;
+            const replacements = processDocument();
+            
+            // Para após várias tentativas sem encontrar nada
+            if (attempts >= CONFIG.maxAttempts && replacements === 0) {
+              clearInterval(intervalId);
+            }
+          }, CONFIG.checkInterval);
+          
+          console.log('Ativafit Corrector: Inicializado');
+        }
+        
+        // Inicializa quando o script carrega
+        init();
+        
+      })();
+    </script>
   </body>
 </html>
