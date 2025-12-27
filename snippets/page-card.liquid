@@ -3,6 +3,7 @@
   
   Parâmetros aceitos:
   - page: objeto da página (obrigatório)
+  - custom_image: imagem customizada (opcional, sobrescreve featured_image da página)
   - show_tag: mostrar tag (default: false)
   - show_read_time: mostrar tempo de leitura (default: true)
   - image_aspect: proporção da imagem ('featured' ou 'card', default: 'card')
@@ -20,12 +21,22 @@
   else
     assign page_exists = true
   endif
+
+  comment Determina qual imagem usar: custom_image tem prioridade, depois featured_image da página
+  endcomment
+  if custom_image != blank
+    assign card_image = custom_image
+  elsif page.featured_image != blank
+    assign card_image = page.featured_image
+  else
+    assign card_image = blank
+  endif
 -%}
 
 {%- if page_exists -%}
   <article class="page-card {{ classes }}" itemscope itemtype="http://schema.org/WebPage">
     <a href="{{ page.url }}" class="page-card__link" aria-label="{{ page.title | escape }}">
-      {%- if page.featured_image -%}
+      {%- if card_image != blank -%}
         <div class="page-card__image-wrapper">
           {%- if image_aspect == 'featured' -%}
             {%- assign sizes = '(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 60vw' -%}
@@ -35,12 +46,12 @@
             {%- assign widths = '300,400,500,600,700,800,900,1000' -%}
           {%- endif -%}
           
-          {{- page.featured_image | image_url: width: page.featured_image.width | image_tag:
+          {{- card_image | image_url: width: card_image.width | image_tag:
             loading: 'lazy',
             sizes: sizes,
             widths: widths,
             class: 'page-card__image',
-            alt: page.featured_image.alt | default: page.title | escape
+            alt: card_image.alt | default: page.title | escape
           -}}
           
           {%- if image_aspect == 'featured' -%}

@@ -13,9 +13,13 @@
 
 {%- liquid
   assign featured_page = section.settings.featured_page
+  assign featured_image = section.settings.featured_image
   assign card_1_page = section.settings.card_1_page
+  assign card_1_image = section.settings.card_1_image
   assign card_2_page = section.settings.card_2_page
+  assign card_2_image = section.settings.card_2_image
   assign card_3_page = section.settings.card_3_page
+  assign card_3_image = section.settings.card_3_image
   assign show_subscribe = section.settings.show_subscribe
 
   if featured_page != blank
@@ -87,14 +91,23 @@
                 href="{{ featured.url }}"
                 class="featured-page__link"
                 aria-label="{{ featured.title | escape }}">
-                {%- if featured.featured_image -%}
+                {%- liquid
+                  if featured_image != blank
+                    assign display_image = featured_image
+                  elsif featured.featured_image != blank
+                    assign display_image = featured.featured_image
+                  else
+                    assign display_image = blank
+                  endif
+                -%}
+                {%- if display_image != blank -%}
                   <div class="featured-page__image-wrapper">
-                    {{- featured.featured_image | image_url: width: featured.featured_image.width | image_tag:
+                    {{- display_image | image_url: width: display_image.width | image_tag:
  loading: 'lazy',
  sizes: '(max-width: 767px) 100vw, (max-width: 1023px) 100vw, 60vw',
  widths: '400,600,800,1000,1200,1400,1600,1800,2000',
  class: 'featured-page__image',
- alt: featured.featured_image.alt | default: featured.title | escape
+ alt: display_image.alt | default: featured.title | escape
                     -}}
                     <div class="featured-page__overlay"></div>
                   </div>
@@ -219,6 +232,8 @@
               ,
  page: page_1
               ,
+ custom_image: card_1_image
+              ,
  show_tag: true
               ,
  show_read_time: true
@@ -234,6 +249,8 @@
               ,
  page: page_2
               ,
+ custom_image: card_2_image
+              ,
  show_tag: true
               ,
  show_read_time: true
@@ -248,6 +265,8 @@
             {%- render 'page-card'
               ,
  page: page_3
+              ,
+ custom_image: card_3_image
               ,
  show_tag: true
               ,
@@ -799,6 +818,12 @@
         "info": "Select the page to display as featured"
       },
       {
+        "type": "image_picker",
+        "id": "featured_image",
+        "label": "Featured Page Image",
+        "info": "Optional: Custom image for the featured page. If not set, will use the page's featured image."
+      },
+      {
         "type": "header",
         "content": "Page Cards"
       }, {
@@ -807,15 +832,30 @@
         "label": "Card 1 Page",
         "info": "Select the page for the first card"
       }, {
+        "type": "image_picker",
+        "id": "card_1_image",
+        "label": "Card 1 Image",
+        "info": "Optional: Custom image for card 1. If not set, will use the page's featured image."
+      }, {
         "type": "page",
         "id": "card_2_page",
         "label": "Card 2 Page",
         "info": "Select the page for the second card"
       }, {
+        "type": "image_picker",
+        "id": "card_2_image",
+        "label": "Card 2 Image",
+        "info": "Optional: Custom image for card 2. If not set, will use the page's featured image."
+      }, {
         "type": "page",
         "id": "card_3_page",
         "label": "Card 3 Page",
         "info": "Select the page for the third card"
+      }, {
+        "type": "image_picker",
+        "id": "card_3_image",
+        "label": "Card 3 Image",
+        "info": "Optional: Custom image for card 3. If not set, will use the page's featured image."
       }, {
         "type": "header",
         "content": "Subscribe Box"

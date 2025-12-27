@@ -198,35 +198,103 @@
 
               {%- comment -%} Collect all unique tags from pages {%- endcomment -%}
               {%- assign page_tags_string = '' -%}
-              {%- for page_handle in page_handles -%}
-                {%- assign current_page = pages[page_handle] -%}
-                {%- if current_page != blank and current_page.metafields.custom.tag != blank -%}
-                  {%- assign tag_lower = current_page.metafields.custom.tag | downcase -%}
+              {%- if block.settings.page_1 != blank -%}
+                {%- assign page_1_obj = pages[block.settings.page_1] -%}
+                {%- if page_1_obj != blank and page_1_obj.metafields.custom.tag != blank -%}
+                  {%- assign tag_lower = page_1_obj.metafields.custom.tag | downcase -%}
                   {%- unless page_tags_string contains tag_lower -%}
                     {%- if page_tags_string == '' -%}
-                      {%- assign page_tags_string = current_page.metafields.custom.tag -%}
+                      {%- assign page_tags_string = page_1_obj.metafields.custom.tag -%}
                     {%- else -%}
-                      {%- assign page_tags_string = page_tags_string | append: '|' | append: current_page.metafields.custom.tag -%}
+                      {%- assign page_tags_string = page_tags_string | append: '|' | append: page_1_obj.metafields.custom.tag -%}
                     {%- endif -%}
                   {%- endunless -%}
                 {%- endif -%}
-              {%- endfor -%}
+              {%- endif -%}
+              {%- if block.settings.page_2 != blank -%}
+                {%- assign page_2_obj = pages[block.settings.page_2] -%}
+                {%- if page_2_obj != blank and page_2_obj.metafields.custom.tag != blank -%}
+                  {%- assign tag_lower = page_2_obj.metafields.custom.tag | downcase -%}
+                  {%- unless page_tags_string contains tag_lower -%}
+                    {%- if page_tags_string == '' -%}
+                      {%- assign page_tags_string = page_2_obj.metafields.custom.tag -%}
+                    {%- else -%}
+                      {%- assign page_tags_string = page_tags_string | append: '|' | append: page_2_obj.metafields.custom.tag -%}
+                    {%- endif -%}
+                  {%- endunless -%}
+                {%- endif -%}
+              {%- endif -%}
+              {%- if block.settings.page_3 != blank -%}
+                {%- assign page_3_obj = pages[block.settings.page_3] -%}
+                {%- if page_3_obj != blank and page_3_obj.metafields.custom.tag != blank -%}
+                  {%- assign tag_lower = page_3_obj.metafields.custom.tag | downcase -%}
+                  {%- unless page_tags_string contains tag_lower -%}
+                    {%- if page_tags_string == '' -%}
+                      {%- assign page_tags_string = page_3_obj.metafields.custom.tag -%}
+                    {%- else -%}
+                      {%- assign page_tags_string = page_tags_string | append: '|' | append: page_3_obj.metafields.custom.tag -%}
+                    {%- endif -%}
+                  {%- endunless -%}
+                {%- endif -%}
+              {%- endif -%}
+              {%- if block.settings.page_4 != blank -%}
+                {%- assign page_4_obj = pages[block.settings.page_4] -%}
+                {%- if page_4_obj != blank and page_4_obj.metafields.custom.tag != blank -%}
+                  {%- assign tag_lower = page_4_obj.metafields.custom.tag | downcase -%}
+                  {%- unless page_tags_string contains tag_lower -%}
+                    {%- if page_tags_string == '' -%}
+                      {%- assign page_tags_string = page_4_obj.metafields.custom.tag -%}
+                    {%- else -%}
+                      {%- assign page_tags_string = page_tags_string | append: '|' | append: page_4_obj.metafields.custom.tag -%}
+                    {%- endif -%}
+                  {%- endunless -%}
+                {%- endif -%}
+              {%- endif -%}
+              {%- if block.settings.page_5 != blank -%}
+                {%- assign page_5_obj = pages[block.settings.page_5] -%}
+                {%- if page_5_obj != blank and page_5_obj.metafields.custom.tag != blank -%}
+                  {%- assign tag_lower = page_5_obj.metafields.custom.tag | downcase -%}
+                  {%- unless page_tags_string contains tag_lower -%}
+                    {%- if page_tags_string == '' -%}
+                      {%- assign page_tags_string = page_5_obj.metafields.custom.tag -%}
+                    {%- else -%}
+                      {%- assign page_tags_string = page_tags_string | append: '|' | append: page_5_obj.metafields.custom.tag -%}
+                    {%- endif -%}
+                  {%- endunless -%}
+                {%- endif -%}
+              {%- endif -%}
+              {%- if block.settings.page_6 != blank -%}
+                {%- assign page_6_obj = pages[block.settings.page_6] -%}
+                {%- if page_6_obj != blank and page_6_obj.metafields.custom.tag != blank -%}
+                  {%- assign tag_lower = page_6_obj.metafields.custom.tag | downcase -%}
+                  {%- unless page_tags_string contains tag_lower -%}
+                    {%- if page_tags_string == '' -%}
+                      {%- assign page_tags_string = page_6_obj.metafields.custom.tag -%}
+                    {%- else -%}
+                      {%- assign page_tags_string = page_tags_string | append: '|' | append: page_6_obj.metafields.custom.tag -%}
+                    {%- endif -%}
+                  {%- endunless -%}
+                {%- endif -%}
+              {%- endif -%}
               {%- assign page_tags = page_tags_string | split: '|' -%}
 
               {%- comment -%} Pages Grid {%- endcomment -%}
               <div class="choose-your-exercise__grid" data-pages-container>
-                {%- for page_handle in page_handles -%}
-                  {%- assign current_page = pages[page_handle] -%}
-                  {%- if current_page != blank -%}
+                {%- comment -%} Render each page with its corresponding image {%- endcomment -%}
+                {%- if block.settings.page_1 != blank -%}
+                  {%- assign page_1_obj = pages[block.settings.page_1] -%}
+                  {%- if page_1_obj != blank -%}
                     <div
                       class="choose-your-exercise__page-item"
-                      data-page-id="{{ current_page.id }}"
-                      data-page-title="{{ current_page.title | downcase | escape }}"
-                      data-page-excerpt="{{ current_page.content | default: '' | strip_html | downcase | escape }}"
-                      data-page-tag="{% if current_page.metafields.custom.tag != blank %}{{ current_page.metafields.custom.tag | downcase | escape }}{% endif %}">
+                      data-page-id="{{ page_1_obj.id }}"
+                      data-page-title="{{ page_1_obj.title | downcase | escape }}"
+                      data-page-excerpt="{{ page_1_obj.content | default: '' | strip_html | downcase | escape }}"
+                      data-page-tag="{% if page_1_obj.metafields.custom.tag != blank %}{{ page_1_obj.metafields.custom.tag | downcase | escape }}{% endif %}">
                       {%- render 'page-card'
                         ,
- page: current_page
+ page: page_1_obj
+                        ,
+ custom_image: block.settings.page_1_image
                         ,
  show_tag: true
                         ,
@@ -238,7 +306,137 @@
                       -%}
                     </div>
                   {%- endif -%}
-                {%- endfor -%}
+                {%- endif -%}
+                {%- if block.settings.page_2 != blank -%}
+                  {%- assign page_2_obj = pages[block.settings.page_2] -%}
+                  {%- if page_2_obj != blank -%}
+                    <div
+                      class="choose-your-exercise__page-item"
+                      data-page-id="{{ page_2_obj.id }}"
+                      data-page-title="{{ page_2_obj.title | downcase | escape }}"
+                      data-page-excerpt="{{ page_2_obj.content | default: '' | strip_html | downcase | escape }}"
+                      data-page-tag="{% if page_2_obj.metafields.custom.tag != blank %}{{ page_2_obj.metafields.custom.tag | downcase | escape }}{% endif %}">
+                      {%- render 'page-card'
+                        ,
+ page: page_2_obj
+                        ,
+ custom_image: block.settings.page_2_image
+                        ,
+ show_tag: true
+                        ,
+ show_read_time: true
+                        ,
+ image_aspect: 'card'
+                        ,
+ classes: 'choose-your-exercise__card'
+                      -%}
+                    </div>
+                  {%- endif -%}
+                {%- endif -%}
+                {%- if block.settings.page_3 != blank -%}
+                  {%- assign page_3_obj = pages[block.settings.page_3] -%}
+                  {%- if page_3_obj != blank -%}
+                    <div
+                      class="choose-your-exercise__page-item"
+                      data-page-id="{{ page_3_obj.id }}"
+                      data-page-title="{{ page_3_obj.title | downcase | escape }}"
+                      data-page-excerpt="{{ page_3_obj.content | default: '' | strip_html | downcase | escape }}"
+                      data-page-tag="{% if page_3_obj.metafields.custom.tag != blank %}{{ page_3_obj.metafields.custom.tag | downcase | escape }}{% endif %}">
+                      {%- render 'page-card'
+                        ,
+ page: page_3_obj
+                        ,
+ custom_image: block.settings.page_3_image
+                        ,
+ show_tag: true
+                        ,
+ show_read_time: true
+                        ,
+ image_aspect: 'card'
+                        ,
+ classes: 'choose-your-exercise__card'
+                      -%}
+                    </div>
+                  {%- endif -%}
+                {%- endif -%}
+                {%- if block.settings.page_4 != blank -%}
+                  {%- assign page_4_obj = pages[block.settings.page_4] -%}
+                  {%- if page_4_obj != blank -%}
+                    <div
+                      class="choose-your-exercise__page-item"
+                      data-page-id="{{ page_4_obj.id }}"
+                      data-page-title="{{ page_4_obj.title | downcase | escape }}"
+                      data-page-excerpt="{{ page_4_obj.content | default: '' | strip_html | downcase | escape }}"
+                      data-page-tag="{% if page_4_obj.metafields.custom.tag != blank %}{{ page_4_obj.metafields.custom.tag | downcase | escape }}{% endif %}">
+                      {%- render 'page-card'
+                        ,
+ page: page_4_obj
+                        ,
+ custom_image: block.settings.page_4_image
+                        ,
+ show_tag: true
+                        ,
+ show_read_time: true
+                        ,
+ image_aspect: 'card'
+                        ,
+ classes: 'choose-your-exercise__card'
+                      -%}
+                    </div>
+                  {%- endif -%}
+                {%- endif -%}
+                {%- if block.settings.page_5 != blank -%}
+                  {%- assign page_5_obj = pages[block.settings.page_5] -%}
+                  {%- if page_5_obj != blank -%}
+                    <div
+                      class="choose-your-exercise__page-item"
+                      data-page-id="{{ page_5_obj.id }}"
+                      data-page-title="{{ page_5_obj.title | downcase | escape }}"
+                      data-page-excerpt="{{ page_5_obj.content | default: '' | strip_html | downcase | escape }}"
+                      data-page-tag="{% if page_5_obj.metafields.custom.tag != blank %}{{ page_5_obj.metafields.custom.tag | downcase | escape }}{% endif %}">
+                      {%- render 'page-card'
+                        ,
+ page: page_5_obj
+                        ,
+ custom_image: block.settings.page_5_image
+                        ,
+ show_tag: true
+                        ,
+ show_read_time: true
+                        ,
+ image_aspect: 'card'
+                        ,
+ classes: 'choose-your-exercise__card'
+                      -%}
+                    </div>
+                  {%- endif -%}
+                {%- endif -%}
+                {%- if block.settings.page_6 != blank -%}
+                  {%- assign page_6_obj = pages[block.settings.page_6] -%}
+                  {%- if page_6_obj != blank -%}
+                    <div
+                      class="choose-your-exercise__page-item"
+                      data-page-id="{{ page_6_obj.id }}"
+                      data-page-title="{{ page_6_obj.title | downcase | escape }}"
+                      data-page-excerpt="{{ page_6_obj.content | default: '' | strip_html | downcase | escape }}"
+                      data-page-tag="{% if page_6_obj.metafields.custom.tag != blank %}{{ page_6_obj.metafields.custom.tag | downcase | escape }}{% endif %}">
+                      {%- render 'page-card'
+                        ,
+ page: page_6_obj
+                        ,
+ custom_image: block.settings.page_6_image
+                        ,
+ show_tag: true
+                        ,
+ show_read_time: true
+                        ,
+ image_aspect: 'card'
+                        ,
+ classes: 'choose-your-exercise__card'
+                      -%}
+                    </div>
+                  {%- endif -%}
+                {%- endif -%}
               </div>
 
               {%- comment -%} Empty State (hidden by default, shown via JS when filtered) {%- endcomment -%}
@@ -888,30 +1086,60 @@
             "label": "Page 1",
             "info": "Select the first page for this tab"
           }, {
+            "type": "image_picker",
+            "id": "page_1_image",
+            "label": "Page 1 Image",
+            "info": "Optional: Custom image for page 1. If not set, will use the page's featured image."
+          }, {
             "type": "page",
             "id": "page_2",
             "label": "Page 2",
             "info": "Select the second page for this tab"
+          }, {
+            "type": "image_picker",
+            "id": "page_2_image",
+            "label": "Page 2 Image",
+            "info": "Optional: Custom image for page 2. If not set, will use the page's featured image."
           }, {
             "type": "page",
             "id": "page_3",
             "label": "Page 3",
             "info": "Select the third page for this tab"
           }, {
+            "type": "image_picker",
+            "id": "page_3_image",
+            "label": "Page 3 Image",
+            "info": "Optional: Custom image for page 3. If not set, will use the page's featured image."
+          }, {
             "type": "page",
             "id": "page_4",
             "label": "Page 4",
             "info": "Select the fourth page for this tab"
+          }, {
+            "type": "image_picker",
+            "id": "page_4_image",
+            "label": "Page 4 Image",
+            "info": "Optional: Custom image for page 4. If not set, will use the page's featured image."
           }, {
             "type": "page",
             "id": "page_5",
             "label": "Page 5",
             "info": "Select the fifth page for this tab"
           }, {
+            "type": "image_picker",
+            "id": "page_5_image",
+            "label": "Page 5 Image",
+            "info": "Optional: Custom image for page 5. If not set, will use the page's featured image."
+          }, {
             "type": "page",
             "id": "page_6",
             "label": "Page 6",
             "info": "Select the sixth page for this tab"
+          }, {
+            "type": "image_picker",
+            "id": "page_6_image",
+            "label": "Page 6 Image",
+            "info": "Optional: Custom image for page 6. If not set, will use the page's featured image."
           }, {
             "type": "checkbox",
             "id": "default_active",
