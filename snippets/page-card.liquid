@@ -1,0 +1,99 @@
+{%- comment -%}
+  Page Card Snippet - Reutilizável para exibir cards de páginas
+  
+  Parâmetros aceitos:
+  - page: objeto da página (obrigatório)
+  - show_tag: mostrar tag (default: false)
+  - show_read_time: mostrar tempo de leitura (default: true)
+  - image_aspect: proporção da imagem ('featured' ou 'card', default: 'card')
+  - classes: classes CSS adicionais (opcional)
+{%- endcomment -%}
+
+{%- liquid
+  assign show_tag = show_tag | default: false
+  assign show_read_time = show_read_time | default: true
+  assign image_aspect = image_aspect | default: 'card'
+  assign classes = classes | default: ''
+  
+  if page == blank
+    assign page_exists = false
+  else
+    assign page_exists = true
+  endif
+-%}
+
+{%- if page_exists -%}
+  <article class="page-card {{ classes }}" itemscope itemtype="http://schema.org/WebPage">
+    <a href="{{ page.url }}" class="page-card__link" aria-label="{{ page.title | escape }}">
+      {%- if page.featured_image -%}
+        <div class="page-card__image-wrapper">
+          {%- if image_aspect == 'featured' -%}
+            {%- assign sizes = '(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 60vw' -%}
+            {%- assign widths = '400,600,800,1000,1200,1400,1600,1800,2000' -%}
+          {%- else -%}
+            {%- assign sizes = '(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 33vw' -%}
+            {%- assign widths = '300,400,500,600,700,800,900,1000' -%}
+          {%- endif -%}
+          
+          {{- page.featured_image | image_url: width: page.featured_image.width | image_tag:
+            loading: 'lazy',
+            sizes: sizes,
+            widths: widths,
+            class: 'page-card__image',
+            alt: page.featured_image.alt | default: page.title | escape
+          -}}
+          
+          {%- if image_aspect == 'featured' -%}
+            <div class="page-card__overlay"></div>
+          {%- endif -%}
+        </div>
+      {%- else -%}
+        <div class="page-card__image-wrapper page-card__image-wrapper--placeholder">
+          <div class="page-card__placeholder">
+            {{ 'lifestyle-1' | placeholder_svg_tag: 'page-card__placeholder-svg' }}
+          </div>
+        </div>
+      {%- endif -%}
+      
+      <div class="page-card__content">
+        {%- if show_tag and page.metafields.custom.tag != blank -%}
+          <span class="page-card__tag">
+            {{ page.metafields.custom.tag }}
+          </span>
+        {%- endif -%}
+        
+        <h2 class="page-card__title" itemprop="name">
+          {{ page.title }}
+        </h2>
+        
+        {%- if page.content != blank -%}
+          <div class="page-card__excerpt">
+            {{ page.content | strip_html | truncatewords: 20 }}
+          </div>
+        {%- endif -%}
+        
+        {%- if show_read_time -%}
+          {%- liquid
+            assign content_text = page.content | strip_html
+            assign words = content_text | split: ' ' | size
+            assign minutes = words | divided_by: 200.0 | ceil
+            if minutes < 1
+              assign minutes = 1
+            endif
+          -%}
+          <div class="page-card__read-time">
+            Time to read: {{ minutes }} {% if minutes == 1 %}minute{% else %}minutes{% endif %}
+          </div>
+        {%- endif -%}
+      </div>
+    </a>
+  </article>
+{%- else -%}
+  {%- comment -%} Estado vazio caso a página não exista {%- endcomment -%}
+  <div class="page-card page-card--empty {{ classes }}">
+    <div class="page-card__content">
+      <p class="page-card__empty-text">Página não encontrada</p>
+    </div>
+  </div>
+{%- endif -%}
+
