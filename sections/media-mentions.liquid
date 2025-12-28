@@ -1,0 +1,412 @@
+{%- comment -%}
+  URLs das imagens para referência (adicione no editor visual):
+  
+  Card 1 (LIVESTRONG): https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_2_logos_6_540x-1680861791849_1200x_8eafcfaa-7bc6-4a87-b660-b09398966c6e.webp?v=1766628588
+  Card 2 (MEN'S JOURNAL): https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_3_logos_4-1680861840551_1200x_789c2830-a930-4154-a7f5-11de4ca00e8b.webp?v=1766628588
+  Card 3 (NBC Select): https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_4_media11-1680086877247_1200x_b924e028-d1c9-4789-9f28-a5b2a47d9dc4.webp?v=1766628588
+  Card 4 (Men's Health): https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_5_media10-1680086877246_1200x_5d250158-0dc7-4d56-b72b-f802a82e490a.webp?v=1766628588
+  Card 5 (Prevention): https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_6_logos_1_540x-1680862002993_1200x_120e1682-5db1-4dbc-b5af-9b8d2b161c4f.webp?v=1766628588
+  Card 6: https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_7_logos_3_540x-1680862036545_1200x_c35b827b-57ea-4e05-98f6-7c81a6313e58.webp?v=1766628588
+  Card 7: https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_8_logos_8_540x-1680862235461_1200x_96c7ca25-9c8c-4231-abb8-477c28e08352.webp?v=1766628588
+  Card 8: https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_9_logos_2_540x-1680862255123_1200x_a7684e98-1bdb-446a-b3a4-90f1b582a595.webp?v=1766628603
+  Card 9: https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_10_media7-1680086877217_1200x_59bdcbd4-4923-47bd-b1a4-9c9c25408f74.webp?v=1766628603
+  Card 10 (Mashable): https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_11_mashablelogomark-1680862537700_1200x_9d5d7058-06a2-4f77-89ac-3ea2538cd365.webp?v=1766628603
+  Card 11 (Fit and Well): https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_12_fitandwelllogovectorxs-1680862677749_1200x_ffbef42a-c025-47fb-915e-6eab9efc0998.webp?v=1766628603
+  Card 12: https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_13_media1-1680086867540_1200x_f9d7cff4-3472-4bda-b80f-15fd2062a2a0.webp?v=1766628626
+  Card 13: https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_14_media8-1680086877220_1200x_b9c368dd-4b56-4486-8c8e-dd14ee2f8aad.webp?v=1766628627
+  Card 14 (Yahoo): https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_15_yahoo_frontpage_enus_s_f_p_205x58_frontpage_2x-1684915518423_1200x_6126a46d-0134-437d-96ee-2e40cdcc3df1.webp?v=1766628626
+  Card 15 (Digital Journal): https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_16_digitaljournal-1684917389979_1200x_93f07c54-0235-44ba-9069-a32ce8db3092.webp?v=1766628627
+  Card 16: https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_17_sceenshot_16849220883259-1684922690247_1200x_a13a0f78-49b4-4fde-b2b9-b0ac2abca862.webp?v=1766628643
+{%- endcomment -%}
+
+{%- liquid
+  assign section_title = section.settings.title | default: 'MEDIA MENTIONS'
+-%}
+
+<section 
+  class="media-mentions-section"
+  data-section-id="{{ section.id }}"
+  data-section-type="media-mentions"
+  style="
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    {% if section.settings.background_color != blank %}
+      background-color: {{ section.settings.background_color }};
+    {% endif %}
+  ">
+  
+  {%- if section_title != blank -%}
+    <h1 class="media-mentions-title">{{ section_title }}</h1>
+  {%- endif -%}
+  
+  {%- if section.blocks.size > 0 -%}
+    <div class="media-mentions-grid">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'media_mention' -%}
+          <div 
+            class="media-mention-card"
+            {{ block.shopify_attributes }}>
+            
+            {%- if block.settings.logo != blank -%}
+              {%- liquid
+                assign logo_alt = block.settings.logo.alt | default: block.settings.title
+              -%}
+              {{ block.settings.logo | image_url: width: 540 | image_tag:
+                loading: 'lazy',
+                class: 'media-logo',
+                alt: logo_alt,
+                widths: '180,360,540'
+              }}
+            {%- elsif block.settings.logo_url != blank -%}
+              <img 
+                src="{{ block.settings.logo_url }}"
+                alt="{{ block.settings.title | escape }}"
+                class="media-logo"
+                loading="lazy"
+                width="540"
+                height="121">
+            {%- endif -%}
+            
+            {%- if block.settings.title != blank -%}
+              <h3 class="media-subtitle">{{ block.settings.title }}</h3>
+            {%- endif -%}
+            
+            {%- if block.settings.description != blank -%}
+              <p>{{ block.settings.description }}</p>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  {%- else -%}
+    <div class="media-mentions-empty">
+      <p>Adicione cards de menções na mídia através do editor visual.</p>
+    </div>
+  {%- endif -%}
+</section>
+
+<style>
+.media-mentions-section {
+  padding: 60px 0 60px 0;
+  background: #fff;
+}
+.media-mentions-title {
+  color: #222;
+  font-size: 2.8rem;
+  font-weight: 800;
+  text-align: center;
+  letter-spacing: .04em;
+  margin-bottom: 45px;
+  text-transform: uppercase;
+  animation: fadeInDown .8s cubic-bezier(.4,0,.2,1);
+}
+.media-mentions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(320px,1fr));
+  gap: 36px;
+  max-width: 1200px;
+  margin: 0 auto;
+  animation: fadeInUp 1.1s cubic-bezier(.4,0,.2,1);
+}
+.media-mention-card {
+  background: #fff;
+  border-radius: 22px;
+  padding: 38px 30px 32px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  transition: transform .18s;
+  border: 1.5px solid rgba(235,112,31,0.07);
+  animation: popCard .7s;
+}
+.media-mention-card:hover {
+  transform: translateY(-7px) scale(1.025);
+}
+.media-logo {
+  max-width: 180px;
+  max-height: 80px;
+  margin-bottom: 26px;
+  filter: grayscale(0) brightness(.95) contrast(1.02);
+  transition: filter .15s;
+}
+.media-mention-card:hover .media-logo {
+  filter: grayscale(0) brightness(1.06) contrast(1.13);
+}
+.media-subtitle {
+  font-size: 1.22rem;
+  font-weight: 700;
+  text-align: center;
+  color: #222;
+  margin-bottom: 18px;
+  margin-top: 0;
+  min-height: 56px;
+}
+.media-mention-card p {
+  color: #494949;
+  font-size: 1.04rem;
+  text-align: center;
+  font-weight: 400;
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .media-mentions-section {
+    padding: 32px 0 40px 0;
+  }
+  .media-mention-card {
+    padding: 26px 12px 22px 12px;
+  }
+  .media-mentions-title {
+    font-size: 2rem;
+    margin-bottom: 26px;
+  }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-32px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(32px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+@keyframes popCard {
+  0% { opacity: 0; transform: scale(.93);}
+  55% { opacity: .9; transform: scale(1.01);}
+  100% { opacity: 1; transform: scale(1);}
+}
+
+/* Tema Ativafit Laranja */
+.media-mentions-title, .media-subtitle {
+  background: linear-gradient(90deg, #EB701F 0%, #EFC87D 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.media-mentions-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+  font-size: 16px;
+}
+</style>
+
+{% schema %}
+{
+  "name": "Media Mentions",
+  "tag": "section",
+  "class": "section-media-mentions",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título da Seção",
+      "default": "MEDIA MENTIONS"
+    },
+    {
+      "type": "header",
+      "content": "Espaçamento"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding Superior",
+      "min": 0,
+      "max": 120,
+      "step": 10,
+      "default": 60,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding Inferior",
+      "min": 0,
+      "max": 120,
+      "step": 10,
+      "default": 60,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Cores"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Cor de Fundo",
+      "info": "Deixe vazio para usar branco"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "media_mention",
+      "name": "Menção na Mídia",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "logo",
+          "label": "Logo da Mídia",
+          "info": "Faça upload ou selecione uma imagem existente"
+        },
+        {
+          "type": "url",
+          "id": "logo_url",
+          "label": "URL da Imagem (Alternativa)",
+          "info": "Use se preferir usar uma URL externa ao invés de fazer upload"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Título",
+          "default": "Título da Menção"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Descrição",
+          "default": "Descrição da menção na mídia."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Media Mentions",
+      "blocks": [
+        {
+          "type": "media_mention",
+          "settings": {
+            "logo_url": "https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_2_logos_6_540x-1680861791849_1200x_8eafcfaa-7bc6-4a87-b660-b09398966c6e.webp?v=1766628588",
+            "title": "The 5 Best Adjustable Dumbbells for Home Workouts, According to Trainers",
+            "description": "\"This is a good range in weight for beginners to more experienced individuals — not too many people outgrow 71.5 pounds,\" says Chris Parnell, a National Academy of Sports Medicine-certified personal trainer at Equinox and Soho Strength Lab in New York City."
+          }
+        },
+        {
+          "type": "media_mention",
+          "settings": {
+            "logo_url": "https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_3_logos_4-1680861840551_1200x_789c2830-a930-4154-a7f5-11de4ca00e8b.webp?v=1766628588",
+            "title": "Save Space In Your Home Gym With The ATIVAFIT Adjustable Dumbbells",
+            "description": "To help consolidate space in your home, the ATIVAFIT Adjustable Dumbbell is a great pickup. It's compact, durable, and easy to use. You can do a ton of workouts with it."
+          }
+        },
+        {
+          "type": "media_mention",
+          "settings": {
+            "logo_url": "https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_4_media11-1680086877247_1200x_b924e028-d1c9-4789-9f28-a5b2a47d9dc4.webp?v=1766628588",
+            "title": "6 top-rated adjustable dumbbells for home gyms for 2022",
+            "description": "The Ativafit Adjustable Dumbbells are another good option for those looking for a bit more weight."
+          }
+        },
+        {
+          "type": "media_mention",
+          "settings": {
+            "logo_url": "https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_5_media10-1680086877246_1200x_5d250158-0dc7-4d56-b72b-f802a82e490a.webp?v=1766628588",
+            "title": "10 Stellar Sets of Adjustable Dumbbells for Your Home Gym in 2022",
+            "description": "With just a push and slide, you can easily change your weight setting in 2.5-pound increments."
+          }
+        },
+        {
+          "type": "media_mention",
+          "settings": {
+            "logo_url": "https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_6_logos_1_540x-1680862002993_1200x_120e1682-5db1-4dbc-b5af-9b8d2b161c4f.webp?v=1766628588",
+            "title": "Prevention's 2021 Fitness Awards Winners",
+            "description": "BEST DUMBBELL:Ativafit Adjustable Dumbbell, 55 lbs."
+          }
+        },
+        {
+          "type": "media_mention",
+          "settings": {
+            "logo_url": "https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_7_logos_3_540x-1680862036545_1200x_c35b827b-57ea-4e05-98f6-7c81a6313e58.webp?v=1766628588",
+            "title": "Best Adjustable Dumbbells for Experienced Weight Lifters",
+            "description": "This dumbbell is ready to give you a serious workout."
+          }
+        },
+        {
+          "type": "media_mention",
+          "settings": {
+            "logo_url": "https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_8_logos_8_540x-1680862235461_1200x_96c7ca25-9c8c-4231-abb8-477c28e08352.webp?v=1766628588",
+            "title": "The 10 Best Indoor Cycling Bikes of 2021",
+            "description": "Best for Small Spaces: AtivaFit Indoor Cycling Bike. \"Ideal if you don't have a lot of space for equipment, the LCD monitor keeps track of your calories burned and heart rate.\""
+          }
+        },
+        {
+          "type": "media_mention",
+          "settings": {
+            "logo_url": "https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_9_logos_2_540x-1680862255123_1200x_a7684e98-1bdb-446a-b3a4-90f1b582a595.webp?v=1766628603",
+            "title": "The 10 Best Workout Mats for Every Type of Exercise",
+            "description": "BEST VALUE MAT.Non Slip TPE Exercise & Workout Mat with Carrying Strap. Made from a padded foam material, this mat had great cushion and a non-slip grip."
+          }
+        },
+        {
+          "type": "media_mention",
+          "settings": {
+            "logo_url": "https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_10_media7-1680086877217_1200x_59bdcbd4-4923-47bd-b1a4-9c9c25408f74.webp?v=1766628603",
+            "title": "Christmas Gift Ideas for Every Type of Person in Your Life",
+            "description": "To help your loved ones save on space, give them easy-to-use adjustable dumbbells from Ativafit."
+          }
+        },
+        {
+          "type": "media_mention",
+          "settings": {
+            "logo_url": "https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_11_mashablelogomark-1680862537700_1200x_9d5d7058-06a2-4f77-89ac-3ea2538cd365.webp?v=1766628603",
+            "title": "Spin class from the comfort of your own home.",
+            "description": "The Ativafit indoor bike mimics the feeling of riding your bike down a real road by providing a smooth and hassle-free workout at home."
+          }
+        },
+        {
+          "type": "media_mention",
+          "settings": {
+            "logo_url": "https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_12_fitandwelllogovectorxs-1680862677749_1200x_ffbef42a-c025-47fb-915e-6eab9efc0998.webp?v=1766628603",
+            "title": "Best adjustable dumbbells: must-have dumbbells sets for home",
+            "description": "Best heavy adjustable dumbbell set"
+          }
+        },
+        {
+          "type": "media_mention",
+          "settings": {
+            "logo_url": "https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_13_media1-1680086867540_1200x_f9d7cff4-3472-4bda-b80f-15fd2062a2a0.webp?v=1766628626",
+            "title": "Adjustable Dumbbells: The Single Best Equipment For Your Home Gym",
+            "description": "If you are interested in buying a pair of adjustable dumbbells, look no further than Ativafit's 71.5lbs weight set."
+          }
+        },
+        {
+          "type": "media_mention",
+          "settings": {
+            "logo_url": "https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_14_media8-1680086877220_1200x_b9c368dd-4b56-4486-8c8e-dd14ee2f8aad.webp?v=1766628627",
+            "title": "The Best Adjustable Dumbbells For Heavy Lifting, Beginners, For Your Money, And More",
+            "description": "Best Adjustable Dumbbells for the Money"
+          }
+        },
+        {
+          "type": "media_mention",
+          "settings": {
+            "logo_url": "https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_15_yahoo_frontpage_enus_s_f_p_205x58_frontpage_2x-1684915518423_1200x_6126a46d-0134-437d-96ee-2e40cdcc3df1.webp?v=1766628626",
+            "title": "Ativafit Upgrades Home Fitness Solutions with New 66lbs Adjustable Dumbbell Set",
+            "description": ""
+          }
+        },
+        {
+          "type": "media_mention",
+          "settings": {
+            "logo_url": "https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_16_digitaljournal-1684917389979_1200x_93f07c54-0235-44ba-9069-a32ce8db3092.webp?v=1766628627",
+            "title": "Ativafit Set To Release New Adjustable Dumbbell Model, While Expanding Service To EU",
+            "description": ""
+          }
+        },
+        {
+          "type": "media_mention",
+          "settings": {
+            "logo_url": "https://cdn.shopify.com/s/files/1/2623/4904/files/imgi_17_sceenshot_16849220883259-1684922690247_1200x_a13a0f78-49b4-4fde-b2b9-b0ac2abca862.webp?v=1766628643",
+            "title": "Ativafit DT1166 Adjustable Dumbbell Wins the Gold Prize of Muse Design Awards",
+            "description": "It features the brand's patented Dial Tech weight adjustment system, which is devoted to providing a convenient, safe, and professional user experience for fitness enthusiasts in a home scene."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
