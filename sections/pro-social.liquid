@@ -72,8 +72,11 @@
     color: #fff;
     font-size: 1.6vw;
   }
-  .left-link img {
+  .left-link img,
+  .left-link .social-icon {
     width: 1.2vw;
+    height: auto;
+    display: block;
   }
   .pro-social-right {
     width: 68%;
@@ -198,8 +201,10 @@
     .left-link a span {
       font-size: 8vw;
     }
-    .left-link img {
+    .left-link img,
+    .left-link .social-icon {
       width: 5.6vw;
+      height: auto;
     }
     .pro-social-right {
       width: 100%;
@@ -256,26 +261,48 @@
       {% endif %}
       {%- if section.settings.facebook_link != blank -%}
         <a href="{{ section.settings.facebook_link }}">
-          <span class="fa fa-facebook-square"></span>
+          {%- if section.settings.facebook_icon != blank -%}
+            {{ section.settings.facebook_icon | image_url: width: 48 | image_tag: loading: 'lazy', alt: 'Facebook', class: 'social-icon' }}
+          {%- else -%}
+            <span class="fa fa-facebook-square"></span>
+          {%- endif -%}
         </a>
       {% endif %}
       {%- if section.settings.instagram_link != blank -%}
         <a href="{{ section.settings.instagram_link }}">
-          <span class="fa fa-instagram"></span>
+          {%- if section.settings.instagram_icon != blank -%}
+            {{ section.settings.instagram_icon | image_url: width: 48 | image_tag: loading: 'lazy', alt: 'Instagram', class: 'social-icon' }}
+          {%- else -%}
+            <span class="fa fa-instagram"></span>
+          {%- endif -%}
         </a>
       {% endif %}
       {%- if section.settings.pinterest_link != blank -%}
         <a href="{{ section.settings.pinterest_link }}">
-          <span class="fa fa-pinterest-square"></span>
+          {%- if section.settings.pinterest_icon != blank -%}
+            {{ section.settings.pinterest_icon | image_url: width: 48 | image_tag: loading: 'lazy', alt: 'Pinterest', class: 'social-icon' }}
+          {%- else -%}
+            <span class="fa fa-pinterest-square"></span>
+          {%- endif -%}
         </a>
       {% endif %}
       {%- if section.settings.youtube_link != blank -%}
         <a href="{{ section.settings.youtube_link }}">
-          <span class="fa fa-youtube-play"></span>
+          {%- if section.settings.youtube_icon != blank -%}
+            {{ section.settings.youtube_icon | image_url: width: 48 | image_tag: loading: 'lazy', alt: 'YouTube', class: 'social-icon' }}
+          {%- else -%}
+            <span class="fa fa-youtube-play"></span>
+          {%- endif -%}
         </a>
       {% endif %}
       {%- if section.settings.tiktok_link != blank -%}
-        <a href="{{ section.settings.tiktok_link }}"><img src="https://cdn.shopify.com/s/files/1/2623/4904/files/tiktok.svg?v=1708327531"></a>
+        <a href="{{ section.settings.tiktok_link }}">
+          {%- if section.settings.tiktok_icon != blank -%}
+            {{ section.settings.tiktok_icon | image_url: width: 48 | image_tag: loading: 'lazy', alt: 'TikTok', class: 'social-icon' }}
+          {%- else -%}
+            <img src="https://cdn.shopify.com/s/files/1/2623/4904/files/tiktok.svg?v=1708327531" alt="TikTok" class="social-icon">
+          {%- endif -%}
+        </a>
       {% endif %}
     </div>
   </div>
@@ -378,25 +405,53 @@
         "label": "Link text",
         "default": "Get Started"
       }, {
+        "type": "header",
+        "content": "Redes Sociais"
+      }, {
         "id": "facebook_link",
         "type": "url",
-        "label": "facebook link"
+        "label": "Facebook Link"
+      }, {
+        "type": "image_picker",
+        "id": "facebook_icon",
+        "label": "Ícone do Facebook",
+        "info": "Se não adicionar, será usado o ícone padrão"
       }, {
         "id": "instagram_link",
         "type": "url",
-        "label": "instagram link"
+        "label": "Instagram Link"
+      }, {
+        "type": "image_picker",
+        "id": "instagram_icon",
+        "label": "Ícone do Instagram",
+        "info": "Se não adicionar, será usado o ícone padrão"
       }, {
         "id": "pinterest_link",
         "type": "url",
-        "label": "pinterest_link link"
+        "label": "Pinterest Link"
+      }, {
+        "type": "image_picker",
+        "id": "pinterest_icon",
+        "label": "Ícone do Pinterest",
+        "info": "Se não adicionar, será usado o ícone padrão"
       }, {
         "id": "youtube_link",
         "type": "url",
-        "label": "youtube link"
+        "label": "YouTube Link"
+      }, {
+        "type": "image_picker",
+        "id": "youtube_icon",
+        "label": "Ícone do YouTube",
+        "info": "Se não adicionar, será usado o ícone padrão"
       }, {
         "id": "tiktok_link",
         "type": "url",
-        "label": "tiktok link"
+        "label": "TikTok Link"
+      }, {
+        "type": "image_picker",
+        "id": "tiktok_icon",
+        "label": "Ícone do TikTok",
+        "info": "Se não adicionar, será usado o ícone padrão"
       }
     ],
     "blocks": [
