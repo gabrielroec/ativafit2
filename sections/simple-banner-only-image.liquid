@@ -24,30 +24,28 @@
 
     {%- if desktop_image -%}
       <img
-        src="{{ desktop_image | image_url: width: 1920 }}"
-        srcset="{{ desktop_image | image_url: width: 1024 }} 1024w,
-                {{ desktop_image | image_url: width: 1366 }} 1366w,
-                {{ desktop_image | image_url: width: 1920 }} 1920w"
+        src="{{ desktop_image | image_url: width: 1920 }}&quality=80&format=pjpg"
+        srcset="{{ desktop_image | image_url: width: 1024 }}&quality=80&format=pjpg 1024w,
+                {{ desktop_image | image_url: width: 1366 }}&quality=80&format=pjpg 1366w,
+                {{ desktop_image | image_url: width: 1920 }}&quality=80&format=pjpg 1920w"
         sizes="100vw"
         alt="{{ alt_text }}"
         class="banner-image banner-image-desktop"
-        width="1920"
-        height="1080"
         loading="{% if preload_image %}eager{% else %}lazy{% endif %}"
         {% if preload_image %}fetchpriority="high"{% endif %}
-        decoding="async">
+        width="1920"
+        height="1080">
       <img
-        src="{{ mobile_image | default: desktop_image | image_url: width: 750 }}"
-        srcset="{{ mobile_image | default: desktop_image | image_url: width: 375 }} 375w,
-                {{ mobile_image | default: desktop_image | image_url: width: 750 }} 750w"
+        src="{{ mobile_image | default: desktop_image | image_url: width: 750 }}&quality=75&format=pjpg"
+        srcset="{{ mobile_image | default: desktop_image | image_url: width: 375 }}&quality=75&format=pjpg 375w,
+                {{ mobile_image | default: desktop_image | image_url: width: 750 }}&quality=75&format=pjpg 750w"
         sizes="100vw"
         alt="{{ mobile_image.alt | default: desktop_image.alt | default: alt_text }}"
         class="banner-image banner-image-mobile"
-        width="750"
-        height="938"
         loading="{% if preload_image %}eager{% else %}lazy{% endif %}"
         {% if preload_image %}fetchpriority="high"{% endif %}
-        decoding="async">
+        width="750"
+        height="938">
     {%- else -%}
       <div class="banner-placeholder">
         <p>Add an image to display your banner</p>
