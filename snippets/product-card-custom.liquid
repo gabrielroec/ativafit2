@@ -520,9 +520,9 @@
     {%- comment -%} — IMAGEM DO PRODUTO {%- endcomment -%}
     {% if product.featured_image != blank %}
       <img
-        src="{{ product.featured_image | image_url: width: 300, height: 300, crop: 'center' }}&quality=75&format=pjpg"
-        srcset="{{ product.featured_image | image_url: width: 200, height: 200, crop: 'center' }}&quality=75&format=pjpg 200w,
-                {{ product.featured_image | image_url: width: 300, height: 300, crop: 'center' }}&quality=75&format=pjpg 300w"
+        src="{{ product.featured_image | image_url: width: 300, height: 300, crop: 'center' }}"
+        srcset="{{ product.featured_image | image_url: width: 200, height: 200, crop: 'center' }} 200w,
+                {{ product.featured_image | image_url: width: 300, height: 300, crop: 'center' }} 300w"
         sizes="(max-width: 768px) 100vw, 300px"
         alt="{{ product.title }}"
         width="300"
@@ -654,7 +654,7 @@
                   data-price="{{ variant.price }}"
                   data-compare-at-price="{{ variant.compare_at_price | default: 0 }}"
                   data-available="{{ variant.available }}"
-                  data-image="{% if variant.featured_image %}{{ variant.featured_image | image_url: width: 600, format: 'pjpg' }}{% endif %}"
+                  data-image="{% if variant.featured_image %}{{ variant.featured_image | image_url: width: 600 }}{% endif %}"
                   {% if variant.id == product.selected_or_first_available_variant.id %}
                   checked{% endif %}
                   {% unless variant.available %}
