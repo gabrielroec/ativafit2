@@ -341,8 +341,13 @@
                     <img
                       class="ai-hero-desktop-media-{{ ai_gen_id }}"
                       src="{{ desktop_image | image_url: width: 2000 }}"
+                      srcset="{{ desktop_image | image_url: width: 600 }} 600w,
+                              {{ desktop_image | image_url: width: 1000 }} 1000w,
+                              {{ desktop_image | image_url: width: 1400 }} 1400w,
+                              {{ desktop_image | image_url: width: 2000 }} 2000w"
+                      sizes="100vw"
                       alt="{{ desktop_image.alt | escape }}"
-                      loading="lazy"
+                      {% if forloop.index0 == 0 %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
                       width="{{ desktop_image.width }}"
                       height="{{ desktop_image.height }}"
                     >
@@ -363,9 +368,13 @@
                   {% elsif has_mobile_image %}
                     <img
                       class="ai-hero-mobile-media-{{ ai_gen_id }}"
-                      src="{{ mobile_image | image_url: width: 1000 }}"
+                      src="{{ mobile_image | image_url: width: 800 }}"
+                      srcset="{{ mobile_image | image_url: width: 400 }} 400w,
+                              {{ mobile_image | image_url: width: 600 }} 600w,
+                              {{ mobile_image | image_url: width: 800 }} 800w"
+                      sizes="100vw"
                       alt="{{ mobile_image.alt | escape }}"
-                      loading="lazy"
+                      {% if forloop.index0 == 0 %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
                       width="{{ mobile_image.width }}"
                       height="{{ mobile_image.height }}"
                     >

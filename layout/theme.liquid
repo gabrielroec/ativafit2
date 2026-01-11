@@ -2,20 +2,59 @@
 
 <html class="no-js" lang="{{ request.locale.iso_code }}">
   <head>
-    <!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-NG7LT26D');</script>
+    {%- comment -%}Delay non-critical third-party scripts until user interaction{%- endcomment -%}
+    <script>
+      // Delayed GTM loading - loads on first user interaction
+      (function() {
+        var gtmLoaded = false;
+        function loadGTM() {
+          if (gtmLoaded) return;
+          gtmLoaded = true;
+          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+          })(window,document,'script','dataLayer','GTM-NG7LT26D');
+        }
+        // Load on first interaction or after 5 seconds
+        ['scroll','mousemove','touchstart','click'].forEach(function(e){
+          window.addEventListener(e, loadGTM, {once: true, passive: true});
+        });
+        setTimeout(loadGTM, 5000);
+      })();
+    </script>
+    
+    {%- comment -%}Delay Visually.io until interaction{%- endcomment -%}
+    <script>
+      (function() {
+        var visuallyLoaded = false;
+        function loadVisually() {
+          if (visuallyLoaded) return;
+          visuallyLoaded = true;
+          var script = document.createElement('script');
+          script.src = 'https://live.visually-io.com/v/visually.js';
+          script.async = true;
+          document.head.appendChild(script);
+        }
+        ['scroll','mousemove','touchstart'].forEach(function(e){
+          window.addEventListener(e, loadVisually, {once: true, passive: true});
+        });
+        setTimeout(loadVisually, 5000);
+      })();
+    </script>
 
-<!-- End Google Tag Manager -->
-    {% render 'visually_io_sdk' %}
-
-    <script
-      src="https://analytics.ahrefs.com/analytics.js"
-      data-key="lqzucNIXjItSH4hJMLxs4w"
-      async></script>
+    {%- comment -%}Delay Ahrefs Analytics{%- endcomment -%}
+    <script>
+      (function() {
+        setTimeout(function() {
+          var script = document.createElement('script');
+          script.src = 'https://analytics.ahrefs.com/analytics.js';
+          script.setAttribute('data-key', 'lqzucNIXjItSH4hJMLxs4w');
+          script.async = true;
+          document.head.appendChild(script);
+        }, 3000);
+      })();
+    </script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, height=device-height, minimum-scale=1.0, maximum-scale=1.0">
     <meta name="theme-color" content="{{ settings.accent_color }}">
@@ -56,18 +95,35 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       rel="preload"
       as="script"
       href="{{ 'theme.min.js' | asset_url }}">
-    <link rel="preconnect" href="https://cdn.shopify.com">
-    <link rel="preconnect" href="https://fonts.shopifycdn.com">
+    
+    {%- comment -%}Preload critical fonts{%- endcomment -%}
+    <link rel="preload" as="font" type="font/ttf" href="{{ 'Barlow-Regular.ttf' | asset_url }}" crossorigin>
+    <link rel="preload" as="font" type="font/ttf" href="{{ 'Barlow-Bold.ttf' | asset_url }}" crossorigin>
+    <link rel="preload" as="font" type="font/ttf" href="{{ 'Barlow-SemiBold.ttf' | asset_url }}" crossorigin>
+    <link rel="preload" as="font" type="font/ttf" href="{{ 'BarlowCondensed-Bold.ttf' | asset_url }}" crossorigin>
+    
+    {%- comment -%}Preconnect to critical origins{%- endcomment -%}
+    <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="dns-prefetch" href="https://productreviews.shopifycdn.com">
     <link rel="dns-prefetch" href="https://ajax.googleapis.com">
     <link rel="dns-prefetch" href="https://maps.googleapis.com">
     <link rel="dns-prefetch" href="https://maps.gstatic.com">
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+    <link rel="dns-prefetch" href="https://static.klaviyo.com">
+    <link rel="dns-prefetch" href="https://live.visually-io.com">
 
 
     {% render 'css-variables' %}
 
-    <link href="https://fonts.cdnfonts.com/css/inter" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    {%- comment -%}Load non-critical CSS asynchronously{%- endcomment -%}
+    <link rel="preload" href="https://fonts.cdnfonts.com/css/inter" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.cdnfonts.com/css/inter" rel="stylesheet"></noscript>
+    
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" /></noscript>
+    
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" defer></script>
     <!-- Hotjar Tracking Code for https://www.ativafit.com/ -->
     <script>
@@ -130,6 +186,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
     {{ content_for_header }}
 
+    {%- comment -%}Critical CSS - loaded synchronously{%- endcomment -%}
     <link rel="stylesheet" href="{{ 'global.css' | asset_url }}">
     <link rel="stylesheet" href="{{ 'theme.min.css' | asset_url }}">
     {% render 'microdata-schema' %}
@@ -185,17 +242,19 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <script src="{{ 'custom.min.js' | asset_url }}" defer>
   </script>
     <!-- Cart Drawer -->
-    {{ 'cart-drawer.min.css' | asset_url | stylesheet_tag }}
+    <link rel="preload" as="style" href="{{ 'cart-drawer.min.css' | asset_url }}" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>{{ 'cart-drawer.min.css' | asset_url | stylesheet_tag }}</noscript>
     {% comment %} <script src="{{ 'cart-drawer.min.js' | asset_url }}" defer></script> {% endcomment %}
     <script src="{{ 'cart-drawer.js' | asset_url }}" defer></script>
 
 
-    <!-- Barlow overrides -->
+    <!-- Barlow overrides - Critical for fonts -->
     {% comment %} <link rel="stylesheet" href="{{ 'barlow-override.min.css' | asset_url }}"> {% endcomment %}
     <link rel="stylesheet" href="{{ 'barlow-override.css' | asset_url }}">
 
       <!-- Typography Supreme Rules -->
-    <link rel="stylesheet" href="{{ 'typography-supreme.css' | asset_url }}">
+    <link rel="preload" as="style" href="{{ 'typography-supreme.css' | asset_url }}" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ 'typography-supreme.css' | asset_url }}"></noscript>
 
     {%- if request.page_type != 'cart' -%}
       <script>
@@ -265,8 +324,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <!-- DO NOT MODIFY UNLESS TO REPLACE A USER IDENTIFIER -->
     <!-- End Reddit Pixel -->
     {% render 'digismoothie-candyrack' %}
-    <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ 'swiper.min.css' | asset_url }}">
+    {%- comment -%}Load Font Awesome asynchronously{%- endcomment -%}
+    <link rel="preload" href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"></noscript>
+    
+    <link rel="preload" as="style" href="{{ 'swiper.min.css' | asset_url }}" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ 'swiper.min.css' | asset_url }}"></noscript>
+    
     <script src="{{ 'jquery.min.js' | asset_url }}" defer></script>
     <script src="{{ 'swiper.min.js' | asset_url }}" defer></script>
 
