@@ -340,18 +340,16 @@
                   {% elsif has_desktop_image %}
                     <img
                       class="ai-hero-desktop-media-{{ ai_gen_id }}"
-                      src="{{ desktop_image | image_url: width: 1920, format: 'pjpg' }}"
-                      srcset="{{ desktop_image | image_url: width: 768, format: 'pjpg' }} 768w,
-                              {{ desktop_image | image_url: width: 1024, format: 'pjpg' }} 1024w,
-                              {{ desktop_image | image_url: width: 1366, format: 'pjpg' }} 1366w,
-                              {{ desktop_image | image_url: width: 1920, format: 'pjpg' }} 1920w,
-                              {{ desktop_image | image_url: width: 2560, format: 'pjpg' }} 2560w"
+                      src="{{ desktop_image | image_url: width: 1920 }}"
+                      srcset="{{ desktop_image | image_url: width: 1024 }} 1024w,
+                              {{ desktop_image | image_url: width: 1366 }} 1366w,
+                              {{ desktop_image | image_url: width: 1920 }} 1920w"
                       sizes="100vw"
                       alt="{{ desktop_image.alt | escape }}"
+                      width="1920"
+                      height="1080"
                       loading="lazy"
-                      width="{{ desktop_image.width }}"
-                      height="{{ desktop_image.height }}"
-                    >
+                      decoding="async">
                   {% endif %}
                   {% if has_mobile_video %}
                     <video
@@ -369,16 +367,17 @@
                   {% elsif has_mobile_image %}
                     <img
                       class="ai-hero-mobile-media-{{ ai_gen_id }}"
-                      src="{{ mobile_image | image_url: width: 750, crop: 'center' }}&quality=75&format=pjpg"
-                      srcset="{{ mobile_image | image_url: width: 390, crop: 'center' }}&quality=75&format=pjpg 390w,
-                              {{ mobile_image | image_url: width: 500, crop: 'center' }}&quality=75&format=pjpg 500w,
-                              {{ mobile_image | image_url: width: 750, crop: 'center' }}&quality=75&format=pjpg 750w"
+                      src="{{ mobile_image | image_url: width: 750 }}"
+                      srcset="{{ mobile_image | image_url: width: 375 }} 375w,
+                              {{ mobile_image | image_url: width: 500 }} 500w,
+                              {{ mobile_image | image_url: width: 750 }} 750w"
                       sizes="100vw"
                       alt="{{ mobile_image.alt | escape }}"
+                      width="750"
+                      height="750"
                       fetchpriority="high"
                       loading="eager"
-                      width="750"
-                      height="750">
+                      decoding="async">
                   {% endif %}
                 {% else %}
                   <div class="ai-hero-slide-placeholder-{{ ai_gen_id }}">

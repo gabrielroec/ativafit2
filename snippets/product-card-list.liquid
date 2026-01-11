@@ -177,15 +177,16 @@
     <div class="product-card-list__image-container">
       {% if product.featured_image != blank %}
         <img
-          src="{{ product.featured_image | image_url: width: 300, height: 300, crop: 'center' }}&quality=75&format=pjpg"
-          srcset="{{ product.featured_image | image_url: width: 200, height: 200, crop: 'center' }}&quality=75&format=pjpg 200w,
-                  {{ product.featured_image | image_url: width: 300, height: 300, crop: 'center' }}&quality=75&format=pjpg 300w"
+          src="{{ product.featured_image | image_url: width: 300 }}"
+          srcset="{{ product.featured_image | image_url: width: 200 }} 200w,
+                  {{ product.featured_image | image_url: width: 300 }} 300w"
           sizes="(max-width: 480px) 100vw, (max-width: 991px) 200px, 300px"
           alt="{{ product.title }}"
           class="product-card-list__image"
           width="300"
           height="300"
-          loading="lazy">
+          loading="lazy"
+          decoding="async">
       {% else %}
         <div class="product-card-list__image" style="background: #f4f4f4; display: flex; align-items: center; justify-content: center;">
           <span style="color: #999;">Imagem não disponível</span>
