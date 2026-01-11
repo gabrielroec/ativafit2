@@ -152,23 +152,16 @@
   <div class="banner-product-showcase__grid">
     <div class="banner-product-showcase__banner">
       {% if section.settings.banner_image != blank %}
-        <picture>
-          <source 
-            media="(max-width: 768px)"
-            srcset="{{ section.settings.banner_image | image_url: width: 768, height: 538, crop: 'center', format: 'pjpg' }}"
-            sizes="100vw">
-          <source 
-            media="(min-width: 769px)"
-            srcset="{{ section.settings.banner_image | image_url: width: 500, height: 350, crop: 'center', format: 'pjpg' }}"
-            sizes="30vw">
-          <img
-            src="{{ section.settings.banner_image | image_url: width: 500, height: 350, crop: 'center', format: 'pjpg' }}"
-            alt="Banner"
-            width="500"
-            height="350"
-            loading="lazy"
-            class="banner-product-showcase__banner-image">
-        </picture>
+        <img
+          src="{{ section.settings.banner_image | image_url: width: 600, height: 420, crop: 'center' }}&quality=75&format=pjpg"
+          srcset="{{ section.settings.banner_image | image_url: width: 400, height: 280, crop: 'center' }}&quality=75&format=pjpg 400w,
+                  {{ section.settings.banner_image | image_url: width: 600, height: 420, crop: 'center' }}&quality=75&format=pjpg 600w"
+          sizes="(max-width: 768px) 100vw, 30vw"
+          alt="Banner"
+          width="600"
+          height="420"
+          loading="lazy"
+          class="banner-product-showcase__banner-image">
       {% else %}
         <span style="color:#999;">Banner não disponível</span>
       {% endif %}

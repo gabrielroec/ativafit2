@@ -367,28 +367,18 @@
                       <source src="{{ mobile_video }}" type="video/mp4">
                     </video>
                   {% elsif has_mobile_image %}
-                    <picture>
-                      <source 
-                        media="(max-width: 390px)"
-                        srcset="{{ mobile_image | image_url: width: 390, height: 390, crop: 'center', format: 'pjpg' }} 390w"
-                        sizes="100vw">
-                      <source 
-                        media="(max-width: 430px)"
-                        srcset="{{ mobile_image | image_url: width: 430, height: 430, crop: 'center', format: 'pjpg' }} 430w"
-                        sizes="100vw">
-                      <source 
-                        media="(max-width: 768px)"
-                        srcset="{{ mobile_image | image_url: width: 750, height: 750, crop: 'center', format: 'pjpg' }} 750w"
-                        sizes="100vw">
-                      <img
-                        class="ai-hero-mobile-media-{{ ai_gen_id }}"
-                        src="{{ mobile_image | image_url: width: 750, height: 750, crop: 'center', format: 'pjpg' }}"
-                        alt="{{ mobile_image.alt | escape }}"
-                        fetchpriority="high"
-                        loading="eager"
-                        width="750"
-                        height="750">
-                    </picture>
+                    <img
+                      class="ai-hero-mobile-media-{{ ai_gen_id }}"
+                      src="{{ mobile_image | image_url: width: 750, crop: 'center' }}&quality=75&format=pjpg"
+                      srcset="{{ mobile_image | image_url: width: 390, crop: 'center' }}&quality=75&format=pjpg 390w,
+                              {{ mobile_image | image_url: width: 500, crop: 'center' }}&quality=75&format=pjpg 500w,
+                              {{ mobile_image | image_url: width: 750, crop: 'center' }}&quality=75&format=pjpg 750w"
+                      sizes="100vw"
+                      alt="{{ mobile_image.alt | escape }}"
+                      fetchpriority="high"
+                      loading="eager"
+                      width="750"
+                      height="750">
                   {% endif %}
                 {% else %}
                   <div class="ai-hero-slide-placeholder-{{ ai_gen_id }}">

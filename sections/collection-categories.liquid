@@ -4,19 +4,17 @@
       <div class="collection-category collection-category--{{ block.id }}" {{ block.shopify_attributes }}>
         <div class="collection-category__image-container">
 
-          <picture>
-            <source 
-              media="(max-width: 768px)"
-              srcset="{{ block.settings.category_image | image_url: width: 686, height: 623, crop: 'center', format: 'pjpg' }}"
-              sizes="100vw">
-            <img
-              src="{{ block.settings.category_image | image_url: width: 686, height: 623, crop: 'center', format: 'pjpg' }}"
-              width="686"
-              height="623"
-              alt="{{ block.settings.category_title | strip_html }}"
-              loading="lazy"
-              class="collection-category__image">
-          </picture>
+          <img
+            src="{{ block.settings.category_image | image_url: width: 700, height: 630, crop: 'center' }}&quality=70&format=pjpg"
+            srcset="{{ block.settings.category_image | image_url: width: 350, height: 315, crop: 'center' }}&quality=70&format=pjpg 350w,
+                    {{ block.settings.category_image | image_url: width: 500, height: 450, crop: 'center' }}&quality=70&format=pjpg 500w,
+                    {{ block.settings.category_image | image_url: width: 700, height: 630, crop: 'center' }}&quality=70&format=pjpg 700w"
+            sizes="(max-width: 768px) 100vw, 33vw"
+            width="700"
+            height="630"
+            alt="{{ block.settings.category_title | strip_html }}"
+            loading="lazy"
+            class="collection-category__image">
           <div class="collection-category__overlay">
             <a href="{{ block.settings.category_link }}" class="collection-category__button">
               {{ block.settings.button_text | default: 'SHOP NOW' }}

@@ -23,38 +23,29 @@
         rel="noopener noreferrer">{%- endif -%}
 
     {%- if desktop_image -%}
-      <picture class="banner-image-desktop">
-        <source
-          media="(min-width: 1024px)"
-          srcset="{{ desktop_image | image_url: width: 1920, format: 'pjpg' }}"
-          sizes="100vw">
-        <img
-          src="{{ desktop_image | image_url: width: 1920, format: 'pjpg' }}"
-          alt="{{ alt_text }}"
-          class="banner-image"
-          loading="{% if preload_image %}eager{% else %}lazy{% endif %}"
-          {% if preload_image %}
-          fetchpriority="high"
-          {% endif %}
-          width="1920"
-          height="1080">
-      </picture>
-      <picture class="banner-image-mobile">
-        <source
-          media="(max-width: 1023px)"
-          srcset="{{ mobile_image | default: desktop_image | image_url: width: 750, format: 'pjpg' }}"
-          sizes="100vw">
-        <img
-          src="{{ mobile_image | default: desktop_image | image_url: width: 750, format: 'pjpg' }}"
-          alt="{{ mobile_image.alt | default: desktop_image.alt | default: alt_text }}"
-          class="banner-image"
-          loading="{% if preload_image %}eager{% else %}lazy{% endif %}"
-          {% if preload_image %}
-          fetchpriority="high"
-          {% endif %}
-          width="750"
-          height="938">
-      </picture>
+      <img
+        src="{{ desktop_image | image_url: width: 1920 }}&quality=80&format=pjpg"
+        srcset="{{ desktop_image | image_url: width: 1024 }}&quality=80&format=pjpg 1024w,
+                {{ desktop_image | image_url: width: 1366 }}&quality=80&format=pjpg 1366w,
+                {{ desktop_image | image_url: width: 1920 }}&quality=80&format=pjpg 1920w"
+        sizes="100vw"
+        alt="{{ alt_text }}"
+        class="banner-image banner-image-desktop"
+        loading="{% if preload_image %}eager{% else %}lazy{% endif %}"
+        {% if preload_image %}fetchpriority="high"{% endif %}
+        width="1920"
+        height="1080">
+      <img
+        src="{{ mobile_image | default: desktop_image | image_url: width: 750 }}&quality=75&format=pjpg"
+        srcset="{{ mobile_image | default: desktop_image | image_url: width: 375 }}&quality=75&format=pjpg 375w,
+                {{ mobile_image | default: desktop_image | image_url: width: 750 }}&quality=75&format=pjpg 750w"
+        sizes="100vw"
+        alt="{{ mobile_image.alt | default: desktop_image.alt | default: alt_text }}"
+        class="banner-image banner-image-mobile"
+        loading="{% if preload_image %}eager{% else %}lazy{% endif %}"
+        {% if preload_image %}fetchpriority="high"{% endif %}
+        width="750"
+        height="938">
     {%- else -%}
       <div class="banner-placeholder">
         <p>Add an image to display your banner</p>

@@ -176,23 +176,16 @@
 
     <div class="product-card-list__image-container">
       {% if product.featured_image != blank %}
-        <picture>
-          <source
-            media="(max-width: 480px)"
-            srcset="{{ product.featured_image | image_url: width: 300, height: 300, crop: 'center', format: 'pjpg' }}"
-            sizes="100vw">
-          <source
-            media="(max-width: 991px)"
-            srcset="{{ product.featured_image | image_url: width: 200, height: 200, crop: 'center', format: 'pjpg' }}"
-            sizes="200px">
-          <img
-            src="{{ product.featured_image | image_url: width: 300, height: 300, crop: 'center', format: 'pjpg' }}"
-            alt="{{ product.title }}"
-            class="product-card-list__image"
-            width="300"
-            height="300"
-            loading="lazy">
-        </picture>
+        <img
+          src="{{ product.featured_image | image_url: width: 300, height: 300, crop: 'center' }}&quality=75&format=pjpg"
+          srcset="{{ product.featured_image | image_url: width: 200, height: 200, crop: 'center' }}&quality=75&format=pjpg 200w,
+                  {{ product.featured_image | image_url: width: 300, height: 300, crop: 'center' }}&quality=75&format=pjpg 300w"
+          sizes="(max-width: 480px) 100vw, (max-width: 991px) 200px, 300px"
+          alt="{{ product.title }}"
+          class="product-card-list__image"
+          width="300"
+          height="300"
+          loading="lazy">
       {% else %}
         <div class="product-card-list__image" style="background: #f4f4f4; display: flex; align-items: center; justify-content: center;">
           <span style="color: #999;">Imagem não disponível</span>
