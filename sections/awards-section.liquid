@@ -158,12 +158,18 @@
       {% for block in section.blocks %}
         {% if block.type == 'award' and block.settings.award_image != blank %}
           <div class="awards-section__image">
-            <img
-              src="{{ block.settings.award_image | image_url: width: 300 }}"
-              width="300"
-              height="auto"
-              alt="{{ block.settings.alt_text | escape }}"
-              loading="lazy">
+            <picture>
+              <source 
+                media="(max-width: 480px)"
+                srcset="{{ block.settings.award_image | image_url: width: 150, format: 'pjpg' }}"
+                sizes="30vw">
+              <img
+                src="{{ block.settings.award_image | image_url: width: 150, format: 'pjpg' }}"
+                width="150"
+                height="auto"
+                alt="{{ block.settings.alt_text | escape }}"
+                loading="lazy">
+            </picture>
           </div>
         {% endif %}
       {% endfor %}

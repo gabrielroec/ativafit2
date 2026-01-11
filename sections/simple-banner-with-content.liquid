@@ -30,17 +30,34 @@
     {%- if link_url != blank -%}<a href="{{ link_url }}" class="banner-link">{%- endif -%}
 
     {%- if desktop_image -%}
-      <img src="{{ desktop_image | image_url: width: 2000 }}"
-           alt="{{ alt_text }}"
-           class="banner-image banner-image-desktop"
-           loading="{% if preload_image %}eager{% else %}lazy{% endif %}"
-           width="{{ desktop_image.width }}" height="{{ desktop_image.height }}">
-      <img src="{{ mobile_image | default: desktop_image | image_url: width: 1000 }}"
-           alt="{{ mobile_image.alt | default: desktop_image.alt | default: alt_text }}"
-           class="banner-image banner-image-mobile"
-           loading="{% if preload_image %}eager{% else %}lazy{% endif %}"
-           width="{{ mobile_image.width | default: desktop_image.width }}"
-           height="{{ mobile_image.height | default: desktop_image.height }}">
+      <picture class="banner-image-desktop">
+        <source 
+          media="(min-width: 1024px)"
+          srcset="{{ desktop_image | image_url: width: 1920, format: 'pjpg' }}"
+          sizes="100vw">
+        <img 
+          src="{{ desktop_image | image_url: width: 1920, format: 'pjpg' }}"
+          alt="{{ alt_text }}"
+          class="banner-image"
+          loading="{% if preload_image %}eager{% else %}lazy{% endif %}"
+          {% if preload_image %}fetchpriority="high"{% endif %}
+          width="1920"
+          height="1080">
+      </picture>
+      <picture class="banner-image-mobile">
+        <source 
+          media="(max-width: 1023px)"
+          srcset="{{ mobile_image | default: desktop_image | image_url: width: 721, height: 901, crop: 'center', format: 'pjpg' }}"
+          sizes="100vw">
+        <img 
+          src="{{ mobile_image | default: desktop_image | image_url: width: 721, height: 901, crop: 'center', format: 'pjpg' }}"
+          alt="{{ mobile_image.alt | default: desktop_image.alt | default: alt_text }}"
+          class="banner-image"
+          loading="{% if preload_image %}eager{% else %}lazy{% endif %}"
+          {% if preload_image %}fetchpriority="high"{% endif %}
+          width="721"
+          height="901">
+      </picture>
 
       <!-- Text Overlay: mobile uses class; desktop uses data attribute -->
       <div class="banner-text banner-text-{{ content_position_mobile }}"

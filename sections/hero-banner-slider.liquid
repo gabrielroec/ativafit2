@@ -340,7 +340,13 @@
                   {% elsif has_desktop_image %}
                     <img
                       class="ai-hero-desktop-media-{{ ai_gen_id }}"
-                      src="{{ desktop_image | image_url: width: 2000 }}"
+                      src="{{ desktop_image | image_url: width: 1920, format: 'pjpg' }}"
+                      srcset="{{ desktop_image | image_url: width: 768, format: 'pjpg' }} 768w,
+                              {{ desktop_image | image_url: width: 1024, format: 'pjpg' }} 1024w,
+                              {{ desktop_image | image_url: width: 1366, format: 'pjpg' }} 1366w,
+                              {{ desktop_image | image_url: width: 1920, format: 'pjpg' }} 1920w,
+                              {{ desktop_image | image_url: width: 2560, format: 'pjpg' }} 2560w"
+                      sizes="100vw"
                       alt="{{ desktop_image.alt | escape }}"
                       loading="lazy"
                       width="{{ desktop_image.width }}"
@@ -361,14 +367,28 @@
                       <source src="{{ mobile_video }}" type="video/mp4">
                     </video>
                   {% elsif has_mobile_image %}
-                    <img
-                      class="ai-hero-mobile-media-{{ ai_gen_id }}"
-                      src="{{ mobile_image | image_url: width: 1000 }}"
-                      alt="{{ mobile_image.alt | escape }}"
-                      loading="lazy"
-                      width="{{ mobile_image.width }}"
-                      height="{{ mobile_image.height }}"
-                    >
+                    <picture>
+                      <source 
+                        media="(max-width: 390px)"
+                        srcset="{{ mobile_image | image_url: width: 390, height: 390, crop: 'center', format: 'pjpg' }} 390w"
+                        sizes="100vw">
+                      <source 
+                        media="(max-width: 430px)"
+                        srcset="{{ mobile_image | image_url: width: 430, height: 430, crop: 'center', format: 'pjpg' }} 430w"
+                        sizes="100vw">
+                      <source 
+                        media="(max-width: 768px)"
+                        srcset="{{ mobile_image | image_url: width: 750, height: 750, crop: 'center', format: 'pjpg' }} 750w"
+                        sizes="100vw">
+                      <img
+                        class="ai-hero-mobile-media-{{ ai_gen_id }}"
+                        src="{{ mobile_image | image_url: width: 750, height: 750, crop: 'center', format: 'pjpg' }}"
+                        alt="{{ mobile_image.alt | escape }}"
+                        fetchpriority="high"
+                        loading="eager"
+                        width="750"
+                        height="750">
+                    </picture>
                   {% endif %}
                 {% else %}
                   <div class="ai-hero-slide-placeholder-{{ ai_gen_id }}">

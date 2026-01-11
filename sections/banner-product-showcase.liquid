@@ -152,12 +152,23 @@
   <div class="banner-product-showcase__grid">
     <div class="banner-product-showcase__banner">
       {% if section.settings.banner_image != blank %}
-        <img
-          src="{{ section.settings.banner_image | img_url: '1000x' }}"
-          alt="Banner"
-          width="1000"
-          height="700"
-          class="banner-product-showcase__banner-image">
+        <picture>
+          <source 
+            media="(max-width: 768px)"
+            srcset="{{ section.settings.banner_image | image_url: width: 768, height: 538, crop: 'center', format: 'pjpg' }}"
+            sizes="100vw">
+          <source 
+            media="(min-width: 769px)"
+            srcset="{{ section.settings.banner_image | image_url: width: 500, height: 350, crop: 'center', format: 'pjpg' }}"
+            sizes="30vw">
+          <img
+            src="{{ section.settings.banner_image | image_url: width: 500, height: 350, crop: 'center', format: 'pjpg' }}"
+            alt="Banner"
+            width="500"
+            height="350"
+            loading="lazy"
+            class="banner-product-showcase__banner-image">
+        </picture>
       {% else %}
         <span style="color:#999;">Banner não disponível</span>
       {% endif %}

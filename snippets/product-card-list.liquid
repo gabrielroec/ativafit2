@@ -8,7 +8,8 @@
         border: 1px solid #D9D9D9;
         border-radius: 0;
         overflow: hidden;
-        font-family: "Barlow", sans-serif;
+        font-family: "Barlow"
+        , sans-serif;
         display: grid;
         grid-template-columns: 300px 1fr auto;
         gap: 24px;
@@ -175,13 +176,23 @@
 
     <div class="product-card-list__image-container">
       {% if product.featured_image != blank %}
-        <img
-          src="{{ product.featured_image | img_url: '600x600' }}"
-          alt="{{ product.title }}"
-          class="product-card-list__image"
-          width="600"
-          height="600"
-          loading="lazy">
+        <picture>
+          <source
+            media="(max-width: 480px)"
+            srcset="{{ product.featured_image | image_url: width: 300, height: 300, crop: 'center', format: 'pjpg' }}"
+            sizes="100vw">
+          <source
+            media="(max-width: 991px)"
+            srcset="{{ product.featured_image | image_url: width: 200, height: 200, crop: 'center', format: 'pjpg' }}"
+            sizes="200px">
+          <img
+            src="{{ product.featured_image | image_url: width: 300, height: 300, crop: 'center', format: 'pjpg' }}"
+            alt="{{ product.title }}"
+            class="product-card-list__image"
+            width="300"
+            height="300"
+            loading="lazy">
+        </picture>
       {% else %}
         <div class="product-card-list__image" style="background: #f4f4f4; display: flex; align-items: center; justify-content: center;">
           <span style="color: #999;">Imagem não disponível</span>
