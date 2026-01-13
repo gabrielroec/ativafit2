@@ -511,11 +511,14 @@
     </style>
 
     {%- comment -%} — BADGE DE DESCONTO - Sempre calculado baseado na diferença entre preço original e atual {%- endcomment -%}
-    {% if product.compare_at_price_max > product.price %}
-      {% assign discount_amount = product.compare_at_price_max | minus: product.price %}
-      {% assign discount_percentage = discount_amount | times: 100.0 | divided_by: product.compare_at_price_max | round %}
-      <div class="discount-badge condensed-bold">{{ discount_percentage }}% OFF</div>
-    {% endif %}
+{% assign current_variant = product.selected_or_first_available_variant %}
+
+{% if current_variant.compare_at_price > current_variant.price %}
+  {% assign discount_amount = current_variant.compare_at_price | minus: current_variant.price %}
+  {% assign discount_percentage = discount_amount | times: 100.0 | divided_by: current_variant.compare_at_price | round %}
+  <div class="discount-badge condensed-bold">{{ discount_percentage }}% OFF</div>
+{% endif %}
+
 
     {%- comment -%} — IMAGEM DO PRODUTO {%- endcomment -%}
     {% if product.featured_image != blank %}
