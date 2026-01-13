@@ -130,8 +130,6 @@
       })(document, document.head, document.body);
     </script>
 
-    {{ content_for_header }}
-
     <link rel="stylesheet" href="{{ 'global.css' | asset_url }}">
     <link rel="stylesheet" href="{{ 'theme.min.css' | asset_url }}">
     {% render 'microdata-schema' %}
@@ -189,6 +187,34 @@
     <!-- Cart Drawer -->
     {{ 'cart-drawer.min.css' | asset_url | stylesheet_tag }}
     {% comment %} <script src="{{ 'cart-drawer.min.js' | asset_url }}" defer></script> {% endcomment %}
+    <script>
+      // Detect user region via IP geolocation
+      window.shopifyCountryCode = '';
+      
+      // Fetch user country from IP
+      fetch('https://ipapi.co/json/')
+        .then(res => res.json())
+        .then(data => {
+          if (data.country_code) {
+            window.shopifyCountryCode = data.country_code;
+            console.log("Country detected:", window.shopifyCountryCode);
+            // Update cart drawer if already open
+            if (window.cartDrawer && window.cartDrawer.isOpen) {
+              window.cartDrawer.loadCartData();
+            }
+          }
+        })
+        .catch(() => {
+          // Fallback: try Shopify localization
+          {% if localization.country.iso_code %}
+            window.shopifyCountryCode = '{{ localization.country.iso_code }}';
+            console.log("Country from Shopify:", window.shopifyCountryCode);
+            if (window.cartDrawer && window.cartDrawer.isOpen) {
+              window.cartDrawer.loadCartData();
+            }
+          {% endif %}
+        });
+    </script>
     <script src="{{ 'cart-drawer.js' | asset_url }}" defer></script>
 
 
@@ -275,8 +301,9 @@
 
     <meta name="google-site-verification" content="MMiNaiXOwNEI9BAzMcFWKtn93PFIXJS6nFRcAl-4Pwo" />
 
-
-    {% include 'pagefly-app-header' %}</head>
+    {% include 'pagefly-app-header' %}
+    {{ content_for_header }}
+  </head>
 
   <style>
     .boom-launcher.loloyal-launcher-wrapper {

@@ -864,10 +864,45 @@
           try {
             const formData = new FormData(form);
             
+            // Capture discount information BEFORE sending to cart
+            let discountInfo = null;
+            const oldPriceElement = card.querySelector('.old-price');
+            const currentPriceElement = card.querySelector('.current-price');
+            const discountBadge = card.querySelector('.discount-badge');
+            
+            if (oldPriceElement && currentPriceElement) {
+              const oldPriceText = oldPriceElement.textContent.trim().replace(/[^0-9.]/g, "");
+              const currentPriceText = currentPriceElement.textContent.trim().replace(/[^0-9.]/g, "");
+              
+              if (oldPriceText && currentPriceText) {
+                const oldPrice = parseFloat(oldPriceText) * 100; // Convert to cents
+                const currentPrice = parseFloat(currentPriceText) * 100; // Convert to cents
+                
+                if (oldPrice > currentPrice) {
+                  let discountPercentage = 0;
+                  if (discountBadge) {
+                    const badgeText = discountBadge.textContent.trim();
+                    const percentageMatch = badgeText.match(/(\d+)%/);
+                    discountPercentage = percentageMatch ? parseInt(percentageMatch[1]) : 0;
+                  }
+                  
+                  discountInfo = {
+                    originalPrice: oldPrice,
+                    currentPrice: currentPrice,
+                    savings: oldPrice - currentPrice,
+                    percentage: discountPercentage,
+                  };
+                  
+                  console.log("Product-card-custom: Captured discount info:", discountInfo);
+                }
+              }
+            }
+            
             console.log("Sending to cart:", {
               variantId: formData.get('id'),
               quantity: formData.get('quantity'),
-              productTitle: productTitle
+              productTitle: productTitle,
+              hasDiscount: discountInfo !== null
             });
             
             const response = await fetch('/cart/add.js', {
@@ -877,6 +912,16 @@
             
             if (response.ok) {
               const result = await response.json();
+              
+              // Store discount info for this variant if we found it
+              if (discountInfo) {
+                if (!window.cartDiscountData) {
+                  window.cartDiscountData = new Map();
+                }
+                const variantId = result.variant_id || result.id;
+                window.cartDiscountData.set(variantId.toString(), discountInfo);
+                console.log("Product-card-custom: Stored discount data for variant:", variantId, discountInfo);
+              }
               
               // Atualiza contador do carrinho
               const cartData = await fetch('/cart.js').then(res => res.json());
