@@ -347,13 +347,34 @@ class CartDrawer {
         ${discounts}
         <div class="cart-drawer-subtotal">
           <span class="bold">Subtotal</span>
-          <span class="bold">${this.formatMoney(this.cartData.total_price)}</span>
+          <div class="cart-drawer-subtotal-price">
+            ${
+              this.getTotalSavings() > 0
+                ? `<span class="cart-drawer-subtotal-savings-badge">You save ${this.formatMoney(this.getTotalSavings())}</span>`
+                : ""
+            }
+            <span class="bold">${this.formatMoney(this.cartData.total_price)}</span>
+            ${
+              this.getTotalSavings() > 0
+                ? `<span class="cart-drawer-subtotal-original regular">${this.formatMoney(this.getTotalOriginalPrice())}</span>`
+                : ""
+            }
+          </div>
         </div>
         <div class="cart-drawer-actions">
           <button class="cart-drawer-checkout bold" onclick="window.location.href='/checkout'">
             Checkout
           </button>
-          <button class="cart-drawer-view-cart bold" onclick="window.location.href='/cart'">View Cart</button>
+          <div class="cart-drawer-payment-badges">
+            <img src="https://download.logo.wine/logo/Mastercard/Mastercard-Logo.wine.png" alt="Mastercard" class="payment-badge" loading="lazy">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/9/93/PayPal_Logo2014.png" alt="PayPal" class="payment-badge" loading="lazy">
+            <img src="https://cdn.shopify.com/shopifycloud/help-center/manual/shop-pay-installments/shop-pay-logo-color.png" alt="Shop Pay" class="payment-badge" loading="lazy">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/d/de/Amazon_icon.png" alt="Amazon Pay" class="payment-badge" loading="lazy">
+            <img src="https://cdn-icons-png.freepik.com/256/5968/5968245.png?semt=ais_white_label" alt="American Express" class="payment-badge" loading="lazy">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfp_3jN-zgVDJzWjr1I4lKWWRothBbWHb8hQ&s" alt="Apple Pay" class="payment-badge" loading="lazy">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSECDKIpkdSUbFaBLjhaAxj0qMcSdLRFvvtvQ&s" alt="Diners Club" class="payment-badge" loading="lazy">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Google_Pay_Logo.svg/1280px-Google_Pay_Logo.svg.png" alt="Google Pay" class="payment-badge" loading="lazy">
+          </div>
         </div>
       </div>
     `;
@@ -592,7 +613,41 @@ class CartDrawer {
     return "";
   }
 
-  renderSavingsInfo() {
+  // Helper function to calculate total original price (before discounts)
+  getTotalOriginalPrice() {
+    if (!this.cartData || !this.cartData.items) {
+      return 0;
+    }
+
+    let totalOriginal = 0;
+
+    // Calculate original price from all items
+    this.cartData.items.forEach((item, index) => {
+      const discountData = this.findDiscountData(item);
+      if (discountData.hasDiscount) {
+        totalOriginal += discountData.originalPrice;
+      } else {
+        // If no discount, use final_line_price as original
+        totalOriginal += item.final_line_price;
+      }
+    });
+
+    // Add cart-level discounts to get the true original total
+    if (this.cartData.cart_level_discount_applications) {
+      this.cartData.cart_level_discount_applications.forEach((discount) => {
+        totalOriginal += discount.total_allocated_amount;
+      });
+    }
+
+    return totalOriginal;
+  }
+
+  // Helper function to calculate total savings
+  getTotalSavings() {
+    if (!this.cartData || !this.cartData.items) {
+      return 0;
+    }
+
     let totalSavings = 0;
 
     // Calculate savings from all items
@@ -607,6 +662,12 @@ class CartDrawer {
         totalSavings += discount.total_allocated_amount;
       });
     }
+
+    return totalSavings;
+  }
+
+  renderSavingsInfo() {
+    const totalSavings = this.getTotalSavings();
 
     console.log("Total cart savings:", this.formatMoney(totalSavings));
 
@@ -1058,10 +1119,10 @@ style.textContent = `
   }
 
   .cart-drawer-recommended-title {
-    font-size: 16px;
+    font-size: 16px !important;
     font-weight: 500;
     color: #6b7280;
-    margin: 0 0 20px 0;
+    margin: 0 0 20px 0 !important;
     text-align: left;
     letter-spacing: 0.01em;
   }
@@ -1148,7 +1209,6 @@ style.textContent = `
   }
 
   .cart-drawer-product-price {
-    margin-bottom: 12px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -1316,6 +1376,55 @@ style.textContent = `
     height: 20px;
   }
 
+  /* Subtotal Savings Badge Styles */
+  .cart-drawer-subtotal-price {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .cart-drawer-subtotal-original {
+    font-size: 14px;
+    font-weight: 500;
+    color: #9ca3af;
+    text-decoration: line-through;
+  }
+
+  .cart-drawer-subtotal-savings-badge {
+    font-size: 13px;
+    font-weight: 500;
+    color: #10b981;
+    background: #ecfdf5;
+    padding: 4px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    line-height: 1.2;
+  }
+
+  /* Payment Badges Styles */
+  .cart-drawer-payment-badges {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .payment-badge {
+    height: 24px;
+    width: auto;
+    object-fit: contain;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+  }
+
+  .payment-badge:hover {
+    opacity: 1;
+  }
+
   /* Mobile adjustments */
   @media screen and (max-width: 768px) {
     .cart-drawer-recommended {
@@ -1346,7 +1455,6 @@ style.textContent = `
     }
 
     .cart-drawer-product-price {
-      margin-bottom: 10px;
     }
 
     .cart-drawer-product-price .current-price {
