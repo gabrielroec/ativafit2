@@ -296,11 +296,102 @@ class CartDrawer {
     try {
       const response = await fetch("/cart.js");
       this.cartData = await response.json();
+
+      // DOUBLE CHECK: Validate all items and ensure discount data is complete
+      await this.validateAndFixAllCartItems();
+
       this.renderCart();
       return this.cartData;
     } catch (error) {
       console.error("Error loading cart:", error);
     }
+  }
+
+  // ROBUST VALIDATION: Check every item in cart and fix discount data
+  async validateAndFixAllCartItems() {
+    if (!this.cartData || !this.cartData.items || this.cartData.items.length === 0) {
+      return;
+    }
+
+    console.log("[validateAndFixAllCartItems] 🔍 Starting validation for", this.cartData.items.length, "items");
+
+    // Initialize cartDiscountData if it doesn't exist
+    if (!window.cartDiscountData) {
+      window.cartDiscountData = new Map();
+    }
+
+    // Check each item and ensure we have complete discount information
+    const validationPromises = this.cartData.items.map(async (item) => {
+      const variantIdStr = item.variant_id.toString();
+
+      console.log(`[validateAndFixAllCartItems] Checking: ${item.product_title} (variant: ${variantIdStr})`);
+
+      // If item already has compare_at_price from Shopify, store it
+      if (item.compare_at_price && item.compare_at_price > item.price) {
+        console.log(`[validateAndFixAllCartItems] ✅ Item has valid compare_at_price from Shopify cart data`);
+
+        // Store this data for consistency
+        const discountInfo = {
+          originalPrice: item.compare_at_price,
+          currentPrice: item.price,
+          savings: item.compare_at_price - item.price,
+          percentage: Math.round(((item.compare_at_price - item.price) / item.compare_at_price) * 100),
+        };
+        window.cartDiscountData.set(variantIdStr, discountInfo);
+        console.log(`[validateAndFixAllCartItems] Stored compare_at_price from cart data for ${variantIdStr}`);
+        return;
+      }
+
+      // If we already have stored discount data AND item doesn't have compare_at_price, keep stored data
+      if (window.cartDiscountData.has(variantIdStr) && !item.compare_at_price) {
+        console.log(`[validateAndFixAllCartItems] ✅ Item has stored discount data, keeping it`);
+        return;
+      }
+
+      // Otherwise, fetch variant data from Shopify API to check for discount (or refresh stored data)
+      try {
+        console.log(`[validateAndFixAllCartItems] 🔍 Fetching variant data from API for ${variantIdStr}...`);
+
+        // Use the existing fetchVariantPriceData function with cache
+        const priceData = await this.fetchVariantPriceData(variantIdStr);
+
+        if (priceData) {
+          console.log(`[validateAndFixAllCartItems] Variant data received:`, {
+            variant: variantIdStr,
+            product: item.product_title,
+            price: priceData.price,
+            compare_at_price: priceData.compare_at_price,
+          });
+
+          // If API shows discount, store it
+          if (priceData.compare_at_price && priceData.compare_at_price > priceData.price) {
+            const discountInfo = {
+              originalPrice: priceData.compare_at_price,
+              currentPrice: priceData.price,
+              savings: priceData.compare_at_price - priceData.price,
+              percentage: Math.round(((priceData.compare_at_price - priceData.price) / priceData.compare_at_price) * 100),
+            };
+
+            window.cartDiscountData.set(variantIdStr, discountInfo);
+            console.log(`[validateAndFixAllCartItems] ✅ Stored discount data from API for variant ${variantIdStr}:`, discountInfo);
+          } else {
+            console.log(`[validateAndFixAllCartItems] ⚠️ Variant ${variantIdStr} has no discount in Shopify (compare_at_price not set)`);
+          }
+        } else {
+          console.log(`[validateAndFixAllCartItems] ⚠️ Could not fetch variant data for ${variantIdStr}`);
+        }
+      } catch (error) {
+        console.log(`[validateAndFixAllCartItems] Could not fetch variant ${variantIdStr}:`, error);
+      }
+    });
+
+    // Wait for all validations to complete
+    await Promise.all(validationPromises);
+
+    console.log("[validateAndFixAllCartItems] ✅ Validation complete. Stored discounts:", {
+      totalStored: window.cartDiscountData.size,
+      variants: Array.from(window.cartDiscountData.keys()),
+    });
   }
 
   async renderCart() {
@@ -435,9 +526,16 @@ class CartDrawer {
     }
 
     // PRIORITY 2: Try to get stored discount data from when product was added
+    console.log("[findDiscountData] Checking cartDiscountData:", {
+      exists: !!window.cartDiscountData,
+      size: window.cartDiscountData?.size || 0,
+      hasThisVariant: window.cartDiscountData?.has(variantIdStr),
+      allStoredVariants: window.cartDiscountData ? Array.from(window.cartDiscountData.keys()) : [],
+    });
+
     if (window.cartDiscountData && window.cartDiscountData.has(variantIdStr)) {
       const storedDiscount = window.cartDiscountData.get(variantIdStr);
-      console.log("Found stored discount data for variant:", variantIdStr, storedDiscount);
+      console.log("[findDiscountData] ✅ Found stored discount data for variant:", variantIdStr, storedDiscount);
 
       // Adjust for quantity - use stored per-unit prices
       const perUnitOriginal = storedDiscount.originalPrice;
@@ -1072,6 +1170,12 @@ class CartDrawer {
   async open() {
     if (!this.cartData) {
       await this.loadCartData();
+    } else {
+      // Even if we have cart data, validate and fix all items when opening
+      console.log("[open] Running validation on cart open...");
+      await this.validateAndFixAllCartItems();
+      // Re-render with updated discount data
+      this.renderCart();
     }
 
     this.isOpen = true;
