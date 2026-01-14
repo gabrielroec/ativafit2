@@ -1,20 +1,20 @@
 {% comment %} 
-                                                                                                                          Product Main Section - Refactored
-                                                                                                                           
-                                                                                                                          Professional product page section following Shopify 2.0 best practices.
-                                                                                                                          Uses modular snippets for better organization and maintainability.
-                                                                                                                           
-                                                                                                                          Accepts: 
-                                                                                                                          - product: {Object} Product object
-                                                                                                                           
-                                                                                                                          Dependencies: 
-                                                                                                                          - product-gallery.liquid snippet 
-                                                                                                                          - product-info.liquid snippet 
-                                                                                                                          - product-benefits.liquid snippet 
-                                                                                                                          - product-add-to-cart.liquid snippet 
-                                                                                                                          - product-accordions.liquid snippet 
-                                                                                                                          - product-benefit-popups.liquid snippet 
-                                                                                                                          - product-main-section.css asset 
+                                                                                                                            Product Main Section - Refactored
+                                                                                                                             
+                                                                                                                            Professional product page section following Shopify 2.0 best practices.
+                                                                                                                            Uses modular snippets for better organization and maintainability.
+                                                                                                                             
+                                                                                                                            Accepts: 
+                                                                                                                            - product: {Object} Product object
+                                                                                                                             
+                                                                                                                            Dependencies: 
+                                                                                                                            - product-gallery.liquid snippet 
+                                                                                                                            - product-info.liquid snippet 
+                                                                                                                            - product-benefits.liquid snippet 
+                                                                                                                            - product-add-to-cart.liquid snippet 
+                                                                                                                            - product-accordions.liquid snippet 
+                                                                                                                            - product-benefit-popups.liquid snippet 
+                                                                                                                            - product-main-section.css asset 
 {% endcomment %}
 
 {{ 'product-main-section.css' | asset_url | stylesheet_tag }}
@@ -55,13 +55,13 @@
 
       <!-- Mobile Price (shown only on mobile) -->
       {% comment %} {%- if section.settings.show_mobile_price -%}
-                                                                                                                                                                                                                                                                                          <div class="product-price-container_new mobile-only_new">
-                                                                                                                                                                                                                                                                                            <p class="product-price_new black">{{ product.selected_or_first_available_variant.price | money }}</p>
-                                                                                                                                                                                                                                                                                            {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
-                                                                                                                                                                                                                                                                                              <p class="product-price-original_new">{{ product.selected_or_first_available_variant.compare_at_price | money }}</p>
-                                                                                                                                                                                                                                                                                            {%- endif -%}
-                                                                                                                                                                                                                                                                                          </div>
-                                                                                                                                                                                                                    {%- endif -%} {% endcomment %}
+                                                                                                                                                                                                                                                                                                  <div class="product-price-container_new mobile-only_new">
+                                                                                                                                                                                                                                                                                                    <p class="product-price_new black">{{ product.selected_or_first_available_variant.price | money }}</p>
+                                                                                                                                                                                                                                                                                                    {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
+                                                                                                                                                                                                                                                                                                      <p class="product-price-original_new">{{ product.selected_or_first_available_variant.compare_at_price | money }}</p>
+                                                                                                                                                                                                                                                                                                    {%- endif -%}
+                                                                                                                                                                                                                                                                                                  </div>
+                                                                                                                                                                                                                          {%- endif -%} {% endcomment %}
 
 
       </div>
@@ -991,6 +991,83 @@
       btn.style.opacity = '0.7';
       btn.dataset.processing = 'true';
       
+      // ====================================================================
+      // CAPTURE DISCOUNT INFORMATION FROM PDP BEFORE ADDING TO CART
+      // ====================================================================
+      let discountInfo = null;
+      
+      // Try to find price elements on the page using ALL possible selectors
+      const oldPriceElement = document.querySelector(
+        '.product-price-original_new, .product-info__price--compare, .compare-price, .old-price, [data-compare-price]'
+      );
+      const currentPriceElement = document.querySelector(
+        '.product-price_new, .product-info__price--current, .price, .current-price, [data-price]'
+      );
+      
+      console.log("[product-main-section.liquid] Looking for price elements:", {
+        oldPriceElement: !!oldPriceElement,
+        oldPriceText: oldPriceElement?.textContent,
+        currentPriceElement: !!currentPriceElement,
+        currentPriceText: currentPriceElement?.textContent,
+      });
+      
+      if (oldPriceElement && currentPriceElement) {
+        const oldPriceText = oldPriceElement.textContent.trim().replace(/[^0-9.]/g, "");
+        const currentPriceText = currentPriceElement.textContent.trim().replace(/[^0-9.]/g, "");
+        
+        if (oldPriceText && currentPriceText) {
+          const oldPrice = parseFloat(oldPriceText) * 100; // Convert to cents
+          const currentPrice = parseFloat(currentPriceText) * 100; // Convert to cents
+          
+          console.log("[product-main-section.liquid] Extracted prices:", {
+            oldPrice,
+            currentPrice,
+            difference: oldPrice - currentPrice,
+          });
+          
+          if (oldPrice > currentPrice) {
+            discountInfo = {
+              originalPrice: oldPrice,
+              currentPrice: currentPrice,
+              savings: oldPrice - currentPrice,
+              percentage: Math.round(((oldPrice - currentPrice) / oldPrice) * 100),
+            };
+            
+            console.log("[product-main-section.liquid] ✅ Captured discount info:", discountInfo);
+          }
+        }
+      } else {
+        console.log("[product-main-section.liquid] ⚠️ Could not find price elements on page");
+      }
+      
+      // If no discount found from page HTML, try to fetch variant data from Shopify API
+      if (!discountInfo) {
+        console.log("[product-main-section.liquid] Trying to fetch variant data from Shopify API for variant:", variantId);
+        try {
+          const variantResponse = await fetch(`/variants/${variantId}.js`);
+          if (variantResponse.ok) {
+            const variantData = await variantResponse.json();
+            console.log("[product-main-section.liquid] Variant data from Shopify:", {
+              price: variantData.price,
+              compare_at_price: variantData.compare_at_price,
+            });
+            
+            if (variantData.compare_at_price && variantData.compare_at_price > variantData.price) {
+              discountInfo = {
+                originalPrice: variantData.compare_at_price,
+                currentPrice: variantData.price,
+                savings: variantData.compare_at_price - variantData.price,
+                percentage: Math.round(((variantData.compare_at_price - variantData.price) / variantData.compare_at_price) * 100),
+              };
+              console.log("[product-main-section.liquid] ✅ Captured discount from Shopify API:", discountInfo);
+            }
+          }
+        } catch (apiError) {
+          console.log("[product-main-section.liquid] Could not fetch variant data from API:", apiError);
+        }
+      }
+      // ====================================================================
+      
       try {
         const response = await fetch('/cart/add.js', {
           method: 'POST',
@@ -1007,6 +1084,25 @@
         
         const data = await response.json();
         
+        // ====================================================================
+        // STORE DISCOUNT INFO FOR THIS VARIANT
+        // ====================================================================
+        if (discountInfo && data.items && data.items.length > 0) {
+          if (!window.cartDiscountData) {
+            window.cartDiscountData = new Map();
+          }
+          
+          // Get the variant ID from the response (first item)
+          const addedItem = data.items[0];
+          const addedVariantId = addedItem.variant_id || addedItem.id;
+          
+          window.cartDiscountData.set(addedVariantId.toString(), discountInfo);
+          console.log("[product-main-section.liquid] ✅ Stored discount data for variant:", addedVariantId, discountInfo);
+        } else {
+          console.log("[product-main-section.liquid] ⚠️ No discount info to store or no items in response");
+        }
+        // ====================================================================
+        
         // Update cart counter
         const cartData = await fetch('/cart.js').then(res => res.json());
         const cartCountElement = document.querySelector('.header__cart-count');
@@ -1018,7 +1114,20 @@
         if (window.cartDrawer) {
           await window.cartDrawer.loadCartData();
           window.cartDrawer.updateCartCount();
-          window.cartDrawer.updateRecommendedSection();
+          await window.cartDrawer.updateRecommendedSection();
+          
+          // Force multiple reloads to ensure discount is detected (same as cart-drawer.js)
+          setTimeout(async () => {
+            console.log("[product-main-section.liquid] Second reload at 300ms...");
+            await window.cartDrawer.loadCartData();
+            await window.cartDrawer.updateRecommendedSection();
+          }, 300);
+          
+          setTimeout(async () => {
+            console.log("[product-main-section.liquid] Third reload at 600ms...");
+            await window.cartDrawer.loadCartData();
+            await window.cartDrawer.updateRecommendedSection();
+          }, 600);
         } else if (window.updateCartCount) {
           window.updateCartCount();
         }

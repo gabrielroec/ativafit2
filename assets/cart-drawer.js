@@ -111,19 +111,34 @@ class CartDrawer {
       }
     });
 
-    // Product card form submissions - Only handle if not already handled by product-card-custom.liquid
+    // Product card form submissions - Only handle if not already handled by product-card-custom.liquid or main-product.liquid
     document.addEventListener("submit", (e) => {
-      if (e.target.matches(".product-card form") || e.target.closest(".product-card form")) {
-        console.log("Cart-drawer intercepted form submission");
+      // Check if it's a product card form OR any form with action="/cart/add"
+      const isProductCardForm = e.target.matches(".product-card form") || e.target.closest(".product-card form");
+      const isCartAddForm = e.target.action && e.target.action.includes("/cart/add");
 
-        // Check if this form is already being handled by product-card-custom.liquid
-        if (e.target.dataset.handledByProductCard === "true" || e.target.dataset.processing === "true") {
-          console.log("Form already handled by product-card-custom.liquid, skipping cart-drawer processing");
-          return; // Let product-card-custom.liquid handle it
+      if (isProductCardForm || isCartAddForm) {
+        console.log("Cart-drawer intercepted form submission:", e.target.className);
+
+        // Check if this form is already being handled by other scripts
+        if (
+          e.target.dataset.handledByProductCard === "true" ||
+          e.target.dataset.processing === "true" ||
+          e.target.dataset.customHandler === "true"
+        ) {
+          console.log("Form already handled by another script, skipping cart-drawer processing");
+          return; // Let other scripts handle it
+        }
+
+        // Skip if the form has a button with data-action="add-to-cart" (handled by main-product.liquid)
+        const hasCustomActionButton = e.target.querySelector('button[data-action="add-to-cart"]');
+        if (hasCustomActionButton) {
+          console.log("Form has custom action button, skipping cart-drawer processing");
+          return;
         }
 
         console.log("Processing form with cart-drawer");
-        // Only handle forms that don't have the custom handling
+        // Only handle forms that don't have custom handling
         e.preventDefault();
         this.addToCart(e.target);
       }
@@ -146,75 +161,48 @@ class CartDrawer {
 
     const formData = new FormData(form);
 
-    // Capture discount data from the product card HTML
-    // Check both regular product cards and recommended product cards
+    // Capture discount data from the HTML (works for ALL forms)
+    // Check multiple sources: product card, recommended card, PDP, etc.
     const productCard = form.closest(".product-card");
     const recommendedCard = form.closest(".cart-drawer-product-card");
     let discountInfo = null;
 
-    // Try to get discount from regular product card first
-    if (productCard) {
-      // Look for old price (crossed out) - this is the key indicator
-      const oldPriceElement = productCard.querySelector(".old-price");
-      const currentPriceElement = productCard.querySelector(".current-price");
-      const discountBadge = productCard.querySelector(".discount-badge");
+    // Try to find price elements - use multiple selectors to cover all cases
+    // Priority: closest container first, then document-wide
+    const container = productCard || recommendedCard || document;
 
-      // Only need old price and current price to detect discount (badge is optional)
-      if (oldPriceElement && currentPriceElement) {
-        // Extract prices from text content
-        const oldPriceText = oldPriceElement.textContent.trim().replace(/[^0-9.]/g, "");
-        const currentPriceText = currentPriceElement.textContent.trim().replace(/[^0-9.]/g, "");
+    const oldPriceElement = container.querySelector(".old-price, .compare-price, .product-info__price--compare, [data-compare-price]");
+    const currentPriceElement = container.querySelector(".current-price, .price, .product-info__price--current, [data-price]");
+    const discountBadge = container.querySelector(".discount-badge");
 
-        if (oldPriceText && currentPriceText) {
-          const oldPrice = parseFloat(oldPriceText) * 100; // Convert to cents
-          const currentPrice = parseFloat(currentPriceText) * 100; // Convert to cents
+    // Only need old price and current price to detect discount (badge is optional)
+    if (oldPriceElement && currentPriceElement) {
+      // Extract prices from text content
+      const oldPriceText = oldPriceElement.textContent.trim().replace(/[^0-9.]/g, "");
+      const currentPriceText = currentPriceElement.textContent.trim().replace(/[^0-9.]/g, "");
 
-          if (oldPrice > currentPrice) {
-            // Extract percentage from badge if available (optional)
-            let discountPercentage = 0;
-            if (discountBadge) {
-              const badgeText = discountBadge.textContent.trim();
-              const percentageMatch = badgeText.match(/(\d+)%/);
-              discountPercentage = percentageMatch ? parseInt(percentageMatch[1]) : 0;
-            }
+      if (oldPriceText && currentPriceText) {
+        const oldPrice = parseFloat(oldPriceText) * 100; // Convert to cents
+        const currentPrice = parseFloat(currentPriceText) * 100; // Convert to cents
 
-            discountInfo = {
-              originalPrice: oldPrice,
-              currentPrice: currentPrice,
-              savings: oldPrice - currentPrice,
-              percentage: discountPercentage,
-            };
-
-            console.log("Cart-drawer: Captured discount info from product card:", discountInfo);
+        if (oldPrice > currentPrice) {
+          // Extract percentage from badge if available (optional)
+          let discountPercentage = 0;
+          if (discountBadge) {
+            const badgeText = discountBadge.textContent.trim();
+            const percentageMatch = badgeText.match(/(\d+)%/);
+            discountPercentage = percentageMatch ? parseInt(percentageMatch[1]) : 0;
           }
-        }
-      }
-    }
 
-    // If not found in regular product card, try recommended product card
-    if (!discountInfo && recommendedCard) {
-      const oldPriceElement = recommendedCard.querySelector(".old-price");
-      const currentPriceElement = recommendedCard.querySelector(".current-price");
+          discountInfo = {
+            originalPrice: oldPrice,
+            currentPrice: currentPrice,
+            savings: oldPrice - currentPrice,
+            percentage: discountPercentage,
+          };
 
-      if (oldPriceElement && currentPriceElement) {
-        // Extract prices from text content
-        const oldPriceText = oldPriceElement.textContent.trim().replace(/[^0-9.]/g, "");
-        const currentPriceText = currentPriceElement.textContent.trim().replace(/[^0-9.]/g, "");
-
-        if (oldPriceText && currentPriceText) {
-          const oldPrice = parseFloat(oldPriceText) * 100; // Convert to cents
-          const currentPrice = parseFloat(currentPriceText) * 100; // Convert to cents
-
-          if (oldPrice > currentPrice) {
-            discountInfo = {
-              originalPrice: oldPrice,
-              currentPrice: currentPrice,
-              savings: oldPrice - currentPrice,
-              percentage: 0,
-            };
-
-            console.log("Cart-drawer: Captured discount info from recommended product card:", discountInfo);
-          }
+          const source = productCard ? "product card" : recommendedCard ? "recommended card" : "PDP or other";
+          console.log(`[Cart-drawer] Captured discount info from ${source}:`, discountInfo);
         }
       }
     }
@@ -1033,12 +1021,34 @@ class CartDrawer {
     const newRecommendedHtml = await this.renderRecommendedProducts();
 
     if (recommendedSection) {
-      if (newRecommendedHtml) {
-        // Update existing section
-        recommendedSection.outerHTML = newRecommendedHtml;
+      // Check if element still has a parent before modifying
+      if (!recommendedSection.parentNode) {
+        console.warn("[updateRecommendedSection] Element has no parent, will create new section");
+        // Element was removed, add as new section
+        if (newRecommendedHtml) {
+          const footer = content.querySelector(".cart-drawer-footer");
+          if (footer) {
+            footer.insertAdjacentHTML("beforebegin", newRecommendedHtml);
+          }
+        }
       } else {
-        // Remove section if no products available
-        recommendedSection.remove();
+        if (newRecommendedHtml) {
+          // Update existing section safely
+          try {
+            recommendedSection.outerHTML = newRecommendedHtml;
+          } catch (error) {
+            console.warn("[updateRecommendedSection] Error updating outerHTML:", error);
+            // Fallback: remove and re-add
+            recommendedSection.remove();
+            const footer = content.querySelector(".cart-drawer-footer");
+            if (footer) {
+              footer.insertAdjacentHTML("beforebegin", newRecommendedHtml);
+            }
+          }
+        } else {
+          // Remove section if no products available
+          recommendedSection.remove();
+        }
       }
     } else if (newRecommendedHtml) {
       // Add section if it doesn't exist but products are available
