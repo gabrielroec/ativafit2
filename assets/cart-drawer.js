@@ -1115,45 +1115,28 @@ class CartDrawer {
     const content = this.drawer.querySelector(".cart-drawer-content");
     if (!content) return;
 
-    const recommendedSection = content.querySelector(".cart-drawer-recommended");
+    // CRITICAL FIX: Remove ALL duplicate recommended sections first
+    const allRecommendedSections = content.querySelectorAll(".cart-drawer-recommended");
+    console.log(`[updateRecommendedSection] Found ${allRecommendedSections.length} recommended section(s), removing all duplicates...`);
+
+    allRecommendedSections.forEach((section, index) => {
+      if (section.parentNode) {
+        section.remove();
+        console.log(`[updateRecommendedSection] Removed duplicate section ${index + 1}`);
+      }
+    });
+
     const newRecommendedHtml = await this.renderRecommendedProducts();
 
-    if (recommendedSection) {
-      // Check if element still has a parent before modifying
-      if (!recommendedSection.parentNode) {
-        console.warn("[updateRecommendedSection] Element has no parent, will create new section");
-        // Element was removed, add as new section
-        if (newRecommendedHtml) {
-          const footer = content.querySelector(".cart-drawer-footer");
-          if (footer) {
-            footer.insertAdjacentHTML("beforebegin", newRecommendedHtml);
-          }
-        }
-      } else {
-        if (newRecommendedHtml) {
-          // Update existing section safely
-          try {
-            recommendedSection.outerHTML = newRecommendedHtml;
-          } catch (error) {
-            console.warn("[updateRecommendedSection] Error updating outerHTML:", error);
-            // Fallback: remove and re-add
-            recommendedSection.remove();
-            const footer = content.querySelector(".cart-drawer-footer");
-            if (footer) {
-              footer.insertAdjacentHTML("beforebegin", newRecommendedHtml);
-            }
-          }
-        } else {
-          // Remove section if no products available
-          recommendedSection.remove();
-        }
-      }
-    } else if (newRecommendedHtml) {
-      // Add section if it doesn't exist but products are available
+    // Now add only ONE section if we have products
+    if (newRecommendedHtml) {
       const footer = content.querySelector(".cart-drawer-footer");
       if (footer) {
         footer.insertAdjacentHTML("beforebegin", newRecommendedHtml);
+        console.log("[updateRecommendedSection] Added new recommended section");
       }
+    } else {
+      console.log("[updateRecommendedSection] No recommended products to show");
     }
 
     // Re-bind events for new recommended products
