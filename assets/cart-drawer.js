@@ -397,6 +397,17 @@ class CartDrawer {
   async renderCart() {
     const content = this.drawer.querySelector(".cart-drawer-content");
 
+    // PRESERVE NOTIFICATION: Save existing notification before clearing content
+    const existingNotification = content?.querySelector(".cart-drawer-internal-notification");
+    let notificationToRestore = null;
+    if (existingNotification) {
+      // Clone the notification to restore it later
+      notificationToRestore = existingNotification.cloneNode(true);
+      // Store the timestamp to know when it was created
+      const createdAt = existingNotification.dataset.createdAt || Date.now();
+      notificationToRestore.dataset.createdAt = createdAt;
+    }
+
     if (!this.cartData || this.cartData.item_count === 0) {
       const recommendedHtml = await this.renderRecommendedProducts();
       content.innerHTML = `
@@ -411,6 +422,50 @@ class CartDrawer {
         </div>
         ${recommendedHtml}
       `;
+
+      // Restore notification if it exists and is still within 3 seconds
+      if (notificationToRestore) {
+        const timeElapsed = Date.now() - parseInt(notificationToRestore.dataset.createdAt);
+        if (timeElapsed < 3000) {
+          const newContent = this.drawer.querySelector(".cart-drawer-content");
+          if (newContent) {
+            newContent.insertBefore(notificationToRestore, newContent.firstChild);
+            // Re-bind close button event
+            const closeButton = notificationToRestore.querySelector(".cart-drawer-internal-notification__close");
+            if (closeButton) {
+              closeButton.addEventListener("click", () => {
+                notificationToRestore.classList.add("cart-drawer-internal-notification--hide");
+                setTimeout(() => notificationToRestore.remove(), 300);
+              });
+              // Re-bind hover events
+              closeButton.addEventListener("mouseenter", () => {
+                closeButton.style.color = "#d1d5db";
+                closeButton.style.background = "#374151";
+              });
+              closeButton.addEventListener("mouseleave", () => {
+                closeButton.style.color = "#9ca3af";
+                closeButton.style.background = "none";
+              });
+            }
+            // Re-schedule auto-hide based on remaining time
+            // Always re-schedule because the original timeout is lost when element is removed
+            const remainingTime = 3000 - timeElapsed;
+            if (remainingTime > 0) {
+              notificationToRestore.dataset.autoHideScheduled = "true";
+              setTimeout(() => {
+                if (notificationToRestore.parentNode) {
+                  notificationToRestore.classList.add("cart-drawer-internal-notification--hide");
+                  setTimeout(() => notificationToRestore.remove(), 300);
+                }
+              }, remainingTime);
+            } else {
+              // Time has already passed, remove immediately
+              notificationToRestore.remove();
+            }
+          }
+        }
+      }
+
       this.bindCartEvents();
       return;
     }
@@ -463,6 +518,44 @@ class CartDrawer {
         </div>
       </div>
     `;
+
+    // Restore notification if it exists and is still within 3 seconds
+    if (notificationToRestore) {
+      const timeElapsed = Date.now() - parseInt(notificationToRestore.dataset.createdAt);
+      if (timeElapsed < 3000) {
+        const newContent = this.drawer.querySelector(".cart-drawer-content");
+        if (newContent) {
+          newContent.insertBefore(notificationToRestore, newContent.firstChild);
+          // Re-bind close button event
+          const closeButton = notificationToRestore.querySelector(".cart-drawer-internal-notification__close");
+          if (closeButton) {
+            closeButton.addEventListener("click", () => {
+              notificationToRestore.classList.add("cart-drawer-internal-notification--hide");
+              setTimeout(() => notificationToRestore.remove(), 300);
+            });
+            // Re-bind hover events
+            closeButton.addEventListener("mouseenter", () => {
+              closeButton.style.color = "#d1d5db";
+              closeButton.style.background = "#374151";
+            });
+            closeButton.addEventListener("mouseleave", () => {
+              closeButton.style.color = "#9ca3af";
+              closeButton.style.background = "none";
+            });
+          }
+          // Re-schedule auto-hide based on remaining time
+          const remainingTime = 3000 - timeElapsed;
+          if (remainingTime > 0) {
+            setTimeout(() => {
+              if (notificationToRestore.parentNode) {
+                notificationToRestore.classList.add("cart-drawer-internal-notification--hide");
+                setTimeout(() => notificationToRestore.remove(), 300);
+              }
+            }, remainingTime);
+          }
+        }
+      }
+    }
 
     this.bindCartEvents();
   }
@@ -1088,8 +1181,9 @@ class CartDrawer {
       if (response.ok) {
         await this.loadCartData();
         this.updateCartCount();
-        // Update recommended products section
-        await this.updateRecommendedSection();
+        // NOTE: Don't call updateRecommendedSection() here because renderCart()
+        // (called by loadCartData()) already renders recommended products.
+        // Calling it again would cause duplication.
       } else {
         console.error("Failed to remove item");
       }
@@ -1116,11 +1210,16 @@ class CartDrawer {
     if (!content) return;
 
     // CRITICAL FIX: Remove ALL duplicate recommended sections first
-    const allRecommendedSections = content.querySelectorAll(".cart-drawer-recommended");
-    console.log(`[updateRecommendedSection] Found ${allRecommendedSections.length} recommended section(s), removing all duplicates...`);
+    // Use querySelectorAll to find ALL sections, not just the first one
+    const allRecommendedSections = Array.from(content.querySelectorAll(".cart-drawer-recommended"));
 
+    if (allRecommendedSections.length > 1) {
+      console.warn(`[updateRecommendedSection] ⚠️ Found ${allRecommendedSections.length} duplicate sections! Removing all...`);
+    }
+
+    // Remove ALL existing sections to prevent duplication
     allRecommendedSections.forEach((section, index) => {
-      if (section.parentNode) {
+      if (section && section.parentNode) {
         section.remove();
         console.log(`[updateRecommendedSection] Removed duplicate section ${index + 1}`);
       }
@@ -1132,8 +1231,27 @@ class CartDrawer {
     if (newRecommendedHtml) {
       const footer = content.querySelector(".cart-drawer-footer");
       if (footer) {
+        // Final check: ensure no section exists before adding (double-check)
+        const existingBeforeAdd = content.querySelector(".cart-drawer-recommended");
+        if (existingBeforeAdd) {
+          console.warn("[updateRecommendedSection] ⚠️ Found section before adding, removing it...");
+          existingBeforeAdd.remove();
+        }
+
         footer.insertAdjacentHTML("beforebegin", newRecommendedHtml);
-        console.log("[updateRecommendedSection] Added new recommended section");
+        console.log("[updateRecommendedSection] ✅ Added recommended section");
+
+        // Final verification: should have exactly one section now
+        const finalSections = content.querySelectorAll(".cart-drawer-recommended");
+        if (finalSections.length > 1) {
+          console.error(`[updateRecommendedSection] ❌ ERROR: Have ${finalSections.length} sections after adding! Removing duplicates...`);
+          // Keep only the first one, remove the rest
+          for (let i = 1; i < finalSections.length; i++) {
+            if (finalSections[i].parentNode) {
+              finalSections[i].remove();
+            }
+          }
+        }
       }
     } else {
       console.log("[updateRecommendedSection] No recommended products to show");
@@ -1190,6 +1308,11 @@ class CartDrawer {
     // Create notification element
     const notification = document.createElement("div");
     notification.className = `cart-drawer-internal-notification ${type}`;
+
+    // Store creation timestamp to preserve notification across reloads
+    const createdAt = Date.now();
+    notification.dataset.createdAt = createdAt.toString();
+    notification.dataset.autoHideScheduled = "false";
 
     // Add inline styles identical to external notification (dark mode)
     notification.style.cssText = `
@@ -1268,7 +1391,8 @@ class CartDrawer {
       closeButton.style.background = "none";
     });
 
-    // Auto-hide after 3 seconds
+    // Auto-hide after 3 seconds (mark as scheduled)
+    notification.dataset.autoHideScheduled = "true";
     setTimeout(() => {
       if (notification.parentNode) {
         notification.classList.add("cart-drawer-internal-notification--hide");
