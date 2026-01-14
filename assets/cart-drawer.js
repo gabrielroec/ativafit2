@@ -254,23 +254,29 @@ class CartDrawer {
         // Update recommended products section
         await this.updateRecommendedSection();
 
-        // Force a second cart reload after a short delay to ensure compare_at_price is available
-        // This is especially important for recommended products
+        // Force multiple cart reloads to ensure compare_at_price is detected
+        // This is especially important for recommended products and discount detection
         setTimeout(async () => {
+          console.log("[addToCart] Second reload at 300ms...");
           await this.loadCartData();
           await this.updateRecommendedSection();
-          console.log("[addToCart] Cart reloaded again to ensure compare_at_price is detected");
-
-          // Show internal notification AFTER all reloads are complete
-          // This ensures the notification stays visible and doesn't get removed by cart reloads
-          setTimeout(() => {
-            const productTitle = result.product_title || "Product";
-            this.showInternalNotification(
-              'Join <a href="https://www.ativafit.com/pages/ativapeople-rewards-program" target="_blank" style="color: #eb701f; text-decoration: underline; font-weight: bold;">AtivaPeople</a> & get 10% off your first order.',
-              "success"
-            );
-          }, 100);
         }, 300);
+
+        setTimeout(async () => {
+          console.log("[addToCart] Third reload at 600ms...");
+          await this.loadCartData();
+          await this.updateRecommendedSection();
+        }, 600);
+
+        // Show internal notification AFTER all reloads are complete
+        // This ensures the notification stays visible and doesn't get removed by cart reloads
+        setTimeout(() => {
+          const productTitle = result.product_title || "Product";
+          this.showInternalNotification(
+            'Join <a href="https://www.ativafit.com/pages/ativapeople-rewards-program" target="_blank" style="color: #eb701f; text-decoration: underline; font-weight: bold;">AtivaPeople</a> & get 10% off your first order.',
+            "success"
+          );
+        }, 700);
       } else {
         const error = await response.json();
         console.error("Error adding product:", error.message || "Error adding product");
@@ -395,40 +401,49 @@ class CartDrawer {
       line_price: item.line_price,
       quantity: item.quantity,
       total_discount: item.total_discount,
+      discounts: item.discounts,
+      line_level_discount_allocations: item.line_level_discount_allocations,
     });
 
     // PRIORITY 1: Check compare_at_price directly from Shopify cart item (HIGHEST PRIORITY - Real-time)
     // This is the native Shopify field for original/comparison price
-    if (item.compare_at_price && item.price && item.compare_at_price > item.price) {
-      const perUnitSavings = item.compare_at_price - item.price;
-      const totalSavings = perUnitSavings * item.quantity;
-      const originalLinePrice = item.compare_at_price * item.quantity;
+    // IMPORTANT: compare_at_price is in CENTS, not dollars
+    if (item.compare_at_price && item.compare_at_price !== null && item.compare_at_price > 0) {
+      const comparePrice = Number(item.compare_at_price);
+      const currentPrice = Number(item.price);
 
-      console.log("[findDiscountData] ✅ Found discount via compare_at_price (REAL-TIME):", {
-        variant: variantIdStr,
-        product: item.product_title,
-        compare_at_price: item.compare_at_price,
-        price: item.price,
-        quantity: item.quantity,
-        perUnitSavings: perUnitSavings,
-        totalSavings: totalSavings,
-        originalLinePrice: originalLinePrice,
-        finalLinePrice: item.final_line_price,
+      console.log("[findDiscountData] 🔍 compare_at_price check:", {
+        compare_at_price: comparePrice,
+        price: currentPrice,
+        difference: comparePrice - currentPrice,
+        isGreater: comparePrice > currentPrice,
       });
 
-      return {
-        hasDiscount: true,
-        originalPrice: originalLinePrice,
-        currentPrice: item.final_line_price,
-        savings: totalSavings,
-        method: "compare_at_price_realtime",
-      };
-    } else if (item.compare_at_price) {
-      console.log("[findDiscountData] ⚠️ compare_at_price exists but condition not met:", {
-        compare_at_price: item.compare_at_price,
-        price: item.price,
-        isGreater: item.compare_at_price > item.price,
-      });
+      if (comparePrice > currentPrice && currentPrice > 0) {
+        const perUnitSavings = comparePrice - currentPrice;
+        const totalSavings = perUnitSavings * item.quantity;
+        const originalLinePrice = comparePrice * item.quantity;
+
+        console.log("[findDiscountData] ✅ Found discount via compare_at_price (REAL-TIME):", {
+          variant: variantIdStr,
+          product: item.product_title,
+          compare_at_price: comparePrice,
+          price: currentPrice,
+          quantity: item.quantity,
+          perUnitSavings: perUnitSavings,
+          totalSavings: totalSavings,
+          originalLinePrice: originalLinePrice,
+          finalLinePrice: item.final_line_price,
+        });
+
+        return {
+          hasDiscount: true,
+          originalPrice: originalLinePrice,
+          currentPrice: item.final_line_price,
+          savings: totalSavings,
+          method: "compare_at_price_realtime",
+        };
+      }
     }
 
     // PRIORITY 2: Try to get stored discount data from when product was added
@@ -467,27 +482,41 @@ class CartDrawer {
     }
 
     // Check original_price vs price (per unit) - ALWAYS check this
-    if (item.original_price && item.price && item.original_price > item.price) {
-      const savings = (item.original_price - item.price) * item.quantity;
-      console.log("Found discount via original_price:", {
-        original: item.original_price,
-        current: item.price,
-        savings: savings,
+    // IMPORTANT: original_price is also in CENTS
+    if (item.original_price && item.original_price !== null && item.original_price > 0) {
+      const originalPrice = Number(item.original_price);
+      const currentPrice = Number(item.price);
+
+      console.log("[findDiscountData] 🔍 original_price check:", {
+        original_price: originalPrice,
+        price: currentPrice,
+        difference: originalPrice - currentPrice,
+        isGreater: originalPrice > currentPrice,
       });
-      return {
-        hasDiscount: true,
-        originalPrice: item.original_price * item.quantity,
-        currentPrice: item.final_line_price,
-        savings: savings,
-        method: "original_price",
-      };
+
+      if (originalPrice > currentPrice && currentPrice > 0) {
+        const savings = (originalPrice - currentPrice) * item.quantity;
+        console.log("[findDiscountData] ✅ Found discount via original_price:", {
+          original: originalPrice,
+          current: currentPrice,
+          quantity: item.quantity,
+          savings: savings,
+        });
+        return {
+          hasDiscount: true,
+          originalPrice: originalPrice * item.quantity,
+          currentPrice: item.final_line_price,
+          savings: savings,
+          method: "original_price",
+        };
+      }
     }
 
     // Check compare_at_price in properties if available (custom property)
     if (item.properties && item.properties._compare_at_price) {
       const compareAtPrice = parseFloat(item.properties._compare_at_price) * 100;
       if (compareAtPrice > item.final_line_price) {
-        console.log("Found discount via compare_at_price property");
+        console.log("[findDiscountData] ✅ Found discount via compare_at_price property");
         return {
           hasDiscount: true,
           originalPrice: compareAtPrice * item.quantity,
@@ -498,8 +527,62 @@ class CartDrawer {
       }
     }
 
+    // PRIORITY 4: Check line_price vs final_line_price (SAFETY NET)
+    // If there's a difference, it means a discount was applied
+    if (item.line_price && item.final_line_price && item.line_price > item.final_line_price) {
+      const savings = item.line_price - item.final_line_price;
+      console.log("[findDiscountData] ✅ Found discount via line_price difference:", {
+        line_price: item.line_price,
+        final_line_price: item.final_line_price,
+        savings: savings,
+      });
+      return {
+        hasDiscount: true,
+        originalPrice: item.line_price,
+        currentPrice: item.final_line_price,
+        savings: savings,
+        method: "line_price_difference",
+      };
+    }
+
+    // PRIORITY 5: Check discounts array or line_level_discount_allocations
+    if (
+      (item.discounts && item.discounts.length > 0) ||
+      (item.line_level_discount_allocations && item.line_level_discount_allocations.length > 0)
+    ) {
+      let totalDiscountAmount = 0;
+
+      // Sum up all discounts
+      if (item.discounts) {
+        item.discounts.forEach((discount) => {
+          totalDiscountAmount += discount.amount || 0;
+        });
+      }
+
+      if (item.line_level_discount_allocations) {
+        item.line_level_discount_allocations.forEach((allocation) => {
+          totalDiscountAmount += allocation.amount || 0;
+        });
+      }
+
+      if (totalDiscountAmount > 0) {
+        const originalPrice = item.final_line_price + totalDiscountAmount;
+        console.log("[findDiscountData] ✅ Found discount via discounts array:", {
+          totalDiscountAmount: totalDiscountAmount,
+          originalPrice: originalPrice,
+        });
+        return {
+          hasDiscount: true,
+          originalPrice: originalPrice,
+          currentPrice: item.final_line_price,
+          savings: totalDiscountAmount,
+          method: "discounts_array",
+        };
+      }
+    }
+
     // If no discount found, return no discount
-    console.log("No discount found for item:", item.product_title, "variant:", variantIdStr);
+    console.log("[findDiscountData] ❌ No discount found for item:", item.product_title, "variant:", variantIdStr);
     return {
       hasDiscount: false,
       originalPrice: 0,
