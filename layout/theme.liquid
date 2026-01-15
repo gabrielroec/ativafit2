@@ -698,6 +698,119 @@
       })();
     </script>
 
+    {%- comment -%} Bundle Builder Selector Fix Script {%- endcomment -%}
+    <script>
+      /**
+       * Bundle Builder Selector Fix
+       * Corrige silenciosamente o erro de seletor inválido do app de bundle
+       * O app tenta usar seletores com IDs temporários do jQuery (#sizzle...) que não são válidos
+       */
+      (function() {
+        'use strict';
+        
+        // Intercepta querySelectorAll para corrigir seletores inválidos
+        const originalQuerySelectorAll = Element.prototype.querySelectorAll;
+        
+        Element.prototype.querySelectorAll = function(selector) {
+          try {
+            // Verifica se o seletor contém um ID inválido do jQuery (sizzle)
+            if (selector && typeof selector === 'string' && selector.includes('#sizzle')) {
+              // Remove a parte inválida do seletor (#sizzle...)
+              // O seletor provavelmente é algo como: #sizzle1768514291639 select.bndlr-select-variant...
+              // Vamos extrair apenas a parte válida após o ID inválido
+              const parts = selector.split(/\s+/);
+              const validParts = parts.filter(part => !part.startsWith('#sizzle'));
+              
+              if (validParts.length > 0) {
+                const correctedSelector = validParts.join(' ');
+                
+                // Tenta usar o seletor corrigido
+                try {
+                  return originalQuerySelectorAll.call(this, correctedSelector);
+                } catch (e) {
+                  // Se ainda falhar, tenta encontrar o elemento de outra forma
+                  // Procura diretamente pelo select dentro do contexto atual
+                  if (correctedSelector.includes('select.bndlr-select-variant')) {
+                    const selects = originalQuerySelectorAll.call(this, 'select.bndlr-select-variant[name="variant_id"]');
+                    if (selects.length > 0) {
+                      // Se o seletor original incluía :selected, filtra apenas os selecionados
+                      if (selector.includes(':selected') || selector.includes('option:selected')) {
+                        const selectedOptions = [];
+                        selects.forEach(select => {
+                          const selectedOption = select.querySelector('option:checked, option[selected]');
+                          if (selectedOption) {
+                            selectedOptions.push(selectedOption);
+                          }
+                        });
+                        // Cria um NodeList válido usando um fragmento temporário
+                        if (selectedOptions.length > 0) {
+                          const fragment = document.createDocumentFragment();
+                          selectedOptions.forEach(opt => {
+                            const clone = opt.cloneNode(true);
+                            fragment.appendChild(clone);
+                          });
+                          return fragment.querySelectorAll('option');
+                        }
+                        return document.createDocumentFragment().querySelectorAll('*');
+                      }
+                      return selects;
+                    }
+                  }
+                  
+                  // Para outros seletores, tenta encontrar elementos relacionados
+                  if (correctedSelector.includes('.bndlr-add-to-bundle-container')) {
+                    return originalQuerySelectorAll.call(this, '.bndlr-add-to-bundle-container .quantity-input');
+                  }
+                  
+                  // Fallback: retorna NodeList vazio
+                  return document.createDocumentFragment().querySelectorAll('*');
+                }
+              }
+            }
+            
+            // Se o seletor é válido, usa o método original
+            return originalQuerySelectorAll.call(this, selector);
+            
+          } catch (error) {
+            // Se houver erro, tenta usar o método original silenciosamente
+            try {
+              return originalQuerySelectorAll.call(this, selector);
+            } catch (e) {
+              // Se ainda falhar, retorna NodeList vazio
+              return document.createDocumentFragment().querySelectorAll('*');
+            }
+          }
+        };
+        
+        // Também intercepta querySelector para consistência
+        const originalQuerySelector = Element.prototype.querySelector;
+        
+        Element.prototype.querySelector = function(selector) {
+          try {
+            if (selector && typeof selector === 'string' && selector.includes('#sizzle')) {
+              const parts = selector.split(/\s+/);
+              const validParts = parts.filter(part => !part.startsWith('#sizzle'));
+              
+              if (validParts.length > 0) {
+                const correctedSelector = validParts.join(' ');
+                return originalQuerySelector.call(this, correctedSelector);
+              }
+            }
+            
+            return originalQuerySelector.call(this, selector);
+            
+          } catch (error) {
+            try {
+              return originalQuerySelector.call(this, selector);
+            } catch (e) {
+              return null;
+            }
+          }
+        };
+        
+      })();
+    </script>
+
     {%- comment -%} Ativafit Brand Name Corrector Script {%- endcomment -%}
     <script>
       /**
