@@ -811,6 +811,142 @@
       })();
     </script>
 
+    {%- comment -%} OneClickUpsell Button Fix Script {%- endcomment -%}
+    <script>
+      /**
+       * OneClickUpsell Button Fix
+       * Corrige o comportamento dos botões do OneClickUpsell
+       * - Botão "Decline" deve apenas fechar o modal, não redirecionar
+       * - Botão "Close" (X) deve apenas fechar o modal, não ir para checkout
+       */
+      (function() {
+        'use strict';
+        
+        // Usa WeakSet para rastrear botões já processados
+        const processedButtons = new WeakSet();
+        
+        function closeOCUModal(modal) {
+          if (!modal) return;
+          
+          // Remove o modal da visualização
+          modal.style.display = 'none';
+          modal.style.opacity = '0';
+          modal.style.pointerEvents = 'none';
+          
+          // Remove classes que bloqueiam scroll
+          document.body.classList.remove('v--modal-block-scroll');
+          document.body.style.overflow = '';
+          
+          // Remove o modal do DOM após um pequeno delay
+          setTimeout(() => {
+            if (modal.parentNode) {
+              modal.remove();
+            }
+            
+            // Remove qualquer overlay restante
+            const remainingOverlays = document.querySelectorAll('.v--modal-overlay.ocu-popup');
+            remainingOverlays.forEach(overlay => {
+              if (!overlay.contains(modal)) {
+                overlay.remove();
+              }
+            });
+          }, 200);
+        }
+        
+        function fixOneClickUpsellButtons() {
+          // Corrige o botão "Decline this offer" - APENAS este botão específico
+          const declineButtons = document.querySelectorAll('[data-testid="button-decline"].ocu-cta__decline');
+          declineButtons.forEach(button => {
+            // Verifica se já foi processado para evitar múltiplos listeners
+            if (processedButtons.has(button)) return;
+            
+            // Marca como processado
+            processedButtons.add(button);
+            
+            // Intercepta o clique no capture phase para pegar antes de qualquer outro handler
+            button.addEventListener('click', function(e) {
+              // IMPORTANTE: Verifica se não é o botão "Add to order"
+              if (e.target.closest('[data-testid="button-add"]')) {
+                return; // Deixa o botão Add funcionar normalmente
+              }
+              
+              e.preventDefault();
+              e.stopPropagation();
+              e.stopImmediatePropagation();
+              
+              // Fecha o modal
+              const modal = button.closest('.ocu-popup, .v--modal-overlay');
+              closeOCUModal(modal);
+              
+              return false;
+            }, true); // Capture phase - intercepta ANTES de outros handlers
+          });
+          
+          // Corrige o botão de fechar (X) - APENAS botão de fechar
+          const closeButtons = document.querySelectorAll('button.ocu-modal__close[aria-label="Close"]');
+          closeButtons.forEach(button => {
+            // Verifica se já foi processado
+            if (processedButtons.has(button)) return;
+            
+            // Verifica se realmente é o botão de fechar (não outro botão)
+            const isCloseButton = button.classList.contains('ocu-modal__close') && 
+                                 button.getAttribute('aria-label') === 'Close';
+            
+            if (!isCloseButton) return;
+            
+            // Marca como processado
+            processedButtons.add(button);
+            
+            // Intercepta o clique no capture phase
+            button.addEventListener('click', function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              e.stopImmediatePropagation();
+              
+              // Fecha o modal
+              const modal = button.closest('.ocu-popup, .v--modal-overlay');
+              closeOCUModal(modal);
+              
+              return false;
+            }, true); // Capture phase
+          });
+          
+        }
+        
+        // Executa imediatamente
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', fixOneClickUpsellButtons);
+        } else {
+          fixOneClickUpsellButtons();
+        }
+        
+        // Observa mudanças no DOM para modais carregados dinamicamente
+        const observer = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            mutation.addedNodes.forEach(function(node) {
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                // Verifica se um modal do OneClickUpsell foi adicionado
+                if (node.classList && (node.classList.contains('ocu-popup') || node.classList.contains('v--modal-overlay'))) {
+                  setTimeout(fixOneClickUpsellButtons, 100);
+                } else if (node.querySelector && node.querySelector('.ocu-popup, .v--modal-overlay')) {
+                  setTimeout(fixOneClickUpsellButtons, 100);
+                }
+              }
+            });
+          });
+        });
+        
+        observer.observe(document.body, {
+          childList: true,
+          subtree: true
+        });
+        
+        // Re-executa periodicamente para garantir que novos botões sejam corrigidos
+        setInterval(fixOneClickUpsellButtons, 2000);
+        
+      })();
+    </script>
+
     {%- comment -%} Ativafit Brand Name Corrector Script {%- endcomment -%}
     <script>
       /**
