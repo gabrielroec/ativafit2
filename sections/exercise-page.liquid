@@ -431,367 +431,132 @@
 <section class="exercise-page">
   <div class="exercise-page__container">
     <header class="exercise-page__header">
-      <div class="exercise-page__badge">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          aria-hidden="true">
-          <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
-        </svg>
-        Upper Body Exercise
-      </div>
-      <h1 class="exercise-page__title">Bicep
-        <span>Curls</span>
-      </h1>
-      <p class="exercise-page__subtitle">
-        A classic isolation exercise to build arm strength and definition. Perfect for controlled reps and strong bicep engagement.
-      </p>
-      <p class="exercise-page__target">
-        <strong>Target:</strong>
-        <span>Biceps</span>
-      </p>
+      {%- if section.settings.badge_text != blank -%}
+        <div class="exercise-page__badge">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            aria-hidden="true">
+            <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+          </svg>
+          {{ section.settings.badge_text }}
+        </div>
+      {%- endif -%}
+      {%- if section.settings.title != blank -%}
+        <h1 class="exercise-page__title">
+          {%- if section.settings.title_highlight != blank -%}
+            {{ section.settings.title | replace: section.settings.title_highlight, '' | strip }}
+            <span>{{ section.settings.title_highlight }}</span>
+          {%- else -%}
+            {{ section.settings.title }}
+          {%- endif -%}
+        </h1>
+      {%- endif -%}
+      {%- if section.settings.subtitle != blank -%}
+        <p class="exercise-page__subtitle">
+          {{ section.settings.subtitle }}
+        </p>
+      {%- endif -%}
+      {%- if section.settings.target != blank -%}
+        <p class="exercise-page__target">
+          <strong>Target:</strong>
+          <span>{{ section.settings.target }}</span>
+        </p>
+      {%- endif -%}
     </header>
 
-    <section class="exercise-page__section">
-      <h2 class="exercise-page__section-title">About the Exercise</h2>
-      <p class="exercise-page__description">
-        Bicep curls isolate the biceps to build strength, size, and definition in the upper arms. Focus on                  
-        slow, controlled reps to keep tension on the muscle and avoid using momentum. This movement is great
-        for beginners and advanced lifters alike, especially when paired with strict form and proper breathing.
-      </p>
-      <div class="exercise-page__benefits">
-        <div class="exercise-page__benefit">
-          <div class="exercise-page__benefit-icon">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              aria-hidden="true">
-              <path
-                fill-rule="evenodd"
-                d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z"
-                clip-rule="evenodd" />
-            </svg>
+    {%- if section.settings.about_title != blank or section.settings.about_description != blank or section.blocks.size > 0 -%}
+      <section class="exercise-page__section">
+        {%- if section.settings.about_title != blank -%}
+          <h2 class="exercise-page__section-title">{{ section.settings.about_title }}</h2>
+        {%- endif -%}
+        {%- if section.settings.about_description != blank -%}
+          <p class="exercise-page__description">
+            {{ section.settings.about_description }}
+          </p>
+        {%- endif -%}
+        {%- assign benefit_blocks = section.blocks | where: 'type', 'benefit' -%}
+        {%- if benefit_blocks.size > 0 -%}
+          <div class="exercise-page__benefits">
+            {%- for block in benefit_blocks -%}
+              <div class="exercise-page__benefit" {{ block.shopify_attributes }}>
+                <div class="exercise-page__benefit-icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true">
+                    <path
+                      fill-rule="evenodd"
+                      d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z"
+                      clip-rule="evenodd" />
+                  </svg>
+                </div>
+                {{ block.settings.text }}
+              </div>
+            {%- endfor -%}
           </div>
-          Builds bicep strength
-        </div>
-        <div class="exercise-page__benefit">
-          <div class="exercise-page__benefit-icon">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              aria-hidden="true">
-              <path
-                fill-rule="evenodd"
-                d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z"
-                clip-rule="evenodd" />
-            </svg>
-          </div>
-          Improves arm definition
-        </div>
-        <div class="exercise-page__benefit">
-          <div class="exercise-page__benefit-icon">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              aria-hidden="true">
-              <path
-                fill-rule="evenodd"
-                d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z"
-                clip-rule="evenodd" />
-            </svg>
-          </div>
-          Enhances elbow control
-        </div>
-        <div class="exercise-page__benefit">
-          <div class="exercise-page__benefit-icon">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              aria-hidden="true">
-              <path
-                fill-rule="evenodd"
-                d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z"
-                clip-rule="evenodd" />
-            </svg>
-          </div>
-          Reinforces grip stability
-        </div>
+        {%- endif -%}
+      </section>
+    {%- endif -%}
+
+    {%- assign rating_blocks = section.blocks | where: 'type', 'rating' -%}
+    {%- if rating_blocks.size > 0 -%}
+      <div class="exercise-page__ratings">
+        {%- for block in rating_blocks -%}
+          {%- assign rating_value = block.settings.rating_value | default: 5 | times: 1 -%}
+          <article class="exercise-page__rating-card" {{ block.shopify_attributes }}>
+            <div class="exercise-page__rating-header">
+              <div class="exercise-page__rating-icon">
+                {%- if block.settings.icon != blank -%}
+                  <img
+                    src="{{ block.settings.icon | image_url: width: 64 }}"
+                    alt="{{ block.settings.title | default: 'Rating icon' }}"
+                    width="64"
+                    height="64"
+                    loading="lazy">
+                {%- endif -%}
+              </div>
+              <div class="exercise-page__rating-info">
+                <h3>{{ block.settings.title }}</h3>
+                <p>{{ block.settings.subtitle }}</p>
+              </div>
+            </div>
+            <div class="exercise-page__rating-dots">
+              {%- for i in (1..5) -%}
+                {%- if i == 1 -%}
+                  <div class="exercise-page__rating-dot {% if i <= rating_value %}is-active{% endif %}">
+                    <svg width="61" height="26" viewBox="0 0 61 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect width="52.4478" height="26" rx="13" fill="{% if i <= rating_value %}#ff6100{% else %}#D9D9D9{% endif %}"></rect>
+                      <path d="M30.0918 0H60.4002L51.4454 26H30.0918V0Z" fill="{% if i <= rating_value %}#ff6100{% else %}#D9D9D9{% endif %}"></path>
+                    </svg>
+                  </div>
+                {%- elsif i == 5 -%}
+                  <div class="exercise-page__rating-dot {% if i <= rating_value %}is-active{% endif %}">
+                    <svg width="63" height="26" viewBox="0 0 63 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="63" y="26" width="52.4478" height="26" rx="13" transform="rotate(180 63 26)" fill="{% if i <= rating_value %}#ff6100{% else %}#D9D9D9{% endif %}"></rect>
+                      <path d="M30.9082 26L0.599824 26L9.55457 1.31695e-06L30.9082 0L30.9082 26Z" fill="{% if i <= rating_value %}#ff6100{% else %}#D9D9D9{% endif %}"></path>
+                    </svg>
+                  </div>
+                {%- else -%}
+                  <div class="exercise-page__rating-dot {% if i <= rating_value %}is-active{% endif %}">
+                    <svg width="61" height="26" viewBox="0 0 61 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M30.4912 -0.00012207H60.7996L51.8448 25.9999H30.4912V-0.00012207Z" fill="{% if i <= rating_value %}#ff6100{% else %}#D9D9D9{% endif %}"></path>
+                      <path d="M32.4912 25.9999H0.399985L9.88148 -0.00012207H32.4912V25.9999Z" fill="{% if i <= rating_value %}#ff6100{% else %}#D9D9D9{% endif %}"></path>
+                    </svg>
+                  </div>
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+            <div class="exercise-page__rating-value">
+              <span class="exercise-page__rating-number">{{ rating_value }}</span>
+              <span>/ 5</span>
+            </div>
+          </article>
+        {%- endfor -%}
       </div>
-    </section>
-
-    <div class="exercise-page__ratings">
-      <article class="exercise-page__rating-card">
-        <div class="exercise-page__rating-header">
-          <div class="exercise-page__rating-icon">
-            <img
-              src="https://cdn.shopify.com/s/files/1/2623/4904/files/Screenshot_2025-08-01_020520_150x.png?v=1754024731"
-              alt="Muscle & Strength icon"
-              width="24"
-              height="24"
-              loading="lazy">
-          </div>
-          <div class="exercise-page__rating-info">
-            <h3>Muscle & Strength</h3>
-            <p>Muscle-building impact</p>
-          </div>
-        </div>
-        <div class="exercise-page__rating-dots">
-          <div class="exercise-page__rating-dot is-active">
-            <svg
-              width="61"
-              height="26"
-              viewBox="0 0 61 26"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <rect
-                width="52.4478"
-                height="26"
-                rx="13"
-                fill="#ff6100"></rect>
-              <path d="M30.0918 0H60.4002L51.4454 26H30.0918V0Z" fill="#ff6100"></path>
-            </svg>
-          </div>
-          <div class="exercise-page__rating-dot is-active">
-            <svg
-              width="61"
-              height="26"
-              viewBox="0 0 61 26"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <path d="M30.4912 -0.00012207H60.7996L51.8448 25.9999H30.4912V-0.00012207Z" fill="#ff6100"></path>
-              <path d="M32.4912 25.9999H0.399985L9.88148 -0.00012207H32.4912V25.9999Z" fill="#ff6100"></path>
-            </svg>
-          </div>
-          <div class="exercise-page__rating-dot is-active">
-            <svg
-              width="61"
-              height="26"
-              viewBox="0 0 61 26"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <path d="M30.4912 -0.00012207H60.7996L51.8448 25.9999H30.4912V-0.00012207Z" fill="#ff6100"></path>
-              <path d="M32.4912 25.9999H0.399985L9.88148 -0.00012207H32.4912V25.9999Z" fill="#ff6100"></path>
-            </svg>
-          </div>
-          <div class="exercise-page__rating-dot is-active">
-            <svg
-              width="61"
-              height="26"
-              viewBox="0 0 61 26"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <path d="M30.4912 -0.00012207H60.7996L51.8448 25.9999H30.4912V-0.00012207Z" fill="#ff6100"></path>
-              <path d="M32.4912 25.9999H0.399985L9.88148 -0.00012207H32.4912V25.9999Z" fill="#ff6100"></path>
-            </svg>
-          </div>
-          <div class="exercise-page__rating-dot is-active">
-            <svg
-              width="63"
-              height="26"
-              viewBox="0 0 63 26"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <rect
-                x="63"
-                y="26"
-                width="52.4478"
-                height="26"
-                rx="13"
-                transform="rotate(180 63 26)"
-                fill="#ff6100"></rect>
-              <path d="M30.9082 26L0.599824 26L9.55457 1.31695e-06L30.9082 0L30.9082 26Z" fill="#ff6100"></path>
-            </svg>
-          </div>
-        </div>
-        <div class="exercise-page__rating-value">
-          <span class="exercise-page__rating-number">5</span>
-          <span>/ 5</span>
-        </div>
-      </article>
-
-      <article class="exercise-page__rating-card">
-        <div class="exercise-page__rating-header">
-          <div class="exercise-page__rating-icon">
-            <img
-              src="https://cdn.shopify.com/s/files/1/2623/4904/files/Screenshot_2025-08-01_020534_150x.png?v=1754024740"
-              alt="Cardio & Endurance icon"
-              width="24"
-              height="24"
-              loading="lazy">
-          </div>
-          <div class="exercise-page__rating-info">
-            <h3>Cardio & Endurance</h3>
-            <p>Cardiovascular demand</p>
-          </div>
-        </div>
-        <div class="exercise-page__rating-dots">
-          <div class="exercise-page__rating-dot is-active">
-            <svg
-              width="61"
-              height="26"
-              viewBox="0 0 61 26"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <rect
-                width="52.4478"
-                height="26"
-                rx="13"
-                fill="#ff6100"></rect>
-              <path d="M30.0918 0H60.4002L51.4454 26H30.0918V0Z" fill="#ff6100"></path>
-            </svg>
-          </div>
-          <div class="exercise-page__rating-dot is-active">
-            <svg
-              width="61"
-              height="26"
-              viewBox="0 0 61 26"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <path d="M30.4912 -0.00012207H60.7996L51.8448 25.9999H30.4912V-0.00012207Z" fill="#ff6100"></path>
-              <path d="M32.4912 25.9999H0.399985L9.88148 -0.00012207H32.4912V25.9999Z" fill="#ff6100"></path>
-            </svg>
-          </div>
-          <div class="exercise-page__rating-dot is-active">
-            <svg
-              width="61"
-              height="26"
-              viewBox="0 0 61 26"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <path d="M30.4912 -0.00012207H60.7996L51.8448 25.9999H30.4912V-0.00012207Z" fill="#ff6100"></path>
-              <path d="M32.4912 25.9999H0.399985L9.88148 -0.00012207H32.4912V25.9999Z" fill="#ff6100"></path>
-            </svg>
-          </div>
-          <div class="exercise-page__rating-dot">
-            <svg
-              width="61"
-              height="26"
-              viewBox="0 0 61 26"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <path d="M30.4912 -0.00012207H60.7996L51.8448 25.9999H30.4912V-0.00012207Z" fill="#D9D9D9"></path>
-              <path d="M32.4912 25.9999H0.399985L9.88148 -0.00012207H32.4912V25.9999Z" fill="#D9D9D9"></path>
-            </svg>
-          </div>
-          <div class="exercise-page__rating-dot">
-            <svg
-              width="63"
-              height="26"
-              viewBox="0 0 63 26"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <rect
-                x="63"
-                y="26"
-                width="52.4478"
-                height="26"
-                rx="13"
-                transform="rotate(180 63 26)"
-                fill="#D9D9D9"></rect>
-              <path d="M30.9082 26L0.599824 26L9.55457 1.31695e-06L30.9082 0L30.9082 26Z" fill="#D9D9D9"></path>
-            </svg>
-          </div>
-        </div>
-        <div class="exercise-page__rating-value">
-          <span class="exercise-page__rating-number">3</span>
-          <span>/ 5</span>
-        </div>
-      </article>
-
-      <article class="exercise-page__rating-card">
-        <div class="exercise-page__rating-header">
-          <div class="exercise-page__rating-icon">
-            <img
-              src="https://cdn.shopify.com/s/files/1/2623/4904/files/Screenshot_2025-08-01_020547_150x.png?v=1754024757"
-              alt="Flexibility & Mobility icon"
-              width="24"
-              height="24"
-              loading="lazy">
-          </div>
-          <div class="exercise-page__rating-info">
-            <h3>Flexibility & Mobility</h3>
-            <p>Range-of-motion demand</p>
-          </div>
-        </div>
-        <div class="exercise-page__rating-dots">
-          <div class="exercise-page__rating-dot is-active">
-            <svg
-              width="61"
-              height="26"
-              viewBox="0 0 61 26"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <rect
-                width="52.4478"
-                height="26"
-                rx="13"
-                fill="#ff6100"></rect>
-              <path d="M30.0918 0H60.4002L51.4454 26H30.0918V0Z" fill="#ff6100"></path>
-            </svg>
-          </div>
-          <div class="exercise-page__rating-dot is-active">
-            <svg
-              width="61"
-              height="26"
-              viewBox="0 0 61 26"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <path d="M30.4912 -0.00012207H60.7996L51.8448 25.9999H30.4912V-0.00012207Z" fill="#ff6100"></path>
-              <path d="M32.4912 25.9999H0.399985L9.88148 -0.00012207H32.4912V25.9999Z" fill="#ff6100"></path>
-            </svg>
-          </div>
-          <div class="exercise-page__rating-dot is-active">
-            <svg
-              width="61"
-              height="26"
-              viewBox="0 0 61 26"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <path d="M30.4912 -0.00012207H60.7996L51.8448 25.9999H30.4912V-0.00012207Z" fill="#ff6100"></path>
-              <path d="M32.4912 25.9999H0.399985L9.88148 -0.00012207H32.4912V25.9999Z" fill="#ff6100"></path>
-            </svg>
-          </div>
-          <div class="exercise-page__rating-dot is-active">
-            <svg
-              width="61"
-              height="26"
-              viewBox="0 0 61 26"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <path d="M30.4912 -0.00012207H60.7996L51.8448 25.9999H30.4912V-0.00012207Z" fill="#ff6100"></path>
-              <path d="M32.4912 25.9999H0.399985L9.88148 -0.00012207H32.4912V25.9999Z" fill="#ff6100"></path>
-            </svg>
-          </div>
-          <div class="exercise-page__rating-dot">
-            <svg
-              width="63"
-              height="26"
-              viewBox="0 0 63 26"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <rect
-                x="63"
-                y="26"
-                width="52.4478"
-                height="26"
-                rx="13"
-                transform="rotate(180 63 26)"
-                fill="#D9D9D9"></rect>
-              <path d="M30.9082 26L0.599824 26L9.55457 1.31695e-06L30.9082 0L30.9082 26Z" fill="#D9D9D9"></path>
-            </svg>
-          </div>
-        </div>
-        <div class="exercise-page__rating-value">
-          <span class="exercise-page__rating-number">4</span>
-          <span>/ 5</span>
-        </div>
-      </article>
-    </div>
+    {%- endif -%}
 
     <section class="exercise-page__tutorial">
       <div class="exercise-page__tutorial-header">
@@ -844,8 +609,105 @@
     "name": "Exercise Page",
     "tag": "section",
     "class": "exercise-page-section",
-    "settings": [],
+    "settings": [
+      {
+        "type": "header",
+        "content": "Header Content"
+      },
+      {
+        "type": "text",
+        "id": "badge_text",
+        "label": "Badge Text",
+        "default": "Upper Body Exercise"
+      },
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Exercise Title",
+        "default": "Bicep Curls"
+      },
+      {
+        "type": "text",
+        "id": "title_highlight",
+        "label": "Title Highlight Word",
+        "info": "Word to highlight in orange (e.g., 'Curls' in 'Bicep Curls')",
+        "default": "Curls"
+      },
+      {
+        "type": "textarea",
+        "id": "subtitle",
+        "label": "Subtitle",
+        "default": "A classic isolation exercise to build arm strength and definition. Perfect for controlled reps and strong bicep engagement."
+      },
+      {
+        "type": "text",
+        "id": "target",
+        "label": "Target Muscle",
+        "default": "Biceps"
+      },
+      {
+        "type": "header",
+        "content": "About Section"
+      },
+      {
+        "type": "text",
+        "id": "about_title",
+        "label": "About Section Title",
+        "default": "About the Exercise"
+      },
+      {
+        "type": "textarea",
+        "id": "about_description",
+        "label": "About Description",
+        "default": "Bicep curls isolate the biceps to build strength, size, and definition in the upper arms. Focus on slow, controlled reps to keep tension on the muscle and avoid using momentum. This movement is great for beginners and advanced lifters alike, especially when paired with strict form and proper breathing."
+      }
+    ],
     "blocks": [
+      {
+        "type": "benefit",
+        "name": "Benefit",
+        "settings": [
+          {
+            "type": "text",
+            "id": "text",
+            "label": "Benefit Text",
+            "default": "Builds bicep strength"
+          }
+        ]
+      },
+      {
+        "type": "rating",
+        "name": "Rating",
+        "settings": [
+          {
+            "type": "image_picker",
+            "id": "icon",
+            "label": "Icon"
+          },
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Title",
+            "default": "Muscle & Strength"
+          },
+          {
+            "type": "text",
+            "id": "subtitle",
+            "label": "Subtitle",
+            "default": "Muscle-building impact"
+          },
+          {
+            "type": "range",
+            "id": "rating_value",
+            "label": "Rating Value",
+            "min": 1,
+            "max": 5,
+            "step": 1,
+            "default": 5,
+            "info": "Rating from 1 to 5"
+          }
+        ]
+      },
       {
         "type": "tutorial_step",
         "name": "Tutorial Step",
@@ -905,7 +767,64 @@
     "presets": [
       {
         "name": "Exercise Page",
+        "settings": {
+          "badge_text": "Upper Body Exercise",
+          "title": "Bicep Curls",
+          "title_highlight": "Curls",
+          "subtitle": "A classic isolation exercise to build arm strength and definition. Perfect for controlled reps and strong bicep engagement.",
+          "target": "Biceps",
+          "about_title": "About the Exercise",
+          "about_description": "Bicep curls isolate the biceps to build strength, size, and definition in the upper arms. Focus on slow, controlled reps to keep tension on the muscle and avoid using momentum. This movement is great for beginners and advanced lifters alike, especially when paired with strict form and proper breathing."
+        },
         "blocks": [
+          {
+            "type": "benefit",
+            "settings": {
+              "text": "Builds bicep strength"
+            }
+          },
+          {
+            "type": "benefit",
+            "settings": {
+              "text": "Improves arm definition"
+            }
+          },
+          {
+            "type": "benefit",
+            "settings": {
+              "text": "Enhances elbow control"
+            }
+          },
+          {
+            "type": "benefit",
+            "settings": {
+              "text": "Reinforces grip stability"
+            }
+          },
+          {
+            "type": "rating",
+            "settings": {
+              "title": "Muscle & Strength",
+              "subtitle": "Muscle-building impact",
+              "rating_value": 5
+            }
+          },
+          {
+            "type": "rating",
+            "settings": {
+              "title": "Cardio & Endurance",
+              "subtitle": "Cardiovascular demand",
+              "rating_value": 3
+            }
+          },
+          {
+            "type": "rating",
+            "settings": {
+              "title": "Flexibility & Mobility",
+              "subtitle": "Range-of-motion demand",
+              "rating_value": 4
+            }
+          },
           {
             "type": "tutorial_step",
             "settings": {
@@ -915,7 +834,8 @@
               "caution": "Avoid swinging your body to lift the weight; keep tension on the biceps.",
               "image_position": "left"
             }
-          }, {
+          },
+          {
             "type": "tutorial_step",
             "settings": {
               "title": "Step 2",
