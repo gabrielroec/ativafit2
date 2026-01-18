@@ -1,0 +1,137 @@
+{% comment %} 
+  Cart Drawer Recommendations Snippet
+   
+  Shows specific recommended products: 
+  1. Ativafit Atlas Dumbbell Stand for Home Workout 
+  2. Apex Pro Adjustable Weight Bench
+   
+  Only shows products that are NOT already in the cart
+   
+  Best Practices: 
+  - Uses Shopify Liquid filters 
+  - Server-side rendering (no JS needed for display) 
+  - Works with Section Rendering API for real-time updates 
+{% endcomment %}
+
+{%- comment -%} Get products already in cart to filter {%- endcomment -%}
+{%- assign cart_product_ids = cart.items | map: 'product_id' -%}
+
+{%- comment -%} Define specific recommended products {%- endcomment -%}
+{%- assign dumbbell_stand = all_products['home-workout-dumbbell-stand'] -%}{%- assign weight_bench = all_products['adjustable-home-workout-bench'] -%}
+
+{%- comment -%} Check if any product is NOT in cart {%- endcomment -%}
+{%- assign show_dumbbell_stand = false -%}
+{%- assign show_weight_bench = false -%}
+{%- assign has_recommendations = false -%}
+
+{%- unless cart_product_ids contains dumbbell_stand.id -%}
+  {%- assign show_dumbbell_stand = true -%}
+  {%- assign has_recommendations = true -%}
+{%- endunless -%}
+
+{%- unless cart_product_ids contains weight_bench.id -%}
+  {%- assign show_weight_bench = true -%}
+  {%- assign has_recommendations = true -%}
+{%- endunless -%}
+
+{%- comment -%} Show recommended products {%- endcomment -%}
+{%- if has_recommendations -%}
+  <div class="cart-drawer__recommendations-wrapper">
+    <h3 class="cart-drawer__recommendations-title">Recommended for you</h3>
+    <div class="cart-drawer__recommendations-grid">
+
+      {%- comment -%} Dumbbell Stand {%- endcomment -%}
+      {%- if show_dumbbell_stand -%}
+        {%- assign variant = dumbbell_stand.selected_or_first_available_variant -%}
+        <div class="cart-drawer__recommendation-card">
+          {%- if dumbbell_stand.featured_image -%}
+            <a href="{{ dumbbell_stand.url }}" class="cart-drawer__recommendation-image">
+              <img
+                src="{{ dumbbell_stand.featured_image | image_url: width: 200 }}"
+                alt="{{ dumbbell_stand.featured_image.alt | default: dumbbell_stand.title | escape }}"
+                width="200"
+                height="{{ 200 | divided_by: dumbbell_stand.featured_image.aspect_ratio | ceil }}"
+                loading="lazy">
+            </a>
+          {%- endif -%}
+
+          <div class="cart-drawer__recommendation-info">
+            <a href="{{ dumbbell_stand.url }}" class="cart-drawer__recommendation-title">
+              {{ dumbbell_stand.title }}
+            </a>
+
+            <div class="cart-drawer__recommendation-price">
+              {%- if dumbbell_stand.compare_at_price > dumbbell_stand.price -%}
+                <span class="cart-drawer__recommendation-price-current">{{ dumbbell_stand.price | money }}</span>
+                <span class="cart-drawer__recommendation-price-original">{{ dumbbell_stand.compare_at_price | money }}</span>
+              {%- else -%}
+                {{ dumbbell_stand.price | money }}
+              {%- endif -%}
+            </div>
+
+            <button
+              type="button"
+              class="cart-drawer__recommendation-add-btn"
+              data-variant-id="{{ variant.id }}"
+              data-add-to-cart
+              {% unless dumbbell_stand.available %}
+              disabled{% endunless %}>
+              {% if dumbbell_stand.available %}
+                Add to Cart
+              {% else %}
+                Sold Out
+              {% endif %}
+            </button>
+          </div>
+        </div>
+      {%- endif -%}
+
+      {%- comment -%} Weight Bench {%- endcomment -%}
+      {%- if show_weight_bench -%}
+        {%- assign variant = weight_bench.selected_or_first_available_variant -%}
+        <div class="cart-drawer__recommendation-card">
+          {%- if weight_bench.featured_image -%}
+            <a href="{{ weight_bench.url }}" class="cart-drawer__recommendation-image">
+              <img
+                src="{{ weight_bench.featured_image | image_url: width: 200 }}"
+                alt="{{ weight_bench.featured_image.alt | default: weight_bench.title | escape }}"
+                width="200"
+                height="{{ 200 | divided_by: weight_bench.featured_image.aspect_ratio | ceil }}"
+                loading="lazy">
+            </a>
+          {%- endif -%}
+
+          <div class="cart-drawer__recommendation-info">
+            <a href="{{ weight_bench.url }}" class="cart-drawer__recommendation-title">
+              {{ weight_bench.title }}
+            </a>
+
+            <div class="cart-drawer__recommendation-price">
+              {%- if weight_bench.compare_at_price > weight_bench.price -%}
+                <span class="cart-drawer__recommendation-price-current">{{ weight_bench.price | money }}</span>
+                <span class="cart-drawer__recommendation-price-original">{{ weight_bench.compare_at_price | money }}</span>
+              {%- else -%}
+                {{ weight_bench.price | money }}
+              {%- endif -%}
+            </div>
+
+            <button
+              type="button"
+              class="cart-drawer__recommendation-add-btn"
+              data-variant-id="{{ variant.id }}"
+              data-add-to-cart
+              {% unless weight_bench.available %}
+              disabled{% endunless %}>
+              {% if weight_bench.available %}
+                Add to Cart
+              {% else %}
+                Sold Out
+              {% endif %}
+            </button>
+          </div>
+        </div>
+      {%- endif -%}
+
+    </div>
+  </div>
+{%- endif -%}

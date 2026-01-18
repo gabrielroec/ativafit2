@@ -1,0 +1,288 @@
+{% comment %} 
+      Cart Drawer Section - Shopify 2.0
+       
+      Seguindo as best practices oficiais da Shopify: 
+      - Usa form 'cart' nativo para payment_terms funcionar 
+      - Acessível (ARIA, keyboard navigation) 
+      - Performance otimizada
+       
+      Referências: 
+      - https://shopify.dev/docs/storefronts/themes/pricing-payments/installments 
+      - https://shopify.dev/docs/storefronts/themes/best-practices 
+{% endcomment %}
+
+{{ 'cart-drawer-new.css' | asset_url | stylesheet_tag }}
+
+<cart-drawer class="cart-drawer {% if cart.item_count == 0 %}is-empty{% endif %}">
+  <div
+    id="CartDrawer"
+    class="cart-drawer__container"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Shopping Cart"
+    tabindex="-1">
+
+    {%- comment -%} Drawer Content {%- endcomment -%}
+    <div class="cart-drawer__content">
+
+      {%- comment -%} Header {%- endcomment -%}
+      <div class="cart-drawer__header">
+        <h2 class="cart-drawer__title">{{ section.settings.heading | default: 'Your Cart' }}</h2>
+        <button
+          class="cart-drawer__close"
+          type="button"
+          aria-label="Close cart"
+          data-close-drawer>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round">
+            <line
+              x1="18"
+              y1="6"
+              x2="6"
+              y2="18"></line>
+            <line
+              x1="6"
+              y1="6"
+              x2="18"
+              y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      {%- comment -%} Cart Items {%- endcomment -%}
+      <div
+        class="cart-drawer__items"
+        id="CartDrawer-Items"
+        data-id="{{ section.id }}">
+        {% render 'cart-drawer-items' %}
+      </div>
+
+      {%- comment -%} Footer with Cart Form {%- endcomment -%}
+      <div class="cart-drawer__footer">
+        {% form 'cart'
+          , cart
+          , id: 'CartDrawer-Form'
+          , class: 'cart-drawer__form' %}
+
+          {%- comment -%} Recommended Products {%- endcomment -%}
+          {%- if section.settings.show_recommendations and cart.item_count > 0 -%}
+            <div class="cart-drawer__recommendations" id="CartDrawer-Recommendations">
+              {% render 'cart-drawer-recommendations' %}
+            </div>
+        {%- endif -%}
+
+          {%- comment -%} Subtotal with Discount Info {%- endcomment -%}
+          {%- assign total_savings = 0 -%}
+          {%- assign has_total_discount = false -%}
+
+          {%- comment -%} Calculate total savings from items {%- endcomment -%}
+          {%- for item in cart.items -%}
+            {%- if item.variant.compare_at_price and item.variant.compare_at_price > item.price -%}
+              {%- assign per_unit_savings = item.variant.compare_at_price | minus: item.price -%}
+              {%- assign total_savings = total_savings | plus: per_unit_savings | times: item.quantity -%}
+              {%- assign has_total_discount = true -%}
+            {%- elsif item.original_line_price > item.final_line_price -%}
+              {%- assign item_savings = item.original_line_price | minus: item.final_line_price -%}
+              {%- assign total_savings = total_savings | plus: item_savings -%}
+              {%- assign has_total_discount = true -%}
+            {%- endif -%}
+          {%- endfor -%}
+
+          {%- comment -%} Add cart-level discounts {%- endcomment -%}
+          {%- if cart.cart_level_discount_applications.size > 0 -%}
+            {%- assign has_total_discount = true -%}
+            {%- for discount in cart.cart_level_discount_applications -%}
+              {%- assign total_savings = total_savings | plus: discount.total_allocated_amount -%}
+            {%- endfor -%}
+        {%- endif -%}
+
+          {%- comment -%} Calculate original total price {%- endcomment -%}
+          {%- assign original_total = cart.total_price | plus: total_savings -%}
+
+          <div class="cart-drawer__subtotal">
+            <span class="cart-drawer__subtotal-label">{{ section.settings.subtotal_label | default: 'Subtotal' }}</span>
+            {%- if has_total_discount and total_savings > 0 -%}
+              <div class="cart-drawer__subtotal-savings-badge">
+                You save {{ total_savings | money }}
+              </div>
+            {%- endif -%}
+            <span class="cart-drawer__subtotal-price" data-cart-subtotal>
+              {{ cart.total_price | money_with_currency }}
+            </span>
+            {%- if has_total_discount and original_total > cart.total_price -%}
+              <span class="cart-drawer__subtotal-original-price">
+                {{ original_total | money_with_currency }}
+              </span>
+            {%- endif -%}
+          </div>
+
+          {%- comment -%} Shop Pay Installments - Official {%- endcomment -%}
+          {% if section.settings.show_payment_terms %}
+            <div class="cart-drawer__payment-terms">
+              {{ form | payment_terms }}
+            </div>
+          {% endif %}
+
+          {%- comment -%} Shipping Notice {%- endcomment -%}
+          {% if section.settings.shipping_notice != blank %}
+            <div class="cart-drawer__notice">
+              {{ section.settings.shipping_notice }}
+            </div>
+          {% endif %}
+
+          {%- comment -%} Cart Actions {%- endcomment -%}
+          <div class="cart-drawer__actions">
+            <button
+              type="submit"
+              class="cart-drawer__checkout button button--primary"
+              name="checkout">
+              {{ section.settings.checkout_button_label | default: 'Checkout' }}
+            </button>
+
+            {%- comment -%} Payment Badges {%- endcomment -%}
+            {% if section.settings.show_payment_badges %}
+              <div class="cart-drawer__payment-badges">
+                <img
+                  src="https://download.logo.wine/logo/Mastercard/Mastercard-Logo.wine.png"
+                  alt="Mastercard"
+                  class="payment-badge"
+                  loading="lazy"
+                  width="40"
+                  height="24">
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/9/93/PayPal_Logo2014.png"
+                  alt="PayPal"
+                  class="payment-badge"
+                  loading="lazy"
+                  width="40"
+                  height="24">
+                <img
+                  src="https://cdn.shopify.com/shopifycloud/help-center/manual/shop-pay-installments/shop-pay-logo-color.png"
+                  alt="Shop Pay"
+                  class="payment-badge"
+                  loading="lazy"
+                  width="40"
+                  height="24">
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/d/de/Amazon_icon.png"
+                  alt="Amazon Pay"
+                  class="payment-badge"
+                  loading="lazy"
+                  width="40"
+                  height="24">
+                <img
+                  src="https://cdn-icons-png.freepik.com/256/5968/5968245.png?semt=ais_white_label"
+                  alt="American Express"
+                  class="payment-badge"
+                  loading="lazy"
+                  width="40"
+                  height="24">
+                <img
+                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfp_3jN-zgVDJzWjr1I4lKWWRothBbWHb8hQ&s"
+                  alt="Apple Pay"
+                  class="payment-badge"
+                  loading="lazy"
+                  width="40"
+                  height="24">
+                <img
+                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSECDKIpkdSUbFaBLjhaAxj0qMcSdLRFvvtvQ&s"
+                  alt="Diners Club"
+                  class="payment-badge"
+                  loading="lazy"
+                  width="40"
+                  height="24">
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Google_Pay_Logo.svg/1280px-Google_Pay_Logo.svg.png"
+                  alt="Google Pay"
+                  class="payment-badge"
+                  loading="lazy"
+                  width="40"
+                  height="24">
+              </div>
+            {% endif %}
+          </div>
+
+          {%- comment -%} Additional Checkout Buttons (Apple Pay, Google Pay, etc) {%- endcomment -%}
+          {% if additional_checkout_buttons and section.settings.show_dynamic_checkout %}
+            <div class="cart-drawer__dynamic-checkout">
+              {{ content_for_additional_checkout_buttons }}
+            </div>
+          {% endif %}
+
+        {% endform %}
+      </div>
+
+    </div>
+  </div>
+</cart-drawer>
+
+<script src="{{ 'cart-drawer-new.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+  {
+    "name": "Cart Drawer",
+    "settings": [
+      {
+        "type": "text",
+        "id": "heading",
+        "label": "Heading",
+        "default": "Your Cart"
+      },
+      {
+        "type": "text",
+        "id": "subtotal_label",
+        "label": "Subtotal Label",
+        "default": "Subtotal"
+      },
+      {
+        "type": "text",
+        "id": "checkout_button_label",
+        "label": "Checkout Button Label",
+        "default": "Checkout"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_payment_terms",
+        "label": "Show Shop Pay Installments",
+        "default": true,
+        "info": "Displays Shop Pay Installments banner if available"
+      }, {
+        "type": "checkbox",
+        "id": "show_recommendations",
+        "label": "Show Recommended Products",
+        "default": true,
+        "info": "Displays one recommended product above subtotal"
+      }, {
+        "type": "checkbox",
+        "id": "show_dynamic_checkout",
+        "label": "Show Dynamic Checkout Buttons",
+        "default": true,
+        "info": "Shows Apple Pay, Google Pay, etc"
+      }, {
+        "type": "richtext",
+        "id": "shipping_notice",
+        "label": "Shipping Notice",
+        "info": "Display shipping information (e.g., 'Free shipping on orders over $50')"
+      }, {
+        "type": "checkbox",
+        "id": "show_payment_badges",
+        "label": "Show Payment Method Badges",
+        "default": true,
+        "info": "Display accepted payment method icons"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Cart Drawer"
+      }
+    ]
+  }
+{% endschema %}

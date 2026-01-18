@@ -214,16 +214,8 @@
     <script src="{{ 'theme.min.js' | asset_url }}" defer></script>
     <script src="{{ 'custom.min.js' | asset_url }}" defer>
   </script>
-    <!-- Cart Drawer -->
-    <link
-      rel="preload"
-      as="style"
-      href="{{ 'cart-drawer.min.css' | asset_url }}"
-      onload="this.onload=null;this.rel='stylesheet'">
-    <noscript>
-      <link rel="stylesheet" href="{{ 'cart-drawer.min.css' | asset_url }}">
-    </noscript>
-    {% comment %} <script src="{{ 'cart-drawer.min.js' | asset_url }}" defer></script> {% endcomment %}
+    {%- comment -%} Cart Drawer - Novo (Shopify 2.0) {%- endcomment -%}
+    {%- comment -%} CSS e JS são carregados pela própria section cart-drawer.liquid {%- endcomment -%}
     <script>
       // Detect user region via IP geolocation
       window.shopifyCountryCode = '';
@@ -254,6 +246,11 @@
     </script>
     <script src="{{ 'cart-drawer.js' | asset_url }}" defer></script>
 
+    <div id="cart-payment-terms" style="display:none;">
+      {% form 'cart', cart %}
+        {{ form | payment_terms }}
+      {% endform %}
+    </div>
 
     <!-- Barlow overrides -->
     {% comment %} <link rel="stylesheet" href="{{ 'barlow-override.min.css' | asset_url }}"> {% endcomment %}
@@ -344,7 +341,7 @@
       href="{{ 'swiper.min.css' | asset_url }}"
       onload="this.onload=null;this.rel='stylesheet'">
     <noscript>
-      <link rel="stylesheet" href="{{ 'swiper.min.css' | asset_url }}">
+    <link rel="stylesheet" href="{{ 'swiper.min.css' | asset_url }}">
     </noscript>
     <script src="{{ 'jquery.min.js' | asset_url }}" defer></script>
     <script src="{{ 'swiper.min.js' | asset_url }}" defer></script>
@@ -506,6 +503,9 @@
 
     {%- sections 'footer-group' -%}
 
+    {%- comment -%} Cart Drawer - Shopify 2.0 {%- endcomment -%}
+    {% section 'cart-drawer' %}
+
     <ul hidden>
       <li id="a11y-new-window-message">{{ 'general.accessibility.new_window' | t }}</li>
     </ul>
@@ -549,7 +549,7 @@
     <!-- End Google Tag Manager (noscript) -->
 
 
-    {%- comment -%} Cart Notification Component {%- endcomment -%}
+    {%- comment -%} Cart Notification Component (deprecated - usando cart drawer agora) {%- endcomment -%}
     {% render 'cart-notification' %}
 
     {%- comment -%} Klaviyo Popup Cleaner Script {%- endcomment -%}
