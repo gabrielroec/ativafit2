@@ -1,0 +1,677 @@
+{%- style -%}
+  .exercise-page {
+    --primary: #eb701f;
+    --primary-light: #f59a56;
+    --primary-dark: #c55a12;
+    --background: #fafafa;
+    --surface: #ffffff;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b7280;
+    --text-muted: #9ca3af;
+    --border: #e5e7eb;
+    --rating-empty: #e5e7eb;
+    background-color: var(--background);
+    color: var(--text-primary);
+    font-family: var(--font-body-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .exercise-page * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .exercise-page__container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  .exercise-page__header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .exercise-page__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: #ffffff;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1.5rem;
+  }
+
+  .exercise-page__badge svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .exercise-page__title {
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+  }
+
+  .exercise-page__title span {
+    color: var(--primary);
+  }
+
+  .exercise-page__subtitle {
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  .exercise-page__section {
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border);
+  }
+
+  .exercise-page__section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .exercise-page__section-title::before {
+    content: "";
+    width: 4px;
+    height: 24px;
+    background: var(--primary);
+    border-radius: 2px;
+  }
+
+  .exercise-page__description {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.8;
+  }
+
+  .exercise-page__benefits {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .exercise-page__benefit {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: var(--background);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .exercise-page__benefit-icon {
+    width: 24px;
+    height: 24px;
+    background: var(--primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .exercise-page__benefit-icon svg {
+    width: 14px;
+    height: 14px;
+    color: #ffffff;
+  }
+
+  .exercise-page__ratings {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .exercise-page__rating-card {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 1.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .exercise-page__rating-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(235, 112, 31, 0.1);
+  }
+
+  .exercise-page__rating-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .exercise-page__rating-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .exercise-page__rating-icon svg {
+    width: 24px;
+    height: 24px;
+    color: #ffffff;
+  }
+
+  .exercise-page__rating-info h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+  }
+
+  .exercise-page__rating-info p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .exercise-page__rating-bar {
+    margin-bottom: 0.75rem;
+  }
+
+  .exercise-page__rating-bar-bg {
+    height: 8px;
+    background: var(--rating-empty);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .exercise-page__rating-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--primary-light));
+    border-radius: 4px;
+    transition: width 0.5s ease;
+  }
+
+  .exercise-page__rating-dots {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: space-between;
+  }
+
+  .exercise-page__rating-dot {
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--rating-empty);
+    transition: background 0.3s ease;
+  }
+
+  .exercise-page__rating-dot.is-active {
+    background: var(--primary);
+  }
+
+  .exercise-page__rating-value {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.75rem;
+  }
+
+  .exercise-page__rating-number {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--primary);
+  }
+
+  .exercise-page__rating-max {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+  }
+
+  .exercise-page__tutorial {
+    margin-top: 3rem;
+  }
+
+  .exercise-page__tutorial-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .exercise-page__tutorial-header h2 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .exercise-page__tutorial-header p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+  }
+
+  .exercise-page__tutorial-grid {
+    display: grid;
+    gap: 2rem;
+  }
+
+  .exercise-page__tutorial-item {
+    background: var(--surface);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .exercise-page__tutorial-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(235, 112, 31, 0.12);
+  }
+
+  .exercise-page__tutorial-item:nth-child(even) {
+    direction: rtl;
+  }
+
+  .exercise-page__tutorial-item:nth-child(even) > * {
+    direction: ltr;
+  }
+
+  .exercise-page__tutorial-media {
+    position: relative;
+    background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+    aspect-ratio: 4 / 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .exercise-page__tutorial-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .exercise-page__step-badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: var(--primary);
+    color: #ffffff;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+    box-shadow: 0 4px 12px rgba(235, 112, 31, 0.3);
+  }
+
+  .exercise-page__tutorial-content {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .exercise-page__tutorial-content h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+  }
+
+  .exercise-page__tutorial-content p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+
+  .exercise-page__tip {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(235, 112, 31, 0.08);
+    border-radius: 10px;
+    border-left: 3px solid var(--primary);
+  }
+
+  .exercise-page__tip span {
+    font-weight: 600;
+    color: var(--primary);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .exercise-page__tip p {
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
+
+  .exercise-page__footer {
+    text-align: center;
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .exercise-page__footer p {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+
+  .exercise-page__footer-brand {
+    color: var(--primary);
+    font-weight: 600;
+  }
+
+  @media (max-width: 768px) {
+    .exercise-page__container {
+      padding: 1.5rem 1rem;
+    }
+
+    .exercise-page__tutorial-item {
+      grid-template-columns: 1fr;
+    }
+
+    .exercise-page__tutorial-item:nth-child(even) {
+      direction: ltr;
+    }
+
+    .exercise-page__tutorial-media {
+      aspect-ratio: 16 / 10;
+    }
+
+    .exercise-page__ratings {
+      grid-template-columns: 1fr;
+    }
+
+    .exercise-page__section {
+      padding: 1.5rem;
+    }
+  }
+{%- endstyle -%}
+
+<section class="exercise-page">
+  <div class="exercise-page__container">
+    <header class="exercise-page__header">
+      <div class="exercise-page__badge">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+        </svg>
+        Fundamental Exercise
+      </div>
+      <h1 class="exercise-page__title">Back <span>Squat</span></h1>
+      <p class="exercise-page__subtitle">
+        The most complete exercise to build lower-body strength, power, and stability. Essential for any training program.
+      </p>
+    </header>
+
+    <section class="exercise-page__section">
+      <h2 class="exercise-page__section-title">About the Exercise</h2>
+      <p class="exercise-page__description">
+        The back squat is often called the king of compound lifts. It targets quadriceps, glutes, hamstrings,
+        calves, and core at the same time, while improving hip and ankle mobility. When performed correctly,
+        it strengthens the entire lower body, promotes balance, and helps prevent injuries.
+      </p>
+      <div class="exercise-page__benefits">
+        <div class="exercise-page__benefit">
+          <div class="exercise-page__benefit-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          Builds quadriceps strength
+        </div>
+        <div class="exercise-page__benefit">
+          <div class="exercise-page__benefit-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          Maximizes glute activation
+        </div>
+        <div class="exercise-page__benefit">
+          <div class="exercise-page__benefit-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          Improves mobility
+        </div>
+        <div class="exercise-page__benefit">
+          <div class="exercise-page__benefit-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          Stabilizes the core
+        </div>
+      </div>
+    </section>
+
+    <div class="exercise-page__ratings">
+      <article class="exercise-page__rating-card">
+        <div class="exercise-page__rating-header">
+          <div class="exercise-page__rating-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM6.262 6.072a8.25 8.25 0 1010.562-.766 4.5 4.5 0 01-1.318 1.357L14.25 7.5l.165.33a.809.809 0 01-1.086 1.085l-.604-.302a1.125 1.125 0 00-1.298.21l-.132.131c-.439.44-.439 1.152 0 1.591l.296.296c.256.257.622.374.98.314l1.17-.195c.323-.054.654.036.905.245l1.33 1.108c.32.267.46.694.358 1.1a8.7 8.7 0 01-2.288 4.04l-.723.724a1.125 1.125 0 01-1.298.21l-.153-.076a1.125 1.125 0 01-.622-1.006v-1.089c0-.298-.119-.585-.33-.796l-1.347-1.347a1.125 1.125 0 01-.21-1.298L9.75 12l-1.64-1.64a6 6 0 01-1.676-3.257l-.172-1.03z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="exercise-page__rating-info">
+            <h3>Muscle & Strength</h3>
+            <p>Muscle-building impact</p>
+          </div>
+        </div>
+        <div class="exercise-page__rating-bar">
+          <div class="exercise-page__rating-bar-bg">
+            <div class="exercise-page__rating-bar-fill" style="width: 100%;"></div>
+          </div>
+        </div>
+        <div class="exercise-page__rating-dots">
+          <div class="exercise-page__rating-dot is-active"></div>
+          <div class="exercise-page__rating-dot is-active"></div>
+          <div class="exercise-page__rating-dot is-active"></div>
+          <div class="exercise-page__rating-dot is-active"></div>
+          <div class="exercise-page__rating-dot is-active"></div>
+        </div>
+        <div class="exercise-page__rating-value">
+          <span class="exercise-page__rating-number">5.0</span>
+          <span class="exercise-page__rating-max">/ 5.0</span>
+        </div>
+      </article>
+
+      <article class="exercise-page__rating-card">
+        <div class="exercise-page__rating-header">
+          <div class="exercise-page__rating-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+            </svg>
+          </div>
+          <div class="exercise-page__rating-info">
+            <h3>Cardio & Endurance</h3>
+            <p>Cardiovascular demand</p>
+          </div>
+        </div>
+        <div class="exercise-page__rating-bar">
+          <div class="exercise-page__rating-bar-bg">
+            <div class="exercise-page__rating-bar-fill" style="width: 60%;"></div>
+          </div>
+        </div>
+        <div class="exercise-page__rating-dots">
+          <div class="exercise-page__rating-dot is-active"></div>
+          <div class="exercise-page__rating-dot is-active"></div>
+          <div class="exercise-page__rating-dot is-active"></div>
+          <div class="exercise-page__rating-dot"></div>
+          <div class="exercise-page__rating-dot"></div>
+        </div>
+        <div class="exercise-page__rating-value">
+          <span class="exercise-page__rating-number">3.0</span>
+          <span class="exercise-page__rating-max">/ 5.0</span>
+        </div>
+      </article>
+
+      <article class="exercise-page__rating-card">
+        <div class="exercise-page__rating-header">
+          <div class="exercise-page__rating-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M12 2.25a.75.75 0 01.75.75v.756a49.106 49.106 0 019.152 1 .75.75 0 01-.152 1.485h-1.918l2.474 10.124a.75.75 0 01-.375.84A6.723 6.723 0 0118.75 18a6.723 6.723 0 01-3.181-.795.75.75 0 01-.375-.84l2.474-10.124H12.75v13.28c1.293.076 2.534.343 3.697.776a.75.75 0 01-.262 1.453h-8.37a.75.75 0 01-.262-1.453c1.162-.433 2.404-.7 3.697-.776V6.24H6.332l2.474 10.124a.75.75 0 01-.375.84A6.723 6.723 0 015.25 18a6.723 6.723 0 01-3.181-.795.75.75 0 01-.375-.84L4.168 6.241H2.25a.75.75 0 01-.152-1.485 49.105 49.105 0 019.152-1V3a.75.75 0 01.75-.75zm4.878 13.543l1.872-7.662 1.872 7.662h-3.744zm-9.756 0L5.25 8.131l-1.872 7.662h3.744z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="exercise-page__rating-info">
+            <h3>Flexibility & Mobility</h3>
+            <p>Range-of-motion demand</p>
+          </div>
+        </div>
+        <div class="exercise-page__rating-bar">
+          <div class="exercise-page__rating-bar-bg">
+            <div class="exercise-page__rating-bar-fill" style="width: 80%;"></div>
+          </div>
+        </div>
+        <div class="exercise-page__rating-dots">
+          <div class="exercise-page__rating-dot is-active"></div>
+          <div class="exercise-page__rating-dot is-active"></div>
+          <div class="exercise-page__rating-dot is-active"></div>
+          <div class="exercise-page__rating-dot is-active"></div>
+          <div class="exercise-page__rating-dot"></div>
+        </div>
+        <div class="exercise-page__rating-value">
+          <span class="exercise-page__rating-number">4.0</span>
+          <span class="exercise-page__rating-max">/ 5.0</span>
+        </div>
+      </article>
+    </div>
+
+    <section class="exercise-page__tutorial">
+      <div class="exercise-page__tutorial-header">
+        <h2>Step-by-Step Tutorial</h2>
+        <p>Follow each step carefully to perform the movement correctly.</p>
+      </div>
+      <div class="exercise-page__tutorial-grid">
+        <article class="exercise-page__tutorial-item">
+          <div class="exercise-page__tutorial-media">
+            <div class="exercise-page__step-badge">1</div>
+            <img
+              src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcTdxOGp2Z2hvdnVhMzV6dXJ6OXBhbXVxNXMyZXY4eTdqcTVqcnRuOSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT9KVg8gkDEyJIrVdK/giphy.gif"
+              alt="Squat starting position"
+              width="640"
+              height="480"
+              loading="lazy"
+              decoding="async"
+            >
+          </div>
+          <div class="exercise-page__tutorial-content">
+            <h3>Starting Position</h3>
+            <p>
+              Stand with your feet shoulder-width apart or slightly wider.
+              Point your toes slightly outward (about 15-30 degrees).
+              Distribute weight evenly through the feet, with an emphasis on the heels.
+            </p>
+            <div class="exercise-page__tip">
+              <span>Pro Tip</span>
+              <p>Imagine gripping the floor with your feet for extra stability.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="exercise-page__tutorial-item">
+          <div class="exercise-page__tutorial-media">
+            <div class="exercise-page__step-badge">2</div>
+            <img
+              src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExaWNuM2M0eWpxZmltYnl6cmx4a2U2YnFocDRmZjJrMDhidGFsaWFjbCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/WqKleIeuWZttuQprZV/giphy.gif"
+              alt="Squat descent phase"
+              width="640"
+              height="480"
+              loading="lazy"
+              decoding="async"
+            >
+          </div>
+          <div class="exercise-page__tutorial-content">
+            <h3>Descent Phase</h3>
+            <p>
+              Initiate the movement by sending your hips back as if sitting into a chair.
+              Bend your knees in line with your toes.
+              Lower until your thighs are parallel to the floor or slightly below.
+            </p>
+            <div class="exercise-page__tip">
+              <span>Focus</span>
+              <p>Keep your chest lifted and your gaze forward throughout the descent.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="exercise-page__tutorial-item">
+          <div class="exercise-page__tutorial-media">
+            <div class="exercise-page__step-badge">3</div>
+            <img
+              src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNDRlYzM2OHNxaDc2ZG9ydnRqY2s5OWd6c2RydHJ1YWU2b2d2d3puNCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/SuEFqeWxlLcvm/giphy.gif"
+              alt="Squat ascent phase"
+              width="640"
+              height="480"
+              loading="lazy"
+              decoding="async"
+            >
+          </div>
+          <div class="exercise-page__tutorial-content">
+            <h3>Ascent Phase</h3>
+            <p>
+              Drive through your heels to return to the starting position.
+              Squeeze the glutes at the top for a complete finish.
+              Keep your core engaged throughout the ascent to protect the lower back.
+            </p>
+            <div class="exercise-page__tip">
+              <span>Breathing</span>
+              <p>Inhale on the way down and exhale with effort as you rise.</p>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <footer class="exercise-page__footer">
+      <p>Built with care by <span class="exercise-page__footer-brand">FitTutorial</span></p>
+    </footer>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Exercise Page",
+  "tag": "section",
+  "class": "exercise-page-section",
+  "settings": []
+}
+{% endschema %}
+
