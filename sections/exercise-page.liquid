@@ -319,11 +319,11 @@
     box-shadow: 0 12px 30px rgba(235, 112, 31, 0.12);
   }
 
-  .exercise-page__tutorial-item:nth-child(even) {
+  .exercise-page__tutorial-item--reverse {
     direction: rtl;
   }
 
-  .exercise-page__tutorial-item:nth-child(even) > * {
+  .exercise-page__tutorial-item--reverse > * {
     direction: ltr;
   }
 
@@ -413,7 +413,7 @@
       grid-template-columns: 1fr;
     }
 
-    .exercise-page__tutorial-item:nth-child(even) {
+    .exercise-page__tutorial-item--reverse {
       direction: ltr;
     }
 
@@ -456,7 +456,7 @@
     <section class="exercise-page__section">
       <h2 class="exercise-page__section-title">About the Exercise</h2>
       <p class="exercise-page__description">
-        Bicep curls isolate the biceps to build strength, size, and definition in the upper arms. Focus on                
+        Bicep curls isolate the biceps to build strength, size, and definition in the upper arms. Focus on                  
         slow, controlled reps to keep tension on the muscle and avoid using momentum. This movement is great
         for beginners and advanced lifters alike, especially when paired with strict form and proper breathing.
       </p>
@@ -799,65 +799,41 @@
         <p>Follow each step carefully to perform the movement correctly.</p>
       </div>
       <div class="exercise-page__tutorial-grid">
-        <article class="exercise-page__tutorial-item">
-          <div class="exercise-page__tutorial-media">
-            <div class="exercise-page__step-badge">1</div>
-            {%- if section.settings.step_1_gif -%}
-              <img
-                src="{{ section.settings.step_1_gif | image_url: width: 1280 }}"
-                alt="{{ section.settings.step_1_alt | default: 'Bicep curl step 1' }}"
-                width="640"
-                height="480"
-                loading="lazy"
-                decoding="async">
-            {%- endif -%}
-          </div>
-          <div class="exercise-page__tutorial-content">
-            <h3>Step 1</h3>
-            <p>
-              Stand holding weights, palms up, and slowly curl them toward your shoulders while                
-              squeezing the biceps at the top.
-            </p>
-            <div class="exercise-page__tip">
-              <span>Note</span>
-              <p>Control the weights as you lower them fully back down to the starting position.</p>
+        {%- for block in section.blocks -%}
+          {%- assign step_number = forloop.index -%}
+          <article class="exercise-page__tutorial-item {% if block.settings.image_position == 'right' %}exercise-page__tutorial-item--reverse{% endif %}" {{ block.shopify_attributes }}>
+            <div class="exercise-page__tutorial-media">
+              <div class="exercise-page__step-badge">{{ step_number }}</div>
+              {%- if block.settings.image -%}
+                <img
+                  src="{{ block.settings.image | image_url: width: 1280 }}"
+                  alt="{{ block.settings.alt_text | default: 'Step' | append: ' ' | append: step_number }}"
+                  width="640"
+                  height="480"
+                  loading="lazy"
+                  decoding="async">
+              {%- endif -%}
             </div>
-            <div class="exercise-page__tip">
-              <span>Caution</span>
-              <p>Avoid swinging your body to lift the weight; keep tension on the biceps.</p>
+            <div class="exercise-page__tutorial-content">
+              <h3>{{ block.settings.title | default: 'Step' | append: ' ' | append: step_number }}</h3>
+              {%- if block.settings.description != blank -%}
+                <p>{{ block.settings.description }}</p>
+              {%- endif -%}
+              {%- if block.settings.note != blank -%}
+                <div class="exercise-page__tip">
+                  <span>Note</span>
+                  <p>{{ block.settings.note }}</p>
+                </div>
+              {%- endif -%}
+              {%- if block.settings.caution != blank -%}
+                <div class="exercise-page__tip">
+                  <span>Caution</span>
+                  <p>{{ block.settings.caution }}</p>
+                </div>
+              {%- endif -%}
             </div>
-          </div>
-        </article>
-
-        <article class="exercise-page__tutorial-item">
-          <div class="exercise-page__tutorial-media">
-            <div class="exercise-page__step-badge">2</div>
-            {%- if section.settings.step_2_gif -%}
-              <img
-                src="{{ section.settings.step_2_gif | image_url: width: 1280 }}"
-                alt="{{ section.settings.step_2_alt | default: 'Bicep curl step 2' }}"
-                width="640"
-                height="480"
-                loading="lazy"
-                decoding="async">
-            {%- endif -%}
-          </div>
-          <div class="exercise-page__tutorial-content">
-            <h3>Step 2</h3>
-            <p>
-              Stand holding weights, palms up, and slowly curl them toward your shoulders while                
-              squeezing the biceps at the top.
-            </p>
-            <div class="exercise-page__tip">
-              <span>Note</span>
-              <p>Control the weights as you lower them fully back down to the starting position.</p>
-            </div>
-            <div class="exercise-page__tip">
-              <span>Caution</span>
-              <p>Avoid swinging your body to lift the weight; keep tension on the biceps.</p>
-            </div>
-          </div>
-        </article>
+          </article>
+        {%- endfor -%}
       </div>
     </section>
   </div>
@@ -868,36 +844,88 @@
     "name": "Exercise Page",
     "tag": "section",
     "class": "exercise-page-section",
-    "settings": [
+    "settings": [],
+    "blocks": [
       {
-        "type": "header",
-        "content": "Step 1 GIF"
-      },
+        "type": "tutorial_step",
+        "name": "Tutorial Step",
+        "settings": [
+          {
+            "type": "image_picker",
+            "id": "image",
+            "label": "GIF/Image",
+            "info": "Upload the GIF or image for this step"
+          },
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Step Title",
+            "default": "Step"
+          },
+          {
+            "type": "textarea",
+            "id": "description",
+            "label": "Description",
+            "default": "Step description goes here"
+          },
+          {
+            "type": "textarea",
+            "id": "note",
+            "label": "Note (Optional)",
+            "info": "Additional tip or note for this step"
+          }, {
+            "type": "textarea",
+            "id": "caution",
+            "label": "Caution (Optional)",
+            "info": "Warning or caution message for this step"
+          }, {
+            "type": "text",
+            "id": "alt_text",
+            "label": "Image Alt Text",
+            "default": "Exercise step"
+          }, {
+            "type": "select",
+            "id": "image_position",
+            "label": "Image Position",
+            "options": [
+              {
+                "value": "left",
+                "label": "Left"
+              }, {
+                "value": "right",
+                "label": "Right"
+              }
+            ],
+            "default": "left",
+            "info": "Choose which side the image appears on"
+          }
+        ]
+      }
+    ],
+    "presets": [
       {
-        "type": "image_picker",
-        "id": "step_1_gif",
-        "label": "Step 1 GIF/Image",
-        "info": "Upload the GIF or image for step 1 tutorial"
-      },
-      {
-        "type": "text",
-        "id": "step_1_alt",
-        "label": "Step 1 Alt Text",
-        "default": "Bicep curl step 1"
-      },
-      {
-        "type": "header",
-        "content": "Step 2 GIF"
-      }, {
-        "type": "image_picker",
-        "id": "step_2_gif",
-        "label": "Step 2 GIF/Image",
-        "info": "Upload the GIF or image for step 2 tutorial"
-      }, {
-        "type": "text",
-        "id": "step_2_alt",
-        "label": "Step 2 Alt Text",
-        "default": "Bicep curl step 2"
+        "name": "Exercise Page",
+        "blocks": [
+          {
+            "type": "tutorial_step",
+            "settings": {
+              "title": "Step 1",
+              "description": "Stand holding weights, palms up, and slowly curl them toward your shoulders while squeezing the biceps at the top.",
+              "note": "Control the weights as you lower them fully back down to the starting position.",
+              "caution": "Avoid swinging your body to lift the weight; keep tension on the biceps.",
+              "image_position": "left"
+            }
+          }, {
+            "type": "tutorial_step",
+            "settings": {
+              "title": "Step 2",
+              "description": "Stand holding weights, palms up, and slowly curl them toward your shoulders while squeezing the biceps at the top.",
+              "note": "Control the weights as you lower them fully back down to the starting position.",
+              "caution": "Avoid swinging your body to lift the weight; keep tension on the biceps.",
+              "image_position": "right"
+            }
+          }
+        ]
       }
     ]
   }
