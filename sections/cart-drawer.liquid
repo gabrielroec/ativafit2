@@ -57,6 +57,31 @@
         </button>
       </div>
 
+      {%- comment -%} Free Shipping Bar (US only) {%- endcomment -%}
+      {%- assign country_code = localization.country.iso_code | upcase -%}
+      {%- if section.settings.show_free_shipping_bar and country_code == 'US' and section.settings.free_shipping_threshold > 0 -%}
+        {%- assign threshold_cents = section.settings.free_shipping_threshold | times: 100 -%}
+        {%- assign remaining_cents = threshold_cents | minus: cart.total_price -%}
+        {%- assign remaining_money = remaining_cents | money -%}
+        {%- assign progress = cart.total_price | times: 100 | divided_by: threshold_cents -%}
+        {%- if progress > 100 -%}
+          {%- assign progress = 100 -%}
+        {%- endif -%}
+        <div class="cart-drawer__free-shipping" role="status" aria-live="polite">
+          <div class="cart-drawer__free-shipping-text">
+            <span class="cart-drawer__free-shipping-emoji" aria-hidden="true">🚚</span>
+            {%- if remaining_cents > 0 -%}
+              {{ section.settings.free_shipping_progress_text | replace: '[amount]', remaining_money }}
+            {%- else -%}
+              {{ section.settings.free_shipping_unlocked_text }}
+            {%- endif -%}
+          </div>
+          <div class="cart-drawer__free-shipping-bar" aria-hidden="true">
+            <span class="cart-drawer__free-shipping-fill" style="width: {{ progress }}%;"></span>
+          </div>
+        </div>
+      {%- endif -%}
+
       {%- comment -%} Cart Items {%- endcomment -%}
       <div
         class="cart-drawer__items"
@@ -254,24 +279,52 @@
         "label": "Show Shop Pay Installments",
         "default": true,
         "info": "Displays Shop Pay Installments banner if available"
-      }, {
+      },
+      {
         "type": "checkbox",
         "id": "show_recommendations",
         "label": "Show Recommended Products",
         "default": true,
         "info": "Displays one recommended product above subtotal"
-      }, {
+      },
+      {
         "type": "checkbox",
         "id": "show_dynamic_checkout",
         "label": "Show Dynamic Checkout Buttons",
         "default": true,
         "info": "Shows Apple Pay, Google Pay, etc"
-      }, {
+      },
+      {
+        "type": "checkbox",
+        "id": "show_free_shipping_bar",
+        "label": "Show Free Shipping Bar (US only)",
+        "default": true
+      },
+      {
+        "type": "number",
+        "id": "free_shipping_threshold",
+        "label": "Free Shipping Threshold (USD)",
+        "default": 50
+      },
+      {
+        "type": "text",
+        "id": "free_shipping_progress_text",
+        "label": "Progress Text",
+        "default": "Add [amount] more for free shipping in the U.S."
+      },
+      {
+        "type": "text",
+        "id": "free_shipping_unlocked_text",
+        "label": "Unlocked Text",
+        "default": "You unlocked free shipping in the U.S.!"
+      },
+      {
         "type": "richtext",
         "id": "shipping_notice",
         "label": "Shipping Notice",
         "info": "Display shipping information (e.g., 'Free shipping on orders over $50')"
-      }, {
+      },
+      {
         "type": "checkbox",
         "id": "show_payment_badges",
         "label": "Show Payment Method Badges",
