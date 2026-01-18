@@ -24,9 +24,9 @@
   }
 
   .exercise-page__container {
-    max-width: 1000px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 2rem 1.5rem;
+    padding: 2.5rem 2rem;
   }
 
   .exercise-page__header {
@@ -72,8 +72,21 @@
     font-size: 1.125rem;
     color: var(--text-secondary);
     max-width: 600px;
-    margin: 0 auto;
+    margin: 0 auto !important;
     line-height: 1.7;
+  }
+
+  .exercise-page__target {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: center;
+    gap: 0.4rem;
+  }
+
+  .exercise-page__target strong {
+    color: var(--text-primary);
   }
 
   .exercise-page__section {
@@ -158,7 +171,8 @@
     padding: 1.75rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     border: 1px solid var(--border);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.2s ease
+    , box-shadow 0.2s ease;
   }
 
   .exercise-page__rating-card:hover {
@@ -174,10 +188,8 @@
   }
 
   .exercise-page__rating-icon {
-    width: 48px;
-    height: 48px;
-    background: linear-gradient(135deg, var(--primary), var(--primary-light));
-    border-radius: 12px;
+    width: 64px;
+    height: 64px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -193,7 +205,7 @@
     font-size: 1rem;
     font-weight: 700;
     color: var(--text-primary);
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.25rem !important;
   }
 
   .exercise-page__rating-info p {
@@ -201,40 +213,49 @@
     color: var(--text-muted);
   }
 
-  .exercise-page__rating-bar {
-    margin-bottom: 0.75rem;
-  }
-
-  .exercise-page__rating-bar-bg {
-    height: 8px;
-    background: var(--rating-empty);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-
-  .exercise-page__rating-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--primary), var(--primary-light));
-    border-radius: 4px;
-    transition: width 0.5s ease;
-  }
-
   .exercise-page__rating-dots {
     display: flex;
-    gap: 0.5rem;
-    justify-content: space-between;
+    gap: 0;
+    align-items: center;
   }
 
   .exercise-page__rating-dot {
-    width: 100%;
-    height: 4px;
-    border-radius: 2px;
-    background: var(--rating-empty);
-    transition: background 0.3s ease;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
   }
 
-  .exercise-page__rating-dot.is-active {
-    background: var(--primary);
+  .exercise-page__rating-dot svg {
+    display: block;
+    height: 26px;
+    width: auto;
+  }
+
+  .exercise-page__rating-dot:first-child svg {
+    width: 61px;
+  }
+
+  .exercise-page__rating-dot:last-child svg {
+    width: 63px;
+  }
+
+  .exercise-page__rating-dot:not(:first-child):not(:last-child) svg {
+    width: 61px;
+  }
+
+  .exercise-page__rating-dot svg rect,
+  .exercise-page__rating-dot svg path {
+    transition: fill 0.3s ease;
+  }
+
+  .exercise-page__rating-dot:not(.is-active) svg rect,
+  .exercise-page__rating-dot:not(.is-active) svg path {
+    fill: #D9D9D9 !important;
+  }
+
+  .exercise-page__rating-dot.is-active svg rect,
+  .exercise-page__rating-dot.is-active svg path {
+    fill: var(--primary) !important;
   }
 
   .exercise-page__rating-value {
@@ -289,7 +310,8 @@
     border: 1px solid var(--border);
     display: grid;
     grid-template-columns: 1fr 1fr;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.2s ease
+    , box-shadow 0.2s ease;
   }
 
   .exercise-page__tutorial-item:hover {
@@ -308,7 +330,6 @@
   .exercise-page__tutorial-media {
     position: relative;
     background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
-    aspect-ratio: 4 / 3;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -318,6 +339,8 @@
   .exercise-page__tutorial-media img {
     width: 100%;
     height: 100%;
+    min-height: 100%;
+    display: block;
     object-fit: cover;
   }
 
@@ -380,22 +403,6 @@
     color: var(--text-secondary);
   }
 
-  .exercise-page__footer {
-    text-align: center;
-    margin-top: 4rem;
-    padding-top: 2rem;
-    border-top: 1px solid var(--border);
-  }
-
-  .exercise-page__footer p {
-    color: var(--text-muted);
-    font-size: 0.875rem;
-  }
-
-  .exercise-page__footer-brand {
-    color: var(--primary);
-    font-weight: 600;
-  }
 
   @media (max-width: 768px) {
     .exercise-page__container {
@@ -410,9 +417,6 @@
       direction: ltr;
     }
 
-    .exercise-page__tutorial-media {
-      aspect-ratio: 16 / 10;
-    }
 
     .exercise-page__ratings {
       grid-template-columns: 1fr;
@@ -428,56 +432,94 @@
   <div class="exercise-page__container">
     <header class="exercise-page__header">
       <div class="exercise-page__badge">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          aria-hidden="true">
           <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
         </svg>
-        Fundamental Exercise
+        Upper Body Exercise
       </div>
-      <h1 class="exercise-page__title">Back <span>Squat</span></h1>
+      <h1 class="exercise-page__title">Bicep
+        <span>Curls</span>
+      </h1>
       <p class="exercise-page__subtitle">
-        The most complete exercise to build lower-body strength, power, and stability. Essential for any training program.
+        A classic isolation exercise to build arm strength and definition. Perfect for controlled reps and strong bicep engagement.
+      </p>
+      <p class="exercise-page__target">
+        <strong>Target:</strong>
+        <span>Biceps</span>
       </p>
     </header>
 
     <section class="exercise-page__section">
       <h2 class="exercise-page__section-title">About the Exercise</h2>
       <p class="exercise-page__description">
-        The back squat is often called the king of compound lifts. It targets quadriceps, glutes, hamstrings,
-        calves, and core at the same time, while improving hip and ankle mobility. When performed correctly,
-        it strengthens the entire lower body, promotes balance, and helps prevent injuries.
+        Bicep curls isolate the biceps to build strength, size, and definition in the upper arms. Focus on                
+        slow, controlled reps to keep tension on the muscle and avoid using momentum. This movement is great
+        for beginners and advanced lifters alike, especially when paired with strict form and proper breathing.
       </p>
       <div class="exercise-page__benefits">
         <div class="exercise-page__benefit">
           <div class="exercise-page__benefit-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path fill-rule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clip-rule="evenodd" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true">
+              <path
+                fill-rule="evenodd"
+                d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z"
+                clip-rule="evenodd" />
             </svg>
           </div>
-          Builds quadriceps strength
+          Builds bicep strength
         </div>
         <div class="exercise-page__benefit">
           <div class="exercise-page__benefit-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path fill-rule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clip-rule="evenodd" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true">
+              <path
+                fill-rule="evenodd"
+                d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z"
+                clip-rule="evenodd" />
             </svg>
           </div>
-          Maximizes glute activation
+          Improves arm definition
         </div>
         <div class="exercise-page__benefit">
           <div class="exercise-page__benefit-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path fill-rule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clip-rule="evenodd" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true">
+              <path
+                fill-rule="evenodd"
+                d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z"
+                clip-rule="evenodd" />
             </svg>
           </div>
-          Improves mobility
+          Enhances elbow control
         </div>
         <div class="exercise-page__benefit">
           <div class="exercise-page__benefit-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path fill-rule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clip-rule="evenodd" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true">
+              <path
+                fill-rule="evenodd"
+                d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z"
+                clip-rule="evenodd" />
             </svg>
           </div>
-          Stabilizes the core
+          Reinforces grip stability
         </div>
       </div>
     </section>
@@ -486,90 +528,267 @@
       <article class="exercise-page__rating-card">
         <div class="exercise-page__rating-header">
           <div class="exercise-page__rating-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM6.262 6.072a8.25 8.25 0 1010.562-.766 4.5 4.5 0 01-1.318 1.357L14.25 7.5l.165.33a.809.809 0 01-1.086 1.085l-.604-.302a1.125 1.125 0 00-1.298.21l-.132.131c-.439.44-.439 1.152 0 1.591l.296.296c.256.257.622.374.98.314l1.17-.195c.323-.054.654.036.905.245l1.33 1.108c.32.267.46.694.358 1.1a8.7 8.7 0 01-2.288 4.04l-.723.724a1.125 1.125 0 01-1.298.21l-.153-.076a1.125 1.125 0 01-.622-1.006v-1.089c0-.298-.119-.585-.33-.796l-1.347-1.347a1.125 1.125 0 01-.21-1.298L9.75 12l-1.64-1.64a6 6 0 01-1.676-3.257l-.172-1.03z" clip-rule="evenodd" />
-            </svg>
+            <img
+              src="https://cdn.shopify.com/s/files/1/2623/4904/files/Screenshot_2025-08-01_020520_150x.png?v=1754024731"
+              alt="Muscle & Strength icon"
+              width="24"
+              height="24"
+              loading="lazy">
           </div>
           <div class="exercise-page__rating-info">
             <h3>Muscle & Strength</h3>
             <p>Muscle-building impact</p>
           </div>
         </div>
-        <div class="exercise-page__rating-bar">
-          <div class="exercise-page__rating-bar-bg">
-            <div class="exercise-page__rating-bar-fill" style="width: 100%;"></div>
+        <div class="exercise-page__rating-dots">
+          <div class="exercise-page__rating-dot is-active">
+            <svg
+              width="61"
+              height="26"
+              viewBox="0 0 61 26"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <rect
+                width="52.4478"
+                height="26"
+                rx="13"
+                fill="#ff6100"></rect>
+              <path d="M30.0918 0H60.4002L51.4454 26H30.0918V0Z" fill="#ff6100"></path>
+            </svg>
+          </div>
+          <div class="exercise-page__rating-dot is-active">
+            <svg
+              width="61"
+              height="26"
+              viewBox="0 0 61 26"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <path d="M30.4912 -0.00012207H60.7996L51.8448 25.9999H30.4912V-0.00012207Z" fill="#ff6100"></path>
+              <path d="M32.4912 25.9999H0.399985L9.88148 -0.00012207H32.4912V25.9999Z" fill="#ff6100"></path>
+            </svg>
+          </div>
+          <div class="exercise-page__rating-dot is-active">
+            <svg
+              width="61"
+              height="26"
+              viewBox="0 0 61 26"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <path d="M30.4912 -0.00012207H60.7996L51.8448 25.9999H30.4912V-0.00012207Z" fill="#ff6100"></path>
+              <path d="M32.4912 25.9999H0.399985L9.88148 -0.00012207H32.4912V25.9999Z" fill="#ff6100"></path>
+            </svg>
+          </div>
+          <div class="exercise-page__rating-dot is-active">
+            <svg
+              width="61"
+              height="26"
+              viewBox="0 0 61 26"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <path d="M30.4912 -0.00012207H60.7996L51.8448 25.9999H30.4912V-0.00012207Z" fill="#ff6100"></path>
+              <path d="M32.4912 25.9999H0.399985L9.88148 -0.00012207H32.4912V25.9999Z" fill="#ff6100"></path>
+            </svg>
+          </div>
+          <div class="exercise-page__rating-dot is-active">
+            <svg
+              width="63"
+              height="26"
+              viewBox="0 0 63 26"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <rect
+                x="63"
+                y="26"
+                width="52.4478"
+                height="26"
+                rx="13"
+                transform="rotate(180 63 26)"
+                fill="#ff6100"></rect>
+              <path d="M30.9082 26L0.599824 26L9.55457 1.31695e-06L30.9082 0L30.9082 26Z" fill="#ff6100"></path>
+            </svg>
           </div>
         </div>
-        <div class="exercise-page__rating-dots">
-          <div class="exercise-page__rating-dot is-active"></div>
-          <div class="exercise-page__rating-dot is-active"></div>
-          <div class="exercise-page__rating-dot is-active"></div>
-          <div class="exercise-page__rating-dot is-active"></div>
-          <div class="exercise-page__rating-dot is-active"></div>
-        </div>
         <div class="exercise-page__rating-value">
-          <span class="exercise-page__rating-number">5.0</span>
-          <span class="exercise-page__rating-max">/ 5.0</span>
+          <span class="exercise-page__rating-number">5</span>
+          <span>/ 5</span>
         </div>
       </article>
 
       <article class="exercise-page__rating-card">
         <div class="exercise-page__rating-header">
           <div class="exercise-page__rating-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
-            </svg>
+            <img
+              src="https://cdn.shopify.com/s/files/1/2623/4904/files/Screenshot_2025-08-01_020534_150x.png?v=1754024740"
+              alt="Cardio & Endurance icon"
+              width="24"
+              height="24"
+              loading="lazy">
           </div>
           <div class="exercise-page__rating-info">
             <h3>Cardio & Endurance</h3>
             <p>Cardiovascular demand</p>
           </div>
         </div>
-        <div class="exercise-page__rating-bar">
-          <div class="exercise-page__rating-bar-bg">
-            <div class="exercise-page__rating-bar-fill" style="width: 60%;"></div>
+        <div class="exercise-page__rating-dots">
+          <div class="exercise-page__rating-dot is-active">
+            <svg
+              width="61"
+              height="26"
+              viewBox="0 0 61 26"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <rect
+                width="52.4478"
+                height="26"
+                rx="13"
+                fill="#ff6100"></rect>
+              <path d="M30.0918 0H60.4002L51.4454 26H30.0918V0Z" fill="#ff6100"></path>
+            </svg>
+          </div>
+          <div class="exercise-page__rating-dot is-active">
+            <svg
+              width="61"
+              height="26"
+              viewBox="0 0 61 26"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <path d="M30.4912 -0.00012207H60.7996L51.8448 25.9999H30.4912V-0.00012207Z" fill="#ff6100"></path>
+              <path d="M32.4912 25.9999H0.399985L9.88148 -0.00012207H32.4912V25.9999Z" fill="#ff6100"></path>
+            </svg>
+          </div>
+          <div class="exercise-page__rating-dot is-active">
+            <svg
+              width="61"
+              height="26"
+              viewBox="0 0 61 26"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <path d="M30.4912 -0.00012207H60.7996L51.8448 25.9999H30.4912V-0.00012207Z" fill="#ff6100"></path>
+              <path d="M32.4912 25.9999H0.399985L9.88148 -0.00012207H32.4912V25.9999Z" fill="#ff6100"></path>
+            </svg>
+          </div>
+          <div class="exercise-page__rating-dot">
+            <svg
+              width="61"
+              height="26"
+              viewBox="0 0 61 26"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <path d="M30.4912 -0.00012207H60.7996L51.8448 25.9999H30.4912V-0.00012207Z" fill="#D9D9D9"></path>
+              <path d="M32.4912 25.9999H0.399985L9.88148 -0.00012207H32.4912V25.9999Z" fill="#D9D9D9"></path>
+            </svg>
+          </div>
+          <div class="exercise-page__rating-dot">
+            <svg
+              width="63"
+              height="26"
+              viewBox="0 0 63 26"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <rect
+                x="63"
+                y="26"
+                width="52.4478"
+                height="26"
+                rx="13"
+                transform="rotate(180 63 26)"
+                fill="#D9D9D9"></rect>
+              <path d="M30.9082 26L0.599824 26L9.55457 1.31695e-06L30.9082 0L30.9082 26Z" fill="#D9D9D9"></path>
+            </svg>
           </div>
         </div>
-        <div class="exercise-page__rating-dots">
-          <div class="exercise-page__rating-dot is-active"></div>
-          <div class="exercise-page__rating-dot is-active"></div>
-          <div class="exercise-page__rating-dot is-active"></div>
-          <div class="exercise-page__rating-dot"></div>
-          <div class="exercise-page__rating-dot"></div>
-        </div>
         <div class="exercise-page__rating-value">
-          <span class="exercise-page__rating-number">3.0</span>
-          <span class="exercise-page__rating-max">/ 5.0</span>
+          <span class="exercise-page__rating-number">3</span>
+          <span>/ 5</span>
         </div>
       </article>
 
       <article class="exercise-page__rating-card">
         <div class="exercise-page__rating-header">
           <div class="exercise-page__rating-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path fill-rule="evenodd" d="M12 2.25a.75.75 0 01.75.75v.756a49.106 49.106 0 019.152 1 .75.75 0 01-.152 1.485h-1.918l2.474 10.124a.75.75 0 01-.375.84A6.723 6.723 0 0118.75 18a6.723 6.723 0 01-3.181-.795.75.75 0 01-.375-.84l2.474-10.124H12.75v13.28c1.293.076 2.534.343 3.697.776a.75.75 0 01-.262 1.453h-8.37a.75.75 0 01-.262-1.453c1.162-.433 2.404-.7 3.697-.776V6.24H6.332l2.474 10.124a.75.75 0 01-.375.84A6.723 6.723 0 015.25 18a6.723 6.723 0 01-3.181-.795.75.75 0 01-.375-.84L4.168 6.241H2.25a.75.75 0 01-.152-1.485 49.105 49.105 0 019.152-1V3a.75.75 0 01.75-.75zm4.878 13.543l1.872-7.662 1.872 7.662h-3.744zm-9.756 0L5.25 8.131l-1.872 7.662h3.744z" clip-rule="evenodd" />
-            </svg>
+            <img
+              src="https://cdn.shopify.com/s/files/1/2623/4904/files/Screenshot_2025-08-01_020547_150x.png?v=1754024757"
+              alt="Flexibility & Mobility icon"
+              width="24"
+              height="24"
+              loading="lazy">
           </div>
           <div class="exercise-page__rating-info">
             <h3>Flexibility & Mobility</h3>
             <p>Range-of-motion demand</p>
           </div>
         </div>
-        <div class="exercise-page__rating-bar">
-          <div class="exercise-page__rating-bar-bg">
-            <div class="exercise-page__rating-bar-fill" style="width: 80%;"></div>
+        <div class="exercise-page__rating-dots">
+          <div class="exercise-page__rating-dot is-active">
+            <svg
+              width="61"
+              height="26"
+              viewBox="0 0 61 26"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <rect
+                width="52.4478"
+                height="26"
+                rx="13"
+                fill="#ff6100"></rect>
+              <path d="M30.0918 0H60.4002L51.4454 26H30.0918V0Z" fill="#ff6100"></path>
+            </svg>
+          </div>
+          <div class="exercise-page__rating-dot is-active">
+            <svg
+              width="61"
+              height="26"
+              viewBox="0 0 61 26"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <path d="M30.4912 -0.00012207H60.7996L51.8448 25.9999H30.4912V-0.00012207Z" fill="#ff6100"></path>
+              <path d="M32.4912 25.9999H0.399985L9.88148 -0.00012207H32.4912V25.9999Z" fill="#ff6100"></path>
+            </svg>
+          </div>
+          <div class="exercise-page__rating-dot is-active">
+            <svg
+              width="61"
+              height="26"
+              viewBox="0 0 61 26"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <path d="M30.4912 -0.00012207H60.7996L51.8448 25.9999H30.4912V-0.00012207Z" fill="#ff6100"></path>
+              <path d="M32.4912 25.9999H0.399985L9.88148 -0.00012207H32.4912V25.9999Z" fill="#ff6100"></path>
+            </svg>
+          </div>
+          <div class="exercise-page__rating-dot is-active">
+            <svg
+              width="61"
+              height="26"
+              viewBox="0 0 61 26"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <path d="M30.4912 -0.00012207H60.7996L51.8448 25.9999H30.4912V-0.00012207Z" fill="#ff6100"></path>
+              <path d="M32.4912 25.9999H0.399985L9.88148 -0.00012207H32.4912V25.9999Z" fill="#ff6100"></path>
+            </svg>
+          </div>
+          <div class="exercise-page__rating-dot">
+            <svg
+              width="63"
+              height="26"
+              viewBox="0 0 63 26"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <rect
+                x="63"
+                y="26"
+                width="52.4478"
+                height="26"
+                rx="13"
+                transform="rotate(180 63 26)"
+                fill="#D9D9D9"></rect>
+              <path d="M30.9082 26L0.599824 26L9.55457 1.31695e-06L30.9082 0L30.9082 26Z" fill="#D9D9D9"></path>
+            </svg>
           </div>
         </div>
-        <div class="exercise-page__rating-dots">
-          <div class="exercise-page__rating-dot is-active"></div>
-          <div class="exercise-page__rating-dot is-active"></div>
-          <div class="exercise-page__rating-dot is-active"></div>
-          <div class="exercise-page__rating-dot is-active"></div>
-          <div class="exercise-page__rating-dot"></div>
-        </div>
         <div class="exercise-page__rating-value">
-          <span class="exercise-page__rating-number">4.0</span>
-          <span class="exercise-page__rating-max">/ 5.0</span>
+          <span class="exercise-page__rating-number">4</span>
+          <span>/ 5</span>
         </div>
       </article>
     </div>
@@ -583,25 +802,29 @@
         <article class="exercise-page__tutorial-item">
           <div class="exercise-page__tutorial-media">
             <div class="exercise-page__step-badge">1</div>
-            <img
-              src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcTdxOGp2Z2hvdnVhMzV6dXJ6OXBhbXVxNXMyZXY4eTdqcTVqcnRuOSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT9KVg8gkDEyJIrVdK/giphy.gif"
-              alt="Squat starting position"
-              width="640"
-              height="480"
-              loading="lazy"
-              decoding="async"
-            >
+            {%- if section.settings.step_1_gif -%}
+              <img
+                src="{{ section.settings.step_1_gif | image_url: width: 1280 }}"
+                alt="{{ section.settings.step_1_alt | default: 'Bicep curl step 1' }}"
+                width="640"
+                height="480"
+                loading="lazy"
+                decoding="async">
+            {%- endif -%}
           </div>
           <div class="exercise-page__tutorial-content">
-            <h3>Starting Position</h3>
+            <h3>Step 1</h3>
             <p>
-              Stand with your feet shoulder-width apart or slightly wider.
-              Point your toes slightly outward (about 15-30 degrees).
-              Distribute weight evenly through the feet, with an emphasis on the heels.
+              Stand holding weights, palms up, and slowly curl them toward your shoulders while                
+              squeezing the biceps at the top.
             </p>
             <div class="exercise-page__tip">
-              <span>Pro Tip</span>
-              <p>Imagine gripping the floor with your feet for extra stability.</p>
+              <span>Note</span>
+              <p>Control the weights as you lower them fully back down to the starting position.</p>
+            </div>
+            <div class="exercise-page__tip">
+              <span>Caution</span>
+              <p>Avoid swinging your body to lift the weight; keep tension on the biceps.</p>
             </div>
           </div>
         </article>
@@ -609,69 +832,73 @@
         <article class="exercise-page__tutorial-item">
           <div class="exercise-page__tutorial-media">
             <div class="exercise-page__step-badge">2</div>
-            <img
-              src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExaWNuM2M0eWpxZmltYnl6cmx4a2U2YnFocDRmZjJrMDhidGFsaWFjbCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/WqKleIeuWZttuQprZV/giphy.gif"
-              alt="Squat descent phase"
-              width="640"
-              height="480"
-              loading="lazy"
-              decoding="async"
-            >
+            {%- if section.settings.step_2_gif -%}
+              <img
+                src="{{ section.settings.step_2_gif | image_url: width: 1280 }}"
+                alt="{{ section.settings.step_2_alt | default: 'Bicep curl step 2' }}"
+                width="640"
+                height="480"
+                loading="lazy"
+                decoding="async">
+            {%- endif -%}
           </div>
           <div class="exercise-page__tutorial-content">
-            <h3>Descent Phase</h3>
+            <h3>Step 2</h3>
             <p>
-              Initiate the movement by sending your hips back as if sitting into a chair.
-              Bend your knees in line with your toes.
-              Lower until your thighs are parallel to the floor or slightly below.
+              Stand holding weights, palms up, and slowly curl them toward your shoulders while                
+              squeezing the biceps at the top.
             </p>
             <div class="exercise-page__tip">
-              <span>Focus</span>
-              <p>Keep your chest lifted and your gaze forward throughout the descent.</p>
+              <span>Note</span>
+              <p>Control the weights as you lower them fully back down to the starting position.</p>
             </div>
-          </div>
-        </article>
-
-        <article class="exercise-page__tutorial-item">
-          <div class="exercise-page__tutorial-media">
-            <div class="exercise-page__step-badge">3</div>
-            <img
-              src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNDRlYzM2OHNxaDc2ZG9ydnRqY2s5OWd6c2RydHJ1YWU2b2d2d3puNCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/SuEFqeWxlLcvm/giphy.gif"
-              alt="Squat ascent phase"
-              width="640"
-              height="480"
-              loading="lazy"
-              decoding="async"
-            >
-          </div>
-          <div class="exercise-page__tutorial-content">
-            <h3>Ascent Phase</h3>
-            <p>
-              Drive through your heels to return to the starting position.
-              Squeeze the glutes at the top for a complete finish.
-              Keep your core engaged throughout the ascent to protect the lower back.
-            </p>
             <div class="exercise-page__tip">
-              <span>Breathing</span>
-              <p>Inhale on the way down and exhale with effort as you rise.</p>
+              <span>Caution</span>
+              <p>Avoid swinging your body to lift the weight; keep tension on the biceps.</p>
             </div>
           </div>
         </article>
       </div>
     </section>
-
-    <footer class="exercise-page__footer">
-      <p>Built with care by <span class="exercise-page__footer-brand">FitTutorial</span></p>
-    </footer>
   </div>
 </section>
 
 {% schema %}
-{
-  "name": "Exercise Page",
-  "tag": "section",
-  "class": "exercise-page-section",
-  "settings": []
-}
+  {
+    "name": "Exercise Page",
+    "tag": "section",
+    "class": "exercise-page-section",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Step 1 GIF"
+      },
+      {
+        "type": "image_picker",
+        "id": "step_1_gif",
+        "label": "Step 1 GIF/Image",
+        "info": "Upload the GIF or image for step 1 tutorial"
+      },
+      {
+        "type": "text",
+        "id": "step_1_alt",
+        "label": "Step 1 Alt Text",
+        "default": "Bicep curl step 1"
+      },
+      {
+        "type": "header",
+        "content": "Step 2 GIF"
+      }, {
+        "type": "image_picker",
+        "id": "step_2_gif",
+        "label": "Step 2 GIF/Image",
+        "info": "Upload the GIF or image for step 2 tutorial"
+      }, {
+        "type": "text",
+        "id": "step_2_alt",
+        "label": "Step 2 Alt Text",
+        "default": "Bicep curl step 2"
+      }
+    ]
+  }
 {% endschema %}
-
