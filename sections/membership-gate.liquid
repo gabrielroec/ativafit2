@@ -96,10 +96,20 @@
       <p class="membership-gate__text">{{ section.settings.text }}</p>
 
       <div class="membership-gate__actions">
-        <a class="membership-gate__btn membership-gate__btn--primary" href="{{ routes.account_login_url }}">
+        {%- comment -%} Capture current page URL for return redirect after login/register {%- endcomment -%}
+        {%- if request.path != blank -%}
+          {%- assign return_url = request.path -%}
+          {%- if request.query_string != blank -%}
+            {%- assign return_url = return_url | append: '?' | append: request.query_string -%}
+          {%- endif -%}
+          {%- assign return_url = return_url | url_encode -%}
+        {%- else -%}
+          {%- assign return_url = '/' | url_encode -%}
+        {%- endif -%}
+        <a class="membership-gate__btn membership-gate__btn--primary" href="{{ routes.account_login_url }}?return_url={{ return_url }}">
           {{ section.settings.login_label }}
         </a>
-        <a class="membership-gate__btn membership-gate__btn--secondary" href="{{ routes.account_register_url }}">
+        <a class="membership-gate__btn membership-gate__btn--secondary" href="{{ routes.account_register_url }}?return_url={{ return_url }}">
           {{ section.settings.register_label }}
         </a>
       </div>
