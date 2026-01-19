@@ -1,0 +1,228 @@
+{%- comment -%}
+  Membership Gate (Shopify Customer Accounts)
+  - Blocks page content with a full-screen modal until the user logs in or registers.
+  - Reusable: add this section to any template.
+{%- endcomment -%}
+
+{%- if section.settings.enabled and customer == nil -%}
+  {%- style -%}
+    .membership-gate {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 999999;
+      background-color: {{ section.settings.overlay_color | color_modify: 'alpha', section.settings.overlay_opacity }};
+      backdrop-filter: blur({{ section.settings.blur_amount }}px);
+      -webkit-backdrop-filter: blur({{ section.settings.blur_amount }}px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .membership-gate__panel {
+      width: min(520px, 100%);
+      background: {{ section.settings.panel_color }};
+      border-radius: 16px;
+      padding: 28px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      box-shadow: 0 20px 70px rgba(0, 0, 0, 0.25);
+      text-align: center;
+    }
+
+    .membership-gate__title {
+      font-size: 28px;
+      line-height: 1.15;
+      font-weight: 800;
+      margin: 0 0 10px 0;
+      color: #111827;
+    }
+
+    .membership-gate__text {
+      margin: 0 0 18px 0;
+      color: #4b5563;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .membership-gate__actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .membership-gate__btn {
+      width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: none;
+      border: 1px solid transparent;
+      transition: transform 0.12s ease, filter 0.12s ease;
+    }
+
+    .membership-gate__btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(0.98);
+    }
+
+    .membership-gate__btn--primary {
+      background: {{ section.settings.primary_button_color }};
+      color: {{ section.settings.primary_button_text_color }};
+    }
+
+    .membership-gate__btn--secondary {
+      background: transparent;
+      border-color: rgba(17, 24, 39, 0.15);
+      color: #111827;
+    }
+
+    .membership-gate__small {
+      margin-top: 14px;
+      font-size: 13px;
+      color: #6b7280;
+    }
+  {%- endstyle -%}
+
+  <div class="membership-gate" role="dialog" aria-modal="true" aria-label="Member access required">
+    <div class="membership-gate__panel">
+      <h2 class="membership-gate__title">{{ section.settings.title }}</h2>
+      <p class="membership-gate__text">{{ section.settings.text }}</p>
+
+      <div class="membership-gate__actions">
+        <a class="membership-gate__btn membership-gate__btn--primary" href="{{ routes.account_login_url }}">
+          {{ section.settings.login_label }}
+        </a>
+        <a class="membership-gate__btn membership-gate__btn--secondary" href="{{ routes.account_register_url }}">
+          {{ section.settings.register_label }}
+        </a>
+      </div>
+
+      {%- if section.settings.footer_text != blank -%}
+        <div class="membership-gate__small">{{ section.settings.footer_text }}</div>
+      {%- endif -%}
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      // Lock scroll while gate is visible
+      const html = document.documentElement;
+      const body = document.body;
+      const prevHtmlOverflow = html.style.overflow;
+      const prevBodyOverflow = body.style.overflow;
+      html.style.overflow = "hidden";
+      body.style.overflow = "hidden";
+
+      // Focus first action for accessibility
+      const firstBtn = document.querySelector(".membership-gate__btn");
+      if (firstBtn) firstBtn.focus();
+
+      // Safety: restore overflow on unload/navigation
+      window.addEventListener("pagehide", () => {
+        html.style.overflow = prevHtmlOverflow;
+        body.style.overflow = prevBodyOverflow;
+      });
+    })();
+  </script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Membership Gate",
+  "tag": "section",
+  "class": "membership-gate-section",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "enabled",
+      "label": "Enable gate",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Members-only content"
+    },
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "Message",
+      "default": "To continue reading, please log in or create an account to become a member."
+    },
+    {
+      "type": "text",
+      "id": "login_label",
+      "label": "Login button label",
+      "default": "Log in"
+    },
+    {
+      "type": "text",
+      "id": "register_label",
+      "label": "Register button label",
+      "default": "Create account"
+    },
+    {
+      "type": "text",
+      "id": "footer_text",
+      "label": "Footer text (optional)",
+      "default": "Creating an account is free and takes less than a minute."
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Overlay color",
+      "default": "#0B0B0B"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay opacity",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "default": 0.7
+    },
+    {
+      "type": "range",
+      "id": "blur_amount",
+      "label": "Background blur (px)",
+      "min": 0,
+      "max": 24,
+      "step": 1,
+      "default": 12
+    },
+    {
+      "type": "color",
+      "id": "panel_color",
+      "label": "Panel color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_color",
+      "label": "Primary button color",
+      "default": "#EB701F"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_text_color",
+      "label": "Primary button text color",
+      "default": "#FFFFFF"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Membership Gate"
+    }
+  ]
+}
+{% endschema %}
+
