@@ -336,12 +336,128 @@
     overflow: hidden;
   }
 
+  .exercise-page__tutorial-media-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+  }
+
+  .exercise-page__tutorial-gallery {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+  }
+
+  .exercise-page__tutorial-gallery-item {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .exercise-page__tutorial-gallery-item.is-active {
+    position: relative;
+    opacity: 1;
+    z-index: 2;
+  }
+
+  .exercise-page__tutorial-gallery-item img {
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    display: block;
+    object-fit: cover;
+  }
+
   .exercise-page__tutorial-media img {
     width: 100%;
     height: 100%;
     min-height: 100%;
     display: block;
     object-fit: cover;
+  }
+
+  .exercise-page__tutorial-thumbnails {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 0.5rem;
+    border-radius: 8px;
+  }
+
+  .exercise-page__tutorial-thumbnail {
+    width: 50px;
+    height: 50px;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    border: 2px solid transparent;
+  }
+
+  .exercise-page__tutorial-thumbnail:hover {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+
+  .exercise-page__tutorial-thumbnail.is-active {
+    opacity: 1;
+    border-color: var(--primary);
+    transform: scale(1.1);
+  }
+
+  .exercise-page__tutorial-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .exercise-page__tutorial-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    background: rgba(235, 112, 31, 0.9);
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .exercise-page__tutorial-nav:hover {
+    background: var(--primary);
+  }
+
+  .exercise-page__tutorial-nav--prev {
+    left: 1rem;
+  }
+
+  .exercise-page__tutorial-nav--next {
+    right: 1rem;
+  }
+
+  .exercise-page__tutorial-nav:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
   }
 
   .exercise-page__step-badge {
@@ -564,36 +680,161 @@
         <p>Follow each step carefully to perform the movement correctly.</p>
       </div>
       <div class="exercise-page__tutorial-grid">
-        {%- for block in section.blocks -%}
-          {%- assign step_number = forloop.index -%}
-          <article class="exercise-page__tutorial-item {% if block.settings.image_position == 'right' %}exercise-page__tutorial-item--reverse{% endif %}" {{ block.shopify_attributes }}>
+        {%- assign tutorial_steps = section.blocks | where: 'type', 'tutorial_step' -%}
+        {%- for step_block in tutorial_steps -%}
+          {%- assign step_number = forloop.index | times: 1 -%}
+
+          {%- assign image_count = 0 -%}
+          {%- if step_block.settings.image != blank -%}{%- assign image_count = image_count | plus: 1 -%}{%- endif -%}
+          {%- if step_block.settings.image_2 != blank -%}{%- assign image_count = image_count | plus: 1 -%}{%- endif -%}
+          {%- if step_block.settings.image_3 != blank -%}{%- assign image_count = image_count | plus: 1 -%}{%- endif -%}
+          {%- if step_block.settings.image_4 != blank -%}{%- assign image_count = image_count | plus: 1 -%}{%- endif -%}
+
+          <article class="exercise-page__tutorial-item {% if step_block.settings.image_position == 'right' %}exercise-page__tutorial-item--reverse{% endif %}" {{ step_block.shopify_attributes }}>
             <div class="exercise-page__tutorial-media">
               <div class="exercise-page__step-badge">{{ step_number }}</div>
-              {%- if block.settings.image -%}
-                <img
-                  src="{{ block.settings.image | image_url: width: 1280 }}"
-                  alt="{{ block.settings.alt_text | default: 'Step' | append: ' ' | append: step_number }}"
-                  width="640"
-                  height="480"
-                  loading="lazy"
-                  decoding="async">
+
+              {%- if image_count > 1 -%}
+                <div class="exercise-page__tutorial-media-wrapper">
+                  <div class="exercise-page__tutorial-gallery" data-step-gallery="{{ step_block.id }}">
+                    {%- assign idx = 0 -%}
+
+                    {%- if step_block.settings.image != blank -%}
+                      <div class="exercise-page__tutorial-gallery-item {% if idx == 0 %}is-active{% endif %}" data-image-index="{{ idx }}">
+                        <img
+                          src="{{ step_block.settings.image | image_url: width: 1280 }}"
+                          alt="{{ step_block.settings.alt_text | default: step_block.settings.title }}"
+                          width="640"
+                          height="480"
+                          loading="{% if idx == 0 %}eager{% else %}lazy{% endif %}"
+                          decoding="async">
+                      </div>
+                      {%- assign idx = idx | plus: 1 -%}
+                    {%- endif -%}
+
+                    {%- if step_block.settings.image_2 != blank -%}
+                      <div class="exercise-page__tutorial-gallery-item {% if idx == 0 %}is-active{% endif %}" data-image-index="{{ idx }}">
+                        <img
+                          src="{{ step_block.settings.image_2 | image_url: width: 1280 }}"
+                          alt="{{ step_block.settings.alt_text_2 | default: step_block.settings.alt_text | default: step_block.settings.title }}"
+                          width="640"
+                          height="480"
+                          loading="{% if idx == 0 %}eager{% else %}lazy{% endif %}"
+                          decoding="async">
+                      </div>
+                      {%- assign idx = idx | plus: 1 -%}
+                    {%- endif -%}
+
+                    {%- if step_block.settings.image_3 != blank -%}
+                      <div class="exercise-page__tutorial-gallery-item {% if idx == 0 %}is-active{% endif %}" data-image-index="{{ idx }}">
+                        <img
+                          src="{{ step_block.settings.image_3 | image_url: width: 1280 }}"
+                          alt="{{ step_block.settings.alt_text_3 | default: step_block.settings.alt_text | default: step_block.settings.title }}"
+                          width="640"
+                          height="480"
+                          loading="{% if idx == 0 %}eager{% else %}lazy{% endif %}"
+                          decoding="async">
+                      </div>
+                      {%- assign idx = idx | plus: 1 -%}
+                    {%- endif -%}
+
+                    {%- if step_block.settings.image_4 != blank -%}
+                      <div class="exercise-page__tutorial-gallery-item {% if idx == 0 %}is-active{% endif %}" data-image-index="{{ idx }}">
+                        <img
+                          src="{{ step_block.settings.image_4 | image_url: width: 1280 }}"
+                          alt="{{ step_block.settings.alt_text_4 | default: step_block.settings.alt_text | default: step_block.settings.title }}"
+                          width="640"
+                          height="480"
+                          loading="{% if idx == 0 %}eager{% else %}lazy{% endif %}"
+                          decoding="async">
+                      </div>
+                      {%- assign idx = idx | plus: 1 -%}
+                    {%- endif -%}
+
+                    <button type="button" class="exercise-page__tutorial-nav exercise-page__tutorial-nav--prev" aria-label="Previous image" data-nav="prev">‹</button>
+                    <button type="button" class="exercise-page__tutorial-nav exercise-page__tutorial-nav--next" aria-label="Next image" data-nav="next">›</button>
+                  </div>
+
+                  <div class="exercise-page__tutorial-thumbnails">
+                    {%- assign t = 0 -%}
+                    {%- if step_block.settings.image != blank -%}
+                      <button type="button" class="exercise-page__tutorial-thumbnail {% if t == 0 %}is-active{% endif %}" data-thumbnail-index="{{ t }}" aria-label="View image {{ t | plus: 1 }}">
+                        <img src="{{ step_block.settings.image | image_url: width: 100 }}" alt="" width="50" height="50" loading="lazy" decoding="async">
+                      </button>
+                      {%- assign t = t | plus: 1 -%}
+                    {%- endif -%}
+                    {%- if step_block.settings.image_2 != blank -%}
+                      <button type="button" class="exercise-page__tutorial-thumbnail {% if t == 0 %}is-active{% endif %}" data-thumbnail-index="{{ t }}" aria-label="View image {{ t | plus: 1 }}">
+                        <img src="{{ step_block.settings.image_2 | image_url: width: 100 }}" alt="" width="50" height="50" loading="lazy" decoding="async">
+                      </button>
+                      {%- assign t = t | plus: 1 -%}
+                    {%- endif -%}
+                    {%- if step_block.settings.image_3 != blank -%}
+                      <button type="button" class="exercise-page__tutorial-thumbnail {% if t == 0 %}is-active{% endif %}" data-thumbnail-index="{{ t }}" aria-label="View image {{ t | plus: 1 }}">
+                        <img src="{{ step_block.settings.image_3 | image_url: width: 100 }}" alt="" width="50" height="50" loading="lazy" decoding="async">
+                      </button>
+                      {%- assign t = t | plus: 1 -%}
+                    {%- endif -%}
+                    {%- if step_block.settings.image_4 != blank -%}
+                      <button type="button" class="exercise-page__tutorial-thumbnail {% if t == 0 %}is-active{% endif %}" data-thumbnail-index="{{ t }}" aria-label="View image {{ t | plus: 1 }}">
+                        <img src="{{ step_block.settings.image_4 | image_url: width: 100 }}" alt="" width="50" height="50" loading="lazy" decoding="async">
+                      </button>
+                      {%- assign t = t | plus: 1 -%}
+                    {%- endif -%}
+                  </div>
+                </div>
+
+              {%- elsif image_count == 1 -%}
+                {%- if step_block.settings.image != blank -%}
+                  <img
+                    src="{{ step_block.settings.image | image_url: width: 1280 }}"
+                    alt="{{ step_block.settings.alt_text | default: step_block.settings.title }}"
+                    width="640"
+                    height="480"
+                    loading="lazy"
+                    decoding="async">
+                {%- elsif step_block.settings.image_2 != blank -%}
+                  <img
+                    src="{{ step_block.settings.image_2 | image_url: width: 1280 }}"
+                    alt="{{ step_block.settings.alt_text_2 | default: step_block.settings.alt_text | default: step_block.settings.title }}"
+                    width="640"
+                    height="480"
+                    loading="lazy"
+                    decoding="async">
+                {%- elsif step_block.settings.image_3 != blank -%}
+                  <img
+                    src="{{ step_block.settings.image_3 | image_url: width: 1280 }}"
+                    alt="{{ step_block.settings.alt_text_3 | default: step_block.settings.alt_text | default: step_block.settings.title }}"
+                    width="640"
+                    height="480"
+                    loading="lazy"
+                    decoding="async">
+                {%- elsif step_block.settings.image_4 != blank -%}
+                  <img
+                    src="{{ step_block.settings.image_4 | image_url: width: 1280 }}"
+                    alt="{{ step_block.settings.alt_text_4 | default: step_block.settings.alt_text | default: step_block.settings.title }}"
+                    width="640"
+                    height="480"
+                    loading="lazy"
+                    decoding="async">
+                {%- endif -%}
               {%- endif -%}
             </div>
             <div class="exercise-page__tutorial-content">
-              <h3>{{ block.settings.title | default: 'Step' | append: ' ' | append: step_number }}</h3>
-              {%- if block.settings.description != blank -%}
-                <p>{{ block.settings.description }}</p>
+              <h3>{{ step_block.settings.title | default: 'Step' | append: ' ' | append: step_number }}</h3>
+              {%- if step_block.settings.description != blank -%}
+                <p>{{ step_block.settings.description }}</p>
               {%- endif -%}
-              {%- if block.settings.note != blank -%}
+              {%- if step_block.settings.note != blank -%}
                 <div class="exercise-page__tip">
                   <span>Note</span>
-                  <p>{{ block.settings.note }}</p>
+                  <p>{{ step_block.settings.note }}</p>
                 </div>
               {%- endif -%}
-              {%- if block.settings.caution != blank -%}
+              {%- if step_block.settings.caution != blank -%}
                 <div class="exercise-page__tip">
                   <span>Caution</span>
-                  <p>{{ block.settings.caution }}</p>
+                  <p>{{ step_block.settings.caution }}</p>
                 </div>
               {%- endif -%}
             </div>
@@ -603,6 +844,67 @@
     </section>
   </div>
 </section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const galleries = document.querySelectorAll('[data-step-gallery]');
+    
+    galleries.forEach(gallery => {
+      const images = gallery.querySelectorAll('.exercise-page__tutorial-gallery-item');
+      const wrapper = gallery.closest('.exercise-page__tutorial-media-wrapper');
+      const thumbnails = wrapper?.querySelectorAll('.exercise-page__tutorial-thumbnail') || [];
+      const prevBtn = gallery.querySelector('[data-nav="prev"]');
+      const nextBtn = gallery.querySelector('[data-nav="next"]');
+      let currentIndex = 0;
+      
+      if (images.length <= 1) {
+        if (prevBtn) prevBtn.style.display = 'none';
+        if (nextBtn) nextBtn.style.display = 'none';
+        if (thumbnails.length > 0) {
+          thumbnails[0].parentElement.style.display = 'none';
+        }
+        return;
+      }
+      
+      function showImage(index) {
+        images.forEach((img, i) => {
+          img.classList.toggle('is-active', i === index);
+        });
+        thumbnails.forEach((thumb, i) => {
+          thumb.classList.toggle('is-active', i === index);
+        });
+        currentIndex = index;
+        
+        if (prevBtn) prevBtn.disabled = index === 0;
+        if (nextBtn) nextBtn.disabled = index === images.length - 1;
+      }
+      
+      if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+          if (currentIndex > 0) {
+            showImage(currentIndex - 1);
+          }
+        });
+      }
+      
+      if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+          if (currentIndex < images.length - 1) {
+            showImage(currentIndex + 1);
+          }
+        });
+      }
+      
+      thumbnails.forEach((thumb, index) => {
+        thumb.addEventListener('click', () => {
+          showImage(index);
+        });
+      });
+      
+      showImage(0);
+    });
+  });
+</script>
 
 {% schema %}
   {
@@ -715,8 +1017,22 @@
           {
             "type": "image_picker",
             "id": "image",
-            "label": "GIF/Image",
-            "info": "Upload the GIF or image for this step"
+            "label": "Main GIF/Image"
+          },
+          {
+            "type": "image_picker",
+            "id": "image_2",
+            "label": "Extra GIF/Image 2 (Optional)"
+          },
+          {
+            "type": "image_picker",
+            "id": "image_3",
+            "label": "Extra GIF/Image 3 (Optional)"
+          },
+          {
+            "type": "image_picker",
+            "id": "image_4",
+            "label": "Extra GIF/Image 4 (Optional)"
           },
           {
             "type": "text",
@@ -745,6 +1061,21 @@
             "id": "alt_text",
             "label": "Image Alt Text",
             "default": "Exercise step"
+          }, {
+            "type": "text",
+            "id": "alt_text_2",
+            "label": "Alt Text (Image 2)",
+            "default": "Exercise step (image 2)"
+          }, {
+            "type": "text",
+            "id": "alt_text_3",
+            "label": "Alt Text (Image 3)",
+            "default": "Exercise step (image 3)"
+          }, {
+            "type": "text",
+            "id": "alt_text_4",
+            "label": "Alt Text (Image 4)",
+            "default": "Exercise step (image 4)"
           }, {
             "type": "select",
             "id": "image_position",
