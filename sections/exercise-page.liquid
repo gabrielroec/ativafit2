@@ -625,14 +625,23 @@
           <article class="exercise-page__rating-card" {{ block.shopify_attributes }}>
             <div class="exercise-page__rating-header">
               <div class="exercise-page__rating-icon">
-                {%- if block.settings.icon != blank -%}
-                  <img
-                    src="{{ block.settings.icon | image_url: width: 64 }}"
-                    alt="{{ block.settings.title | default: 'Rating icon' }}"
-                    width="64"
-                    height="64"
-                    loading="lazy">
+                {%- assign rating_title = block.settings.title | downcase -%}
+                {%- if rating_title contains 'muscle' or rating_title contains 'strength' -%}
+                  {%- assign icon_url = 'https://cdn.shopify.com/s/files/1/2623/4904/files/Screenshot_2025-08-01_020520_150x.png?v=1754024731' -%}
+                {%- elsif rating_title contains 'cardio' or rating_title contains 'endurance' -%}
+                  {%- assign icon_url = 'https://cdn.shopify.com/s/files/1/2623/4904/files/Screenshot_2025-08-01_020534_150x.png?v=1754024740' -%}
+                {%- elsif rating_title contains 'flexibility' or rating_title contains 'mobility' -%}
+                  {%- assign icon_url = 'https://cdn.shopify.com/s/files/1/2623/4904/files/Screenshot_2025-08-01_020547_150x.png?v=1754024757' -%}
+                {%- else -%}
+                  {%- assign icon_url = 'https://cdn.shopify.com/s/files/1/2623/4904/files/Screenshot_2025-08-01_020520_150x.png?v=1754024731' -%}
                 {%- endif -%}
+                <img
+                  src="{{ icon_url }}"
+                  alt="{{ block.settings.title | default: 'Rating icon' }}"
+                  width="64"
+                  height="64"
+                  loading="lazy"
+                  decoding="async">
               </div>
               <div class="exercise-page__rating-info">
                 <h3>{{ block.settings.title }}</h3>
@@ -982,9 +991,8 @@
         "name": "Rating",
         "settings": [
           {
-            "type": "image_picker",
-            "id": "icon",
-            "label": "Icon"
+            "type": "paragraph",
+            "content": "Icons are automatically assigned based on rating title: 'Muscle & Strength', 'Cardio & Endurance', or 'Flexibility & Mobility'"
           },
           {
             "type": "text",
