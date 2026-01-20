@@ -183,7 +183,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 {% include 'pagefly-app-header' %}</head>
         
 
-  <body class="Ativafit--v4 {% if settings.animation_image_zoom %}features--animate-zoom{% endif%} template-{{ request.page_type | handle }} {% if request.page_type contains '/' %}template-{{ request.page_type | split: '/' | last | handle }}{% endif %}" data-instant-intensity="viewport"><div class="pagefly-container">
-              {{ content_for_layout }}
-            </div></body>
+  <body class="Ativafit--v4 {% if settings.animation_image_zoom %}features--animate-zoom{% endif%} template-{{ request.page_type | handle }} {% if request.page_type contains '/' %}template-{{ request.page_type | split: '/' | last | handle }}{% endif %}" data-instant-intensity="viewport">
+    <div class="pagefly-container">
+      {{ content_for_layout }}
+    </div>
+
+    {%- comment -%} Global Sections {%- endcomment -%}
+    {% section 'cart-drawer' %}
+    {% render 'one-click-upsell-global' %}
+    {% render 'cart-notification' %}
+  </body>
 </html>

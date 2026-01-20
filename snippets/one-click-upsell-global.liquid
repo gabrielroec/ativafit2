@@ -1,0 +1,360 @@
+{% comment %} 
+  One-Click Upsell - Global Snippet
+  Renderiza diretamente no layout para garantir funcionamento em todas as páginas 
+{% endcomment %}
+
+{%- liquid
+  assign enabled = settings.ocp_enabled
+  assign product_handle = settings.ocp_product_handle
+  assign upsell_product = all_products[product_handle]
+
+  if enabled and upsell_product != blank
+    assign upsell_variant = upsell_product.selected_or_first_available_variant
+  endif
+-%}
+
+{% if enabled and upsell_product != blank and upsell_variant != blank %}
+  <style>
+    .ocp-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 999998;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease
+      , visibility 0.3s ease;
+    }
+
+    .ocp-modal.is-visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .ocp-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      cursor: pointer;
+    }
+
+    .ocp-panel {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 768px;
+      background: #fff;
+      border-radius: 16px;
+      padding: 32px 28px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      transform: scale(0.95) translateY(20px);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .ocp-modal.is-visible .ocp-panel {
+      transform: scale(1) translateY(0);
+    }
+
+    .ocp-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: none;
+      border: none;
+      font-size: 28px;
+      line-height: 1;
+      color: #9ca3af;
+      cursor: pointer;
+      padding: 8px;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      transition: background 0.2s ease
+      , color 0.2s ease;
+    }
+
+    .ocp-close:hover {
+      background: #f3f4f6;
+      color: #111827;
+    }
+
+    .ocp-badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #eb701f;
+      background: rgba(235, 112, 31, 0.1);
+      padding: 6px 12px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+    }
+
+    .ocp-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #111827;
+      margin: 0 0 16px;
+      line-height: 1.2;
+    }
+
+    .ocp-countdown {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #ef4444, #ef4444);
+      color: #fff;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .ocp-countdown-icon {
+      font-size: 18px;
+    }
+
+    .ocp-countdown-time {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .ocp-product {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: #f9fafb;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .ocp-product-image {
+      width: 350px;
+      height: 350px;
+      flex-shrink: 0;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .ocp-product-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .ocp-product-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .ocp-name {
+      font-size: 32px;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+
+    .ocp-price {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 18px;
+      font-weight: 700;
+      color: #eb701f;
+    }
+
+    .ocp-price s {
+      font-size: 15px;
+      color: #9ca3af;
+      font-weight: 400;
+    }
+
+    .ocp-discount-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #73c3014f, #408603bd);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 400;
+      padding: 4px 10px;
+      border-radius: 900px;
+      margin-left: 8px;
+    }
+
+    .ocp-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .ocp-cta {
+      width: 100%;
+      background: #eb701f;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 16px 24px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s ease
+      , transform 0.1s ease;
+    }
+
+    .ocp-cta:hover {
+      background: #d65a0f;
+      transform: translateY(-1px);
+    }
+
+    .ocp-cta:active {
+      transform: translateY(0);
+    }
+
+    .ocp-cta:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .ocp-btn-secondary {
+      width: 100%;
+      background: transparent;
+      color: #6b7280;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 14px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .ocp-btn-secondary:hover {
+      background: #f9fafb;
+      color: #111827;
+      border-color: #d1d5db;
+    }
+
+    body.ocp-open {
+      overflow: hidden;
+    }
+
+    @media (max-width: 480px) {
+      .ocp-panel {
+        padding: 24px 20px;
+      }
+
+      .ocp-title {
+        font-size: 20px;
+      }
+
+      .ocp-product-image {
+        width: 110px;
+        height: 110px;
+      }
+
+      .ocp-countdown {
+        font-size: 14px;
+      }
+
+      .ocp-countdown-time {
+        font-size: 18px;
+      }
+    }
+  </style>
+
+  <div
+    id="ocp-upsell-global"
+    class="ocp-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="ocp-title"
+    aria-hidden="true">
+    <div
+      class="ocp-backdrop"
+      data-ocp-close
+      aria-label="Close"></div>
+    <div class="ocp-panel">
+      <button
+        class="ocp-close"
+        type="button"
+        data-ocp-close
+        aria-label="Close">&times;</button>
+
+      <div class="ocp-badge">{{ settings.ocp_badge_text | default: 'Special Offer' }}</div>
+
+      <h2 class="ocp-title" id="ocp-title">{{ settings.ocp_title | default: 'Wait! Limited Time Special Offer' }}</h2>
+
+      {% if settings.ocp_show_countdown %}
+        <div class="ocp-countdown">
+          <span class="ocp-countdown-icon">⏰</span>
+          <span>Offer expires in</span>
+          <span class="ocp-countdown-time" data-countdown-target></span>
+        </div>
+      {% endif %}
+
+      <div class="ocp-product">
+        {% if upsell_product.featured_image %}
+          <div class="ocp-product-image">
+            <img
+              src="{{ upsell_product.featured_image | image_url: width: 700 }}"
+              alt="{{ upsell_product.title | escape }}"
+              width="350"
+              height="350"
+              loading="lazy">
+          </div>
+        {% endif %}
+        <div class="ocp-product-info">
+          <div class="ocp-name">{{ upsell_product.title }}</div>
+          <div class="ocp-price">
+            <span>{{ upsell_variant.price | money }}</span>
+            {% if upsell_variant.compare_at_price > upsell_variant.price %}
+              <s>{{ upsell_variant.compare_at_price | money }}</s>
+              {%- assign discount_amount = upsell_variant.compare_at_price | minus: upsell_variant.price -%}
+              {%- assign discount_percent = discount_amount | times: 100.0 | divided_by: upsell_variant.compare_at_price | round -%}
+              <span class="ocp-discount-badge">-{{ discount_percent }}%</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="ocp-actions">
+        <button
+          class="ocp-cta"
+          type="button"
+          data-ocp-add>
+          {{ settings.ocp_cta_label | default: 'Add to Cart - 1 Click' }}
+        </button>
+        {% if settings.ocp_show_decline %}
+          <button
+            class="ocp-btn-secondary"
+            type="button"
+            data-ocp-close>
+            {{ settings.ocp_decline_label | default: 'No thanks, I will miss this offer' }}
+          </button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.OCP_CONFIG = {
+      variantId: {{ upsell_variant.id | json }},
+      cooldownMs: {{ settings.ocp_cooldown_minutes | default: 5 | times: 60000 | json }},
+      offerKey: {{ settings.ocp_offer_key | default: 'default_offer' | json }},
+      countdownDuration: {{ settings.ocp_countdown_duration | default: 120 | json }},
+      showCountdown: {{ settings.ocp_show_countdown | default: true | json }}
+    };
+  </script>
+  <script src="{{ 'one-click-upsell-global.js' | asset_url }}" defer></script>
+{% endif %}
