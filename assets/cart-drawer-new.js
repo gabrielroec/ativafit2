@@ -594,22 +594,15 @@ document.addEventListener("DOMContentLoaded", () => {
   
   function setupRecommendationsToggle() {
     const button = document.querySelector('[data-recommendations-toggle]');
-    if (!button) return;
+    if (!button || button._toggleInit) return;
     
-    // Remove old listener if exists
-    if (button._ocpToggleListener) {
-      button.removeEventListener('click', button._ocpToggleListener);
-    }
+    button._toggleInit = true;
     
-    // Create new listener
-    button._ocpToggleListener = function() {
+    button.addEventListener('click', function() {
       const isExpanded = this.getAttribute('aria-expanded') === 'true';
       this.setAttribute('aria-expanded', String(!isExpanded));
       localStorage.setItem('cart-recommendations-expanded', String(!isExpanded));
-    };
-    
-    // Attach listener
-    button.addEventListener('click', button._ocpToggleListener);
+    });
     
     // Restore saved state
     const savedState = localStorage.getItem('cart-recommendations-expanded');
@@ -618,14 +611,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
   
-  // Initialize on load
   setupRecommendationsToggle();
   
-  // Re-initialize after cart drawer updates
-  const observer = new MutationObserver(() => setupRecommendationsToggle());
-  const cartDrawerItems = document.getElementById('CartDrawer-Items');
-  if (cartDrawerItems) {
-    observer.observe(cartDrawerItems, { childList: true, subtree: true });
-  }
+  // Re-initialize after updates
+  new MutationObserver(() => {
+    const button = document.querySelector('[data-recommendations-toggle]');
+    if (button && !button._toggleInit) setupRecommendationsToggle();
+  }).observe(document.body, { childList: true, subtree: true });
 
 });
