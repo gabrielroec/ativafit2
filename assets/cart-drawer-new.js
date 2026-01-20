@@ -589,4 +589,43 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
   });
+
+  // ========== Recommendations Collapse/Expand ==========
+  
+  function setupRecommendationsToggle() {
+    const button = document.querySelector('[data-recommendations-toggle]');
+    if (!button) return;
+    
+    // Remove old listener if exists
+    if (button._ocpToggleListener) {
+      button.removeEventListener('click', button._ocpToggleListener);
+    }
+    
+    // Create new listener
+    button._ocpToggleListener = function() {
+      const isExpanded = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', String(!isExpanded));
+      localStorage.setItem('cart-recommendations-expanded', String(!isExpanded));
+    };
+    
+    // Attach listener
+    button.addEventListener('click', button._ocpToggleListener);
+    
+    // Restore saved state
+    const savedState = localStorage.getItem('cart-recommendations-expanded');
+    if (savedState === 'false') {
+      button.setAttribute('aria-expanded', 'false');
+    }
+  }
+  
+  // Initialize on load
+  setupRecommendationsToggle();
+  
+  // Re-initialize after cart drawer updates
+  const observer = new MutationObserver(() => setupRecommendationsToggle());
+  const cartDrawerItems = document.getElementById('CartDrawer-Items');
+  if (cartDrawerItems) {
+    observer.observe(cartDrawerItems, { childList: true, subtree: true });
+  }
+
 });
