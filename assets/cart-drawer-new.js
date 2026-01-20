@@ -592,31 +592,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ========== Recommendations Collapse/Expand ==========
   
-  function setupRecommendationsToggle() {
-    const button = document.querySelector('[data-recommendations-toggle]');
-    if (!button || button._toggleInit) return;
+  document.addEventListener('click', (e) => {
+    const button = e.target.closest('[data-recommendations-toggle]');
+    if (!button) return;
     
-    button._toggleInit = true;
-    
-    button.addEventListener('click', function() {
-      const isExpanded = this.getAttribute('aria-expanded') === 'true';
-      this.setAttribute('aria-expanded', String(!isExpanded));
-      localStorage.setItem('cart-recommendations-expanded', String(!isExpanded));
-    });
-    
-    // Restore saved state
-    const savedState = localStorage.getItem('cart-recommendations-expanded');
-    if (savedState === 'false') {
-      button.setAttribute('aria-expanded', 'false');
-    }
-  }
-  
-  setupRecommendationsToggle();
-  
-  // Re-initialize after updates
-  new MutationObserver(() => {
-    const button = document.querySelector('[data-recommendations-toggle]');
-    if (button && !button._toggleInit) setupRecommendationsToggle();
-  }).observe(document.body, { childList: true, subtree: true });
+    const isExpanded = button.getAttribute('aria-expanded') === 'true';
+    button.setAttribute('aria-expanded', String(!isExpanded));
+  });
 
 });
