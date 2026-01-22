@@ -73,35 +73,37 @@
 
           {%- comment -%} Price with Discount Info {%- endcomment -%}
           <div class="cart-item__price">
-            {%- comment -%} Calculate savings {%- endcomment -%}
             {%- assign has_discount = false -%}
             {%- assign savings = 0 -%}
-            
-            {%- comment -%} Check compare_at_price from variant {%- endcomment -%}
+            {%- assign old_line_price = 0 -%}
+            {%- assign final_line_price = item.final_line_price -%}
+
+            {%- comment -%} Prefer compare_at for the strikethrough price when available {%- endcomment -%}
             {%- if item.variant.compare_at_price and item.variant.compare_at_price > item.price -%}
               {%- assign has_discount = true -%}
-              {%- assign per_unit_savings = item.variant.compare_at_price | minus: item.price -%}
-              {%- assign savings = per_unit_savings | times: item.quantity -%}
+              {%- assign old_line_price = item.variant.compare_at_price | times: item.quantity -%}
+              {%- assign savings = old_line_price | minus: final_line_price -%}
             {%- endif -%}
 
-            {%- comment -%} Or check original vs final line price {%- endcomment -%}
-            {%- if has_discount == false and item.original_line_price > item.final_line_price -%}
+            {%- comment -%} Fallback to line-level discount comparison {%- endcomment -%}
+            {%- if has_discount == false and item.original_line_price > final_line_price -%}
               {%- assign has_discount = true -%}
-              {%- assign savings = item.original_line_price | minus: item.final_line_price -%}
+              {%- assign old_line_price = item.original_line_price -%}
+              {%- assign savings = old_line_price | minus: final_line_price -%}
             {%- endif -%}
 
             <div class="cart-item__price-wrapper">
               <span class="cart-item__final-price">
-                {{ item.final_line_price | money }}
+                {{ final_line_price | money }}
               </span>
-              
-              {%- if has_discount -%}
+
+              {%- if has_discount and old_line_price > final_line_price -%}
                 <span class="cart-item__old-price">
-                  {{ item.original_line_price | money }}
+                  {{ old_line_price | money }}
                 </span>
               {%- endif -%}
             </div>
-            
+
             {%- comment -%} Savings Badge {%- endcomment -%}
             {%- if has_discount and savings > 0 -%}
               <div class="cart-item__savings-badge">
