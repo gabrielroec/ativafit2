@@ -43,9 +43,27 @@
     <div class="media-mentions-grid">
       {%- for block in section.blocks -%}
         {%- if block.type == 'media_mention' -%}
-          <div 
-            class="media-mention-card"
-            {{ block.shopify_attributes }}>
+          {%- liquid
+            assign card_url = block.settings.link_url
+            assign has_link = false
+            if card_url != blank
+              assign has_link = true
+            endif
+          -%}
+          
+          {%- if has_link -%}
+            <a 
+              href="{{ card_url }}"
+              class="media-mention-card media-mention-card--link"
+              {{ block.shopify_attributes }}
+              {% if block.settings.title != blank %}
+                aria-label="{{ block.settings.title | escape }}"
+              {% endif %}>
+          {%- else -%}
+            <div 
+              class="media-mention-card"
+              {{ block.shopify_attributes }}>
+          {%- endif -%}
             
             {%- if block.settings.logo != blank -%}
               {%- liquid
@@ -74,7 +92,12 @@
             {%- if block.settings.description != blank -%}
               <p>{{ block.settings.description }}</p>
             {%- endif -%}
-          </div>
+            
+          {%- if has_link -%}
+            </a>
+          {%- else -%}
+            </div>
+          {%- endif -%}
         {%- endif -%}
       {%- endfor -%}
     </div>
@@ -119,9 +142,18 @@
   transition: transform .18s;
   border: 1.5px solid rgba(235,112,31,0.07);
   animation: popCard .7s;
+  text-decoration: none;
+  color: inherit;
 }
 .media-mention-card:hover {
   transform: translateY(-7px) scale(1.025);
+}
+.media-mention-card--link {
+  cursor: pointer;
+}
+.media-mention-card--link:focus {
+  outline: 2px solid #EB701F;
+  outline-offset: 2px;
 }
 .media-logo {
   max-width: 180px;
@@ -268,6 +300,12 @@
           "id": "description",
           "label": "Descrição",
           "default": "Descrição da menção na mídia."
+        },
+        {
+          "type": "url",
+          "id": "link_url",
+          "label": "Link do Card",
+          "info": "Opcional: adicione um link para tornar o card clicável"
         }
       ]
     }
