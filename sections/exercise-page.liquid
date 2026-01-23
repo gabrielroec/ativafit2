@@ -3,18 +3,39 @@
     --primary: #eb701f;
     --primary-light: #f59a56;
     --primary-dark: #c55a12;
-    --background: #fafafa;
-    --surface: #ffffff;
+    --background: #ffffff;
+    --surface: #fafafa;
     --text-primary: #1a1a1a;
     --text-secondary: #6b7280;
     --text-muted: #9ca3af;
     --border: #e5e7eb;
-    --rating-empty: #e5e7eb;
-    background-color: var(--background);
+    --spacing: 3rem;
+    background-color: #ffffff;
     color: var(--text-primary);
     font-family: var(--font-body-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
+    counter-increment: exercise-counter;
+  }
+
+  /* Alternating colors for exercises */
+  /* Since exercise_group_intro is first, exercise-page sections start at nth-of-type(2) */
+  .exercise-page {
+    background-color: #ffffff;
+  }
+
+  /* Odd exercise-page sections (1st, 3rd, 5th exercise) - white */
+  .exercise-page:nth-of-type(2),
+  .exercise-page:nth-of-type(4),
+  .exercise-page:nth-of-type(6) {
+    background-color: #ffffff;
+  }
+
+  /* Even exercise-page sections (2nd, 4th, 6th exercise) - light gray */
+  .exercise-page:nth-of-type(3),
+  .exercise-page:nth-of-type(5),
+  .exercise-page:nth-of-type(7) {
+    background-color: #f8f9fa;
   }
 
   .exercise-page * {
@@ -24,43 +45,57 @@
   }
 
   .exercise-page__container {
-    max-width: 1200px;
+    max-width: 1000px;
     margin: 0 auto;
-    padding: 2.5rem 2rem;
+    padding: 4rem 1.5rem 5rem;
   }
 
+  /* Separation between exercises */
+  .exercise-page + .exercise-page {
+    margin-top: 0;
+    padding-top: 5rem;
+  }
+
+  .exercise-page:first-of-type .exercise-page__container {
+    padding-top: 4rem;
+  }
+
+  .exercise-page__container {
+    position: relative;
+  }
+
+  /* Header - Nike/Adidas Style */
   .exercise-page__header {
     text-align: left;
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
     border-bottom: 1px solid var(--border);
   }
 
   .exercise-page__badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    color: #ffffff;
-    padding: 0.5rem 1rem;
-    border-radius: 50px;
-    font-size: 0.75rem;
-    font-weight: 600;
+    display: inline-block;
+    background: transparent;
+    color: var(--primary);
+    padding: 0;
+    border-radius: 0;
+    font-size: 0.65rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 1.5rem;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.75rem;
   }
 
   .exercise-page__badge svg {
-    width: 14px;
-    height: 14px;
+    display: none;
   }
 
   .exercise-page__title {
-    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-size: clamp(2.25rem, 5vw, 3.5rem);
     font-weight: 800;
     color: var(--text-primary);
-    margin-bottom: 1rem;
-    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
   }
 
   .exercise-page__title span {
@@ -68,154 +103,120 @@
   }
 
   .exercise-page__subtitle {
-    font-size: 1.125rem;
+    font-size: 0.95rem;
     color: var(--text-secondary);
-    max-width: 600px;
+    max-width: 650px;
     margin: 0;
-    line-height: 1.7;
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+    font-weight: 400;
   }
 
   .exercise-page__target {
-    margin-top: 1rem;
-    font-size: 0.95rem;
-    color: var(--text-secondary);
+    margin-top: 0.75rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
     display: flex;
     justify-content: flex-start;
     gap: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
   }
 
   .exercise-page__target strong {
     color: var(--text-primary);
+    font-weight: 700;
   }
 
+  /* About Section - Nike/Adidas Style */
   .exercise-page__section {
-    background: var(--surface);
-    border-radius: 20px;
-    padding: 2.5rem;
+    background: transparent;
+    padding: 0;
     margin-bottom: 2rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    border: 1px solid var(--border);
   }
 
   .exercise-page__section-title {
-    font-size: 1.25rem;
+    font-size: 0.75rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: var(--text-muted);
     margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .exercise-page__section-title::before {
-    content: "";
-    width: 4px;
-    height: 24px;
-    background: var(--primary);
-    border-radius: 2px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
   }
 
   .exercise-page__description {
-    color: var(--text-secondary);
-    font-size: 1rem;
-    line-height: 1.8;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    font-weight: 400;
+    max-width: 700px;
   }
 
-  .exercise-page__benefits {
+  /* Ratings - Nike/Adidas Style */
+  .exercise-page__ratings {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-top: 1.5rem;
+    gap: 0;
+    margin-bottom: 2rem;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
   }
 
-  .exercise-page__benefit {
+  .exercise-page__rating-card {
+    background: transparent;
+    border-radius: 0;
+    padding: 1.5rem 1rem;
+    border: none;
+    border-right: 1px solid var(--border);
+  }
+
+  .exercise-page__rating-card:last-child {
+    border-right: none;
+  }
+
+  .exercise-page__rating-header {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 0.75rem 1rem;
-    background: var(--background);
-    border-radius: 10px;
-    font-size: 0.9rem;
-    color: var(--text-primary);
-    font-weight: 500;
+    margin-bottom: 0.75rem;
   }
 
-  .exercise-page__benefit-icon {
-    width: 24px;
-    height: 24px;
-    background: var(--primary);
-    border-radius: 50%;
+  .exercise-page__rating-icon {
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
   }
 
-  .exercise-page__benefit-icon svg {
-    width: 14px;
-    height: 14px;
-    color: #ffffff;
-  }
-
-  .exercise-page__ratings {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-  }
-
-  .exercise-page__rating-card {
-    background: var(--surface);
-    border-radius: 16px;
-    padding: 1.75rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    border: 1px solid var(--border);
-    transition: transform 0.2s ease
-    , box-shadow 0.2s ease;
-  }
-
-  .exercise-page__rating-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(235, 112, 31, 0.1);
-  }
-
-  .exercise-page__rating-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.25rem;
-  }
-
-  .exercise-page__rating-icon {
-    width: 64px;
-    height: 64px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .exercise-page__rating-icon svg {
-    width: 24px;
-    height: 24px;
-    color: #ffffff;
+  .exercise-page__rating-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
   }
 
   .exercise-page__rating-info h3 {
-    font-size: 1rem;
+    font-size: 0.75rem;
     font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 0.25rem !important;
+    color: var(--text-muted);
+    margin-bottom: 0.125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   .exercise-page__rating-info p {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     color: var(--text-muted);
+    font-weight: 400;
   }
 
   .exercise-page__rating-dots {
     display: flex;
     gap: 0;
     align-items: center;
+    margin-bottom: 0.5rem;
   }
 
   .exercise-page__rating-dot {
@@ -226,30 +227,30 @@
 
   .exercise-page__rating-dot svg {
     display: block;
-    height: 26px;
+    height: 18px;
     width: auto;
   }
 
   .exercise-page__rating-dot:first-child svg {
-    width: 61px;
+    width: 44px;
   }
 
   .exercise-page__rating-dot:last-child svg {
-    width: 63px;
+    width: 46px;
   }
 
   .exercise-page__rating-dot:not(:first-child):not(:last-child) svg {
-    width: 61px;
+    width: 44px;
   }
 
   .exercise-page__rating-dot svg rect,
   .exercise-page__rating-dot svg path {
-    transition: fill 0.3s ease;
+    transition: fill 0.2s ease;
   }
 
   .exercise-page__rating-dot:not(.is-active) svg rect,
   .exercise-page__rating-dot:not(.is-active) svg path {
-    fill: #D9D9D9 !important;
+    fill: #E5E5E5 !important;
   }
 
   .exercise-page__rating-dot.is-active svg rect,
@@ -259,41 +260,44 @@
 
   .exercise-page__rating-value {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 0.75rem;
+    align-items: baseline;
+    gap: 0.25rem;
   }
 
   .exercise-page__rating-number {
     font-size: 1.5rem;
     font-weight: 800;
-    color: var(--primary);
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
   }
 
-  .exercise-page__rating-max {
+  .exercise-page__rating-value span:last-child {
     font-size: 0.875rem;
     color: var(--text-muted);
+    font-weight: 400;
   }
 
+  /* Tutorial Section - Clean Layout */
   .exercise-page__tutorial {
-    margin-top: 3rem;
+    margin-top: var(--spacing);
   }
 
   .exercise-page__tutorial-header {
-    text-align: center;
-    margin-bottom: 2.5rem;
+    text-align: left;
+    margin-bottom: 2rem;
   }
 
   .exercise-page__tutorial-header h2 {
-    font-size: 1.75rem;
-    font-weight: 800;
+    font-size: 1.5rem;
+    font-weight: 700;
     color: var(--text-primary);
     margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
   }
 
   .exercise-page__tutorial-header p {
     color: var(--text-secondary);
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
 
   .exercise-page__tutorial-grid {
@@ -303,19 +307,11 @@
 
   .exercise-page__tutorial-item {
     background: var(--surface);
-    border-radius: 20px;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     border: 1px solid var(--border);
     display: grid;
     grid-template-columns: 1fr 1fr;
-    transition: transform 0.2s ease
-    , box-shadow 0.2s ease;
-  }
-
-  .exercise-page__tutorial-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 30px rgba(235, 112, 31, 0.12);
   }
 
   .exercise-page__tutorial-item--reverse {
@@ -328,7 +324,7 @@
 
   .exercise-page__tutorial-media {
     position: relative;
-    background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+    background: #f3f4f6;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -339,14 +335,14 @@
     position: relative;
     width: 100%;
     height: 100%;
-    min-height: 400px;
+    min-height: 350px;
   }
 
   .exercise-page__tutorial-gallery {
     position: relative;
     width: 100%;
     height: 100%;
-    min-height: 400px;
+    min-height: 350px;
   }
 
   .exercise-page__tutorial-gallery-item {
@@ -389,31 +385,29 @@
     display: flex;
     gap: 0.5rem;
     z-index: 10;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.6);
     padding: 0.5rem;
-    border-radius: 8px;
+    border-radius: 6px;
   }
 
   .exercise-page__tutorial-thumbnail {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     border-radius: 4px;
     overflow: hidden;
     cursor: pointer;
     opacity: 0.6;
-    transition: opacity 0.2s ease, transform 0.2s ease;
+    transition: opacity 0.2s ease;
     border: 2px solid transparent;
   }
 
   .exercise-page__tutorial-thumbnail:hover {
     opacity: 1;
-    transform: scale(1.1);
   }
 
   .exercise-page__tutorial-thumbnail.is-active {
     opacity: 1;
     border-color: var(--primary);
-    transform: scale(1.1);
   }
 
   .exercise-page__tutorial-thumbnail img {
@@ -427,18 +421,18 @@
     top: 50%;
     transform: translateY(-50%);
     z-index: 10;
-    background: rgba(235, 112, 31, 0.9);
+    background: rgba(235, 112, 31, 0.85);
     color: white;
     border: none;
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: background 0.2s ease;
-    font-size: 18px;
+    font-size: 16px;
     line-height: 1;
   }
 
@@ -447,11 +441,11 @@
   }
 
   .exercise-page__tutorial-nav--prev {
-    left: 1rem;
+    left: 0.75rem;
   }
 
   .exercise-page__tutorial-nav--next {
-    right: 1rem;
+    right: 0.75rem;
   }
 
   .exercise-page__tutorial-nav:disabled {
@@ -461,67 +455,89 @@
 
   .exercise-page__step-badge {
     position: absolute;
-    top: 1rem;
-    left: 1rem;
+    top: 0.75rem;
+    left: 0.75rem;
     background: var(--primary);
     color: #ffffff;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 1rem;
-    box-shadow: 0 4px 12px rgba(235, 112, 31, 0.3);
+    font-size: 0.875rem;
+    z-index: 5;
   }
 
   .exercise-page__tutorial-content {
-    padding: 2rem;
+    padding: 1.75rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
   }
 
   .exercise-page__tutorial-content h3 {
-    font-size: 1.25rem;
-    font-weight: 700;
+    font-size: 1.125rem;
+    font-weight: 600;
     color: var(--text-primary);
     margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
   }
 
   .exercise-page__tutorial-content p {
     color: var(--text-secondary);
-    font-size: 0.95rem;
-    line-height: 1.7;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
   }
 
   .exercise-page__tip {
-    margin-top: 1rem;
-    padding: 1rem;
-    background: rgba(235, 112, 31, 0.08);
-    border-radius: 10px;
+    margin-top: 0.75rem;
+    padding: 0.875rem;
+    background: rgba(235, 112, 31, 0.06);
+    border-radius: 8px;
     border-left: 3px solid var(--primary);
   }
 
   .exercise-page__tip span {
     font-weight: 600;
     color: var(--primary);
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    display: block;
+    margin-bottom: 0.25rem;
   }
 
   .exercise-page__tip p {
-    margin-top: 0.25rem;
-    font-size: 0.875rem;
+    margin: 0;
+    font-size: 0.85rem;
     color: var(--text-secondary);
+    line-height: 1.5;
   }
 
 
   @media (max-width: 768px) {
     .exercise-page__container {
-      padding: 1.5rem 1rem;
+      padding: 2.5rem 1rem 3.5rem;
+    }
+
+    .exercise-page + .exercise-page {
+      padding-top: 3.5rem;
+    }
+
+    .exercise-page:first-of-type .exercise-page__container {
+      padding-top: 2.5rem;
+    }
+
+    .exercise-page__header {
+      margin-bottom: 2rem;
+      padding-bottom: 1.25rem;
+    }
+
+    .exercise-page__title {
+      font-size: clamp(1.75rem, 6vw, 2.5rem);
     }
 
     .exercise-page__tutorial-item {
@@ -532,18 +548,34 @@
       direction: ltr;
     }
 
-
     .exercise-page__ratings {
       grid-template-columns: 1fr;
+      border-left: none;
+      border-right: none;
     }
 
-    .exercise-page__section {
+    .exercise-page__rating-card {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      padding: 1.25rem 0;
+    }
+
+    .exercise-page__rating-card:last-child {
+      border-bottom: none;
+    }
+
+    .exercise-page__tutorial-content {
       padding: 1.5rem;
+    }
+
+    .exercise-page__tutorial-media-wrapper,
+    .exercise-page__tutorial-gallery {
+      min-height: 280px;
     }
   }
 {%- endstyle -%}
 
-<section class="exercise-page">
+<section class="exercise-page" data-exercise-index>
   <div class="exercise-page__container">
     <header class="exercise-page__header">
       {%- if section.settings.badge_text != blank -%}
@@ -581,7 +613,7 @@
       {%- endif -%}
     </header>
 
-    {%- if section.settings.about_title != blank or section.settings.about_description != blank or section.blocks.size > 0 -%}
+    {%- if section.settings.about_title != blank or section.settings.about_description != blank -%}
       <section class="exercise-page__section">
         {%- if section.settings.about_title != blank -%}
           <h2 class="exercise-page__section-title">{{ section.settings.about_title }}</h2>
@@ -590,28 +622,6 @@
           <p class="exercise-page__description">
             {{ section.settings.about_description }}
           </p>
-        {%- endif -%}
-        {%- assign benefit_blocks = section.blocks | where: 'type', 'benefit' -%}
-        {%- if benefit_blocks.size > 0 -%}
-          <div class="exercise-page__benefits">
-            {%- for block in benefit_blocks -%}
-              <div class="exercise-page__benefit" {{ block.shopify_attributes }}>
-                <div class="exercise-page__benefit-icon">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    aria-hidden="true">
-                    <path
-                      fill-rule="evenodd"
-                      d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z"
-                      clip-rule="evenodd" />
-                  </svg>
-                </div>
-                {{ block.settings.text }}
-              </div>
-            {%- endfor -%}
-          </div>
         {%- endif -%}
       </section>
     {%- endif -%}
@@ -637,8 +647,8 @@
                 <img
                   src="{{ icon_url }}"
                   alt="{{ block.settings.title | default: 'Rating icon' }}"
-                  width="64"
-                  height="64"
+                  width="48"
+                  height="48"
                   loading="lazy"
                   decoding="async">
               </div>
@@ -652,22 +662,22 @@
                 {%- if i == 1 -%}
                   <div class="exercise-page__rating-dot {% if i <= rating_value %}is-active{% endif %}">
                     <svg width="61" height="26" viewBox="0 0 61 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <rect width="52.4478" height="26" rx="13" fill="{% if i <= rating_value %}#ff6100{% else %}#D9D9D9{% endif %}"></rect>
-                      <path d="M30.0918 0H60.4002L51.4454 26H30.0918V0Z" fill="{% if i <= rating_value %}#ff6100{% else %}#D9D9D9{% endif %}"></path>
+                      <rect width="52.4478" height="26" rx="13" fill="{% if i <= rating_value %}#eb701f{% else %}#D9D9D9{% endif %}"></rect>
+                      <path d="M30.0918 0H60.4002L51.4454 26H30.0918V0Z" fill="{% if i <= rating_value %}#eb701f{% else %}#D9D9D9{% endif %}"></path>
                     </svg>
                   </div>
                 {%- elsif i == 5 -%}
                   <div class="exercise-page__rating-dot {% if i <= rating_value %}is-active{% endif %}">
                     <svg width="63" height="26" viewBox="0 0 63 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <rect x="63" y="26" width="52.4478" height="26" rx="13" transform="rotate(180 63 26)" fill="{% if i <= rating_value %}#ff6100{% else %}#D9D9D9{% endif %}"></rect>
-                      <path d="M30.9082 26L0.599824 26L9.55457 1.31695e-06L30.9082 0L30.9082 26Z" fill="{% if i <= rating_value %}#ff6100{% else %}#D9D9D9{% endif %}"></path>
+                      <rect x="63" y="26" width="52.4478" height="26" rx="13" transform="rotate(180 63 26)" fill="{% if i <= rating_value %}#eb701f{% else %}#D9D9D9{% endif %}"></rect>
+                      <path d="M30.9082 26L0.599824 26L9.55457 1.31695e-06L30.9082 0L30.9082 26Z" fill="{% if i <= rating_value %}#eb701f{% else %}#D9D9D9{% endif %}"></path>
                     </svg>
                   </div>
                 {%- else -%}
                   <div class="exercise-page__rating-dot {% if i <= rating_value %}is-active{% endif %}">
                     <svg width="61" height="26" viewBox="0 0 61 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M30.4912 -0.00012207H60.7996L51.8448 25.9999H30.4912V-0.00012207Z" fill="{% if i <= rating_value %}#ff6100{% else %}#D9D9D9{% endif %}"></path>
-                      <path d="M32.4912 25.9999H0.399985L9.88148 -0.00012207H32.4912V25.9999Z" fill="{% if i <= rating_value %}#ff6100{% else %}#D9D9D9{% endif %}"></path>
+                      <path d="M30.4912 -0.00012207H60.7996L51.8448 25.9999H30.4912V-0.00012207Z" fill="{% if i <= rating_value %}#eb701f{% else %}#D9D9D9{% endif %}"></path>
+                      <path d="M32.4912 25.9999H0.399985L9.88148 -0.00012207H32.4912V25.9999Z" fill="{% if i <= rating_value %}#eb701f{% else %}#D9D9D9{% endif %}"></path>
                     </svg>
                   </div>
                 {%- endif -%}
@@ -767,25 +777,25 @@
                     {%- assign t = 0 -%}
                     {%- if step_block.settings.image != blank -%}
                       <button type="button" class="exercise-page__tutorial-thumbnail {% if t == 0 %}is-active{% endif %}" data-thumbnail-index="{{ t }}" aria-label="View image {{ t | plus: 1 }}">
-                        <img src="{{ step_block.settings.image | image_url: width: 100 }}" alt="" width="50" height="50" loading="lazy" decoding="async">
+                        <img src="{{ step_block.settings.image | image_url: width: 100 }}" alt="" width="40" height="40" loading="lazy" decoding="async">
                       </button>
                       {%- assign t = t | plus: 1 -%}
                     {%- endif -%}
                     {%- if step_block.settings.image_2 != blank -%}
                       <button type="button" class="exercise-page__tutorial-thumbnail {% if t == 0 %}is-active{% endif %}" data-thumbnail-index="{{ t }}" aria-label="View image {{ t | plus: 1 }}">
-                        <img src="{{ step_block.settings.image_2 | image_url: width: 100 }}" alt="" width="50" height="50" loading="lazy" decoding="async">
+                        <img src="{{ step_block.settings.image_2 | image_url: width: 100 }}" alt="" width="40" height="40" loading="lazy" decoding="async">
                       </button>
                       {%- assign t = t | plus: 1 -%}
                     {%- endif -%}
                     {%- if step_block.settings.image_3 != blank -%}
                       <button type="button" class="exercise-page__tutorial-thumbnail {% if t == 0 %}is-active{% endif %}" data-thumbnail-index="{{ t }}" aria-label="View image {{ t | plus: 1 }}">
-                        <img src="{{ step_block.settings.image_3 | image_url: width: 100 }}" alt="" width="50" height="50" loading="lazy" decoding="async">
+                        <img src="{{ step_block.settings.image_3 | image_url: width: 100 }}" alt="" width="40" height="40" loading="lazy" decoding="async">
                       </button>
                       {%- assign t = t | plus: 1 -%}
                     {%- endif -%}
                     {%- if step_block.settings.image_4 != blank -%}
                       <button type="button" class="exercise-page__tutorial-thumbnail {% if t == 0 %}is-active{% endif %}" data-thumbnail-index="{{ t }}" aria-label="View image {{ t | plus: 1 }}">
-                        <img src="{{ step_block.settings.image_4 | image_url: width: 100 }}" alt="" width="50" height="50" loading="lazy" decoding="async">
+                        <img src="{{ step_block.settings.image_4 | image_url: width: 100 }}" alt="" width="40" height="40" loading="lazy" decoding="async">
                       </button>
                       {%- assign t = t | plus: 1 -%}
                     {%- endif -%}
@@ -855,6 +865,16 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    // Apply alternating colors to exercise sections
+    const exerciseSections = document.querySelectorAll('.exercise-page');
+    exerciseSections.forEach((section, index) => {
+      if (index % 2 === 0) {
+        section.style.backgroundColor = '#ffffff';
+      } else {
+        section.style.backgroundColor = '#f8f9fa';
+      }
+    });
+
     const galleries = document.querySelectorAll('[data-step-gallery]');
     
     galleries.forEach(gallery => {
@@ -974,18 +994,6 @@
     ],
     "blocks": [
       {
-        "type": "benefit",
-        "name": "Benefit",
-        "settings": [
-          {
-            "type": "text",
-            "id": "text",
-            "label": "Benefit Text",
-            "default": "Builds bicep strength"
-          }
-        ]
-      },
-      {
         "type": "rating",
         "name": "Rating",
         "settings": [
@@ -1058,32 +1066,38 @@
             "id": "note",
             "label": "Note (Optional)",
             "info": "Additional tip or note for this step"
-          }, {
+          },
+          {
             "type": "textarea",
             "id": "caution",
             "label": "Caution (Optional)",
             "info": "Warning or caution message for this step"
-          }, {
+          },
+          {
             "type": "text",
             "id": "alt_text",
             "label": "Image Alt Text",
             "default": "Exercise step"
-          }, {
+          },
+          {
             "type": "text",
             "id": "alt_text_2",
             "label": "Alt Text (Image 2)",
             "default": "Exercise step (image 2)"
-          }, {
+          },
+          {
             "type": "text",
             "id": "alt_text_3",
             "label": "Alt Text (Image 3)",
             "default": "Exercise step (image 3)"
-          }, {
+          },
+          {
             "type": "text",
             "id": "alt_text_4",
             "label": "Alt Text (Image 4)",
             "default": "Exercise step (image 4)"
-          }, {
+          },
+          {
             "type": "select",
             "id": "image_position",
             "label": "Image Position",
@@ -1091,7 +1105,8 @@
               {
                 "value": "left",
                 "label": "Left"
-              }, {
+              },
+              {
                 "value": "right",
                 "label": "Right"
               }
@@ -1104,86 +1119,7 @@
     ],
     "presets": [
       {
-        "name": "Exercise Page",
-        "settings": {
-          "badge_text": "Upper Body Exercise",
-          "title": "Bicep Curls",
-          "title_highlight": "Curls",
-          "subtitle": "A classic isolation exercise to build arm strength and definition. Perfect for controlled reps and strong bicep engagement.",
-          "target": "Biceps",
-          "about_title": "About the Exercise",
-          "about_description": "Bicep curls isolate the biceps to build strength, size, and definition in the upper arms. Focus on slow, controlled reps to keep tension on the muscle and avoid using momentum. This movement is great for beginners and advanced lifters alike, especially when paired with strict form and proper breathing."
-        },
-        "blocks": [
-          {
-            "type": "benefit",
-            "settings": {
-              "text": "Builds bicep strength"
-            }
-          },
-          {
-            "type": "benefit",
-            "settings": {
-              "text": "Improves arm definition"
-            }
-          },
-          {
-            "type": "benefit",
-            "settings": {
-              "text": "Enhances elbow control"
-            }
-          },
-          {
-            "type": "benefit",
-            "settings": {
-              "text": "Reinforces grip stability"
-            }
-          },
-          {
-            "type": "rating",
-            "settings": {
-              "title": "Muscle & Strength",
-              "subtitle": "Muscle-building impact",
-              "rating_value": 5
-            }
-          },
-          {
-            "type": "rating",
-            "settings": {
-              "title": "Cardio & Endurance",
-              "subtitle": "Cardiovascular demand",
-              "rating_value": 3
-            }
-          },
-          {
-            "type": "rating",
-            "settings": {
-              "title": "Flexibility & Mobility",
-              "subtitle": "Range-of-motion demand",
-              "rating_value": 4
-            }
-          },
-          {
-            "type": "tutorial_step",
-            "settings": {
-              "title": "Step 1",
-              "description": "Stand holding weights, palms up, and slowly curl them toward your shoulders while squeezing the biceps at the top.",
-              "note": "Control the weights as you lower them fully back down to the starting position.",
-              "caution": "Avoid swinging your body to lift the weight; keep tension on the biceps.",
-              "image_position": "left"
-            }
-          },
-          {
-            "type": "tutorial_step",
-            "settings": {
-              "title": "Step 2",
-              "description": "Stand holding weights, palms up, and slowly curl them toward your shoulders while squeezing the biceps at the top.",
-              "note": "Control the weights as you lower them fully back down to the starting position.",
-              "caution": "Avoid swinging your body to lift the weight; keep tension on the biceps.",
-              "image_position": "right"
-            }
-          }
-        ]
+        "name": "Exercise Page"
       }
     ]
   }
