@@ -712,20 +712,20 @@
         {%- for step_block in tutorial_steps -%}
           {%- assign step_number = forloop.index | times: 1 -%}
 
-          {%- comment -%} Helper function to check if media is video {%- endcomment -%}
+          {%- comment -%} Count media items (videos take priority over images) {%- endcomment -%}
           {%- liquid
-            assign image_count = 0
-            if step_block.settings.image != blank
-              assign image_count = image_count | plus: 1
+            assign media_count = 0
+            if step_block.settings.video != blank or step_block.settings.image != blank
+              assign media_count = media_count | plus: 1
             endif
-            if step_block.settings.image_2 != blank
-              assign image_count = image_count | plus: 1
+            if step_block.settings.video_2 != blank or step_block.settings.image_2 != blank
+              assign media_count = media_count | plus: 1
             endif
-            if step_block.settings.image_3 != blank
-              assign image_count = image_count | plus: 1
+            if step_block.settings.video_3 != blank or step_block.settings.image_3 != blank
+              assign media_count = media_count | plus: 1
             endif
-            if step_block.settings.image_4 != blank
-              assign image_count = image_count | plus: 1
+            if step_block.settings.video_4 != blank or step_block.settings.image_4 != blank
+              assign media_count = media_count | plus: 1
             endif
           -%}
 
@@ -733,28 +733,24 @@
             <div class="exercise-page__tutorial-media">
               <div class="exercise-page__step-badge">{{ step_number }}</div>
 
-              {%- if image_count > 1 -%}
+              {%- if media_count > 1 -%}
                 <div class="exercise-page__tutorial-media-wrapper">
                   <div class="exercise-page__tutorial-gallery" data-step-gallery="{{ step_block.id }}">
                     {%- assign idx = 0 -%}
 
-                    {%- if step_block.settings.image != blank -%}
+                    {%- if step_block.settings.video != blank or step_block.settings.image != blank -%}
                       {%- liquid
-                        assign image_url = step_block.settings.image | image_url: width: 1280
-                        assign image_file_url = step_block.settings.image | file_url
                         assign is_video = false
                         assign video_url = ''
-                        if image_file_url != blank
-                          if image_file_url contains '.mp4' or image_file_url contains '.MP4'
-                            assign is_video = true
-                            assign video_url = image_file_url
+                        assign image_url = ''
+                        if step_block.settings.video != blank
+                          assign is_video = true
+                          assign video_sources = step_block.settings.video.sources
+                          if video_sources.size > 0
+                            assign video_url = video_sources[0].url
                           endif
-                        endif
-                        if is_video == false and image_url != blank
-                          if image_url contains '.mp4' or image_url contains '.MP4'
-                            assign is_video = true
-                            assign video_url = image_url
-                          endif
+                        elsif step_block.settings.image != blank
+                          assign image_url = step_block.settings.image | image_url: width: 1280
                         endif
                       -%}
                       <div class="exercise-page__tutorial-gallery-item {% if idx == 0 %}is-active{% endif %}" data-image-index="{{ idx }}" data-media-type="{% if is_video %}video{% else %}image{% endif %}">
@@ -781,14 +777,19 @@
                       {%- assign idx = idx | plus: 1 -%}
                     {%- endif -%}
 
-                    {%- if step_block.settings.image_2 != blank -%}
+                    {%- if step_block.settings.video_2 != blank or step_block.settings.image_2 != blank -%}
                       {%- liquid
-                        assign image_url = step_block.settings.image_2 | image_url: width: 1280
-                        assign image_file_url = step_block.settings.image_2 | file_url
                         assign is_video = false
-                        if image_file_url contains '.mp4' or image_file_url contains '.MP4' or image_url contains '.mp4' or image_url contains '.MP4'
+                        assign video_url = ''
+                        assign image_url = ''
+                        if step_block.settings.video_2 != blank
                           assign is_video = true
-                          assign video_url = image_file_url
+                          assign video_sources = step_block.settings.video_2.sources
+                          if video_sources.size > 0
+                            assign video_url = video_sources[0].url
+                          endif
+                        elsif step_block.settings.image_2 != blank
+                          assign image_url = step_block.settings.image_2 | image_url: width: 1280
                         endif
                       -%}
                       <div class="exercise-page__tutorial-gallery-item {% if idx == 0 %}is-active{% endif %}" data-image-index="{{ idx }}" data-media-type="{% if is_video %}video{% else %}image{% endif %}">
@@ -815,14 +816,19 @@
                       {%- assign idx = idx | plus: 1 -%}
                     {%- endif -%}
 
-                    {%- if step_block.settings.image_3 != blank -%}
+                    {%- if step_block.settings.video_3 != blank or step_block.settings.image_3 != blank -%}
                       {%- liquid
-                        assign image_url = step_block.settings.image_3 | image_url: width: 1280
-                        assign image_file_url = step_block.settings.image_3 | file_url
                         assign is_video = false
-                        if image_file_url contains '.mp4' or image_file_url contains '.MP4' or image_url contains '.mp4' or image_url contains '.MP4'
+                        assign video_url = ''
+                        assign image_url = ''
+                        if step_block.settings.video_3 != blank
                           assign is_video = true
-                          assign video_url = image_file_url
+                          assign video_sources = step_block.settings.video_3.sources
+                          if video_sources.size > 0
+                            assign video_url = video_sources[0].url
+                          endif
+                        elsif step_block.settings.image_3 != blank
+                          assign image_url = step_block.settings.image_3 | image_url: width: 1280
                         endif
                       -%}
                       <div class="exercise-page__tutorial-gallery-item {% if idx == 0 %}is-active{% endif %}" data-image-index="{{ idx }}" data-media-type="{% if is_video %}video{% else %}image{% endif %}">
@@ -849,14 +855,19 @@
                       {%- assign idx = idx | plus: 1 -%}
                     {%- endif -%}
 
-                    {%- if step_block.settings.image_4 != blank -%}
+                    {%- if step_block.settings.video_4 != blank or step_block.settings.image_4 != blank -%}
                       {%- liquid
-                        assign image_url = step_block.settings.image_4 | image_url: width: 1280
-                        assign image_file_url = step_block.settings.image_4 | file_url
                         assign is_video = false
-                        if image_file_url contains '.mp4' or image_file_url contains '.MP4' or image_url contains '.mp4' or image_url contains '.MP4'
+                        assign video_url = ''
+                        assign image_url = ''
+                        if step_block.settings.video_4 != blank
                           assign is_video = true
-                          assign video_url = image_file_url
+                          assign video_sources = step_block.settings.video_4.sources
+                          if video_sources.size > 0
+                            assign video_url = video_sources[0].url
+                          endif
+                        elsif step_block.settings.image_4 != blank
+                          assign image_url = step_block.settings.image_4 | image_url: width: 1280
                         endif
                       -%}
                       <div class="exercise-page__tutorial-gallery-item {% if idx == 0 %}is-active{% endif %}" data-image-index="{{ idx }}" data-media-type="{% if is_video %}video{% else %}image{% endif %}">
@@ -889,42 +900,63 @@
 
                   <div class="exercise-page__tutorial-thumbnails">
                     {%- assign t = 0 -%}
-                    {%- if step_block.settings.image != blank -%}
-                      <button type="button" class="exercise-page__tutorial-thumbnail {% if t == 0 %}is-active{% endif %}" data-thumbnail-index="{{ t }}" aria-label="View image {{ t | plus: 1 }}">
-                        <img src="{{ step_block.settings.image | image_url: width: 100 }}" alt="" width="40" height="40" loading="lazy" decoding="async">
+                    {%- if step_block.settings.video != blank or step_block.settings.image != blank -%}
+                      <button type="button" class="exercise-page__tutorial-thumbnail {% if t == 0 %}is-active{% endif %}" data-thumbnail-index="{{ t }}" aria-label="View media {{ t | plus: 1 }}">
+                        {%- if step_block.settings.video != blank -%}
+                          <img src="{{ step_block.settings.video.preview_image | image_url: width: 100 }}" alt="" width="40" height="40" loading="lazy" decoding="async">
+                        {%- else -%}
+                          <img src="{{ step_block.settings.image | image_url: width: 100 }}" alt="" width="40" height="40" loading="lazy" decoding="async">
+                        {%- endif -%}
                       </button>
                       {%- assign t = t | plus: 1 -%}
                     {%- endif -%}
-                    {%- if step_block.settings.image_2 != blank -%}
-                      <button type="button" class="exercise-page__tutorial-thumbnail {% if t == 0 %}is-active{% endif %}" data-thumbnail-index="{{ t }}" aria-label="View image {{ t | plus: 1 }}">
-                        <img src="{{ step_block.settings.image_2 | image_url: width: 100 }}" alt="" width="40" height="40" loading="lazy" decoding="async">
+                    {%- if step_block.settings.video_2 != blank or step_block.settings.image_2 != blank -%}
+                      <button type="button" class="exercise-page__tutorial-thumbnail {% if t == 0 %}is-active{% endif %}" data-thumbnail-index="{{ t }}" aria-label="View media {{ t | plus: 1 }}">
+                        {%- if step_block.settings.video_2 != blank -%}
+                          <img src="{{ step_block.settings.video_2.preview_image | image_url: width: 100 }}" alt="" width="40" height="40" loading="lazy" decoding="async">
+                        {%- else -%}
+                          <img src="{{ step_block.settings.image_2 | image_url: width: 100 }}" alt="" width="40" height="40" loading="lazy" decoding="async">
+                        {%- endif -%}
                       </button>
                       {%- assign t = t | plus: 1 -%}
                     {%- endif -%}
-                    {%- if step_block.settings.image_3 != blank -%}
-                      <button type="button" class="exercise-page__tutorial-thumbnail {% if t == 0 %}is-active{% endif %}" data-thumbnail-index="{{ t }}" aria-label="View image {{ t | plus: 1 }}">
-                        <img src="{{ step_block.settings.image_3 | image_url: width: 100 }}" alt="" width="40" height="40" loading="lazy" decoding="async">
+                    {%- if step_block.settings.video_3 != blank or step_block.settings.image_3 != blank -%}
+                      <button type="button" class="exercise-page__tutorial-thumbnail {% if t == 0 %}is-active{% endif %}" data-thumbnail-index="{{ t }}" aria-label="View media {{ t | plus: 1 }}">
+                        {%- if step_block.settings.video_3 != blank -%}
+                          <img src="{{ step_block.settings.video_3.preview_image | image_url: width: 100 }}" alt="" width="40" height="40" loading="lazy" decoding="async">
+                        {%- else -%}
+                          <img src="{{ step_block.settings.image_3 | image_url: width: 100 }}" alt="" width="40" height="40" loading="lazy" decoding="async">
+                        {%- endif -%}
                       </button>
                       {%- assign t = t | plus: 1 -%}
                     {%- endif -%}
-                    {%- if step_block.settings.image_4 != blank -%}
-                      <button type="button" class="exercise-page__tutorial-thumbnail {% if t == 0 %}is-active{% endif %}" data-thumbnail-index="{{ t }}" aria-label="View image {{ t | plus: 1 }}">
-                        <img src="{{ step_block.settings.image_4 | image_url: width: 100 }}" alt="" width="40" height="40" loading="lazy" decoding="async">
+                    {%- if step_block.settings.video_4 != blank or step_block.settings.image_4 != blank -%}
+                      <button type="button" class="exercise-page__tutorial-thumbnail {% if t == 0 %}is-active{% endif %}" data-thumbnail-index="{{ t }}" aria-label="View media {{ t | plus: 1 }}">
+                        {%- if step_block.settings.video_4 != blank -%}
+                          <img src="{{ step_block.settings.video_4.preview_image | image_url: width: 100 }}" alt="" width="40" height="40" loading="lazy" decoding="async">
+                        {%- else -%}
+                          <img src="{{ step_block.settings.image_4 | image_url: width: 100 }}" alt="" width="40" height="40" loading="lazy" decoding="async">
+                        {%- endif -%}
                       </button>
                       {%- assign t = t | plus: 1 -%}
                     {%- endif -%}
                   </div>
                 </div>
 
-              {%- elsif image_count == 1 -%}
-                {%- if step_block.settings.image != blank -%}
+              {%- elsif media_count == 1 -%}
+                {%- if step_block.settings.video != blank or step_block.settings.image != blank -%}
                   {%- liquid
-                    assign image_url = step_block.settings.image | image_url: width: 1280
-                    assign image_file_url = step_block.settings.image | file_url
                     assign is_video = false
-                    if image_file_url contains '.mp4' or image_file_url contains '.MP4' or image_url contains '.mp4' or image_url contains '.MP4'
+                    assign video_url = ''
+                    assign image_url = ''
+                    if step_block.settings.video != blank
                       assign is_video = true
-                      assign video_url = image_file_url
+                      assign video_sources = step_block.settings.video.sources
+                      if video_sources.size > 0
+                        assign video_url = video_sources[0].url
+                      endif
+                    elsif step_block.settings.image != blank
+                      assign image_url = step_block.settings.image | image_url: width: 1280
                     endif
                   -%}
                   {%- if is_video -%}
@@ -946,14 +978,19 @@
                       loading="lazy"
                       decoding="async">
                   {%- endif -%}
-                {%- elsif step_block.settings.image_2 != blank -%}
+                {%- elsif step_block.settings.video_2 != blank or step_block.settings.image_2 != blank -%}
                   {%- liquid
-                    assign image_url = step_block.settings.image_2 | image_url: width: 1280
-                    assign image_file_url = step_block.settings.image_2 | file_url
                     assign is_video = false
-                    if image_file_url contains '.mp4' or image_file_url contains '.MP4' or image_url contains '.mp4' or image_url contains '.MP4'
+                    assign video_url = ''
+                    assign image_url = ''
+                    if step_block.settings.video_2 != blank
                       assign is_video = true
-                      assign video_url = image_file_url
+                      assign video_sources = step_block.settings.video_2.sources
+                      if video_sources.size > 0
+                        assign video_url = video_sources[0].url
+                      endif
+                    elsif step_block.settings.image_2 != blank
+                      assign image_url = step_block.settings.image_2 | image_url: width: 1280
                     endif
                   -%}
                   {%- if is_video -%}
@@ -975,14 +1012,19 @@
                       loading="lazy"
                       decoding="async">
                   {%- endif -%}
-                {%- elsif step_block.settings.image_3 != blank -%}
+                {%- elsif step_block.settings.video_3 != blank or step_block.settings.image_3 != blank -%}
                   {%- liquid
-                    assign image_url = step_block.settings.image_3 | image_url: width: 1280
-                    assign image_file_url = step_block.settings.image_3 | file_url
                     assign is_video = false
-                    if image_file_url contains '.mp4' or image_file_url contains '.MP4' or image_url contains '.mp4' or image_url contains '.MP4'
+                    assign video_url = ''
+                    assign image_url = ''
+                    if step_block.settings.video_3 != blank
                       assign is_video = true
-                      assign video_url = image_file_url
+                      assign video_sources = step_block.settings.video_3.sources
+                      if video_sources.size > 0
+                        assign video_url = video_sources[0].url
+                      endif
+                    elsif step_block.settings.image_3 != blank
+                      assign image_url = step_block.settings.image_3 | image_url: width: 1280
                     endif
                   -%}
                   {%- if is_video -%}
@@ -1004,14 +1046,19 @@
                       loading="lazy"
                       decoding="async">
                   {%- endif -%}
-                {%- elsif step_block.settings.image_4 != blank -%}
+                {%- elsif step_block.settings.video_4 != blank or step_block.settings.image_4 != blank -%}
                   {%- liquid
-                    assign image_url = step_block.settings.image_4 | image_url: width: 1280
-                    assign image_file_url = step_block.settings.image_4 | file_url
                     assign is_video = false
-                    if image_file_url contains '.mp4' or image_file_url contains '.MP4' or image_url contains '.mp4' or image_url contains '.MP4'
+                    assign video_url = ''
+                    assign image_url = ''
+                    if step_block.settings.video_4 != blank
                       assign is_video = true
-                      assign video_url = image_file_url
+                      assign video_sources = step_block.settings.video_4.sources
+                      if video_sources.size > 0
+                        assign video_url = video_sources[0].url
+                      endif
+                    elsif step_block.settings.image_4 != blank
+                      assign image_url = step_block.settings.image_4 | image_url: width: 1280
                     endif
                   -%}
                   {%- if is_video -%}
@@ -1241,26 +1288,50 @@
           {
             "type": "image_picker",
             "id": "image",
-            "label": "Main GIF/Image/MP4",
-            "info": "Supports GIF, images, and MP4 videos (no sound)"
+            "label": "Main GIF/Image",
+            "info": "Upload GIF or image file"
+          },
+          {
+            "type": "video",
+            "id": "video",
+            "label": "Main Video (MP4) - Optional",
+            "info": "Upload MP4 video file. If set, this will be used instead of the image above"
           },
           {
             "type": "image_picker",
             "id": "image_2",
-            "label": "Extra GIF/Image/MP4 2 (Optional)",
-            "info": "Supports GIF, images, and MP4 videos (no sound)"
+            "label": "Extra GIF/Image 2 (Optional)",
+            "info": "Upload GIF or image file"
+          },
+          {
+            "type": "video",
+            "id": "video_2",
+            "label": "Extra Video 2 (MP4) - Optional",
+            "info": "Upload MP4 video file. If set, this will be used instead of the image above"
           },
           {
             "type": "image_picker",
             "id": "image_3",
-            "label": "Extra GIF/Image/MP4 3 (Optional)",
-            "info": "Supports GIF, images, and MP4 videos (no sound)"
+            "label": "Extra GIF/Image 3 (Optional)",
+            "info": "Upload GIF or image file"
+          },
+          {
+            "type": "video",
+            "id": "video_3",
+            "label": "Extra Video 3 (MP4) - Optional",
+            "info": "Upload MP4 video file. If set, this will be used instead of the image above"
           },
           {
             "type": "image_picker",
             "id": "image_4",
-            "label": "Extra GIF/Image/MP4 4 (Optional)",
-            "info": "Supports GIF, images, and MP4 videos (no sound)"
+            "label": "Extra GIF/Image 4 (Optional)",
+            "info": "Upload GIF or image file"
+          },
+          {
+            "type": "video",
+            "id": "video_4",
+            "label": "Extra Video 4 (MP4) - Optional",
+            "info": "Upload MP4 video file. If set, this will be used instead of the image above"
           },
           {
             "type": "text",
