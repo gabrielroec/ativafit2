@@ -1,0 +1,739 @@
+{%- liquid
+  assign product_handles = '27-5-lbs-adjustable-weight-dumbbell,50lbs,66lbs,88lbs' | split: ','
+  assign product_1 = all_products[product_handles[0]]
+  assign product_2 = all_products[product_handles[1]]
+  assign product_3 = all_products[product_handles[2]]
+  assign product_4 = all_products[product_handles[3]]
+-%}
+
+{%- style -%}
+  .product-comparison {
+    --brand: #eb701f;
+    --border: #e5e7eb;
+    --background: #ffffff;
+    --muted-foreground: #6b7280;
+    --foreground: #1a1a1a;
+    --hover-bg: #fff8f3;
+    --row-bg: #f8f8f8;
+    width: 100%;
+    position: relative;
+  }
+
+  .product-comparison__container {
+    position: relative;
+  }
+
+  .product-comparison__nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 20;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border-radius: 9999px;
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+    cursor: pointer;
+    display: none;
+  }
+
+  .product-comparison__nav-btn:hover {
+    background: var(--brand);
+    color: white;
+  }
+
+  .product-comparison__nav-btn--left {
+    left: 0;
+  }
+
+  .product-comparison__nav-btn--right {
+    right: 0;
+  }
+
+  @media (max-width: 1024px) {
+    .product-comparison__nav-btn {
+      display: block;
+    }
+  }
+
+  .product-comparison__scroll-hint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    color: var(--muted-foreground);
+  }
+
+  @media (min-width: 1024px) {
+    .product-comparison__scroll-hint {
+      display: none;
+    }
+  }
+
+  .product-comparison__table-wrapper {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    scroll-behavior: smooth;
+  }
+
+  .product-comparison__table-wrapper::-webkit-scrollbar {
+    display: none;
+  }
+
+  .product-comparison__table {
+    min-width: 800px;
+  }
+
+  @media (min-width: 1024px) {
+    .product-comparison__table {
+      min-width: 0;
+    }
+  }
+
+  .product-comparison__grid {
+    display: grid;
+    grid-template-columns: 140px repeat(4, minmax(160px, 1fr));
+  }
+
+  @media (min-width: 768px) {
+    .product-comparison__grid {
+      grid-template-columns: 160px repeat(4, minmax(180px, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .product-comparison__grid {
+      grid-template-columns: 180px repeat(4, 1fr);
+    }
+  }
+
+  .product-comparison__label-cell {
+    display: flex;
+    align-items: center;
+    padding: 1rem 0.5rem;
+    position: sticky;
+    left: 0;
+    background: var(--background);
+    z-index: 10;
+  }
+
+  .product-comparison__label-cell--header {
+    padding-bottom: 1rem;
+    align-items: flex-end;
+  }
+
+  .product-comparison__label-text {
+    color: var(--brand);
+    font-weight: 500;
+    font-size: 1rem;
+  }
+
+  .product-comparison__label-text--spec {
+    font-size: 0.875rem;
+  }
+
+  .product-comparison__product-card {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .product-comparison__product-card:hover,
+  .product-comparison__product-card.is-hovered {
+    background: var(--hover-bg);
+  }
+
+  .product-comparison__product-border {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+  }
+
+  .product-comparison__product-card:hover .product-comparison__product-border,
+  .product-comparison__product-card.is-hovered .product-comparison__product-border {
+    border-color: var(--brand);
+    border-bottom-color: transparent;
+    border-radius: 0.5rem 0.5rem 0 0;
+  }
+
+  .product-comparison__product-top-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--brand);
+    border-radius: 0.5rem 0.5rem 0 0;
+    display: none;
+  }
+
+  .product-comparison__product-card:hover .product-comparison__product-top-bar,
+  .product-comparison__product-card.is-hovered .product-comparison__product-top-bar {
+    display: block;
+  }
+
+  .product-comparison__badge {
+    position: absolute;
+    top: 0.75rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: none;
+  }
+
+  .product-comparison__product-card:hover .product-comparison__badge,
+  .product-comparison__product-card.is-hovered .product-comparison__badge {
+    display: block;
+  }
+
+  .product-comparison__badge-text {
+    background: var(--brand);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.375rem 1rem;
+    border-radius: 9999px;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .product-comparison__product-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 3rem;
+    padding-bottom: 1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .product-comparison__product-image {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    margin-bottom: 1rem;
+  }
+
+  .product-comparison__product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .product-comparison__product-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--foreground);
+    text-align: center;
+    line-height: 1.25;
+  }
+
+  .product-comparison__spec-cell {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--foreground);
+    transition: all 0.3s;
+  }
+
+  .product-comparison__spec-cell--even {
+    background: var(--row-bg);
+  }
+
+  .product-comparison__spec-cell--odd {
+    background: var(--background);
+  }
+
+  .product-comparison__spec-cell:hover,
+  .product-comparison__spec-cell.is-hovered {
+    background: var(--hover-bg);
+  }
+
+  .product-comparison__spec-border {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    transition: all 0.3s;
+    border-left: 2px solid transparent;
+    border-right: 2px solid transparent;
+  }
+
+  .product-comparison__spec-cell:hover .product-comparison__spec-border,
+  .product-comparison__spec-cell.is-hovered .product-comparison__spec-border {
+    border-left-color: var(--brand);
+    border-right-color: var(--brand);
+  }
+
+  .product-comparison__spec-cell--last .product-comparison__spec-border {
+    border-bottom: 2px solid transparent;
+    border-radius: 0 0 0.5rem 0.5rem;
+  }
+
+  .product-comparison__spec-cell--last:hover .product-comparison__spec-border,
+  .product-comparison__spec-cell--last.is-hovered .product-comparison__spec-border {
+    border-bottom-color: var(--brand);
+  }
+
+  .product-comparison__spec-value {
+    position: relative;
+    z-index: 1;
+  }
+
+  .product-comparison__scroll-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  @media (min-width: 1024px) {
+    .product-comparison__scroll-indicators {
+      display: none;
+    }
+  }
+
+  .product-comparison__indicator {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    transition: all 0.3s;
+    background: rgba(107, 114, 128, 0.3);
+    cursor: pointer;
+    border: none;
+    padding: 0;
+  }
+
+  .product-comparison__indicator:hover {
+    background: rgba(107, 114, 128, 0.5);
+  }
+
+  .product-comparison__indicator--active {
+    background: var(--brand);
+    width: 1rem;
+  }
+
+  .product-comparison__nav-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+{%- endstyle -%}
+
+<section class="product-comparison" data-section-id="{{ section.id }}">
+  <div class="product-comparison__container">
+    {%- if product_1 != blank or product_2 != blank or product_3 != blank or product_4 != blank -%}
+      <!-- Navigation Arrows -->
+      <button
+        class="product-comparison__nav-btn product-comparison__nav-btn--left"
+        data-scroll="left"
+        aria-label="Scroll left">
+        <svg class="product-comparison__nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </button>
+      <button
+        class="product-comparison__nav-btn product-comparison__nav-btn--right"
+        data-scroll="right"
+        aria-label="Scroll right">
+        <svg class="product-comparison__nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+      </button>
+
+      <!-- Scroll hint for mobile -->
+      <div class="product-comparison__scroll-hint">
+        <svg class="product-comparison__nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+        <span>Swipe to compare products</span>
+        <svg class="product-comparison__nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+      </div>
+
+      <!-- Table Container -->
+      <div class="product-comparison__table-wrapper" data-scroll-container>
+        <div class="product-comparison__table">
+          <div class="product-comparison__grid">
+            <!-- Header Row - Model Label + Product Cards -->
+            <div class="product-comparison__label-cell product-comparison__label-cell--header">
+              <span class="product-comparison__label-text">Model</span>
+            </div>
+
+            {%- if product_1 != blank -%}
+              <div
+                class="product-comparison__product-card"
+                data-product-id="{{ product_1.id }}"
+                data-product-handle="{{ product_1.handle }}">
+                <div class="product-comparison__product-border"></div>
+                <div class="product-comparison__product-top-bar"></div>
+                <div class="product-comparison__badge">
+                  <span class="product-comparison__badge-text">You Are Viewing</span>
+                </div>
+                <div class="product-comparison__product-content">
+                  <div class="product-comparison__product-image">
+                    {%- if product_1.featured_image -%}
+                      {{
+                        product_1.featured_image
+                        | image_url: width: 400
+                        | image_tag: loading: 'lazy', alt: product_1.title, class: 'product-comparison__product-image-img'
+                      }}
+                    {%- else -%}
+                      {{ 'image' | placeholder_svg_tag: 'product-comparison__product-image-img' }}
+                    {%- endif -%}
+                  </div>
+                  <h3 class="product-comparison__product-title">{{ product_1.title }}</h3>
+                </div>
+              </div>
+            {%- endif -%}
+            {%- if product_2 != blank -%}
+              <div
+                class="product-comparison__product-card"
+                data-product-id="{{ product_2.id }}"
+                data-product-handle="{{ product_2.handle }}">
+                <div class="product-comparison__product-border"></div>
+                <div class="product-comparison__product-top-bar"></div>
+                <div class="product-comparison__badge">
+                  <span class="product-comparison__badge-text">You Are Viewing</span>
+                </div>
+                <div class="product-comparison__product-content">
+                  <div class="product-comparison__product-image">
+                    {%- if product_2.featured_image -%}
+                      {{
+                        product_2.featured_image
+                        | image_url: width: 400
+                        | image_tag: loading: 'lazy', alt: product_2.title, class: 'product-comparison__product-image-img'
+                      }}
+                    {%- else -%}
+                      {{ 'image' | placeholder_svg_tag: 'product-comparison__product-image-img' }}
+                    {%- endif -%}
+                  </div>
+                  <h3 class="product-comparison__product-title">{{ product_2.title }}</h3>
+                </div>
+              </div>
+            {%- endif -%}
+            {%- if product_3 != blank -%}
+              <div
+                class="product-comparison__product-card"
+                data-product-id="{{ product_3.id }}"
+                data-product-handle="{{ product_3.handle }}">
+                <div class="product-comparison__product-border"></div>
+                <div class="product-comparison__product-top-bar"></div>
+                <div class="product-comparison__badge">
+                  <span class="product-comparison__badge-text">You Are Viewing</span>
+                </div>
+                <div class="product-comparison__product-content">
+                  <div class="product-comparison__product-image">
+                    {%- if product_3.featured_image -%}
+                      {{
+                        product_3.featured_image
+                        | image_url: width: 400
+                        | image_tag: loading: 'lazy', alt: product_3.title, class: 'product-comparison__product-image-img'
+                      }}
+                    {%- else -%}
+                      {{ 'image' | placeholder_svg_tag: 'product-comparison__product-image-img' }}
+                    {%- endif -%}
+                  </div>
+                  <h3 class="product-comparison__product-title">{{ product_3.title }}</h3>
+                </div>
+              </div>
+            {%- endif -%}
+            {%- if product_4 != blank -%}
+              <div
+                class="product-comparison__product-card"
+                data-product-id="{{ product_4.id }}"
+                data-product-handle="{{ product_4.handle }}">
+                <div class="product-comparison__product-border"></div>
+                <div class="product-comparison__product-top-bar"></div>
+                <div class="product-comparison__badge">
+                  <span class="product-comparison__badge-text">You Are Viewing</span>
+                </div>
+                <div class="product-comparison__product-content">
+                  <div class="product-comparison__product-image">
+                    {%- if product_4.featured_image -%}
+                      {{
+                        product_4.featured_image
+                        | image_url: width: 400
+                        | image_tag: loading: 'lazy', alt: product_4.title, class: 'product-comparison__product-image-img'
+                      }}
+                    {%- else -%}
+                      {{ 'image' | placeholder_svg_tag: 'product-comparison__product-image-img' }}
+                    {%- endif -%}
+                  </div>
+                  <h3 class="product-comparison__product-title">{{ product_4.title }}</h3>
+                </div>
+              </div>
+            {%- endif -%}
+
+            <!-- Spec Rows -->
+            {%- assign spec_keys = 'weightRange,increments,dimensions,packageWeight,material,handleDesign,adjustment,userGroup' | split: ',' -%}
+            {%- assign spec_labels = 'Weight Range,Increments,Dimensions,Package Weight,Material,Handle Design,Adjustment,User Group' | split: ',' -%}
+
+            {%- for spec_key in spec_keys -%}
+              {%- assign spec_index = forloop.index0 -%}
+              {%- assign spec_label = spec_labels[spec_index] -%}
+              {%- assign is_last_row = false -%}
+              {%- if forloop.last -%}
+                {%- assign is_last_row = true -%}
+              {%- endif -%}
+
+              <div
+                class="product-comparison__label-cell {% if spec_index == 0 or spec_index == 2 or spec_index == 4 or spec_index == 6 %}product-comparison__label-cell--even{% else %}product-comparison__label-cell--odd{% endif %}">
+                <span class="product-comparison__label-text product-comparison__label-text--spec">
+                  {{ spec_label }}
+                </span>
+              </div>
+
+              {%- if product_1 != blank -%}
+                {%- liquid
+                  assign spec_value = '-'
+                  if product_1.metafields.custom[spec_key] != blank
+                    assign spec_value = product_1.metafields.custom[spec_key].value | default: product_1.metafields.custom[spec_key]
+                  elsif product_1.metafields.specs[spec_key] != blank
+                    assign spec_value = product_1.metafields.specs[spec_key].value | default: product_1.metafields.specs[spec_key]
+                  endif
+                -%}
+                <div
+                  class="product-comparison__spec-cell {% if spec_index == 0 or spec_index == 2 or spec_index == 4 or spec_index == 6 %}product-comparison__spec-cell--even{% else %}product-comparison__spec-cell--odd{% endif %} {% if is_last_row %}product-comparison__spec-cell--last{% endif %}"
+                  data-product-id="{{ product_1.id }}">
+                  <div class="product-comparison__spec-border"></div>
+                  <span class="product-comparison__spec-value">{{ spec_value }}</span>
+                </div>
+              {%- endif -%}
+              {%- if product_2 != blank -%}
+                {%- liquid
+                  assign spec_value = '-'
+                  if product_2.metafields.custom[spec_key] != blank
+                    assign spec_value = product_2.metafields.custom[spec_key].value | default: product_2.metafields.custom[spec_key]
+                  elsif product_2.metafields.specs[spec_key] != blank
+                    assign spec_value = product_2.metafields.specs[spec_key].value | default: product_2.metafields.specs[spec_key]
+                  endif
+                -%}
+                <div
+                  class="product-comparison__spec-cell {% if spec_index == 0 or spec_index == 2 or spec_index == 4 or spec_index == 6 %}product-comparison__spec-cell--even{% else %}product-comparison__spec-cell--odd{% endif %} {% if is_last_row %}product-comparison__spec-cell--last{% endif %}"
+                  data-product-id="{{ product_2.id }}">
+                  <div class="product-comparison__spec-border"></div>
+                  <span class="product-comparison__spec-value">{{ spec_value }}</span>
+                </div>
+              {%- endif -%}
+              {%- if product_3 != blank -%}
+                {%- liquid
+                  assign spec_value = '-'
+                  if product_3.metafields.custom[spec_key] != blank
+                    assign spec_value = product_3.metafields.custom[spec_key].value | default: product_3.metafields.custom[spec_key]
+                  elsif product_3.metafields.specs[spec_key] != blank
+                    assign spec_value = product_3.metafields.specs[spec_key].value | default: product_3.metafields.specs[spec_key]
+                  endif
+                -%}
+                <div
+                  class="product-comparison__spec-cell {% if spec_index == 0 or spec_index == 2 or spec_index == 4 or spec_index == 6 %}product-comparison__spec-cell--even{% else %}product-comparison__spec-cell--odd{% endif %} {% if is_last_row %}product-comparison__spec-cell--last{% endif %}"
+                  data-product-id="{{ product_3.id }}">
+                  <div class="product-comparison__spec-border"></div>
+                  <span class="product-comparison__spec-value">{{ spec_value }}</span>
+                </div>
+              {%- endif -%}
+              {%- if product_4 != blank -%}
+                {%- liquid
+                  assign spec_value = '-'
+                  if product_4.metafields.custom[spec_key] != blank
+                    assign spec_value = product_4.metafields.custom[spec_key].value | default: product_4.metafields.custom[spec_key]
+                  elsif product_4.metafields.specs[spec_key] != blank
+                    assign spec_value = product_4.metafields.specs[spec_key].value | default: product_4.metafields.specs[spec_key]
+                  endif
+                -%}
+                <div
+                  class="product-comparison__spec-cell {% if spec_index == 0 or spec_index == 2 or spec_index == 4 or spec_index == 6 %}product-comparison__spec-cell--even{% else %}product-comparison__spec-cell--odd{% endif %} {% if is_last_row %}product-comparison__spec-cell--last{% endif %}"
+                  data-product-id="{{ product_4.id }}">
+                  <div class="product-comparison__spec-border"></div>
+                  <span class="product-comparison__spec-value">{{ spec_value }}</span>
+                </div>
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+        </div>
+      </div>
+
+      <!-- Scroll indicators -->
+      <div class="product-comparison__scroll-indicators">
+        {%- if product_1 != blank -%}
+          <button
+            class="product-comparison__indicator"
+            data-product-index="0"
+            aria-label="Go to {{ product_1.title }}">
+          </button>
+        {%- endif -%}
+        {%- if product_2 != blank -%}
+          <button
+            class="product-comparison__indicator"
+            data-product-index="1"
+            aria-label="Go to {{ product_2.title }}">
+          </button>
+        {%- endif -%}
+        {%- if product_3 != blank -%}
+          <button
+            class="product-comparison__indicator"
+            data-product-index="2"
+            aria-label="Go to {{ product_3.title }}">
+          </button>
+        {%- endif -%}
+        {%- if product_4 != blank -%}
+          <button
+            class="product-comparison__indicator"
+            data-product-index="3"
+            aria-label="Go to {{ product_4.title }}">
+          </button>
+        {%- endif -%}
+      </div>
+    {%- else -%}
+      <p>No products found. Please check product handles in section settings.</p>
+    {%- endif -%}
+  </div>
+</section>
+
+<script>
+  (function() {
+    const section = document.querySelector('[data-section-id="{{ section.id }}"]');
+    if (!section) return;
+
+    const scrollContainer = section.querySelector('[data-scroll-container]');
+    const leftBtn = section.querySelector('[data-scroll="left"]');
+    const rightBtn = section.querySelector('[data-scroll="right"]');
+    const productCards = section.querySelectorAll('.product-comparison__product-card');
+    const specCells = section.querySelectorAll('.product-comparison__spec-cell');
+    const indicators = section.querySelectorAll('.product-comparison__indicator');
+    let hoveredProductId = null;
+
+    // Check scrollability
+    function checkScrollability() {
+      if (!scrollContainer) return;
+      const canScrollLeft = scrollContainer.scrollLeft > 0;
+      const canScrollRight = scrollContainer.scrollLeft < scrollContainer.scrollWidth - scrollContainer.clientWidth - 1;
+      
+      if (leftBtn) leftBtn.style.display = canScrollLeft ? 'block' : 'none';
+      if (rightBtn) rightBtn.style.display = canScrollRight ? 'block' : 'none';
+    }
+
+    // Scroll function
+    function scroll(direction) {
+      if (!scrollContainer) return;
+      const scrollAmount = 200;
+      scrollContainer.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+
+    // Hover functionality
+    function handleProductHover(productId) {
+      hoveredProductId = productId;
+      updateHoverState();
+    }
+
+    function clearHover() {
+      hoveredProductId = null;
+      updateHoverState();
+    }
+
+    function updateHoverState() {
+      // Update product cards
+      productCards.forEach(card => {
+        const cardProductId = card.getAttribute('data-product-id');
+        if (hoveredProductId && cardProductId === hoveredProductId) {
+          card.classList.add('is-hovered');
+        } else {
+          card.classList.remove('is-hovered');
+        }
+      });
+
+      // Update spec cells for the same product
+      specCells.forEach(cell => {
+        const cellProductId = cell.getAttribute('data-product-id');
+        if (hoveredProductId && cellProductId === hoveredProductId) {
+          cell.classList.add('is-hovered');
+        } else {
+          cell.classList.remove('is-hovered');
+        }
+      });
+
+      // Update indicators
+      indicators.forEach((indicator, index) => {
+        const productCard = productCards[index];
+        if (productCard && productCard.classList.contains('is-hovered')) {
+          indicator.classList.add('product-comparison__indicator--active');
+        } else {
+          indicator.classList.remove('product-comparison__indicator--active');
+        }
+      });
+    }
+
+    // Event listeners
+    if (leftBtn) {
+      leftBtn.addEventListener('click', () => scroll('left'));
+    }
+
+    if (rightBtn) {
+      rightBtn.addEventListener('click', () => scroll('right'));
+    }
+
+    if (scrollContainer) {
+      scrollContainer.addEventListener('scroll', checkScrollability);
+    }
+
+    productCards.forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        handleProductHover(card.getAttribute('data-product-id'));
+      });
+      card.addEventListener('mouseleave', clearHover);
+    });
+
+    specCells.forEach(cell => {
+      cell.addEventListener('mouseenter', () => {
+        handleProductHover(cell.getAttribute('data-product-id'));
+      });
+      cell.addEventListener('mouseleave', clearHover);
+    });
+
+    indicators.forEach((indicator, index) => {
+      indicator.addEventListener('click', () => {
+        if (!scrollContainer) return;
+        const labelWidth = 140;
+        const tableWidth = scrollContainer.scrollWidth;
+        const productWidth = (tableWidth - labelWidth) / Math.max(productCards.length, 1);
+        const targetScroll = index * productWidth;
+        scrollContainer.scrollTo({
+          left: targetScroll,
+          behavior: 'smooth'
+        });
+      });
+    });
+
+    // Initial check
+    checkScrollability();
+    window.addEventListener('resize', checkScrollability);
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Product Comparison Table",
+  "tag": "section",
+  "class": "section",
+  "settings": [],
+  "presets": [
+    {
+      "name": "Product Comparison Table"
+    }
+  ]
+}
+{% endschema %}
+
