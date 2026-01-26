@@ -187,7 +187,7 @@
   .product-comparison__product-card {
     position: relative;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: background-color 0.2s ease;
   }
 
   .product-comparison__product-card:hover,
@@ -199,7 +199,7 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    transition: all 0.3s;
+    transition: border-color 0.2s ease, border-radius 0.2s ease;
     border: 2px solid transparent;
   }
 
@@ -272,11 +272,12 @@
   .product-comparison__product-image img {
     width: 100%;
     height: 100%;
+    aspect-ratio: 4 / 3;
     object-fit: contain;
   }
 
   .product-comparison__product-title {
-    font-size: 0.875rem;
+    font-size: 1.125rem;
     font-weight: 700;
     color: var(--foreground);
     text-align: center;
@@ -292,7 +293,7 @@
     text-align: center;
     font-size: 0.875rem;
     color: var(--foreground);
-    transition: all 0.3s;
+    transition: background-color 0.2s ease;
   }
 
   .product-comparison__spec-cell--even {
@@ -312,7 +313,7 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    transition: all 0.3s;
+    transition: border-color 0.2s ease, border-radius 0.2s ease;
     border-left: 2px solid transparent;
     border-right: 2px solid transparent;
   }
@@ -355,7 +356,7 @@
     width: 0.5rem;
     height: 0.5rem;
     border-radius: 9999px;
-    transition: all 0.3s;
+    transition: background-color 0.2s ease, width 0.2s ease;
     background: rgba(107, 114, 128, 0.3);
     cursor: pointer;
     border: none;
@@ -780,35 +781,30 @@
       updateHoverState();
     }
 
+    let currentHovered = null;
+    
     function updateHoverState() {
+      // Only update if changed
+      if (currentHovered === hoveredProductId) return;
+      currentHovered = hoveredProductId;
+      
       // Update product cards
       productCards.forEach(card => {
         const cardProductId = card.getAttribute('data-product-id');
-        if (hoveredProductId && cardProductId === hoveredProductId) {
-          card.classList.add('is-hovered');
-        } else {
-          card.classList.remove('is-hovered');
-        }
+        card.classList.toggle('is-hovered', hoveredProductId === cardProductId);
       });
 
       // Update spec cells for the same product
       specCells.forEach(cell => {
         const cellProductId = cell.getAttribute('data-product-id');
-        if (hoveredProductId && cellProductId === hoveredProductId) {
-          cell.classList.add('is-hovered');
-        } else {
-          cell.classList.remove('is-hovered');
-        }
+        cell.classList.toggle('is-hovered', hoveredProductId === cellProductId);
       });
 
       // Update indicators
       indicators.forEach((indicator, index) => {
         const productCard = productCards[index];
-        if (productCard && productCard.classList.contains('is-hovered')) {
-          indicator.classList.add('product-comparison__indicator--active');
-        } else {
-          indicator.classList.remove('product-comparison__indicator--active');
-        }
+        indicator.classList.toggle('product-comparison__indicator--active', 
+          productCard && productCard.classList.contains('is-hovered'));
       });
     }
 
@@ -825,6 +821,7 @@
       scrollContainer.addEventListener('scroll', checkScrollability);
     }
 
+    // Optimized event listeners
     productCards.forEach(card => {
       card.addEventListener('mouseenter', () => {
         handleProductHover(card.getAttribute('data-product-id'));
@@ -853,7 +850,13 @@
 
     // Initial check
     checkScrollability();
-    window.addEventListener('resize', checkScrollability);
+    
+    // Throttle resize for better performance
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(checkScrollability, 150);
+    });
   })();
 </script>
 
