@@ -1,9 +1,48 @@
 {%- liquid
-  assign product_handles = '27-5-lbs-adjustable-weight-dumbbell,50lbs,66lbs,88lbs' | split: ','
-  assign product_1 = all_products[product_handles[0]]
-  assign product_2 = all_products[product_handles[1]]
-  assign product_3 = all_products[product_handles[2]]
-  assign product_4 = all_products[product_handles[3]]
+  assign product_1 = all_products['27-5-lbs-adjustable-weight-dumbbell']
+  assign product_2 = all_products['50lbs']
+  assign product_3 = all_products['66lbs']
+  assign product_4 = all_products['88lbs']
+  
+  # Product 1 specs (27.5LBS DUMBBELL SET GT528)
+  assign product_1_weightRange = '5.5 - 27.5 lbs'
+  assign product_1_increments = '5.5 lbs'
+  assign product_1_dimensions = '16.2"L x 7.2"W x 7.2"H'
+  assign product_1_packageWeight = '32 lbs (single)'
+  assign product_1_material = 'Steel plates, reinforced base'
+  assign product_1_handleDesign = 'Steel core, non-slip rubber grip'
+  assign product_1_adjustment = 'Glide Tech'
+  assign product_1_userGroup = 'Beginners, home toning'
+  
+  # Product 2 specs (50LBS DUMBBELL SET)
+  assign product_2_weightRange = '5 - 50 lbs'
+  assign product_2_increments = '5 lbs'
+  assign product_2_dimensions = '16.7"L x 8.2"W x 7.7"H'
+  assign product_2_packageWeight = '-'
+  assign product_2_material = 'Steel plates, reinforced base'
+  assign product_2_handleDesign = 'Steel core, non-slip rubber grip'
+  assign product_2_adjustment = 'Dial Tech'
+  assign product_2_userGroup = 'General fitness, multi-purpose use'
+  
+  # Product 3 specs (66LBS DUMBBELL SET DT1166)
+  assign product_3_weightRange = '11 - 66 lbs'
+  assign product_3_increments = '5 lbs'
+  assign product_3_dimensions = '16.2"L x 7.2"W x 7.2"H'
+  assign product_3_packageWeight = '145 lbs (set)'
+  assign product_3_material = 'Steel plates, reinforced base'
+  assign product_3_handleDesign = 'Steel core, ergonomic design'
+  assign product_3_adjustment = 'Dial Tech'
+  assign product_3_userGroup = 'General fitness, multi-purpose use'
+  
+  # Product 4 specs (88LBS DUMBBELL SET DT1188)
+  assign product_4_weightRange = '11 - 88 lbs'
+  assign product_4_increments = '7 lbs'
+  assign product_4_dimensions = '16.2"L x 8"W x 8"H'
+  assign product_4_packageWeight = '99 lbs (single), 188lbs (set)'
+  assign product_4_material = 'Steel plates, reinforced base'
+  assign product_4_handleDesign = 'Steel core, ergonomic design'
+  assign product_4_adjustment = 'Dial Tech'
+  assign product_4_userGroup = 'Advanced training, pro-level workouts'
 -%}
 
 {%- style -%}
@@ -371,109 +410,141 @@
             </div>
 
             {%- if product_1 != blank -%}
+              {%- assign product = product_1 -%}
               <div
                 class="product-comparison__product-card"
-                data-product-id="{{ product_1.id }}"
-                data-product-handle="{{ product_1.handle }}">
+                data-product-id="{{ product.id }}"
+                data-product-handle="{{ product.handle }}">
+                <!-- Border container -->
                 <div class="product-comparison__product-border"></div>
+
+                <!-- Top border bar for hovered state -->
                 <div class="product-comparison__product-top-bar"></div>
+
+                <!-- You Are Viewing Badge -->
                 <div class="product-comparison__badge">
                   <span class="product-comparison__badge-text">You Are Viewing</span>
                 </div>
+
+                <!-- Product Image -->
                 <div class="product-comparison__product-content">
                   <div class="product-comparison__product-image">
-                    {%- if product_1.featured_image -%}
+                    {%- if product.featured_image -%}
                       {{
-                        product_1.featured_image
+                        product.featured_image
                         | image_url: width: 400
-                        | image_tag: loading: 'lazy', alt: product_1.title, class: 'product-comparison__product-image-img'
+                        | image_tag: loading: 'lazy', alt: product.title, class: 'product-comparison__product-image-img'
                       }}
                     {%- else -%}
                       {{ 'image' | placeholder_svg_tag: 'product-comparison__product-image-img' }}
                     {%- endif -%}
                   </div>
-                  <h3 class="product-comparison__product-title">{{ product_1.title }}</h3>
-                </div>
-              </div>
-            {%- endif -%}
-            {%- if product_2 != blank -%}
-              <div
-                class="product-comparison__product-card"
-                data-product-id="{{ product_2.id }}"
-                data-product-handle="{{ product_2.handle }}">
-                <div class="product-comparison__product-border"></div>
-                <div class="product-comparison__product-top-bar"></div>
-                <div class="product-comparison__badge">
-                  <span class="product-comparison__badge-text">You Are Viewing</span>
-                </div>
-                <div class="product-comparison__product-content">
-                  <div class="product-comparison__product-image">
-                    {%- if product_2.featured_image -%}
-                      {{
-                        product_2.featured_image
-                        | image_url: width: 400
-                        | image_tag: loading: 'lazy', alt: product_2.title, class: 'product-comparison__product-image-img'
-                      }}
-                    {%- else -%}
-                      {{ 'image' | placeholder_svg_tag: 'product-comparison__product-image-img' }}
-                    {%- endif -%}
-                  </div>
-                  <h3 class="product-comparison__product-title">{{ product_2.title }}</h3>
-                </div>
-              </div>
-            {%- endif -%}
-            {%- if product_3 != blank -%}
-              <div
-                class="product-comparison__product-card"
-                data-product-id="{{ product_3.id }}"
-                data-product-handle="{{ product_3.handle }}">
-                <div class="product-comparison__product-border"></div>
-                <div class="product-comparison__product-top-bar"></div>
-                <div class="product-comparison__badge">
-                  <span class="product-comparison__badge-text">You Are Viewing</span>
-                </div>
-                <div class="product-comparison__product-content">
-                  <div class="product-comparison__product-image">
-                    {%- if product_3.featured_image -%}
-                      {{
-                        product_3.featured_image
-                        | image_url: width: 400
-                        | image_tag: loading: 'lazy', alt: product_3.title, class: 'product-comparison__product-image-img'
-                      }}
-                    {%- else -%}
-                      {{ 'image' | placeholder_svg_tag: 'product-comparison__product-image-img' }}
-                    {%- endif -%}
-                  </div>
-                  <h3 class="product-comparison__product-title">{{ product_3.title }}</h3>
-                </div>
-              </div>
-            {%- endif -%}
-            {%- if product_4 != blank -%}
-              <div
-                class="product-comparison__product-card"
-                data-product-id="{{ product_4.id }}"
-                data-product-handle="{{ product_4.handle }}">
-                <div class="product-comparison__product-border"></div>
-                <div class="product-comparison__product-top-bar"></div>
-                <div class="product-comparison__badge">
-                  <span class="product-comparison__badge-text">You Are Viewing</span>
-                </div>
-                <div class="product-comparison__product-content">
-                  <div class="product-comparison__product-image">
-                    {%- if product_4.featured_image -%}
-                      {{
-                        product_4.featured_image
-                        | image_url: width: 400
-                        | image_tag: loading: 'lazy', alt: product_4.title, class: 'product-comparison__product-image-img'
-                      }}
-                    {%- else -%}
-                      {{ 'image' | placeholder_svg_tag: 'product-comparison__product-image-img' }}
-                    {%- endif -%}
-                  </div>
-                  <h3 class="product-comparison__product-title">{{ product_4.title }}</h3>
-                </div>
-              </div>
-            {%- endif -%}
+                  <h3 class="product-comparison__product-title">{{ product.title }}</h3>
+                 </div>
+               </div>
+             {%- endif -%}
+             {%- if product_2 != blank -%}
+               {%- assign product = product_2 -%}
+               <div
+                 class="product-comparison__product-card"
+                 data-product-id="{{ product.id }}"
+                 data-product-handle="{{ product.handle }}">
+                 <!-- Border container -->
+                 <div class="product-comparison__product-border"></div>
+
+                 <!-- Top border bar for hovered state -->
+                 <div class="product-comparison__product-top-bar"></div>
+
+                 <!-- You Are Viewing Badge -->
+                 <div class="product-comparison__badge">
+                   <span class="product-comparison__badge-text">You Are Viewing</span>
+                 </div>
+
+                 <!-- Product Image -->
+                 <div class="product-comparison__product-content">
+                   <div class="product-comparison__product-image">
+                     {%- if product.featured_image -%}
+                       {{
+                         product.featured_image
+                         | image_url: width: 400
+                         | image_tag: loading: 'lazy', alt: product.title, class: 'product-comparison__product-image-img'
+                       }}
+                     {%- else -%}
+                       {{ 'image' | placeholder_svg_tag: 'product-comparison__product-image-img' }}
+                     {%- endif -%}
+                   </div>
+                   <h3 class="product-comparison__product-title">{{ product.title }}</h3>
+                 </div>
+               </div>
+             {%- endif -%}
+             {%- if product_3 != blank -%}
+               {%- assign product = product_3 -%}
+               <div
+                 class="product-comparison__product-card"
+                 data-product-id="{{ product.id }}"
+                 data-product-handle="{{ product.handle }}">
+                 <!-- Border container -->
+                 <div class="product-comparison__product-border"></div>
+
+                 <!-- Top border bar for hovered state -->
+                 <div class="product-comparison__product-top-bar"></div>
+
+                 <!-- You Are Viewing Badge -->
+                 <div class="product-comparison__badge">
+                   <span class="product-comparison__badge-text">You Are Viewing</span>
+                 </div>
+
+                 <!-- Product Image -->
+                 <div class="product-comparison__product-content">
+                   <div class="product-comparison__product-image">
+                     {%- if product.featured_image -%}
+                       {{
+                         product.featured_image
+                         | image_url: width: 400
+                         | image_tag: loading: 'lazy', alt: product.title, class: 'product-comparison__product-image-img'
+                       }}
+                     {%- else -%}
+                       {{ 'image' | placeholder_svg_tag: 'product-comparison__product-image-img' }}
+                     {%- endif -%}
+                   </div>
+                   <h3 class="product-comparison__product-title">{{ product.title }}</h3>
+                 </div>
+               </div>
+             {%- endif -%}
+             {%- if product_4 != blank -%}
+               {%- assign product = product_4 -%}
+               <div
+                 class="product-comparison__product-card"
+                 data-product-id="{{ product.id }}"
+                 data-product-handle="{{ product.handle }}">
+                 <!-- Border container -->
+                 <div class="product-comparison__product-border"></div>
+
+                 <!-- Top border bar for hovered state -->
+                 <div class="product-comparison__product-top-bar"></div>
+
+                 <!-- You Are Viewing Badge -->
+                 <div class="product-comparison__badge">
+                   <span class="product-comparison__badge-text">You Are Viewing</span>
+                 </div>
+
+                 <!-- Product Image -->
+                 <div class="product-comparison__product-content">
+                   <div class="product-comparison__product-image">
+                     {%- if product.featured_image -%}
+                       {{
+                         product.featured_image
+                         | image_url: width: 400
+                         | image_tag: loading: 'lazy', alt: product.title, class: 'product-comparison__product-image-img'
+                       }}
+                     {%- else -%}
+                       {{ 'image' | placeholder_svg_tag: 'product-comparison__product-image-img' }}
+                     {%- endif -%}
+                   </div>
+                   <h3 class="product-comparison__product-title">{{ product.title }}</h3>
+                 </div>
+               </div>
+             {%- endif -%}
 
             <!-- Spec Rows -->
             {%- assign spec_keys = 'weightRange,increments,dimensions,packageWeight,material,handleDesign,adjustment,userGroup' | split: ',' -%}
@@ -494,70 +565,126 @@
                 </span>
               </div>
 
-              {%- if product_1 != blank -%}
-                {%- liquid
-                  assign spec_value = '-'
-                  if product_1.metafields.custom[spec_key] != blank
-                    assign spec_value = product_1.metafields.custom[spec_key].value | default: product_1.metafields.custom[spec_key]
-                  elsif product_1.metafields.specs[spec_key] != blank
-                    assign spec_value = product_1.metafields.specs[spec_key].value | default: product_1.metafields.specs[spec_key]
-                  endif
-                -%}
-                <div
-                  class="product-comparison__spec-cell {% if spec_index == 0 or spec_index == 2 or spec_index == 4 or spec_index == 6 %}product-comparison__spec-cell--even{% else %}product-comparison__spec-cell--odd{% endif %} {% if is_last_row %}product-comparison__spec-cell--last{% endif %}"
-                  data-product-id="{{ product_1.id }}">
-                  <div class="product-comparison__spec-border"></div>
-                  <span class="product-comparison__spec-value">{{ spec_value }}</span>
-                </div>
-              {%- endif -%}
-              {%- if product_2 != blank -%}
-                {%- liquid
-                  assign spec_value = '-'
-                  if product_2.metafields.custom[spec_key] != blank
-                    assign spec_value = product_2.metafields.custom[spec_key].value | default: product_2.metafields.custom[spec_key]
-                  elsif product_2.metafields.specs[spec_key] != blank
-                    assign spec_value = product_2.metafields.specs[spec_key].value | default: product_2.metafields.specs[spec_key]
-                  endif
-                -%}
-                <div
-                  class="product-comparison__spec-cell {% if spec_index == 0 or spec_index == 2 or spec_index == 4 or spec_index == 6 %}product-comparison__spec-cell--even{% else %}product-comparison__spec-cell--odd{% endif %} {% if is_last_row %}product-comparison__spec-cell--last{% endif %}"
-                  data-product-id="{{ product_2.id }}">
-                  <div class="product-comparison__spec-border"></div>
-                  <span class="product-comparison__spec-value">{{ spec_value }}</span>
-                </div>
-              {%- endif -%}
-              {%- if product_3 != blank -%}
-                {%- liquid
-                  assign spec_value = '-'
-                  if product_3.metafields.custom[spec_key] != blank
-                    assign spec_value = product_3.metafields.custom[spec_key].value | default: product_3.metafields.custom[spec_key]
-                  elsif product_3.metafields.specs[spec_key] != blank
-                    assign spec_value = product_3.metafields.specs[spec_key].value | default: product_3.metafields.specs[spec_key]
-                  endif
-                -%}
-                <div
-                  class="product-comparison__spec-cell {% if spec_index == 0 or spec_index == 2 or spec_index == 4 or spec_index == 6 %}product-comparison__spec-cell--even{% else %}product-comparison__spec-cell--odd{% endif %} {% if is_last_row %}product-comparison__spec-cell--last{% endif %}"
-                  data-product-id="{{ product_3.id }}">
-                  <div class="product-comparison__spec-border"></div>
-                  <span class="product-comparison__spec-value">{{ spec_value }}</span>
-                </div>
-              {%- endif -%}
-              {%- if product_4 != blank -%}
-                {%- liquid
-                  assign spec_value = '-'
-                  if product_4.metafields.custom[spec_key] != blank
-                    assign spec_value = product_4.metafields.custom[spec_key].value | default: product_4.metafields.custom[spec_key]
-                  elsif product_4.metafields.specs[spec_key] != blank
-                    assign spec_value = product_4.metafields.specs[spec_key].value | default: product_4.metafields.specs[spec_key]
-                  endif
-                -%}
-                <div
-                  class="product-comparison__spec-cell {% if spec_index == 0 or spec_index == 2 or spec_index == 4 or spec_index == 6 %}product-comparison__spec-cell--even{% else %}product-comparison__spec-cell--odd{% endif %} {% if is_last_row %}product-comparison__spec-cell--last{% endif %}"
-                  data-product-id="{{ product_4.id }}">
-                  <div class="product-comparison__spec-border"></div>
-                  <span class="product-comparison__spec-value">{{ spec_value }}</span>
-                </div>
-              {%- endif -%}
+               {%- if product_1 != blank -%}
+                 {%- liquid
+                   assign spec_value = '-'
+                   case spec_key
+                     when 'weightRange'
+                       assign spec_value = product_1_weightRange
+                     when 'increments'
+                       assign spec_value = product_1_increments
+                     when 'dimensions'
+                       assign spec_value = product_1_dimensions
+                     when 'packageWeight'
+                       assign spec_value = product_1_packageWeight
+                     when 'material'
+                       assign spec_value = product_1_material
+                     when 'handleDesign'
+                       assign spec_value = product_1_handleDesign
+                     when 'adjustment'
+                       assign spec_value = product_1_adjustment
+                     when 'userGroup'
+                       assign spec_value = product_1_userGroup
+                   endcase
+                 -%}
+                 <div
+                   class="product-comparison__spec-cell {% if spec_index == 0 or spec_index == 2 or spec_index == 4 or spec_index == 6 %}product-comparison__spec-cell--even{% else %}product-comparison__spec-cell--odd{% endif %} {% if is_last_row %}product-comparison__spec-cell--last{% endif %}"
+                   data-product-id="{{ product_1.id }}">
+                   <!-- Side borders -->
+                   <div class="product-comparison__spec-border"></div>
+                   <span class="product-comparison__spec-value">{{ spec_value }}</span>
+                 </div>
+               {%- endif -%}
+               {%- if product_2 != blank -%}
+                 {%- liquid
+                   assign spec_value = '-'
+                   case spec_key
+                     when 'weightRange'
+                       assign spec_value = product_2_weightRange
+                     when 'increments'
+                       assign spec_value = product_2_increments
+                     when 'dimensions'
+                       assign spec_value = product_2_dimensions
+                     when 'packageWeight'
+                       assign spec_value = product_2_packageWeight
+                     when 'material'
+                       assign spec_value = product_2_material
+                     when 'handleDesign'
+                       assign spec_value = product_2_handleDesign
+                     when 'adjustment'
+                       assign spec_value = product_2_adjustment
+                     when 'userGroup'
+                       assign spec_value = product_2_userGroup
+                   endcase
+                 -%}
+                 <div
+                   class="product-comparison__spec-cell {% if spec_index == 0 or spec_index == 2 or spec_index == 4 or spec_index == 6 %}product-comparison__spec-cell--even{% else %}product-comparison__spec-cell--odd{% endif %} {% if is_last_row %}product-comparison__spec-cell--last{% endif %}"
+                   data-product-id="{{ product_2.id }}">
+                   <!-- Side borders -->
+                   <div class="product-comparison__spec-border"></div>
+                   <span class="product-comparison__spec-value">{{ spec_value }}</span>
+                 </div>
+               {%- endif -%}
+               {%- if product_3 != blank -%}
+                 {%- liquid
+                   assign spec_value = '-'
+                   case spec_key
+                     when 'weightRange'
+                       assign spec_value = product_3_weightRange
+                     when 'increments'
+                       assign spec_value = product_3_increments
+                     when 'dimensions'
+                       assign spec_value = product_3_dimensions
+                     when 'packageWeight'
+                       assign spec_value = product_3_packageWeight
+                     when 'material'
+                       assign spec_value = product_3_material
+                     when 'handleDesign'
+                       assign spec_value = product_3_handleDesign
+                     when 'adjustment'
+                       assign spec_value = product_3_adjustment
+                     when 'userGroup'
+                       assign spec_value = product_3_userGroup
+                   endcase
+                 -%}
+                 <div
+                   class="product-comparison__spec-cell {% if spec_index == 0 or spec_index == 2 or spec_index == 4 or spec_index == 6 %}product-comparison__spec-cell--even{% else %}product-comparison__spec-cell--odd{% endif %} {% if is_last_row %}product-comparison__spec-cell--last{% endif %}"
+                   data-product-id="{{ product_3.id }}">
+                   <!-- Side borders -->
+                   <div class="product-comparison__spec-border"></div>
+                   <span class="product-comparison__spec-value">{{ spec_value }}</span>
+                 </div>
+               {%- endif -%}
+               {%- if product_4 != blank -%}
+                 {%- liquid
+                   assign spec_value = '-'
+                   case spec_key
+                     when 'weightRange'
+                       assign spec_value = product_4_weightRange
+                     when 'increments'
+                       assign spec_value = product_4_increments
+                     when 'dimensions'
+                       assign spec_value = product_4_dimensions
+                     when 'packageWeight'
+                       assign spec_value = product_4_packageWeight
+                     when 'material'
+                       assign spec_value = product_4_material
+                     when 'handleDesign'
+                       assign spec_value = product_4_handleDesign
+                     when 'adjustment'
+                       assign spec_value = product_4_adjustment
+                     when 'userGroup'
+                       assign spec_value = product_4_userGroup
+                   endcase
+                 -%}
+                 <div
+                   class="product-comparison__spec-cell {% if spec_index == 0 or spec_index == 2 or spec_index == 4 or spec_index == 6 %}product-comparison__spec-cell--even{% else %}product-comparison__spec-cell--odd{% endif %} {% if is_last_row %}product-comparison__spec-cell--last{% endif %}"
+                   data-product-id="{{ product_4.id }}">
+                   <!-- Side borders -->
+                   <div class="product-comparison__spec-border"></div>
+                   <span class="product-comparison__spec-value">{{ spec_value }}</span>
+                 </div>
+               {%- endif -%}
             {%- endfor -%}
           </div>
         </div>
@@ -707,11 +834,9 @@
       indicator.addEventListener('click', () => {
         if (!scrollContainer) return;
         const labelWidth = 140;
-        const tableWidth = scrollContainer.scrollWidth;
-        const productWidth = (tableWidth - labelWidth) / Math.max(productCards.length, 1);
-        const targetScroll = index * productWidth;
+        const productWidth = (scrollContainer.scrollWidth - labelWidth) / productCards.length;
         scrollContainer.scrollTo({
-          left: targetScroll,
+          left: index * productWidth,
           behavior: 'smooth'
         });
       });
