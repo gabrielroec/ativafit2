@@ -1,50 +1,3 @@
-{%- liquid
-  assign product_1 = all_products['27-5-lbs-adjustable-weight-dumbbell']
-  assign product_2 = all_products['50lbs']
-  assign product_3 = all_products['66lbs']
-  assign product_4 = all_products['88lbs']
-
-  # Product 1 specs (27.5LBS DUMBBELL SET GT528)
-  assign product_1_weightRange = '5.5 - 27.5 lbs'
-  assign product_1_increments = '5.5 lbs'
-  assign product_1_dimensions = '16.2"L x 7.2"W x 7.2"H'
-  assign product_1_packageWeight = '32 lbs (single)'
-  assign product_1_material = 'Steel plates, reinforced base'
-  assign product_1_handleDesign = 'Steel core, non-slip rubber grip'
-  assign product_1_adjustment = 'Glide Tech'
-  assign product_1_userGroup = 'Beginners, home toning'
-
-  # Product 2 specs (50LBS DUMBBELL SET)
-  assign product_2_weightRange = '5 - 50 lbs'
-  assign product_2_increments = '5 lbs'
-  assign product_2_dimensions = '16.7"L x 8.2"W x 7.7"H'
-  assign product_2_packageWeight = '-'
-  assign product_2_material = 'Steel plates, reinforced base'
-  assign product_2_handleDesign = 'Steel core, non-slip rubber grip'
-  assign product_2_adjustment = 'Dial Tech'
-  assign product_2_userGroup = 'General fitness, multi-purpose use'
-
-  # Product 3 specs (66LBS DUMBBELL SET DT1166)
-  assign product_3_weightRange = '11 - 66 lbs'
-  assign product_3_increments = '5 lbs'
-  assign product_3_dimensions = '16.2"L x 7.2"W x 7.2"H'
-  assign product_3_packageWeight = '145 lbs (set)'
-  assign product_3_material = 'Steel plates, reinforced base'
-  assign product_3_handleDesign = 'Steel core, ergonomic design'
-  assign product_3_adjustment = 'Dial Tech'
-  assign product_3_userGroup = 'General fitness, multi-purpose use'
-
-  # Product 4 specs (88LBS DUMBBELL SET DT1188)
-  assign product_4_weightRange = '11 - 88 lbs'
-  assign product_4_increments = '7 lbs'
-  assign product_4_dimensions = '16.2"L x 8"W x 8"H'
-  assign product_4_packageWeight = '99 lbs (single), 188lbs (set)'
-  assign product_4_material = 'Steel plates, reinforced base'
-  assign product_4_handleDesign = 'Steel core, ergonomic design'
-  assign product_4_adjustment = 'Dial Tech'
-  assign product_4_userGroup = 'Advanced training, pro-level workouts'
--%}
-
 {%- style -%}
   .product-comparison {
     --brand: #eb701f;
@@ -60,22 +13,9 @@
 
   .product-comparison__container {
     position: relative;
-  }
-
-  .product-comparison__scroll-hint {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    font-size: 0.875rem;
-    color: var(--muted-foreground);
-  }
-
-  @media (min-width: 1024px) {
-    .product-comparison__scroll-hint {
-      display: none;
-    }
+    max-width: 1740px;
+    margin: 0 auto;
+    padding: 0 1rem;
   }
 
   .product-comparison__table-wrapper {
@@ -83,12 +23,6 @@
     scrollbar-width: none;
     -ms-overflow-style: none;
     scroll-behavior: smooth;
-  }
-
-  .product-comparison__container {
-    max-width: 1740px;
-    margin: 0 auto;
-    padding: 0 1rem;
   }
 
   .product-comparison__table-wrapper::-webkit-scrollbar {
@@ -109,19 +43,19 @@
 
   .product-comparison__grid {
     display: grid;
-    grid-template-columns: 140px repeat(4, minmax(160px, 1fr));
+    grid-template-columns: 140px repeat({{ section.blocks.size }}, minmax(160px, 1fr));
     width: 100%;
   }
 
   @media (min-width: 768px) {
     .product-comparison__grid {
-      grid-template-columns: 160px repeat(4, minmax(180px, 1fr));
+      grid-template-columns: 160px repeat({{ section.blocks.size }}, minmax(180px, 1fr));
     }
   }
 
   @media (min-width: 1024px) {
     .product-comparison__grid {
-      grid-template-columns: 180px repeat(4, 1fr);
+      grid-template-columns: 180px repeat({{ section.blocks.size }}, 1fr);
     }
   }
 
@@ -176,25 +110,6 @@
     border-bottom-color: transparent;
     border-radius: 0.5rem 0.5rem 0 0;
   }
-
-  .product-comparison__product-top-bar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: var(--brand);
-    border-radius: 0.5rem 0.5rem 0 0;
-    display: none;
-  }
-
-
-  /*
-   .product-comparison__product-card:hover .product-comparison__product-top-bar,
-   .product-comparison__product-card.is-hovered .product-comparison__product-top-bar {
-   display: block;
-   }
-*/
 
   .product-comparison__badge {
     position: absolute;
@@ -402,8 +317,7 @@
 
 <section class="product-comparison" data-section-id="{{ section.id }}">
   <div class="product-comparison__container">
-    {%- if product_1 != blank or product_2 != blank or product_3 != blank or product_4 != blank -%}
-
+    {%- if section.blocks.size > 0 -%}
       <!-- Table Container -->
       <div class="product-comparison__table-wrapper" data-scroll-container>
         <div class="product-comparison__table">
@@ -413,182 +327,52 @@
               <span class="product-comparison__label-text">Model</span>
             </div>
 
-            {%- if product_1 != blank -%}
-              {%- assign product = product_1 -%}
+            {%- comment -%} Product Cards Header {%- endcomment -%}
+            {%- for block in section.blocks -%}
+              {%- assign product = block.settings.product -%}
+              {%- if product != blank -%}
                 <div
-                class="product-comparison__product-card"
-                data-product-id="{{ product.id }}"
-                data-product-handle="{{ product.handle }}">
-                <!-- Border container -->
-                <div class="product-comparison__product-border"></div>
-
-                <!-- Top border bar for hovered state -->
-                <div class="product-comparison__product-top-bar"></div>
-
-                <!-- You Are Viewing Badge -->
-                <div class="product-comparison__badge">
-                  <span class="product-comparison__badge-text">You Are Viewing</span>
-                </div>
-
-                <!-- Product Image -->
-                <div class="product-comparison__product-content">
-                  <div class="product-comparison__product-image">
-                    {%- if product.featured_image -%}
-                      {{
-                        product.featured_image | image_url: width: 400 | image_tag: loading: 'lazy', alt: product.title, class: 'product-comparison__product-image-img'
-                      }}
-                    {%- else -%}
-                      {{ 'image' | placeholder_svg_tag: 'product-comparison__product-image-img' }}
-                    {%- endif -%}
+                  class="product-comparison__product-card"
+                  data-product-id="{{ product.id }}"
+                  data-product-handle="{{ product.handle }}"
+                  {{ block.shopify_attributes }}>
+                  <div class="product-comparison__product-border"></div>
+                  <div class="product-comparison__badge">
+                    <span class="product-comparison__badge-text">You Are Viewing</span>
                   </div>
-                  <h3 class="product-comparison__product-title">{{ product.title }}</h3>
-                  <button
-                    class="product-comparison__product-cta"
-                    type="button"
-                    data-add-to-cart
-                    data-product-id="{{ product.id }}"
-                    data-variant-id="{{ product.selected_or_first_available_variant.id }}"
-                    data-product-handle="{{ product.handle }}">
-                    Add to Cart
-                  </button>
-                </div>
-              </div>
-            {%- endif -%}
-            {%- if product_2 != blank -%}
-              {%- assign product = product_2 -%}
-                <div
-                class="product-comparison__product-card"
-                data-product-id="{{ product.id }}"
-                data-product-handle="{{ product.handle }}">
-                <!-- Border container -->
-                <div class="product-comparison__product-border"></div>
-
-                <!-- Top border bar for hovered state -->
-                <div class="product-comparison__product-top-bar"></div>
-
-                <!-- You Are Viewing Badge -->
-                <div class="product-comparison__badge">
-                  <span class="product-comparison__badge-text">You Are Viewing</span>
-                </div>
-
-                <!-- Product Image -->
-                <div class="product-comparison__product-content">
-                  <div class="product-comparison__product-image">
-                    {%- if product.featured_image -%}
-                      {{
-                        product.featured_image | image_url: width: 400 | image_tag: loading: 'lazy', alt: product.title, class: 'product-comparison__product-image-img'
-                      }}
-                    {%- else -%}
-                      {{ 'image' | placeholder_svg_tag: 'product-comparison__product-image-img' }}
-                    {%- endif -%}
+                  <div class="product-comparison__product-content">
+                    <div class="product-comparison__product-image">
+                      {%- if product.featured_image -%}
+                        {{
+                          product.featured_image | image_url: width: 400 | image_tag: loading: 'lazy', alt: product.title, class: 'product-comparison__product-image-img'
+                        }}
+                      {%- else -%}
+                        {{ 'image' | placeholder_svg_tag: 'product-comparison__product-image-img' }}
+                      {%- endif -%}
+                    </div>
+                    <h3 class="product-comparison__product-title">{{ product.title }}</h3>
+                    <button
+                      class="product-comparison__product-cta"
+                      type="button"
+                      data-add-to-cart
+                      data-product-id="{{ product.id }}"
+                      data-variant-id="{{ product.selected_or_first_available_variant.id }}"
+                      data-product-handle="{{ product.handle }}">
+                      Add to Cart
+                    </button>
                   </div>
-                  <h3 class="product-comparison__product-title">{{ product.title }}</h3>
-                  <button
-                    class="product-comparison__product-cta"
-                    type="button"
-                    data-add-to-cart
-                    data-product-id="{{ product.id }}"
-                    data-variant-id="{{ product.selected_or_first_available_variant.id }}"
-                    data-product-handle="{{ product.handle }}">
-                    Add to Cart
-                  </button>
                 </div>
-              </div>
-            {%- endif -%}
-            {%- if product_3 != blank -%}
-              {%- assign product = product_3 -%}
-                <div
-                class="product-comparison__product-card"
-                data-product-id="{{ product.id }}"
-                data-product-handle="{{ product.handle }}">
-                <!-- Border container -->
-                <div class="product-comparison__product-border"></div>
+              {%- endif -%}
+          {%- endfor -%}
 
-                <!-- Top border bar for hovered state -->
-                <div class="product-comparison__product-top-bar"></div>
-
-                <!-- You Are Viewing Badge -->
-                <div class="product-comparison__badge">
-                  <span class="product-comparison__badge-text">You Are Viewing</span>
-                </div>
-
-                <!-- Product Image -->
-                <div class="product-comparison__product-content">
-                  <div class="product-comparison__product-image">
-                    {%- if product.featured_image -%}
-                      {{
-                        product.featured_image | image_url: width: 400 | image_tag: loading: 'lazy', alt: product.title, class: 'product-comparison__product-image-img'
-                      }}
-                    {%- else -%}
-                      {{ 'image' | placeholder_svg_tag: 'product-comparison__product-image-img' }}
-                    {%- endif -%}
-                  </div>
-                  <h3 class="product-comparison__product-title">{{ product.title }}</h3>
-                  <button
-                    class="product-comparison__product-cta"
-                    type="button"
-                    data-add-to-cart
-                    data-product-id="{{ product.id }}"
-                    data-variant-id="{{ product.selected_or_first_available_variant.id }}"
-                    data-product-handle="{{ product.handle }}">
-                    Add to Cart
-                  </button>
-                </div>
-              </div>
-            {%- endif -%}
-            {%- if product_4 != blank -%}
-              {%- assign product = product_4 -%}
-                <div
-                class="product-comparison__product-card"
-                data-product-id="{{ product.id }}"
-                data-product-handle="{{ product.handle }}">
-                <!-- Border container -->
-                <div class="product-comparison__product-border"></div>
-
-                <!-- Top border bar for hovered state -->
-                <div class="product-comparison__product-top-bar"></div>
-
-                <!-- You Are Viewing Badge -->
-                <div class="product-comparison__badge">
-                  <span class="product-comparison__badge-text">You Are Viewing</span>
-                </div>
-
-                <!-- Product Image -->
-                <div class="product-comparison__product-content">
-                  <div class="product-comparison__product-image">
-                    {%- if product.featured_image -%}
-                      {{
-                        product.featured_image | image_url: width: 400 | image_tag: loading: 'lazy', alt: product.title, class: 'product-comparison__product-image-img'
-                      }}
-                    {%- else -%}
-                      {{ 'image' | placeholder_svg_tag: 'product-comparison__product-image-img' }}
-                    {%- endif -%}
-                  </div>
-                  <h3 class="product-comparison__product-title">{{ product.title }}</h3>
-                  <button
-                    class="product-comparison__product-cta"
-                    type="button"
-                    data-add-to-cart
-                    data-product-id="{{ product.id }}"
-                    data-variant-id="{{ product.selected_or_first_available_variant.id }}"
-                    data-product-handle="{{ product.handle }}">
-                    Add to Cart
-                  </button>
-                </div>
-              </div>
-          {%- endif -%}
-
-            <!-- Spec Rows -->
+            {%- comment -%} Spec Rows {%- endcomment -%}
             {%- assign spec_keys = 'weightRange,increments,dimensions,packageWeight,material,handleDesign,adjustment,userGroup' | split: ',' -%}
             {%- assign spec_labels = 'Weight Range,Increments,Dimensions,Package Weight,Material,Handle Design,Adjustment,User Group' | split: ',' -%}
 
             {%- for spec_key in spec_keys -%}
               {%- assign spec_index = forloop.index0 -%}
               {%- assign spec_label = spec_labels[spec_index] -%}
-              {%- assign is_last_row = false -%}
-              {%- if forloop.last -%}
-                {%- assign is_last_row = true -%}
-              {%- endif -%}
+              {%- assign is_last_row = forloop.last -%}
 
               <div class="product-comparison__label-cell {% if spec_index == 0 or spec_index == 2 or spec_index == 4 or spec_index == 6 %}product-comparison__label-cell--even{% else %}product-comparison__label-cell--odd{% endif %}">
                 <span class="product-comparison__label-text product-comparison__label-text--spec">
@@ -596,118 +380,43 @@
                 </span>
               </div>
 
-              {%- if product_1 != blank -%}
-                {%- liquid
-                  assign spec_value = '-'
-                  case spec_key
-                    when 'weightRange'
-                      assign spec_value = product_1_weightRange
-                    when 'increments'
-                      assign spec_value = product_1_increments
-                    when 'dimensions'
-                      assign spec_value = product_1_dimensions
-                    when 'packageWeight'
-                      assign spec_value = product_1_packageWeight
-                    when 'material'
-                      assign spec_value = product_1_material
-                    when 'handleDesign'
-                      assign spec_value = product_1_handleDesign
-                    when 'adjustment'
-                      assign spec_value = product_1_adjustment
-                    when 'userGroup'
-                      assign spec_value = product_1_userGroup
-                  endcase
-                -%}
-                <div class="product-comparison__spec-cell {% if spec_index == 0 or spec_index == 2 or spec_index == 4 or spec_index == 6 %}product-comparison__spec-cell--even{% else %}product-comparison__spec-cell--odd{% endif %} {% if is_last_row %}product-comparison__spec-cell--last{% endif %}" data-product-id="{{ product_1.id }}">
-                  <!-- Side borders -->
-                  <div class="product-comparison__spec-border"></div>
-                  <span class="product-comparison__spec-value">{{ spec_value }}</span>
-                </div>
-              {%- endif -%}
-              {%- if product_2 != blank -%}
-                {%- liquid
-                  assign spec_value = '-'
-                  case spec_key
-                    when 'weightRange'
-                      assign spec_value = product_2_weightRange
-                    when 'increments'
-                      assign spec_value = product_2_increments
-                    when 'dimensions'
-                      assign spec_value = product_2_dimensions
-                    when 'packageWeight'
-                      assign spec_value = product_2_packageWeight
-                    when 'material'
-                      assign spec_value = product_2_material
-                    when 'handleDesign'
-                      assign spec_value = product_2_handleDesign
-                    when 'adjustment'
-                      assign spec_value = product_2_adjustment
-                    when 'userGroup'
-                      assign spec_value = product_2_userGroup
-                  endcase
-                -%}
-                <div class="product-comparison__spec-cell {% if spec_index == 0 or spec_index == 2 or spec_index == 4 or spec_index == 6 %}product-comparison__spec-cell--even{% else %}product-comparison__spec-cell--odd{% endif %} {% if is_last_row %}product-comparison__spec-cell--last{% endif %}" data-product-id="{{ product_2.id }}">
-                  <!-- Side borders -->
-                  <div class="product-comparison__spec-border"></div>
-                  <span class="product-comparison__spec-value">{{ spec_value }}</span>
-                </div>
-              {%- endif -%}
-              {%- if product_3 != blank -%}
-                {%- liquid
-                  assign spec_value = '-'
-                  case spec_key
-                    when 'weightRange'
-                      assign spec_value = product_3_weightRange
-                    when 'increments'
-                      assign spec_value = product_3_increments
-                    when 'dimensions'
-                      assign spec_value = product_3_dimensions
-                    when 'packageWeight'
-                      assign spec_value = product_3_packageWeight
-                    when 'material'
-                      assign spec_value = product_3_material
-                    when 'handleDesign'
-                      assign spec_value = product_3_handleDesign
-                    when 'adjustment'
-                      assign spec_value = product_3_adjustment
-                    when 'userGroup'
-                      assign spec_value = product_3_userGroup
-                  endcase
-                -%}
-                <div class="product-comparison__spec-cell {% if spec_index == 0 or spec_index == 2 or spec_index == 4 or spec_index == 6 %}product-comparison__spec-cell--even{% else %}product-comparison__spec-cell--odd{% endif %} {% if is_last_row %}product-comparison__spec-cell--last{% endif %}" data-product-id="{{ product_3.id }}">
-                  <!-- Side borders -->
-                  <div class="product-comparison__spec-border"></div>
-                  <span class="product-comparison__spec-value">{{ spec_value }}</span>
-                </div>
-              {%- endif -%}
-              {%- if product_4 != blank -%}
-                {%- liquid
-                  assign spec_value = '-'
-                  case spec_key
-                    when 'weightRange'
-                      assign spec_value = product_4_weightRange
-                    when 'increments'
-                      assign spec_value = product_4_increments
-                    when 'dimensions'
-                      assign spec_value = product_4_dimensions
-                    when 'packageWeight'
-                      assign spec_value = product_4_packageWeight
-                    when 'material'
-                      assign spec_value = product_4_material
-                    when 'handleDesign'
-                      assign spec_value = product_4_handleDesign
-                    when 'adjustment'
-                      assign spec_value = product_4_adjustment
-                    when 'userGroup'
-                      assign spec_value = product_4_userGroup
-                  endcase
-                -%}
-                <div class="product-comparison__spec-cell {% if spec_index == 0 or spec_index == 2 or spec_index == 4 or spec_index == 6 %}product-comparison__spec-cell--even{% else %}product-comparison__spec-cell--odd{% endif %} {% if is_last_row %}product-comparison__spec-cell--last{% endif %}" data-product-id="{{ product_4.id }}">
-                  <!-- Side borders -->
-                  <div class="product-comparison__spec-border"></div>
-                  <span class="product-comparison__spec-value">{{ spec_value }}</span>
-                </div>
-              {%- endif -%}
+              {%- for block in section.blocks -%}
+                {%- assign product = block.settings.product -%}
+                {%- if product != blank -%}
+                  {%- liquid
+                    assign spec_value = '-'
+                    case spec_key
+                      when 'weightRange'
+                        assign spec_value = block.settings.weight_range | default: '-'
+                      when 'increments'
+                        assign spec_value = block.settings.increments | default: '-'
+                      when 'dimensions'
+                        assign spec_value = block.settings.dimensions | default: '-'
+                      when 'packageWeight'
+                        assign spec_value = block.settings.package_weight | default: '-'
+                      when 'material'
+                        assign spec_value = block.settings.material | default: '-'
+                      when 'handleDesign'
+                        assign spec_value = block.settings.handle_design | default: '-'
+                      when 'adjustment'
+                        assign spec_value = block.settings.adjustment | default: '-'
+                      when 'userGroup'
+                        assign spec_value = block.settings.user_group | default: '-'
+                    endcase
+                  -%}
+                  <div
+                    class="product-comparison__spec-cell {% if spec_index == 0 or spec_index == 2 or spec_index == 4 or spec_index == 6 %}product-comparison__spec-cell--even{% else %}product-comparison__spec-cell--odd{% endif %} {% if is_last_row %}product-comparison__spec-cell--last{% endif %}"
+                    data-product-id="{{ product.id }}"
+                    {{ block.shopify_attributes }}>
+                    <div class="product-comparison__spec-border"></div>
+                    <span class="product-comparison__spec-value">{{ spec_value }}</span>
+                  </div>
+                {%- else -%}
+                  <div class="product-comparison__spec-cell product-comparison__spec-cell--odd {% if is_last_row %}product-comparison__spec-cell--last{% endif %}">
+                    <span class="product-comparison__spec-value">-</span>
+                  </div>
+                {%- endif -%}
+              {%- endfor -%}
             {%- endfor -%}
           </div>
         </div>
@@ -715,33 +424,20 @@
 
       <!-- Scroll indicators -->
       <div class="product-comparison__scroll-indicators">
-        {%- if product_1 != blank -%}
-          <button
-            class="product-comparison__indicator"
-            data-product-index="0"
-            aria-label="Go to {{ product_1.title }}"></button>
-        {%- endif -%}
-        {%- if product_2 != blank -%}
-          <button
-            class="product-comparison__indicator"
-            data-product-index="1"
-            aria-label="Go to {{ product_2.title }}"></button>
-        {%- endif -%}
-        {%- if product_3 != blank -%}
-          <button
-            class="product-comparison__indicator"
-            data-product-index="2"
-            aria-label="Go to {{ product_3.title }}"></button>
-        {%- endif -%}
-        {%- if product_4 != blank -%}
-          <button
-            class="product-comparison__indicator"
-            data-product-index="3"
-            aria-label="Go to {{ product_4.title }}"></button>
-        {%- endif -%}
+        {%- for block in section.blocks -%}
+          {%- assign product = block.settings.product -%}
+          {%- if product != blank -%}
+            <button
+              class="product-comparison__indicator"
+              data-product-index="{{ forloop.index0 }}"
+              aria-label="Go to {{ product.title }}"></button>
+          {%- endif -%}
+        {%- endfor -%}
       </div>
     {%- else -%}
-      <p>No products found. Please check product handles in section settings.</p>
+      <div style="text-align: center; padding: 3rem 1rem;">
+        <p>No products added. Please add product columns in the theme editor.</p>
+      </div>
     {%- endif -%}
   </div>
 </section>
@@ -771,23 +467,19 @@
     let currentHovered = null;
     
     function updateHoverState() {
-      // Only update if changed
       if (currentHovered === hoveredProductId) return;
       currentHovered = hoveredProductId;
       
-      // Update product cards
       productCards.forEach(card => {
         const cardProductId = card.getAttribute('data-product-id');
         card.classList.toggle('is-hovered', hoveredProductId === cardProductId);
       });
 
-      // Update spec cells for the same product
       specCells.forEach(cell => {
         const cellProductId = cell.getAttribute('data-product-id');
         cell.classList.toggle('is-hovered', hoveredProductId === cellProductId);
       });
 
-      // Update indicators
       indicators.forEach((indicator, index) => {
         const productCard = productCards[index];
         indicator.classList.toggle('product-comparison__indicator--active', 
@@ -796,8 +488,6 @@
     }
 
     // Event listeners
-
-    // Optimized event listeners
     productCards.forEach(card => {
       card.addEventListener('mouseenter', () => {
         handleProductHover(card.getAttribute('data-product-id'));
@@ -806,10 +496,13 @@
     });
 
     specCells.forEach(cell => {
-      cell.addEventListener('mouseenter', () => {
-        handleProductHover(cell.getAttribute('data-product-id'));
-      });
-      cell.addEventListener('mouseleave', clearHover);
+      const productId = cell.getAttribute('data-product-id');
+      if (productId) {
+        cell.addEventListener('mouseenter', () => {
+          handleProductHover(productId);
+        });
+        cell.addEventListener('mouseleave', clearHover);
+      }
     });
 
     indicators.forEach((indicator, index) => {
@@ -863,24 +556,19 @@
           
           const data = await response.json();
           
-          // Success feedback
           button.textContent = '✓ Added!';
           button.style.background = '#10b981';
           
-          // Update cart drawer if exists
           const cartDrawer = document.querySelector('cart-drawer');
           if (cartDrawer) {
-            // Trigger cart update
             const event = new CustomEvent('cart:updated', { bubbles: true });
             document.dispatchEvent(event);
             
-            // Open cart drawer
             if (cartDrawer.open) {
               cartDrawer.open();
             }
           }
           
-          // Update cart count
           const cartCountElements = document.querySelectorAll('.cart-count, [data-cart-count]');
           if (cartCountElements.length > 0) {
             try {
@@ -895,7 +583,6 @@
             }
           }
           
-          // Reset button after 2 seconds
           setTimeout(() => {
             button.disabled = false;
             button.textContent = originalText;
@@ -920,9 +607,133 @@
     "tag": "section",
     "class": "section",
     "settings": [],
+    "blocks": [
+      {
+        "type": "product_column",
+        "name": "Product Column",
+        "limit": 6,
+        "settings": [
+          {
+            "type": "product",
+            "id": "product",
+            "label": "Product",
+            "info": "Select the product to display in this column"
+          },
+          {
+            "type": "header",
+            "content": "Product Specifications"
+          },
+          {
+            "type": "text",
+            "id": "weight_range",
+            "label": "Weight Range",
+            "default": "-",
+            "info": "e.g., 5.5 - 27.5 lbs"
+          },
+          {
+            "type": "text",
+            "id": "increments",
+            "label": "Increments",
+            "default": "-",
+            "info": "e.g., 5.5 lbs"
+          }, {
+            "type": "text",
+            "id": "dimensions",
+            "label": "Dimensions",
+            "default": "-",
+            "info": "e.g., 16.2\"L x 7.2\"W x 7.2\"H"
+          }, {
+            "type": "text",
+            "id": "package_weight",
+            "label": "Package Weight",
+            "default": "-",
+            "info": "e.g., 32 lbs (single)"
+          }, {
+            "type": "text",
+            "id": "material",
+            "label": "Material",
+            "default": "-",
+            "info": "e.g., Steel plates, reinforced base"
+          }, {
+            "type": "text",
+            "id": "handle_design",
+            "label": "Handle Design",
+            "default": "-",
+            "info": "e.g., Steel core, non-slip rubber grip"
+          }, {
+            "type": "text",
+            "id": "adjustment",
+            "label": "Adjustment",
+            "default": "-",
+            "info": "e.g., Glide Tech or Dial Tech"
+          }, {
+            "type": "text",
+            "id": "user_group",
+            "label": "User Group",
+            "default": "-",
+            "info": "e.g., Beginners, home toning"
+          }
+        ]
+      }
+    ],
     "presets": [
       {
-        "name": "Product Comparison Table"
+        "name": "Product Comparison Table",
+        "blocks": [
+          {
+            "type": "product_column",
+            "settings": {
+              "product": "27-5-lbs-adjustable-weight-dumbbell",
+              "weight_range": "5.5 - 27.5 lbs",
+              "increments": "5.5 lbs",
+              "dimensions": "16.2\"L x 7.2\"W x 7.2\"H",
+              "package_weight": "32 lbs (single)",
+              "material": "Steel plates, reinforced base",
+              "handle_design": "Steel core, non-slip rubber grip",
+              "adjustment": "Glide Tech",
+              "user_group": "Beginners, home toning"
+            }
+          }, {
+            "type": "product_column",
+            "settings": {
+              "product": "50lbs",
+              "weight_range": "5 - 50 lbs",
+              "increments": "5 lbs",
+              "dimensions": "16.7\"L x 8.2\"W x 7.7\"H",
+              "package_weight": "-",
+              "material": "Steel plates, reinforced base",
+              "handle_design": "Steel core, non-slip rubber grip",
+              "adjustment": "Dial Tech",
+              "user_group": "General fitness, multi-purpose use"
+            }
+          }, {
+            "type": "product_column",
+            "settings": {
+              "product": "66lbs",
+              "weight_range": "11 - 66 lbs",
+              "increments": "5 lbs",
+              "dimensions": "16.2\"L x 7.2\"W x 7.2\"H",
+              "package_weight": "145 lbs (set)",
+              "material": "Steel plates, reinforced base",
+              "handle_design": "Steel core, ergonomic design",
+              "adjustment": "Dial Tech",
+              "user_group": "General fitness, multi-purpose use"
+            }
+          }, {
+            "type": "product_column",
+            "settings": {
+              "product": "88lbs",
+              "weight_range": "11 - 88 lbs",
+              "increments": "7 lbs",
+              "dimensions": "16.2\"L x 8\"W x 8\"H",
+              "package_weight": "99 lbs (single), 188lbs (set)",
+              "material": "Steel plates, reinforced base",
+              "handle_design": "Steel core, ergonomic design",
+              "adjustment": "Dial Tech",
+              "user_group": "Advanced training, pro-level workouts"
+            }
+          }
+        ]
       }
     ]
   }

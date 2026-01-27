@@ -140,6 +140,29 @@
       showModal();
       markAsShown();
     }
+    
+    async function checkAndCloseIfAllAdded() {
+      if (currentProducts.length === 0) {
+        // No more products to show, close modal
+        setTimeout(() => {
+          closeModal();
+        }, 1200);
+        return;
+      }
+      
+      // Check if all remaining products are already in cart
+      const cart = await fetchCart();
+      const allInCart = currentProducts.every(p => 
+        productInCart(cart, p.variantId)
+      );
+      
+      if (allInCart) {
+        // All products are in cart, close modal
+        setTimeout(() => {
+          closeModal();
+        }, 1200);
+      }
+    }
 
     function isCheckoutPage() {
       const path = window.location.pathname;
@@ -330,10 +353,8 @@
         // Remove product from current display
         currentProducts = currentProducts.filter(p => p.variantId !== variantId);
         
-        // Close modal if no more products
-        if (currentProducts.length === 0) {
-          setTimeout(closeModal, 1200);
-        }
+        // Check and close if all products are added
+        await checkAndCloseIfAllAdded();
       } catch (error) {
         alert('Unable to add product. Please try again.');
         if (button) {
