@@ -1,6 +1,6 @@
 /**
- * One-Click Upsell - Global (Snippet-based)
- * Guaranteed to work on all pages via snippet rendering
+ * One-Click Upsell - Global (Multi-Product)
+ * Suporta múltiplos produtos condicionais baseados no nome do produto adicionado
  */
 
 (function() {
@@ -10,12 +10,15 @@
     const config = window.OCP_CONFIG;
     const modal = document.getElementById('ocp-upsell-global');
     const countdownEl = document.querySelector('[data-countdown-target]');
+    const productsContainer = document.getElementById('ocp-products-container');
     
-    if (!config || !modal) return;
+    if (!config || !modal || !productsContainer) return;
 
     const STORAGE_KEY = `ocp:lastShown:${config.offerKey}`;
     const ROOT_URL = window.Shopify?.routes?.root || '/';
     let countdownInterval = null;
+    let currentProducts = [];
+    let lastAddedProduct = null;
 
     // Setup
     setupEventListeners();
@@ -29,7 +32,10 @@
         if (e.target.matches('[data-ocp-close], .ocp-backdrop')) {
           closeModal();
         } else if (e.target.matches('[data-ocp-add]')) {
-          addUpsell();
+          const variantId = parseInt(e.target.dataset.variantId);
+          if (variantId) {
+            addUpsell(variantId, e.target);
+          }
         }
       });
 
@@ -44,9 +50,15 @@
 
     function setupTriggers() {
       // Form submissions
-      document.addEventListener('submit', (e) => {
+      document.addEventListener('submit', async (e) => {
         const form = e.target;
         if (form instanceof HTMLFormElement && form.action?.includes('/cart/add')) {
+          const formData = new FormData(form);
+          const variantId = formData.get('id');
+          if (variantId) {
+            const productTitle = await getProductTitleByVariant(parseInt(variantId));
+            lastAddedProduct = productTitle;
+          }
           setTimeout(maybeShowUpsell, 400);
         }
       }, true);
@@ -58,6 +70,15 @@
         const url = typeof args[0] === 'string' ? args[0] : args[0]?.url || '';
         
         if (url.includes('/cart/add') && response.ok) {
+          try {
+            const clonedResponse = response.clone();
+            const data = await clonedResponse.json();
+            if (data.product_title) {
+              lastAddedProduct = data.product_title;
+            }
+          } catch (e) {
+            // Silently fail
+          }
           setTimeout(maybeShowUpsell, 400);
         }
         
@@ -70,12 +91,52 @@
       });
     }
 
+    // ========== Product Detection ==========
+
+    async function getProductTitleByVariant(variantId) {
+      try {
+        const cart = await fetchCart();
+        const item = cart.items?.find(i => i.variant_id === variantId || i.id === variantId);
+        return item?.product_title || null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function determineProductGroup() {
+      if (!lastAddedProduct) return 'default';
+      
+      const productName = lastAddedProduct.toLowerCase();
+      
+      if (productName.includes('dumbbell')) {
+        return 'dumbbell';
+      } else if (productName.includes('bike')) {
+        return 'bike';
+      }
+      
+      return 'default';
+    }
+
     // ========== Show Logic ==========
 
     async function maybeShowUpsell() {
       if (isCheckoutPage() || !hasPassedCooldown()) return;
-      if (!(await canShowUpsell())) return;
 
+      const productGroup = determineProductGroup();
+      const products = config.products[productGroup] || config.products.default;
+      
+      if (!products || products.length === 0) return;
+
+      // Filter out products already in cart
+      const cart = await fetchCart();
+      const availableProducts = products.filter(p => 
+        p && p.variantId && !productInCart(cart, p.variantId)
+      );
+
+      if (availableProducts.length === 0) return;
+
+      currentProducts = availableProducts;
+      renderProducts();
       showModal();
       markAsShown();
     }
@@ -88,15 +149,6 @@
     function hasPassedCooldown() {
       const last = getLastShown();
       return Date.now() - last >= config.cooldownMs;
-    }
-
-    async function canShowUpsell() {
-      try {
-        const cart = await fetchCart();
-        return !productInCart(cart, config.variantId);
-      } catch (e) {
-        return false;
-      }
     }
 
     function productInCart(cart, variantId) {
@@ -113,6 +165,68 @@
       return response.json();
     }
 
+    // ========== Render Products ==========
+
+    function renderProducts() {
+      productsContainer.innerHTML = '';
+      
+      currentProducts.forEach(product => {
+        const card = createProductCard(product);
+        productsContainer.appendChild(card);
+      });
+    }
+
+    function createProductCard(product) {
+      const card = document.createElement('div');
+      card.className = 'ocp-product-card';
+      
+      const discountPercent = calculateDiscount(product.price, product.comparePrice);
+      
+      card.innerHTML = `
+        ${product.image ? `
+          <div class="ocp-product-image">
+            <img src="${product.image}" alt="${escapeHtml(product.title)}" loading="lazy">
+          </div>
+        ` : ''}
+        <div class="ocp-product-info">
+          <div class="ocp-name">${escapeHtml(product.title)}</div>
+          <div class="ocp-price">
+            <span>${product.price}</span>
+            ${product.comparePrice && discountPercent > 0 ? `
+              <s>${product.comparePrice}</s>
+              <span class="ocp-discount-badge">-${discountPercent}%</span>
+            ` : ''}
+          </div>
+          <button 
+            class="ocp-cta" 
+            type="button" 
+            data-ocp-add 
+            data-variant-id="${product.variantId}">
+            ${config.ctaLabel}
+          </button>
+        </div>
+      `;
+      
+      return card;
+    }
+
+    function calculateDiscount(priceStr, comparePriceStr) {
+      if (!comparePriceStr) return 0;
+      
+      const price = parseFloat(priceStr.replace(/[^0-9.]/g, ''));
+      const comparePrice = parseFloat(comparePriceStr.replace(/[^0-9.]/g, ''));
+      
+      if (comparePrice <= price) return 0;
+      
+      return Math.round(((comparePrice - price) / comparePrice) * 100);
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
     // ========== Modal Controls ==========
 
     function showModal() {
@@ -124,8 +238,8 @@
         startCountdown(config.countdownDuration);
       }
       
-      const button = modal.querySelector('[data-ocp-add]');
-      if (button) setTimeout(() => button.focus(), 100);
+      const firstButton = modal.querySelector('[data-ocp-add]');
+      if (firstButton) setTimeout(() => firstButton.focus(), 100);
     }
 
     function closeModal() {
@@ -133,6 +247,8 @@
       modal.classList.remove('is-visible');
       modal.setAttribute('aria-hidden', 'true');
       document.body.classList.remove('ocp-open');
+      currentProducts = [];
+      lastAddedProduct = null;
     }
 
     // ========== Countdown ==========
@@ -177,8 +293,7 @@
 
     // ========== Add Upsell ==========
 
-    async function addUpsell() {
-      const button = modal.querySelector('[data-ocp-add]');
+    async function addUpsell(variantId, button) {
       const originalText = button?.textContent;
       
       if (button) {
@@ -191,7 +306,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
           body: JSON.stringify({
-            id: config.variantId,
+            id: variantId,
             quantity: 1,
             properties: { '_ocp': '1', '_ocp_offer': config.offerKey }
           })
@@ -200,12 +315,27 @@
           return res.json();
         });
 
-        closeModal();
+        // Update UI to show product added
+        if (button) {
+          button.textContent = '✓ Added!';
+          button.style.background = '#10b981';
+          setTimeout(() => {
+            button.remove();
+          }, 1000);
+        }
+
         await refreshCart();
         showNotification();
+
+        // Remove product from current display
+        currentProducts = currentProducts.filter(p => p.variantId !== variantId);
+        
+        // Close modal if no more products
+        if (currentProducts.length === 0) {
+          setTimeout(closeModal, 1200);
+        }
       } catch (error) {
         alert('Unable to add product. Please try again.');
-      } finally {
         if (button) {
           button.disabled = false;
           button.textContent = originalText;
@@ -287,6 +417,12 @@
         localStorage.removeItem(STORAGE_KEY);
         return 'Cooldown reset. Add a product to cart to trigger upsell.';
       };
+      
+      window.testOCPProducts = function(group) {
+        lastAddedProduct = group === 'dumbbell' ? 'Test Dumbbell' : group === 'bike' ? 'Test Bike' : 'Test Other';
+        maybeShowUpsell();
+        return `Testing OCP with ${group} products`;
+      };
     }
   }
 
@@ -297,4 +433,3 @@
   }
 
 })();
-

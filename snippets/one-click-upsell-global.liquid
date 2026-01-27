@@ -1,19 +1,25 @@
 {% comment %} 
-  One-Click Upsell - Global Snippet
+  One-Click Upsell - Global Snippet (Multi-Product)
   Renderiza diretamente no layout para garantir funcionamento em todas as páginas 
+  Suporta múltiplos produtos condicionais baseados no nome do produto adicionado
 {% endcomment %}
 
 {%- liquid
   assign enabled = settings.ocp_enabled
-  assign product_handle = settings.ocp_product_handle
-  assign upsell_product = all_products[product_handle]
 
-  if enabled and upsell_product != blank
-    assign upsell_variant = upsell_product.selected_or_first_available_variant
-  endif
+  # Produtos para Dumbbell
+  assign dumbbell_product_1 = all_products['ativafit-anchor-adjustable-foldable-workout-bench-for-ocp']
+  assign dumbbell_product_2 = all_products['ativafit-atlas-dumbbell-stand-for-home-workout']
+
+  # Produtos para Bike
+  assign bike_product_1 = all_products['crest-half-ball-balance-ball-copy']
+  assign bike_product_2 = all_products['ativafit-pulse-flex-gun-with-heat-cold-and-metal-head-therapy-massage-gun']
+
+  # Produto padrão (Massage Gun)
+  assign default_product = all_products['ativafit-pulse-flex-gun-with-heat-cold-and-metal-head-therapy-massage-gun']
 -%}
 
-{% if enabled and upsell_product != blank and upsell_variant != blank %}
+{% if enabled %}
   <style>
     .ocp-modal {
       position: fixed;
@@ -129,22 +135,34 @@
       font-variant-numeric: tabular-nums;
     }
 
-    .ocp-product {
-      display: flex;
-      align-items: center;
+    .ocp-products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 16px;
-      padding: 16px;
-      background: #f9fafb;
-      border-radius: 12px;
       margin-bottom: 20px;
     }
 
-    .ocp-product-image {
-      width: 350px;
-      height: 350px;
-      flex-shrink: 0;
+    .ocp-product-card {
+      background: #fff;
+      border: 2px solid #e5e7eb;
       border-radius: 12px;
       overflow: hidden;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ocp-product-card:hover {
+      border-color: #eb701f;
+      box-shadow: 0 4px 12px rgba(235, 112, 31, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .ocp-product-image {
+      width: 100%;
+      aspect-ratio: 1;
+      overflow: hidden;
+      background: #f9fafb;
     }
 
     .ocp-product-image img {
@@ -154,29 +172,37 @@
     }
 
     .ocp-product-info {
+      padding: 16px;
       flex: 1;
-      min-width: 0;
+      display: flex;
+      flex-direction: column;
     }
 
     .ocp-name {
-      font-size: 32px;
+      font-size: 16px;
       font-weight: 600;
       color: #111827;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
     .ocp-price {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       font-size: 18px;
       font-weight: 700;
       color: #eb701f;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
     }
 
     .ocp-price s {
-      font-size: 15px;
+      font-size: 14px;
       color: #9ca3af;
       font-weight: 400;
     }
@@ -185,11 +211,14 @@
       display: inline-block;
       background: linear-gradient(135deg, #73c3014f, #408603bd);
       color: #fff;
-      font-size: 13px;
-      font-weight: 400;
-      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
       border-radius: 900px;
-      margin-left: 8px;
+    }
+
+    .ocp-product-card .ocp-cta {
+      margin-top: auto;
     }
 
     .ocp-actions {
@@ -249,6 +278,12 @@
       overflow: hidden;
     }
 
+    @media (max-width: 768px) {
+      .ocp-products-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
     @media (max-width: 480px) {
       .ocp-panel {
         padding: 24px 20px;
@@ -258,17 +293,20 @@
         font-size: 20px;
       }
 
-      .ocp-product-image {
-        width: 110px;
-        height: 110px;
-      }
-
       .ocp-countdown {
         font-size: 14px;
       }
 
       .ocp-countdown-time {
         font-size: 18px;
+      }
+
+      .ocp-name {
+        font-size: 15px;
+      }
+
+      .ocp-price {
+        font-size: 16px;
       }
     }
   </style>
@@ -303,38 +341,11 @@
         </div>
       {% endif %}
 
-      <div class="ocp-product">
-        {% if upsell_product.featured_image %}
-          <div class="ocp-product-image">
-            <img
-              src="{{ upsell_product.featured_image | image_url: width: 700 }}"
-              alt="{{ upsell_product.title | escape }}"
-              width="350"
-              height="350"
-              loading="lazy">
-          </div>
-        {% endif %}
-        <div class="ocp-product-info">
-          <div class="ocp-name">{{ upsell_product.title }}</div>
-          <div class="ocp-price">
-            <span>{{ upsell_variant.price | money }}</span>
-            {% if upsell_variant.compare_at_price > upsell_variant.price %}
-              <s>{{ upsell_variant.compare_at_price | money }}</s>
-              {%- assign discount_amount = upsell_variant.compare_at_price | minus: upsell_variant.price -%}
-              {%- assign discount_percent = discount_amount | times: 100.0 | divided_by: upsell_variant.compare_at_price | round -%}
-              <span class="ocp-discount-badge">-{{ discount_percent }}%</span>
-            {% endif %}
-          </div>
-        </div>
+      <div id="ocp-products-container" class="ocp-products-grid">
+        {%- comment -%} Products will be dynamically rendered by JavaScript {%- endcomment -%}
       </div>
 
       <div class="ocp-actions">
-        <button
-          class="ocp-cta"
-          type="button"
-          data-ocp-add>
-          {{ settings.ocp_cta_label | default: 'Add to Cart - 1 Click' }}
-        </button>
         {% if settings.ocp_show_decline %}
           <button
             class="ocp-btn-secondary"
@@ -349,11 +360,62 @@
 
   <script>
     window.OCP_CONFIG = {
-      variantId: {{ upsell_variant.id | json }},
       cooldownMs: {{ settings.ocp_cooldown_minutes | default: 5 | times: 60000 | json }},
       offerKey: {{ settings.ocp_offer_key | default: 'default_offer' | json }},
       countdownDuration: {{ settings.ocp_countdown_duration | default: 120 | json }},
-      showCountdown: {{ settings.ocp_show_countdown | default: true | json }}
+      showCountdown: {{ settings.ocp_show_countdown | default: true | json }},
+      ctaLabel: {{ settings.ocp_cta_label | default: 'Add to Cart' | json }},
+      products: {
+        dumbbell: [
+          {%- if dumbbell_product_1 -%}
+          {
+            title: {{ dumbbell_product_1.title | json }},
+            handle: {{ dumbbell_product_1.handle | json }},
+            variantId: {{ dumbbell_product_1.selected_or_first_available_variant.id | json }},
+            price: {{ dumbbell_product_1.selected_or_first_available_variant.price | money | json }},
+            comparePrice: {{ dumbbell_product_1.selected_or_first_available_variant.compare_at_price | money | json }},
+            image: {{ dumbbell_product_1.featured_image | image_url: width: 500 | json }}
+          }{%- endif -%}
+          {%- if dumbbell_product_2 -%},{
+            title: {{ dumbbell_product_2.title | json }},
+            handle: {{ dumbbell_product_2.handle | json }},
+            variantId: {{ dumbbell_product_2.selected_or_first_available_variant.id | json }},
+            price: {{ dumbbell_product_2.selected_or_first_available_variant.price | money | json }},
+            comparePrice: {{ dumbbell_product_2.selected_or_first_available_variant.compare_at_price | money | json }},
+            image: {{ dumbbell_product_2.featured_image | image_url: width: 500 | json }}
+          }{%- endif -%}
+        ],
+        bike: [
+          {%- if bike_product_1 -%}
+          {
+            title: {{ bike_product_1.title | json }},
+            handle: {{ bike_product_1.handle | json }},
+            variantId: {{ bike_product_1.selected_or_first_available_variant.id | json }},
+            price: {{ bike_product_1.selected_or_first_available_variant.price | money | json }},
+            comparePrice: {{ bike_product_1.selected_or_first_available_variant.compare_at_price | money | json }},
+            image: {{ bike_product_1.featured_image | image_url: width: 500 | json }}
+          }{%- endif -%}
+          {%- if bike_product_2 -%},{
+            title: {{ bike_product_2.title | json }},
+            handle: {{ bike_product_2.handle | json }},
+            variantId: {{ bike_product_2.selected_or_first_available_variant.id | json }},
+            price: {{ bike_product_2.selected_or_first_available_variant.price | money | json }},
+            comparePrice: {{ bike_product_2.selected_or_first_available_variant.compare_at_price | money | json }},
+            image: {{ bike_product_2.featured_image | image_url: width: 500 | json }}
+          }{%- endif -%}
+        ],
+        default: [
+          {%- if default_product -%}
+          {
+            title: {{ default_product.title | json }},
+            handle: {{ default_product.handle | json }},
+            variantId: {{ default_product.selected_or_first_available_variant.id | json }},
+            price: {{ default_product.selected_or_first_available_variant.price | money | json }},
+            comparePrice: {{ default_product.selected_or_first_available_variant.compare_at_price | money | json }},
+            image: {{ default_product.featured_image | image_url: width: 500 | json }}
+          }{%- endif -%}
+        ]
+      }
     };
   </script>
   <script src="{{ 'one-click-upsell-global.js' | asset_url }}" defer></script>
