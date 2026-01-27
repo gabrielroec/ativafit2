@@ -26,6 +26,26 @@ if (!customElements.get("cart-drawer")) {
         this.closeButtons.forEach((button) => {
           button.addEventListener("click", this.close.bind(this));
         });
+        
+        // Setup loyalty button
+        this.setupLoyaltyButton();
+      }
+      
+      setupLoyaltyButton() {
+        const loyaltyBtn = this.querySelector('[data-open-loyalty]');
+        if (!loyaltyBtn) return;
+        
+        loyaltyBtn.addEventListener('click', () => {
+          // Tenta encontrar o botão original do BON Loyalty
+          const originalBtn = document.getElementById('bon-loyalty-btn') || 
+                             document.querySelector('[id*="bon-loyalty"]') ||
+                             document.querySelector('button[aria-label="BON-Loyalty-btn"]');
+          
+          if (originalBtn) {
+            // Clica no botão original para abrir o iframe
+            originalBtn.click();
+          }
+        });
       }
 
       open() {
