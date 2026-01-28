@@ -168,10 +168,18 @@
     margin-bottom: 1rem;
   }
 
-  .product-comparison__product-cta {
-    display: none;
+  .product-comparison__product-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
     width: 100%;
     max-width: 200px;
+    margin-top: 0.5rem;
+  }
+
+  .product-comparison__product-cta {
+    display: block;
+    width: 100%;
     background: var(--brand);
     color: white;
     border: none;
@@ -183,7 +191,8 @@
     transition: all 0.2s ease;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-top: 0.5rem;
+    text-align: center;
+    text-decoration: none;
   }
 
   .product-comparison__product-cta:hover {
@@ -201,15 +210,40 @@
     cursor: not-allowed;
   }
 
-  .product-comparison__product-card:hover .product-comparison__product-cta,
-  .product-comparison__product-card.is-hovered .product-comparison__product-cta {
+  .product-comparison__product-learn-more {
     display: block;
+    width: 100%;
+    background: transparent;
+    color: var(--brand);
+    border: 2px solid var(--brand);
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  .product-comparison__product-learn-more:hover {
+    background: var(--brand);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(235, 112, 31, 0.3);
+  }
+
+  .product-comparison__product-learn-more:active {
+    transform: translateY(0);
   }
 
   @media (max-width: 1023px) {
-    .product-comparison__product-cta {
-      display: block;
+    .product-comparison__product-cta,
+    .product-comparison__product-learn-more {
       font-size: 12px !important;
+      padding: 0.625rem 1.25rem;
     }
   }
 
@@ -342,7 +376,11 @@
                   </div>
                   <div class="product-comparison__product-content">
                     <div class="product-comparison__product-image">
-                      {%- if product.featured_image -%}
+                      {%- if block.settings.custom_image != blank -%}
+                        {{
+                          block.settings.custom_image | image_url: width: 400 | image_tag: loading: 'lazy', alt: product.title, class: 'product-comparison__product-image-img'
+                        }}
+                      {%- elsif product.featured_image -%}
                         {{
                           product.featured_image | image_url: width: 400 | image_tag: loading: 'lazy', alt: product.title, class: 'product-comparison__product-image-img'
                         }}
@@ -351,15 +389,20 @@
                       {%- endif -%}
                     </div>
                     <h3 class="product-comparison__product-title">{{ product.title }}</h3>
-                    <button
-                      class="product-comparison__product-cta"
-                      type="button"
-                      data-add-to-cart
-                      data-product-id="{{ product.id }}"
-                      data-variant-id="{{ product.selected_or_first_available_variant.id }}"
-                      data-product-handle="{{ product.handle }}">
-                      Add to Cart
-                    </button>
+                    <div class="product-comparison__product-buttons">
+                      <button
+                        class="product-comparison__product-cta"
+                        type="button"
+                        data-add-to-cart
+                        data-product-id="{{ product.id }}"
+                        data-variant-id="{{ product.selected_or_first_available_variant.id }}"
+                        data-product-handle="{{ product.handle }}">
+                        Add to Cart
+                      </button>
+                      <a href="{{ product.url }}" class="product-comparison__product-learn-more">
+                        Learn More
+                      </a>
+                    </div>
                   </div>
                 </div>
               {%- endif -%}
@@ -620,6 +663,12 @@
             "info": "Select the product to display in this column"
           },
           {
+            "type": "image_picker",
+            "id": "custom_image",
+            "label": "Custom Image",
+            "info": "Optional: Upload a custom image for this product. If not set, the product's featured image will be used."
+          },
+          {
             "type": "header",
             "content": "Product Specifications"
           },
@@ -629,8 +678,7 @@
             "label": "Weight Range",
             "default": "-",
             "info": "e.g., 5.5 - 27.5 lbs"
-          },
-          {
+          }, {
             "type": "text",
             "id": "increments",
             "label": "Increments",
