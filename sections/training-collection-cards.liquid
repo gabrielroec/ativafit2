@@ -1,6 +1,9 @@
 {{ 'training-collection.css' | asset_url | stylesheet_tag }}
 
-<section class="training-collection training-collection--cards" id="{{ section.settings.section_id | default: 'training-cards' | escape }}">
+<section
+  class="training-collection training-collection--cards"
+  id="{{ section.settings.section_id | default: 'training-cards' | escape }}"
+  data-block-reading-delay="{{ section.settings.block_reading_delay | default: 2 }}">
   <div class="training-collection__container">
     <div class="tc-section__header">
       <div>
@@ -22,6 +25,67 @@
       {%- endfor -%}
     </div>
   </div>
+
+  {%- if section.settings.enable_block_reading and customer == nil -%}
+    {%- if request.path != blank -%}
+      {%- assign return_url = request.path | url_encode -%}
+    {%- else -%}
+      {%- assign return_url = '/' | url_encode -%}
+    {%- endif -%}
+    <div
+      class="tc-block-reading"
+      id="tc-block-reading-{{ section.id }}"
+      aria-hidden="true"
+      role="dialog"
+      aria-modal="true"
+      aria-label="{{ section.settings.block_reading_title | escape }}">
+      <div class="tc-block-reading__backdrop"></div>
+      <div class="tc-block-reading__panel">
+        <h2 class="tc-block-reading__title">{{ section.settings.block_reading_title | escape }}</h2>
+        <p class="tc-block-reading__text">{{ section.settings.block_reading_text | escape }}</p>
+        <div class="tc-block-reading__actions">
+          <a class="tc-block-reading__btn tc-block-reading__btn--primary" href="{{ routes.account_login_url }}?return_url={{ return_url }}">
+            {{ section.settings.block_reading_login_label | escape }}
+          </a>
+          <a class="tc-block-reading__btn tc-block-reading__btn--secondary" href="{{ routes.account_register_url }}?return_url={{ return_url }}">
+            {{ section.settings.block_reading_register_label | escape }}
+          </a>
+        </div>
+        {%- if section.settings.block_reading_footer != blank -%}
+          <p class="tc-block-reading__footer">{{ section.settings.block_reading_footer | escape }}</p>
+        {%- endif -%}
+      </div>
+    </div>
+    <script>
+      (function() {
+        var overlay = document.getElementById('tc-block-reading-{{ section.id }}');
+        if (!overlay) return;
+        var section = overlay.closest('section');
+        if (!section) return;
+        var delay = parseInt(section.dataset.blockReadingDelay || '2', 10) * 1000;
+        var timer = null;
+        var done = false;
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (done) return;
+            if (entry.isIntersecting) {
+              if (timer) return;
+              timer = setTimeout(function() {
+                done = true;
+                overlay.classList.add('tc-block-reading--visible');
+                overlay.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+                if (observer.disconnect) observer.disconnect();
+              }, delay);
+            } else {
+              if (timer) { clearTimeout(timer); timer = null; }
+            }
+          });
+        }, { threshold: 0.1, rootMargin: '0px' });
+        observer.observe(section);
+      })();
+    </script>
+  {%- endif -%}
 </section>
 
 {% schema %}
@@ -33,16 +97,61 @@
         "id": "title",
         "label": "Title",
         "default": "Master Your Form"
-      }, {
+      },
+      {
         "type": "textarea",
         "id": "subtitle",
         "label": "Subtitle",
         "default": "Explore exercise guides to train safely and effectively."
-      }, {
+      },
+      {
         "type": "text",
         "id": "section_id",
         "label": "Section anchor id",
         "default": "training-cards"
+      },
+      {
+        "type": "header",
+        "content": "Block reading (membership gate)"
+      }, {
+        "type": "checkbox",
+        "id": "enable_block_reading",
+        "label": "Show block reading after section in viewport",
+        "default": true
+      }, {
+        "type": "range",
+        "id": "block_reading_delay",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "unit": "s",
+        "label": "Delay before showing (seconds)",
+        "default": 2
+      }, {
+        "type": "text",
+        "id": "block_reading_title",
+        "label": "Block reading title",
+        "default": "Members-only content"
+      }, {
+        "type": "textarea",
+        "id": "block_reading_text",
+        "label": "Block reading message",
+        "default": "To continue reading, please log in or create an account to become a member."
+      }, {
+        "type": "text",
+        "id": "block_reading_login_label",
+        "label": "Login button label",
+        "default": "Log in"
+      }, {
+        "type": "text",
+        "id": "block_reading_register_label",
+        "label": "Register button label",
+        "default": "Create account"
+      }, {
+        "type": "text",
+        "id": "block_reading_footer",
+        "label": "Footer text",
+        "default": "Creating an account is free and takes less than a minute."
       }
     ],
     "blocks": [
