@@ -1,0 +1,37 @@
+ {%- comment -%}
+   Training card snippet.
+ {%- endcomment -%}
+ <article class="tc-card" {{ block.shopify_attributes }}>
+   <div class="tc-card__meta">
+     {%- if block.settings.muscle_group != blank -%}
+       <span class="tc-badge">{{ block.settings.muscle_group | escape }}</span>
+     {%- endif -%}
+     {%- if block.settings.difficulty != blank -%}
+       <span class="tc-badge tc-badge--difficulty tc-badge--{{ block.settings.difficulty | escape }}">
+         {{ block.settings.difficulty | capitalize }}
+       </span>
+     {%- endif -%}
+   </div>
+ 
+   {%- if block.settings.image != blank -%}
+     <div class="tc-card__media">
+       {{ block.settings.image | image_url: width: 900 | image_tag: loading: 'lazy', alt: block.settings.title | escape }}
+     </div>
+   {%- endif -%}
+ 
+   {%- if block.settings.title != blank -%}
+     <h3 class="tc-card__title">{{ block.settings.title | escape }}</h3>
+   {%- endif -%}
+ 
+   {%- if block.settings.description != blank -%}
+     <p class="tc-card__desc">{{ block.settings.description | escape }}</p>
+   {%- endif -%}
+ 
+   {%- if block.settings.button_label != blank and block.settings.button_link != blank -%}
+     <div class="tc-card__action">
+       <a class="tc-button tc-button--ghost" href="{{ block.settings.button_link }}">
+         {{ block.settings.button_label | escape }}
+       </a>
+     </div>
+   {%- endif -%}
+ </article>
