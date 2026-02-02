@@ -1,79 +1,218 @@
- {{ 'training-collection.css' | asset_url | stylesheet_tag }}
- 
- <section class="training-collection training-collection--hero">
-   <div class="training-collection__container">
-     <div class="tc-hero">
-       <div class="tc-hero__content">
-         {%- if section.settings.eyebrow != blank -%}
-           <div class="tc-hero__eyebrow">{{ section.settings.eyebrow | escape }}</div>
-         {%- endif -%}
-         {%- if section.settings.title != blank -%}
-           <h1 class="tc-hero__title">{{ section.settings.title | escape }}</h1>
-         {%- endif -%}
-         {%- if section.settings.subtitle != blank -%}
-           <p class="tc-hero__subtitle">{{ section.settings.subtitle | escape }}</p>
-         {%- endif -%}
-         {%- if section.settings.button_label != blank and section.settings.button_link != blank -%}
-           <a class="tc-button" href="{{ section.settings.button_link }}">
-             {{ section.settings.button_label | escape }}
-           </a>
-         {%- endif -%}
-       </div>
- 
-       <div class="tc-hero__media">
-         {%- if section.settings.image != blank -%}
-           {{ section.settings.image | image_url: width: 1200 | image_tag: loading: 'lazy', alt: section.settings.title | escape }}
-         {%- else -%}
-           {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
-         {%- endif -%}
-       </div>
-     </div>
-   </div>
- </section>
- 
- {% schema %}
- {
-   "name": "Training Collection Hero",
-   "settings": [
-     {
-       "type": "text",
-       "id": "eyebrow",
-       "label": "Eyebrow",
-       "default": "New program available"
-     },
-     {
-       "type": "text",
-       "id": "title",
-       "label": "Title",
-       "default": "Build Your Strength"
-     },
-     {
-       "type": "textarea",
-       "id": "subtitle",
-       "label": "Subtitle",
-       "default": "Transform your body with a full training guide designed for every level."
-     },
-     {
-       "type": "text",
-       "id": "button_label",
-       "label": "Button label",
-       "default": "View trainings"
-     },
-     {
-       "type": "url",
-       "id": "button_link",
-       "label": "Button link"
-     },
-     {
-       "type": "image_picker",
-       "id": "image",
-       "label": "Hero image"
-     }
-   ],
-   "presets": [
-     {
-       "name": "Training Collection Hero"
-     }
-   ]
- }
- {% endschema %}
+{{ 'training-collection.css' | asset_url | stylesheet_tag }}
+
+<section class="training-collection training-collection--hero">
+  <div class="training-collection__container">
+    <div class="tc-hero">
+      <div class="tc-hero__content">
+        {%- if section.settings.eyebrow != blank -%}
+          <div class="tc-hero__eyebrow">
+            <span class="tc-hero__eyebrow-badge">{{ section.settings.eyebrow | escape }}</span>
+          </div>
+        {%- endif -%}
+        {%- if section.settings.title != blank -%}
+          <h1 class="tc-hero__title">{{ section.settings.title | escape }}</h1>
+        {%- endif -%}
+        {%- if section.settings.subtitle != blank -%}
+          <p class="tc-hero__subtitle">{{ section.settings.subtitle | escape }}</p>
+        {%- endif -%}
+        <div class="tc-hero__actions">
+          {%- if section.settings.scroll_button_label != blank -%}
+            <a class="tc-button" href="#{{ section.settings.scroll_target | escape }}">
+              {{ section.settings.scroll_button_label | escape }}
+            </a>
+          {%- endif -%}
+        </div>
+
+        <div class="tc-hero__stats">
+          {%- if section.blocks.size > 0 -%}
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'stat' -%}
+                <div class="tc-stat" {{ block.shopify_attributes }}>
+                  <div class="tc-stat__icon">
+                    {%- if block.settings.icon != blank -%}
+                      {{ block.settings.icon | image_url: width: 64 | image_tag: loading: 'lazy', alt: block.settings.label | escape }}
+                    {%- else -%}
+                      <span class="tc-stat__dot" aria-hidden="true"></span>
+                    {%- endif -%}
+                  </div>
+                  <div class="tc-stat__text">
+                    <p class="tc-stat__value">{{ block.settings.value | escape }}</p>
+                    <p class="tc-stat__label">{{ block.settings.label | escape }}</p>
+                  </div>
+                </div>
+              {%- endif -%}
+            {%- endfor -%}
+          {%- else -%}
+            <div class="tc-stat">
+              <div class="tc-stat__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" class="tc-stat__icon-svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                  <path d="M14.4 14.4 9.6 9.6"></path>
+                  <path d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z"></path>
+                  <path d="m21.5 21.5-1.4-1.4"></path>
+                  <path d="M3.9 3.9 2.5 2.5"></path>
+                  <path d="M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z"></path>
+                </svg>
+              </div>
+              <div class="tc-stat__text">
+                <p class="tc-stat__value">50+</p>
+                <p class="tc-stat__label">Exercises</p>
+              </div>
+            </div>
+            <div class="tc-stat">
+              <div class="tc-stat__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" class="tc-stat__icon-svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <circle cx="12" cy="12" r="6"></circle>
+                  <circle cx="12" cy="12" r="2"></circle>
+                </svg>
+              </div>
+              <div class="tc-stat__text">
+                <p class="tc-stat__value">10</p>
+                <p class="tc-stat__label">Programs</p>
+              </div>
+            </div>
+          {%- endif -%}
+        </div>
+      </div>
+
+      <div class="tc-hero__media">
+        {%- if section.settings.image != blank -%}
+          {{ section.settings.image | image_url: width: 1200 | image_tag: loading: 'lazy', alt: section.settings.title | escape }}
+        {%- else -%}
+          {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+        {%- endif -%}
+        {%- if section.settings.show_badge -%}
+          <div class="tc-hero__badge" aria-hidden="true">
+            <div class="tc-hero__badge-icon">
+              {%- if section.settings.badge_icon != blank -%}
+                {{ section.settings.badge_icon | image_url: width: 64 | image_tag: loading: 'lazy', alt: '' }}
+              {%- else -%}
+                <svg
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  focusable="false">
+                  <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" />
+                </svg>
+              {%- endif -%}
+            </div>
+            <div class="tc-hero__badge-text">
+              {%- if section.settings.badge_eyebrow != blank -%}
+                <p class="tc-hero__badge-eyebrow">{{ section.settings.badge_eyebrow | escape }}</p>
+              {%- endif -%}
+              {%- if section.settings.badge_title != blank -%}
+                <p class="tc-hero__badge-title">{{ section.settings.badge_title | escape }}</p>
+              {%- endif -%}
+            </div>
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+  {
+    "name": "Training Collection Hero",
+    "settings": [
+      {
+        "type": "text",
+        "id": "eyebrow",
+        "label": "Eyebrow",
+        "default": "New program available"
+      },
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Title",
+        "default": "Build Your Strength"
+      },
+      {
+        "type": "textarea",
+        "id": "subtitle",
+        "label": "Subtitle",
+        "default": "Transform your body with a full training guide designed for every level."
+      },
+      {
+        "type": "text",
+        "id": "button_label",
+        "label": "Button label",
+        "default": "View trainings"
+      }, {
+        "type": "url",
+        "id": "button_link",
+        "label": "Button link"
+      }, {
+        "type": "text",
+        "id": "scroll_button_label",
+        "label": "Scroll button label",
+        "default": "View programs"
+      }, {
+        "type": "text",
+        "id": "scroll_target",
+        "label": "Scroll target id",
+        "default": "training-cards"
+      }, {
+        "type": "image_picker",
+        "id": "image",
+        "label": "Hero image"
+      }, {
+        "type": "header",
+        "content": "Floating badge"
+      }, {
+        "type": "checkbox",
+        "id": "show_badge",
+        "label": "Show badge",
+        "default": true
+      }, {
+        "type": "image_picker",
+        "id": "badge_icon",
+        "label": "Badge icon"
+      }, {
+        "type": "text",
+        "id": "badge_eyebrow",
+        "label": "Badge eyebrow",
+        "default": "Weekly Progress"
+      }, {
+        "type": "text",
+        "id": "badge_title",
+        "label": "Badge title",
+        "default": "+15% Strength"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "stat",
+        "name": "Stat",
+        "settings": [
+          {
+            "type": "image_picker",
+            "id": "icon",
+            "label": "Icon"
+          }, {
+            "type": "text",
+            "id": "value",
+            "label": "Value",
+            "default": "50+"
+          }, {
+            "type": "text",
+            "id": "label",
+            "label": "Label",
+            "default": "Exercises"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Training Collection Hero",
+        "blocks": [
+          {
+            "type": "stat"
+          }, {
+            "type": "stat"
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}

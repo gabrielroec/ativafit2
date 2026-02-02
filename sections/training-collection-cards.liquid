@@ -1,116 +1,120 @@
- {{ 'training-collection.css' | asset_url | stylesheet_tag }}
- 
- <section class="training-collection training-collection--cards">
-   <div class="training-collection__container">
-     <div class="tc-section__header">
-       <div>
-         {%- if section.settings.title != blank -%}
-           <h2 class="tc-section__title">{{ section.settings.title | escape }}</h2>
-         {%- endif -%}
-         {%- if section.settings.subtitle != blank -%}
-           <p class="tc-section__subtitle">{{ section.settings.subtitle | escape }}</p>
-         {%- endif -%}
-       </div>
-     </div>
- 
-     <div class="tc-grid">
-       {%- for block in section.blocks -%}
-         {%- if block.type == 'training_card' -%}
-           {% render 'training-card', block: block %}
-         {%- endif -%}
-       {%- endfor -%}
-     </div>
-   </div>
- </section>
- 
- {% schema %}
- {
-   "name": "Training Collection Cards",
-   "settings": [
-     {
-       "type": "text",
-       "id": "title",
-       "label": "Title",
-       "default": "Master Your Form"
-     },
-     {
-       "type": "textarea",
-       "id": "subtitle",
-       "label": "Subtitle",
-       "default": "Explore exercise guides to train safely and effectively."
-     }
-   ],
-   "blocks": [
-     {
-       "type": "training_card",
-       "name": "Training Card",
-       "settings": [
-         {
-           "type": "text",
-           "id": "muscle_group",
-           "label": "Muscle group tag",
-           "default": "Arms"
-         },
-         {
-           "type": "select",
-           "id": "difficulty",
-           "label": "Difficulty",
-           "default": "beginner",
-           "options": [
-             {
-               "value": "beginner",
-               "label": "Beginner"
-             },
-             {
-               "value": "intermediate",
-               "label": "Intermediate"
-             },
-             {
-               "value": "advanced",
-               "label": "Advanced"
-             }
-           ]
-         },
-         {
-           "type": "image_picker",
-           "id": "image",
-           "label": "Card image"
-         },
-         {
-           "type": "text",
-           "id": "title",
-           "label": "Title",
-           "default": "Dumbbell Bicep Curl"
-         },
-         {
-           "type": "textarea",
-           "id": "description",
-           "label": "Description",
-           "default": "A fundamental isolation move to build biceps strength and definition."
-         },
-         {
-           "type": "text",
-           "id": "button_label",
-           "label": "Button label",
-           "default": "Start exercise"
-         },
-         {
-           "type": "url",
-           "id": "button_link",
-           "label": "Button link"
-         }
-       ]
-     }
-   ],
-   "presets": [
-     {
-       "name": "Training Collection Cards",
-       "blocks": [
-         { "type": "training_card" },
-         { "type": "training_card" },
-         { "type": "training_card" }
-       ]
-     }
-   ]
- }
- {% endschema %}
+{{ 'training-collection.css' | asset_url | stylesheet_tag }}
+
+<section class="training-collection training-collection--cards" id="{{ section.settings.section_id | default: 'training-cards' | escape }}">
+  <div class="training-collection__container">
+    <div class="tc-section__header">
+      <div>
+        {%- if section.settings.title != blank -%}
+          <h2 class="tc-section__title">{{ section.settings.title | escape }}</h2>
+        {%- endif -%}
+        {%- if section.settings.subtitle != blank -%}
+          <p class="tc-section__subtitle">{{ section.settings.subtitle | escape }}</p>
+        {%- endif -%}
+      </div>
+    </div>
+
+    <div class="tc-grid">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'training_card' -%}
+          {% render 'training-card'
+            , block: block %}
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+  {
+    "name": "Training Collection Cards",
+    "settings": [
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Title",
+        "default": "Master Your Form"
+      }, {
+        "type": "textarea",
+        "id": "subtitle",
+        "label": "Subtitle",
+        "default": "Explore exercise guides to train safely and effectively."
+      }, {
+        "type": "text",
+        "id": "section_id",
+        "label": "Section anchor id",
+        "default": "training-cards"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "training_card",
+        "name": "Training Card",
+        "settings": [
+          {
+            "type": "text",
+            "id": "muscle_group",
+            "label": "Muscle group tag",
+            "default": "Arms"
+          },
+          {
+            "type": "select",
+            "id": "difficulty",
+            "label": "Difficulty",
+            "default": "beginner",
+            "options": [
+              {
+                "value": "beginner",
+                "label": "Beginner"
+              }, {
+                "value": "intermediate",
+                "label": "Intermediate"
+              }, {
+                "value": "advanced",
+                "label": "Advanced"
+              }
+            ]
+          },
+          {
+            "type": "image_picker",
+            "id": "image",
+            "label": "Card image"
+          },
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Title",
+            "default": "Dumbbell Bicep Curl"
+          }, {
+            "type": "textarea",
+            "id": "description",
+            "label": "Description",
+            "default": "A fundamental isolation move to build biceps strength and definition."
+          }, {
+            "type": "text",
+            "id": "button_label",
+            "label": "Button label",
+            "default": "Start exercise"
+          }, {
+            "type": "url",
+            "id": "button_link",
+            "label": "Button link"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Training Collection Cards",
+        "blocks": [
+          {
+            "type": "training_card"
+          }, {
+            "type": "training_card"
+          }, {
+            "type": "training_card"
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}
