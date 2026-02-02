@@ -1,0 +1,61 @@
+{%- assign muscles_list = exercise.settings.muscles | split: ',' -%}
+{%- assign instructions_list = exercise.settings.instructions | split: '\n' -%}
+
+<article class="exercise-card" {{ exercise.shopify_attributes }}>
+  {%- if exercise.settings.image != blank -%}
+    <div class="exercise-card__media">
+      {{ exercise.settings.image | image_url: width: 800 | image_tag: class: 'exercise-card__image', loading: 'lazy' }}
+    </div>
+  {%- endif -%}
+
+  <div class="exercise-card__body">
+    <div class="exercise-card__meta">
+      {%- if exercise.settings.category != blank -%}
+        <span class="exercise-card__pill">{{ exercise.settings.category | escape }}</span>
+      {%- endif -%}
+      {%- if exercise.settings.difficulty != blank -%}
+        <span class="exercise-card__pill exercise-card__pill--outline">{{ exercise.settings.difficulty | escape }}</span>
+      {%- endif -%}
+    </div>
+
+    <h3 class="exercise-card__title">{{ exercise.settings.name | escape }}</h3>
+
+    {%- if muscles_list.size > 0 and exercise.settings.muscles != blank -%}
+      <div class="exercise-card__muscles">
+        <span class="exercise-card__label">Músculos</span>
+        <ul class="exercise-card__tags">
+          {%- for muscle in muscles_list -%}
+            {%- assign muscle_trim = muscle | strip -%}
+            {%- if muscle_trim != blank -%}
+              <li class="exercise-card__tag">{{ muscle_trim | escape }}</li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      </div>
+    {%- endif -%}
+
+    {%- if exercise.settings.description != blank -%}
+      <p class="exercise-card__description">{{ exercise.settings.description | escape }}</p>
+    {%- endif -%}
+
+    {%- if instructions_list.size > 0 and exercise.settings.instructions != blank -%}
+      <div class="exercise-card__instructions">
+        <span class="exercise-card__label">Instruções</span>
+        <ul>
+          {%- for instruction in instructions_list -%}
+            {%- assign instruction_trim = instruction | strip -%}
+            {%- if instruction_trim != blank -%}
+              <li>{{ instruction_trim | escape }}</li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      </div>
+    {%- endif -%}
+
+    {%- if exercise.settings.tips != blank -%}
+      <p class="exercise-card__tips">
+        <strong>Dica:</strong>
+        {{ exercise.settings.tips | escape }}</p>
+    {%- endif -%}
+  </div>
+</article>
