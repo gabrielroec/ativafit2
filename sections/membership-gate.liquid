@@ -5,6 +5,7 @@
 {%- endcomment -%}
 
 {%- if section.settings.enabled and customer == nil -%}
+  {%- assign delay_seconds = section.settings.delay_seconds | default: 0 -%}
   {%- style -%}
     .membership-gate {
       position: fixed;
@@ -19,6 +20,20 @@
       align-items: center;
       justify-content: center;
       padding: 24px;
+    }
+
+    .membership-gate--delayed {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.35s ease
+      , visibility 0.35s ease;
+    }
+
+    .membership-gate--delayed.is-visible {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
     }
 
     .membership-gate__panel {
@@ -90,12 +105,14 @@
       color: #6b7280;
     }
   {%- endstyle -%}
-
   <div
-    class="membership-gate"
+    class="membership-gate{% if delay_seconds > 0 %} membership-gate--delayed{% endif %}"
     role="dialog"
     aria-modal="true"
-    aria-label="Member access required">
+    aria-label="Member access required"
+    {% if delay_seconds > 0 %}
+    data-delay-seconds="{{ delay_seconds }}"
+    {% endif %}>
     <div class="membership-gate__panel">
       <h2 class="membership-gate__title">{{ section.settings.title }}</h2>
       <p class="membership-gate__text">{{ section.settings.text }}</p>
@@ -127,19 +144,27 @@
 
   <script>
     (function () {
-      // Lock scroll while gate is visible
+      const gate = document.querySelector(".membership-gate");
+      const delaySec = gate && gate.dataset.delaySeconds ? parseInt(gate.dataset.delaySeconds, 10) : 0;
       const html = document.documentElement;
       const body = document.body;
       const prevHtmlOverflow = html.style.overflow;
       const prevBodyOverflow = body.style.overflow;
-      html.style.overflow = "hidden";
-      body.style.overflow = "hidden";
 
-      // Focus first action for accessibility
-      const firstBtn = document.querySelector(".membership-gate__btn");
-      if (firstBtn) firstBtn.focus();
+      function showGate() {
+        if (gate) gate.classList.add("is-visible");
+        html.style.overflow = "hidden";
+        body.style.overflow = "hidden";
+        const firstBtn = document.querySelector(".membership-gate__btn");
+        if (firstBtn) firstBtn.focus();
+      }
 
-      // Safety: restore overflow on unload/navigation
+      if (delaySec > 0) {
+        setTimeout(showGate, delaySec * 1000);
+      } else {
+        showGate();
+      }
+
       window.addEventListener("pagehide", () => {
         html.style.overflow = prevHtmlOverflow;
         body.style.overflow = prevBodyOverflow;
@@ -161,6 +186,16 @@
         "default": true
       },
       {
+        "type": "range",
+        "id": "delay_seconds",
+        "min": 0,
+        "max": 10,
+        "step": 1,
+        "unit": "s",
+        "label": "Delay before showing (0 = immediately)",
+        "default": 0
+      },
+      {
         "type": "text",
         "id": "title",
         "label": "Title",
@@ -171,8 +206,7 @@
         "id": "text",
         "label": "Message",
         "default": "To continue reading, please log in or create an account to become a member."
-      },
-      {
+      }, {
         "type": "text",
         "id": "login_label",
         "label": "Login button label",
