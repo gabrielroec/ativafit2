@@ -12,6 +12,55 @@
  * - https://shopify.dev/docs/storefronts/themes/best-practices
  */
 
+function getCartApi() {
+  if (window.AfitCartApi) return window.AfitCartApi;
+
+  const ROOT_URL = window.Shopify?.routes?.root || "/";
+  const state = {
+    cache: null,
+    inflight: null,
+    lastFetchAt: 0,
+  };
+  const MIN_INTERVAL = 800;
+
+  function fetchCart(options = {}) {
+    const force = options.force === true;
+    const now = Date.now();
+
+    if (!force && state.cache && now - state.lastFetchAt < MIN_INTERVAL) {
+      return Promise.resolve(state.cache);
+    }
+
+    if (state.inflight) return state.inflight;
+
+    state.inflight = fetch(`${ROOT_URL}cart.js`, {
+      headers: { Accept: "application/json" },
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error("Cart fetch failed");
+        return response.json();
+      })
+      .then((cart) => {
+        state.cache = cart;
+        state.lastFetchAt = Date.now();
+        return cart;
+      })
+      .finally(() => {
+        state.inflight = null;
+      });
+
+    return state.inflight;
+  }
+
+  function invalidate() {
+    state.cache = null;
+    state.lastFetchAt = 0;
+  }
+
+  window.AfitCartApi = { fetchCart, invalidate };
+  return window.AfitCartApi;
+}
+
 if (!customElements.get("cart-drawer")) {
   customElements.define(
     "cart-drawer",
@@ -26,21 +75,22 @@ if (!customElements.get("cart-drawer")) {
         this.closeButtons.forEach((button) => {
           button.addEventListener("click", this.close.bind(this));
         });
-        
+
         // Setup loyalty button
         this.setupLoyaltyButton();
       }
-      
+
       setupLoyaltyButton() {
-        const loyaltyBtn = this.querySelector('[data-open-loyalty]');
+        const loyaltyBtn = this.querySelector("[data-open-loyalty]");
         if (!loyaltyBtn) return;
-        
-        loyaltyBtn.addEventListener('click', () => {
+
+        loyaltyBtn.addEventListener("click", () => {
           // Tenta encontrar o botão original do BON Loyalty
-          const originalBtn = document.getElementById('bon-loyalty-btn') || 
-                             document.querySelector('[id*="bon-loyalty"]') ||
-                             document.querySelector('button[aria-label="BON-Loyalty-btn"]');
-          
+          const originalBtn =
+            document.getElementById("bon-loyalty-btn") ||
+            document.querySelector('[id*="bon-loyalty"]') ||
+            document.querySelector('button[aria-label="BON-Loyalty-btn"]');
+
           if (originalBtn) {
             // Clica no botão original para abrir o iframe
             originalBtn.click();
@@ -345,6 +395,7 @@ function formatMoney(cents) {
 
 // Open cart drawer when item is added
 document.addEventListener("DOMContentLoaded", () => {
+  const cartApi = getCartApi();
   // Handle recommendation button clicks
   document.addEventListener("click", (e) => {
     const addBtn = e.target.closest("[data-add-to-cart]");
@@ -374,6 +425,7 @@ document.addEventListener("DOMContentLoaded", () => {
           return response.json();
         })
         .then(() => {
+          cartApi.invalidate();
           const sectionId = document.getElementById("CartDrawer-Items")?.dataset.id || "cart-drawer";
           return fetch(`/cart?sections=${sectionId}`);
         })
@@ -407,9 +459,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           }
 
-          return fetch("/cart.js");
+          return cartApi.fetchCart({ force: true });
         })
-        .then((res) => res.json())
         .then((cart) => {
           const cartCountElements = document.querySelectorAll(".cart-count, [data-cart-count]");
           cartCountElements.forEach((element) => {
@@ -495,6 +546,7 @@ document.addEventListener("DOMContentLoaded", () => {
           })
           .then((data) => {
             console.log("Product added to cart:", data);
+            cartApi.invalidate();
 
             // Update cart drawer content using Shopify Section Rendering API
             const sectionId = document.getElementById("CartDrawer-Items")?.dataset.id || "cart-drawer";
@@ -534,9 +586,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             // Update cart count and open drawer
-            return fetch("/cart.js");
+            return cartApi.fetchCart({ force: true });
           })
-          .then((res) => res.json())
           .then((cart) => {
             // Update cart count
             const cartCountElements = document.querySelectorAll(".cart-count, [data-cart-count]");
@@ -611,13 +662,12 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ========== Recommendations Collapse/Expand ==========
-  
-  document.addEventListener('click', (e) => {
-    const button = e.target.closest('[data-recommendations-toggle]');
-    if (!button) return;
-    
-    const isExpanded = button.getAttribute('aria-expanded') === 'true';
-    button.setAttribute('aria-expanded', String(!isExpanded));
-  });
 
+  document.addEventListener("click", (e) => {
+    const button = e.target.closest("[data-recommendations-toggle]");
+    if (!button) return;
+
+    const isExpanded = button.getAttribute("aria-expanded") === "true";
+    button.setAttribute("aria-expanded", String(!isExpanded));
+  });
 });
