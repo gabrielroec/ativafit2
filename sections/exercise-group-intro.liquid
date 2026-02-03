@@ -1,13 +1,14 @@
 {%- comment -%} 
-                                          Exercise Group Introduction Section
-                                          Displays title and description for exercise group pages
-                                          Optional background video (mp4, muted, loop) with dark-to-white gradient 
+                                                Exercise Group Introduction Section
+                                                Displays title and description for exercise group pages
+                                                Optional background video (mp4, muted, loop) with dark-to-white gradient 
 {%- endcomment -%}
 
 {%- liquid
   assign section_title = section.settings.title
   assign section_description = section.settings.description
   assign bg_video = section.settings.background_video
+  assign mirror_video = section.settings.mirror_video
 -%}
 
 {%- if bg_video != blank -%}
@@ -25,7 +26,7 @@
 {%- endif -%}
 
 <section
-  class="exercise-group-intro{% if bg_video != blank %} exercise-group-intro--has-video{% endif %}"
+  class="exercise-group-intro{% if bg_video != blank %} exercise-group-intro--has-video{% endif %}{% if mirror_video %} exercise-group-intro--mirror-video{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="exercise-group-intro">
 
@@ -52,16 +53,16 @@
         {%- if block.type == 'muscle_badge' -%}
           {%- assign badge_label = block.settings.muscle_group -%}
           {%- case block.settings.muscle_group -%}
-            {%- when 'gluteos' -%}{%- assign badge_label = 'Gluteos' -%}
-            {%- when 'quadriceps' -%}{%- assign badge_label = 'Quadriceps' -%}
-            {%- when 'posterior' -%}{%- assign badge_label = 'Posterior' -%}
-            {%- when 'abdomen' -%}{%- assign badge_label = 'Abdomen' -%}
-            {%- when 'peito' -%}{%- assign badge_label = 'Peito' -%}
-            {%- when 'costas' -%}{%- assign badge_label = 'Costas' -%}
-            {%- when 'ombros' -%}{%- assign badge_label = 'Ombros' -%}
+            {%- when 'glutes' -%}{%- assign badge_label = 'Glutes' -%}
+            {%- when 'quads' -%}{%- assign badge_label = 'Quads' -%}
+            {%- when 'hamstrings' -%}{%- assign badge_label = 'Hamstrings' -%}
+            {%- when 'abs' -%}{%- assign badge_label = 'Abs' -%}
+            {%- when 'chest' -%}{%- assign badge_label = 'Chest' -%}
+            {%- when 'back' -%}{%- assign badge_label = 'Back' -%}
+            {%- when 'shoulders' -%}{%- assign badge_label = 'Shoulders' -%}
             {%- when 'biceps' -%}{%- assign badge_label = 'Biceps' -%}
             {%- when 'triceps' -%}{%- assign badge_label = 'Triceps' -%}
-            {%- when 'panturrilhas' -%}{%- assign badge_label = 'Panturrilhas' -%}
+            {%- when 'calves' -%}{%- assign badge_label = 'Calves' -%}
             {%- when 'core' -%}{%- assign badge_label = 'Core' -%}
             {%- when 'full_body' -%}{%- assign badge_label = 'Full Body' -%}
           {%- endcase -%}
@@ -69,7 +70,6 @@
         {%- endif -%}
       {%- endfor -%}
     {%- endcapture -%}
-
     {%- assign badges_markup_clean = badges_markup | strip -%}
     {%- if badges_markup_clean != blank -%}
       <div class="exercise-group-intro__badges">
@@ -110,6 +110,10 @@
     height: 100%;
     object-fit: cover;
     pointer-events: none;
+  }
+
+  .exercise-group-intro--mirror-video .exercise-group-intro__video {
+    transform: scaleX(-1);
   }
 
   .exercise-group-intro__gradient {
@@ -218,55 +222,61 @@
       {
         "type": "text",
         "id": "title",
-        "label": "Título",
+        "label": "Title",
         "default": "Introduction"
       }, {
         "type": "richtext",
         "id": "description",
-        "label": "Descrição",
+        "label": "Description",
         "default": "<p>Add a description for this exercise group here.</p>"
       }, {
         "type": "video",
         "id": "background_video",
-        "label": "Vídeo de fundo",
-        "info": "Vídeo MP4 em loop, mudo (estilo Netflix). Se vazio, não há vídeo de fundo."
+        "label": "Background video",
+        "info": "MP4 video in loop, muted. Leave empty to disable."
+      }, {
+        "type": "checkbox",
+        "id": "mirror_video",
+        "label": "Mirror video",
+        "default": false,
+        "info": "Flip the background video horizontally."
       }
     ],
     "blocks": [
       {
         "type": "muscle_badge",
-        "name": "Badge de musculo",
+        "name": "Muscle badge",
         "settings": [
           {
             "type": "select",
             "id": "muscle_group",
-            "label": "Grupo muscular",
-            "default": "gluteos",
+            "label": "Muscle group",
+            "default": "glutes",
             "options": [
               {
-                "value": "gluteos",
-                "label": "Gluteos"
+                "value": "glutes",
+                "label": "Glutes"
               },
               {
-                "value": "quadriceps",
-                "label": "Quadriceps"
+                "value": "quads",
+                "label": "Quads"
               },
               {
-                "value": "posterior",
-                "label": "Posterior"
+                "value": "hamstrings",
+                "label": "Hamstrings"
               },
               {
-                "value": "abdomen",
-                "label": "Abdomen"
+                "value": "abs",
+                "label": "Abs"
               }, {
-                "value": "peito",
-                "label": "Peito"
+                "value": "chest",
+                "label": "Chest"
               }, {
-                "value": "costas",
-                "label": "Costas"
+                "value": "back",
+                "label": "Back"
               }, {
-                "value": "ombros",
-                "label": "Ombros"
+                "value": "shoulders",
+                "label": "Shoulders"
               }, {
                 "value": "biceps",
                 "label": "Biceps"
@@ -274,8 +284,8 @@
                 "value": "triceps",
                 "label": "Triceps"
               }, {
-                "value": "panturrilhas",
-                "label": "Panturrilhas"
+                "value": "calves",
+                "label": "Calves"
               }, {
                 "value": "core",
                 "label": "Core"
