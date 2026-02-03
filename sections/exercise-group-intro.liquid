@@ -1,130 +1,188 @@
-{%- comment -%}
-  Exercise Group Introduction Section
-  Displays title and description for exercise group pages
-  Includes a visual divider separator
+{%- comment -%} 
+                                  Exercise Group Introduction Section
+                                  Displays title and description for exercise group pages
+                                  Optional background video (mp4, muted, loop) with dark-to-white gradient 
 {%- endcomment -%}
 
 {%- liquid
   assign section_title = section.settings.title
   assign section_description = section.settings.description
   assign show_divider = section.settings.show_divider
+  assign bg_video = section.settings.background_video
 -%}
 
-{%- if section_title != blank or section_description != blank -%}
-  <section 
-    class="exercise-group-intro"
-    data-section-id="{{ section.id }}"
-    data-section-type="exercise-group-intro">
-    
-    <div class="exercise-group-intro__container">
-      {%- if section_title != blank -%}
-        <h1 class="exercise-group-intro__title">{{ section_title }}</h1>
-      {%- endif -%}
-      
-      {%- if section_description != blank -%}
-        <div class="exercise-group-intro__description">
-          {{ section_description }}
-        </div>
-      {%- endif -%}
+<section
+  class="exercise-group-intro{% if bg_video != blank %} exercise-group-intro--has-video{% endif %}"
+  data-section-id="{{ section.id }}"
+  data-section-type="exercise-group-intro">
+
+  {%- if bg_video != blank -%}
+    <div class="exercise-group-intro__video-wrap" aria-hidden="true">
+      {{ bg_video | video_tag: autoplay: true, loop: true, muted: true, playsinline: true, controls: false, class: 'exercise-group-intro__video' }}
     </div>
-    
-    {%- if show_divider -%}
-      <div class="exercise-group-intro__divider"></div>
+    <div class="exercise-group-intro__gradient" aria-hidden="true"></div>
+  {%- endif -%}
+
+  <div class="exercise-group-intro__container">
+    {%- if section_title != blank -%}
+      <h1 class="exercise-group-intro__title">{{ section_title }}</h1>
     {%- endif -%}
-    
-  </section>
-{%- endif -%}
+
+    {%- if section_description != blank -%}
+      <div class="exercise-group-intro__description">
+        {{ section_description }}
+      </div>
+    {%- endif -%}
+  </div>
+
+  {%- if show_divider -%}
+    <div class="exercise-group-intro__divider"></div>
+  {%- endif -%}
+
+</section>
 
 <style>
-.exercise-group-intro {
-  padding: 60px 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.exercise-group-intro__container {
-  text-align: center;
-}
-
-.exercise-group-intro__title {
-  font-size: 3rem;
-  font-weight: 800;
-  color: #222;
-  margin: 0 0 24px;
-  line-height: 1.2;
-  background: linear-gradient(90deg, #EB701F 0%, #EFC87D 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.exercise-group-intro__description {
-  font-size: 1.125rem;
-  line-height: 1.7;
-  color: #494949;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.exercise-group-intro__divider {
-  width: 100%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent 0%, rgba(235, 112, 31, 0.3) 50%, transparent 100%);
-  margin: 60px auto 0;
-  max-width: 1200px;
-}
-
-@media (max-width: 768px) {
   .exercise-group-intro {
-    padding: 40px 20px;
+    position: relative;
+    padding: 80px 20px 72px;
+    max-width: 1000px;
+    margin: 0 auto;
+    min-height: 320px;
   }
-  
+
+  .exercise-group-intro--has-video {
+    min-height: 620px;
+    padding: 480px 20px 110px;
+    max-width: none;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  .exercise-group-intro__video-wrap {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .exercise-group-intro__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+  }
+
+  .exercise-group-intro__gradient {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    z-index: 1;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.55) 45%, #ffffff 100%);
+    pointer-events: none;
+  }
+
+  .exercise-group-intro--has-video .exercise-group-intro__container {
+    position: relative;
+    z-index: 2;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .exercise-group-intro__container {
+    text-align: left;
+  }
+
   .exercise-group-intro__title {
-    font-size: 2rem;
-    margin-bottom: 20px;
+    font-size: 3rem;
+    font-weight: 800;
+    color: #222;
+    margin: 0 0 24px;
+    line-height: 1.2;
+    background: linear-gradient(90deg, #EB701F 0%, #EFC87D 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
-  
+
   .exercise-group-intro__description {
-    font-size: 1rem;
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: #fff;
+    max-width: 800px;
   }
-  
+
   .exercise-group-intro__divider {
-    margin-top: 40px;
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: 1px;
+    background: #fff;
+    margin: 60px auto 0;
+    max-width: 1000px;
   }
-}
+
+  @media (max-width: 768px) {
+    .exercise-group-intro {
+      padding: 48px 20px 40px;
+      min-height: 260px;
+    }
+
+    .exercise-group-intro--has-video {
+      min-height: 460px;
+      padding: 400px 20px 80px 40px;
+    }
+
+    .exercise-group-intro__title {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    .exercise-group-intro__description {
+      font-size: 1rem;
+    }
+
+    .exercise-group-intro__divider {
+      margin-top: 40px;
+    }
+  }
 </style>
 
 {% schema %}
-{
-  "name": "Exercise Group Intro",
-  "tag": "section",
-  "class": "section-exercise-group-intro",
-  "settings": [
-    {
-      "type": "text",
-      "id": "title",
-      "label": "Título",
-      "default": "Introduction"
-    },
-    {
-      "type": "richtext",
-      "id": "description",
-      "label": "Descrição",
-      "default": "<p>Add a description for this exercise group here.</p>"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_divider",
-      "label": "Mostrar Separador",
-      "default": true,
-      "info": "Exibe uma linha divisória abaixo da introdução"
-    }
-  ],
-  "presets": [
-    {
-      "name": "Exercise Group Intro"
-    }
-  ]
-}
+  {
+    "name": "Exercise Group Intro",
+    "tag": "section",
+    "class": "section-exercise-group-intro",
+    "settings": [
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Título",
+        "default": "Introduction"
+      }, {
+        "type": "richtext",
+        "id": "description",
+        "label": "Descrição",
+        "default": "<p>Add a description for this exercise group here.</p>"
+      }, {
+        "type": "checkbox",
+        "id": "show_divider",
+        "label": "Mostrar Separador",
+        "default": true,
+        "info": "Exibe uma linha divisória abaixo da introdução"
+      }, {
+        "type": "video",
+        "id": "background_video",
+        "label": "Vídeo de fundo",
+        "info": "Vídeo MP4 em loop, mudo (estilo Netflix). Se vazio, não há vídeo de fundo."
+      }
+    ],
+    "presets": [
+      {
+        "name": "Exercise Group Intro"
+      }
+    ]
+  }
 {% endschema %}
-
