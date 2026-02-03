@@ -1,15 +1,28 @@
 {%- comment -%} 
-                                  Exercise Group Introduction Section
-                                  Displays title and description for exercise group pages
-                                  Optional background video (mp4, muted, loop) with dark-to-white gradient 
+                                          Exercise Group Introduction Section
+                                          Displays title and description for exercise group pages
+                                          Optional background video (mp4, muted, loop) with dark-to-white gradient 
 {%- endcomment -%}
 
 {%- liquid
   assign section_title = section.settings.title
   assign section_description = section.settings.description
-  assign show_divider = section.settings.show_divider
   assign bg_video = section.settings.background_video
 -%}
+
+{%- if bg_video != blank -%}
+  {%- assign bg_video_source = bg_video.sources | first -%}
+{%- endif -%}
+
+{%- if bg_video_source != blank -%}
+  <link
+    rel="preload"
+    as="video"
+    href="{{ bg_video_source.url }}"
+    {% if bg_video_source.mime_type != blank %}
+    type="{{ bg_video_source.mime_type }}"
+    {% endif %}>
+{%- endif -%}
 
 <section
   class="exercise-group-intro{% if bg_video != blank %} exercise-group-intro--has-video{% endif %}"
@@ -18,7 +31,7 @@
 
   {%- if bg_video != blank -%}
     <div class="exercise-group-intro__video-wrap" aria-hidden="true">
-      {{ bg_video | video_tag: autoplay: true, loop: true, muted: true, playsinline: true, controls: false, class: 'exercise-group-intro__video' }}
+      {{ bg_video | video_tag: autoplay: true, loop: true, muted: true, playsinline: true, controls: false, preload: 'auto', class: 'exercise-group-intro__video' }}
     </div>
     <div class="exercise-group-intro__gradient" aria-hidden="true"></div>
   {%- endif -%}
@@ -33,11 +46,37 @@
         {{ section_description }}
       </div>
     {%- endif -%}
-  </div>
 
-  {%- if show_divider -%}
-    <div class="exercise-group-intro__divider"></div>
-  {%- endif -%}
+    {%- capture badges_markup -%}
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'muscle_badge' -%}
+          {%- assign badge_label = block.settings.muscle_group -%}
+          {%- case block.settings.muscle_group -%}
+            {%- when 'gluteos' -%}{%- assign badge_label = 'Gluteos' -%}
+            {%- when 'quadriceps' -%}{%- assign badge_label = 'Quadriceps' -%}
+            {%- when 'posterior' -%}{%- assign badge_label = 'Posterior' -%}
+            {%- when 'abdomen' -%}{%- assign badge_label = 'Abdomen' -%}
+            {%- when 'peito' -%}{%- assign badge_label = 'Peito' -%}
+            {%- when 'costas' -%}{%- assign badge_label = 'Costas' -%}
+            {%- when 'ombros' -%}{%- assign badge_label = 'Ombros' -%}
+            {%- when 'biceps' -%}{%- assign badge_label = 'Biceps' -%}
+            {%- when 'triceps' -%}{%- assign badge_label = 'Triceps' -%}
+            {%- when 'panturrilhas' -%}{%- assign badge_label = 'Panturrilhas' -%}
+            {%- when 'core' -%}{%- assign badge_label = 'Core' -%}
+            {%- when 'full_body' -%}{%- assign badge_label = 'Full Body' -%}
+          {%- endcase -%}
+          <span class="exercise-group-intro__badge" {{ block.shopify_attributes }}>{{ badge_label }}</span>
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endcapture -%}
+
+    {%- assign badges_markup_clean = badges_markup | strip -%}
+    {%- if badges_markup_clean != blank -%}
+      <div class="exercise-group-intro__badges">
+        {{ badges_markup }}
+      </div>
+    {%- endif -%}
+  </div>
 
 </section>
 
@@ -52,7 +91,7 @@
 
   .exercise-group-intro--has-video {
     min-height: 620px;
-    padding: 480px 20px 110px;
+    padding: 280px 20px;
     max-width: none;
     margin: 0;
     overflow: hidden;
@@ -114,15 +153,28 @@
     max-width: 800px;
   }
 
-  .exercise-group-intro__divider {
-    position: relative;
-    z-index: 2;
-    width: 100%;
-    height: 1px;
-    background: #fff;
-    margin: 60px auto 0;
-    max-width: 1000px;
+  .exercise-group-intro__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 24px;
   }
+
+  .exercise-group-intro__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    text-transform: uppercase;
+  }
+
 
   @media (max-width: 768px) {
     .exercise-group-intro {
@@ -144,9 +196,16 @@
       font-size: 1rem;
     }
 
-    .exercise-group-intro__divider {
-      margin-top: 40px;
+    .exercise-group-intro__badges {
+      gap: 10px;
+      margin-top: 18px;
     }
+
+    .exercise-group-intro__badge {
+      padding: 7px 12px;
+      font-size: 0.8rem;
+    }
+
   }
 </style>
 
@@ -167,21 +226,80 @@
         "label": "Descrição",
         "default": "<p>Add a description for this exercise group here.</p>"
       }, {
-        "type": "checkbox",
-        "id": "show_divider",
-        "label": "Mostrar Separador",
-        "default": true,
-        "info": "Exibe uma linha divisória abaixo da introdução"
-      }, {
         "type": "video",
         "id": "background_video",
         "label": "Vídeo de fundo",
         "info": "Vídeo MP4 em loop, mudo (estilo Netflix). Se vazio, não há vídeo de fundo."
       }
     ],
+    "blocks": [
+      {
+        "type": "muscle_badge",
+        "name": "Badge de musculo",
+        "settings": [
+          {
+            "type": "select",
+            "id": "muscle_group",
+            "label": "Grupo muscular",
+            "default": "gluteos",
+            "options": [
+              {
+                "value": "gluteos",
+                "label": "Gluteos"
+              },
+              {
+                "value": "quadriceps",
+                "label": "Quadriceps"
+              },
+              {
+                "value": "posterior",
+                "label": "Posterior"
+              },
+              {
+                "value": "abdomen",
+                "label": "Abdomen"
+              }, {
+                "value": "peito",
+                "label": "Peito"
+              }, {
+                "value": "costas",
+                "label": "Costas"
+              }, {
+                "value": "ombros",
+                "label": "Ombros"
+              }, {
+                "value": "biceps",
+                "label": "Biceps"
+              }, {
+                "value": "triceps",
+                "label": "Triceps"
+              }, {
+                "value": "panturrilhas",
+                "label": "Panturrilhas"
+              }, {
+                "value": "core",
+                "label": "Core"
+              }, {
+                "value": "full_body",
+                "label": "Full Body"
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "presets": [
       {
-        "name": "Exercise Group Intro"
+        "name": "Exercise Group Intro",
+        "blocks": [
+          {
+            "type": "muscle_badge"
+          }, {
+            "type": "muscle_badge"
+          }, {
+            "type": "muscle_badge"
+          }
+        ]
       }
     ]
   }
