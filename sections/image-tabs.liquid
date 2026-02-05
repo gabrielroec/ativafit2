@@ -104,9 +104,10 @@
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
     margin-bottom: 16px;
-    touch-action: pan-y;
     cursor: grab;
     user-select: none;
+    touch-action: pan-y;
+    padding-bottom:20px;
   }
   #{{ section_id }} .image-tabs__tabs.is-dragging {
     cursor: grabbing;
@@ -156,46 +157,6 @@
     var panels = section.querySelectorAll('[data-panel]');
     if (!tabs.length || !panels.length) return;
 
-    var tabList = section.querySelector('.image-tabs__tabs');
-    var tabList = section.querySelector('.image-tabs__tabs');
-    var isDragging = false;
-    var dragMoved = false;
-    var startX = 0;
-    var scrollLeft = 0;
-    var dragThreshold = 6;
-
-    if (tabList) {
-      tabList.addEventListener('pointerdown', function (event) {
-        if (event.button !== 0) return;
-        isDragging = true;
-        dragMoved = false;
-        startX = event.clientX;
-        scrollLeft = tabList.scrollLeft;
-        tabList.classList.add('is-dragging');
-        tabList.setPointerCapture(event.pointerId);
-      });
-
-      tabList.addEventListener('pointermove', function (event) {
-        if (!isDragging) return;
-        var delta = event.clientX - startX;
-        if (Math.abs(delta) > dragThreshold) dragMoved = true;
-        tabList.scrollLeft = scrollLeft - delta;
-      });
-
-      function stopDrag(event) {
-        if (!isDragging) return;
-        isDragging = false;
-        tabList.classList.remove('is-dragging');
-        if (event && event.pointerId) {
-          tabList.releasePointerCapture(event.pointerId);
-        }
-      }
-
-      tabList.addEventListener('pointerup', stopDrag);
-      tabList.addEventListener('pointercancel', stopDrag);
-      tabList.addEventListener('pointerleave', stopDrag);
-    }
-
     function activateTab(tabId) {
       tabs.forEach(function (tab) {
         var isActive = tab.getAttribute('data-tab') === tabId;
@@ -214,7 +175,6 @@
     }
 
     section.addEventListener('click', function (event) {
-      if (dragMoved) return;
       var button = event.target.closest('[data-tab]');
       if (!button || !section.contains(button)) return;
       activateTab(button.getAttribute('data-tab'));
