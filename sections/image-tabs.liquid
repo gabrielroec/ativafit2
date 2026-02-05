@@ -7,19 +7,32 @@
   <div class="image-tabs__container">
     <div class="image-tabs__grid">
       <div class="image-tabs__media">
-        {%- if section.settings.image != blank -%}
-          {{
-            section.settings.image
-            | image_url: width: 1400
-            | image_tag:
-              loading: 'lazy',
-              widths: '600, 800, 1000, 1200, 1400',
-              sizes: '(min-width: 990px) 50vw, 100vw',
-              alt: section.settings.image_alt | default: section.settings.image.alt | escape
-          }}
-        {%- else -%}
-          {{ 'image' | placeholder_svg_tag: 'image-tabs__placeholder' }}
-        {%- endif -%}
+        {%- for block in section.blocks -%}
+          {%- if block.id == first_block_id -%}
+            {%- assign is_active = true -%}
+          {%- else -%}
+            {%- assign is_active = false -%}
+          {%- endif -%}
+          <div
+            class="image-tabs__media-item{% if is_active %} is-active{% endif %}"
+            data-media="{{ block.id }}"
+            {% unless is_active %}hidden{% endunless %}
+          >
+            {%- if block.settings.image != blank -%}
+              {{
+                block.settings.image
+                | image_url: width: 1400
+                | image_tag:
+                  loading: 'lazy',
+                  widths: '600, 800, 1000, 1200, 1400',
+                  sizes: '(min-width: 990px) 50vw, 100vw',
+                  alt: block.settings.image.alt | default: block.settings.title | escape
+              }}
+            {%- else -%}
+              {{ 'image' | placeholder_svg_tag: 'image-tabs__placeholder' }}
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
       </div>
 
       <div class="image-tabs__content">
@@ -155,6 +168,7 @@
 
     var tabs = section.querySelectorAll('[data-tab]');
     var panels = section.querySelectorAll('[data-panel]');
+    var mediaItems = section.querySelectorAll('[data-media]');
     if (!tabs.length || !panels.length) return;
 
     function activateTab(tabId) {
@@ -172,6 +186,17 @@
           panel.setAttribute('hidden', '');
         }
       });
+      if (mediaItems.length) {
+        mediaItems.forEach(function (item) {
+          var isActive = item.getAttribute('data-media') === tabId;
+          item.classList.toggle('is-active', isActive);
+          if (isActive) {
+            item.removeAttribute('hidden');
+          } else {
+            item.setAttribute('hidden', '');
+          }
+        });
+      }
     }
 
     section.addEventListener('click', function (event) {
@@ -186,17 +211,6 @@
 {
   "name": "Image Tabs",
   "settings": [
-    {
-      "type": "image_picker",
-      "id": "image",
-      "label": "Left image"
-    },
-    {
-      "type": "text",
-      "id": "image_alt",
-      "label": "Left image alt text",
-      "default": "Lifestyle image"
-    },
     {
       "type": "range",
       "id": "padding_top",
@@ -226,6 +240,11 @@
           "id": "title",
           "label": "Tab title",
           "default": "Tab title"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Tab image"
         },
         {
           "type": "richtext",
