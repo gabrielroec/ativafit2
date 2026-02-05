@@ -6,7 +6,11 @@
   <div class="read-text__inner">
     {%- for block in section.blocks -%}
       {%- assign tag = block.settings.tag | downcase -%}
-      <div class="read-text__block read-text__block--{{ block.id }}" {{ block.shopify_attributes }}>
+      <div
+        class="read-text__block read-text__block--{{ block.id }}"
+        style="--read-text-align-desktop: {{ block.settings.desktop_align | default: 'left' }}; --read-text-align-mobile: {{ block.settings.mobile_align | default: 'left' }}; --read-text-size-desktop: {{ block.settings.font_size_desktop | default: 24 }}px; --read-text-size-mobile: {{ block.settings.font_size_mobile | default: 18 }}px;"
+        {{ block.shopify_attributes }}
+      >
         {%- case tag -%}
           {%- when 'h1' -%}
             <h1 class="read-text__text">{{ block.settings.text | escape | newline_to_br }}</h1>
@@ -40,19 +44,19 @@
   }
   {%- for block in section.blocks -%}
     #{{ section_id }} .read-text__block--{{ block.id }} {
-      text-align: {{ block.settings.desktop_align | default: 'left' }};
+      text-align: var(--read-text-align-desktop) !important;
     }
     #{{ section_id }} .read-text__block--{{ block.id }} .read-text__text {
-      font-size: {{ block.settings.font_size_desktop | default: 24 }}px;
+      font-size: var(--read-text-size-desktop) !important;
     }
   {%- endfor -%}
   @media (max-width: 749px) {
     {%- for block in section.blocks -%}
       #{{ section_id }} .read-text__block--{{ block.id }} {
-        text-align: {{ block.settings.mobile_align | default: 'left' }};
+        text-align: var(--read-text-align-mobile) !important;
       }
       #{{ section_id }} .read-text__block--{{ block.id }} .read-text__text {
-        font-size: {{ block.settings.font_size_mobile | default: 18 }}px;
+        font-size: var(--read-text-size-mobile) !important;
       }
     {%- endfor -%}
   }
