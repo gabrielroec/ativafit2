@@ -1,0 +1,45 @@
+{%- if product != blank -%}
+  <a
+    class="product-card-simple__link"
+    href="{{ product.url }}"
+    aria-label="{{ product.title | escape }}">
+    <div class="product-card-simple__image">
+      {%- if product.featured_image -%}
+        {{
+          product.featured_image | image_url: width: 800 | image_tag: loading: 'lazy', widths: '200, 300, 400, 600, 800', sizes: '(min-width: 990px) 30vw, (min-width: 750px) 45vw, 50vw', alt: product.featured_image.alt | default: product.title | escape
+        }}
+      {%- else -%}
+        {{ 'product-1' | placeholder_svg_tag: 'product-card-simple__placeholder' }}
+      {%- endif -%}
+    </div>
+
+    <div class="product-card-simple__content">
+      <h3 class="product-card-simple__title">{{ product.title | escape }}</h3>
+
+      {%- assign price = product.price -%}
+      {%- assign compare_price = product.compare_at_price_max -%}
+      <div class="product-card-simple__price">
+        <span class="product-card-simple__price-current">{{ price | money }}</span>
+        {%- if compare_price > price -%}
+          <span class="product-card-simple__price-compare">{{ compare_price | money }}</span>
+        {%- endif -%}
+      </div>
+
+      {%- assign rating_metafield = product.metafields.reviews.rating -%}
+      {%- assign rating_obj = rating_metafield.value | default: rating_metafield -%}
+      {%- assign rating_count = product.metafields.reviews.rating_count.value | default: product.metafields.reviews.rating_count -%}
+      {%- if rating_obj and rating_count and rating_count > 0 -%}
+        {%- assign rating_value = rating_obj.rating | default: 0 | plus: 0 -%}
+        <div class="product-card-simple__rating" aria-label="Rating {{ rating_value }} out of 5 with {{ rating_count }} reviews">
+          <span class="product-card-simple__stars" aria-hidden="true">
+            {%- for i in (1..5) -%}
+              <span class="product-card-simple__star{% if i <= rating_value %} product-card-simple__star--active{% endif %}">★</span>
+            {%- endfor -%}
+          </span>
+          <span class="product-card-simple__rating-value">{{ rating_value }}</span>
+          <span class="product-card-simple__rating-count">({{ rating_count }})</span>
+        </div>
+      {%- endif -%}
+    </div>
+  </a>
+{%- endif -%}
