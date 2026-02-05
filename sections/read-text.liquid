@@ -1,0 +1,171 @@
+{%- liquid
+  assign section_id = 'ReadText-' | append: section.id
+-%}
+
+<section id="{{ section_id }}" class="read-text">
+  <div class="read-text__inner">
+    {%- for block in section.blocks -%}
+      {%- assign tag = block.settings.tag | downcase -%}
+      <div class="read-text__block read-text__block--{{ block.id }}" {{ block.shopify_attributes }}>
+        {%- case tag -%}
+          {%- when 'h1' -%}
+            <h1 class="read-text__text">{{ block.settings.text | escape | newline_to_br }}</h1>
+          {%- when 'h2' -%}
+            <h2 class="read-text__text">{{ block.settings.text | escape | newline_to_br }}</h2>
+          {%- when 'h3' -%}
+            <h3 class="read-text__text">{{ block.settings.text | escape | newline_to_br }}</h3>
+          {%- when 'h4' -%}
+            <h4 class="read-text__text">{{ block.settings.text | escape | newline_to_br }}</h4>
+          {%- when 'h5' -%}
+            <h5 class="read-text__text">{{ block.settings.text | escape | newline_to_br }}</h5>
+          {%- when 'span' -%}
+            <span class="read-text__text">{{ block.settings.text | escape | newline_to_br }}</span>
+          {%- else -%}
+            <p class="read-text__text">{{ block.settings.text | escape | newline_to_br }}</p>
+        {%- endcase -%}
+      </div>
+    {%- endfor -%}
+  </div>
+</section>
+
+<style>
+  #{{ section_id }} {
+    padding-top: {{ section.settings.padding_top | default: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | default: 0 }}px;
+  }
+  #{{ section_id }} .read-text__inner {
+    margin: 0 auto;
+    max-width: {{ section.settings.max_width | default: 1200 }}px;
+    padding: 0 16px;
+  }
+  {%- for block in section.blocks -%}
+    #{{ section_id }} .read-text__block--{{ block.id }} {
+      text-align: {{ block.settings.desktop_align | default: 'left' }};
+    }
+    #{{ section_id }} .read-text__block--{{ block.id }} .read-text__text {
+      font-size: {{ block.settings.font_size_desktop | default: 24 }}px;
+    }
+  {%- endfor -%}
+  @media (max-width: 749px) {
+    {%- for block in section.blocks -%}
+      #{{ section_id }} .read-text__block--{{ block.id }} {
+        text-align: {{ block.settings.mobile_align | default: 'left' }};
+      }
+      #{{ section_id }} .read-text__block--{{ block.id }} .read-text__text {
+        font-size: {{ block.settings.font_size_mobile | default: 18 }}px;
+      }
+    {%- endfor -%}
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Read Text",
+  "settings": [
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max width (px)",
+      "min": 600,
+      "max": 1600,
+      "step": 20,
+      "default": 1200
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top (px)",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom (px)",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 24
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "Your text here"
+        },
+        {
+          "type": "select",
+          "id": "tag",
+          "label": "Tag",
+          "options": [
+            { "value": "h1", "label": "H1" },
+            { "value": "h2", "label": "H2" },
+            { "value": "h3", "label": "H3" },
+            { "value": "h4", "label": "H4" },
+            { "value": "h5", "label": "H5" },
+            { "value": "p", "label": "Paragraph" },
+            { "value": "span", "label": "Span" }
+          ],
+          "default": "h2"
+        },
+        {
+          "type": "select",
+          "id": "desktop_align",
+          "label": "Desktop alignment",
+          "options": [
+            { "value": "left", "label": "Left" },
+            { "value": "center", "label": "Center" },
+            { "value": "right", "label": "Right" }
+          ],
+          "default": "left"
+        },
+        {
+          "type": "select",
+          "id": "mobile_align",
+          "label": "Mobile alignment",
+          "options": [
+            { "value": "left", "label": "Left" },
+            { "value": "center", "label": "Center" },
+            { "value": "right", "label": "Right" }
+          ],
+          "default": "left"
+        },
+        {
+          "type": "range",
+          "id": "font_size_desktop",
+          "label": "Font size desktop (px)",
+          "min": 12,
+          "max": 80,
+          "step": 1,
+          "default": 32
+        },
+        {
+          "type": "range",
+          "id": "font_size_mobile",
+          "label": "Font size mobile (px)",
+          "min": 12,
+          "max": 48,
+          "step": 1,
+          "default": 20
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Read Text",
+      "blocks": [
+        { "type": "text" }
+      ]
+    }
+  ]
+}
+{% endschema %}
