@@ -1,0 +1,294 @@
+{%- liquid
+  assign section_id = 'NewsletterHero-' | append: section.id
+-%}
+
+<section id="{{ section_id }}" class="newsletter-hero">
+  <div class="newsletter-hero__bg">
+    {%- if section.settings.background_image != blank -%}
+      {{
+        section.settings.background_image
+        | image_url: width: 2000
+        | image_tag:
+          loading: 'lazy',
+          widths: '800, 1200, 1600, 2000',
+          sizes: '100vw',
+          alt: section.settings.background_image.alt | escape
+      }}
+    {%- endif -%}
+  </div>
+
+  <div class="newsletter-hero__container">
+    <div class="newsletter-hero__content">
+      {%- if section.settings.title != blank -%}
+        <h2 class="newsletter-hero__title">{{ section.settings.title | escape }}</h2>
+      {%- endif -%}
+
+      {%- if section.settings.text != blank -%}
+        <div class="newsletter-hero__text">
+          {{ section.settings.text }}
+        </div>
+      {%- endif -%}
+
+      {%- form 'customer', class: 'newsletter-hero__form' -%}
+        {%- if form.posted_successfully? -%}
+          <p class="newsletter-hero__success">{{ section.settings.success_message | escape }}</p>
+        {%- else -%}
+          <input type="hidden" name="contact[tags]" value="newsletter">
+
+          <div class="newsletter-hero__input-wrap">
+            <input
+              class="newsletter-hero__input"
+              type="email"
+              name="contact[email]"
+              id="{{ section_id }}-email"
+              value="{{ form.email }}"
+              placeholder="{{ section.settings.placeholder | escape }}"
+              autocomplete="email"
+              required
+            >
+            <button class="newsletter-hero__button" type="submit">
+              {{ section.settings.button_label | escape }}
+            </button>
+          </div>
+
+          {%- if form.errors -%}
+            <p class="newsletter-hero__error">
+              {{ form.errors.messages.email | default: form.errors.messages | escape }}
+            </p>
+          {%- endif -%}
+
+          {%- if section.settings.note != blank -%}
+            <div class="newsletter-hero__note">
+              {{ section.settings.note }}
+            </div>
+          {%- endif -%}
+        {%- endif -%}
+      {%- endform -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  #{{ section_id }} {
+    position: relative;
+    padding-top: {{ section.settings.padding_top | default: 24 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | default: 24 }}px;
+    overflow: hidden;
+  }
+  #{{ section_id }} .newsletter-hero__bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  #{{ section_id }} .newsletter-hero__bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  #{{ section_id }} .newsletter-hero__container {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px;
+    min-height: {{ section.settings.min_height | default: 280 }}px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  #{{ section_id }} .newsletter-hero__content {
+    width: 100%;
+    max-width: 520px;
+    background: {{ section.settings.content_bg | default: 'rgba(0,0,0,0.6)' }};
+    color: {{ section.settings.text_color | default: '#ffffff' }};
+    padding: 24px;
+    border-radius: 12px;
+  }
+  #{{ section_id }} .newsletter-hero__title {
+    margin: 0 0 8px 0;
+    font-size: {{ section.settings.title_size | default: 28 }}px;
+  }
+  #{{ section_id }} .newsletter-hero__text {
+    font-size: {{ section.settings.text_size | default: 16 }}px;
+    margin: 0 0 16px 0;
+  }
+  #{{ section_id }} .newsletter-hero__form {
+    margin: 0;
+  }
+  #{{ section_id }} .newsletter-hero__input-wrap {
+    position: relative;
+  }
+  #{{ section_id }} .newsletter-hero__input {
+    width: 100%;
+    padding: 14px 120px 14px 14px;
+    border-radius: 999px;
+    border: 1px solid #d9d9d9;
+    background: #ffffff;
+    color: #000000;
+  }
+  #{{ section_id }} .newsletter-hero__button {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 10px 18px;
+    border-radius: 999px;
+    border: none;
+    background: {{ section.settings.button_bg | default: '#eb701f' }};
+    color: {{ section.settings.button_text_color | default: '#ffffff' }};
+    font-weight: 600;
+    cursor: pointer;
+  }
+  #{{ section_id }} .newsletter-hero__note {
+    font-size: 12px;
+    margin-top: 8px;
+    color: {{ section.settings.note_color | default: '#e5e5e5' }};
+  }
+  #{{ section_id }} .newsletter-hero__error {
+    font-size: 12px;
+    color: #ffb3b3;
+    margin-top: 8px;
+  }
+  #{{ section_id }} .newsletter-hero__success {
+    margin: 0;
+    font-size: 14px;
+  }
+  @media (max-width: 749px) {
+    #{{ section_id }} .newsletter-hero__container {
+      justify-content: center;
+    }
+    #{{ section_id }} .newsletter-hero__content {
+      max-width: 100%;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Newsletter Hero",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background image"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Join AtivaPeople and Receive 10% off!"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Become a loyal member of AtivaPeople and get access to exclusive perks.</p>"
+    },
+    {
+      "type": "text",
+      "id": "placeholder",
+      "label": "Input placeholder",
+      "default": "Enter your email"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Join"
+    },
+    {
+      "type": "text",
+      "id": "success_message",
+      "label": "Success message",
+      "default": "Thanks for subscribing!"
+    },
+    {
+      "type": "richtext",
+      "id": "note",
+      "label": "Note",
+      "default": "<p>By submitting, you agree to receive marketing emails.</p>"
+    },
+    {
+      "type": "range",
+      "id": "min_height",
+      "label": "Min height (px)",
+      "min": 200,
+      "max": 600,
+      "step": 20,
+      "default": 320
+    },
+    {
+      "type": "color",
+      "id": "content_bg",
+      "label": "Content background",
+      "default": "rgba(0,0,0,0.6)"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_bg",
+      "label": "Button background",
+      "default": "#eb701f"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "note_color",
+      "label": "Note color",
+      "default": "#e5e5e5"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Title size (px)",
+      "min": 16,
+      "max": 48,
+      "step": 1,
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "Text size (px)",
+      "min": 12,
+      "max": 22,
+      "step": 1,
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top (px)",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom (px)",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 40
+    }
+  ],
+  "presets": [
+    {
+      "name": "Newsletter Hero"
+    }
+  ]
+}
+{% endschema %}
