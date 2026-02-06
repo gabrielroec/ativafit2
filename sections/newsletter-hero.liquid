@@ -19,13 +19,33 @@
 
   <div class="newsletter-hero__container">
     <div class="newsletter-hero__content">
-      {%- if section.settings.title != blank -%}
-        <h2 class="newsletter-hero__title">{{ section.settings.title | escape }}</h2>
-      {%- endif -%}
-
-      {%- if section.settings.text != blank -%}
-        <div class="newsletter-hero__text">
-          {{ section.settings.text }}
+      {%- if section.blocks.size > 0 -%}
+        <div class="newsletter-hero__blocks">
+          {%- for block in section.blocks -%}
+            {%- assign tag = block.settings.tag | downcase -%}
+            <div
+              class="newsletter-hero__block newsletter-hero__block--{{ block.id }}"
+              style="--newsletter-text-align-desktop: {{ block.settings.desktop_align | default: 'left' }}; --newsletter-text-align-mobile: {{ block.settings.mobile_align | default: 'left' }}; --newsletter-font-size-desktop: {{ block.settings.font_size_desktop | default: 24 }}px; --newsletter-font-size-mobile: {{ block.settings.font_size_mobile | default: 18 }}px;"
+              {{ block.shopify_attributes }}
+            >
+              {%- case tag -%}
+                {%- when 'h1' -%}
+                  <h1 class="newsletter-hero__block-text">{{ block.settings.text | escape | newline_to_br }}</h1>
+                {%- when 'h2' -%}
+                  <h2 class="newsletter-hero__block-text">{{ block.settings.text | escape | newline_to_br }}</h2>
+                {%- when 'h3' -%}
+                  <h3 class="newsletter-hero__block-text">{{ block.settings.text | escape | newline_to_br }}</h3>
+                {%- when 'h4' -%}
+                  <h4 class="newsletter-hero__block-text">{{ block.settings.text | escape | newline_to_br }}</h4>
+                {%- when 'h5' -%}
+                  <h5 class="newsletter-hero__block-text">{{ block.settings.text | escape | newline_to_br }}</h5>
+                {%- when 'span' -%}
+                  <span class="newsletter-hero__block-text">{{ block.settings.text | escape | newline_to_br }}</span>
+                {%- else -%}
+                  <p class="newsletter-hero__block-text">{{ block.settings.text | escape | newline_to_br }}</p>
+              {%- endcase -%}
+            </div>
+          {%- endfor -%}
         </div>
       {%- endif -%}
 
@@ -105,13 +125,18 @@
     padding: 24px;
     border-radius: 12px;
   }
-  #{{ section_id }} .newsletter-hero__title {
-    margin: 0 0 8px 0;
-    font-size: {{ section.settings.title_size | default: 28 }}px;
+  #{{ section_id }} .newsletter-hero__blocks {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
   }
-  #{{ section_id }} .newsletter-hero__text {
-    font-size: {{ section.settings.text_size | default: 16 }}px;
-    margin: 0 0 16px 0;
+  #{{ section_id }} .newsletter-hero__block {
+    text-align: var(--newsletter-text-align-desktop);
+  }
+  #{{ section_id }} .newsletter-hero__block-text {
+    font-size: var(--newsletter-font-size-desktop);
+    margin: 0;
   }
   #{{ section_id }} .newsletter-hero__form {
     margin: 0;
@@ -122,7 +147,7 @@
   #{{ section_id }} .newsletter-hero__input {
     width: 100%;
     padding: 14px 120px 14px 14px;
-    border-radius: 999px;
+    border-radius: 10px;
     border: 1px solid #d9d9d9;
     background: #ffffff;
     color: #000000;
@@ -132,8 +157,8 @@
     right: 4px;
     top: 50%;
     transform: translateY(-50%);
-    padding: 10px 18px;
-    border-radius: 999px;
+    padding: 5px;
+    border-radius: 10px;
     border: none;
     background: {{ section.settings.button_bg | default: '#eb701f' }};
     color: {{ section.settings.button_text_color | default: '#ffffff' }};
@@ -161,6 +186,12 @@
     #{{ section_id }} .newsletter-hero__content {
       max-width: 100%;
     }
+    #{{ section_id }} .newsletter-hero__block {
+      text-align: var(--newsletter-text-align-mobile);
+    }
+    #{{ section_id }} .newsletter-hero__block-text {
+      font-size: var(--newsletter-font-size-mobile);
+    }
   }
 </style>
 
@@ -175,18 +206,6 @@
     },
     {
       "type": "text",
-      "id": "title",
-      "label": "Title",
-      "default": "Join AtivaPeople and Receive 10% off!"
-    },
-    {
-      "type": "richtext",
-      "id": "text",
-      "label": "Text",
-      "default": "<p>Become a loyal member of AtivaPeople and get access to exclusive perks.</p>"
-    },
-    {
-      "type": "text",
       "id": "placeholder",
       "label": "Input placeholder",
       "default": "Enter your email"
@@ -195,7 +214,7 @@
       "type": "text",
       "id": "button_label",
       "label": "Button label",
-      "default": "Join"
+      "default": "JOIN NOW"
     },
     {
       "type": "text",
@@ -250,24 +269,6 @@
     },
     {
       "type": "range",
-      "id": "title_size",
-      "label": "Title size (px)",
-      "min": 16,
-      "max": 48,
-      "step": 1,
-      "default": 28
-    },
-    {
-      "type": "range",
-      "id": "text_size",
-      "label": "Text size (px)",
-      "min": 12,
-      "max": 22,
-      "step": 1,
-      "default": 16
-    },
-    {
-      "type": "range",
       "id": "padding_top",
       "label": "Padding top (px)",
       "min": 0,
@@ -285,9 +286,102 @@
       "default": 40
     }
   ],
+  "blocks": [
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "Your text here"
+        },
+        {
+          "type": "select",
+          "id": "tag",
+          "label": "Tag",
+          "options": [
+            { "value": "h1", "label": "H1" },
+            { "value": "h2", "label": "H2" },
+            { "value": "h3", "label": "H3" },
+            { "value": "h4", "label": "H4" },
+            { "value": "h5", "label": "H5" },
+            { "value": "p", "label": "Paragraph" },
+            { "value": "span", "label": "Span" }
+          ],
+          "default": "h2"
+        },
+        {
+          "type": "select",
+          "id": "desktop_align",
+          "label": "Desktop alignment",
+          "options": [
+            { "value": "left", "label": "Left" },
+            { "value": "center", "label": "Center" },
+            { "value": "right", "label": "Right" }
+          ],
+          "default": "left"
+        },
+        {
+          "type": "select",
+          "id": "mobile_align",
+          "label": "Mobile alignment",
+          "options": [
+            { "value": "left", "label": "Left" },
+            { "value": "center", "label": "Center" },
+            { "value": "right", "label": "Right" }
+          ],
+          "default": "left"
+        },
+        {
+          "type": "range",
+          "id": "font_size_desktop",
+          "label": "Font size desktop (px)",
+          "min": 12,
+          "max": 80,
+          "step": 1,
+          "default": 28
+        },
+        {
+          "type": "range",
+          "id": "font_size_mobile",
+          "label": "Font size mobile (px)",
+          "min": 12,
+          "max": 48,
+          "step": 1,
+          "default": 20
+        }
+      ]
+    }
+  ],
   "presets": [
     {
-      "name": "Newsletter Hero"
+      "name": "Newsletter Hero",
+      "blocks": [
+        {
+          "type": "text",
+          "settings": {
+            "text": "Join AtivaPeople and Receive 10% off!",
+            "tag": "h2",
+            "desktop_align": "left",
+            "mobile_align": "left",
+            "font_size_desktop": 28,
+            "font_size_mobile": 22
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "Become a loyal member of AtivaPeople and get access to exclusive perks.",
+            "tag": "p",
+            "desktop_align": "left",
+            "mobile_align": "left",
+            "font_size_desktop": 16,
+            "font_size_mobile": 14
+          }
+        }
+      ]
     }
   ]
 }
