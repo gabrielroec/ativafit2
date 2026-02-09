@@ -406,7 +406,8 @@
 
             {%- comment -%} Spec Rows {%- endcomment -%}
             {%- assign spec_keys = 'weightRange,increments,dimensions,packageWeight,material,handleDesign,adjustment,userGroup' | split: ',' -%}
-            {%- assign spec_labels = 'Weight Range,Increments,Dimensions,Package Weight,Material,Handle Design,Adjustment,User Group' | split: ',' -%}
+            {%- assign spec_label_prefix = section.settings.weight_range_label | default: 'Weight Range' -%}
+            {%- assign spec_labels = spec_label_prefix | append: ',' | append: section.settings.increments_label | append: ',' | append: section.settings.dimensions_label | append: ',' | append: section.settings.package_weight_label | append: ',' | append: section.settings.material_label | append: ',' | append: section.settings.handle_design_label | append: ',' | append: section.settings.adjustment_label | append: ',' | append: section.settings.user_group_label | split: ',' -%}
 
             {%- for spec_key in spec_keys -%}
               {%- assign spec_index = forloop.index0 -%}
@@ -645,7 +646,52 @@
     "name": "Product Comparison Table",
     "tag": "section",
     "class": "section",
-    "settings": [],
+    "settings": [
+      {
+        "type": "text",
+        "id": "weight_range_label",
+        "label": "Line 1 label",
+        "default": "Weight Range"
+      },
+      {
+        "type": "text",
+        "id": "increments_label",
+        "label": "Line 2 label",
+        "default": "Increments"
+      },
+      {
+        "type": "text",
+        "id": "dimensions_label",
+        "label": "Line 3 label",
+        "default": "Dimensions"
+      },
+      {
+        "type": "text",
+        "id": "package_weight_label",
+        "label": "Line 4 label",
+        "default": "Package Weight"
+      }, {
+        "type": "text",
+        "id": "material_label",
+        "label": "Line 5 label",
+        "default": "Material"
+      }, {
+        "type": "text",
+        "id": "handle_design_label",
+        "label": "Line 6 label",
+        "default": "Handle Design"
+      }, {
+        "type": "text",
+        "id": "adjustment_label",
+        "label": "Line 7 label",
+        "default": "Adjustment"
+      }, {
+        "type": "text",
+        "id": "user_group_label",
+        "label": "Line 8 label",
+        "default": "User Group"
+      }
+    ],
     "blocks": [
       {
         "type": "product_column",
@@ -671,49 +717,49 @@
           {
             "type": "text",
             "id": "weight_range",
-            "label": "Weight Range",
+            "label": "Line 1",
             "default": "-",
             "info": "e.g., 5.5 - 27.5 lbs"
           }, {
             "type": "text",
             "id": "increments",
-            "label": "Increments",
+            "label": "Line 2",
             "default": "-",
             "info": "e.g., 5.5 lbs"
           }, {
             "type": "text",
             "id": "dimensions",
-            "label": "Dimensions",
+            "label": "Line 3",
             "default": "-",
             "info": "e.g., 16.2\"L x 7.2\"W x 7.2\"H"
           }, {
             "type": "text",
             "id": "package_weight",
-            "label": "Package Weight",
+            "label": "Line 4",
             "default": "-",
             "info": "e.g., 32 lbs (single)"
           }, {
             "type": "text",
             "id": "material",
-            "label": "Material",
+            "label": "Line 5",
             "default": "-",
             "info": "e.g., Steel plates, reinforced base"
           }, {
             "type": "text",
             "id": "handle_design",
-            "label": "Handle Design",
+            "label": "Line 6",
             "default": "-",
             "info": "e.g., Steel core, non-slip rubber grip"
           }, {
             "type": "text",
             "id": "adjustment",
-            "label": "Adjustment",
+            "label": "Line 7",
             "default": "-",
             "info": "e.g., Glide Tech or Dial Tech"
           }, {
             "type": "text",
             "id": "user_group",
-            "label": "User Group",
+            "label": "Line 8",
             "default": "-",
             "info": "e.g., Beginners, home toning"
           }
