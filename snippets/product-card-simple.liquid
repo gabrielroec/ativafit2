@@ -1,20 +1,25 @@
 {%- if product != blank -%}
-  <a
-    class="product-card-simple__link"
-    href="{{ product.url }}"
-    aria-label="{{ product.title | escape }}">
-    <div class="product-card-simple__image">
-      {%- if product.featured_image -%}
-        {{
-          product.featured_image | image_url: width: 800 | image_tag: loading: 'lazy', widths: '200, 300, 400, 600, 800', sizes: '(min-width: 990px) 30vw, (min-width: 750px) 45vw, 50vw', alt: product.featured_image.alt | default: product.title | escape
-        }}
-      {%- else -%}
-        {{ 'product-1' | placeholder_svg_tag: 'product-card-simple__placeholder' }}
-      {%- endif -%}
-    </div>
+  {%- assign variant = product.selected_or_first_available_variant -%}
+  <div class="product-card-simple__card">
+    <a
+      class="product-card-simple__link"
+      href="{{ product.url }}"
+      aria-label="{{ product.title | escape }}">
+      <div class="product-card-simple__image">
+        {%- if product.featured_image -%}
+          {{
+            product.featured_image | image_url: width: 800 | image_tag: loading: 'lazy', widths: '200, 300, 400, 600, 800', sizes: '(min-width: 990px) 30vw, (min-width: 750px) 45vw, 50vw', alt: product.featured_image.alt | default: product.title | escape
+          }}
+        {%- else -%}
+          {{ 'product-1' | placeholder_svg_tag: 'product-card-simple__placeholder' }}
+        {%- endif -%}
+      </div>
+    </a>
 
     <div class="product-card-simple__content">
-      <h3 class="product-card-simple__title">{{ product.title | escape }}</h3>
+      <h3 class="product-card-simple__title">
+        <a href="{{ product.url }}">{{ product.title | escape }}</a>
+      </h3>
 
       {%- assign price = product.price -%}
       {%- assign compare_price = product.compare_at_price_max -%}
@@ -40,6 +45,32 @@
           <span class="product-card-simple__rating-count">({{ rating_count }})</span>
         </div>
       {%- endif -%}
+
+      {%- if product.available and variant -%}
+        {%- form 'product'
+          , product
+          , class: 'product-card-simple__form' -%}
+          <input
+            type="hidden"
+            name="id"
+            value="{{ variant.id }}">
+          <button
+            type="submit"
+            name="add"
+            class="product-card-simple__atc"
+            aria-label="Add to cart {{ product.title | escape }}">
+            ADD TO CART
+          </button>
+        {%- endform -%}
+      {%- else -%}
+        <button
+          type="button"
+          class="product-card-simple__atc product-card-simple__atc--disabled"
+          disabled
+          aria-label="Sold out">
+          Sold out
+        </button>
+      {%- endif -%}
     </div>
-  </a>
+  </div>
 {%- endif -%}
