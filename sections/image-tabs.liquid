@@ -37,26 +37,36 @@
 
       <div class="image-tabs__content">
         {%- if section.blocks.size > 0 -%}
-          <div class="image-tabs__tabs" role="tablist" aria-label="Content tabs">
-            {%- for block in section.blocks -%}
-              {%- if block.id == first_block_id -%}
-                {%- assign is_active = true -%}
-              {%- else -%}
-                {%- assign is_active = false -%}
-              {%- endif -%}
-              <button
-                class="image-tabs__tab{% if is_active %} is-active{% endif %}"
-                type="button"
-                role="tab"
-                aria-selected="{% if is_active %}true{% else %}false{% endif %}"
-                aria-controls="{{ section_id }}-panel-{{ block.id }}"
-                id="{{ section_id }}-tab-{{ block.id }}"
-                data-tab="{{ block.id }}"
-                {{ block.shopify_attributes }}
-              >
-                {{ block.settings.title | escape }}
-              </button>
-            {%- endfor -%}
+          <div class="image-tabs__tabs-wrap">
+            <div class="image-tabs__tabs-viewport" data-embla-viewport>
+              <div class="image-tabs__tabs-track" role="tablist" aria-label="Content tabs">
+                {%- for block in section.blocks -%}
+                  {%- if block.id == first_block_id -%}
+                    {%- assign is_active = true -%}
+                  {%- else -%}
+                    {%- assign is_active = false -%}
+                  {%- endif -%}
+                  <button
+                    class="image-tabs__tab{% if is_active %} is-active{% endif %}"
+                    type="button"
+                    role="tab"
+                    aria-selected="{% if is_active %}true{% else %}false{% endif %}"
+                    aria-controls="{{ section_id }}-panel-{{ block.id }}"
+                    id="{{ section_id }}-tab-{{ block.id }}"
+                    data-tab="{{ block.id }}"
+                    {{ block.shopify_attributes }}
+                  >
+                    {{ block.settings.title | escape }}
+                  </button>
+                {%- endfor -%}
+              </div>
+            </div>
+            <button type="button" class="image-tabs__nav image-tabs__nav--prev" aria-label="Previous tabs" data-embla-prev disabled>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button type="button" class="image-tabs__nav image-tabs__nav--next" aria-label="Next tabs" data-embla-next>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
           </div>
 
           <div class="image-tabs__panels">
@@ -106,56 +116,96 @@
     height: auto;
     display: block;
   }
-.image-tabs__content {
-   padding:0 16px;
-}
-  #{{ section_id }} .image-tabs__tabs {
-    display: flex;
-    gap: 20px;
-    overflow-x: auto;
-    white-space: nowrap;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
+  #{{ section_id }} .image-tabs__content {
+    padding: 0 16px;
+    max-width: 853px;
+  }
+
+  /* Tabs: 2 cards + 50% do próximo; viewport = container para o tamanho do card */
+  #{{ section_id }} .image-tabs__tabs-wrap {
+    position: relative;
     margin-bottom: 16px;
-    cursor: grab;
-    user-select: none;
-    touch-action: pan-y;
-    padding-bottom:20px;
   }
-  #{{ section_id }} .image-tabs__tabs.is-dragging {
-    cursor: grabbing;
+  #{{ section_id }} .image-tabs__tabs-viewport {
+    overflow: hidden;
+    container-type: inline-size;
+    container-name: tabs-viewport;
   }
-  #{{ section_id }} .image-tabs__tabs::-webkit-scrollbar {
-    height: 6px;
-  }
-  #{{ section_id }} .image-tabs__tabs::-webkit-scrollbar-thumb {
-    background: #d9d9d9;
-    border-radius: 999px;
+  #{{ section_id }} .image-tabs__tabs-track {
+    display: flex;
+    gap: 16px;
+    will-change: transform;
   }
   #{{ section_id }} .image-tabs__tab {
+    flex: 0 0 auto;
+    min-width: 0;
     appearance: none;
     border: none;
-    background: transparent;
-    color: #b5b5b5;
-    font-size: 16px;
+    border-radius: 8px;
+    background: #f5f5f5;
+    color: #666;
+    font-size: 15px;
     font-weight: 600;
     cursor: pointer;
-    padding: 4px 0;
-    flex: 0 0 auto;
-    scroll-snap-align: start;
+    padding: 12px 16px;
     white-space: normal;
-    line-height: 1.2;
-    max-width: 180px;
+    line-height: 1.3;
     text-align: left;
+    transition: background 0.2s, color 0.2s;
+  }
+  #{{ section_id }} .image-tabs__tab:hover {
+    background: #ebebeb;
   }
   #{{ section_id }} .image-tabs__tab.is-active {
-    color: #000000;
-    font-weight: 700;
+    background: #eb701f;
+    color: #fff;
+  }
+  @container tabs-viewport (min-width: 1px) {
+    #{{ section_id }} .image-tabs__tab {
+      flex: 0 0 calc((100cqw - 32px) / 2.5);
+    }
+  }
+  #{{ section_id }} .image-tabs__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: #f0f0f0;
+    color: #333;
+    border-radius: 50%;
+    cursor: pointer;
+    opacity: 0;
+    transition: background 0.2s, color 0.2s, opacity 0.2s;
+    z-index: 2;
+  }
+  #{{ section_id }} .image-tabs__tabs-wrap:hover .image-tabs__nav {
+    opacity: 1;
+  }
+  #{{ section_id }} .image-tabs__nav:hover:not(:disabled) {
+    background: #e0e0e0;
+    color: #000;
+  }
+  #{{ section_id }} .image-tabs__nav:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    display: none;
+  }
+  #{{ section_id }} .image-tabs__nav--prev {
+    left: 0;
+  }
+  #{{ section_id }} .image-tabs__nav--next {
+    right: 0;
   }
   #{{ section_id }} .image-tabs__panel-text {
     font-size: 14px;
     color: #333333;
   }
+ 
   @media (max-width: 749px) {
     #{{ section_id }} .image-tabs__grid {
       grid-template-columns: minmax(0, 1fr);
@@ -164,50 +214,74 @@
   }
 </style>
 
+<script src="https://unpkg.com/embla-carousel@8.0.0/embla-carousel.umd.js" defer></script>
 <script defer>
-  (function () {
-    var section = document.getElementById('{{ section_id }}');
-    if (!section) return;
+(function () {
+  var section = document.getElementById('{{ section_id }}');
+  if (!section) return;
 
-    var tabs = section.querySelectorAll('[data-tab]');
-    var panels = section.querySelectorAll('[data-panel]');
-    var mediaItems = section.querySelectorAll('[data-media]');
-    if (!tabs.length || !panels.length) return;
+  var tabs = section.querySelectorAll('[data-tab]');
+  var panels = section.querySelectorAll('[data-panel]');
+  var mediaItems = section.querySelectorAll('[data-media]');
+  if (!tabs.length || !panels.length) return;
 
-    function activateTab(tabId) {
-      tabs.forEach(function (tab) {
-        var isActive = tab.getAttribute('data-tab') === tabId;
-        tab.classList.toggle('is-active', isActive);
-        tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
-      });
-      panels.forEach(function (panel) {
-        var isActive = panel.getAttribute('data-panel') === tabId;
-        panel.classList.toggle('is-active', isActive);
-        if (isActive) {
-          panel.removeAttribute('hidden');
-        } else {
-          panel.setAttribute('hidden', '');
-        }
-      });
-      if (mediaItems.length) {
-        mediaItems.forEach(function (item) {
-          var isActive = item.getAttribute('data-media') === tabId;
-          item.classList.toggle('is-active', isActive);
-          if (isActive) {
-            item.removeAttribute('hidden');
-          } else {
-            item.setAttribute('hidden', '');
-          }
-        });
-      }
-    }
-
-    section.addEventListener('click', function (event) {
-      var button = event.target.closest('[data-tab]');
-      if (!button || !section.contains(button)) return;
-      activateTab(button.getAttribute('data-tab'));
+  function activateTab(tabId) {
+    tabs.forEach(function (t) {
+      var on = t.getAttribute('data-tab') === tabId;
+      t.classList.toggle('is-active', on);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
     });
-  })();
+    panels.forEach(function (p) {
+      var on = p.getAttribute('data-panel') === tabId;
+      p.classList.toggle('is-active', on);
+      p[on ? 'removeAttribute' : 'setAttribute']('hidden', on ? '' : '');
+    });
+    mediaItems.forEach(function (m) {
+      var on = m.getAttribute('data-media') === tabId;
+      m.classList.toggle('is-active', on);
+      m[on ? 'removeAttribute' : 'setAttribute']('hidden', on ? '' : '');
+    });
+  }
+
+  section.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-tab]');
+    if (btn && section.contains(btn)) activateTab(btn.getAttribute('data-tab'));
+  });
+
+  function initSlider() {
+    if (typeof EmblaCarousel === 'undefined') return;
+    var viewport = section.querySelector('[data-embla-viewport]');
+    var prevBtn = section.querySelector('[data-embla-prev]');
+    var nextBtn = section.querySelector('[data-embla-next]');
+    if (!viewport) return;
+
+    var embla = EmblaCarousel(viewport, {
+      align: 'start',
+      containScroll: 'trimSnaps',
+      dragFree: false
+    });
+
+    function updateNav() {
+      if (prevBtn) prevBtn.disabled = !embla.canScrollPrev();
+      if (nextBtn) nextBtn.disabled = !embla.canScrollNext();
+    }
+    embla.on('init', updateNav);
+    embla.on('select', updateNav);
+
+    if (prevBtn) prevBtn.addEventListener('click', function () { embla.scrollPrev(); });
+    if (nextBtn) nextBtn.addEventListener('click', function () { embla.scrollNext(); });
+  }
+
+  function run() {
+    initSlider();
+    if (typeof EmblaCarousel === 'undefined') window.addEventListener('load', initSlider);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run);
+  } else {
+    run();
+  }
+})();
 </script>
 
 {% schema %}
