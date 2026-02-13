@@ -1,6 +1,533 @@
+{% doc %}
+  @prompt
+    既然确定了字体是 Barlow，这会让整个板块显得非常有工业感和运动力量感。我在 Prompt 中加入了 Google Fonts 的引用指令，确保 AI 在生成时能直接调用这个字体。
+    
+    以下是为你更新后的最终版 Prompt：
+    
+    🚀 终极定制版 Prompt
+    Prompt:
+    
+    Please build a premium web section for my brand "Ativafit".
+    
+    Typography & Color Variables:
+    
+    Font: Use "Barlow" (Sans-serif) from Google Fonts for all text.
+    
+    Colors: Define colors as variables at the top of the CSS/Code for easy adjustment.
+    
+    Background: #363434
+    
+    Accent/Underline: #E31E24 (Ativafit Red)
+    
+    Section Structure:
+    
+    Header Tab: A single, centered text label "Exclusive Training" in Barlow font. Add a thin accent-colored underline below it.
+    
+    Main Headline: "Membership is the move" in bold Barlow font, white color.
+    
+    Video Component: A centered, large 16:9 container with 20px rounded corners. Include a placeholder for a looping video. Add a subtle play/pause icon overlay in the bottom-right.
+    
+    Bottom Content: >    - Sub-headline: "Stay motivated for the long term." (Barlow, Medium weight)
+    
+    Paragraph: "With professional follow-along workouts and world-class instructors, we’ve got everything you need to crush your goals—right at home." (Barlow, Light/Regular weight)
+    
+    CTA: A "Learn More" text link with a small arrow.
+    
+    Technical Requirements: Use HTML and Tailwind CSS. Ensure the layout is fully responsive and matches the clean, athletic aesthetic of high-end fitness brands.
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+{% style %}
+  .ai-membership-section-{{ ai_gen_id }} {
+    display: block;
+    width: {{ block.settings.desktop_width_percent }}%;
+    max-width: 100%;
+    background-color: {{ block.settings.background_color }};
+    padding: {{ block.settings.section_padding }}px 20px;
+    font-family: 'Barlow', sans-serif;
+  }
+
+  .ai-membership-container-{{ ai_gen_id }} {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .ai-membership-header-{{ ai_gen_id }} {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .ai-membership-tab-{{ ai_gen_id }} {
+    display: inline-block;
+    font-size: {{ block.settings.tab_font_size }}px;
+    font-weight: 500;
+    color: {{ block.settings.tab_text_color }};
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid {{ block.settings.accent_color }};
+  }
+
+  .ai-membership-headline-{{ ai_gen_id }} {
+    text-align: center;
+    font-size: {{ block.settings.headline_font_size }}px;
+    font-weight: 700;
+    color: {{ block.settings.headline_color }};
+    margin: 0 0 40px 0;
+    line-height: 1.2;
+  }
+
+  .ai-membership-video-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%;
+    background-color: #000000;
+    border-radius: {{ block.settings.video_border_radius }}px;
+    overflow: hidden;
+    margin-bottom: 40px;
+  }
+
+  .ai-membership-video-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-membership-video-placeholder-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  }
+
+  .ai-membership-video-placeholder-{{ ai_gen_id }} svg {
+    width: 80px;
+    height: 80px;
+    opacity: 0.3;
+  }
+
+  .ai-membership-play-icon-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 48px;
+    height: 48px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 2;
+  }
+
+  .ai-membership-play-icon-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.accent_color }};
+    transform: scale(1.1);
+  }
+
+  .ai-membership-play-icon-{{ ai_gen_id }} svg {
+    width: 20px;
+    height: 20px;
+    fill: #000000;
+  }
+
+  .ai-membership-play-icon-{{ ai_gen_id }}:hover svg {
+    fill: #ffffff;
+  }
+
+  .ai-membership-content-{{ ai_gen_id }} {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .ai-membership-subheadline-{{ ai_gen_id }} {
+    font-size: {{ block.settings.subheadline_font_size }}px;
+    font-weight: 500;
+    color: {{ block.settings.subheadline_color }};
+    margin: 0 0 16px 0;
+  }
+
+  .ai-membership-paragraph-{{ ai_gen_id }} {
+    font-size: {{ block.settings.paragraph_font_size }}px;
+    font-weight: 300;
+    color: {{ block.settings.paragraph_color }};
+    line-height: 1.6;
+    margin: 0 0 24px 0;
+  }
+
+  .ai-membership-cta-{{ ai_gen_id }} {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: {{ block.settings.cta_font_size }}px;
+    font-weight: 600;
+    color: {{ block.settings.cta_color }};
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .ai-membership-cta-{{ ai_gen_id }}:hover {
+    color: {{ block.settings.accent_color }};
+    gap: 12px;
+  }
+
+  .ai-membership-cta-arrow-{{ ai_gen_id }} {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.3s ease;
+  }
+
+  .ai-membership-cta-{{ ai_gen_id }}:hover .ai-membership-cta-arrow-{{ ai_gen_id }} {
+    transform: translateX(4px);
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-membership-section-{{ ai_gen_id }} {
+      padding: {{ block.settings.section_padding | times: 0.6 }}px 16px;
+    }
+
+    .ai-membership-headline-{{ ai_gen_id }} {
+      font-size: {{ block.settings.headline_font_size | times: 0.6 }}px;
+      margin-bottom: 24px;
+    }
+
+    .ai-membership-video-wrapper-{{ ai_gen_id }} {
+      margin-bottom: 24px;
+    }
+
+    .ai-membership-play-icon-{{ ai_gen_id }} {
+      width: 40px;
+      height: 40px;
+      bottom: 12px;
+      right: 12px;
+    }
+
+    .ai-membership-play-icon-{{ ai_gen_id }} svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .ai-membership-subheadline-{{ ai_gen_id }} {
+      font-size: {{ block.settings.subheadline_font_size | times: 0.9 }}px;
+    }
+
+    .ai-membership-paragraph-{{ ai_gen_id }} {
+      font-size: {{ block.settings.paragraph_font_size | times: 0.9 }}px;
+    }
+  }
+{% endstyle %}
+
+<ai-membership-section-{{ ai_gen_id }}
+  class="ai-membership-section-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-membership-container-{{ ai_gen_id }}">
+    <div class="ai-membership-header-{{ ai_gen_id }}">
+      <div class="ai-membership-tab-{{ ai_gen_id }}">{{ block.settings.tab_text }}</div>
+    </div>
+
+    <h2 class="ai-membership-headline-{{ ai_gen_id }}">{{ block.settings.headline }}</h2>
+
+    <div class="ai-membership-video-wrapper-{{ ai_gen_id }}">
+      {% if block.settings.video_url != blank %}
+        <video
+          class="ai-membership-video-{{ ai_gen_id }}"
+          src="{{ block.settings.video_url }}"
+          loop
+          muted
+          playsinline
+          data-video
+        ></video>
+      {% else %}
+        <div class="ai-membership-video-placeholder-{{ ai_gen_id }}">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+        </div>
+      {% endif %}
+
+      <div class="ai-membership-play-icon-{{ ai_gen_id }}" data-play-toggle>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-play-svg>
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="display: none;" data-pause-svg>
+          <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="ai-membership-content-{{ ai_gen_id }}">
+      <h3 class="ai-membership-subheadline-{{ ai_gen_id }}">{{ block.settings.subheadline }}</h3>
+      <p class="ai-membership-paragraph-{{ ai_gen_id }}">{{ block.settings.paragraph }}</p>
+      <a href="{{ block.settings.cta_link }}" class="ai-membership-cta-{{ ai_gen_id }}">
+        {{ block.settings.cta_text }}
+        <svg class="ai-membership-cta-arrow-{{ ai_gen_id }}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </a>
+    </div>
+  </div>
+</ai-membership-section-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class AiMembershipSection{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.video = this.querySelector('[data-video]');
+        this.playToggle = this.querySelector('[data-play-toggle]');
+        this.playSvg = this.querySelector('[data-play-svg]');
+        this.pauseSvg = this.querySelector('[data-pause-svg]');
+
+        if (this.video && this.playToggle) {
+          this.setupVideoControls();
+        }
+      }
+
+      setupVideoControls() {
+        this.playToggle.addEventListener('click', () => {
+          if (this.video.paused) {
+            this.video.play();
+            this.playSvg.style.display = 'none';
+            this.pauseSvg.style.display = 'block';
+          } else {
+            this.video.pause();
+            this.playSvg.style.display = 'block';
+            this.pauseSvg.style.display = 'none';
+          }
+        });
+
+        this.video.addEventListener('play', () => {
+          this.playSvg.style.display = 'none';
+          this.pauseSvg.style.display = 'block';
+        });
+
+        this.video.addEventListener('pause', () => {
+          this.playSvg.style.display = 'block';
+          this.pauseSvg.style.display = 'none';
+        });
+
+        if (this.video.autoplay) {
+          this.video.play();
+        }
+      }
+    }
+
+    customElements.define('ai-membership-section-{{ ai_gen_id }}', AiMembershipSection{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Membership section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "tab_text",
+      "label": "Tab text",
+      "default": "Exclusive Training"
+    },
+    {
+      "type": "text",
+      "id": "headline",
+      "label": "Main headline",
+      "default": "Membership is the move"
+    },
+    {
+      "type": "text",
+      "id": "subheadline",
+      "label": "Subheadline",
+      "default": "Stay motivated for the long term."
+    },
+    {
+      "type": "textarea",
+      "id": "paragraph",
+      "label": "Paragraph",
+      "default": "With professional follow-along workouts and world-class instructors, we've got everything you need to crush your goals—right at home."
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "CTA text",
+      "default": "Learn More"
+    },
+    {
+      "type": "url",
+      "id": "cta_link",
+      "label": "CTA link"
+    },
+    {
+      "type": "header",
+      "content": "Video"
+    },
+    {
+      "type": "text",
+      "id": "video_url",
+      "label": "Video URL",
+      "info": "Enter a direct video file URL (.mp4, .webm)"
+    },
+    {
+      "type": "range",
+      "id": "video_border_radius",
+      "label": "Video border radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Desktop width",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "section_padding",
+      "label": "Section padding",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 60
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#363434"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent",
+      "default": "#E31E24"
+    },
+    {
+      "type": "color",
+      "id": "tab_text_color",
+      "label": "Tab text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "headline_color",
+      "label": "Headline",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "subheadline_color",
+      "label": "Subheadline",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "paragraph_color",
+      "label": "Paragraph",
+      "default": "#e8e8e8"
+    },
+    {
+      "type": "color",
+      "id": "cta_color",
+      "label": "CTA",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "tab_font_size",
+      "label": "Tab size",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "headline_font_size",
+      "label": "Headline size",
+      "min": 24,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "subheadline_font_size",
+      "label": "Subheadline size",
+      "min": 16,
+      "max": 36,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "paragraph_font_size",
+      "label": "Paragraph size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "cta_font_size",
+      "label": "CTA size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    }
+  ],
+  "presets": [
+    {
+      "name": "Membership section"
+    }
+  ]
+}
 {% endschema %}
