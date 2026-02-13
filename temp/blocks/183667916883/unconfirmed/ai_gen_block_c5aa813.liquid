@@ -1,6 +1,865 @@
+{% doc %}
+  @prompt
+    Please build a premium, responsive web section for "Ativafit" based on the provided layout style.
+    
+    Dimensions & Typography:
+    
+    Desktop Size: Exactly 2000px width x 1100px height.
+    
+    Font: Use "Barlow" (Sans-serif) for all text.
+    
+    Background: Variable color set to #363434.
+    
+    Interactive Dual Tab System:
+    
+    Place two centered tabs above the media area: "Exclusive Training" and "Member Rewards".
+    
+    An active underline (Ativafit Red #E31E24) should switch between them.
+    
+    Media Container (Crucial):
+    
+    The video/image container should NOT be full width.
+    
+    Scale: It should occupy about 60% of the section width, similar to the proportion in the reference image.
+    
+    Shape: Centered with 20px rounded corners.
+    
+    Tab 1 Content: A looping 16:9 workout video placeholder.
+    
+    Tab 2 Content: A high-quality static image showing the "Rewards" program (points, gift cards, equipment).
+    
+    Text Content:
+    
+    Main Headline (Top): "Membership is the move" (Bold white Barlow).
+    
+    Sub-headline (Bottom): >    - For Tab 1: "Stay motivated for the long term."
+    
+    For Tab 2: "Turn your sweat into rewards."
+    
+    Description: A short paragraph (2 lines max) centered below the sub-headline.
+    
+    CTA: A "Learn More" text link with an arrow at the very bottom.
+    
+    Technical Requirements: > - Use HTML and Tailwind CSS.
+    
+    Define colors (Background, Accent) as CSS variables at the top for easy adjustment.
+    
+    Ensure mobile responsiveness (stacked layout)., 我要修改这个section的长度和高度。并且最底部要加一个learn more CTA, below the headline add a subheadline
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-membership-section-{{ ai_gen_id }} {
+    display: block;
+    width: 100%;
+    background-color: {{ block.settings.background_color }};
+    padding: {{ block.settings.section_padding_top }}px 20px {{ block.settings.section_padding_bottom }}px;
+    min-height: {{ block.settings.section_height }}px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-membership-container-{{ ai_gen_id }} {
+    max-width: {{ block.settings.section_max_width }}px;
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .ai-membership-header-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    text-align: center;
+  }
+
+  .ai-membership-headline-{{ ai_gen_id }} {
+    font-family: {{ block.settings.heading_font.family }}, {{ block.settings.heading_font.fallback_families }};
+    font-weight: {{ block.settings.heading_font.weight }};
+    font-style: {{ block.settings.heading_font.style }};
+    font-size: {{ block.settings.headline_size }}px;
+    color: {{ block.settings.headline_color }};
+    text-align: center;
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .ai-membership-top-subheadline-{{ ai_gen_id }} {
+    font-family: {{ block.settings.body_font.family }}, {{ block.settings.body_font.fallback_families }};
+    font-weight: {{ block.settings.body_font.weight }};
+    font-size: {{ block.settings.top_subheadline_size }}px;
+    color: {{ block.settings.top_subheadline_color }};
+    text-align: center;
+    margin: 0;
+    line-height: 1.4;
+    max-width: 700px;
+  }
+
+  .ai-membership-tabs-{{ ai_gen_id }} {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .ai-membership-tab-{{ ai_gen_id }} {
+    background: none;
+    border: none;
+    font-family: {{ block.settings.heading_font.family }}, {{ block.settings.heading_font.fallback_families }};
+    font-weight: {{ block.settings.heading_font.weight }};
+    font-size: {{ block.settings.tab_size }}px;
+    color: {{ block.settings.tab_color }};
+    cursor: pointer;
+    padding: 10px 0;
+    position: relative;
+    transition: color 0.3s ease;
+  }
+
+  .ai-membership-tab-{{ ai_gen_id }}:hover {
+    color: {{ block.settings.tab_active_color }};
+  }
+
+  .ai-membership-tab-{{ ai_gen_id }}.active {
+    color: {{ block.settings.tab_active_color }};
+  }
+
+  .ai-membership-tab-{{ ai_gen_id }}::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: {{ block.settings.tab_active_color }};
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+
+  .ai-membership-tab-{{ ai_gen_id }}.active::after {
+    transform: scaleX(1);
+  }
+
+  .ai-membership-media-container-{{ ai_gen_id }} {
+    width: {{ block.settings.media_width }}%;
+    max-width: 100%;
+    border-radius: {{ block.settings.border_radius }}px;
+    overflow: hidden;
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background-color: #000000;
+  }
+
+  .ai-membership-tab-content-{{ ai_gen_id }} {
+    display: none;
+    width: 100%;
+    height: 100%;
+  }
+
+  .ai-membership-tab-content-{{ ai_gen_id }}.active {
+    display: block;
+  }
+
+  .ai-membership-video-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-membership-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-membership-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #2a2a2a;
+  }
+
+  .ai-membership-placeholder-{{ ai_gen_id }} svg {
+    width: 100px;
+    height: 100px;
+    opacity: 0.3;
+  }
+
+  .ai-membership-text-content-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    text-align: center;
+    max-width: 800px;
+  }
+
+  .ai-membership-subheadline-{{ ai_gen_id }} {
+    font-family: {{ block.settings.heading_font.family }}, {{ block.settings.heading_font.fallback_families }};
+    font-weight: {{ block.settings.heading_font.weight }};
+    font-size: {{ block.settings.subheadline_size }}px;
+    color: {{ block.settings.text_color }};
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  .ai-membership-description-{{ ai_gen_id }} {
+    font-family: {{ block.settings.body_font.family }}, {{ block.settings.body_font.fallback_families }};
+    font-weight: {{ block.settings.body_font.weight }};
+    font-size: {{ block.settings.description_size }}px;
+    color: {{ block.settings.text_color }};
+    line-height: 1.6;
+    margin: 0;
+    max-width: 600px;
+  }
+
+  .ai-membership-cta-{{ ai_gen_id }} {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: {{ block.settings.body_font.family }}, {{ block.settings.body_font.fallback_families }};
+    font-size: {{ block.settings.cta_size }}px;
+    color: {{ block.settings.cta_color }};
+    text-decoration: none;
+    margin-top: 8px;
+    transition: gap 0.3s ease;
+  }
+
+  .ai-membership-cta-{{ ai_gen_id }}:hover {
+    gap: 12px;
+  }
+
+  .ai-membership-cta-arrow-{{ ai_gen_id }} {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.3s ease;
+  }
+
+  .ai-membership-cta-{{ ai_gen_id }}:hover .ai-membership-cta-arrow-{{ ai_gen_id }} {
+    transform: translateX(4px);
+  }
+
+  .ai-membership-bottom-cta-{{ ai_gen_id }} {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: {{ block.settings.bottom_cta_padding_vertical }}px {{ block.settings.bottom_cta_padding_horizontal }}px;
+    background-color: {{ block.settings.bottom_cta_bg_color }};
+    color: {{ block.settings.bottom_cta_text_color }};
+    font-family: {{ block.settings.body_font.family }}, {{ block.settings.body_font.fallback_families }};
+    font-size: {{ block.settings.bottom_cta_size }}px;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: {{ block.settings.bottom_cta_border_radius }}px;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+  }
+
+  .ai-membership-bottom-cta-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.bottom_cta_hover_bg_color }};
+    color: {{ block.settings.bottom_cta_hover_text_color }};
+    gap: 14px;
+  }
+
+  .ai-membership-bottom-cta-arrow-{{ ai_gen_id }} {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.3s ease;
+  }
+
+  .ai-membership-bottom-cta-{{ ai_gen_id }}:hover .ai-membership-bottom-cta-arrow-{{ ai_gen_id }} {
+    transform: translateX(4px);
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-membership-section-{{ ai_gen_id }} {
+      padding: {{ block.settings.section_padding_top | times: 0.6 }}px 16px {{ block.settings.section_padding_bottom | times: 0.6 }}px;
+      min-height: auto;
+    }
+
+    .ai-membership-container-{{ ai_gen_id }} {
+      gap: 24px;
+    }
+
+    .ai-membership-headline-{{ ai_gen_id }} {
+      font-size: {{ block.settings.headline_size | times: 0.6 }}px;
+    }
+
+    .ai-membership-top-subheadline-{{ ai_gen_id }} {
+      font-size: {{ block.settings.top_subheadline_size | times: 0.8 }}px;
+    }
+
+    .ai-membership-tabs-{{ ai_gen_id }} {
+      gap: 20px;
+      margin-bottom: 16px;
+    }
+
+    .ai-membership-tab-{{ ai_gen_id }} {
+      font-size: {{ block.settings.tab_size | times: 0.7 }}px;
+    }
+
+    .ai-membership-media-container-{{ ai_gen_id }} {
+      width: 100%;
+    }
+
+    .ai-membership-subheadline-{{ ai_gen_id }} {
+      font-size: {{ block.settings.subheadline_size | times: 0.7 }}px;
+    }
+
+    .ai-membership-description-{{ ai_gen_id }} {
+      font-size: {{ block.settings.description_size | times: 0.9 }}px;
+    }
+
+    .ai-membership-cta-{{ ai_gen_id }} {
+      font-size: {{ block.settings.cta_size | times: 0.9 }}px;
+    }
+
+    .ai-membership-bottom-cta-{{ ai_gen_id }} {
+      font-size: {{ block.settings.bottom_cta_size | times: 0.9 }}px;
+      padding: {{ block.settings.bottom_cta_padding_vertical | times: 0.8 }}px {{ block.settings.bottom_cta_padding_horizontal | times: 0.8 }}px;
+    }
+  }
+{% endstyle %}
+
+<membership-tabs-{{ ai_gen_id }} class="ai-membership-section-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-membership-container-{{ ai_gen_id }}">
+    <div class="ai-membership-header-{{ ai_gen_id }}">
+      {% if block.settings.main_headline != blank %}
+        <h2 class="ai-membership-headline-{{ ai_gen_id }}">{{ block.settings.main_headline }}</h2>
+      {% endif %}
+      {% if block.settings.top_subheadline != blank %}
+        <p class="ai-membership-top-subheadline-{{ ai_gen_id }}">{{ block.settings.top_subheadline }}</p>
+      {% endif %}
+    </div>
+
+    <div class="ai-membership-tabs-{{ ai_gen_id }}">
+      <button
+        class="ai-membership-tab-{{ ai_gen_id }} active"
+        data-tab="training"
+        aria-label="Switch to Exclusive Training tab"
+      >
+        {{ block.settings.tab_1_label }}
+      </button>
+      <button
+        class="ai-membership-tab-{{ ai_gen_id }}"
+        data-tab="rewards"
+        aria-label="Switch to Member Rewards tab"
+      >
+        {{ block.settings.tab_2_label }}
+      </button>
+    </div>
+
+    <div class="ai-membership-media-container-{{ ai_gen_id }}">
+      <div class="ai-membership-tab-content-{{ ai_gen_id }} active" data-content="training">
+        {% if block.settings.training_video != blank %}
+          <video
+            class="ai-membership-video-{{ ai_gen_id }}"
+            autoplay
+            loop
+            muted
+            playsinline
+            aria-label="Exclusive training video"
+          >
+            <source src="{{ block.settings.training_video }}" type="video/mp4">
+          </video>
+        {% else %}
+          <div class="ai-membership-placeholder-{{ ai_gen_id }}">
+            {{ 'hero-apparel-1' | placeholder_svg_tag }}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="ai-membership-tab-content-{{ ai_gen_id }}" data-content="rewards">
+        {% if block.settings.rewards_image != blank %}
+          <img
+            src="{{ block.settings.rewards_image | image_url: width: 2000 }}"
+            alt="{{ block.settings.rewards_image.alt | escape }}"
+            class="ai-membership-image-{{ ai_gen_id }}"
+            loading="lazy"
+            width="{{ block.settings.rewards_image.width }}"
+            height="{{ block.settings.rewards_image.height }}"
+          >
+        {% else %}
+          <div class="ai-membership-placeholder-{{ ai_gen_id }}">
+            {{ 'hero-apparel-1' | placeholder_svg_tag }}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="ai-membership-text-content-{{ ai_gen_id }}">
+      <div class="ai-membership-tab-content-{{ ai_gen_id }} active" data-content="training">
+        {% if block.settings.training_subheadline != blank %}
+          <h3 class="ai-membership-subheadline-{{ ai_gen_id }}">{{ block.settings.training_subheadline }}</h3>
+        {% endif %}
+        {% if block.settings.training_description != blank %}
+          <p class="ai-membership-description-{{ ai_gen_id }}">{{ block.settings.training_description }}</p>
+        {% endif %}
+      </div>
+
+      <div class="ai-membership-tab-content-{{ ai_gen_id }}" data-content="rewards">
+        {% if block.settings.rewards_subheadline != blank %}
+          <h3 class="ai-membership-subheadline-{{ ai_gen_id }}">{{ block.settings.rewards_subheadline }}</h3>
+        {% endif %}
+        {% if block.settings.rewards_description != blank %}
+          <p class="ai-membership-description-{{ ai_gen_id }}">{{ block.settings.rewards_description }}</p>
+        {% endif %}
+      </div>
+
+      {% if block.settings.cta_link != blank %}
+        <a href="{{ block.settings.cta_link }}" class="ai-membership-cta-{{ ai_gen_id }}">
+          {{ block.settings.cta_text }}
+          <svg class="ai-membership-cta-arrow-{{ ai_gen_id }}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </a>
+      {% endif %}
+    </div>
+
+    {% if block.settings.show_bottom_cta and block.settings.bottom_cta_link != blank %}
+      <a href="{{ block.settings.bottom_cta_link }}" class="ai-membership-bottom-cta-{{ ai_gen_id }}">
+        {{ block.settings.bottom_cta_text }}
+        <svg class="ai-membership-bottom-cta-arrow-{{ ai_gen_id }}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </a>
+    {% endif %}
+  </div>
+</membership-tabs-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class MembershipTabs{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.tabs = this.querySelectorAll('.ai-membership-tab-{{ ai_gen_id }}');
+        this.contents = this.querySelectorAll('.ai-membership-tab-content-{{ ai_gen_id }}');
+        this.setupEventListeners();
+      }
+
+      setupEventListeners() {
+        this.tabs.forEach((tab) => {
+          tab.addEventListener('click', () => {
+            const tabName = tab.getAttribute('data-tab');
+            this.switchTab(tabName);
+          });
+        });
+      }
+
+      switchTab(tabName) {
+        this.tabs.forEach((tab) => {
+          if (tab.getAttribute('data-tab') === tabName) {
+            tab.classList.add('active');
+          } else {
+            tab.classList.remove('active');
+          }
+        });
+
+        this.contents.forEach((content) => {
+          if (content.getAttribute('data-content') === tabName) {
+            content.classList.add('active');
+          } else {
+            content.classList.remove('active');
+          }
+        });
+      }
+    }
+
+    customElements.define('membership-tabs-{{ ai_gen_id }}', MembershipTabs{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Membership tabs",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section dimensions"
+    },
+    {
+      "type": "range",
+      "id": "section_max_width",
+      "label": "Maximum width",
+      "min": 1200,
+      "max": 2400,
+      "step": 100,
+      "unit": "px",
+      "default": 2000
+    },
+    {
+      "type": "range",
+      "id": "section_height",
+      "label": "Minimum height",
+      "min": 600,
+      "max": 1400,
+      "step": 50,
+      "unit": "px",
+      "default": 1100
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 120,
+      "step": 10,
+      "unit": "px",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 120,
+      "step": 10,
+      "unit": "px",
+      "default": 60
+    },
+    {
+      "type": "header",
+      "content": "Main headline"
+    },
+    {
+      "type": "text",
+      "id": "main_headline",
+      "label": "Headline",
+      "default": "Membership is the move"
+    },
+    {
+      "type": "range",
+      "id": "headline_size",
+      "label": "Headline size",
+      "min": 24,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "color",
+      "id": "headline_color",
+      "label": "Headline color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Top subheadline"
+    },
+    {
+      "type": "textarea",
+      "id": "top_subheadline",
+      "label": "Subheadline text",
+      "default": "Join our community and unlock exclusive benefits"
+    },
+    {
+      "type": "range",
+      "id": "top_subheadline_size",
+      "label": "Subheadline size",
+      "min": 14,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "color",
+      "id": "top_subheadline_color",
+      "label": "Subheadline color",
+      "default": "#cccccc"
+    },
+    {
+      "type": "header",
+      "content": "Tabs"
+    },
+    {
+      "type": "text",
+      "id": "tab_1_label",
+      "label": "Tab 1 label",
+      "default": "Exclusive Training"
+    },
+    {
+      "type": "text",
+      "id": "tab_2_label",
+      "label": "Tab 2 label",
+      "default": "Member Rewards"
+    },
+    {
+      "type": "range",
+      "id": "tab_size",
+      "label": "Tab text size",
+      "min": 14,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "tab_color",
+      "label": "Tab color",
+      "default": "#cccccc"
+    },
+    {
+      "type": "color",
+      "id": "tab_active_color",
+      "label": "Active tab color",
+      "default": "#E31E24"
+    },
+    {
+      "type": "header",
+      "content": "Training tab"
+    },
+    {
+      "type": "url",
+      "id": "training_video",
+      "label": "Video URL"
+    },
+    {
+      "type": "text",
+      "id": "training_subheadline",
+      "label": "Subheadline",
+      "default": "Stay motivated for the long term."
+    },
+    {
+      "type": "textarea",
+      "id": "training_description",
+      "label": "Description",
+      "default": "Access exclusive workout programs designed by certified trainers to help you reach your fitness goals faster and stay consistent."
+    },
+    {
+      "type": "header",
+      "content": "Rewards tab"
+    },
+    {
+      "type": "image_picker",
+      "id": "rewards_image",
+      "label": "Image"
+    },
+    {
+      "type": "text",
+      "id": "rewards_subheadline",
+      "label": "Subheadline",
+      "default": "Turn your sweat into rewards."
+    },
+    {
+      "type": "textarea",
+      "id": "rewards_description",
+      "label": "Description",
+      "default": "Earn points with every workout and redeem them for gift cards, premium equipment, and exclusive member perks."
+    },
+    {
+      "type": "header",
+      "content": "Call to action"
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "CTA text",
+      "default": "Learn More"
+    },
+    {
+      "type": "url",
+      "id": "cta_link",
+      "label": "CTA link"
+    },
+    {
+      "type": "range",
+      "id": "cta_size",
+      "label": "CTA text size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "cta_color",
+      "label": "CTA color",
+      "default": "#E31E24"
+    },
+    {
+      "type": "header",
+      "content": "Bottom CTA button"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_bottom_cta",
+      "label": "Show bottom CTA",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "bottom_cta_text",
+      "label": "Button text",
+      "default": "Learn More"
+    },
+    {
+      "type": "url",
+      "id": "bottom_cta_link",
+      "label": "Button link"
+    },
+    {
+      "type": "range",
+      "id": "bottom_cta_size",
+      "label": "Button text size",
+      "min": 14,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "bottom_cta_padding_vertical",
+      "label": "Vertical padding",
+      "min": 8,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "bottom_cta_padding_horizontal",
+      "label": "Horizontal padding",
+      "min": 20,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "bottom_cta_border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "color",
+      "id": "bottom_cta_bg_color",
+      "label": "Background color",
+      "default": "#E31E24"
+    },
+    {
+      "type": "color",
+      "id": "bottom_cta_text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "bottom_cta_hover_bg_color",
+      "label": "Hover background color",
+      "default": "#c11a1f"
+    },
+    {
+      "type": "color",
+      "id": "bottom_cta_hover_text_color",
+      "label": "Hover text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Media"
+    },
+    {
+      "type": "range",
+      "id": "media_width",
+      "label": "Media width",
+      "min": 40,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "font_picker",
+      "id": "heading_font",
+      "label": "Heading font",
+      "default": "barlow_n4"
+    },
+    {
+      "type": "font_picker",
+      "id": "body_font",
+      "label": "Body font",
+      "default": "barlow_n4"
+    },
+    {
+      "type": "range",
+      "id": "subheadline_size",
+      "label": "Subheadline size",
+      "min": 18,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "description_size",
+      "label": "Description size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#363434"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#ffffff"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Membership tabs"
+    }
+  ]
+}
 {% endschema %}
