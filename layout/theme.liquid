@@ -1144,5 +1144,201 @@
         
       })();
     </script>
+
+    {%- comment -%} Judge.me Star Unicode Fix Script {%- endcomment -%}
+    <script>
+      /**
+       * Judge.me Star Unicode Fix
+       * Força a aplicação de estrelas Unicode no lugar dos ícones do Judge.me
+       * Necessário porque o CSS do Judge.me é injetado dinamicamente e tem alta prioridade
+       */
+      (function() {
+        'use strict';
+        
+        // Configurações
+        const CONFIG = {
+          // Seletores para estrelas do Judge.me
+          starSelectors: {
+            filled: '.jdgm-star.jdgm--on',
+            empty: '.jdgm-star.jdgm--off'
+          },
+          // Estrela Unicode a ser aplicada
+          starUnicode: '★',
+          // Intervalo de verificação
+          checkInterval: 500,
+          // Máximo de tentativas
+          maxAttempts: 60,
+          // Propriedades CSS a serem aplicadas
+          starStyles: {
+            filled: {
+              content: '"★"',
+              fontFamily: 'inherit',
+              fontSize: 'inherit',
+              color: 'inherit',
+              opacity: '1'
+            },
+            empty: {
+              content: '"★"',
+              fontFamily: 'inherit',
+              fontSize: 'inherit',
+              color: 'inherit',
+              opacity: '0.3'
+            }
+          }
+        };
+        
+        let attempts = 0;
+        let processedElements = new WeakSet();
+        
+        /**
+         * Aplica estilos de estrela a um elemento
+         * @param {HTMLElement} element - Elemento da estrela
+         * @param {string} starType - Tipo da estrela ('filled' ou 'empty')
+         */
+        function applyStarStyle(element, starType) {
+          if (!element || processedElements.has(element)) return false;
+          
+          try {
+            // Determina os estilos com base no tipo
+            const styles = CONFIG.starStyles[starType] || CONFIG.starStyles.filled;
+            
+            // Cria uma regra CSS dinâmica específica para este elemento
+            const uniqueClass = 'jdgm-star-fixed-' + starType + '-' + Math.random().toString(36).substr(2, 9);
+            element.classList.add(uniqueClass);
+            
+            // Injeta CSS específico
+            const style = document.createElement('style');
+            style.textContent = `
+              .${uniqueClass}:before,
+              .${uniqueClass}::before {
+                content: "${CONFIG.starUnicode}" !important;
+                font-family: inherit !important;
+                font-size: inherit !important;
+                color: inherit !important;
+                opacity: ${styles.opacity} !important;
+              }
+            `;
+            document.head.appendChild(style);
+            
+            processedElements.add(element);
+            return true;
+            
+          } catch (error) {
+            console.warn('Judge.me Star Fix: Erro ao aplicar estilo:', error);
+            return false;
+          }
+        }
+        
+        /**
+         * Processa todas as estrelas do Judge.me
+         */
+        function processStars() {
+          let totalProcessed = 0;
+          
+          // Processa estrelas preenchidas
+          const filledStars = document.querySelectorAll(CONFIG.starSelectors.filled);
+          filledStars.forEach(star => {
+            if (applyStarStyle(star, 'filled')) {
+              totalProcessed++;
+            }
+          });
+          
+          // Processa estrelas vazias
+          const emptyStars = document.querySelectorAll(CONFIG.starSelectors.empty);
+          emptyStars.forEach(star => {
+            if (applyStarStyle(star, 'empty')) {
+              totalProcessed++;
+            }
+          });
+          
+          if (totalProcessed > 0) {
+            console.log(`Judge.me Star Fix: ${totalProcessed} estrela(s) processada(s) (${filledStars.length} preenchidas, ${emptyStars.length} vazias)`);
+          }
+          
+          return filledStars.length + emptyStars.length;
+        }
+        
+        /**
+         * Configuração do MutationObserver
+         */
+        function setupMutationObserver() {
+          const observer = new MutationObserver(function(mutations) {
+            let shouldProcess = false;
+            
+            mutations.forEach(function(mutation) {
+              if (mutation.type === 'childList') {
+                mutation.addedNodes.forEach(function(node) {
+                  if (node.nodeType === Node.ELEMENT_NODE) {
+                    // Verifica se é uma estrela do Judge.me ou contém estrelas
+                    if (node.classList && node.classList.contains('jdgm-star')) {
+                      shouldProcess = true;
+                    } else if (node.querySelector && (node.querySelector('.jdgm-star.jdgm--on') || node.querySelector('.jdgm-star.jdgm--off'))) {
+                      shouldProcess = true;
+                    }
+                  }
+                });
+              }
+            });
+            
+            if (shouldProcess) {
+              setTimeout(processStars, 100);
+            }
+          });
+          
+          observer.observe(document.body, {
+            childList: true,
+            subtree: true
+          });
+          
+          console.log('Judge.me Star Fix: MutationObserver configurado');
+        }
+        
+        /**
+         * Monitora e processa estrelas continuamente
+         */
+        function startMonitoring() {
+          const intervalId = setInterval(function() {
+            attempts++;
+            const starsFound = processStars();
+            
+            // Para o monitoramento após máximo de tentativas, mas continua o observer
+            if (attempts >= CONFIG.maxAttempts) {
+              clearInterval(intervalId);
+              console.log('Judge.me Star Fix: Monitoramento periódico finalizado');
+            }
+          }, CONFIG.checkInterval);
+        }
+        
+        /**
+         * Inicialização
+         */
+        function init() {
+          // Processa imediatamente
+          processStars();
+          
+          // Configura o observer para mudanças dinâmicas
+          setupMutationObserver();
+          
+          // Inicia monitoramento periódico
+          startMonitoring();
+          
+          // Processa quando DOM estiver carregado
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', processStars);
+          }
+          
+          // Processa após carregamento completo
+          window.addEventListener('load', function() {
+            setTimeout(processStars, 1000);
+          });
+          
+          console.log('Judge.me Star Fix: Inicializado');
+        }
+        
+        // Inicializa quando o script carrega
+        init();
+        
+      })();
+    </script>
   </body>
 </html>
