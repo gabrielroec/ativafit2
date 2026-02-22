@@ -1,14 +1,19 @@
 {%- if product != blank -%}
-  {%- assign variant = product.selected_or_first_available_variant -%}
-  <div class="product-card-simple__card">
+  {%- if variant != blank and variant.product.id == product.id -%}
+    {%- assign card_variant = variant -%}
+  {%- else -%}
+    {%- assign card_variant = product.selected_or_first_available_variant -%}
+  {%- endif -%}
+  <div class="product-card-simple__card" data-product-card-simple>
     <a
       class="product-card-simple__link"
       href="{{ product.url }}"
       aria-label="{{ product.title | escape }}">
       <div class="product-card-simple__image">
-        {%- if product.featured_image -%}
+        {%- assign card_image = card_variant.image | default: product.featured_image -%}
+        {%- if card_image -%}
           {{
-            product.featured_image | image_url: width: 800 | image_tag: loading: 'lazy', widths: '200, 300, 400, 600, 800', sizes: '(min-width: 990px) 30vw, (min-width: 750px) 45vw, 50vw', alt: product.featured_image.alt | default: product.title | escape
+            card_image | image_url: width: 800 | image_tag: loading: 'lazy', widths: '200, 300, 400, 600, 800', sizes: '(min-width: 990px) 30vw, (min-width: 750px) 45vw, 50vw', alt: card_image.alt | default: product.title | escape
           }}
         {%- else -%}
           {{ 'product-1' | placeholder_svg_tag: 'product-card-simple__placeholder' }}
@@ -16,18 +21,43 @@
       </div>
     </a>
 
+    {%- if product.variants.size > 1 -%}
+      <div class="product-card-simple__variants" aria-label="{{ 'products.product.variant_selector' | t | default: 'Select variant' }}">
+        {%- for v in product.variants -%}
+          {%- assign v_image = v.image | default: product.featured_image -%}
+          {%- assign v_image_thumb = v_image | image_url: width: 200 -%}
+          {%- assign v_image_full = v_image | image_url: width: 600 -%}
+          <button
+            type="button"
+            class="product-card-simple__variant-btn{% if v.id == card_variant.id %} product-card-simple__variant-btn--selected{% endif %}"
+            data-variant-id="{{ v.id }}"
+            data-price="{{ v.price | money | escape }}"
+            data-compare-at-price="{{ v.compare_at_price | money | escape }}"
+            data-available="{{ v.available }}"
+            data-image-src="{{ v_image_full | replace: '"', '&quot;' }}"
+            data-show-compare="{% if v.compare_at_price > v.price %}true{% else %}false{% endif %}"
+            aria-label="{{ v.title | escape }}"
+            aria-pressed="{% if v.id == card_variant.id %}true{% else %}false{% endif %}">
+            {%- if v_image -%}
+              <span class="product-card-simple__variant-btn-inner" style="background-image: url({{ v_image_thumb | escape }})"></span>
+            {%- else -%}
+              <span class="product-card-simple__variant-btn-inner product-card-simple__variant-btn-inner--placeholder"></span>
+            {%- endif -%}
+          </button>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
     <div class="product-card-simple__content">
       <h3 class="product-card-simple__title">
         <a href="{{ product.url }}">{{ product.title | escape }}</a>
       </h3>
 
-      {%- assign price = product.price -%}
-      {%- assign compare_price = product.compare_at_price_max -%}
+      {%- assign price = card_variant.price -%}
+      {%- assign compare_price = card_variant.compare_at_price -%}
       <div class="product-card-simple__price">
-        <span class="product-card-simple__price-current">{{ price | money }}</span>
-        {%- if compare_price > price -%}
-          <span class="product-card-simple__price-compare">{{ compare_price | money }}</span>
-        {%- endif -%}
+        <span class="product-card-simple__price-current" data-price-current>{{ price | money }}</span>
+        <span class="product-card-simple__price-compare" data-price-compare{% if compare_price <= price %} style="display: none"{% endif %}>{{ compare_price | money }}</span>
       </div>
 
       {%- assign rating_metafield = product.metafields.reviews.rating -%}
@@ -46,31 +76,18 @@
         </div>
       {%- endif -%}
 
-      {%- if product.available and variant -%}
-        {%- form 'product'
-          , product
-          , class: 'product-card-simple__form' -%}
-          <input
-            type="hidden"
-            name="id"
-            value="{{ variant.id }}">
-          <button
-            type="submit"
-            name="add"
-            class="product-card-simple__atc"
-            aria-label="Add to cart {{ product.title | escape }}">
-            ADD TO CART
-          </button>
-        {%- endform -%}
-      {%- else -%}
+      {%- form 'product', product, class: 'product-card-simple__form' -%}
+        <input type="hidden" name="id" value="{{ card_variant.id }}" class="product-card-simple__variant-input" data-variant-input>
         <button
-          type="button"
-          class="product-card-simple__atc product-card-simple__atc--disabled"
-          disabled
-          aria-label="Sold out">
-          Sold out
+          type="submit"
+          name="add"
+          class="product-card-simple__atc"
+          data-atc-button
+          {% unless card_variant.available %}disabled{% endunless %}
+          aria-label="{% if card_variant.available %}Add to cart {{ product.title | escape }}{% else %}Sold out{% endif %}">
+          {%- if card_variant.available -%}ADD TO CART{%- else -%}Sold out{%- endif -%}
         </button>
-      {%- endif -%}
+      {%- endform -%}
     </div>
   </div>
 {%- endif -%}

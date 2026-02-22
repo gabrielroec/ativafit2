@@ -5,27 +5,71 @@
   else
     assign collection_to_show = collection
   endif
+
+  assign extra_products = section.blocks | where: 'type', 'extra_product'
+  assign has_collection = false
+  if collection_to_show != blank and collection_to_show.products_count > 0
+    assign has_collection = true
+  endif
+  assign has_extras = false
+  if extra_products.size > 0
+    assign has_extras = true
+  endif
 -%}
 
-{%- if collection_to_show != blank -%}
+{%- if has_collection or has_extras -%}
   <section id="{{ section_id }}" class="collection-grid-simple">
-    {%- paginate collection_to_show.products by section.settings.products_per_page -%}
+    {%- if has_collection -%}
+      {%- paginate collection_to_show.products by section.settings.products_per_page -%}
+        <div class="collection-grid-simple__container">
+          <div class="collection-grid-simple__grid">
+            {%- for product in collection_to_show.products -%}
+              <div class="collection-grid-simple__item">
+                {%- render 'product-card-simple', product: product -%}
+              </div>
+            {%- endfor -%}
+
+            {%- if has_extras and paginate.pages <= 1 or paginate.current_page == paginate.pages -%}
+              {%- for block in extra_products -%}
+                {%- if block.settings.product != blank -%}
+                  {%- assign extra_variant = nil -%}
+                  {%- if block.settings.variant_index != blank -%}
+                    {%- assign idx = block.settings.variant_index | plus: 0 -%}
+                    {%- assign extra_variant = block.settings.product.variants[idx] -%}
+                  {%- endif -%}
+                  <div class="collection-grid-simple__item" {{ block.shopify_attributes }}>
+                    {%- render 'product-card-simple', product: block.settings.product, variant: extra_variant -%}
+                  </div>
+                {%- endif -%}
+              {%- endfor -%}
+            {%- endif -%}
+          </div>
+        </div>
+
+        {%- if section.settings.show_pagination and paginate.pages > 1 -%}
+          <div class="collection-grid-simple__pagination">
+            {%- render 'pagination', paginate: paginate -%}
+          </div>
+        {%- endif -%}
+      {%- endpaginate -%}
+    {%- else -%}
       <div class="collection-grid-simple__container">
         <div class="collection-grid-simple__grid">
-          {%- for product in collection_to_show.products -%}
-            <div class="collection-grid-simple__item">
-              {%- render 'product-card-simple', product: product -%}
-            </div>
+          {%- for block in extra_products -%}
+            {%- if block.settings.product != blank -%}
+              {%- assign extra_variant = nil -%}
+              {%- if block.settings.variant_index != blank -%}
+                {%- assign idx = block.settings.variant_index | plus: 0 -%}
+                {%- assign extra_variant = block.settings.product.variants[idx] -%}
+              {%- endif -%}
+              <div class="collection-grid-simple__item" {{ block.shopify_attributes }}>
+                {%- render 'product-card-simple', product: block.settings.product, variant: extra_variant -%}
+              </div>
+            {%- endif -%}
           {%- endfor -%}
         </div>
       </div>
-
-      {%- if section.settings.show_pagination and paginate.pages > 1 -%}
-        <div class="collection-grid-simple__pagination">
-          {%- render 'pagination', paginate: paginate -%}
-        </div>
-      {%- endif -%}
-    {%- endpaginate -%}
+    {%- endif -%}
   </section>
 {%- endif -%}
 
@@ -158,7 +202,44 @@
   #{{ section_id }} .product-card-simple__star--active {
     color: #000000;
   }
- 
+
+  #{{ section_id }} .product-card-simple__variants {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px 0;
+  }
+  #{{ section_id }} .product-card-simple__variant-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #e5e5e5;
+    padding: 0;
+    cursor: pointer;
+    overflow: hidden;
+    background: #f2f2f2;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  #{{ section_id }} .product-card-simple__variant-btn:hover {
+    border-color: #ccc;
+  }
+  #{{ section_id }} .product-card-simple__variant-btn--selected {
+    border-color: #000;
+    box-shadow: 0 0 0 1px #000;
+  }
+  #{{ section_id }} .product-card-simple__variant-btn-inner {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  #{{ section_id }} .product-card-simple__variant-btn-inner--placeholder {
+    background-color: #e5e5e5;
+  }
+
   @media (max-width: 749px) {
     #{{ section_id }} .collection-grid-simple__grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -196,6 +277,52 @@
  
   }
 </style>
+
+<script>
+  (function() {
+    document.addEventListener('click', function(e) {
+      var btn = e.target.closest('.product-card-simple__variant-btn');
+      if (!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      var card = btn.closest('[data-product-card-simple]');
+      if (!card) return;
+      var variantId = btn.getAttribute('data-variant-id');
+      var price = btn.getAttribute('data-price');
+      var comparePrice = btn.getAttribute('data-compare-at-price');
+      var showCompare = btn.getAttribute('data-show-compare') === 'true';
+      var available = btn.getAttribute('data-available') === 'true';
+      var imageSrc = btn.getAttribute('data-image-src');
+      var input = card.querySelector('[data-variant-input]');
+      var priceCurrent = card.querySelector('[data-price-current]');
+      var priceCompare = card.querySelector('[data-price-compare]');
+      var atcButton = card.querySelector('[data-atc-button]');
+      var imageContainer = card.querySelector('.product-card-simple__image');
+      if (input) input.value = variantId;
+      if (priceCurrent) priceCurrent.textContent = price || '';
+      if (priceCompare) {
+        priceCompare.textContent = comparePrice || '';
+        priceCompare.style.display = showCompare ? '' : 'none';
+      }
+      if (atcButton) {
+        atcButton.disabled = !available;
+        atcButton.textContent = available ? 'ADD TO CART' : 'Sold out';
+        atcButton.setAttribute('aria-label', available ? 'Add to cart' : 'Sold out');
+      }
+      if (imageContainer && imageSrc) {
+        var img = imageContainer.querySelector('img');
+        if (img) {
+          img.src = imageSrc;
+          img.srcset = imageSrc + ' 1x';
+        }
+      }
+      card.querySelectorAll('.product-card-simple__variant-btn').forEach(function(b) {
+        b.classList.toggle('product-card-simple__variant-btn--selected', b === btn);
+        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+      });
+    });
+  })();
+</script>
 
 {% schema %}
 {
@@ -239,6 +366,60 @@
       "max": 120,
       "step": 4,
       "default": 24
+    }
+  ],
+  "blocks": [
+    {
+      "type": "extra_product",
+      "name": "Extra Product Card",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product",
+          "info": "Add a product card that appears alongside the collection products, without adding it to the collection."
+        },
+        {
+          "type": "select",
+          "id": "variant_index",
+          "label": "Variant",
+          "default": "",
+          "info": "Which variant to show on the card. Order matches the product admin.",
+          "options": [
+            { "value": "", "label": "First available" },
+            { "value": "0", "label": "1st variant" },
+            { "value": "1", "label": "2nd variant" },
+            { "value": "2", "label": "3rd variant" },
+            { "value": "3", "label": "4th variant" },
+            { "value": "4", "label": "5th variant" },
+            { "value": "5", "label": "6th variant" },
+            { "value": "6", "label": "7th variant" },
+            { "value": "7", "label": "8th variant" },
+            { "value": "8", "label": "9th variant" },
+            { "value": "9", "label": "10th variant" },
+            { "value": "10", "label": "11th variant" },
+            { "value": "11", "label": "12th variant" },
+            { "value": "12", "label": "13th variant" },
+            { "value": "13", "label": "14th variant" },
+            { "value": "14", "label": "15th variant" },
+            { "value": "15", "label": "16th variant" },
+            { "value": "16", "label": "17th variant" },
+            { "value": "17", "label": "18th variant" },
+            { "value": "18", "label": "19th variant" },
+            { "value": "19", "label": "20th variant" },
+            { "value": "20", "label": "21st variant" },
+            { "value": "21", "label": "22nd variant" },
+            { "value": "22", "label": "23rd variant" },
+            { "value": "23", "label": "24th variant" },
+            { "value": "24", "label": "25th variant" },
+            { "value": "25", "label": "26th variant" },
+            { "value": "26", "label": "27th variant" },
+            { "value": "27", "label": "28th variant" },
+            { "value": "28", "label": "29th variant" },
+            { "value": "29", "label": "30th variant" }
+          ]
+        }
+      ]
     }
   ],
   "presets": [
