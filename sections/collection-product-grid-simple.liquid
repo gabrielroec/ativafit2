@@ -1,13 +1,18 @@
 {%- liquid
   assign section_id = 'CollectionGridSimple-' | append: section.id
+  if section.settings.collection != blank
+    assign collection_to_show = section.settings.collection
+  else
+    assign collection_to_show = collection
+  endif
 -%}
 
-{%- if collection != blank -%}
+{%- if collection_to_show != blank -%}
   <section id="{{ section_id }}" class="collection-grid-simple">
-    {%- paginate collection.products by section.settings.products_per_page -%}
+    {%- paginate collection_to_show.products by section.settings.products_per_page -%}
       <div class="collection-grid-simple__container">
         <div class="collection-grid-simple__grid">
-          {%- for product in collection.products -%}
+          {%- for product in collection_to_show.products -%}
             <div class="collection-grid-simple__item">
               {%- render 'product-card-simple', product: product -%}
             </div>
@@ -196,6 +201,12 @@
 {
   "name": "Collection Grid Simple",
   "settings": [
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection",
+      "info": "Leave blank to show the current page's collection (e.g. on a collection page). Set to force a specific collection."
+    },
     {
       "type": "range",
       "id": "products_per_page",
