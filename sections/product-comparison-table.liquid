@@ -406,16 +406,51 @@
           {%- endfor -%}
 
             {%- comment -%} Spec Rows {%- endcomment -%}
-            {%- assign spec_keys = 'weightRange,increments,dimensions,packageWeight,material,handleDesign,adjustment,userGroup' | split: ',' -%}
+            {%- assign spec_keys = 'weightRange,increments,dimensions,packageWeight,material,handleDesign,adjustment,userGroup,line9,line10' | split: ',' -%}
             {%- assign spec_label_prefix = section.settings.weight_range_label | default: 'Weight Range' -%}
-            {%- assign spec_labels = spec_label_prefix | append: ',' | append: section.settings.increments_label | append: ',' | append: section.settings.dimensions_label | append: ',' | append: section.settings.package_weight_label | append: ',' | append: section.settings.material_label | append: ',' | append: section.settings.handle_design_label | append: ',' | append: section.settings.adjustment_label | append: ',' | append: section.settings.user_group_label | split: ',' -%}
+            {%- assign spec_labels = spec_label_prefix | append: ',' | append: section.settings.increments_label | append: ',' | append: section.settings.dimensions_label | append: ',' | append: section.settings.package_weight_label | append: ',' | append: section.settings.material_label | append: ',' | append: section.settings.handle_design_label | append: ',' | append: section.settings.adjustment_label | append: ',' | append: section.settings.user_group_label | append: ',' | append: section.settings.line_9_label | append: ',' | append: section.settings.line_10_label | split: ',' -%}
 
             {%- for spec_key in spec_keys -%}
               {%- assign spec_index = forloop.index0 -%}
               {%- assign spec_label = spec_labels[spec_index] -%}
               {%- assign is_last_row = forloop.last -%}
 
-              <div class="product-comparison__label-cell {% if spec_index == 0 or spec_index == 2 or spec_index == 4 or spec_index == 6 %}product-comparison__label-cell--even{% else %}product-comparison__label-cell--odd{% endif %}">
+              {%- assign row_has_value = false -%}
+              {%- for block in section.blocks -%}
+                {%- if block.settings.product != blank -%}
+                  {%- liquid
+                    assign check_val = ''
+                    case spec_key
+                      when 'weightRange'
+                        assign check_val = block.settings.weight_range
+                      when 'increments'
+                        assign check_val = block.settings.increments
+                      when 'dimensions'
+                        assign check_val = block.settings.dimensions
+                      when 'packageWeight'
+                        assign check_val = block.settings.package_weight
+                      when 'material'
+                        assign check_val = block.settings.material
+                      when 'handleDesign'
+                        assign check_val = block.settings.handle_design
+                      when 'adjustment'
+                        assign check_val = block.settings.adjustment
+                      when 'userGroup'
+                        assign check_val = block.settings.user_group
+                      when 'line9'
+                        assign check_val = block.settings.line_9
+                      when 'line10'
+                        assign check_val = block.settings.line_10
+                    endcase
+                  -%}
+                  {%- if check_val != blank and check_val != '-' -%}
+                    {%- assign row_has_value = true -%}
+                  {%- endif -%}
+                {%- endif -%}
+              {%- endfor -%}
+
+              {%- if row_has_value -%}
+              <div class="product-comparison__label-cell {% if spec_index == 0 or spec_index == 2 or spec_index == 4 or spec_index == 6 or spec_index == 8 %}product-comparison__label-cell--even{% else %}product-comparison__label-cell--odd{% endif %}">
                 <span class="product-comparison__label-text product-comparison__label-text--spec">
                   {{ spec_label }}
                 </span>
@@ -443,10 +478,14 @@
                         assign spec_value = block.settings.adjustment | default: '-'
                       when 'userGroup'
                         assign spec_value = block.settings.user_group | default: '-'
+                      when 'line9'
+                        assign spec_value = block.settings.line_9 | default: '-'
+                      when 'line10'
+                        assign spec_value = block.settings.line_10 | default: '-'
                     endcase
                   -%}
                   <div
-                    class="product-comparison__spec-cell {% if spec_index == 0 or spec_index == 2 or spec_index == 4 or spec_index == 6 %}product-comparison__spec-cell--even{% else %}product-comparison__spec-cell--odd{% endif %} {% if is_last_row %}product-comparison__spec-cell--last{% endif %}"
+                    class="product-comparison__spec-cell {% if spec_index == 0 or spec_index == 2 or spec_index == 4 or spec_index == 6 or spec_index == 8 %}product-comparison__spec-cell--even{% else %}product-comparison__spec-cell--odd{% endif %} {% if is_last_row %}product-comparison__spec-cell--last{% endif %}"
                     data-product-id="{{ product.id }}"
                     {{ block.shopify_attributes }}>
                     <div class="product-comparison__spec-border"></div>
@@ -458,6 +497,7 @@
                   </div>
                 {%- endif -%}
               {%- endfor -%}
+              {%- endif -%}
             {%- endfor -%}
           </div>
         </div>
@@ -686,11 +726,23 @@
         "id": "adjustment_label",
         "label": "Line 7 label",
         "default": "Adjustment"
-      }, {
+      },       {
         "type": "text",
         "id": "user_group_label",
         "label": "Line 8 label",
         "default": "User Group"
+      },
+      {
+        "type": "text",
+        "id": "line_9_label",
+        "label": "Line 9 label",
+        "default": "Line 9"
+      },
+      {
+        "type": "text",
+        "id": "line_10_label",
+        "label": "Line 10 label",
+        "default": "Line 10"
       }
     ],
     "blocks": [
@@ -748,10 +800,22 @@
             "id": "adjustment",
             "label": "Line 7",
             "default": "-"
-          }, {
+          },           {
             "type": "text",
             "id": "user_group",
             "label": "Line 8",
+            "default": "-"
+          },
+          {
+            "type": "text",
+            "id": "line_9",
+            "label": "Line 9",
+            "default": "-"
+          },
+          {
+            "type": "text",
+            "id": "line_10",
+            "label": "Line 10",
             "default": "-"
           }
         ]
