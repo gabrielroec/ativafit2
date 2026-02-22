@@ -1,0 +1,248 @@
+{% comment %}
+  Benefits Horizontal – Layout horizontal para homepage/outras páginas.
+  Ícones e texto centralizados em cada bloco. Mesmo schema de benefícios do PDP.
+{% endcomment %}
+
+{{ 'section-benefits-horizontal.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  .benefits-horizontal.section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+  @media screen and (min-width: 750px) {
+    .benefits-horizontal.section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="benefits-horizontal section-{{ section.id }}-padding" data-benefits-horizontal>
+  <div class="benefits-horizontal__inner">
+    <div class="benefits-horizontal__grid" data-benefits-swipe>
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'benefit' -%}
+          {%- assign benefit_title = block.settings.title -%}
+          {%- assign benefit_desc = block.settings.description -%}
+          {%- if benefit_title != blank -%}
+            <div class="benefits-horizontal__item" {{ block.shopify_attributes }}>
+              <div class="benefits-horizontal__icon">
+                {%- if block.settings.svg_icon != blank -%}
+                  <span class="benefits-horizontal__icon-svg">{{ block.settings.svg_icon }}</span>
+                {%- elsif block.settings.icon_image != blank -%}
+                  <img
+                    src="{{ block.settings.icon_image | image_url: width: 90, format: 'webp' }}"
+                    alt="{{ benefit_title | escape }}"
+                    width="45"
+                    height="45"
+                    loading="lazy">
+                {%- else -%}
+                  <span class="benefits-horizontal__icon-placeholder" aria-hidden="true"></span>
+                {%- endif -%}
+              </div>
+              <h4 class="benefits-horizontal__title">{{ benefit_title }}</h4>
+              {%- if benefit_desc != blank -%}
+                <p class="benefits-horizontal__description">
+                  {{ benefit_desc }}
+                  {%- if block.settings.popup_title != blank and block.settings.popup_content != blank -%}
+                    <a href="#"
+                       class="benefits-horizontal__learn-more"
+                       data-benefit-popup="{{ block.id }}"
+                       aria-label="Learn more about {{ benefit_title | escape }}">{{ block.settings.link_text | default: 'Learn more' }}</a>
+                  {%- elsif block.settings.show_learn_more and block.settings.link_url != blank -%}
+                    <a href="{{ block.settings.link_url }}" class="benefits-horizontal__learn-more">{{ block.settings.link_text | default: 'Learn more' }}</a>
+                  {%- endif -%}
+                </p>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</div>
+
+{%- render 'product-benefit-popups', section: section -%}
+
+<script>
+  (function() {
+    var section = document.querySelector('[data-benefits-horizontal]');
+    if (!section) return;
+
+    /* Swipe/drag to scroll (igual media-coverage, ativo em viewport < 1040px) */
+    var grid = section.querySelector('[data-benefits-swipe]');
+    if (grid) {
+      var isDown = false, isDragging = false, startX, scrollLeft;
+
+      function onMouseMove(e) {
+        if (!isDown) return;
+        e.preventDefault();
+        var x = e.pageX - grid.offsetLeft;
+        var walk = (x - startX) * 2;
+        if (Math.abs(walk) > 10) {
+          isDragging = true;
+          grid.classList.add('is-dragging');
+        }
+        grid.scrollLeft = scrollLeft - walk;
+      }
+
+      function onMouseUp() {
+        isDown = false;
+        grid.classList.remove('is-down', 'is-dragging');
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+      }
+
+      grid.addEventListener('mousedown', function(e) {
+        if (e.target.closest('a')) return;
+        e.preventDefault();
+        isDown = true;
+        isDragging = false;
+        grid.classList.add('is-down');
+        startX = e.pageX - grid.offsetLeft;
+        scrollLeft = grid.scrollLeft;
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+      });
+      grid.addEventListener('mouseleave', function() {
+        if (!isDown) return;
+        onMouseUp();
+      });
+      grid.addEventListener('click', function(e) {
+        if (isDragging) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }, true);
+    }
+
+    section.querySelectorAll('[data-benefit-popup]').forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        var id = link.getAttribute('data-benefit-popup');
+        var popup = document.getElementById('benefit-popup-' + id);
+        if (popup) popup.classList.add('is-show');
+      });
+    });
+
+    document.querySelectorAll('[data-close-benefit]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var id = btn.getAttribute('data-close-benefit');
+        var popup = document.getElementById('benefit-popup-' + id);
+        if (popup) popup.classList.remove('is-show');
+      });
+    });
+
+    document.querySelectorAll('.halo-popup').forEach(function(popup) {
+      popup.addEventListener('click', function(e) {
+        if (e.target === popup) popup.classList.remove('is-show');
+      });
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Benefits (horizontal)",
+  "tag": "section",
+  "class": "section-benefits-horizontal",
+  "settings": [
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 40
+    }
+  ],
+  "blocks": [
+    {
+      "type": "benefit",
+      "name": "Benefit",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Benefit Title",
+          "default": "Free Shipping within the U.S."
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Benefit Description",
+          "default": "Standard shipping in 3–7 days."
+        },
+        {
+          "type": "html",
+          "id": "svg_icon",
+          "label": "SVG Icon"
+        },
+        {
+          "type": "image_picker",
+          "id": "icon_image",
+          "label": "Icon Image"
+        },
+        {
+          "type": "header",
+          "content": "Popup Modal (Optional)"
+        },
+        {
+          "type": "text",
+          "id": "popup_title",
+          "label": "Popup Title"
+        },
+        {
+          "type": "richtext",
+          "id": "popup_content",
+          "label": "Popup Content"
+        },
+        {
+          "type": "header",
+          "content": "External Link (Alternative to Popup)"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_learn_more",
+          "label": "Show Learn More Link",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "link_text",
+          "label": "Link Text",
+          "default": "Learn more"
+        },
+        {
+          "type": "url",
+          "id": "link_url",
+          "label": "Link URL"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Benefits (horizontal)",
+      "blocks": [
+        { "type": "benefit" },
+        { "type": "benefit" },
+        { "type": "benefit" }
+      ]
+    }
+  ]
+}
+{% endschema %}

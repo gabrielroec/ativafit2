@@ -233,7 +233,8 @@
             { "value": "", "label": "Nenhum" },
             { "value": "ggr-new-site-logo.png", "label": "Garage Gym Reviews" },
             { "value": "barbend-logo.svg", "label": "BarBend" },
-            { "value": "verywell-fit-logo.png", "label": "Verywell Fit" }
+            { "value": "verywell-fit-logo.png", "label": "Verywell Fit" },
+            { "value": "Indoor-Cycling-Love-FF-3-01.webp", "label": "Indoor Cycling Love" }
           ],
           "default": ""
         },
@@ -322,9 +323,59 @@
       });
     };
 
+    const setupSwipeToScroll = (slider) => {
+      let isDown = false;
+      let isDragging = false;
+      let startX;
+      let scrollLeft;
+
+      slider.addEventListener('mousedown', (e) => {
+        isDown = true;
+        isDragging = false;
+        slider.classList.add('is-down');
+        startX = e.pageX - slider.offsetLeft;
+        scrollLeft = slider.scrollLeft;
+      });
+
+      slider.addEventListener('mouseleave', () => {
+        isDown = false;
+        slider.classList.remove('is-down', 'is-dragging');
+      });
+
+      slider.addEventListener('mouseup', () => {
+        isDown = false;
+        slider.classList.remove('is-down', 'is-dragging');
+      });
+
+      slider.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - slider.offsetLeft;
+        const walk = (x - startX) * 2;
+        if (Math.abs(walk) > 10) {
+          isDragging = true;
+          slider.classList.add('is-dragging');
+        }
+        slider.scrollLeft = scrollLeft - walk;
+      });
+
+      // Evitar cliques acidentais em links/botões ao fazer drag
+      slider.addEventListener('click', (e) => {
+        if (isDragging) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }, true);
+    };
+
     const initSection = (section) => {
       const cards = section.querySelectorAll(".media-coverage__card");
       cards.forEach((card) => setupCard(card));
+
+      const grid = section.querySelector(".media-coverage__grid");
+      if (grid) {
+        setupSwipeToScroll(grid);
+      }
     };
 
     const init = () => {

@@ -1,5 +1,5 @@
-<div class="collection-categories">
-  <div class="collection-categories__grid">
+<div class="collection-categories" data-collection-categories>
+  <div class="collection-categories__grid" data-collection-categories-swipe>
     {% for block in section.blocks %}
       <div class="collection-category collection-category--{{ block.id }}" {{ block.shopify_attributes }}>
         <div class="collection-category__image-container">
@@ -115,21 +115,50 @@
     }
   {% endfor %}
 
-  /* Breakpoints responsivos */
-  @media screen and (max-width: 768px) {
+  /* < 768px: modo swipe/scroll lateral */
+  @media screen and (max-width: 767px) {
     .collection-categories {
       margin: 40px auto 0;
       padding: 0 10px;
     }
 
     .collection-categories__grid {
-      grid-template-columns: 1fr;
+      display: flex;
+      flex-wrap: nowrap;
       gap: 16px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: 20px;
+      cursor: grab;
+      justify-content: flex-start;
+    }
+
+    .collection-categories__grid::-webkit-scrollbar {
+      display: none;
+    }
+
+    .collection-categories__grid.is-down {
+      cursor: grabbing;
+    }
+
+    .collection-categories__grid.is-down .collection-category {
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    .collection-categories__grid.is-dragging .collection-category {
+      pointer-events: none;
+    }
+
+    .collection-category {
+      flex: 0 0 85%;
+      max-width: 400px;
+      min-width: 280px;
     }
 
     .collection-category__image-container {
       height: calc((100vw - 20px) * 0.75);
-      /* Proporção 4:3 */
     }
 
     {% for block in section.blocks %}
@@ -151,6 +180,63 @@
     {% endfor %}
   }
 {%- endstyle -%}
+
+<script>
+  (function() {
+    var section = document.querySelector('[data-collection-categories]');
+    if (!section) return;
+    var grid = section.querySelector('[data-collection-categories-swipe]');
+    if (!grid) return;
+
+    grid.scrollLeft = 0;
+
+    var isDown = false, isDragging = false, justDragged = false, startX, scrollLeft;
+
+    function onMouseMove(e) {
+      if (!isDown) return;
+      e.preventDefault();
+      var x = e.pageX - grid.offsetLeft;
+      var walk = (x - startX) * 2;
+      if (Math.abs(walk) > 10) {
+        isDragging = true;
+        grid.classList.add('is-dragging');
+      }
+      grid.scrollLeft = scrollLeft - walk;
+    }
+
+    function onMouseUp() {
+      if (isDragging) justDragged = true;
+      isDown = false;
+      isDragging = false;
+      grid.classList.remove('is-down', 'is-dragging');
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    }
+
+    grid.addEventListener('mousedown', function(e) {
+      if (e.target.closest('a')) return;
+      e.preventDefault();
+      isDown = true;
+      isDragging = false;
+      grid.classList.add('is-down');
+      startX = e.pageX - grid.offsetLeft;
+      scrollLeft = grid.scrollLeft;
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    });
+    grid.addEventListener('mouseleave', function() {
+      if (!isDown) return;
+      onMouseUp();
+    });
+    grid.addEventListener('click', function(e) {
+      if (justDragged) {
+        e.preventDefault();
+        e.stopPropagation();
+        justDragged = false;
+      }
+    }, true);
+  })();
+</script>
 
 {% schema %}
   {
