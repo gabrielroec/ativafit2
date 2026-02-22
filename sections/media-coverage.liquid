@@ -1,0 +1,354 @@
+{{ 'section-media-coverage.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+    background-color: {{ section.settings.bg_color }};
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="media-coverage section-{{ section.id }}-padding" data-media-coverage-section>
+  <div class="media-coverage__inner faq-container">
+    {%- if section.settings.title != blank -%}
+      <h2 class="media-coverage__title">{{ section.settings.title | escape }}</h2>
+    {%- endif -%}
+
+    <div class="media-coverage__grid">
+      {%- for block in section.blocks -%}
+        <div class="media-coverage__card" {{ block.shopify_attributes }}>
+          {%- assign product = block.settings.product -%}
+          {%- assign selected_variant = product.selected_or_first_available_variant -%}
+
+          {%- if product != blank -%}
+            <div class="media-coverage__product-info">
+              <div class="media-coverage__product-image" data-product-image-wrap>
+                {%- if product.featured_image -%}
+                  <img
+                    class="media-coverage__img media-coverage__img--primary"
+                    data-primary-image
+                    src="{{ product.featured_image | image_url: width: 300 }}"
+                    alt="{{ product.featured_image.alt | default: product.title | escape }}"
+                    loading="lazy"
+                    width="300"
+                    height="300"
+                  >
+                  {%- if product.images.size > 1 -%}
+                    <img
+                      class="media-coverage__img media-coverage__img--secondary"
+                      src="{{ product.images[1] | image_url: width: 300 }}"
+                      alt="{{ product.images[1].alt | default: product.title | escape }}"
+                      loading="lazy"
+                      width="300"
+                      height="300"
+                    >
+                  {%- endif -%}
+                {%- else -%}
+                  <div class="media-coverage__product-placeholder">
+                    {{ 'product-1' | placeholder_svg_tag }}
+                  </div>
+                {%- endif -%}
+              </div>
+
+              <div class="media-coverage__product-details">
+                <h3 class="media-coverage__product-title">{{ product.title | escape }}</h3>
+                <div class="media-coverage__product-price" data-price-wrap>
+                  <span class="media-coverage__price" data-price>{{ selected_variant.price | money }}</span>
+                  <s
+                    class="media-coverage__compare-price"
+                    data-compare-price
+                    {% unless selected_variant.compare_at_price > selected_variant.price %}hidden{% endunless %}
+                  >
+                    {%- if selected_variant.compare_at_price > selected_variant.price -%}
+                      {{ selected_variant.compare_at_price | money }}
+                    {%- endif -%}
+                  </s>
+                </div>
+
+                {%- if product.has_only_default_variant == false -%}
+                  <div class="media-coverage__variants" data-variants>
+                    {%- for variant in product.variants limit: 6 -%}
+                      <button
+                        type="button"
+                        class="media-coverage__variant-swatch{% if selected_variant.id == variant.id %} is-active{% endif %}"
+                        title="{{ variant.title | escape }}"
+                        aria-label="{{ variant.title | escape }}"
+                        aria-pressed="{% if selected_variant.id == variant.id %}true{% else %}false{% endif %}"
+                        data-variant-option
+                        data-variant-id="{{ variant.id }}"
+                        data-variant-price="{{ variant.price | money | escape }}"
+                        data-variant-compare-price="{% if variant.compare_at_price > variant.price %}{{ variant.compare_at_price | money | escape }}{% endif %}"
+                        data-variant-image="{% if variant.image %}{{ variant.image | image_url: width: 300 }}{% endif %}"
+                      >
+                        {%- if variant.image -%}
+                          {{ variant.image | image_url: width: 50, height: 50, crop: 'center' | image_tag: loading: 'lazy', alt: variant.title | escape }}
+                        {%- else -%}
+                          <span class="media-coverage__variant-text">
+                          {{ variant.title | truncate: 3, '' | escape }}
+                          </span>
+                        {%- endif -%}
+                      </button>
+                    {%- endfor -%}
+                    {%- if product.variants.size > 6 -%}
+                      <div class="media-coverage__variant-swatch media-coverage__variant-text">
+                        +{{ product.variants.size | minus: 6 }}
+                      </div>
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
+
+                <a href="{{ product.url }}?variant={{ selected_variant.id }}" class="media-coverage__view-btn" data-view-product data-product-url="{{ product.url }}">VIEW PRODUCT</a>
+              </div>
+            </div>
+          {%- else -%}
+            <div class="media-coverage__product-info">
+              <div class="media-coverage__product-image">
+                <div class="media-coverage__product-placeholder">
+                  {{ 'product-1' | placeholder_svg_tag }}
+                </div>
+              </div>
+              <div class="media-coverage__product-details">
+                <h3 class="media-coverage__product-title">Example Product</h3>
+                <div class="media-coverage__product-price">
+                  <span class="media-coverage__price">$99.99</span>
+                </div>
+                <a href="#" class="media-coverage__view-btn">VIEW PRODUCT</a>
+              </div>
+            </div>
+          {%- endif -%}
+
+          <div class="media-coverage__review">
+            <p class="media-coverage__review-text">
+              {%- if block.settings.text != blank -%}
+                {{ block.settings.text | strip_html | strip }}
+              {%- else -%}
+                Review text goes here. This product is amazing and changed my workout routine.
+              {%- endif -%}
+            </p>
+            {%- if block.settings.link != blank -%}
+              <a href="{{ block.settings.link }}" class="media-coverage__learn-more" target="_blank" rel="noopener noreferrer">LEARN MORE</a>
+            {%- endif -%}
+          </div>
+
+          <div class="media-coverage__logo">
+            {%- assign show_logo_bg = block.settings.logo_bg -%}
+            {%- if block.settings.logo != blank -%}
+              {%- if show_logo_bg -%}<span class="media-coverage__logo-bg">{%- endif -%}
+              {{ block.settings.logo | image_url: width: 300 | image_tag: loading: 'lazy', alt: block.settings.logo.alt | default: 'Publisher Logo' | escape }}
+              {%- if show_logo_bg -%}</span>{%- endif -%}
+            {%- elsif block.settings.logo_asset != blank -%}
+              {%- if show_logo_bg -%}<span class="media-coverage__logo-bg">{%- endif -%}
+              <img src="{{ block.settings.logo_asset | asset_url }}" alt="{{ block.settings.logo_asset | split: '/' | last | replace: '-', ' ' | replace: '.png', '' | replace: '.svg', '' | escape }}" loading="lazy" width="150" height="50" style="max-width: 150px; max-height: 50px; object-fit: contain;">
+              {%- if show_logo_bg -%}</span>{%- endif -%}
+            {%- else -%}
+              <div class="media-coverage__logo-placeholder">
+                {{ 'image' | placeholder_svg_tag }}
+              </div>
+            {%- endif -%}
+          </div>
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Media Coverage",
+  "tag": "section",
+  "class": "section-media-coverage",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "STEALING THE SPOTLIGHT"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background Color",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 60
+    }
+  ],
+  "blocks": [
+    {
+      "type": "mention",
+      "name": "Media Mention",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Review Text",
+          "default": "<p>Review text goes here.</p>"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Learn More Link"
+        },
+        {
+          "type": "image_picker",
+          "id": "logo",
+          "label": "Publisher Logo (sobrescreve logo do tema)"
+        },
+        {
+          "type": "select",
+          "id": "logo_asset",
+          "label": "Logo padrão do tema",
+          "info": "Usado quando nenhuma imagem é selecionada acima.",
+          "options": [
+            { "value": "", "label": "Nenhum" },
+            { "value": "ggr-new-site-logo.png", "label": "Garage Gym Reviews" },
+            { "value": "barbend-logo.svg", "label": "BarBend" },
+            { "value": "verywell-fit-logo.png", "label": "Verywell Fit" }
+          ],
+          "default": ""
+        },
+        {
+          "type": "checkbox",
+          "id": "logo_bg",
+          "label": "Fundo laranja na logo",
+          "info": "Ative para logos brancas (fundo #eb701f, 8px padding, 6px border-radius).",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Media Coverage",
+      "blocks": [
+        {
+          "type": "mention"
+        },
+        {
+          "type": "mention"
+        },
+        {
+          "type": "mention"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
+{% javascript %}
+  (() => {
+    const sectionSelector = "[data-media-coverage-section]";
+    const variantSelector = "[data-variant-option]";
+
+    const updateCardFromVariant = (card, option) => {
+      const priceEl = card.querySelector("[data-price]");
+      const compareEl = card.querySelector("[data-compare-price]");
+      const viewProductEl = card.querySelector("[data-view-product]");
+      const primaryImageEl = card.querySelector("[data-primary-image]");
+
+      const variantId = option.dataset.variantId;
+      const variantPrice = option.dataset.variantPrice;
+      const variantComparePrice = option.dataset.variantComparePrice;
+      const variantImage = option.dataset.variantImage;
+
+      if (priceEl && variantPrice) {
+        priceEl.textContent = variantPrice;
+      }
+
+      if (compareEl) {
+        if (variantComparePrice) {
+          compareEl.textContent = variantComparePrice;
+          compareEl.hidden = false;
+        } else {
+          compareEl.hidden = true;
+        }
+      }
+
+      if (viewProductEl && variantId) {
+        const productUrl = viewProductEl.dataset.productUrl || "";
+        viewProductEl.href = `${productUrl}?variant=${variantId}`;
+      }
+
+      if (primaryImageEl && variantImage) {
+        primaryImageEl.src = variantImage;
+      }
+    };
+
+    const setupCard = (card) => {
+      const options = Array.from(card.querySelectorAll(variantSelector));
+      if (!options.length) return;
+
+      options.forEach((option) => {
+        option.addEventListener("click", () => {
+          options.forEach((item) => {
+            item.classList.remove("is-active");
+            item.setAttribute("aria-pressed", "false");
+          });
+          option.classList.add("is-active");
+          option.setAttribute("aria-pressed", "true");
+          updateCardFromVariant(card, option);
+        });
+      });
+    };
+
+    const initSection = (section) => {
+      const cards = section.querySelectorAll(".media-coverage__card");
+      cards.forEach((card) => setupCard(card));
+    };
+
+    const init = () => {
+      const sections = document.querySelectorAll(sectionSelector);
+      sections.forEach((section) => initSection(section));
+    };
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", init);
+    } else {
+      init();
+    }
+
+    document.addEventListener("shopify:section:load", (event) => {
+      const loadedSection = event.target;
+      if (!loadedSection) return;
+      if (loadedSection.matches(sectionSelector)) {
+        initSection(loadedSection);
+        return;
+      }
+      const nestedSection = loadedSection.querySelector(sectionSelector);
+      if (nestedSection) {
+        initSection(nestedSection);
+      }
+    });
+  })();
+{% endjavascript %}
