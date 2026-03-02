@@ -334,13 +334,90 @@
    BENEFITS STYLES
    ====================================================================== */
 
+/* Benefits carousel wrapper */
 .benefits_new {
-  display: flex;
-  flex-direction: column;
-  background: #f5f5f5;
+  position: relative;
+  background: #fff;
   padding: 20px;
   border-radius: 12px;
-  gap: 0;
+}
+
+.benefits_new-viewport {
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.benefits_new-track {
+  display: flex;
+  gap: 16px;
+  will-change: transform;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.benefits_new-slide {
+  flex: 0 0 100%;
+  min-width: 0;
+}
+
+@media (min-width: 750px) {
+  .benefits_new-slide {
+    flex: 0 0 calc(50% - 8px);
+  }
+}
+
+@media (min-width: 990px) {
+  .benefits_new-slide {
+    flex: 0 0 calc(54% - 11px);
+  }
+}
+
+.benefits_new-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: #f0f0f0;
+  color: #333;
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 0.9;
+  transition: background 0.2s, color 0.2s, opacity 0.2s;
+  z-index: 2;
+}
+
+.benefits_new:hover .benefits_new-nav {
+  opacity: 1;
+}
+
+.benefits_new-nav:hover:not(:disabled) {
+  background: #e0e0e0;
+  color: #000;
+}
+
+.benefits_new-nav:disabled {
+  display: none;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.benefits_new-nav--prev {
+  left: 8px;
+}
+
+.benefits_new-nav--next {
+  right: 8px;
 }
 
 .benefit-item_new {
@@ -1697,8 +1774,11 @@ body.modal-open_new {
   }
 
   .benefits_new {
-    gap: 12px !important;
     padding: 16px !important;
+  }
+
+  .benefits_new-track {
+    gap: 12px;
   }
 
   .benefit-item_new {
@@ -1953,4 +2033,10 @@ body.modal-open_new {
 .rivyoReviewAverageCount {
   fill: #eb701f !important;
   color: #eb701f !important;
+}
+@media (max-width: 768px) {
+  .benefits_new-slide {
+    flex: 0 0 70%;
+    padding: 0 !important;
+  }
 }

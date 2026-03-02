@@ -9,14 +9,16 @@
 {% endcomment %}
 
 {%- if section.settings.show_benefits -%}
-  <div class="benefits_new">
+  <div class="benefits_new" data-benefits-carousel>
+    <div class="benefits_new-viewport" data-embla-viewport>
+      <div class="benefits_new-track">
     {%- comment -%} Render benefits from blocks {%- endcomment -%}
     {%- for block in section.blocks -%}
       {%- if block.type == 'benefit' -%}
         {%- assign benefit_title = block.settings.title -%}
         {%- assign benefit_desc = block.settings.description -%}
         {%- if benefit_title != blank -%}
-      <div class="benefit-item_new">
+      <div class="benefit-item_new benefits_new-slide">
         <div class="benefit-icon-wrapper_new">
           {%- if block.settings.svg_icon != blank -%}
             {{ block.settings.svg_icon }}
@@ -83,5 +85,13 @@
         {%- endif -%}
       {%- endif -%}
     {%- endfor -%}
+      </div>
+    </div>
+    <button type="button" class="benefits_new-nav benefits_new-nav--prev" aria-label="Benefícios anterior" data-embla-prev disabled>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button type="button" class="benefits_new-nav benefits_new-nav--next" aria-label="Próximo benefício" data-embla-next>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
   </div>
 {%- endif -%}

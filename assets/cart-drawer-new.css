@@ -8,9 +8,14 @@
  * - Animações suaves
  */
 
-/* Prevent body scroll when drawer is open */
+/* Prevent body scroll when drawer is open - scroll only inside drawer */
 body.cart-drawer-open {
   overflow: hidden;
+  height: 100%;
+  position: fixed;
+  width: 100%;
+  left: 0;
+  top: var(--scroll-y, 0);
 }
 
 /* Cart Drawer Container */
@@ -45,7 +50,27 @@ cart-drawer.is-open .cart-drawer__container {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
   overflow: hidden;
+}
+
+/* Área rolável: free shipping + itens (scroll só aqui, não no body) */
+.cart-drawer__items {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px 24px;
+}
+
+/* Wrapper opcional (não usado no HTML atual) */
+.cart-drawer__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px 24px;
 }
 
 /* Header */
@@ -124,12 +149,6 @@ cart-drawer.is-open .cart-drawer__container {
 }
 
 /* Items List */
-.cart-drawer__items {
-  flex: 1;
-  overflow-y: auto;
-  padding: 16px 24px;
-}
-
 .cart-drawer__items-list {
   display: flex;
   flex-direction: column;
@@ -391,7 +410,7 @@ cart-drawer.is-open .cart-drawer__container {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 14px;
+  padding: 8pxpx !important;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -537,7 +556,7 @@ cart-drawer.is-open .cart-drawer__container {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 0px;
   flex-wrap: wrap;
 }
 
@@ -575,7 +594,7 @@ cart-drawer.is-open .cart-drawer__container {
 
 /* Payment Terms (Shop Pay Installments) */
 .cart-drawer__payment-terms {
-  margin-bottom: 16px;
+  margin-bottom: 8px;
   text-align: center;
 }
 
@@ -649,7 +668,8 @@ cart-drawer.is-open .cart-drawer__container {
   border: none;
   border-radius: 8px;
   padding: 16px 24px;
-  font-size: 16px;
+  font-size: 16px !important;
+  line-height: 1 !important;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s ease;

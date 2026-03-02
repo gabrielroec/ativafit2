@@ -35,6 +35,7 @@ function getCartApi() {
 
     state.inflight = fetch(`${ROOT_URL}cart.js`, {
       headers: { Accept: "application/json" },
+      credentials: "same-origin",
     })
       .then((response) => {
         if (!response.ok) throw new Error("Cart fetch failed");
@@ -103,13 +104,12 @@ if (!customElements.get("cart-drawer")) {
         this.classList.add("is-open");
         this.drawer.setAttribute("aria-hidden", "false");
 
-        // Prevent body scroll
+        // Bloquear scroll do body e manter posição (scroll só dentro do drawer)
+        const scrollY = window.scrollY || window.pageYOffset;
+        document.body.style.setProperty("--scroll-y", scrollY + "px");
         document.body.classList.add("cart-drawer-open");
 
-        // Focus management
         this.drawer.focus();
-
-        // Dispatch event
         this.dispatchEvent(new CustomEvent("cart-drawer:open", { bubbles: true }));
       }
 
@@ -118,10 +118,11 @@ if (!customElements.get("cart-drawer")) {
         this.classList.remove("is-open");
         this.drawer.setAttribute("aria-hidden", "true");
 
-        // Re-enable body scroll
+        const scrollY = document.body.style.getPropertyValue("--scroll-y") || "0";
         document.body.classList.remove("cart-drawer-open");
+        document.body.style.removeProperty("--scroll-y");
+        window.scrollTo(0, parseInt(scrollY, 10) || 0);
 
-        // Dispatch event
         this.dispatchEvent(new CustomEvent("cart-drawer:close", { bubbles: true }));
       }
     }
@@ -414,7 +415,9 @@ document.addEventListener("DOMContentLoaded", () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
         },
+        credentials: "same-origin",
         body: JSON.stringify({
           id: variantId,
           quantity: 1,
@@ -492,13 +495,19 @@ document.addEventListener("DOMContentLoaded", () => {
           console.error("Error adding to cart:", error);
           if (window.CartNotification) {
             window.CartNotification.error({
-              title: "Error!",
-              message: "Error adding product to cart. Please try again.",
+              title: "Adding via page...",
+              message: "Opening cart page.",
               type: "error",
             });
-          } else {
-            alert("Error adding product to cart. Please try again.");
           }
+          setTimeout(() => {
+            if (button) {
+              button.classList.remove("loading");
+              button.disabled = false;
+              button.textContent = originalText;
+            }
+            form.submit();
+          }, 400);
         })
         .finally(() => {
           addBtn.classList.remove("loading");
@@ -524,9 +533,17 @@ document.addEventListener("DOMContentLoaded", () => {
         e.stopPropagation();
         e.stopImmediatePropagation();
 
-        const formData = new FormData(form);
+        const variantIdInput = form.querySelector('input[name="id"]');
+        const quantityInput = form.querySelector('input[name="quantity"]');
+        const variantId = variantIdInput ? variantIdInput.value : null;
+        const quantity = quantityInput ? parseInt(quantityInput.value, 10) || 1 : 1;
         const button = form.querySelector('[type="submit"]');
         const originalText = button?.textContent;
+
+        if (!variantId) {
+          form.submit();
+          return;
+        }
 
         if (button) {
           button.classList.add("loading");
@@ -534,9 +551,19 @@ document.addEventListener("DOMContentLoaded", () => {
           button.textContent = "Adding...";
         }
 
+        // Shopify Cart API: POST /cart/add.js with JSON body (best practice)
+        const body = JSON.stringify({
+          items: [{ id: parseInt(variantId, 10), quantity: quantity }],
+        });
+
         fetch("/cart/add.js", {
           method: "POST",
-          body: formData,
+          headers: {
+            "Content-Type": "application/json",
+            "X-Requested-With": "XMLHttpRequest",
+          },
+          credentials: "same-origin",
+          body: body,
         })
           .then((response) => {
             if (!response.ok) {
@@ -551,7 +578,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // Update cart drawer content using Shopify Section Rendering API
             const sectionId = document.getElementById("CartDrawer-Items")?.dataset.id || "cart-drawer";
 
-            return fetch(`/cart?sections=${sectionId}`);
+            return fetch(`/cart?sections=${sectionId}`, { credentials: "same-origin" });
           })
           .then((res) => res.json())
           .then((sections) => {

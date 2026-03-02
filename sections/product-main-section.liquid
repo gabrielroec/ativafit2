@@ -1,23 +1,26 @@
 {% comment %} 
-                                                                                                                            Product Main Section - Refactored
-                                                                                                                             
-                                                                                                                            Professional product page section following Shopify 2.0 best practices.
-                                                                                                                            Uses modular snippets for better organization and maintainability.
-                                                                                                                             
-                                                                                                                            Accepts: 
-                                                                                                                            - product: {Object} Product object
-                                                                                                                             
-                                                                                                                            Dependencies: 
-                                                                                                                            - product-gallery.liquid snippet 
-                                                                                                                            - product-info.liquid snippet 
-                                                                                                                            - product-benefits.liquid snippet 
-                                                                                                                            - product-add-to-cart.liquid snippet 
-                                                                                                                            - product-accordions.liquid snippet 
-                                                                                                                            - product-benefit-popups.liquid snippet 
-                                                                                                                            - product-main-section.css asset 
+                                                                                                                              Product Main Section - Refactored
+                                                                                                                               
+                                                                                                                              Professional product page section following Shopify 2.0 best practices.
+                                                                                                                              Uses modular snippets for better organization and maintainability.
+                                                                                                                               
+                                                                                                                              Accepts: 
+                                                                                                                              - product: {Object} Product object
+                                                                                                                               
+                                                                                                                              Dependencies: 
+                                                                                                                              - product-gallery.liquid snippet 
+                                                                                                                              - product-info.liquid snippet 
+                                                                                                                              - product-benefits.liquid snippet 
+                                                                                                                              - product-add-to-cart.liquid snippet 
+                                                                                                                              - product-accordions.liquid snippet 
+                                                                                                                              - product-benefit-popups.liquid snippet 
+                                                                                                                              - product-main-section.css asset 
 {% endcomment %}
 
 {{ 'product-main-section.css' | asset_url | stylesheet_tag }}
+{%- if section.settings.show_benefits -%}
+  <script src="https://unpkg.com/embla-carousel@8.0.0/embla-carousel.umd.js" defer></script>
+{%- endif -%}
 
 <section
   class="pp-full_new"
@@ -55,13 +58,13 @@
 
       <!-- Mobile Price (shown only on mobile) -->
       {% comment %} {%- if section.settings.show_mobile_price -%}
-                                                                                                                                                                                                                                                                                                  <div class="product-price-container_new mobile-only_new">
-                                                                                                                                                                                                                                                                                                    <p class="product-price_new black">{{ product.selected_or_first_available_variant.price | money }}</p>
-                                                                                                                                                                                                                                                                                                    {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
-                                                                                                                                                                                                                                                                                                      <p class="product-price-original_new">{{ product.selected_or_first_available_variant.compare_at_price | money }}</p>
-                                                                                                                                                                                                                                                                                                    {%- endif -%}
-                                                                                                                                                                                                                                                                                                  </div>
-                                                                                                                                                                                                                          {%- endif -%} {% endcomment %}
+                                                                                                                                                                                                                                                                                                          <div class="product-price-container_new mobile-only_new">
+                                                                                                                                                                                                                                                                                                            <p class="product-price_new black">{{ product.selected_or_first_available_variant.price | money }}</p>
+                                                                                                                                                                                                                                                                                                            {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
+                                                                                                                                                                                                                                                                                                              <p class="product-price-original_new">{{ product.selected_or_first_available_variant.compare_at_price | money }}</p>
+                                                                                                                                                                                                                                                                                                            {%- endif -%}
+                                                                                                                                                                                                                                                                                                          </div>
+                                                                                                                                                                                                                                {%- endif -%} {% endcomment %}
 
 
       </div>
@@ -1316,12 +1319,53 @@
     };
     
     // ====================================================================
+    // BENEFITS CAROUSEL (Embla)
+    // ====================================================================
+    function initBenefitsCarousel() {
+      var section = document.querySelector('[data-section-type="product-main"]');
+      if (!section) return;
+      var wrap = section.querySelector('[data-benefits-carousel]');
+      if (!wrap) return;
+      var viewport = wrap.querySelector('[data-embla-viewport]');
+      var prevBtn = wrap.querySelector('[data-embla-prev]');
+      var nextBtn = wrap.querySelector('[data-embla-next]');
+      if (!viewport) return;
+  
+      function run() {
+        if (typeof EmblaCarousel === 'undefined') {
+          window.addEventListener('load', run);
+          return;
+        }
+        var embla = EmblaCarousel(viewport, {
+          align: 'start',
+          containScroll: 'trimSnaps',
+          dragFree: false,
+          loop: false
+        });
+        function updateNav() {
+          if (prevBtn) prevBtn.disabled = !embla.canScrollPrev();
+          if (nextBtn) nextBtn.disabled = !embla.canScrollNext();
+        }
+        embla.on('init', updateNav);
+        embla.on('select', updateNav);
+        if (prevBtn) prevBtn.addEventListener('click', function () { embla.scrollPrev(); });
+        if (nextBtn) nextBtn.addEventListener('click', function () { embla.scrollNext(); });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', run);
+      } else {
+        run();
+      }
+    }
+    
+    // ====================================================================
     // INITIALIZATION
     // ====================================================================
     
     document.addEventListener('DOMContentLoaded', () => {
       ProductGallery.init();
       BenefitPopups.init();
+      initBenefitsCarousel();
       
       // Initialize variant selector event listeners (both desktop and mobile)
       const variantSelectorDesktop = document.getElementById('variant-selector_new');
