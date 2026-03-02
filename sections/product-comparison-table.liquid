@@ -164,6 +164,8 @@
     text-align: center;
     line-height: 1.25;
     margin-bottom: 1rem;
+    min-height: 2.5em;
+    box-sizing: border-box;
   }
 
   .product-comparison__product-buttons {
@@ -450,53 +452,53 @@
               {%- endfor -%}
 
               {%- if row_has_value -%}
-              <div class="product-comparison__label-cell {% if spec_index == 0 or spec_index == 2 or spec_index == 4 or spec_index == 6 or spec_index == 8 %}product-comparison__label-cell--even{% else %}product-comparison__label-cell--odd{% endif %}">
-                <span class="product-comparison__label-text product-comparison__label-text--spec">
-                  {{ spec_label }}
-                </span>
-              </div>
+                <div class="product-comparison__label-cell {% if spec_index == 0 or spec_index == 2 or spec_index == 4 or spec_index == 6 or spec_index == 8 %}product-comparison__label-cell--even{% else %}product-comparison__label-cell--odd{% endif %}">
+                  <span class="product-comparison__label-text product-comparison__label-text--spec">
+                    {{ spec_label }}
+                  </span>
+                </div>
 
-              {%- for block in section.blocks -%}
-                {%- assign product = block.settings.product -%}
-                {%- if product != blank -%}
-                  {%- liquid
-                    assign spec_value = '-'
-                    case spec_key
-                      when 'weightRange'
-                        assign spec_value = block.settings.weight_range | default: '-'
-                      when 'increments'
-                        assign spec_value = block.settings.increments | default: '-'
-                      when 'dimensions'
-                        assign spec_value = block.settings.dimensions | default: '-'
-                      when 'packageWeight'
-                        assign spec_value = block.settings.package_weight | default: '-'
-                      when 'material'
-                        assign spec_value = block.settings.material | default: '-'
-                      when 'handleDesign'
-                        assign spec_value = block.settings.handle_design | default: '-'
-                      when 'adjustment'
-                        assign spec_value = block.settings.adjustment | default: '-'
-                      when 'userGroup'
-                        assign spec_value = block.settings.user_group | default: '-'
-                      when 'line9'
-                        assign spec_value = block.settings.line_9 | default: '-'
-                      when 'line10'
-                        assign spec_value = block.settings.line_10 | default: '-'
-                    endcase
-                  -%}
-                  <div
-                    class="product-comparison__spec-cell {% if spec_index == 0 or spec_index == 2 or spec_index == 4 or spec_index == 6 or spec_index == 8 %}product-comparison__spec-cell--even{% else %}product-comparison__spec-cell--odd{% endif %} {% if is_last_row %}product-comparison__spec-cell--last{% endif %}"
-                    data-product-id="{{ product.id }}"
-                    {{ block.shopify_attributes }}>
-                    <div class="product-comparison__spec-border"></div>
-                    <span class="product-comparison__spec-value">{{ spec_value }}</span>
-                  </div>
-                {%- else -%}
-                  <div class="product-comparison__spec-cell product-comparison__spec-cell--odd {% if is_last_row %}product-comparison__spec-cell--last{% endif %}">
-                    <span class="product-comparison__spec-value">-</span>
-                  </div>
-                {%- endif -%}
-              {%- endfor -%}
+                {%- for block in section.blocks -%}
+                  {%- assign product = block.settings.product -%}
+                  {%- if product != blank -%}
+                    {%- liquid
+                      assign spec_value = '-'
+                      case spec_key
+                        when 'weightRange'
+                          assign spec_value = block.settings.weight_range | default: '-'
+                        when 'increments'
+                          assign spec_value = block.settings.increments | default: '-'
+                        when 'dimensions'
+                          assign spec_value = block.settings.dimensions | default: '-'
+                        when 'packageWeight'
+                          assign spec_value = block.settings.package_weight | default: '-'
+                        when 'material'
+                          assign spec_value = block.settings.material | default: '-'
+                        when 'handleDesign'
+                          assign spec_value = block.settings.handle_design | default: '-'
+                        when 'adjustment'
+                          assign spec_value = block.settings.adjustment | default: '-'
+                        when 'userGroup'
+                          assign spec_value = block.settings.user_group | default: '-'
+                        when 'line9'
+                          assign spec_value = block.settings.line_9 | default: '-'
+                        when 'line10'
+                          assign spec_value = block.settings.line_10 | default: '-'
+                      endcase
+                    -%}
+                    <div
+                      class="product-comparison__spec-cell {% if spec_index == 0 or spec_index == 2 or spec_index == 4 or spec_index == 6 or spec_index == 8 %}product-comparison__spec-cell--even{% else %}product-comparison__spec-cell--odd{% endif %} {% if is_last_row %}product-comparison__spec-cell--last{% endif %}"
+                      data-product-id="{{ product.id }}"
+                      {{ block.shopify_attributes }}>
+                      <div class="product-comparison__spec-border"></div>
+                      <span class="product-comparison__spec-value">{{ spec_value }}</span>
+                    </div>
+                  {%- else -%}
+                    <div class="product-comparison__spec-cell product-comparison__spec-cell--odd {% if is_last_row %}product-comparison__spec-cell--last{% endif %}">
+                      <span class="product-comparison__spec-value">-</span>
+                    </div>
+                  {%- endif -%}
+                {%- endfor -%}
               {%- endif -%}
             {%- endfor -%}
           </div>
@@ -533,6 +535,25 @@
     const specCells = section.querySelectorAll('.product-comparison__spec-cell');
     const indicators = section.querySelectorAll('.product-comparison__indicator');
     let hoveredProductId = null;
+
+    // Equalize product title heights (maior altura para todos)
+    function equalizeTitleHeights() {
+      const titles = section.querySelectorAll('.product-comparison__product-title');
+      if (titles.length === 0) return;
+      titles.forEach(function(t) { t.style.height = ''; });
+      var max = 0;
+      titles.forEach(function(t) {
+        var h = t.offsetHeight;
+        if (h > max) max = h;
+      });
+      if (max > 0) titles.forEach(function(t) { t.style.height = max + 'px'; });
+    }
+    equalizeTitleHeights();
+    var resizeT;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeT);
+      resizeT = setTimeout(equalizeTitleHeights, 150);
+    });
 
     // Hover functionality
     function handleProductHover(productId) {
@@ -726,19 +747,17 @@
         "id": "adjustment_label",
         "label": "Line 7 label",
         "default": "Adjustment"
-      },       {
+      }, {
         "type": "text",
         "id": "user_group_label",
         "label": "Line 8 label",
         "default": "User Group"
-      },
-      {
+      }, {
         "type": "text",
         "id": "line_9_label",
         "label": "Line 9 label",
         "default": "Line 9"
-      },
-      {
+      }, {
         "type": "text",
         "id": "line_10_label",
         "label": "Line 10 label",
@@ -800,19 +819,17 @@
             "id": "adjustment",
             "label": "Line 7",
             "default": "-"
-          },           {
+          }, {
             "type": "text",
             "id": "user_group",
             "label": "Line 8",
             "default": "-"
-          },
-          {
+          }, {
             "type": "text",
             "id": "line_9",
             "label": "Line 9",
             "default": "-"
-          },
-          {
+          }, {
             "type": "text",
             "id": "line_10",
             "label": "Line 10",
