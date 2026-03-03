@@ -1,24 +1,27 @@
 {% comment %} 
-                                                                                                                              Product Main Section - Refactored
-                                                                                                                               
-                                                                                                                              Professional product page section following Shopify 2.0 best practices.
-                                                                                                                              Uses modular snippets for better organization and maintainability.
-                                                                                                                               
-                                                                                                                              Accepts: 
-                                                                                                                              - product: {Object} Product object
-                                                                                                                               
-                                                                                                                              Dependencies: 
-                                                                                                                              - product-gallery.liquid snippet 
-                                                                                                                              - product-info.liquid snippet 
-                                                                                                                              - product-benefits.liquid snippet 
-                                                                                                                              - product-add-to-cart.liquid snippet 
-                                                                                                                              - product-accordions.liquid snippet 
-                                                                                                                              - product-benefit-popups.liquid snippet 
-                                                                                                                              - product-main-section.css asset 
+                                                                                                                                          Product Main Section - Refactored
+                                                                                                                                           
+                                                                                                                                          Professional product page section following Shopify 2.0 best practices.
+                                                                                                                                          Uses modular snippets for better organization and maintainability.
+                                                                                                                                           
+                                                                                                                                          Accepts: 
+                                                                                                                                          - product: {Object} Product object
+                                                                                                                                           
+                                                                                                                                          Dependencies: 
+                                                                                                                                          - product-gallery.liquid snippet 
+                                                                                                                                          - product-info.liquid snippet 
+                                                                                                                                          - product-benefits.liquid snippet 
+                                                                                                                                          - product-add-to-cart.liquid snippet 
+                                                                                                                                          - product-accordions.liquid snippet 
+                                                                                                                                          - product-benefit-popups.liquid snippet 
+                                                                                                                                          - product-main-section.css asset 
 {% endcomment %}
 
 {{ 'product-main-section.css' | asset_url | stylesheet_tag }}
-{%- if section.settings.show_benefits -%}
+{%- assign has_benefits = section.settings.show_benefits -%}
+{%- assign mention_blocks = section.blocks | where: 'type', 'mini_media_mention' -%}
+{%- comment -%} Embla só para o carrossel de benefícios; Media Mentions usa scroll nativo (sem lib) {%- endcomment -%}
+{%- if has_benefits -%}
   <script src="https://unpkg.com/embla-carousel@8.0.0/embla-carousel.umd.js" defer></script>
 {%- endif -%}
 
@@ -58,13 +61,13 @@
 
       <!-- Mobile Price (shown only on mobile) -->
       {% comment %} {%- if section.settings.show_mobile_price -%}
-                                                                                                                                                                                                                                                                                                          <div class="product-price-container_new mobile-only_new">
-                                                                                                                                                                                                                                                                                                            <p class="product-price_new black">{{ product.selected_or_first_available_variant.price | money }}</p>
-                                                                                                                                                                                                                                                                                                            {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
-                                                                                                                                                                                                                                                                                                              <p class="product-price-original_new">{{ product.selected_or_first_available_variant.compare_at_price | money }}</p>
-                                                                                                                                                                                                                                                                                                            {%- endif -%}
-                                                                                                                                                                                                                                                                                                          </div>
-                                                                                                                                                                                                                                {%- endif -%} {% endcomment %}
+                                                                                                                                                                                                                                                                                                                                                          <div class="product-price-container_new mobile-only_new">
+                                                                                                                                                                                                                                                                                                                                                            <p class="product-price_new black">{{ product.selected_or_first_available_variant.price | money }}</p>
+                                                                                                                                                                                                                                                                                                                                                            {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
+                                                                                                                                                                                                                                                                                                                                                              <p class="product-price-original_new">{{ product.selected_or_first_available_variant.compare_at_price | money }}</p>
+                                                                                                                                                                                                                                                                                                                                                            {%- endif -%}
+                                                                                                                                                                                                                                                                                                                                                          </div>
+                                                                                                                                                                                                                                                                    {%- endif -%} {% endcomment %}
 
 
       </div>
@@ -1359,6 +1362,52 @@
     }
     
     // ====================================================================
+    // MEDIA MENTIONS CAROUSEL (scroll nativo: CSS Scroll Snap + setas em JS, zero lib)
+    // ====================================================================
+    function initMediaMentionsCarousel() {
+      var wrap = document.querySelector('[data-media-mentions-carousel]');
+      if (!wrap) return;
+      var viewport = wrap.querySelector('[data-media-mentions-viewport]');
+      var prevBtn = wrap.querySelector('[data-media-mentions-prev]');
+      var nextBtn = wrap.querySelector('[data-media-mentions-next]');
+      if (!viewport || !prevBtn || !nextBtn) return;
+  
+      var track = viewport.querySelector('.product-media-mentions-track');
+      var slides = track ? track.querySelectorAll('.product-media-mentions-slide') : [];
+      var gap = 16;
+      var slideWidth = 0;
+  
+      function getScrollStep() {
+        if (slideWidth) return slideWidth + gap;
+        var first = slides[0];
+        if (!first) return viewport.offsetWidth;
+        slideWidth = first.offsetWidth;
+        return slideWidth + gap;
+      }
+  
+      function updateButtons() {
+        var left = viewport.scrollLeft;
+        var maxScroll = viewport.scrollWidth - viewport.clientWidth;
+        prevBtn.disabled = left <= 1;
+        nextBtn.disabled = maxScroll <= 1 || left >= maxScroll - 1;
+      }
+  
+      prevBtn.addEventListener('click', function () {
+        viewport.scrollBy({ left: -getScrollStep(), behavior: 'smooth' });
+      });
+      nextBtn.addEventListener('click', function () {
+        viewport.scrollBy({ left: getScrollStep(), behavior: 'smooth' });
+      });
+      viewport.addEventListener('scroll', updateButtons);
+      window.addEventListener('resize', updateButtons);
+      if (typeof ResizeObserver !== 'undefined') {
+        var ro = new ResizeObserver(updateButtons);
+        ro.observe(viewport);
+      }
+      updateButtons();
+    }
+    
+    // ====================================================================
     // INITIALIZATION
     // ====================================================================
     
@@ -1366,6 +1415,7 @@
       ProductGallery.init();
       BenefitPopups.init();
       initBenefitsCarousel();
+      initMediaMentionsCarousel();
       
       // Initialize variant selector event listeners (both desktop and mobile)
       const variantSelectorDesktop = document.getElementById('variant-selector_new');
@@ -1669,6 +1719,15 @@
         "info": "Configure individual benefits using Benefit blocks"
       }, {
         "type": "header",
+        "content": "Media mentions (buy box)"
+      }, {
+        "type": "checkbox",
+        "id": "show_media_mentions_carousel",
+        "label": "Show media mentions carousel in buy box",
+        "default": false,
+        "info": "When enabled, the media mentions carousel appears below the price. Add blocks in the Media mention section below."
+      }, {
+        "type": "header",
         "content": "Variant Selector"
       }, {
         "type": "checkbox",
@@ -1901,6 +1960,51 @@
         ]
       },
       {
+        "type": "mini_media_mention",
+        "name": "Mini Media Mention",
+        "settings": [
+          {
+            "type": "image_picker",
+            "id": "logo",
+            "label": "Logo"
+          }, {
+            "type": "select",
+            "id": "logo_asset",
+            "label": "Theme Default Logo",
+            "options": [
+              {
+                "value": "",
+                "label": "None"
+              },
+              {
+                "value": "ggr-new-site-logo.png",
+                "label": "Garage Gym Reviews"
+              },
+              {
+                "value": "barbend-logo.svg",
+                "label": "BarBend"
+              },
+              {
+                "value": "verywell-fit-logo.png",
+                "label": "Verywell Fit"
+              }, {
+                "value": "Indoor-Cycling-Love-FF-3-01.webp",
+                "label": "Indoor Cycling Love"
+              }
+            ],
+            "default": ""
+          }, {
+            "type": "text",
+            "id": "text",
+            "label": "Quote",
+            "default": "\"Amazing product!\""
+          }, {
+            "type": "url",
+            "id": "link",
+            "label": "Link"
+          }
+        ]
+      }, {
         "type": "payment_options",
         "name": "Payment Options",
         "settings": [

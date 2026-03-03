@@ -517,6 +517,222 @@
 }
 
 /* ======================================================================
+   MINI MEDIA MENTIONS – Carrossel nativo (CSS Scroll Snap + JS mínimo, sem lib)
+   ====================================================================== */
+
+.product-media-mentions_new {
+  position: relative;
+  background: #f9f9f9;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 12px;
+}
+
+/* Wrapper com container-type para não quebrar layout flex da PDP */
+.product-media-mentions-inner {
+  width: 100%;
+  min-width: 0;
+  container-type: inline-size;
+  container-name: media-mentions;
+}
+
+.product-media-mentions-viewport {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.product-media-mentions-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.product-media-mentions-track {
+  display: flex;
+  gap: 16px;
+  width: max-content;
+  min-width: 100%;
+  padding-inline-end: 16px;
+  box-sizing: border-box;
+}
+
+/* Fallback para navegadores sem container queries; depois sobrescreve com cqw */
+.product-media-mentions-slide {
+  flex: 0 0 85%;
+  width: 85%;
+  min-width: 85%;
+  box-sizing: border-box;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+@supports (container-type: inline-size) {
+  .product-media-mentions-slide {
+    flex: 0 0 calc(100cqw - 16px);
+    width: calc(100cqw - 16px);
+    min-width: calc(100cqw - 16px);
+  }
+}
+
+.product-media-mentions-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+  align-items: flex-start;
+  height: 100%;
+  margin: 0 !important;
+}
+
+.product-media-mentions-logo {
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  background: #eb701f;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.product-media-mentions-logo img {
+  object-fit: contain;
+}
+
+.product-media-mentions-text {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  margin: 0 !important;
+  color: #333;
+  flex: 1;
+}
+
+/* Product Mini Card within Mention */
+.product-media-mentions-product {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding-top: 8px;
+  border-top: 1px solid #eaeaea;
+  margin-top: auto;
+}
+
+.product-media-mentions-product-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #f4f4f4;
+  flex-shrink: 0;
+}
+
+.product-media-mentions-product-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.product-media-mentions-product-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0 !important;
+  line-height: 1.2;
+}
+
+.product-media-mentions-product-price {
+  font-size: 12px;
+  font-weight: 700;
+  color: #eb701f;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.product-media-mentions-link {
+  font-size: 12px;
+  color: #888;
+  text-decoration: underline;
+  font-weight: 500;
+  align-self: flex-start;
+}
+
+.product-media-mentions-link:hover {
+  color: #c23d12;
+}
+
+/* Setas do carrossel: posição absoluta nas laterais (igual ao carrossel de benefícios) */
+.product-media-mentions-nav {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 2;
+  padding: 0 4px;
+}
+
+.product-media-mentions-nav .product-media-mentions-btn {
+  pointer-events: auto;
+}
+
+.product-media-mentions-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: #f0f0f0;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, opacity 0.2s;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.product-media-mentions-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.product-media-mentions_new:hover .product-media-mentions-btn:not(:disabled) {
+  opacity: 0.95;
+}
+
+.product-media-mentions-btn:hover:not(:disabled) {
+  background: #e0e0e0;
+  color: #000;
+}
+
+.product-media-mentions-btn:disabled {
+  display: none;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.product-media-mentions-btn.product-media-mentions-prev {
+  position: absolute;
+  left: 8px;
+}
+
+.product-media-mentions-btn.product-media-mentions-next {
+  position: absolute;
+  right: 8px;
+  left: auto;
+}
+
+/* ======================================================================
    GALLERY STYLES - Aspect Ratio 4/3
    ====================================================================== */
 
