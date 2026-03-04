@@ -1,6 +1,475 @@
+{% doc %}
+  @prompt
+    请根据以下描述生成一个电商促销通栏（Countdown Banner）
+    
+    视觉风格指南 (Ativafit Brand Style)：
+    
+    背景颜色： 采用深黑色 (#000000) 或极深灰色，体现力量训练的专业感。设置成可调节颜色
+    
+    布局与元素：
+    
+    左侧文字： 白色文字，内容为 “Hurry Up to 25% OFF on EVERYTHING 🏋️‍♂️”。请将“25% OFF”部分加粗并使用亮橙色，末尾的表情符号换成哑铃或闪电。
+    
+    中间倒计时： >    - 包含四个方块：Days, Hours, Minutes, Seconds。
+    
+    方块背景： 亮橙色 (#ff6b00)。
+    
+    方块内数字： 纯黑色，加粗。
+    
+    下方单位小字： 白色或浅灰色，字体缩小。
+    
+    右侧按钮： 胶囊形（Capsule shape），背景为亮橙色，文字为黑色加粗的 “SHOP NOW”。
+    
+    细节： 最右侧保留一个简洁的灰色关闭按钮（X）。
+    
+    输出要求： 整体视觉要像高端健身器材网页（如 Ativafit.com）的官方促销条，充满动感和紧迫感。
+    所有的字体颜色和大小都要设置成可调节的
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-countdown-banner-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    background-color: {{ block.settings.background_color }};
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    overflow: hidden;
+  }
+
+  .ai-countdown-banner__left-{{ ai_gen_id }} {
+    flex-shrink: 0;
+    color: {{ block.settings.text_color }};
+    font-size: {{ block.settings.text_size }}px;
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ai-countdown-banner__highlight-{{ ai_gen_id }} {
+    color: {{ block.settings.highlight_color }};
+    font-weight: 700;
+  }
+
+  .ai-countdown-banner__icon-{{ ai_gen_id }} {
+    font-size: {{ block.settings.text_size | times: 1.2 }}px;
+  }
+
+  .ai-countdown-banner__timer-{{ ai_gen_id }} {
+    display: flex;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .ai-countdown-banner__timer-box-{{ ai_gen_id }} {
+    background-color: {{ block.settings.timer_bg_color }};
+    border-radius: 6px;
+    padding: 8px 12px;
+    min-width: 60px;
+    text-align: center;
+  }
+
+  .ai-countdown-banner__timer-number-{{ ai_gen_id }} {
+    display: block;
+    color: {{ block.settings.timer_number_color }};
+    font-size: {{ block.settings.timer_number_size }}px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .ai-countdown-banner__timer-label-{{ ai_gen_id }} {
+    display: block;
+    color: {{ block.settings.timer_label_color }};
+    font-size: {{ block.settings.timer_label_size }}px;
+    margin-top: 4px;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  .ai-countdown-banner__cta-{{ ai_gen_id }} {
+    flex-shrink: 0;
+  }
+
+  .ai-countdown-banner__button-{{ ai_gen_id }} {
+    background-color: {{ block.settings.button_bg_color }};
+    color: {{ block.settings.button_text_color }};
+    font-size: {{ block.settings.button_text_size }}px;
+    font-weight: 700;
+    padding: 12px 32px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+
+  .ai-countdown-banner__button-{{ ai_gen_id }}:hover {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+
+  .ai-countdown-banner__close-{{ ai_gen_id }} {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: {{ block.settings.close_button_color }};
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+  }
+
+  .ai-countdown-banner__close-{{ ai_gen_id }}:hover {
+    opacity: 1;
+  }
+
+  .ai-countdown-banner__close-{{ ai_gen_id }} svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .ai-countdown-banner-{{ ai_gen_id }}.hidden {
+    display: none;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-countdown-banner-{{ ai_gen_id }} {
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px 50px 16px 20px;
+    }
+
+    .ai-countdown-banner__left-{{ ai_gen_id }} {
+      font-size: {{ block.settings.text_size | times: 0.9 }}px;
+      text-align: center;
+    }
+
+    .ai-countdown-banner__timer-{{ ai_gen_id }} {
+      gap: 8px;
+    }
+
+    .ai-countdown-banner__timer-box-{{ ai_gen_id }} {
+      min-width: 50px;
+      padding: 6px 8px;
+    }
+
+    .ai-countdown-banner__timer-number-{{ ai_gen_id }} {
+      font-size: {{ block.settings.timer_number_size | times: 0.85 }}px;
+    }
+
+    .ai-countdown-banner__timer-label-{{ ai_gen_id }} {
+      font-size: {{ block.settings.timer_label_size | times: 0.85 }}px;
+    }
+
+    .ai-countdown-banner__button-{{ ai_gen_id }} {
+      font-size: {{ block.settings.button_text_size | times: 0.9 }}px;
+      padding: 10px 24px;
+    }
+  }
+{% endstyle %}
+
+<countdown-banner-{{ ai_gen_id }}
+  class="ai-countdown-banner-{{ ai_gen_id }}"
+  data-end-date="{{ block.settings.end_date }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-countdown-banner__left-{{ ai_gen_id }}">
+    <span>{{ block.settings.promo_text_before }}</span>
+    <span class="ai-countdown-banner__highlight-{{ ai_gen_id }}">{{ block.settings.promo_text_highlight }}</span>
+    <span>{{ block.settings.promo_text_after }}</span>
+    <span class="ai-countdown-banner__icon-{{ ai_gen_id }}">{{ block.settings.icon }}</span>
+  </div>
+
+  <div class="ai-countdown-banner__timer-{{ ai_gen_id }}">
+    <div class="ai-countdown-banner__timer-box-{{ ai_gen_id }}">
+      <span class="ai-countdown-banner__timer-number-{{ ai_gen_id }}" data-days>00</span>
+      <span class="ai-countdown-banner__timer-label-{{ ai_gen_id }}">Days</span>
+    </div>
+    <div class="ai-countdown-banner__timer-box-{{ ai_gen_id }}">
+      <span class="ai-countdown-banner__timer-number-{{ ai_gen_id }}" data-hours>00</span>
+      <span class="ai-countdown-banner__timer-label-{{ ai_gen_id }}">Hours</span>
+    </div>
+    <div class="ai-countdown-banner__timer-box-{{ ai_gen_id }}">
+      <span class="ai-countdown-banner__timer-number-{{ ai_gen_id }}" data-minutes>00</span>
+      <span class="ai-countdown-banner__timer-label-{{ ai_gen_id }}">Minutes</span>
+    </div>
+    <div class="ai-countdown-banner__timer-box-{{ ai_gen_id }}">
+      <span class="ai-countdown-banner__timer-number-{{ ai_gen_id }}" data-seconds>00</span>
+      <span class="ai-countdown-banner__timer-label-{{ ai_gen_id }}">Seconds</span>
+    </div>
+  </div>
+
+  <div class="ai-countdown-banner__cta-{{ ai_gen_id }}">
+    <a
+      href="{{ block.settings.button_link }}"
+      class="ai-countdown-banner__button-{{ ai_gen_id }}"
+    >
+      {{ block.settings.button_text }}
+    </a>
+  </div>
+
+  <button
+    class="ai-countdown-banner__close-{{ ai_gen_id }}"
+    aria-label="Close banner"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+  </button>
+</countdown-banner-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class CountdownBanner{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.endDate = null;
+        this.timerInterval = null;
+      }
+
+      connectedCallback() {
+        const endDateStr = this.getAttribute('data-end-date');
+        if (endDateStr) {
+          this.endDate = new Date(endDateStr).getTime();
+        }
+
+        this.daysEl = this.querySelector('[data-days]');
+        this.hoursEl = this.querySelector('[data-hours]');
+        this.minutesEl = this.querySelector('[data-minutes]');
+        this.secondsEl = this.querySelector('[data-seconds]');
+        this.closeBtn = this.querySelector('.ai-countdown-banner__close-{{ ai_gen_id }}');
+
+        if (this.closeBtn) {
+          this.closeBtn.addEventListener('click', () => this.closeBanner());
+        }
+
+        if (this.endDate) {
+          this.updateCountdown();
+          this.timerInterval = setInterval(() => this.updateCountdown(), 1000);
+        }
+      }
+
+      disconnectedCallback() {
+        if (this.timerInterval) {
+          clearInterval(this.timerInterval);
+        }
+      }
+
+      updateCountdown() {
+        const now = new Date().getTime();
+        const distance = this.endDate - now;
+
+        if (distance < 0) {
+          if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+          }
+          this.daysEl.textContent = '00';
+          this.hoursEl.textContent = '00';
+          this.minutesEl.textContent = '00';
+          this.secondsEl.textContent = '00';
+          return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        this.daysEl.textContent = String(days).padStart(2, '0');
+        this.hoursEl.textContent = String(hours).padStart(2, '0');
+        this.minutesEl.textContent = String(minutes).padStart(2, '0');
+        this.secondsEl.textContent = String(seconds).padStart(2, '0');
+      }
+
+      closeBanner() {
+        this.classList.add('hidden');
+      }
+    }
+
+    customElements.define('countdown-banner-{{ ai_gen_id }}', CountdownBanner{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Countdown banner",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Promotion text"
+    },
+    {
+      "type": "text",
+      "id": "promo_text_before",
+      "label": "Text before highlight",
+      "default": "Hurry Up to"
+    },
+    {
+      "type": "text",
+      "id": "promo_text_highlight",
+      "label": "Highlighted text",
+      "default": "25% OFF"
+    },
+    {
+      "type": "text",
+      "id": "promo_text_after",
+      "label": "Text after highlight",
+      "default": "on EVERYTHING"
+    },
+    {
+      "type": "text",
+      "id": "icon",
+      "label": "Icon",
+      "default": "💪"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "Text size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "highlight_color",
+      "label": "Highlight color",
+      "default": "#ff6b00"
+    },
+    {
+      "type": "header",
+      "content": "Countdown timer"
+    },
+    {
+      "type": "text",
+      "id": "end_date",
+      "label": "End date and time",
+      "info": "Format: YYYY-MM-DD HH:MM:SS (e.g., 2026-03-31 23:59:59)"
+    },
+    {
+      "type": "color",
+      "id": "timer_bg_color",
+      "label": "Timer background",
+      "default": "#ff6b00"
+    },
+    {
+      "type": "color",
+      "id": "timer_number_color",
+      "label": "Number color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "timer_number_size",
+      "label": "Number size",
+      "min": 16,
+      "max": 36,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "color",
+      "id": "timer_label_color",
+      "label": "Label color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "timer_label_size",
+      "label": "Label size",
+      "min": 8,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "header",
+      "content": "Call to action"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "SHOP NOW"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Button background",
+      "default": "#ff6b00"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "button_text_size",
+      "label": "Button text size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "header",
+      "content": "Banner style"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "close_button_color",
+      "label": "Close button color",
+      "default": "#999999"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Countdown banner"
+    }
+  ]
+}
 {% endschema %}
