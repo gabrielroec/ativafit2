@@ -1,0 +1,490 @@
+{%- style -%}
+  .unified-media-mention {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+    background-color: {{ section.settings.bg_color }};
+  }
+  @media screen and (min-width: 750px) {
+    .unified-media-mention {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="unified-media-mention" data-unified-media-mention>
+  <div class="unified-media-mention__container">
+    {%- if section.settings.title != blank -%}
+      <h2 class="unified-media-mention__title">{{ section.settings.title | escape }}</h2>
+    {%- endif -%}
+
+    {%- assign product = section.settings.product -%}
+    {%- assign variant = product.selected_or_first_available_variant -%}
+
+    <div class="unified-media-mention__product">
+      {%- if product != blank -%}
+        <div class="unified-media-mention__product-image">
+          {%- if product.featured_image -%}
+            <a href="{{ product.url }}">
+              {{ product.featured_image | image_url: width: 400 | image_tag: loading: 'lazy', alt: product.title | escape }}
+            </a>
+          {%- else -%}
+            <a href="{{ product.url }}">{{ 'product-1' | placeholder_svg_tag }}</a>
+          {%- endif -%}
+        </div>
+        <h3 class="unified-media-mention__product-name">{{ product.title | escape }}</h3>
+        <div class="unified-media-mention__product-price">
+          <span class="unified-media-mention__price">{{ variant.price | money }}</span>
+          {%- if variant.compare_at_price > variant.price -%}
+            <s class="unified-media-mention__compare-price">{{ variant.compare_at_price | money }}</s>
+          {%- endif -%}
+        </div>
+        <a href="{{ product.url }}?variant={{ variant.id }}" class="unified-media-mention__view-btn">VIEW PRODUCT</a>
+      {%- else -%}
+        <div class="unified-media-mention__product-image">
+          <div class="unified-media-mention__placeholder">{{ 'product-1' | placeholder_svg_tag }}</div>
+        </div>
+        <h3 class="unified-media-mention__product-name">Product name</h3>
+        <div class="unified-media-mention__product-price"><span class="unified-media-mention__price">$0.00</span></div>
+        <a href="#" class="unified-media-mention__view-btn">VIEW PRODUCT</a>
+      {%- endif -%}
+    </div>
+
+    {%- if section.blocks.size > 0 -%}
+      <div class="unified-media-mention__carousel">
+        <button type="button" class="unified-media-mention__arrow unified-media-mention__arrow--prev" aria-label="Previous" data-prev>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="unified-media-mention__slides-wrap" data-slides-wrap data-gap="16">
+          <div class="unified-media-mention__slides" data-slides data-total-real="{{ section.blocks.size }}">
+            {%- comment -%} Clone do último (para loop infinito ao voltar) {%- endcomment -%}
+            {%- assign clone_tail = section.blocks.last -%}
+            <div class="unified-media-mention__slide" data-slide data-clone="tail">
+              <div class="unified-media-mention__slide-text">{%- if clone_tail.settings.text != blank -%}{{ clone_tail.settings.text }}{%- else -%}<p>Media mention text goes here.</p>{%- endif -%}</div>
+              {%- if clone_tail.settings.link != blank -%}<a href="{{ clone_tail.settings.link }}" class="unified-media-mention__learn-more" target="_blank" rel="noopener noreferrer">LEARN MORE</a>{%- endif -%}
+              <div class="unified-media-mention__slide-logo">
+                {%- if clone_tail.settings.logo != blank -%}{%- if clone_tail.settings.logo_bg -%}<span class="unified-media-mention__logo-bg">{%- endif -%}{{ clone_tail.settings.logo | image_url: width: 300 | image_tag: loading: 'lazy', alt: clone_tail.settings.logo.alt | default: 'Publisher' | escape }}{%- if clone_tail.settings.logo_bg -%}</span>{%- endif -%}
+                {%- elsif clone_tail.settings.logo_asset != blank -%}{%- if clone_tail.settings.logo_bg -%}<span class="unified-media-mention__logo-bg">{%- endif -%}<img src="{{ clone_tail.settings.logo_asset | asset_url }}" alt="" loading="lazy" width="150" height="50" style="max-width: 150px; max-height: 50px; object-fit: contain;">{%- if clone_tail.settings.logo_bg -%}</span>{%- endif -%}
+                {%- else -%}<div class="unified-media-mention__logo-placeholder">{{ 'image' | placeholder_svg_tag }}</div>{%- endif -%}
+              </div>
+            </div>
+            {%- for block in section.blocks -%}
+              <div class="unified-media-mention__slide" {{ block.shopify_attributes }} data-slide>
+                <div class="unified-media-mention__slide-text">{%- if block.settings.text != blank -%}{{ block.settings.text }}{%- else -%}<p>Media mention text goes here.</p>{%- endif -%}</div>
+                {%- if block.settings.link != blank -%}<a href="{{ block.settings.link }}" class="unified-media-mention__learn-more" target="_blank" rel="noopener noreferrer">LEARN MORE</a>{%- endif -%}
+                <div class="unified-media-mention__slide-logo">
+                  {%- if block.settings.logo != blank -%}{%- if block.settings.logo_bg -%}<span class="unified-media-mention__logo-bg">{%- endif -%}{{ block.settings.logo | image_url: width: 300 | image_tag: loading: 'lazy', alt: block.settings.logo.alt | default: 'Publisher' | escape }}{%- if block.settings.logo_bg -%}</span>{%- endif -%}
+                  {%- elsif block.settings.logo_asset != blank -%}{%- if block.settings.logo_bg -%}<span class="unified-media-mention__logo-bg">{%- endif -%}<img src="{{ block.settings.logo_asset | asset_url }}" alt="" loading="lazy" width="150" height="50" style="max-width: 150px; max-height: 50px; object-fit: contain;">{%- if block.settings.logo_bg -%}</span>{%- endif -%}
+                  {%- else -%}<div class="unified-media-mention__logo-placeholder">{{ 'image' | placeholder_svg_tag }}</div>{%- endif -%}
+                </div>
+              </div>
+            {%- endfor -%}
+            {%- comment -%} Clone do primeiro (para loop infinito ao avançar) {%- endcomment -%}
+            {%- assign clone_head = section.blocks.first -%}
+            <div class="unified-media-mention__slide" data-slide data-clone="head">
+              <div class="unified-media-mention__slide-text">{%- if clone_head.settings.text != blank -%}{{ clone_head.settings.text }}{%- else -%}<p>Media mention text goes here.</p>{%- endif -%}</div>
+              {%- if clone_head.settings.link != blank -%}<a href="{{ clone_head.settings.link }}" class="unified-media-mention__learn-more" target="_blank" rel="noopener noreferrer">LEARN MORE</a>{%- endif -%}
+              <div class="unified-media-mention__slide-logo">
+                {%- if clone_head.settings.logo != blank -%}{%- if clone_head.settings.logo_bg -%}<span class="unified-media-mention__logo-bg">{%- endif -%}{{ clone_head.settings.logo | image_url: width: 300 | image_tag: loading: 'lazy', alt: clone_head.settings.logo.alt | default: 'Publisher' | escape }}{%- if clone_head.settings.logo_bg -%}</span>{%- endif -%}
+                {%- elsif clone_head.settings.logo_asset != blank -%}{%- if clone_head.settings.logo_bg -%}<span class="unified-media-mention__logo-bg">{%- endif -%}<img src="{{ clone_head.settings.logo_asset | asset_url }}" alt="" loading="lazy" width="150" height="50" style="max-width: 150px; max-height: 50px; object-fit: contain;">{%- if clone_head.settings.logo_bg -%}</span>{%- endif -%}
+                {%- else -%}<div class="unified-media-mention__logo-placeholder">{{ 'image' | placeholder_svg_tag }}</div>{%- endif -%}
+              </div>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="unified-media-mention__arrow unified-media-mention__arrow--next" aria-label="Next" data-next>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+<style>
+  .unified-media-mention__container {
+    max-width: 1750px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+  .unified-media-mention__title {
+    text-align: center;
+    margin: 0 0 32px;
+    font-size: 2.4rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #222;
+  }
+  .unified-media-mention__product {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .unified-media-mention__product-image {
+    max-width: 280px;
+    margin: 0 auto;
+  }
+  .unified-media-mention__product-image a,
+  .unified-media-mention__product-image img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+  .unified-media-mention__placeholder {
+    background: #f4f4f4;
+    padding: 40px;
+  }
+  .unified-media-mention__product-name {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0!important;
+    color: #222;
+  }
+  .unified-media-mention__product-price {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .unified-media-mention__price {
+    font-weight: 700;
+    color: #eb701f;
+    font-size: 1.25rem;
+  }
+  .unified-media-mention__compare-price {
+    color: #666;
+    text-decoration: line-through;
+    font-size: 1rem;
+  }
+  .unified-media-mention__view-btn {
+    display: inline-block;
+    padding: 10px 24px;
+    background: #eb701f;
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+  }
+  .unified-media-mention__view-btn:hover {
+    background: #d65a0f;
+    color: #fff;
+  }
+  .unified-media-mention__carousel {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .unified-media-mention__arrow {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border: 1px solid #ddd;
+    background: #fff;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #222;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .unified-media-mention__arrow:hover {
+    background: #f5f5f5;
+    border-color: #eb701f;
+    color: #eb701f;
+  }
+  .unified-media-mention__slides-wrap {
+    flex: 1;
+    overflow: hidden;
+    min-width: 0;
+  }
+  .unified-media-mention__slides {
+    display: flex;
+    gap: 16px;
+    transition: transform 0.35s ease;
+    will-change: transform;
+  }
+  /* 50% do card atrás | 100% card do meio | 50% do card da frente — cada slide = 50% do viewport do carrossel */
+  .unified-media-mention__slide {
+    flex: 0 0 calc(50% - 8px);
+    width: calc(50% - 8px);
+    min-width: calc(50% - 8px);
+    box-sizing: border-box;
+    padding: 24px;
+    background: #fff;
+    border: 1px solid #eaeaea;
+    border-radius: 8px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    height: fit-content !important;
+  }
+  .unified-media-mention__slide-text {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
+  }
+  .unified-media-mention__slide-text p {
+    margin: 0 0 0.5em;
+  }
+  .unified-media-mention__slide-text p:last-child {
+    margin-bottom: 0!important;
+  }
+  .unified-media-mention__learn-more {
+    font-style: italic;
+    font-weight: 700;
+    color: #111;
+    text-decoration: none;
+  }
+  .unified-media-mention__learn-more:hover {
+    text-decoration: underline;
+  }
+  .unified-media-mention__slide-logo {
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0!important;
+    
+  }
+  .unified-media-mention__slide-logo img {
+    max-width: 150px;
+    max-height: 50px;
+    object-fit: contain;
+  }
+  .unified-media-mention__logo-bg {
+    background: #eb701f;
+    padding: 8px;
+    border-radius: 6px;
+    display: inline-flex;
+  }
+  .unified-media-mention__logo-bg img {
+    max-width: 134px;
+    max-height: 34px;
+  }
+  .unified-media-mention__logo-placeholder {
+    width: 100px;
+    height: 50px;
+  }
+  .unified-media-mention__logo-placeholder svg {
+    width: 100%;
+    height: 100%;
+    fill: #ccc;
+  }
+  @media (max-width: 749px) {
+    .unified-media-mention__carousel {
+      gap: 8px;
+    }
+    .unified-media-mention__arrow {
+      width: 40px;
+      height: 40px;
+    }
+    .unified-media-mention__slide {
+      padding: 16px;
+    }
+    .unified-media-mention__slide-text {
+      font-size: 13px;
+    }
+  }
+</style>
+
+<script>
+  (function() {
+    const sectionSelector = '[data-unified-media-mention]';
+    const init = (section) => {
+      const wrap = section.querySelector('[data-slides-wrap]');
+      const slidesEl = section.querySelector('[data-slides]');
+      const slides = section.querySelectorAll('[data-slide]');
+      const prevBtn = section.querySelector('[data-prev]');
+      const nextBtn = section.querySelector('[data-next]');
+      if (!slidesEl || !wrap || slides.length === 0) return;
+      const total = slides.length;
+      const totalReal = parseInt(section.querySelector('[data-slides]').getAttribute('data-total-real'), 10) || (total - 2);
+      const gap = parseInt(wrap.getAttribute('data-gap'), 10) || 16;
+      /* Índices: 0 = clone do último, 1..totalReal = reais, totalReal+1 = clone do primeiro. Começamos no primeiro real = 1 */
+      let index = 1;
+      let animating = false;
+      const getOffset = () => {
+        const w = wrap.offsetWidth;
+        const slideSpan = w * 0.5 + (gap / 2);
+        return index * slideSpan - w * 0.25;
+      };
+      const apply = (noTransition) => {
+        const tx = -getOffset();
+        if (noTransition) {
+          slidesEl.style.transition = 'none';
+          slidesEl.style.transform = 'translateX(' + tx + 'px)';
+          slidesEl.offsetHeight;
+          slidesEl.style.transition = '';
+        } else {
+          slidesEl.style.transform = 'translateX(' + tx + 'px)';
+        }
+      };
+      const go = (delta) => {
+        if (animating) return;
+        animating = true;
+        index += delta;
+        apply(false);
+        const onEnd = () => {
+          if (index === 0) {
+            index = totalReal;
+            apply(true);
+          } else if (index === totalReal + 1) {
+            index = 1;
+            apply(true);
+          }
+          animating = false;
+        };
+        slidesEl.addEventListener('transitionend', onEnd, { once: true });
+      };
+      if (prevBtn) prevBtn.addEventListener('click', () => go(-1));
+      if (nextBtn) nextBtn.addEventListener('click', () => go(1));
+      apply(true);
+      window.addEventListener('resize', () => apply(true));
+    };
+    document.querySelectorAll(sectionSelector).forEach(init);
+    document.addEventListener('shopify:section:load', (e) => {
+      const section = e.target.querySelector && e.target.querySelector(sectionSelector) || (e.target.matches && e.target.matches(sectionSelector) ? e.target : null);
+      if (section) init(section);
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Unified Media Mention",
+  "tag": "section",
+  "class": "section-unified-media-mention",
+  "settings": [
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Product"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "MEDIA MENTION"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 60
+    }
+  ],
+  "blocks": [
+    {
+      "type": "mention",
+      "name": "Media mention",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Review or media mention text goes here.</p>"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Learn more link"
+        },
+        {
+          "type": "image_picker",
+          "id": "logo",
+          "label": "Publisher logo"
+        },
+        {
+          "type": "select",
+          "id": "logo_asset",
+          "label": "Theme logo (if no image above)",
+          "options": [
+            { "value": "", "label": "None" },
+            { "value": "ggr-new-site-logo.png", "label": "Garage Gym Reviews" },
+            { "value": "barbend-logo.svg", "label": "BarBend" },
+            { "value": "verywell-fit-logo.png", "label": "Verywell Fit" },
+            { "value": "Indoor-Cycling-Love-FF-3-01.webp", "label": "Indoor Cycling Love" }
+          ],
+          "default": ""
+        },
+        {
+          "type": "checkbox",
+          "id": "logo_bg",
+          "label": "Orange background on logo",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Unified Media Mention",
+      "settings": {
+        "title": "MEDIA MENTION",
+        "bg_color": "#ffffff",
+        "padding_top": 60,
+        "padding_bottom": 60
+      },
+      "blocks": [
+        {
+          "type": "mention",
+          "settings": {
+            "text": "<p>The Ativafit Adjustable Dumbbells are a space-saving piece of gym equipment that you can incorporate into your strength training routine. These \"dialtech Elites\" are great for both beginners and more advanced lifters who are tight on space or want to consolidate their gym equipment.</p>",
+            "link": "https://www.garagegymreviews.com/ativafit-adjustable-dumbbell-review",
+            "logo_asset": "ggr-new-site-logo.png",
+            "logo_bg": false
+          }
+        },
+        {
+          "type": "mention",
+          "settings": {
+            "text": "<p>The Ativafit Adjustable Dumbbells feature a steel build that is more durable than adjustable dumbbells that utilize a hefty amount of plastic.</p>",
+            "link": "https://barbend.com/ativafit-adjustable-dumbbells-review/",
+            "logo_asset": "barbend-logo.svg",
+            "logo_bg": false
+          }
+        },
+        {
+          "type": "mention",
+          "settings": {
+            "text": "<p>From bench presses to curls, Ativafit's 66 lb Adjustable Dumbbell Set is ready to support your weekly lifting routine right out of the box, with no setup required. Their storage trays secure them when fully stacked and hold unused plates when we select a lighter weight. The textured, ergonomic hand grips on both dumbbells are the perfect width and feel steady and secure during lifts. Plus, we love their sleek, high-quality appearance.</p>",
+            "link": "https://www.verywellfit.com/best-adjustable-dumbbells-4173456",
+            "logo_asset": "verywell-fit-logo.png",
+            "logo_bg": false
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
