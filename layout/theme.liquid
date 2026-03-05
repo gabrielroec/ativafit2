@@ -101,17 +101,7 @@
     <noscript>
       <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/inter">
     </noscript>
-    <!-- Hotjar Tracking Code for https://www.ativafit.com/ -->
-    <script>
-          (function(h,o,t,j,a,r){
-        h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
-        h._hjSettings={hjid:6368517,hjsv:6};
-        a=o.getElementsByTagName('head')[0];
-        r=o.createElement('script');r.async=1;
-        r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
-        a.appendChild(r);
-          })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
-    </script>
+    {%- comment -%} Hotjar 1 — deferred to after user interaction (INP fix) — loaded via deferred-tracking below {%- endcomment -%}
     <!-- Accessibility Code for "ativafit.com" -->
     <script>
       /*
@@ -283,14 +273,7 @@
       gtag('config', 'AW-11366836138');
     </script>
 
-    <!-- Twitter conversion tracking base and event code -->
-    <script>
-      !function(e,t,n,s,u,a){e.twq||(s=e.twq=function(){s.exe?s.exe.apply(s,arguments):s.queue.push(arguments);
-      },s.version='1.1',s.queue=[],u=t.createElement(n),u.async=!0,u.src='https://static.ads-twitter.com/uwt.js',
-      a=t.getElementsByTagName(n)[0],a.parentNode.insertBefore(u,a))}(window,document,'script');
-      twq('config','oee6t');
-    </script>
-    <!-- End Twitter conversion tracking base code -->
+    {%- comment -%} Twitter Pixel — deferred to after user interaction (INP fix) — loaded via deferred-tracking below {%- endcomment -%}
 
     <!-- Google Tag Manager -->
     <!--
@@ -307,24 +290,9 @@
       })(window,document,'script','dataLayer','GTM-PXMZSFK');
     </script>
     <!-- End Google Tag Manager -->
-    <!-- Hotjar Tracking Code for https://www.ativafit.com/ -->
-    <script>
-      (function(h,o,t,j,a,r){
-          h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
-          h._hjSettings={hjid:3882714,hjsv:6};
-          a=o.getElementsByTagName('head')[0];
-          r=o.createElement('script');r.async=1;
-          r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
-          a.appendChild(r);
-      })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
-    </script>
+    {%- comment -%} Hotjar 2 — deferred to after user interaction (INP fix) {%- endcomment -%}
 
-    <!-- Reddit Pixel -->
-    <script>
-      !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);rdt('init','t2_w2f9doa7');rdt('track', 'PageVisit');
-  </script>
-    <!-- DO NOT MODIFY UNLESS TO REPLACE A USER IDENTIFIER -->
-    <!-- End Reddit Pixel -->
+    {%- comment -%} Reddit Pixel — deferred to after user interaction (INP fix) {%- endcomment -%}
     {% render 'digismoothie-candyrack' %}
     <link
       rel="preload"
@@ -420,47 +388,13 @@
   }
   </style>
 
-  <!-- Técnica 5: JavaScript para forçar estilo com máxima prioridade -->
-  <script>
-      // Função para forçar background branco nos elementos Rivyo
-      function forceRivyoBackground() {
-        const rivyoElements = document.querySelectorAll('.rivyoTestimonialItem');
-        rivyoElements.forEach(element => {
-          // Remove estilos inline existentes
-          element.removeAttribute('style');
-          // Força o estilo com setProperty para máxima prioridade
-          element.style.setProperty('background-color', '#fff', 'important');
-          element.style.setProperty('background', '#fff', 'important');
-        });
-      }
-      
-      // Executa imediatamente
-      forceRivyoBackground();
-      
-      // Executa quando o DOM estiver carregado
-      document.addEventListener('DOMContentLoaded', forceRivyoBackground);
-      
-      // Executa quando a página estiver totalmente carregada
-      window.addEventListener('load', forceRivyoBackground);
-      
-      // Executa a cada 500ms para pegar elementos carregados dinamicamente
-      setInterval(forceRivyoBackground, 500);
-      
-      // Observer para detectar mudanças no DOM
-      const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-          if (mutation.type === 'childList') {
-            forceRivyoBackground();
-          }
-        });
-      });
-      
-      // Inicia o observer
-      observer.observe(document.body, {
-        childList: true,
-        subtree: true
-      });
-  </script>
+  <style>
+    .rivyoTestimonialItem,
+    .rivyoTestimonialItem[style] {
+      background-color: #fff !important;
+      background: #fff !important;
+    }
+  </style>
 
   {%- if request.path == '/products/ripple-half-ball-balance-ball' -%}
     <style>
@@ -514,7 +448,7 @@
       <li id="a11y-new-window-message">{{ 'general.accessibility.new_window' | t }}</li>
     </ul>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" defer></script>
+    {%- comment -%} jQuery CDN removido — já carregado via assets/jquery.min.js (evita duplicação) {%- endcomment -%}
     <script>
               try {
               setTimeout(function () {
@@ -562,782 +496,182 @@
     {%- comment -%} Error Handler Script {%- endcomment -%}
     <script src="{{ 'error-handler.js' | asset_url }}" defer></script>
 
-    {%- comment -%} Bundle Builder Title Converter Script {%- endcomment -%}
+    {%- comment -%} Bundle Builder Title Converter Script (INP-optimized) {%- endcomment -%}
     <script>
-      /**
-       * Bundle Builder Title Converter
-       * Converte títulos de produtos do Bundle Builder para elementos H3 semânticos
-       */
       (function() {
         'use strict';
-        
-        // Configurações
-        const CONFIG = {
-          // Seletor para encontrar títulos de produtos do Bundle Builder
-          titleSelector: '.bndlr-product-title',
-          // Seletor para encontrar H2 vazios do Bundle Builder
-          emptyH2Selector: '.bndlr-bundle-title',
-          // Classe CSS para manter estilos visuais
-          titleClass: 'bndlr-product-title',
-          // Atributos a serem preservados
-          preserveAttributes: ['href', 'target', 'title', 'class'],
-          // Delay para aguardar carregamento dinâmico
-          checkInterval: 500,
-          // Máximo de tentativas
-          maxAttempts: 20
-        };
-        
-        let attempts = 0;
-        
-        /**
-         * Converte um elemento de título para H3
-         * @param {HTMLElement} titleElement - Elemento do título
-         */
-        function convertTitleToH3(titleElement) {
-          if (!titleElement || titleElement.tagName === 'H3') {
-            return;
-          }
-          
-          try {
-            // Cria o novo elemento H3
-            const h3Element = document.createElement('h3');
-            
-            // Preserva atributos importantes
-            CONFIG.preserveAttributes.forEach(attr => {
-              if (titleElement.hasAttribute(attr)) {
-                h3Element.setAttribute(attr, titleElement.getAttribute(attr));
-              }
-            });
-            
-            // Adiciona classe específica para Bundle Builder
-            h3Element.classList.add('bndlr-product-title-h3');
-            
-            // Copia o conteúdo (texto e elementos filhos)
-            h3Element.innerHTML = titleElement.innerHTML;
-            
-            // Substitui o elemento original
-            titleElement.parentNode.replaceChild(h3Element, titleElement);
-            
-            console.log('Bundle Builder: Título convertido para H3:', h3Element.textContent.trim());
-            
-          } catch (error) {
-            console.warn('Bundle Builder: Erro ao converter título:', error);
-          }
-        }
-        
-        /**
-         * Remove elementos H2 vazios do Bundle Builder
-         * @param {HTMLElement} h2Element - Elemento H2 vazio
-         */
-        function removeEmptyH2(h2Element) {
-          if (!h2Element || h2Element.tagName !== 'H2') {
-            return;
-          }
-          
-          try {
-            // Verifica se o H2 está vazio (sem texto ou apenas espaços)
-            const textContent = h2Element.textContent.trim();
-            
-            if (textContent === '' || textContent.length === 0) {
-              // Remove o elemento vazio
-              h2Element.remove();
-              console.log('Bundle Builder: H2 vazio removido');
-            }
-            
-          } catch (error) {
-            console.warn('Bundle Builder: Erro ao remover H2 vazio:', error);
-          }
-        }
-        
-        /**
-         * Processa todos os elementos do Bundle Builder
-         */
+        var idle = window.requestIdleCallback || function(cb) { setTimeout(cb, 50); };
+        var pending = false;
+
         function processBundleElements() {
-          const titleElements = document.querySelectorAll(CONFIG.titleSelector);
-          const emptyH2Elements = document.querySelectorAll(CONFIG.emptyH2Selector);
-          
-          let hasElements = false;
-          
-          // Processa títulos de produtos
-          if (titleElements.length > 0) {
-            console.log(`Bundle Builder: Encontrados ${titleElements.length} títulos para converter`);
-            titleElements.forEach(convertTitleToH3);
-            hasElements = true;
-          }
-          
-          // Processa H2 vazios
-          if (emptyH2Elements.length > 0) {
-            console.log(`Bundle Builder: Encontrados ${emptyH2Elements.length} H2 para verificar`);
-            emptyH2Elements.forEach(removeEmptyH2);
-            hasElements = true;
-          }
-          
-          // Se não encontrou elementos, tenta novamente
-          if (!hasElements) {
-            attempts++;
-            if (attempts < CONFIG.maxAttempts) {
-              setTimeout(processBundleElements, CONFIG.checkInterval);
-            }
-            return;
-          }
-          
-          // Para o processo quando todos os elementos foram processados
-          attempts = CONFIG.maxAttempts;
+          pending = false;
+          document.querySelectorAll('.bndlr-product-title:not(h3)').forEach(function(el) {
+            var h3 = document.createElement('h3');
+            ['href','target','title','class'].forEach(function(a) { if (el.hasAttribute(a)) h3.setAttribute(a, el.getAttribute(a)); });
+            h3.classList.add('bndlr-product-title-h3');
+            h3.innerHTML = el.innerHTML;
+            el.parentNode.replaceChild(h3, el);
+          });
+          document.querySelectorAll('.bndlr-bundle-title').forEach(function(el) {
+            if (el.tagName === 'H2' && el.textContent.trim() === '') el.remove();
+          });
         }
-        
-        /**
-         * Observer para detectar mudanças dinâmicas no DOM
-         */
-        function setupMutationObserver() {
-          const observer = new MutationObserver(function(mutations) {
-            let shouldCheck = false;
-            
-            mutations.forEach(function(mutation) {
-              if (mutation.type === 'childList') {
-                // Verifica se novos elementos Bundle Builder foram adicionados
-                mutation.addedNodes.forEach(function(node) {
-                  if (node.nodeType === Node.ELEMENT_NODE) {
-                    if (node.classList && node.classList.contains('bndlr-product')) {
-                      shouldCheck = true;
-                    } else if (node.querySelector && node.querySelector('.bndlr-product-title')) {
-                      shouldCheck = true;
-                    } else if (node.classList && node.classList.contains('bndlr-bundle-title')) {
-                      shouldCheck = true;
-                    } else if (node.querySelector && node.querySelector('.bndlr-bundle-title')) {
-                      shouldCheck = true;
-                    }
-                  }
-                });
+
+        function scheduleProcess() {
+          if (!pending) { pending = true; idle(processBundleElements); }
+        }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', scheduleProcess);
+        } else {
+          scheduleProcess();
+        }
+        window.addEventListener('load', scheduleProcess);
+
+        new MutationObserver(function(mutations) {
+          for (var i = 0; i < mutations.length; i++) {
+            var added = mutations[i].addedNodes;
+            for (var j = 0; j < added.length; j++) {
+              var n = added[j];
+              if (n.nodeType === 1 && (n.classList.contains('bndlr-product') || n.classList.contains('bndlr-bundle-title') ||
+                  (n.querySelector && (n.querySelector('.bndlr-product-title') || n.querySelector('.bndlr-bundle-title'))))) {
+                scheduleProcess();
+                return;
               }
-            });
-            
-            if (shouldCheck) {
-              // Aguarda um pouco para garantir que o DOM foi totalmente atualizado
-              setTimeout(processBundleElements, 100);
             }
-          });
-          
-          // Inicia a observação
-          observer.observe(document.body, {
-            childList: true,
-            subtree: true
-          });
-          
-          console.log('Bundle Builder: MutationObserver configurado');
-        }
-        
-        /**
-         * Inicializa o conversor
-         */
-        function init() {
-          // Executa imediatamente
-          processBundleElements();
-          
-          // Configura observer para mudanças dinâmicas
-          setupMutationObserver();
-          
-          // Executa quando o DOM estiver carregado
-          if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', processBundleElements);
           }
-          
-          // Executa quando a página estiver totalmente carregada
-          window.addEventListener('load', processBundleElements);
-          
-          console.log('Bundle Builder: Conversor de elementos inicializado');
-        }
-        
-        // Inicializa quando o script carrega
-        init();
-        
+        }).observe(document.body || document.documentElement, { childList: true, subtree: true });
       })();
     </script>
 
-    {%- comment -%} Bundle Builder Selector Fix Script {%- endcomment -%}
+    {%- comment -%} Bundle Builder Selector Fix Script (INP-optimized) {%- endcomment -%}
     <script>
-      /**
-       * Bundle Builder Selector Fix
-       * Corrige silenciosamente o erro de seletor inválido do app de bundle
-       * O app tenta usar seletores com IDs temporários do jQuery (#sizzle...) que não são válidos
-       */
       (function() {
         'use strict';
-        
-        // Intercepta querySelectorAll para corrigir seletores inválidos
-        const originalQuerySelectorAll = Element.prototype.querySelectorAll;
-        
-        Element.prototype.querySelectorAll = function(selector) {
-          try {
-            // Verifica se o seletor contém um ID inválido do jQuery (sizzle)
-            if (selector && typeof selector === 'string' && selector.includes('#sizzle')) {
-              // Remove a parte inválida do seletor (#sizzle...)
-              // O seletor provavelmente é algo como: #sizzle1768514291639 select.bndlr-select-variant...
-              // Vamos extrair apenas a parte válida após o ID inválido
-              const parts = selector.split(/\s+/);
-              const validParts = parts.filter(part => !part.startsWith('#sizzle'));
-              
-              if (validParts.length > 0) {
-                const correctedSelector = validParts.join(' ');
-                
-                // Tenta usar o seletor corrigido
-                try {
-                  return originalQuerySelectorAll.call(this, correctedSelector);
-                } catch (e) {
-                  // Se ainda falhar, tenta encontrar o elemento de outra forma
-                  // Procura diretamente pelo select dentro do contexto atual
-                  if (correctedSelector.includes('select.bndlr-select-variant')) {
-                    const selects = originalQuerySelectorAll.call(this, 'select.bndlr-select-variant[name="variant_id"]');
-                    if (selects.length > 0) {
-                      // Se o seletor original incluía :selected, filtra apenas os selecionados
-                      if (selector.includes(':selected') || selector.includes('option:selected')) {
-                        const selectedOptions = [];
-                        selects.forEach(select => {
-                          const selectedOption = select.querySelector('option:checked, option[selected]');
-                          if (selectedOption) {
-                            selectedOptions.push(selectedOption);
-                          }
-                        });
-                        // Cria um NodeList válido usando um fragmento temporário
-                        if (selectedOptions.length > 0) {
-                          const fragment = document.createDocumentFragment();
-                          selectedOptions.forEach(opt => {
-                            const clone = opt.cloneNode(true);
-                            fragment.appendChild(clone);
-                          });
-                          return fragment.querySelectorAll('option');
-                        }
-                        return document.createDocumentFragment().querySelectorAll('*');
-                      }
-                      return selects;
-                    }
-                  }
-                  
-                  // Para outros seletores, tenta encontrar elementos relacionados
-                  if (correctedSelector.includes('.bndlr-add-to-bundle-container')) {
-                    return originalQuerySelectorAll.call(this, '.bndlr-add-to-bundle-container .quantity-input');
-                  }
-                  
-                  // Fallback: retorna NodeList vazio
-                  return document.createDocumentFragment().querySelectorAll('*');
-                }
-              }
-            }
-            
-            // Se o seletor é válido, usa o método original
-            return originalQuerySelectorAll.call(this, selector);
-            
-          } catch (error) {
-            // Se houver erro, tenta usar o método original silenciosamente
-            try {
-              return originalQuerySelectorAll.call(this, selector);
-            } catch (e) {
-              // Se ainda falhar, retorna NodeList vazio
-              return document.createDocumentFragment().querySelectorAll('*');
-            }
+        var emptyNL = document.createDocumentFragment().querySelectorAll('*');
+        var origQSA = Element.prototype.querySelectorAll;
+        var origQS = Element.prototype.querySelector;
+
+        Element.prototype.querySelectorAll = function(s) {
+          if (typeof s === 'string' && s.indexOf('#sizzle') !== -1) {
+            var clean = s.replace(/#sizzle\S*/g, '').trim();
+            if (clean) { try { return origQSA.call(this, clean); } catch(e) {} }
+            return emptyNL;
           }
+          return origQSA.call(this, s);
         };
-        
-        // Também intercepta querySelector para consistência
-        const originalQuerySelector = Element.prototype.querySelector;
-        
-        Element.prototype.querySelector = function(selector) {
-          try {
-            if (selector && typeof selector === 'string' && selector.includes('#sizzle')) {
-              const parts = selector.split(/\s+/);
-              const validParts = parts.filter(part => !part.startsWith('#sizzle'));
-              
-              if (validParts.length > 0) {
-                const correctedSelector = validParts.join(' ');
-                return originalQuerySelector.call(this, correctedSelector);
-              }
-            }
-            
-            return originalQuerySelector.call(this, selector);
-            
-          } catch (error) {
-            try {
-              return originalQuerySelector.call(this, selector);
-            } catch (e) {
-              return null;
-            }
+
+        Element.prototype.querySelector = function(s) {
+          if (typeof s === 'string' && s.indexOf('#sizzle') !== -1) {
+            var clean = s.replace(/#sizzle\S*/g, '').trim();
+            if (clean) { try { return origQS.call(this, clean); } catch(e) {} }
+            return null;
           }
+          return origQS.call(this, s);
         };
-        
       })();
     </script>
 
-    {%- comment -%} Ativafit Brand Name Corrector Script {%- endcomment -%}
+    {%- comment -%} Ativafit Brand Name Corrector Script (INP-optimized) {%- endcomment -%}
     <script>
-      /**
-       * Ativafit Brand Name Corrector
-       * Corrige automaticamente "ativa fit" para "Ativafit" em todo o DOM
-       * Necessário porque o conteúdo é gerado dinamicamente pelo Shopify
-       */
       (function() {
         'use strict';
-        
-        // Configurações
-        const CONFIG = {
-          // Textos a serem corrigidos (case-insensitive)
-          searchPatterns: [
-            /ativa\s+fit/gi,
-            /Ativa\s+Fit/gi,
-            /ATIVA\s+FIT/gi,
-            /Ativa\s+fit/gi,
-            /ativa\s+Fit/gi
-          ],
-          // Texto de substituição
-          replacement: 'Ativafit',
-          // Elementos a serem ignorados
-          ignoreSelectors: [
-            'script',
-            'style',
-            'noscript',
-            'meta',
-            'link',
-            'title',
-            '[data-ativafit-corrected]' // Evita reprocessar elementos já corrigidos
-          ],
-          // Intervalo de verificação para conteúdo dinâmico
-          checkInterval: 1000,
-          // Máximo de tentativas
-          maxAttempts: 30
-        };
-        
-        let processedElements = new WeakSet();
-        let attempts = 0;
-        
-        /**
-         * Verifica se um elemento deve ser ignorado
-         * @param {HTMLElement} element - Elemento a verificar
-         * @returns {boolean} - true se deve ser ignorado
-         */
-        function shouldIgnoreElement(element) {
-          if (!element || !element.tagName) return true;
-          
-          const tagName = element.tagName.toLowerCase();
-          if (CONFIG.ignoreSelectors.includes(tagName)) return true;
-          
-          // Verifica se tem algum seletor de ignorar
-          for (const selector of CONFIG.ignoreSelectors) {
-            if (element.matches && element.matches(selector)) return true;
-            if (element.closest && element.closest(selector)) return true;
+        var re = /ativa\s+fit/gi;
+        var SKIP = {SCRIPT:1,STYLE:1,NOSCRIPT:1,TEXTAREA:1,SVG:1};
+        var idle = window.requestIdleCallback || function(cb){setTimeout(cb,80);};
+        var pending = false;
+
+        function fixNode(root) {
+          if (!root) return;
+          var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+          var node;
+          while (node = walker.nextNode()) {
+            if (SKIP[node.parentElement && node.parentElement.tagName]) continue;
+            if (re.test(node.textContent)) {
+              node.textContent = node.textContent.replace(re, 'Ativafit');
+            }
           }
-          
-          return false;
         }
-        
-        /**
-         * Substitui texto em um nó de texto
-         * @param {Text} textNode - Nó de texto
-         * @returns {boolean} - true se houve substituição
-         */
-        function replaceTextInNode(textNode) {
-          if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return false;
-          
-          let text = textNode.textContent;
-          let originalText = text;
-          let hasReplacement = false;
-          
-          // Aplica todas as substituições
-          CONFIG.searchPatterns.forEach(pattern => {
-            if (pattern.test(text)) {
-              text = text.replace(pattern, CONFIG.replacement);
-              hasReplacement = true;
-            }
-          });
-          
-          // Se houve substituição, atualiza o nó
-          if (hasReplacement && text !== originalText) {
-            textNode.textContent = text;
-            return true;
+
+        function processBody() { pending = false; fixNode(document.body); }
+        function schedule() { if (!pending) { pending = true; idle(processBody); } }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', schedule);
+        } else {
+          schedule();
+        }
+        window.addEventListener('load', schedule);
+
+        new MutationObserver(function(muts) {
+          for (var i = 0; i < muts.length; i++) {
+            var added = muts[i].addedNodes;
+            if (added.length) { schedule(); return; }
           }
-          
-          return false;
-        }
-        
-        /**
-         * Processa um elemento e seus filhos recursivamente
-         * @param {HTMLElement} element - Elemento raiz
-         * @returns {number} - Número de substituições realizadas
-         */
-        function processElement(element) {
-          if (!element || shouldIgnoreElement(element)) return 0;
-          
-          // Evita reprocessar elementos já processados
-          if (processedElements.has(element)) return 0;
-          
-          let replacements = 0;
-          
-          try {
-            // Processa nós de texto diretamente filhos
-            const walker = document.createTreeWalker(
-              element,
-              NodeFilter.SHOW_TEXT,
-              {
-                acceptNode: function(node) {
-                  // Ignora nós dentro de elementos que devem ser ignorados
-                  let parent = node.parentElement;
-                  while (parent && parent !== element) {
-                    if (shouldIgnoreElement(parent)) {
-                      return NodeFilter.FILTER_REJECT;
-                    }
-                    parent = parent.parentElement;
-                  }
-                  return NodeFilter.FILTER_ACCEPT;
-                }
-              }
-            );
-            
-            const textNodes = [];
-            let node;
-            while (node = walker.nextNode()) {
-              textNodes.push(node);
-            }
-            
-            // Processa cada nó de texto
-            textNodes.forEach(textNode => {
-              if (replaceTextInNode(textNode)) {
-                replacements++;
-              }
-            });
-            
-            // Marca o elemento como processado se houve substituições
-            if (replacements > 0) {
-              processedElements.add(element);
-              element.setAttribute('data-ativafit-corrected', 'true');
-            }
-            
-          } catch (error) {
-            console.warn('Ativafit Corrector: Erro ao processar elemento:', error);
-          }
-          
-          return replacements;
-        }
-        
-        /**
-         * Processa todo o documento
-         * @returns {number} - Total de substituições realizadas
-         */
-        function processDocument() {
-          let totalReplacements = 0;
-          
-          try {
-            // Processa o body e seus filhos
-            if (document.body) {
-              totalReplacements += processElement(document.body);
-            }
-            
-            // Processa elementos específicos que podem ter conteúdo dinâmico
-            const dynamicSelectors = [
-              'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-              'p', 'span', 'div', 'a', 'li', 'td', 'th',
-              '[class*="title"]',
-              '[class*="name"]',
-              '[class*="brand"]'
-            ];
-            
-            dynamicSelectors.forEach(selector => {
-              try {
-                const elements = document.querySelectorAll(selector);
-                elements.forEach(element => {
-                  if (!processedElements.has(element)) {
-                    totalReplacements += processElement(element);
-                  }
-                });
-              } catch (e) {
-                // Ignora erros de seletor inválido
-              }
-            });
-            
-            if (totalReplacements > 0) {
-              console.log(`Ativafit Corrector: ${totalReplacements} substituição(ões) realizada(s)`);
-            }
-            
-          } catch (error) {
-            console.warn('Ativafit Corrector: Erro ao processar documento:', error);
-          }
-          
-          return totalReplacements;
-        }
-        
-        /**
-         * Configura MutationObserver para detectar mudanças dinâmicas
-         */
-        function setupMutationObserver() {
-          const observer = new MutationObserver(function(mutations) {
-            let shouldProcess = false;
-            
-            mutations.forEach(function(mutation) {
-              // Verifica se novos nós foram adicionados
-              if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-                mutation.addedNodes.forEach(function(node) {
-                  if (node.nodeType === Node.ELEMENT_NODE && !shouldIgnoreElement(node)) {
-                    shouldProcess = true;
-                  } else if (node.nodeType === Node.TEXT_NODE) {
-                    shouldProcess = true;
-                  }
-                });
-              }
-              
-              // Verifica se texto foi modificado
-              if (mutation.type === 'characterData') {
-                shouldProcess = true;
-              }
-            });
-            
-            if (shouldProcess) {
-              // Aguarda um pouco para evitar processamento excessivo
-              setTimeout(() => {
-                processDocument();
-              }, 100);
-            }
-          });
-          
-          // Inicia a observação
-          observer.observe(document.body || document.documentElement, {
-            childList: true,
-            subtree: true,
-            characterData: true
-          });
-          
-          console.log('Ativafit Corrector: MutationObserver configurado');
-        }
-        
-        /**
-         * Inicializa o corretor
-         */
-        function init() {
-          // Aguarda o DOM estar pronto
-          if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function() {
-              processDocument();
-              setupMutationObserver();
-            });
-          } else {
-            // DOM já está pronto
-            processDocument();
-            setupMutationObserver();
-          }
-          
-          // Processa após o carregamento completo
-          window.addEventListener('load', function() {
-            setTimeout(processDocument, 500);
-          });
-          
-          // Processa periodicamente para pegar conteúdo muito dinâmico
-          const intervalId = setInterval(function() {
-            attempts++;
-            const replacements = processDocument();
-            
-            // Para após várias tentativas sem encontrar nada
-            if (attempts >= CONFIG.maxAttempts && replacements === 0) {
-              clearInterval(intervalId);
-            }
-          }, CONFIG.checkInterval);
-          
-          console.log('Ativafit Corrector: Inicializado');
-        }
-        
-        // Inicializa quando o script carrega
-        init();
-        
+        }).observe(document.body || document.documentElement, { childList: true, subtree: true });
       })();
     </script>
 
-    {%- comment -%} Judge.me Star Unicode Fix Script {%- endcomment -%}
+    {%- comment -%} Judge.me Star Unicode Fix — CSS-only (INP-optimized) {%- endcomment -%}
+    <style>
+      .jdgm-star.jdgm--on::before,
+      .jdgm-star.jdgm--on:before {
+        content: "★" !important;
+        font-family: inherit !important;
+        font-size: inherit !important;
+        color: inherit !important;
+        opacity: 1 !important;
+      }
+      .jdgm-star.jdgm--off::before,
+      .jdgm-star.jdgm--off:before {
+        content: "★" !important;
+        font-family: inherit !important;
+        font-size: inherit !important;
+        color: inherit !important;
+        opacity: 0.3 !important;
+      }
+    </style>
+
+    {%- comment -%} Deferred Third-Party Tracking — only loads after first user interaction (INP fix) {%- endcomment -%}
     <script>
-      /**
-       * Judge.me Star Unicode Fix
-       * Força a aplicação de estrelas Unicode no lugar dos ícones do Judge.me
-       * Necessário porque o CSS do Judge.me é injetado dinamicamente e tem alta prioridade
-       */
       (function() {
-        'use strict';
-        
-        // Configurações
-        const CONFIG = {
-          // Seletores para estrelas do Judge.me
-          starSelectors: {
-            filled: '.jdgm-star.jdgm--on',
-            empty: '.jdgm-star.jdgm--off'
-          },
-          // Estrela Unicode a ser aplicada
-          starUnicode: '★',
-          // Intervalo de verificação
-          checkInterval: 500,
-          // Máximo de tentativas
-          maxAttempts: 60,
-          // Propriedades CSS a serem aplicadas
-          starStyles: {
-            filled: {
-              content: '"★"',
-              fontFamily: 'inherit',
-              fontSize: 'inherit',
-              color: 'inherit',
-              opacity: '1'
-            },
-            empty: {
-              content: '"★"',
-              fontFamily: 'inherit',
-              fontSize: 'inherit',
-              color: 'inherit',
-              opacity: '0.3'
-            }
-          }
-        };
-        
-        let attempts = 0;
-        let processedElements = new WeakSet();
-        
-        /**
-         * Aplica estilos de estrela a um elemento
-         * @param {HTMLElement} element - Elemento da estrela
-         * @param {string} starType - Tipo da estrela ('filled' ou 'empty')
-         */
-        function applyStarStyle(element, starType) {
-          if (!element || processedElements.has(element)) return false;
-          
-          try {
-            // Determina os estilos com base no tipo
-            const styles = CONFIG.starStyles[starType] || CONFIG.starStyles.filled;
-            
-            // Cria uma regra CSS dinâmica específica para este elemento
-            const uniqueClass = 'jdgm-star-fixed-' + starType + '-' + Math.random().toString(36).substr(2, 9);
-            element.classList.add(uniqueClass);
-            
-            // Injeta CSS específico
-            const style = document.createElement('style');
-            style.textContent = `
-              .${uniqueClass}:before,
-              .${uniqueClass}::before {
-                content: "${CONFIG.starUnicode}" !important;
-                font-family: inherit !important;
-                font-size: inherit !important;
-                color: inherit !important;
-                opacity: ${styles.opacity} !important;
-              }
-            `;
-            document.head.appendChild(style);
-            
-            processedElements.add(element);
-            return true;
-            
-          } catch (error) {
-            console.warn('Judge.me Star Fix: Erro ao aplicar estilo:', error);
-            return false;
-          }
+        var loaded = false;
+        function loadTracking() {
+          if (loaded) return;
+          loaded = true;
+          ['click','scroll','keydown','touchstart'].forEach(function(e){ document.removeEventListener(e, loadTracking, {capture:true}); });
+
+          /* Hotjar 1 (hjid: 6368517) */
+          (function(h,o,t,j,a,r){
+            h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+            h._hjSettings={hjid:6368517,hjsv:6};
+            a=o.getElementsByTagName('head')[0];
+            r=o.createElement('script');r.async=1;
+            r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+            a.appendChild(r);
+          })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+
+          /* Hotjar 2 (hjid: 3882714) */
+          (function(h,o,t,j,a,r){
+            h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+            h._hjSettings={hjid:3882714,hjsv:6};
+            a=o.getElementsByTagName('head')[0];
+            r=o.createElement('script');r.async=1;
+            r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+            a.appendChild(r);
+          })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+
+          /* Twitter Pixel */
+          !function(e,t,n,s,u,a){e.twq||(s=e.twq=function(){s.exe?s.exe.apply(s,arguments):s.queue.push(arguments);
+          },s.version='1.1',s.queue=[],u=t.createElement(n),u.async=!0,u.src='https://static.ads-twitter.com/uwt.js',
+          a=t.getElementsByTagName(n)[0],a.parentNode.insertBefore(u,a))}(window,document,'script');
+          twq('config','oee6t');
+
+          /* Reddit Pixel */
+          !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);rdt('init','t2_w2f9doa7');rdt('track','PageVisit');
         }
-        
-        /**
-         * Processa todas as estrelas do Judge.me
-         */
-        function processStars() {
-          let totalProcessed = 0;
-          
-          // Processa estrelas preenchidas
-          const filledStars = document.querySelectorAll(CONFIG.starSelectors.filled);
-          filledStars.forEach(star => {
-            if (applyStarStyle(star, 'filled')) {
-              totalProcessed++;
-            }
-          });
-          
-          // Processa estrelas vazias
-          const emptyStars = document.querySelectorAll(CONFIG.starSelectors.empty);
-          emptyStars.forEach(star => {
-            if (applyStarStyle(star, 'empty')) {
-              totalProcessed++;
-            }
-          });
-          
-          if (totalProcessed > 0) {
-            console.log(`Judge.me Star Fix: ${totalProcessed} estrela(s) processada(s) (${filledStars.length} preenchidas, ${emptyStars.length} vazias)`);
-          }
-          
-          return filledStars.length + emptyStars.length;
-        }
-        
-        /**
-         * Configuração do MutationObserver
-         */
-        function setupMutationObserver() {
-          const observer = new MutationObserver(function(mutations) {
-            let shouldProcess = false;
-            
-            mutations.forEach(function(mutation) {
-              if (mutation.type === 'childList') {
-                mutation.addedNodes.forEach(function(node) {
-                  if (node.nodeType === Node.ELEMENT_NODE) {
-                    // Verifica se é uma estrela do Judge.me ou contém estrelas
-                    if (node.classList && node.classList.contains('jdgm-star')) {
-                      shouldProcess = true;
-                    } else if (node.querySelector && (node.querySelector('.jdgm-star.jdgm--on') || node.querySelector('.jdgm-star.jdgm--off'))) {
-                      shouldProcess = true;
-                    }
-                  }
-                });
-              }
-            });
-            
-            if (shouldProcess) {
-              setTimeout(processStars, 100);
-            }
-          });
-          
-          observer.observe(document.body, {
-            childList: true,
-            subtree: true
-          });
-          
-          console.log('Judge.me Star Fix: MutationObserver configurado');
-        }
-        
-        /**
-         * Monitora e processa estrelas continuamente
-         */
-        function startMonitoring() {
-          const intervalId = setInterval(function() {
-            attempts++;
-            const starsFound = processStars();
-            
-            // Para o monitoramento após máximo de tentativas, mas continua o observer
-            if (attempts >= CONFIG.maxAttempts) {
-              clearInterval(intervalId);
-              console.log('Judge.me Star Fix: Monitoramento periódico finalizado');
-            }
-          }, CONFIG.checkInterval);
-        }
-        
-        /**
-         * Inicialização
-         */
-        function init() {
-          // Processa imediatamente
-          processStars();
-          
-          // Configura o observer para mudanças dinâmicas
-          setupMutationObserver();
-          
-          // Inicia monitoramento periódico
-          startMonitoring();
-          
-          // Processa quando DOM estiver carregado
-          if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', processStars);
-          }
-          
-          // Processa após carregamento completo
-          window.addEventListener('load', function() {
-            setTimeout(processStars, 1000);
-          });
-          
-          console.log('Judge.me Star Fix: Inicializado');
-        }
-        
-        // Inicializa quando o script carrega
-        init();
-        
+        ['click','scroll','keydown','touchstart'].forEach(function(e){ document.addEventListener(e, loadTracking, {capture:true,once:true,passive:true}); });
+        setTimeout(loadTracking, 5000);
       })();
     </script>
   </body>
