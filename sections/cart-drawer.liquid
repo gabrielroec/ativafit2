@@ -69,37 +69,40 @@
         </button>
       </div>
 
-      {%- comment -%} Free Shipping Bar (US only) {%- endcomment -%}
-      {%- assign country_code = localization.country.iso_code | upcase -%}
-      {%- if section.settings.show_free_shipping_bar and country_code == 'US' and section.settings.free_shipping_threshold > 0 -%}
-        {%- assign threshold_cents = section.settings.free_shipping_threshold | times: 100 -%}
-        {%- assign remaining_cents = threshold_cents | minus: cart.total_price -%}
-        {%- assign remaining_money = remaining_cents | money -%}
-        {%- assign progress = cart.total_price | times: 100 | divided_by: threshold_cents -%}
-        {%- if progress > 100 -%}
-          {%- assign progress = 100 -%}
+      {%- comment -%} Área rolável: free shipping + itens (free shipping segue o scroll, não fica fixo) {%- endcomment -%}
+      <div class="cart-drawer__scroll">
+        {%- comment -%} Free Shipping Bar (US only) {%- endcomment -%}
+        {%- assign country_code = localization.country.iso_code | upcase -%}
+        {%- if section.settings.show_free_shipping_bar and country_code == 'US' and section.settings.free_shipping_threshold > 0 -%}
+          {%- assign threshold_cents = section.settings.free_shipping_threshold | times: 100 -%}
+          {%- assign remaining_cents = threshold_cents | minus: cart.total_price -%}
+          {%- assign remaining_money = remaining_cents | money -%}
+          {%- assign progress = cart.total_price | times: 100 | divided_by: threshold_cents -%}
+          {%- if progress > 100 -%}
+            {%- assign progress = 100 -%}
+          {%- endif -%}
+          <div class="cart-drawer__free-shipping" role="status" aria-live="polite">
+            <div class="cart-drawer__free-shipping-text">
+              <span class="cart-drawer__free-shipping-emoji" aria-hidden="true">🚚</span>
+              {%- if remaining_cents > 0 -%}
+                {{ section.settings.free_shipping_progress_text | replace: '[amount]', remaining_money }}
+              {%- else -%}
+                {{ section.settings.free_shipping_unlocked_text }}
+              {%- endif -%}
+            </div>
+            <div class="cart-drawer__free-shipping-bar" aria-hidden="true">
+              <span class="cart-drawer__free-shipping-fill" style="width: {{ progress }}%;"></span>
+            </div>
+          </div>
         {%- endif -%}
-        <div class="cart-drawer__free-shipping" role="status" aria-live="polite">
-          <div class="cart-drawer__free-shipping-text">
-            <span class="cart-drawer__free-shipping-emoji" aria-hidden="true">🚚</span>
-            {%- if remaining_cents > 0 -%}
-              {{ section.settings.free_shipping_progress_text | replace: '[amount]', remaining_money }}
-            {%- else -%}
-              {{ section.settings.free_shipping_unlocked_text }}
-            {%- endif -%}
-          </div>
-          <div class="cart-drawer__free-shipping-bar" aria-hidden="true">
-            <span class="cart-drawer__free-shipping-fill" style="width: {{ progress }}%;"></span>
-          </div>
-        </div>
-      {%- endif -%}
 
-      {%- comment -%} Cart Items {%- endcomment -%}
-      <div
-        class="cart-drawer__items"
-        id="CartDrawer-Items"
-        data-id="{{ section.id }}">
-        {% render 'cart-drawer-items' %}
+        {%- comment -%} Cart Items {%- endcomment -%}
+        <div
+          class="cart-drawer__items"
+          id="CartDrawer-Items"
+          data-id="{{ section.id }}">
+          {% render 'cart-drawer-items' %}
+        </div>
       </div>
 
       {%- comment -%} Footer with Cart Form {%- endcomment -%}
