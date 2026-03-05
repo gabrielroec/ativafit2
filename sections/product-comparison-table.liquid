@@ -1,3 +1,9 @@
+{%- comment -%} Image width: 50% only on bike collection template, else section setting or 65% default {%- endcomment -%}
+{%- assign comparison_image_width_pct = section.settings.image_width_percent | default: 65 -%}
+{%- if template.name == 'collection' and template.suffix == 'default-bike' -%}
+  {%- assign comparison_image_width_pct = 50 -%}
+{%- endif -%}
+
 {%- style -%}
   .product-comparison {
     --brand: #eb701f;
@@ -154,7 +160,7 @@
   }
 
   #shopify-section-{{ section.id }} .product-comparison__product-image {
-    max-width: {{ section.settings.image_width_percent | default: 65 }}%;
+    max-width: {{ comparison_image_width_pct }}%;
   }
 
   .product-comparison__product-image img {
