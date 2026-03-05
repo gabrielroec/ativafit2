@@ -207,32 +207,21 @@
     {%- comment -%} Cart Drawer - Novo (Shopify 2.0) {%- endcomment -%}
     {%- comment -%} CSS e JS são carregados pela própria section cart-drawer.liquid {%- endcomment -%}
     <script>
-      // Detect user region via IP geolocation
-      window.shopifyCountryCode = '';
-      
-      // Fetch user country from IP
-      fetch('https://ipapi.co/json/')
-        .then(res => res.json())
-        .then(data => {
-          if (data.country_code) {
-            window.shopifyCountryCode = data.country_code;
-            console.log("Country detected:", window.shopifyCountryCode);
-            // Update cart drawer if already open
-            if (window.cartDrawer && window.cartDrawer.isOpen) {
-              window.cartDrawer.loadCartData();
-            }
-          }
-        })
-        .catch(() => {
-          // Fallback: try Shopify localization
-          {% if localization.country.iso_code %}
-            window.shopifyCountryCode = '{{ localization.country.iso_code }}';
-            console.log("Country from Shopify:", window.shopifyCountryCode);
-            if (window.cartDrawer && window.cartDrawer.isOpen) {
-              window.cartDrawer.loadCartData();
-            }
-          {% endif %}
-        });
+      window.shopifyCountryCode = '{{ localization.country.iso_code | default: "" }}';
+      /* Geolocation deferred to after load to avoid blocking main thread */
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          fetch('https://ipapi.co/json/')
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+              if (d.country_code) {
+                window.shopifyCountryCode = d.country_code;
+                if (window.cartDrawer && window.cartDrawer.isOpen) window.cartDrawer.loadCartData();
+              }
+            })
+            .catch(function() {});
+        }, 2000);
+      });
     </script>
 
     <div id="cart-payment-terms" style="display:none;">
@@ -450,24 +439,21 @@
 
     {%- comment -%} jQuery CDN removido — já carregado via assets/jquery.min.js (evita duplicação) {%- endcomment -%}
     <script>
-              try {
-              setTimeout(function () {
-                window.__pagefly_helper_store__ &&
-                  window.__pagefly_helper_store__.subscribe(function (res) {
-                $.getJSON('/cart.json').then(cart => {
-                  document.documentElement.dispatchEvent(new CustomEvent('product:added', {
-                  bubbles: true,
-                  detail: {
-                    quantity: 1
-                  }
-                }));
-                  $('.header__cart-count').text(cart.item_count)
-                                  });
-      });
-              }, 2500);
-            } catch (e) {
-              console.warn(e);
+      (function(){
+        var idle = window.requestIdleCallback || function(cb){setTimeout(cb,3000);};
+        idle(function(){
+          try {
+            if (window.__pagefly_helper_store__) {
+              window.__pagefly_helper_store__.subscribe(function() {
+                fetch('/cart.json').then(function(r){return r.json();}).then(function(cart){
+                  document.documentElement.dispatchEvent(new CustomEvent('product:added',{bubbles:true,detail:{quantity:1}}));
+                  document.querySelectorAll('.header__cart-count, [data-cart-count]').forEach(function(el){el.textContent=cart.item_count;});
+                });
+              });
             }
+          } catch(e){}
+        });
+      })();
     </script>
 
     <!-- Google Tag Manager (noscript) New -->

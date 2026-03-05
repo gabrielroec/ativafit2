@@ -274,7 +274,7 @@
           product.image
             ? `
           <div class="ocp-product-image">
-            <img src="${product.image}" alt="${escapeHtml(product.title)}" loading="lazy">
+            <img src="${product.image}" alt="${escapeHtml(product.title)}" loading="lazy" width="100" height="100">
           </div>
         `
             : ""
