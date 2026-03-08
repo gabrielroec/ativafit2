@@ -104,9 +104,6 @@ if (!customElements.get("cart-drawer")) {
         this.classList.add("is-open");
         this.drawer.setAttribute("aria-hidden", "false");
 
-        // Bloquear scroll do body e manter posição (scroll só dentro do drawer)
-        const scrollY = window.scrollY || window.pageYOffset;
-        document.body.style.setProperty("--scroll-y", scrollY + "px");
         document.body.classList.add("cart-drawer-open");
 
         this.drawer.focus();
@@ -118,10 +115,7 @@ if (!customElements.get("cart-drawer")) {
         this.classList.remove("is-open");
         this.drawer.setAttribute("aria-hidden", "true");
 
-        const scrollY = document.body.style.getPropertyValue("--scroll-y") || "0";
         document.body.classList.remove("cart-drawer-open");
-        document.body.style.removeProperty("--scroll-y");
-        window.scrollTo(0, parseInt(scrollY, 10) || 0);
 
         this.dispatchEvent(new CustomEvent("cart-drawer:close", { bubbles: true }));
       }
