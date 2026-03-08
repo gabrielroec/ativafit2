@@ -32,63 +32,66 @@
             <a href="{{ product.url }}">{{ 'product-1' | placeholder_svg_tag }}</a>
           {%- endif -%}
         </div>
-        <h3 class="unified-media-mention__product-name">{{ product.title | escape }}</h3>
-        <div class="unified-media-mention__product-price">
-          <span class="unified-media-mention__price">{{ variant.price | money }}</span>
-          {%- if variant.compare_at_price > variant.price -%}
-            <s class="unified-media-mention__compare-price">{{ variant.compare_at_price | money }}</s>
-          {%- endif -%}
+        <div class="unified-media-mention__product-info">
+          <h3 class="unified-media-mention__product-name">{{ product.title | escape }}</h3>
+          <div class="unified-media-mention__product-price">
+            <span class="unified-media-mention__price">{{ variant.price | money }}</span>
+            {%- if variant.compare_at_price > variant.price -%}
+              <s class="unified-media-mention__compare-price">{{ variant.compare_at_price | money }}</s>
+            {%- endif -%}
+          </div>
+          <a href="{{ product.url }}?variant={{ variant.id }}" class="unified-media-mention__view-btn">VIEW PRODUCT</a>
         </div>
-        <a href="{{ product.url }}?variant={{ variant.id }}" class="unified-media-mention__view-btn">VIEW PRODUCT</a>
       {%- else -%}
         <div class="unified-media-mention__product-image">
           <div class="unified-media-mention__placeholder">{{ 'product-1' | placeholder_svg_tag }}</div>
         </div>
-        <h3 class="unified-media-mention__product-name">Product name</h3>
-        <div class="unified-media-mention__product-price"><span class="unified-media-mention__price">$0.00</span></div>
-        <a href="#" class="unified-media-mention__view-btn">VIEW PRODUCT</a>
+        <div class="unified-media-mention__product-info">
+          <h3 class="unified-media-mention__product-name">Product name</h3>
+          <div class="unified-media-mention__product-price"><span class="unified-media-mention__price">$0.00</span></div>
+          <a href="#" class="unified-media-mention__view-btn">VIEW PRODUCT</a>
+        </div>
       {%- endif -%}
     </div>
 
     {%- if section.blocks.size > 0 -%}
-      <div class="unified-media-mention__carousel">
+      <div class="unified-media-mention__carousel" data-carousel data-total-blocks="{{ section.blocks.size }}">
         <button type="button" class="unified-media-mention__arrow unified-media-mention__arrow--prev" aria-label="Previous" data-prev>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
-        <div class="unified-media-mention__slides-wrap" data-slides-wrap data-gap="16">
-          <div class="unified-media-mention__slides" data-slides data-total-real="{{ section.blocks.size }}">
-            {%- comment -%} Clone do último (para loop infinito ao voltar) {%- endcomment -%}
-            {%- assign clone_tail = section.blocks.last -%}
-            <div class="unified-media-mention__slide" data-slide data-clone="tail">
-              <div class="unified-media-mention__slide-text">{%- if clone_tail.settings.text != blank -%}{{ clone_tail.settings.text }}{%- else -%}<p>Media mention text goes here.</p>{%- endif -%}</div>
-              {%- if clone_tail.settings.link != blank -%}<a href="{{ clone_tail.settings.link }}" class="unified-media-mention__learn-more" target="_blank" rel="noopener noreferrer">LEARN MORE</a>{%- endif -%}
-              <div class="unified-media-mention__slide-logo">
-                {%- if clone_tail.settings.logo != blank -%}{%- if clone_tail.settings.logo_bg -%}<span class="unified-media-mention__logo-bg">{%- endif -%}{{ clone_tail.settings.logo | image_url: width: 300 | image_tag: loading: 'lazy', alt: clone_tail.settings.logo.alt | default: 'Publisher' | escape }}{%- if clone_tail.settings.logo_bg -%}</span>{%- endif -%}
-                {%- elsif clone_tail.settings.logo_asset != blank -%}{%- if clone_tail.settings.logo_bg -%}<span class="unified-media-mention__logo-bg">{%- endif -%}<img src="{{ clone_tail.settings.logo_asset | asset_url }}" alt="" loading="lazy" width="150" height="50" style="max-width: 150px; max-height: 50px; object-fit: contain;">{%- if clone_tail.settings.logo_bg -%}</span>{%- endif -%}
-                {%- else -%}<div class="unified-media-mention__logo-placeholder">{{ 'image' | placeholder_svg_tag }}</div>{%- endif -%}
-              </div>
-            </div>
-            {%- for block in section.blocks -%}
-              <div class="unified-media-mention__slide" {{ block.shopify_attributes }} data-slide>
-                <div class="unified-media-mention__slide-text">{%- if block.settings.text != blank -%}{{ block.settings.text }}{%- else -%}<p>Media mention text goes here.</p>{%- endif -%}</div>
-                {%- if block.settings.link != blank -%}<a href="{{ block.settings.link }}" class="unified-media-mention__learn-more" target="_blank" rel="noopener noreferrer">LEARN MORE</a>{%- endif -%}
-                <div class="unified-media-mention__slide-logo">
-                  {%- if block.settings.logo != blank -%}{%- if block.settings.logo_bg -%}<span class="unified-media-mention__logo-bg">{%- endif -%}{{ block.settings.logo | image_url: width: 300 | image_tag: loading: 'lazy', alt: block.settings.logo.alt | default: 'Publisher' | escape }}{%- if block.settings.logo_bg -%}</span>{%- endif -%}
-                  {%- elsif block.settings.logo_asset != blank -%}{%- if block.settings.logo_bg -%}<span class="unified-media-mention__logo-bg">{%- endif -%}<img src="{{ block.settings.logo_asset | asset_url }}" alt="" loading="lazy" width="150" height="50" style="max-width: 150px; max-height: 50px; object-fit: contain;">{%- if block.settings.logo_bg -%}</span>{%- endif -%}
-                  {%- else -%}<div class="unified-media-mention__logo-placeholder">{{ 'image' | placeholder_svg_tag }}</div>{%- endif -%}
+        <div class="unified-media-mention__carousel-track">
+          <div class="unified-media-mention__carousel-inner" data-carousel-inner>
+            {%- comment -%} Grupo 1: desktop = slide com 3 cards; mobile = 3 panes (1 card cada) {%- endcomment -%}
+            <div class="unified-media-mention__carousel-group">
+              {%- for block in section.blocks -%}
+                <div class="unified-media-mention__carousel-pane">
+                  <div class="unified-media-mention__slide" {{ block.shopify_attributes }}>
+                    <div class="unified-media-mention__slide-text">{%- if block.settings.text != blank -%}{{ block.settings.text }}{%- else -%}<p>Media mention text goes here.</p>{%- endif -%}</div>
+                    {%- if block.settings.link != blank -%}<a href="{{ block.settings.link }}" class="unified-media-mention__learn-more" target="_blank" rel="noopener noreferrer">LEARN MORE</a>{%- endif -%}
+                    <div class="unified-media-mention__slide-logo">
+                      {%- if block.settings.logo != blank -%}{%- if block.settings.logo_bg -%}<span class="unified-media-mention__logo-bg">{%- endif -%}{{ block.settings.logo | image_url: width: 300 | image_tag: loading: 'lazy', alt: block.settings.logo.alt | default: 'Publisher' | escape }}{%- if block.settings.logo_bg -%}</span>{%- endif -%}
+                      {%- elsif block.settings.logo_asset != blank -%}{%- if block.settings.logo_bg -%}<span class="unified-media-mention__logo-bg">{%- endif -%}<img src="{{ block.settings.logo_asset | asset_url }}" alt="" loading="lazy" width="150" height="50" style="max-width: 150px; max-height: 50px; object-fit: contain;">{%- if block.settings.logo_bg -%}</span>{%- endif -%}
+                      {%- else -%}<div class="unified-media-mention__logo-placeholder">{{ 'image' | placeholder_svg_tag }}</div>{%- endif -%}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            {%- endfor -%}
-            {%- comment -%} Clone do primeiro (para loop infinito ao avançar) {%- endcomment -%}
-            {%- assign clone_head = section.blocks.first -%}
-            <div class="unified-media-mention__slide" data-slide data-clone="head">
-              <div class="unified-media-mention__slide-text">{%- if clone_head.settings.text != blank -%}{{ clone_head.settings.text }}{%- else -%}<p>Media mention text goes here.</p>{%- endif -%}</div>
-              {%- if clone_head.settings.link != blank -%}<a href="{{ clone_head.settings.link }}" class="unified-media-mention__learn-more" target="_blank" rel="noopener noreferrer">LEARN MORE</a>{%- endif -%}
-              <div class="unified-media-mention__slide-logo">
-                {%- if clone_head.settings.logo != blank -%}{%- if clone_head.settings.logo_bg -%}<span class="unified-media-mention__logo-bg">{%- endif -%}{{ clone_head.settings.logo | image_url: width: 300 | image_tag: loading: 'lazy', alt: clone_head.settings.logo.alt | default: 'Publisher' | escape }}{%- if clone_head.settings.logo_bg -%}</span>{%- endif -%}
-                {%- elsif clone_head.settings.logo_asset != blank -%}{%- if clone_head.settings.logo_bg -%}<span class="unified-media-mention__logo-bg">{%- endif -%}<img src="{{ clone_head.settings.logo_asset | asset_url }}" alt="" loading="lazy" width="150" height="50" style="max-width: 150px; max-height: 50px; object-fit: contain;">{%- if clone_head.settings.logo_bg -%}</span>{%- endif -%}
-                {%- else -%}<div class="unified-media-mention__logo-placeholder">{{ 'image' | placeholder_svg_tag }}</div>{%- endif -%}
-              </div>
+              {%- endfor -%}
+            </div>
+            {%- comment -%} Grupo 2 (clone para loop infinito) {%- endcomment -%}
+            <div class="unified-media-mention__carousel-group">
+              {%- for block in section.blocks -%}
+                <div class="unified-media-mention__carousel-pane">
+                  <div class="unified-media-mention__slide">
+                    <div class="unified-media-mention__slide-text">{%- if block.settings.text != blank -%}{{ block.settings.text }}{%- else -%}<p>Media mention text goes here.</p>{%- endif -%}</div>
+                    {%- if block.settings.link != blank -%}<a href="{{ block.settings.link }}" class="unified-media-mention__learn-more" target="_blank" rel="noopener noreferrer">LEARN MORE</a>{%- endif -%}
+                    <div class="unified-media-mention__slide-logo">
+                      {%- if block.settings.logo != blank -%}{%- if block.settings.logo_bg -%}<span class="unified-media-mention__logo-bg">{%- endif -%}{{ block.settings.logo | image_url: width: 300 | image_tag: loading: 'lazy', alt: block.settings.logo.alt | default: 'Publisher' | escape }}{%- if block.settings.logo_bg -%}</span>{%- endif -%}
+                      {%- elsif block.settings.logo_asset != blank -%}{%- if block.settings.logo_bg -%}<span class="unified-media-mention__logo-bg">{%- endif -%}<img src="{{ block.settings.logo_asset | asset_url }}" alt="" loading="lazy" width="150" height="50" style="max-width: 150px; max-height: 50px; object-fit: contain;">{%- if block.settings.logo_bg -%}</span>{%- endif -%}
+                      {%- else -%}<div class="unified-media-mention__logo-placeholder">{{ 'image' | placeholder_svg_tag }}</div>{%- endif -%}
+                    </div>
+                  </div>
+                </div>
+              {%- endfor -%}
             </div>
           </div>
         </div>
@@ -116,69 +119,81 @@
     color: #222;
   }
   .unified-media-mention__product {
-    text-align: center;
-    margin-bottom: 20px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 20px !important;
+    text-align: left;
   }
   .unified-media-mention__product-image {
-    max-width: 280px;
-    margin: 0 auto;
+    flex-shrink: 0 !important;
+    width: 220px !important;
+    max-width: 220px !important;
   }
   .unified-media-mention__product-image a,
   .unified-media-mention__product-image img {
-    display: block;
-    width: 100%;
-    height: auto;
-    object-fit: contain;
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
   }
   .unified-media-mention__placeholder {
-    background: #f4f4f4;
-    padding: 40px;
+    background: #f4f4f4 !important;
+    padding: 24px !important;
+  }
+  .unified-media-mention__product-info {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    min-width: 0;
   }
   .unified-media-mention__product-name {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin: 0!important;
-    color: #222;
+    font-size: 1.25rem !important;
+    font-weight: 600 !important;
+    margin: 0 !important;
+    color: #222 !important;
+    line-height: 1.3 !important;
   }
   .unified-media-mention__product-price {
-    margin: 0;
-    display: flex;
+    margin: 0 !important;
+    display: flex !important;
     align-items: center;
-    justify-content: center;
     gap: 8px;
     flex-wrap: wrap;
   }
   .unified-media-mention__price {
-    font-weight: 700;
-    color: #eb701f;
-    font-size: 1.25rem;
+    font-weight: 700 !important;
+    color: #eb701f !important;
+    font-size: 1.125rem !important;
   }
   .unified-media-mention__compare-price {
-    color: #666;
-    text-decoration: line-through;
-    font-size: 1rem;
+    color: #666 !important;
+    text-decoration: line-through !important;
+    font-size: 0.9375rem !important;
   }
   .unified-media-mention__view-btn {
-    display: inline-block;
-    padding: 10px 24px;
-    background: #eb701f;
-    color: #fff;
-    text-decoration: none;
-    font-size: 1.2rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    border-radius: 4px;
+    display: inline-block !important;
+    align-self: flex-start !important;
+    padding: 10px 24px !important;
+    background: #eb701f !important;
+    color: #fff !important;
+    text-decoration: none !important;
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    border-radius: 4px !important;
     transition: background 0.2s ease;
   }
   .unified-media-mention__view-btn:hover {
-    background: #d65a0f;
-    color: #fff;
+    background: #d65a0f !important;
+    color: #fff !important;
   }
   .unified-media-mention__carousel {
     display: flex;
     align-items: center;
     gap: 16px;
-    max-width: 900px;
+    width: 100%;
     margin: 0 auto;
   }
   .unified-media-mention__arrow {
@@ -200,99 +215,135 @@
     border-color: #eb701f;
     color: #eb701f;
   }
-  .unified-media-mention__slides-wrap {
+  .unified-media-mention__carousel-track {
     flex: 1;
     overflow: hidden;
     min-width: 0;
   }
-  .unified-media-mention__slides {
+  .unified-media-mention__carousel-inner {
     display: flex;
-    gap: 16px;
-    transition: transform 0.35s ease;
-    will-change: transform;
+    width: 200%;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  /* 50% do card atrás | 100% card do meio | 50% do card da frente — cada slide = 50% do viewport do carrossel */
+  .unified-media-mention__carousel-group {
+    display: flex !important;
+    align-items: stretch !important;
+    flex: 0 0 50% !important;
+    width: 50% !important;
+    min-width: 0;
+    gap: 16px !important;
+  }
+  .unified-media-mention__carousel-pane {
+    flex: 1 1 0 !important;
+    min-width: 0;
+    display: flex !important;
+    align-items: stretch !important;
+  }
+  .unified-media-mention__carousel-pane .unified-media-mention__slide {
+    width: 100% !important;
+    min-height: 0 !important;
+  }
   .unified-media-mention__slide {
-    flex: 0 0 calc(50% - 8px);
-    width: calc(50% - 8px);
-    min-width: calc(50% - 8px);
-    box-sizing: border-box;
-    padding: 24px;
-    background: #fff;
-    border: 1px solid #eaeaea;
-    border-radius: 8px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    height: fit-content !important;
+    flex: 1 1 0 !important;
+    min-width: 0;
+    box-sizing: border-box !important;
+    padding: 24px !important;
+    background: #fff !important;
+    border: 1px solid #eaeaea !important;
+    border-radius: 8px !important;
+    text-align: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 12px !important;
   }
   .unified-media-mention__slide-text {
-    font-size: 14px;
-    line-height: 1.5;
-    color: #333;
+    flex: 1 1 auto !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    color: #333 !important;
   }
   .unified-media-mention__slide-text p {
-    margin: 0 0 0.5em;
+    margin: 0 0 0.5em !important;
   }
   .unified-media-mention__slide-text p:last-child {
-    margin-bottom: 0!important;
+    margin-bottom: 0 !important;
   }
   .unified-media-mention__learn-more {
-    font-style: italic;
-    font-weight: 700;
-    color: #111;
-    text-decoration: none;
+    font-style: italic !important;
+    font-weight: 700 !important;
+    color: #111 !important;
+    text-decoration: none !important;
   }
   .unified-media-mention__learn-more:hover {
-    text-decoration: underline;
+    text-decoration: underline !important;
   }
   .unified-media-mention__slide-logo {
-    min-height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 0!important;
-    
+    min-height: 50px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-top: 0 !important;
   }
   .unified-media-mention__slide-logo img {
-    max-width: 150px;
-    max-height: 50px;
-    object-fit: contain;
+    max-width: 150px !important;
+    max-height: 50px !important;
+    object-fit: contain !important;
   }
   .unified-media-mention__logo-bg {
-    background: #eb701f;
-    padding: 8px;
-    border-radius: 6px;
-    display: inline-flex;
+    background: #eb701f !important;
+    padding: 8px !important;
+    border-radius: 6px !important;
+    display: inline-flex !important;
   }
   .unified-media-mention__logo-bg img {
-    max-width: 134px;
-    max-height: 34px;
+    max-width: 134px !important;
+    max-height: 34px !important;
   }
   .unified-media-mention__logo-placeholder {
-    width: 100px;
-    height: 50px;
+    width: 100px !important;
+    height: 50px !important;
   }
   .unified-media-mention__logo-placeholder svg {
-    width: 100%;
-    height: 100%;
-    fill: #ccc;
+    width: 100% !important;
+    height: 100% !important;
+    fill: #ccc !important;
   }
   @media (max-width: 749px) {
+    .unified-media-mention__product {
+      flex-direction: column !important;
+      align-items: center !important;
+      text-align: center !important;
+    }
+    .unified-media-mention__product-info {
+      align-items: center !important;
+    }
+    .unified-media-mention__view-btn {
+      align-self: center !important;
+    }
     .unified-media-mention__carousel {
-      gap: 8px;
+      gap: 0 !important;
     }
     .unified-media-mention__arrow {
-      width: 40px;
-      height: 40px;
+      display: none !important;
+    }
+    .unified-media-mention__carousel-inner {
+      width: 600% !important;
+    }
+    .unified-media-mention__carousel-group {
+      display: contents !important;
+    }
+    .unified-media-mention__carousel-pane {
+      flex: 0 0 16.666% !important;
+      width: 16.666% !important;
+      min-width: 16.666% !important;
+      display: flex !important;
     }
     .unified-media-mention__slide {
-      padding: 16px;
+      padding: 16px !important;
     }
     .unified-media-mention__slide-text {
-      font-size: 13px;
+      font-size: 13px !important;
     }
   }
 </style>
@@ -300,56 +351,77 @@
 <script>
   (function() {
     const sectionSelector = '[data-unified-media-mention]';
+    const mq = window.matchMedia('(max-width: 749px)');
     const init = (section) => {
-      const wrap = section.querySelector('[data-slides-wrap]');
-      const slidesEl = section.querySelector('[data-slides]');
-      const slides = section.querySelectorAll('[data-slide]');
+      const carousel = section.querySelector('[data-carousel]');
+      const track = section.querySelector('.unified-media-mention__carousel-track');
+      const inner = section.querySelector('[data-carousel-inner]');
       const prevBtn = section.querySelector('[data-prev]');
       const nextBtn = section.querySelector('[data-next]');
-      if (!slidesEl || !wrap || slides.length === 0) return;
-      const total = slides.length;
-      const totalReal = parseInt(section.querySelector('[data-slides]').getAttribute('data-total-real'), 10) || (total - 2);
-      const gap = parseInt(wrap.getAttribute('data-gap'), 10) || 16;
-      /* Índices: 0 = clone do último, 1..totalReal = reais, totalReal+1 = clone do primeiro. Começamos no primeiro real = 1 */
-      let index = 1;
-      let animating = false;
-      const getOffset = () => {
-        const w = wrap.offsetWidth;
-        const slideSpan = w * 0.5 + (gap / 2);
-        return index * slideSpan - w * 0.25;
-      };
+      if (!inner || !carousel) return;
+      const totalBlocks = parseInt(carousel.getAttribute('data-total-blocks'), 10) || 3;
+      let index = 0;
+      const getTotal = () => mq.matches ? totalBlocks * 2 : 2;
+      const getStep = () => mq.matches ? 100 / (totalBlocks * 2) : 100;
       const apply = (noTransition) => {
-        const tx = -getOffset();
+        const step = getStep();
+        if (noTransition) inner.style.transition = 'none';
+        inner.style.transform = 'translateX(' + (-index * step) + '%)';
         if (noTransition) {
-          slidesEl.style.transition = 'none';
-          slidesEl.style.transform = 'translateX(' + tx + 'px)';
-          slidesEl.offsetHeight;
-          slidesEl.style.transition = '';
-        } else {
-          slidesEl.style.transform = 'translateX(' + tx + 'px)';
+          inner.offsetHeight;
+          inner.style.transition = '';
         }
       };
-      const go = (delta) => {
-        if (animating) return;
-        animating = true;
-        index += delta;
+      const goNext = () => {
+        const total = getTotal();
+        index++;
         apply(false);
         const onEnd = () => {
-          if (index === 0) {
-            index = totalReal;
-            apply(true);
-          } else if (index === totalReal + 1) {
-            index = 1;
+          if (index >= total) {
+            index = 0;
             apply(true);
           }
-          animating = false;
         };
-        slidesEl.addEventListener('transitionend', onEnd, { once: true });
+        inner.addEventListener('transitionend', onEnd, { once: true });
       };
-      if (prevBtn) prevBtn.addEventListener('click', () => go(-1));
-      if (nextBtn) nextBtn.addEventListener('click', () => go(1));
+      const goPrev = () => {
+        const total = getTotal();
+        if (index <= 0) {
+          index = total - 1;
+          apply(true);
+          requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+              index = total - 2;
+              apply(false);
+            });
+          });
+        } else {
+          index--;
+          apply(false);
+        }
+      };
+      if (prevBtn) prevBtn.addEventListener('click', goPrev);
+      if (nextBtn) nextBtn.addEventListener('click', goNext);
+      if (track) {
+        let startX = 0;
+        track.addEventListener('touchstart', function(e) {
+          startX = e.touches[0].clientX;
+        }, { passive: true });
+        track.addEventListener('touchend', function(e) {
+          if (!mq.matches) return;
+          const endX = e.changedTouches[0].clientX;
+          const delta = startX - endX;
+          if (Math.abs(delta) > 50) {
+            if (delta > 0) goNext();
+            else goPrev();
+          }
+        }, { passive: true });
+      }
+      mq.addEventListener('change', function() {
+        index = Math.min(index, getTotal() - 1);
+        apply(true);
+      });
       apply(true);
-      window.addEventListener('resize', () => apply(true));
     };
     document.querySelectorAll(sectionSelector).forEach(init);
     document.addEventListener('shopify:section:load', (e) => {
