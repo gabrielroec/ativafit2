@@ -2,17 +2,17 @@
 
 <html class="no-js" lang="{{ request.locale.iso_code }}">
   <head>
-    {%- comment -%} GTM e Visually carregados após load para melhorar LCP e reduzir unused JS (performance) {%- endcomment -%}
-    <script>window.dataLayer=window.dataLayer||[];</script>
-    <link rel="preconnect" href="https://live.visually-io.com/" crossorigin>
-    <link rel="dns-prefetch" href="https://live.visually-io.com/">
+    <!-- Google Tag Manager -->
     <script>
-    (function(){var store="{{ shop.permanent_domain }}";var alias=store.replace(".myshopify.com","").replace(/-/g,"_").toUpperCase();
-    window.loomi_ctx=window.loomi_ctx||{};window.loomi_ctx.storeAlias=alias;window.loomi_ctx.jitsuKey="js.{{ shop.id }}";window.loomi_ctx.env=2;
-    {% if customer %}window.loomi_ctx.ctags=[{% for t in customer.tags %}"{{ t }}"{% unless forloop.last %},{% endunless %}{% endfor %}];{% endif %}
-    {% if product %}window.loomi_ctx.current_product={variants:[{% for v in product.variants %}{id:{{ v.id }},policy:"{{ v.inventory_policy }}",price:{{ v.price }},iq:{{ v.inventory_quantity }}}{% unless forloop.last %},{% endunless %}{% endfor %}],oos:!{{ product.available }},price:{{ product.price }}};window.loomi_ctx.productId={{ product.id }};{% if product.selected_or_first_available_variant %}window.loomi_ctx.variantId={{ product.selected_or_first_available_variant.id }};{% endif %}{% endif %}
-    })();
-    </script>
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-NG7LT26D');
+  </script>
+
+    <!-- End Google Tag Manager -->
+    {% render 'visually_io_sdk' %}
 
     <script
       src="https://analytics.ahrefs.com/analytics.js"
@@ -252,8 +252,33 @@
       </script>
     {%- endif -%}
 
-    {%- comment -%} GTM e gtag carregados após load (ver script no final do body) {%- endcomment -%}
-    <script>function gtag(){window.dataLayer=window.dataLayer||[];dataLayer.push(arguments);}</script>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-11366836138"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'AW-11366836138');
+    </script>
+
+    {%- comment -%} Twitter Pixel — deferred to after user interaction (INP fix) — loaded via deferred-tracking below {%- endcomment -%}
+
+    <!-- Google Tag Manager -->
+    <!--
+      <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);  })(window,document,'script','dataLayer','GTM-M985N39');</script>
+    -->
+    <!-- End Google Tag Manager -->
+
+    <!-- Google Tag Manager New -->
+    <script>
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-PXMZSFK');
+    </script>
+    <!-- End Google Tag Manager -->
     {%- comment -%} Hotjar 2 — deferred to after user interaction (INP fix) {%- endcomment -%}
 
     {%- comment -%} Reddit Pixel — deferred to after user interaction (INP fix) {%- endcomment -%}
@@ -634,21 +659,6 @@
         ['click','scroll','keydown','touchstart'].forEach(function(e){ document.addEventListener(e, loadTracking, {capture:true,once:true,passive:true}); });
         setTimeout(loadTracking, 5000);
       })();
-    </script>
-    {%- comment -%} GTM, gtag e Visually carregados após load (reduz unused JS e melhora LCP) {%- endcomment -%}
-    <script>
-    (function(){
-      function loadDeferred() {
-        var d = document;
-        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-PXMZSFK');
-        var g=d.createElement('script');g.async=true;g.src='https://www.googletagmanager.com/gtag/js?id=AW-11366836138';d.head.appendChild(g);
-        if (typeof gtag==='function'){ gtag('js',new Date());gtag('config','AW-11366836138'); }
-        var urls=['https://live.visually-io.com/widgets/vsly-preact.min.js?k=js.26234904&e=2&s=ATIVAFIT_TECH','https://live.visually-io.com/cf/ATIVAFIT_TECH.js','https://live.visually-io.com/v/visually.js','https://live.visually-io.com/v/visually-a.js'];
-        urls.forEach(function(u){var s=d.createElement('script');s.src=u;s.defer=true;d.body.appendChild(s);});
-      }
-      if (document.readyState==='complete') loadDeferred();
-      else window.addEventListener('load', loadDeferred);
-    })();
     </script>
   </body>
 </html>
