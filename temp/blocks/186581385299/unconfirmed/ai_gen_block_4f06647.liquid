@@ -1,6 +1,664 @@
+{% doc %}
+  @prompt
+    请使用 HTML 和 Tailwind CSS 编写一个名为 "New Arrivals" 的首页 Section，要求高度还原图片中的 UI 风格。
+    
+    1. 全局样式变量 (需易于调整)：
+    
+    
+    
+    使用 CSS 变量定义：--main-radius (圆角), --brand-red (价格/Sale色), --font-base (无衬线字体)。
+    
+    2. 顶部导航 (Header)：
+    
+    
+    
+    左侧：大标题 "New Arrivals" + 灰色小字描述。
+    
+    
+    
+    3. 核心布局 (Main Layout)：
+    
+    
+    
+    桌面端 (Desktop)： 采用 Flex  布局。左侧为一个固定比例的 Banner；右侧是4个 横向网格产品列表。
+    
+    手机端 (Mobile)： >   - 标题和描述居左对齐。
+    
+    左侧 Banner 变为全宽 放在最上方。
+    
+    下方产品改为 2个 横向网格产品列表。横向滑动(Overflow-x-scroll) 出另外两个产品。
+    
+    4. 产品卡片细节 (Product Card)：
+    
+    
+    
+    图片容器： 浅灰色背景 (#F3F3F3)，产品居中，整体大圆角。
+    
+    
+    
+    文字排版： 顶部是分类小字（全大写），中间是粗体标题，底部是价格（红色现价 + 灰色划线原价）。, 桌面端 (Desktop) 结构重构：
+    
+    左右对齐： 保持左 Banner 和右产品区的高度完全一致。
+    
+    滑动容器 (Right Column)： 右侧不再是简单的网格，而是一个 overflow-x-hidden 的容器。
+    
+    2-Column View： 在视口中，右侧一次只展示 2 个 产品卡片。
+    
+    滑动逻辑： 其余 2 个产品隐藏在容器右侧。下方展示 Slide Bar ，手机端也要加上slide bar
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-new-arrivals-{{ ai_gen_id }} {
+    --main-radius: {{ block.settings.border_radius }}px;
+    --brand-red: {{ block.settings.sale_color }};
+    --font-base: {{ block.settings.font_family.family }}, sans-serif;
+    display: block;
+    width: 100%;
+    padding: {{ block.settings.section_padding }}px 20px;
+    background-color: {{ block.settings.background_color }};
+  }
+
+  .ai-new-arrivals-container-{{ ai_gen_id }} {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .ai-new-arrivals-header-{{ ai_gen_id }} {
+    margin-bottom: 30px;
+  }
+
+  .ai-new-arrivals-title-{{ ai_gen_id }} {
+    font-family: var(--font-base);
+    font-size: {{ block.settings.title_size }}px;
+    font-weight: 700;
+    color: {{ block.settings.title_color }};
+    margin: 0 0 8px 0;
+    line-height: 1.2;
+  }
+
+  .ai-new-arrivals-description-{{ ai_gen_id }} {
+    font-family: var(--font-base);
+    font-size: {{ block.settings.description_size }}px;
+    color: {{ block.settings.description_color }};
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  .ai-new-arrivals-main-{{ ai_gen_id }} {
+    display: flex;
+    gap: 20px;
+    position: relative;
+  }
+
+  .ai-new-arrivals-banner-{{ ai_gen_id }} {
+    flex: 0 0 calc(50% - 10px);
+    background-color: #F3F3F3;
+    border-radius: var(--main-radius);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 500px;
+  }
+
+  .ai-new-arrivals-banner-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-new-arrivals-banner-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #F3F3F3;
+  }
+
+  .ai-new-arrivals-banner-placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    max-width: 300px;
+    max-height: 300px;
+    opacity: 0.3;
+  }
+
+  .ai-new-arrivals-products-wrapper-{{ ai_gen_id }} {
+    flex: 0 0 calc(50% - 10px);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ai-new-arrivals-products-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    transition: transform 0.4s ease;
+  }
+
+  .ai-new-arrivals-product-card-{{ ai_gen_id }} {
+    background-color: {{ block.settings.card_background }};
+    border-radius: var(--main-radius);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ai-new-arrivals-product-image-{{ ai_gen_id }} {
+    background-color: #F3F3F3;
+    border-radius: var(--main-radius);
+    overflow: hidden;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+
+  .ai-new-arrivals-product-image-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-new-arrivals-product-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #F3F3F3;
+  }
+
+  .ai-new-arrivals-product-placeholder-{{ ai_gen_id }} svg {
+    width: 60%;
+    height: 60%;
+    opacity: 0.3;
+  }
+
+  .ai-new-arrivals-product-info-{{ ai_gen_id }} {
+    padding: 0 8px 12px 8px;
+  }
+
+  .ai-new-arrivals-product-category-{{ ai_gen_id }} {
+    font-family: var(--font-base);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: {{ block.settings.category_color }};
+    margin: 0 0 6px 0;
+    font-weight: 500;
+  }
+
+  .ai-new-arrivals-product-title-{{ ai_gen_id }} {
+    font-family: var(--font-base);
+    font-size: {{ block.settings.product_title_size }}px;
+    font-weight: 700;
+    color: {{ block.settings.product_title_color }};
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .ai-new-arrivals-product-price-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ai-new-arrivals-product-sale-price-{{ ai_gen_id }} {
+    font-family: var(--font-base);
+    font-size: {{ block.settings.price_size }}px;
+    font-weight: 700;
+    color: var(--brand-red);
+  }
+
+  .ai-new-arrivals-product-original-price-{{ ai_gen_id }} {
+    font-family: var(--font-base);
+    font-size: {{ block.settings.price_size | minus: 2 }}px;
+    color: {{ block.settings.original_price_color }};
+    text-decoration: line-through;
+  }
+
+  .ai-new-arrivals-slider-controls-{{ ai_gen_id }} {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+  }
+
+  .ai-new-arrivals-slider-dot-{{ ai_gen_id }} {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: {{ block.settings.dot_inactive_color }};
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .ai-new-arrivals-slider-dot-{{ ai_gen_id }}.active {
+    width: 24px;
+    border-radius: 4px;
+    background-color: {{ block.settings.dot_active_color }};
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-new-arrivals-main-{{ ai_gen_id }} {
+      flex-direction: column;
+    }
+
+    .ai-new-arrivals-banner-{{ ai_gen_id }} {
+      flex: 0 0 auto;
+      width: 100%;
+      min-height: 300px;
+    }
+
+    .ai-new-arrivals-products-wrapper-{{ ai_gen_id }} {
+      flex: 0 0 auto;
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .ai-new-arrivals-products-wrapper-{{ ai_gen_id }}::-webkit-scrollbar {
+      display: none;
+    }
+
+    .ai-new-arrivals-products-{{ ai_gen_id }} {
+      grid-template-columns: repeat(4, calc(50% - 10px));
+      width: max-content;
+    }
+
+    .ai-new-arrivals-product-card-{{ ai_gen_id }} {
+      width: calc((100vw - 60px) / 2);
+      max-width: 250px;
+    }
+  }
+{% endstyle %}
+
+<new-arrivals-{{ ai_gen_id }} class="ai-new-arrivals-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-new-arrivals-container-{{ ai_gen_id }}">
+    <div class="ai-new-arrivals-header-{{ ai_gen_id }}">
+      {% if block.settings.title != blank %}
+        <h2 class="ai-new-arrivals-title-{{ ai_gen_id }}">{{ block.settings.title }}</h2>
+      {% endif %}
+      {% if block.settings.description != blank %}
+        <p class="ai-new-arrivals-description-{{ ai_gen_id }}">{{ block.settings.description }}</p>
+      {% endif %}
+    </div>
+
+    <div class="ai-new-arrivals-main-{{ ai_gen_id }}">
+      <div class="ai-new-arrivals-banner-{{ ai_gen_id }}">
+        {% if block.settings.banner_image %}
+          <img
+            src="{{ block.settings.banner_image | image_url: width: 800 }}"
+            alt="{{ block.settings.banner_image.alt | escape }}"
+            loading="lazy"
+            width="{{ block.settings.banner_image.width }}"
+            height="{{ block.settings.banner_image.height }}"
+          >
+        {% else %}
+          <div class="ai-new-arrivals-banner-placeholder-{{ ai_gen_id }}">
+            {{ 'image' | placeholder_svg_tag }}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="ai-new-arrivals-products-wrapper-{{ ai_gen_id }}">
+        <div class="ai-new-arrivals-products-{{ ai_gen_id }}" data-slider>
+          {% for i in (1..4) %}
+            {% liquid
+              assign product_key = 'product_' | append: i
+              assign product = block.settings[product_key]
+            %}
+            <div class="ai-new-arrivals-product-card-{{ ai_gen_id }}">
+              <div class="ai-new-arrivals-product-image-{{ ai_gen_id }}">
+                {% if product and product.featured_image %}
+                  <img
+                    src="{{ product.featured_image | image_url: width: 400 }}"
+                    alt="{{ product.featured_image.alt | escape }}"
+                    loading="lazy"
+                    width="400"
+                    height="400"
+                  >
+                {% else %}
+                  <div class="ai-new-arrivals-product-placeholder-{{ ai_gen_id }}">
+                    {{ 'product-1' | placeholder_svg_tag }}
+                  </div>
+                {% endif %}
+              </div>
+              <div class="ai-new-arrivals-product-info-{{ ai_gen_id }}">
+                {% if product %}
+                  <p class="ai-new-arrivals-product-category-{{ ai_gen_id }}">
+                    {{ product.type | default: 'CATEGORY' | upcase }}
+                  </p>
+                  <h3 class="ai-new-arrivals-product-title-{{ ai_gen_id }}">
+                    <a href="{{ product.url }}" style="text-decoration: none; color: inherit;">
+                      {{ product.title }}
+                    </a>
+                  </h3>
+                  <div class="ai-new-arrivals-product-price-{{ ai_gen_id }}">
+                    {% if product.compare_at_price > product.price %}
+                      <span class="ai-new-arrivals-product-sale-price-{{ ai_gen_id }}">
+                        {{ product.price | money }}
+                      </span>
+                      <span class="ai-new-arrivals-product-original-price-{{ ai_gen_id }}">
+                        {{ product.compare_at_price | money }}
+                      </span>
+                    {% else %}
+                      <span class="ai-new-arrivals-product-sale-price-{{ ai_gen_id }}">
+                        {{ product.price | money }}
+                      </span>
+                    {% endif %}
+                  </div>
+                {% else %}
+                  <p class="ai-new-arrivals-product-category-{{ ai_gen_id }}">CATEGORY</p>
+                  <h3 class="ai-new-arrivals-product-title-{{ ai_gen_id }}">Product Title</h3>
+                  <div class="ai-new-arrivals-product-price-{{ ai_gen_id }}">
+                    <span class="ai-new-arrivals-product-sale-price-{{ ai_gen_id }}">$99.00</span>
+                    <span class="ai-new-arrivals-product-original-price-{{ ai_gen_id }}">$129.00</span>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="ai-new-arrivals-slider-controls-{{ ai_gen_id }}" data-controls>
+          <button class="ai-new-arrivals-slider-dot-{{ ai_gen_id }} active" data-slide="0" aria-label="Slide 1"></button>
+          <button class="ai-new-arrivals-slider-dot-{{ ai_gen_id }}" data-slide="1" aria-label="Slide 2"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</new-arrivals-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class NewArrivals{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.currentSlide = 0;
+        this.totalSlides = 2;
+      }
+
+      connectedCallback() {
+        this.slider = this.querySelector('[data-slider]');
+        this.dots = this.querySelectorAll('[data-slide]');
+        this.wrapper = this.querySelector('.ai-new-arrivals-products-wrapper-{{ ai_gen_id }}');
+        
+        if (!this.slider || !this.dots.length) return;
+
+        this.setupEventListeners();
+        this.setupMobileScroll();
+      }
+
+      setupEventListeners() {
+        this.dots.forEach((dot) => {
+          dot.addEventListener('click', () => {
+            const slideIndex = parseInt(dot.getAttribute('data-slide'));
+            this.goToSlide(slideIndex);
+          });
+        });
+      }
+
+      setupMobileScroll() {
+        if (window.innerWidth <= 768) {
+          this.wrapper.addEventListener('scroll', () => {
+            const scrollLeft = this.wrapper.scrollLeft;
+            const cardWidth = this.wrapper.querySelector('.ai-new-arrivals-product-card-{{ ai_gen_id }}').offsetWidth + 20;
+            const slideIndex = Math.round(scrollLeft / cardWidth);
+            
+            if (slideIndex !== this.currentSlide && slideIndex < this.totalSlides) {
+              this.currentSlide = slideIndex;
+              this.updateDots();
+            }
+          });
+        }
+      }
+
+      goToSlide(index) {
+        if (index < 0 || index >= this.totalSlides) return;
+        
+        this.currentSlide = index;
+        
+        if (window.innerWidth > 768) {
+          const offset = index * -100;
+          this.slider.style.transform = `translateX(${offset}%)`;
+        } else {
+          const cardWidth = this.wrapper.querySelector('.ai-new-arrivals-product-card-{{ ai_gen_id }}').offsetWidth + 20;
+          this.wrapper.scrollTo({
+            left: cardWidth * index,
+            behavior: 'smooth'
+          });
+        }
+        
+        this.updateDots();
+      }
+
+      updateDots() {
+        this.dots.forEach((dot, index) => {
+          if (index === this.currentSlide) {
+            dot.classList.add('active');
+          } else {
+            dot.classList.remove('active');
+          }
+        });
+      }
+    }
+
+    customElements.define('new-arrivals-{{ ai_gen_id }}', NewArrivals{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "New Arrivals",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section header"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "New Arrivals"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Title size",
+      "min": 20,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title color",
+      "default": "#333333"
+    },
+    {
+      "type": "text",
+      "id": "description",
+      "label": "Description",
+      "default": "Discover our latest collection"
+    },
+    {
+      "type": "range",
+      "id": "description_size",
+      "label": "Description size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "color",
+      "id": "description_color",
+      "label": "Description color",
+      "default": "#999999"
+    },
+    {
+      "type": "header",
+      "content": "Banner"
+    },
+    {
+      "type": "image_picker",
+      "id": "banner_image",
+      "label": "Banner image"
+    },
+    {
+      "type": "header",
+      "content": "Products"
+    },
+    {
+      "type": "product",
+      "id": "product_1",
+      "label": "Product 1"
+    },
+    {
+      "type": "product",
+      "id": "product_2",
+      "label": "Product 2"
+    },
+    {
+      "type": "product",
+      "id": "product_3",
+      "label": "Product 3"
+    },
+    {
+      "type": "product",
+      "id": "product_4",
+      "label": "Product 4"
+    },
+    {
+      "type": "header",
+      "content": "Product card style"
+    },
+    {
+      "type": "range",
+      "id": "product_title_size",
+      "label": "Product title size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "product_title_color",
+      "label": "Product title color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "category_color",
+      "label": "Category color",
+      "default": "#999999"
+    },
+    {
+      "type": "range",
+      "id": "price_size",
+      "label": "Price size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "sale_color",
+      "label": "Sale price color",
+      "default": "#cf0e0e"
+    },
+    {
+      "type": "color",
+      "id": "original_price_color",
+      "label": "Original price color",
+      "default": "#999999"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Slider controls"
+    },
+    {
+      "type": "color",
+      "id": "dot_active_color",
+      "label": "Active dot color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "dot_inactive_color",
+      "label": "Inactive dot color",
+      "default": "#cccccc"
+    },
+    {
+      "type": "header",
+      "content": "Section style"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "section_padding",
+      "label": "Section padding",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "font_picker",
+      "id": "font_family",
+      "label": "Font family",
+      "default": "helvetica_n4"
+    }
+  ],
+  "presets": [
+    {
+      "name": "New Arrivals"
+    }
+  ]
+}
 {% endschema %}
