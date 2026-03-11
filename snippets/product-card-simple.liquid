@@ -18,6 +18,13 @@
         {%- else -%}
           {{ 'product-1' | placeholder_svg_tag: 'product-card-simple__placeholder' }}
         {%- endif -%}
+        {%- assign compare_price = card_variant.compare_at_price -%}
+        {%- assign price = card_variant.price -%}
+        {%- if compare_price != blank and compare_price > price and compare_price > 0 -%}
+          {%- assign discount_cents = compare_price | minus: price -%}
+          {%- assign discount_percent = discount_cents | times: 100 | divided_by: compare_price -%}
+          <span class="product-card-simple__discount-badge" aria-hidden="true">{{ discount_percent }}% OFF</span>
+        {%- endif -%}
       </div>
     </a>
 
@@ -27,15 +34,24 @@
           {%- assign v_image = v.image | default: product.featured_image -%}
           {%- assign v_image_thumb = v_image | image_url: width: 200 -%}
           {%- assign v_image_full = v_image | image_url: width: 600 -%}
+          {%- assign v_compare = v.compare_at_price -%}
+          {%- assign v_price = v.price -%}
+          {%- assign v_discount_label = '' -%}
+          {%- if v_compare != blank and v_compare > v_price and v_compare > 0 -%}
+            {%- assign v_discount_cents = v_compare | minus: v_price -%}
+            {%- assign v_discount_percent = v_discount_cents | times: 100 | divided_by: v_compare -%}
+            {%- assign v_discount_label = v_discount_percent | append: '% OFF' -%}
+          {%- endif -%}
           <button
             type="button"
             class="product-card-simple__variant-btn{% if v.id == card_variant.id %} product-card-simple__variant-btn--selected{% endif %}"
             data-variant-id="{{ v.id }}"
             data-price="{{ v.price | money | escape }}"
             data-compare-at-price="{{ v.compare_at_price | money | escape }}"
+            data-show-compare="{% if v.compare_at_price > v.price %}true{% else %}false{% endif %}"
+            data-discount-label="{{ v_discount_label | escape }}"
             data-available="{{ v.available }}"
             data-image-src="{{ v_image_full | replace: '"', '&quot;' }}"
-            data-show-compare="{% if v.compare_at_price > v.price %}true{% else %}false{% endif %}"
             aria-label="{{ v.title | escape }}"
             aria-pressed="{% if v.id == card_variant.id %}true{% else %}false{% endif %}">
             {%- if v_image -%}

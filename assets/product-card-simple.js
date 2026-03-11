@@ -21,6 +21,8 @@
     var priceCompare = card.querySelector('[data-price-compare]');
     var atcButton = card.querySelector('[data-atc-button]');
     var imageContainer = card.querySelector('.product-card-simple__image');
+    var discountBadge = card.querySelector('.product-card-simple__discount-badge');
+    var discountLabel = btn.getAttribute('data-discount-label') || '';
     if (input) input.value = variantId;
     if (priceCurrent) priceCurrent.textContent = price || '';
     if (priceCompare) {
@@ -37,6 +39,14 @@
       if (img) {
         img.src = imageSrc;
         img.srcset = imageSrc + ' 1x';
+      }
+    }
+    if (discountBadge) {
+      if (discountLabel) {
+        discountBadge.textContent = discountLabel;
+        discountBadge.style.display = '';
+      } else {
+        discountBadge.style.display = 'none';
       }
     }
     card.querySelectorAll('.product-card-simple__variant-btn').forEach(function(b) {
