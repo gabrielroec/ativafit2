@@ -71,16 +71,17 @@
 
       {%- comment -%} Área rolável: free shipping + itens (free shipping segue o scroll, não fica fixo) {%- endcomment -%}
       <div class="cart-drawer__scroll">
-        {%- comment -%} Free Shipping Bar (US only) - Always show as unlocked for US to avoid stale "Add $X more" after AJAX cart updates {%- endcomment -%}
-        {%- assign country_code = localization.country.iso_code | upcase -%}
-        {%- if section.settings.show_free_shipping_bar and country_code == 'US' -%}
-          <div class="cart-drawer__free-shipping" role="status" aria-live="polite">
-            <div class="cart-drawer__free-shipping-text">
-              <span class="cart-drawer__free-shipping-emoji" aria-hidden="true">🚚</span>
-              {{ section.settings.free_shipping_unlocked_text }}
-            </div>
-            <div class="cart-drawer__free-shipping-bar" aria-hidden="true">
-              <span class="cart-drawer__free-shipping-fill" style="width: 100%;"></span>
+        {%- comment -%} Free Shipping Bar (US only) - Shown only when JS detects US by IP; hidden by default to avoid flash for non-US {%- endcomment -%}
+        {%- if section.settings.show_free_shipping_bar -%}
+          <div id="cart-drawer-free-shipping-wrap" class="cart-drawer__free-shipping-wrap" data-free-shipping-bar style="display: none;">
+            <div class="cart-drawer__free-shipping" role="status" aria-live="polite">
+              <div class="cart-drawer__free-shipping-text">
+                <span class="cart-drawer__free-shipping-emoji" aria-hidden="true">🚚</span>
+                {{ section.settings.free_shipping_unlocked_text }}
+              </div>
+              <div class="cart-drawer__free-shipping-bar" aria-hidden="true">
+                <span class="cart-drawer__free-shipping-fill" style="width: 100%;"></span>
+              </div>
             </div>
           </div>
         {%- endif -%}
@@ -322,7 +323,7 @@
         "type": "text",
         "id": "free_shipping_unlocked_text",
         "label": "Unlocked Text",
-        "default": "You unlocked free shipping in the U.S.!"
+        "default": "You unlocked free shipping"
       },
       {
         "type": "richtext",

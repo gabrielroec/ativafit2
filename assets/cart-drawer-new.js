@@ -6,11 +6,14 @@
  * - Fetch API para Cart API
  * - Acessibilidade (ARIA, keyboard)
  * - Performance otimizada
+ * - Free shipping bar: visível apenas quando país = US (detecção por IP no client)
  *
  * Referências:
  * - https://shopify.dev/docs/api/ajax/reference/cart
  * - https://shopify.dev/docs/storefronts/themes/best-practices
  */
+
+const FREE_SHIPPING_STORAGE_KEY = "afit_free_shipping_country";
 
 function getCartApi() {
   if (window.AfitCartApi) return window.AfitCartApi;
@@ -60,6 +63,43 @@ function getCartApi() {
 
   window.AfitCartApi = { fetchCart, invalidate };
   return window.AfitCartApi;
+}
+
+/**
+ * Detecta país do visitante por IP (API externa) e mostra a barra de free shipping só para US.
+ * Resultado em sessionStorage para não chamar a API a cada navegação.
+ */
+function detectCountryAndToggleFreeShippingBar() {
+  const wrap = document.getElementById("cart-drawer-free-shipping-wrap");
+  if (!wrap) return;
+
+  function showBar() {
+    wrap.style.display = "";
+  }
+  function hideBar() {
+    wrap.style.display = "none";
+  }
+
+  try {
+    const cached = sessionStorage.getItem(FREE_SHIPPING_STORAGE_KEY);
+    if (cached !== null) {
+      if (cached === "US") showBar();
+      else hideBar();
+      return;
+    }
+  } catch (_) {}
+
+  fetch("https://ipapi.co/json/", { credentials: "omit" })
+    .then((res) => res.json())
+    .then((data) => {
+      const code = (data.country_code || "").toUpperCase();
+      try {
+        sessionStorage.setItem(FREE_SHIPPING_STORAGE_KEY, code);
+      } catch (_) {}
+      if (code === "US") showBar();
+      else hideBar();
+    })
+    .catch(() => hideBar());
 }
 
 if (!customElements.get("cart-drawer")) {
@@ -390,6 +430,8 @@ function formatMoney(cents) {
 
 // Open cart drawer when item is added
 document.addEventListener("DOMContentLoaded", () => {
+  detectCountryAndToggleFreeShippingBar();
+
   const cartApi = getCartApi();
   // Handle recommendation button clicks
   document.addEventListener("click", (e) => {
