@@ -28,31 +28,74 @@
   </header>
 
   <div class="article-journal__body">
-    <div class="article-journal__container">
-      <div class="article-journal__content rte">{{ article.content }}</div>
-      {%- if section.settings.show_tags and article.tags.size > 0 -%}
-        <div class="article-journal__tags">
-          <span class="article-journal__tags-label">{{ 'blog.article.tags' | t | default: 'Tags' }}:</span>
-          {%- for tag in article.tags -%}<a href="{{ blog.url }}/tagged/{{ tag | handle }}" class="article-journal__tag">{{ tag }}</a>{% unless forloop.last %}, {% endunless %}{%- endfor -%}
-        </div>
-      {%- endif -%}
-      {%- if section.settings.show_share -%}
-        <div class="article-journal__share">
-          <span class="article-journal__share-label">{{ 'blog.article.share' | t | default: 'Share' }}</span>
-          {%- assign share_url = shop.url | append: article.url -%}
-          {%- assign share_title = article.title | url_param_escape -%}
-          <a href="https://www.facebook.com/sharer.php?u={{ share_url }}" target="_blank" rel="noopener noreferrer" class="article-journal__share-link" aria-label="Share on Facebook">Facebook</a>
-          <a href="https://twitter.com/share?text={{ share_title }}&url={{ share_url }}" target="_blank" rel="noopener noreferrer" class="article-journal__share-link" aria-label="Share on Twitter">Twitter</a>
-          <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ share_url }}&title={{ share_title }}" target="_blank" rel="noopener noreferrer" class="article-journal__share-link" aria-label="Share on LinkedIn">LinkedIn</a>
-        </div>
-      {%- endif -%}
-      {%- if section.settings.show_prev_next -%}
-        {%- if blog.previous_article or blog.next_article -%}
-        <nav class="article-journal__nav" aria-label="Article navigation">
-          {%- if blog.next_article -%}<a href="{{ blog.next_article.url }}" class="article-journal__nav-link article-journal__nav-link--prev" rel="prev"><span class="article-journal__nav-label">&larr; {{ 'blog.article.previous_article' | t | default: 'Previous' }}</span><span class="article-journal__nav-title">{{ blog.next_article.title }}</span></a>{%- endif -%}
-          {%- if blog.previous_article -%}<a href="{{ blog.previous_article.url }}" class="article-journal__nav-link article-journal__nav-link--next" rel="next"><span class="article-journal__nav-label">{{ 'blog.article.next_article' | t | default: 'Next' }} &rarr;</span><span class="article-journal__nav-title">{{ blog.previous_article.title }}</span></a>{%- endif -%}
-        </nav>
+    <div class="article-journal__container article-journal__body-inner">
+      <div class="article-journal__main">
+        <div class="article-journal__content rte">{{ article.content }}</div>
+        {%- if section.settings.show_tags and article.tags.size > 0 -%}
+          <div class="article-journal__tags">
+            <span class="article-journal__tags-label">{{ 'blog.article.tags' | t | default: 'Tags' }}:</span>
+            {%- for tag in article.tags -%}<a href="{{ blog.url }}/tagged/{{ tag | handle }}" class="article-journal__tag">{{ tag }}</a>{% unless forloop.last %}, {% endunless %}{%- endfor -%}
+          </div>
         {%- endif -%}
+        {%- if section.settings.show_share -%}
+          <div class="article-journal__share">
+            <span class="article-journal__share-label">{{ 'blog.article.share' | t | default: 'Share' }}</span>
+            {%- assign share_url = shop.url | append: article.url -%}
+            {%- assign share_title = article.title | url_param_escape -%}
+            <a href="https://www.facebook.com/sharer.php?u={{ share_url }}" target="_blank" rel="noopener noreferrer" class="article-journal__share-link" aria-label="Share on Facebook">Facebook</a>
+            <a href="https://twitter.com/share?text={{ share_title }}&url={{ share_url }}" target="_blank" rel="noopener noreferrer" class="article-journal__share-link" aria-label="Share on Twitter">Twitter</a>
+            <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ share_url }}&title={{ share_title }}" target="_blank" rel="noopener noreferrer" class="article-journal__share-link" aria-label="Share on LinkedIn">LinkedIn</a>
+          </div>
+        {%- endif -%}
+        {%- if section.settings.show_prev_next -%}
+          {%- if blog.previous_article or blog.next_article -%}
+            <nav class="article-journal__nav" aria-label="Article navigation">
+              {%- if blog.next_article -%}<a href="{{ blog.next_article.url }}" class="article-journal__nav-link article-journal__nav-link--prev" rel="prev"><span class="article-journal__nav-label">&larr; {{ 'blog.article.previous_article' | t | default: 'Previous' }}</span><span class="article-journal__nav-title">{{ blog.next_article.title }}</span></a>{%- endif -%}
+              {%- if blog.previous_article -%}<a href="{{ blog.previous_article.url }}" class="article-journal__nav-link article-journal__nav-link--next" rel="next"><span class="article-journal__nav-label">{{ 'blog.article.next_article' | t | default: 'Next' }} &rarr;</span><span class="article-journal__nav-title">{{ blog.previous_article.title }}</span></a>{%- endif -%}
+            </nav>
+          {%- endif -%}
+        {%- endif -%}
+      </div>
+      {%- if section.blocks.size > 0 -%}
+        <aside class="article-journal__aside" aria-label="{{ 'blogs.article.related_products' | t | default: 'Related products' }}">
+          {%- for block in section.blocks -%}
+            {%- case block.type -%}
+              {%- when 'product_banner' -%}
+                {%- assign p1 = block.settings.product_1 -%}
+                {%- assign p2 = block.settings.product_2 -%}
+                {%- assign p3 = block.settings.product_3 -%}
+                {%- assign col = block.settings.collection -%}
+                {%- if p1 == blank and col != blank and col.products.size > 0 -%}
+                  {%- assign p1 = col.products[0] -%}
+                  {%- if col.products.size > 1 -%}{%- assign p2 = col.products[1] -%}{%- endif -%}
+                  {%- if col.products.size > 2 -%}{%- assign p3 = col.products[2] -%}{%- endif -%}
+                {%- endif -%}
+                {%- if p1 == blank and col == blank -%}
+                  {%- for c in collections limit: 20 -%}
+                    {%- if c.products.size > 0 -%}
+                      {%- assign col = c -%}
+                      {%- assign p1 = col.products[0] -%}
+                      {%- if col.products.size > 1 -%}{%- assign p2 = col.products[1] -%}{%- endif -%}
+                      {%- if col.products.size > 2 -%}{%- assign p3 = col.products[2] -%}{%- endif -%}
+                      {%- break -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+                {%- endif -%}
+                {%- if p1 != blank or p2 != blank or p3 != blank -%}
+                  <div class="article-journal__aside-banner" {{ block.shopify_attributes }}>
+                    {%- if block.settings.heading != blank -%}
+                      <h3 class="article-journal__aside-heading">{{ block.settings.heading | escape }}</h3>
+                    {%- endif -%}
+                    <div class="article-journal__aside-products">
+                      {%- if p1 != blank -%}{% render 'article-journal-aside-product', product: p1 %}{%- endif -%}
+                      {%- if p2 != blank -%}{% render 'article-journal-aside-product', product: p2 %}{%- endif -%}
+                      {%- if p3 != blank -%}{% render 'article-journal-aside-product', product: p3 %}{%- endif -%}
+                    </div>
+                  </div>
+                {%- endif -%}
+            {%- endcase -%}
+          {%- endfor -%}
+        </aside>
       {%- endif -%}
     </div>
   </div>
@@ -98,7 +141,30 @@
 .article-journal__nav-link--next { text-align: right; }
 .article-journal__nav-label { display: block; font-size: .8rem; font-weight: 600; color: var(--aj-accent); margin-bottom: .25rem; }
 .article-journal__nav-title { font-size: .95rem; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-@media (max-width:749px){ .article-journal__banner{aspect-ratio:16/10} .article-journal__header-inner{padding:1.5rem 16px 1.75rem} .article-journal__container,.article-journal__content{padding-left:16px;padding-right:16px} .article-journal__content{font-size:1.0625rem} .article-journal__meta{font-size:.8125rem} .article-journal__nav{grid-template-columns:1fr} .article-journal__nav-link--next{text-align:left} }
+.article-journal__body-inner { display: grid; grid-template-columns: 1fr; gap: 2rem; align-items: start; }
+.article-journal__main { min-width: 0; }
+.article-journal__aside { display: flex; flex-direction: column; gap: 1.5rem; }
+.article-journal__aside-banner { background: #f8f8f8; border: 1px solid var(--aj-border,#e5e5e5); border-radius: 10px; padding: 1rem; }
+.article-journal__aside-heading { font-size: .9rem; font-weight: 700; margin: 0 0 .75rem; color: var(--aj-text,#222); letter-spacing: .02em; }
+.article-journal__aside-products { display: flex; flex-direction: column; gap: .75rem; }
+.article-journal-aside-card { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.article-journal-aside-card__link { display: flex; align-items: center; gap: 12px; padding: 10px; text-decoration: none; color: inherit; transition: background .2s; }
+.article-journal-aside-card__link:hover { background: #fafafa; }
+.article-journal-aside-card__image { flex-shrink: 0; width: 100px; height: 100px; border-radius: 6px; overflow: hidden; background: #eee; }
+.article-journal-aside-card__img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.article-journal-aside-card__placeholder { width: 100%; height: 100%; }
+.article-journal-aside-card__info { flex: 1; min-width: 0; }
+.article-journal-aside-card__title { font-size: .9rem; font-weight: 600; margin: 0 0 4px; line-height: 1.25; color: var(--aj-text,#222); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.article-journal-aside-card__price { margin: 0 0 6px; font-size: .85rem; }
+.article-journal-aside-card__price-current { font-weight: 700; color: var(--aj-accent); }
+.article-journal-aside-card__price-compare { color: var(--aj-muted,#555); text-decoration: line-through; margin-left: 6px; }
+.article-journal-aside-card__cta { font-size: .8rem; font-weight: 600; color: var(--aj-accent); }
+@media (min-width: 990px) {
+  .article-journal__body-inner { grid-template-columns: 1fr 300px; }
+  .article-journal__aside { position: sticky; top: 24px; }
+}
+@media (max-width:749px){
+  .article-journal__banner{aspect-ratio:16/10} .article-journal__header-inner{padding:1.5rem 16px 1.75rem} .article-journal__container,.article-journal__content{padding-left:16px;padding-right:16px} .article-journal__content{font-size:1.0625rem} .article-journal__meta{font-size:.8125rem} .article-journal__nav{grid-template-columns:1fr} .article-journal__nav-link--next{text-align:left} }
 </style>
 
 {% schema %}
@@ -122,6 +188,20 @@
     {"type": "color", "id": "text_color", "label": "Body text", "default": "#222021"},
     {"type": "color", "id": "muted_color", "label": "Muted text", "default": "#555555"},
     {"type": "color", "id": "border_color", "label": "Borders", "default": "#e5e5e5"}
+  ],
+  "blocks": [
+    {
+      "type": "product_banner",
+      "name": "Product banner (aside)",
+      "limit": 6,
+      "settings": [
+        {"type": "text", "id": "heading", "label": "Heading", "default": "Recommended"},
+        {"type": "collection", "id": "collection", "label": "Fallback collection", "info": "If no products are selected below, first 3 products from this collection are shown."},
+        {"type": "product", "id": "product_1", "label": "Product 1"},
+        {"type": "product", "id": "product_2", "label": "Product 2"},
+        {"type": "product", "id": "product_3", "label": "Product 3"}
+      ]
+    }
   ]
 }
 {% endschema %}

@@ -1,0 +1,28 @@
+{%- comment -%} Product card em formato banner (horizontal): imagem + título/preço/CTA. Para asides do article journal. {%- endcomment -%}
+{%- if product != blank -%}
+  {%- assign v = product.selected_or_first_available_variant -%}
+  {%- assign img = v.image | default: product.featured_image -%}
+  <article class="article-journal-aside-card" data-aside-product>
+    <a href="{{ product.url }}" class="article-journal-aside-card__link">
+      <div class="article-journal-aside-card__image">
+        {%- if img -%}
+          {{ img | image_url: width: 400 | image_tag: loading: 'lazy', widths: '120,160,200,280', sizes: '140px', alt: img.alt | default: product.title | escape, class: 'article-journal-aside-card__img' }}
+        {%- else -%}
+          {{ 'product-1' | placeholder_svg_tag: 'article-journal-aside-card__placeholder' }}
+        {%- endif -%}
+      </div>
+      <div class="article-journal-aside-card__info">
+        <h3 class="article-journal-aside-card__title">{{ product.title | escape }}</h3>
+        <p class="article-journal-aside-card__price">
+          {%- if v.compare_at_price > v.price -%}
+            <span class="article-journal-aside-card__price-current">{{ v.price | money }}</span>
+            <span class="article-journal-aside-card__price-compare">{{ v.compare_at_price | money }}</span>
+          {%- else -%}
+            <span class="article-journal-aside-card__price-current">{{ v.price | money }}</span>
+          {%- endif -%}
+        </p>
+        <span class="article-journal-aside-card__cta">{{ 'products.product.view_product' | t | default: 'View product' }}</span>
+      </div>
+    </a>
+  </article>
+{%- endif -%}
