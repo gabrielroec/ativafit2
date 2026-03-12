@@ -1,0 +1,125 @@
+{%- assign words = article.content | strip_html | strip_newlines | split: ' ' | size -%}
+{%- assign reading_minutes = words | plus: 199 | divided_by: 200 -%}
+{%- if reading_minutes < 1 -%}{%- assign reading_minutes = 1 -%}{%- endif -%}
+
+<article class="article-journal" id="ArticleJournal-{{ section.id }}" data-section-id="{{ section.id }}" role="article">
+  <header class="article-journal__header">
+    <div class="article-journal__banner">
+      {%- if article.image -%}
+        {{ article.image | image_url: width: 1920 | image_tag: loading: 'eager', widths: '600,900,1200,1920', sizes: '100vw', class: 'article-journal__banner-image', alt: article.image.alt | default: article.title | escape }}
+      {%- else -%}
+        <div class="article-journal__banner-placeholder" aria-hidden="true"></div>
+      {%- endif -%}
+      <div class="article-journal__banner-overlay" aria-hidden="true"></div>
+    </div>
+    <div class="article-journal__header-inner">
+      <div class="article-journal__container article-journal__container--narrow">
+        {%- if section.settings.show_category and article.tags.size > 0 -%}
+          <a href="{{ blog.url }}/tagged/{{ article.tags.first | handle }}" class="article-journal__category">{{ article.tags.first }}</a>
+        {%- endif -%}
+        <h1 class="article-journal__title">{{ article.title }}</h1>
+        <div class="article-journal__meta" role="list">
+          {%- if section.settings.show_author -%}<span class="article-journal__meta-item" role="listitem">{{ article.author }}</span>{%- endif -%}
+          {%- if section.settings.show_date -%}<time class="article-journal__meta-item" datetime="{{ article.published_at | date: '%Y-%m-%d' }}" role="listitem">{{ article.published_at | date: format: 'month_day_year' }}</time>{%- endif -%}
+          {%- if section.settings.show_reading_time -%}<span class="article-journal__meta-item article-journal__meta-item--reading" role="listitem">{{ reading_minutes }} min read</span>{%- endif -%}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="article-journal__body">
+    <div class="article-journal__container">
+      <div class="article-journal__content rte">{{ article.content }}</div>
+      {%- if section.settings.show_tags and article.tags.size > 0 -%}
+        <div class="article-journal__tags">
+          <span class="article-journal__tags-label">{{ 'blog.article.tags' | t | default: 'Tags' }}:</span>
+          {%- for tag in article.tags -%}<a href="{{ blog.url }}/tagged/{{ tag | handle }}" class="article-journal__tag">{{ tag }}</a>{% unless forloop.last %}, {% endunless %}{%- endfor -%}
+        </div>
+      {%- endif -%}
+      {%- if section.settings.show_share -%}
+        <div class="article-journal__share">
+          <span class="article-journal__share-label">{{ 'blog.article.share' | t | default: 'Share' }}</span>
+          {%- assign share_url = shop.url | append: article.url -%}
+          {%- assign share_title = article.title | url_param_escape -%}
+          <a href="https://www.facebook.com/sharer.php?u={{ share_url }}" target="_blank" rel="noopener noreferrer" class="article-journal__share-link" aria-label="Share on Facebook">Facebook</a>
+          <a href="https://twitter.com/share?text={{ share_title }}&url={{ share_url }}" target="_blank" rel="noopener noreferrer" class="article-journal__share-link" aria-label="Share on Twitter">Twitter</a>
+          <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ share_url }}&title={{ share_title }}" target="_blank" rel="noopener noreferrer" class="article-journal__share-link" aria-label="Share on LinkedIn">LinkedIn</a>
+        </div>
+      {%- endif -%}
+      {%- if section.settings.show_prev_next and (blog.previous_article or blog.next_article) -%}
+        <nav class="article-journal__nav" aria-label="Article navigation">
+          {%- if blog.next_article -%}<a href="{{ blog.next_article.url }}" class="article-journal__nav-link article-journal__nav-link--prev" rel="prev"><span class="article-journal__nav-label">&larr; {{ 'blog.article.previous_article' | t | default: 'Previous' }}</span><span class="article-journal__nav-title">{{ blog.next_article.title }}</span></a>{%- endif -%}
+          {%- if blog.previous_article -%}<a href="{{ blog.previous_article.url }}" class="article-journal__nav-link article-journal__nav-link--next" rel="next"><span class="article-journal__nav-label">{{ 'blog.article.next_article' | t | default: 'Next' }} &rarr;</span><span class="article-journal__nav-title">{{ blog.previous_article.title }}</span></a>{%- endif -%}
+        </nav>
+      {%- endif -%}
+    </div>
+  </div>
+</article>
+
+<style>
+#ArticleJournal-{{ section.id }} { --aj-accent: {{ section.settings.accent_color }}; --aj-text: {{ section.settings.text_color }}; --aj-muted: {{ section.settings.muted_color }}; --aj-border: {{ section.settings.border_color }}; --aj-body-width: {{ section.settings.content_width }}px; }
+.article-journal { padding-bottom: 4rem; }
+.article-journal__header { position: relative; margin-bottom: 3rem; }
+.article-journal__banner { position: relative; aspect-ratio: 21/9; overflow: hidden; background: var(--aj-muted,#1a1a1a); }
+.article-journal__banner-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.article-journal__banner-placeholder { position: absolute; inset: 0; background: linear-gradient(135deg,#2c2c2c 0%,#1a1a1a 100%); }
+.article-journal__banner-overlay { position: absolute; inset: 0; background: linear-gradient(to top,rgba(0,0,0,.85) 0%,rgba(0,0,0,.4) 40%,transparent 70%); pointer-events: none; }
+.article-journal__header-inner { position: absolute; bottom: 0; left: 0; right: 0; padding: 2rem 24px 2.5rem; }
+.article-journal__container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+.article-journal__container--narrow { max-width: var(--aj-body-width,720px); }
+.article-journal__category { display: inline-block; font-size: .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--aj-accent); text-decoration: none; margin-bottom: .75rem; }
+.article-journal__category:hover { text-decoration: underline; }
+.article-journal__title { font-size: clamp(1.75rem,4vw,2.75rem); font-weight: 700; line-height: 1.2; color: #fff; margin: 0 0 1rem; letter-spacing: -.02em; }
+.article-journal__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0 1rem; font-size: .875rem; color: rgba(255,255,255,.85); }
+.article-journal__meta-item { position: relative; }
+.article-journal__meta-item:not(:last-child)::after { content: "·"; position: absolute; right: -.6rem; opacity: .7; }
+.article-journal__meta-item--reading { font-style: italic; }
+.article-journal__body { color: var(--aj-text,#222); }
+.article-journal__content { max-width: var(--aj-body-width,720px); margin: 0 auto 2.5rem; font-size: 1.125rem; line-height: 1.75; }
+.article-journal__content :first-child { margin-top: 0; }
+.article-journal__content h1,.article-journal__content h2,.article-journal__content h3,.article-journal__content h4 { margin: 2em 0 .6em; font-weight: 700; line-height: 1.3; color: var(--aj-text,#222); }
+.article-journal__content h1{font-size:1.6em}.article-journal__content h2{font-size:1.4em}.article-journal__content h3{font-size:1.2em}.article-journal__content h4{font-size:1.1em}
+.article-journal__content p { margin: 0 0 1.25em; }
+.article-journal__content a:not(.button) { color: var(--aj-accent); text-decoration: underline; text-underline-offset: 2px; }
+.article-journal__content blockquote { margin: 2rem 0; padding-left: 1.5rem; border-left: 4px solid var(--aj-accent); font-size: 1.1em; color: var(--aj-muted,#555); font-style: italic; }
+.article-journal__content ul,.article-journal__content ol { margin: 1.25em 0; padding-left: 1.5em; }
+.article-journal__content img { max-width: 100%; height: auto; margin: 1.5em 0; border-radius: 4px; }
+.article-journal__tags { max-width: var(--aj-body-width,720px); margin: 0 auto 2rem; padding-top: 1.5rem; border-top: 1px solid var(--aj-border,#e5e5e5); font-size: .9rem; color: var(--aj-muted,#555); }
+.article-journal__tags-label { font-weight: 600; margin-right: .25rem; }
+.article-journal__tag { color: var(--aj-accent); text-decoration: none; }
+.article-journal__share { max-width: var(--aj-body-width,720px); margin: 0 auto 2.5rem; font-size: .9rem; }
+.article-journal__share-label { font-weight: 600; margin-right: .75rem; color: var(--aj-muted,#555); }
+.article-journal__share-link { margin-right: 1rem; color: var(--aj-accent); text-decoration: none; }
+.article-journal__nav { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; max-width: var(--aj-body-width,720px); margin: 0 auto; padding-top: 2rem; border-top: 1px solid var(--aj-border,#e5e5e5); }
+.article-journal__nav-link { display: block; padding: 1rem; background: #f8f8f8; border-radius: 8px; text-decoration: none; color: var(--aj-text,#222); transition: background .2s; }
+.article-journal__nav-link:hover { background: #eee; }
+.article-journal__nav-link--next { text-align: right; }
+.article-journal__nav-label { display: block; font-size: .8rem; font-weight: 600; color: var(--aj-accent); margin-bottom: .25rem; }
+.article-journal__nav-title { font-size: .95rem; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+@media (max-width:749px){ .article-journal__banner{aspect-ratio:16/10} .article-journal__header-inner{padding:1.5rem 16px 1.75rem} .article-journal__container,.article-journal__content{padding-left:16px;padding-right:16px} .article-journal__content{font-size:1.0625rem} .article-journal__meta{font-size:.8125rem} .article-journal__nav{grid-template-columns:1fr} .article-journal__nav-link--next{text-align:left} }
+</style>
+
+{% schema %}
+{
+  "name": "Article (Journal)",
+  "tag": "section",
+  "class": "section-article-journal",
+  "settings": [
+    {"type": "header", "content": "Meta & header"},
+    {"type": "checkbox", "id": "show_category", "label": "Show category (first tag)", "default": true},
+    {"type": "checkbox", "id": "show_author", "label": "Show author", "default": true},
+    {"type": "checkbox", "id": "show_date", "label": "Show date", "default": true},
+    {"type": "checkbox", "id": "show_reading_time", "label": "Show reading time", "default": true},
+    {"type": "header", "content": "Content & footer"},
+    {"type": "range", "id": "content_width", "label": "Content max width (px)", "min": 560, "max": 880, "step": 40, "default": 720},
+    {"type": "checkbox", "id": "show_tags", "label": "Show tags", "default": true},
+    {"type": "checkbox", "id": "show_share", "label": "Show share links", "default": true},
+    {"type": "checkbox", "id": "show_prev_next", "label": "Show previous/next article", "default": true},
+    {"type": "header", "content": "Colors"},
+    {"type": "color", "id": "accent_color", "label": "Accent", "default": "#eb7122"},
+    {"type": "color", "id": "text_color", "label": "Body text", "default": "#222021"},
+    {"type": "color", "id": "muted_color", "label": "Muted text", "default": "#555555"},
+    {"type": "color", "id": "border_color", "label": "Borders", "default": "#e5e5e5"}
+  ]
+}
+{% endschema %}
