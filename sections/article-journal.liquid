@@ -46,11 +46,13 @@
           <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ share_url }}&title={{ share_title }}" target="_blank" rel="noopener noreferrer" class="article-journal__share-link" aria-label="Share on LinkedIn">LinkedIn</a>
         </div>
       {%- endif -%}
-      {%- if section.settings.show_prev_next and (blog.previous_article or blog.next_article) -%}
+      {%- if section.settings.show_prev_next -%}
+        {%- if blog.previous_article or blog.next_article -%}
         <nav class="article-journal__nav" aria-label="Article navigation">
           {%- if blog.next_article -%}<a href="{{ blog.next_article.url }}" class="article-journal__nav-link article-journal__nav-link--prev" rel="prev"><span class="article-journal__nav-label">&larr; {{ 'blog.article.previous_article' | t | default: 'Previous' }}</span><span class="article-journal__nav-title">{{ blog.next_article.title }}</span></a>{%- endif -%}
           {%- if blog.previous_article -%}<a href="{{ blog.previous_article.url }}" class="article-journal__nav-link article-journal__nav-link--next" rel="next"><span class="article-journal__nav-label">{{ 'blog.article.next_article' | t | default: 'Next' }} &rarr;</span><span class="article-journal__nav-title">{{ blog.previous_article.title }}</span></a>{%- endif -%}
         </nav>
+        {%- endif -%}
       {%- endif -%}
     </div>
   </div>
