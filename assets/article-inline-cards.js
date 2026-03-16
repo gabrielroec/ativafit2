@@ -1,10 +1,13 @@
 /**
  * Article Inline Cards
  *
- * Replaces "Add Card ..." triggers in article HTML with membership or product cards.
- * Handles triggers that contain HTML in the middle (e.g. <meta> from editor).
+ * Replaces triggers in article HTML with membership or product cards.
  *
- * Triggers: "Add Card Membership" | "Add Card <product-handle>"
+ * Triggers:
+ *   "Add Card Membership"           -> membership card (com aspas)
+ *   Product Card <handle>            -> product card (sem aspas; handle = só letras, números, hífens)
+ *
+ * Ex.: Product Card adjustable-home-workout-bench
  */
 (function () {
   var PLACEHOLDER_PREFIX = "___ADD_CARD_";
@@ -103,7 +106,6 @@
     try {
       return JSON.parse(el.textContent);
     } catch (e) {
-      console.log("[AddCard] parse inline products JSON failed:", e.message);
       return null;
     }
   }
@@ -111,14 +113,12 @@
   function fetchProductByHandle(handle) {
     if (!handle) return Promise.resolve(null);
     var url = "/products/" + handle + ".js";
-    console.log("[AddCard] fetchProductByHandle:", url);
     return fetch(url, {
       method: "GET",
       headers: { Accept: "application/json" },
       credentials: "same-origin"
     })
       .then(function (res) {
-        console.log("[AddCard] fetch response:", url, "status:", res.status, "content-type:", res.headers.get("content-type"));
         if (!res.ok) throw new Error(res.status);
         var ct = (res.headers.get("content-type") || "").toLowerCase();
         if (ct.indexOf("application/json") === -1) throw new Error("not json");
@@ -126,7 +126,6 @@
       })
       .then(function (data) {
         if (!data || !data.id || !data.variants) throw new Error("invalid product");
-        console.log("[AddCard] product loaded (fetch):", data.title, "handle:", data.handle);
         return data;
       });
   }
@@ -134,18 +133,15 @@
   function getProduct(keyword) {
     var k = (keyword || "").trim();
     var handle = toHandle(k);
-    console.log("[AddCard] getProduct keyword:", JSON.stringify(k), "-> handle:", JSON.stringify(handle));
     if (!handle) return Promise.resolve(null);
 
     var fromLiquid = getProductsFromLiquid();
     if (fromLiquid && fromLiquid[handle]) {
-      console.log("[AddCard] product loaded (Liquid):", fromLiquid[handle].title, "handle:", handle);
       return Promise.resolve(fromLiquid[handle]);
     }
 
     return fetchProductByHandle(handle)
-      .catch(function (err) {
-        console.log("[AddCard] fetchProductByHandle failed:", err.message, "- trying suggest");
+      .catch(function () {
         return fetch("/search/suggest.json?q=" + encodeURIComponent(k) + "&resources[type]=product&resources[limit]=5", {
           headers: { Accept: "application/json" },
           credentials: "same-origin"
@@ -153,17 +149,13 @@
           .then(function (res) { return res.ok ? res.json() : null; })
           .then(function (data) {
             var products = data && data.resources && data.resources.results && data.resources.results.products;
-            console.log("[AddCard] suggest results:", products ? products.length : 0, products && products[0] ? products[0].handle : "-");
             if (products && products.length > 0) {
               return fetchProductByHandle(products[0].handle);
             }
             return null;
           });
       })
-      .catch(function (err) {
-        console.log("[AddCard] suggest failed:", err.message);
-        return null;
-      });
+      .catch(function () { return null; });
   }
 
   function processContent() {
@@ -171,28 +163,38 @@
     if (!container) return;
 
     var html = container.innerHTML;
-    var quoteClass = "[" + QUOTE_CHARS + "]";
-    // Middle part can contain tags (e.g. <meta charset="utf-8">); only stop at the closing quote (not attribute quotes)
-    // \x22 = straight quote: match non-quote OR quote that is part of attr value (quote followed by [^"]*">)
-    var regex = new RegExp(
-      quoteClass + "Add\\s*Card\\s+((?:[^\\x22]|\\x22(?=[^\\x22]*\\x22>))*)" + quoteClass,
-      "gi"
-    );
-
     var matches = [];
-    var replacer = function (fullMatch, inner) {
-      var keyword = stripTags(inner).trim();
-      var idx = matches.length;
-      matches.push({ keyword: keyword });
-      console.log("[AddCard] match #" + idx + " fullMatch:", JSON.stringify(fullMatch.substring(0, 60)) + (fullMatch.length > 60 ? "..." : ""), "keyword:", JSON.stringify(keyword));
-      return PLACEHOLDER_PREFIX + idx + PLACEHOLDER_SUFFIX;
-    };
+    var quoteClass = "[" + QUOTE_CHARS + "]";
 
-    var newHtml = html.replace(regex, replacer);
-    console.log("[AddCard] total matches:", matches.length, "placeholders in HTML:", (newHtml.match(new RegExp(PLACEHOLDER_PREFIX + "\\d+" + PLACEHOLDER_SUFFIX, "g")) || []).length);
+    // 1) Membership: "Add Card Membership" (com aspas)
+    var reMembership = new RegExp(quoteClass + "Add\\s*Card\\s+Membership" + quoteClass, "gi");
+    html = html.replace(reMembership, function (fullMatch) {
+      var idx = matches.length;
+      matches.push({ keyword: "Membership" });
+      return PLACEHOLDER_PREFIX + idx + PLACEHOLDER_SUFFIX;
+    });
+
+    // 2) Product com aspas: "Add Card <handle>" (só quando handle = só a-z0-9-)
+    var reAddCardHandle = new RegExp(quoteClass + "Add\\s*Card\\s+([a-z0-9-]+)" + quoteClass, "gi");
+    html = html.replace(reAddCardHandle, function (fullMatch, handle) {
+      if (!handle) return fullMatch;
+      var idx = matches.length;
+      matches.push({ keyword: handle });
+      return PLACEHOLDER_PREFIX + idx + PLACEHOLDER_SUFFIX;
+    });
+
+    // 3) Product sem aspas: "Product Card " + (opcional: tags) + handle
+    var reProduct = /Product\s+Card\s+(?:<[^>]*>\s*)*([a-z0-9-]+)/gi;
+    html = html.replace(reProduct, function (fullMatch, handle) {
+      var idx = matches.length;
+      var h = (handle || "").trim();
+      matches.push({ keyword: h });
+      return PLACEHOLDER_PREFIX + idx + PLACEHOLDER_SUFFIX;
+    });
+
     if (matches.length === 0) return;
 
-    container.innerHTML = newHtml;
+    container.innerHTML = html;
 
     var placeholders = container.querySelectorAll ? [] : null;
     var walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null, false);
@@ -204,27 +206,23 @@
       }
     }
 
-    var promises = matches.map(function (m, idx) {
+    var promises = matches.map(function (m) {
       if (/^membership$/i.test(m.keyword)) {
-        console.log("[AddCard] slot", idx, "-> membership card");
         m.html = buildMembershipCard();
         return Promise.resolve(m);
       }
       return getProduct(m.keyword)
         .then(function (product) {
           m.html = product ? buildProductCard(product) : null;
-          console.log("[AddCard] slot", idx, "-> product card:", product ? product.title : "null");
           return m;
         })
-        .catch(function (err) {
-          console.log("[AddCard] slot", idx, "-> error:", err);
+        .catch(function () {
           m.html = null;
           return m;
         });
     });
 
     Promise.all(promises).then(function (results) {
-      console.log("[AddCard] results:", results.map(function (r, i) { return i + ":" + (r.html ? "html" : "null"); }).join(" "));
       var placeholderRegex = new RegExp(
         PLACEHOLDER_PREFIX + "(\\d+)" + PLACEHOLDER_SUFFIX,
         "g"
@@ -253,7 +251,6 @@
             fragment.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
           }
           var slot = parseInt(match[1], 10);
-          console.log("[AddCard] replacing placeholder slot", slot, "hasHtml:", !!(results[slot] && results[slot].html));
           if (results[slot] && results[slot].html) {
             var wrap = document.createElement("div");
             wrap.innerHTML = results[slot].html;
