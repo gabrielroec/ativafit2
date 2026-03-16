@@ -149,6 +149,7 @@
     flex: 1;
     overflow: hidden;
     position: relative;
+    touch-action: pan-y;
   }
 
   .ai-new-arrivals-products-{{ ai_gen_id }} {
@@ -463,18 +464,27 @@
 
       setupTouchEvents() {
         let startX = 0;
+        let startY = 0;
         let currentX = 0;
         let isDragging = false;
 
         this.sliderTrack.addEventListener('touchstart', (e) => {
           startX = e.touches[0].clientX;
+          startY = e.touches[0].clientY;
+          currentX = startX;
           isDragging = true;
-        });
+        }, { passive: true });
 
         this.sliderTrack.addEventListener('touchmove', (e) => {
           if (!isDragging) return;
-          currentX = e.touches[0].clientX;
-        });
+          const x = e.touches[0].clientX;
+          const y = e.touches[0].clientY;
+          const isHorizontal = Math.abs(x - startX) > Math.abs(y - startY);
+          if (isHorizontal && Math.abs(x - startX) > 10) {
+            e.preventDefault();
+          }
+          currentX = x;
+        }, { passive: false });
 
         this.sliderTrack.addEventListener('touchend', () => {
           if (!isDragging) return;
