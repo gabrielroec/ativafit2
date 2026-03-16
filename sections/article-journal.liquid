@@ -78,36 +78,6 @@
   </div>
 </article>
 
-{%- if section.settings.inline_cards_collection != blank -%}
-  {%- assign inline_collection = section.settings.inline_cards_collection -%}
-  <script type="application/json" id="article-inline-products-json">
-  {
-    {%- for product in inline_collection.products limit: 50 -%}
-      {%- if product != blank -%}
-        {%- assign v = product.selected_or_first_available_variant -%}
-        {%- assign img_src = v.featured_image | default: product.featured_image | image_url: width: 600 -%}
-        "{{ product.handle | escape }}": {
-          "id": {{ product.id }},
-          "title": {{ product.title | json }},
-          "handle": {{ product.handle | json }},
-          "description": {{ product.description | default: '' | json }},
-          "featured_image": {{ img_src | json }},
-          "variants": [
-            {%- for v in product.variants -%}
-            {
-              "id": {{ v.id }},
-              "price": {{ v.price }},
-              "compare_at_price": {% if v.compare_at_price %}{{ v.compare_at_price }}{% else %}null{% endif %},
-              "featured_image": {% if v.featured_image %}{ "src": "{{ v.featured_image | image_url: width: 600 }}" }{% else %}null{% endif %}
-            }{% unless forloop.last %},{% endunless %}
-            {%- endfor -%}
-          ]
-        }{% unless forloop.last %},{% endunless %}
-      {%- endif -%}
-    {%- endfor -%}
-  }
-  </script>
-{%- endif -%}
 <script src="{{ 'article-inline-cards.js' | asset_url }}" defer></script>
 
 <style>
@@ -222,8 +192,6 @@
     {"type": "color", "id": "text_color", "label": "Body text", "default": "#222021"},
     {"type": "color", "id": "muted_color", "label": "Muted text", "default": "#555555"},
     {"type": "color", "id": "border_color", "label": "Borders", "default": "#e5e5e5"},
-    {"type": "header", "content": "Inline product cards (Add Card)"},
-    {"type": "collection", "id": "inline_cards_collection", "label": "Collection for product cards", "info": "Products in this collection can be used with \"Add Card &lt;handle&gt;\". Leave empty to rely on fetch only."},
     {"type": "header", "content": "Sidebar (metafield)"},
     {"type": "paragraph", "content": "Sidebar products come from the blog post metafield custom.side_product_card (list of products). If empty, the sidebar is hidden."},
     {"type": "text", "id": "aside_heading", "label": "Sidebar heading", "default": "Recommended"}

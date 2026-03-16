@@ -1,13 +1,12 @@
 /**
  * Article Inline Cards
  *
- * Replaces triggers in article HTML with membership or product cards.
+ * Única ação: no texto do post, escrever "Product Card <handle>" ou "Add Card Membership".
+ * O script busca o produto em /products/<handle>.js e monta o card. Nada mais para configurar.
  *
  * Triggers:
- *   "Add Card Membership"           -> membership card (com aspas)
- *   Product Card <handle>            -> product card (sem aspas; handle = só letras, números, hífens)
- *
- * Ex.: Product Card adjustable-home-workout-bench
+ *   "Add Card Membership"   -> membership card
+ *   Product Card <handle>  -> product card (fetch /products/<handle>.js)
  */
 (function () {
   var PLACEHOLDER_PREFIX = "___ADD_CARD_";
@@ -100,19 +99,9 @@
       .replace(/^-|-$/g, "");
   }
 
-  function getProductsFromLiquid() {
-    var el = document.getElementById("article-inline-products-json");
-    if (!el || !el.textContent) return null;
-    try {
-      return JSON.parse(el.textContent);
-    } catch (e) {
-      return null;
-    }
-  }
-
   function fetchProductByHandle(handle) {
     if (!handle) return Promise.resolve(null);
-    var url = "/products/" + handle + ".js";
+    var url = "/products/" + encodeURIComponent(handle) + ".js";
     return fetch(url, {
       method: "GET",
       headers: { Accept: "application/json" },
@@ -120,12 +109,16 @@
     })
       .then(function (res) {
         if (!res.ok) throw new Error(res.status);
-        var ct = (res.headers.get("content-type") || "").toLowerCase();
-        if (ct.indexOf("application/json") === -1) throw new Error("not json");
-        return res.json();
+        return res.text();
       })
-      .then(function (data) {
-        if (!data || !data.id || !data.variants) throw new Error("invalid product");
+      .then(function (text) {
+        var data;
+        try {
+          data = JSON.parse(text);
+        } catch (e) {
+          throw new Error("invalid json");
+        }
+        if (!data || !data.id || !data.variants || !data.variants.length) throw new Error("invalid product");
         return data;
       });
   }
@@ -134,17 +127,9 @@
     var k = (keyword || "").trim();
     var handle = toHandle(k);
     if (!handle) return Promise.resolve(null);
-
-    var fromLiquid = getProductsFromLiquid();
-    if (fromLiquid && fromLiquid[handle]) {
-      console.log("[AddCard] getProduct:", handle, "-> veio do Liquid");
-      return Promise.resolve(fromLiquid[handle]);
-    }
-    console.log("[AddCard] getProduct:", handle, "-> buscando por fetch");
-
     return fetchProductByHandle(handle)
       .catch(function () {
-        return fetch("/search/suggest.json?q=" + encodeURIComponent(k) + "&resources[type]=product&resources[limit]=5", {
+        return fetch("/search/suggest.json?q=" + encodeURIComponent(handle) + "&resources[type]=product&resources[limit]=5", {
           headers: { Accept: "application/json" },
           credentials: "same-origin"
         })
@@ -173,7 +158,6 @@
     html = html.replace(reMembership, function (fullMatch) {
       var idx = matches.length;
       matches.push({ keyword: "Membership" });
-      console.log("[AddCard] match #" + idx, "tipo: membership");
       return PLACEHOLDER_PREFIX + idx + PLACEHOLDER_SUFFIX;
     });
 
@@ -183,7 +167,6 @@
       if (!handle) return fullMatch;
       var idx = matches.length;
       matches.push({ keyword: handle });
-      console.log("[AddCard] match #" + idx, "tipo: Add Card (com aspas), handle:", handle);
       return PLACEHOLDER_PREFIX + idx + PLACEHOLDER_SUFFIX;
     });
 
@@ -193,11 +176,9 @@
       var idx = matches.length;
       var h = (handle || "").trim();
       matches.push({ keyword: h });
-      console.log("[AddCard] match #" + idx, "tipo: Product Card, handle:", h);
       return PLACEHOLDER_PREFIX + idx + PLACEHOLDER_SUFFIX;
     });
 
-    console.log("[AddCard] total de matches:", matches.length);
     if (matches.length === 0) return;
 
     container.innerHTML = html;
@@ -212,27 +193,23 @@
       }
     }
 
-    var promises = matches.map(function (m, idx) {
+    var promises = matches.map(function (m) {
       if (/^membership$/i.test(m.keyword)) {
         m.html = buildMembershipCard();
-        console.log("[AddCard] slot", idx, "-> membership card (ok)");
         return Promise.resolve(m);
       }
       return getProduct(m.keyword)
         .then(function (product) {
           m.html = product ? buildProductCard(product) : null;
-          console.log("[AddCard] slot", idx, "-> product card:", product ? product.title : "null");
           return m;
         })
         .catch(function () {
           m.html = null;
-          console.log("[AddCard] slot", idx, "-> product card: erro");
           return m;
         });
     });
 
     Promise.all(promises).then(function (results) {
-      console.log("[AddCard] results:", results.map(function (r, i) { return i + ":" + (r.html ? "html" : "null"); }).join(", "));
       var placeholderRegex = new RegExp(
         PLACEHOLDER_PREFIX + "(\\d+)" + PLACEHOLDER_SUFFIX,
         "g"
@@ -261,7 +238,6 @@
             fragment.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
           }
           var slot = parseInt(match[1], 10);
-          console.log("[AddCard] substituindo placeholder slot", slot, "hasHtml:", !!(results[slot] && results[slot].html));
           if (results[slot] && results[slot].html) {
             var wrap = document.createElement("div");
             wrap.innerHTML = results[slot].html;
