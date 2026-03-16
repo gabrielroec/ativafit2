@@ -100,12 +100,14 @@
   function fetchProductByHandle(handle) {
     if (!handle) return Promise.resolve(null);
     var url = "/products/" + handle + ".js";
+    console.log("[AddCard] fetchProductByHandle:", url);
     return fetch(url, {
       method: "GET",
       headers: { Accept: "application/json" },
       credentials: "same-origin"
     })
       .then(function (res) {
+        console.log("[AddCard] fetch response:", url, "status:", res.status, "content-type:", res.headers.get("content-type"));
         if (!res.ok) throw new Error(res.status);
         var ct = (res.headers.get("content-type") || "").toLowerCase();
         if (ct.indexOf("application/json") === -1) throw new Error("not json");
@@ -113,6 +115,7 @@
       })
       .then(function (data) {
         if (!data || !data.id || !data.variants) throw new Error("invalid product");
+        console.log("[AddCard] product loaded:", data.title, "handle:", data.handle);
         return data;
       });
   }
@@ -120,9 +123,11 @@
   function getProduct(keyword) {
     var k = (keyword || "").trim();
     var handle = toHandle(k);
+    console.log("[AddCard] getProduct keyword:", JSON.stringify(k), "-> handle:", JSON.stringify(handle));
     if (!handle) return Promise.resolve(null);
     return fetchProductByHandle(handle)
-      .catch(function () {
+      .catch(function (err) {
+        console.log("[AddCard] fetchProductByHandle failed:", err.message, "- trying suggest");
         return fetch("/search/suggest.json?q=" + encodeURIComponent(k) + "&resources[type]=product&resources[limit]=5", {
           headers: { Accept: "application/json" },
           credentials: "same-origin"
@@ -130,25 +135,16 @@
           .then(function (res) { return res.ok ? res.json() : null; })
           .then(function (data) {
             var products = data && data.resources && data.resources.results && data.resources.results.products;
+            console.log("[AddCard] suggest results:", products ? products.length : 0, products && products[0] ? products[0].handle : "-");
             if (products && products.length > 0) {
               return fetchProductByHandle(products[0].handle);
             }
             return null;
           });
       })
-      .catch(function () {
-        return fetch("/search.json?q=" + encodeURIComponent(handle) + "&type=product&view=json", {
-          headers: { Accept: "application/json" },
-          credentials: "same-origin"
-        })
-          .then(function (res) { return res.ok ? res.json() : null; })
-          .then(function (data) {
-            var items = data && data.results;
-            if (items && items.length > 0 && items[0].handle) {
-              return fetchProductByHandle(items[0].handle);
-            }
-            return null;
-          });
+      .catch(function (err) {
+        console.log("[AddCard] suggest failed:", err.message);
+        return null;
       });
   }
 
@@ -158,9 +154,10 @@
 
     var html = container.innerHTML;
     var quoteClass = "[" + QUOTE_CHARS + "]";
-    // Middle part can contain tags with attributes (e.g. <meta charset="utf-8">); don't stop at those quotes
+    // Middle part can contain tags (e.g. <meta charset="utf-8">); only stop at the closing quote (not attribute quotes)
+    // \x22 = straight quote: match non-quote OR quote that is part of attr value (quote followed by [^"]*">)
     var regex = new RegExp(
-      quoteClass + "Add\\s*Card\\s+((?:[^\"]|\"(?=[^\"]*\">))*)" + quoteClass,
+      quoteClass + "Add\\s*Card\\s+((?:[^\\x22]|\\x22(?=[^\\x22]*\\x22>))*)" + quoteClass,
       "gi"
     );
 
@@ -169,10 +166,12 @@
       var keyword = stripTags(inner).trim();
       var idx = matches.length;
       matches.push({ keyword: keyword });
+      console.log("[AddCard] match #" + idx + " fullMatch:", JSON.stringify(fullMatch.substring(0, 60)) + (fullMatch.length > 60 ? "..." : ""), "keyword:", JSON.stringify(keyword));
       return PLACEHOLDER_PREFIX + idx + PLACEHOLDER_SUFFIX;
     };
 
     var newHtml = html.replace(regex, replacer);
+    console.log("[AddCard] total matches:", matches.length, "placeholders in HTML:", (newHtml.match(new RegExp(PLACEHOLDER_PREFIX + "\\d+" + PLACEHOLDER_SUFFIX, "g")) || []).length);
     if (matches.length === 0) return;
 
     container.innerHTML = newHtml;
@@ -187,23 +186,27 @@
       }
     }
 
-    var promises = matches.map(function (m) {
+    var promises = matches.map(function (m, idx) {
       if (/^membership$/i.test(m.keyword)) {
+        console.log("[AddCard] slot", idx, "-> membership card");
         m.html = buildMembershipCard();
         return Promise.resolve(m);
       }
       return getProduct(m.keyword)
         .then(function (product) {
           m.html = product ? buildProductCard(product) : null;
+          console.log("[AddCard] slot", idx, "-> product card:", product ? product.title : "null");
           return m;
         })
-        .catch(function () {
+        .catch(function (err) {
+          console.log("[AddCard] slot", idx, "-> error:", err);
           m.html = null;
           return m;
         });
     });
 
     Promise.all(promises).then(function (results) {
+      console.log("[AddCard] results:", results.map(function (r, i) { return i + ":" + (r.html ? "html" : "null"); }).join(" "));
       var placeholderRegex = new RegExp(
         PLACEHOLDER_PREFIX + "(\\d+)" + PLACEHOLDER_SUFFIX,
         "g"
@@ -232,6 +235,7 @@
             fragment.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
           }
           var slot = parseInt(match[1], 10);
+          console.log("[AddCard] replacing placeholder slot", slot, "hasHtml:", !!(results[slot] && results[slot].html));
           if (results[slot] && results[slot].html) {
             var wrap = document.createElement("div");
             wrap.innerHTML = results[slot].html;
