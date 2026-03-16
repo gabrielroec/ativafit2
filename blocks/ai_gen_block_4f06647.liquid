@@ -155,6 +155,21 @@
     align-items: center;
     justify-content: center;
     margin-bottom: 12px;
+    position: relative;
+  }
+
+  .ai-new-arrivals-product-discount-badge-{{ ai_gen_id }} {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--brand-red);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 6px;
+    z-index: 1;
+    line-height: 1.2;
   }
 
   .ai-new-arrivals-product-image-{{ ai_gen_id }} img {
@@ -336,6 +351,16 @@
                   <div class="ai-new-arrivals-product-placeholder-{{ ai_gen_id }}">
                     {{ 'product-1' | placeholder_svg_tag }}
                   </div>
+                {% endif %}
+                {% if product %}
+                  {% assign card_variant = product.selected_or_first_available_variant %}
+                  {% assign compare_price = card_variant.compare_at_price %}
+                  {% assign price = card_variant.price %}
+                  {% if compare_price != blank and compare_price > price and compare_price > 0 %}
+                    {% assign discount_cents = compare_price | minus: price %}
+                    {% assign discount_percent = discount_cents | times: 100 | divided_by: compare_price %}
+                    <span class="ai-new-arrivals-product-discount-badge-{{ ai_gen_id }}" aria-hidden="true">{{ discount_percent }}% OFF</span>
+                  {% endif %}
                 {% endif %}
               </div>
               <div class="ai-new-arrivals-product-info-{{ ai_gen_id }}">
