@@ -137,8 +137,10 @@
 
     var fromLiquid = getProductsFromLiquid();
     if (fromLiquid && fromLiquid[handle]) {
+      console.log("[AddCard] getProduct:", handle, "-> veio do Liquid");
       return Promise.resolve(fromLiquid[handle]);
     }
+    console.log("[AddCard] getProduct:", handle, "-> buscando por fetch");
 
     return fetchProductByHandle(handle)
       .catch(function () {
@@ -171,6 +173,7 @@
     html = html.replace(reMembership, function (fullMatch) {
       var idx = matches.length;
       matches.push({ keyword: "Membership" });
+      console.log("[AddCard] match #" + idx, "tipo: membership");
       return PLACEHOLDER_PREFIX + idx + PLACEHOLDER_SUFFIX;
     });
 
@@ -180,6 +183,7 @@
       if (!handle) return fullMatch;
       var idx = matches.length;
       matches.push({ keyword: handle });
+      console.log("[AddCard] match #" + idx, "tipo: Add Card (com aspas), handle:", handle);
       return PLACEHOLDER_PREFIX + idx + PLACEHOLDER_SUFFIX;
     });
 
@@ -189,9 +193,11 @@
       var idx = matches.length;
       var h = (handle || "").trim();
       matches.push({ keyword: h });
+      console.log("[AddCard] match #" + idx, "tipo: Product Card, handle:", h);
       return PLACEHOLDER_PREFIX + idx + PLACEHOLDER_SUFFIX;
     });
 
+    console.log("[AddCard] total de matches:", matches.length);
     if (matches.length === 0) return;
 
     container.innerHTML = html;
@@ -206,23 +212,27 @@
       }
     }
 
-    var promises = matches.map(function (m) {
+    var promises = matches.map(function (m, idx) {
       if (/^membership$/i.test(m.keyword)) {
         m.html = buildMembershipCard();
+        console.log("[AddCard] slot", idx, "-> membership card (ok)");
         return Promise.resolve(m);
       }
       return getProduct(m.keyword)
         .then(function (product) {
           m.html = product ? buildProductCard(product) : null;
+          console.log("[AddCard] slot", idx, "-> product card:", product ? product.title : "null");
           return m;
         })
         .catch(function () {
           m.html = null;
+          console.log("[AddCard] slot", idx, "-> product card: erro");
           return m;
         });
     });
 
     Promise.all(promises).then(function (results) {
+      console.log("[AddCard] results:", results.map(function (r, i) { return i + ":" + (r.html ? "html" : "null"); }).join(", "));
       var placeholderRegex = new RegExp(
         PLACEHOLDER_PREFIX + "(\\d+)" + PLACEHOLDER_SUFFIX,
         "g"
@@ -251,6 +261,7 @@
             fragment.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
           }
           var slot = parseInt(match[1], 10);
+          console.log("[AddCard] substituindo placeholder slot", slot, "hasHtml:", !!(results[slot] && results[slot].html));
           if (results[slot] && results[slot].html) {
             var wrap = document.createElement("div");
             wrap.innerHTML = results[slot].html;
