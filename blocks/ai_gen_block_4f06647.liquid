@@ -129,6 +129,14 @@
     flex: 0 0 calc(50% - 10px);
     position: relative;
     overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .ai-new-arrivals-products-wrapper-{{ ai_gen_id }} img {
+    -webkit-user-drag: none;
+    user-select: none;
+    pointer-events: auto;
   }
 
   .ai-new-arrivals-products-{{ ai_gen_id }} {
@@ -459,6 +467,7 @@
         const wrapper = this.wrapper;
         let touchStartX = 0, touchEndX = 0, touchStartY = 0;
         let mouseStartX = 0, mouseEndX = 0, isMouseDrag = false;
+        const DRAG_THRESHOLD = 5;
 
         wrapper.addEventListener('touchstart', (e) => {
           touchStartX = e.touches[0].clientX;
@@ -486,21 +495,27 @@
         });
 
         wrapper.addEventListener('mousedown', (e) => {
+          e.preventDefault();
           mouseStartX = e.clientX;
+          mouseEndX = e.clientX;
           isMouseDrag = true;
+          this._swipeWasDrag = false;
           wrapper.style.cursor = 'grabbing';
-          wrapper.style.userSelect = 'none';
         });
 
         wrapper.addEventListener('mousemove', (e) => {
-          if (isMouseDrag) mouseEndX = e.clientX;
+          if (isMouseDrag) {
+            mouseEndX = e.clientX;
+            if (Math.abs(mouseEndX - mouseStartX) > DRAG_THRESHOLD) {
+              this._swipeWasDrag = true;
+            }
+          }
         });
 
         wrapper.addEventListener('mouseup', () => {
           if (!isMouseDrag) return;
           isMouseDrag = false;
-          wrapper.style.cursor = '';
-          wrapper.style.userSelect = '';
+          wrapper.style.cursor = getComputedStyle(wrapper).overflowX !== 'auto' ? 'grab' : '';
           const diff = mouseStartX - mouseEndX;
           if (Math.abs(diff) > 50) {
             if (diff > 0 && this.currentSlide < this.totalSlides - 1) {
@@ -514,10 +529,17 @@
         wrapper.addEventListener('mouseleave', () => {
           if (isMouseDrag) {
             isMouseDrag = false;
-            wrapper.style.cursor = '';
-            wrapper.style.userSelect = '';
+            wrapper.style.cursor = getComputedStyle(wrapper).overflowX !== 'auto' ? 'grab' : '';
           }
         });
+
+        wrapper.addEventListener('click', (e) => {
+          if (this._swipeWasDrag) {
+            e.preventDefault();
+            e.stopPropagation();
+            this._swipeWasDrag = false;
+          }
+        }, true);
 
         if (getComputedStyle(wrapper).overflowX !== 'auto') {
           wrapper.style.cursor = 'grab';

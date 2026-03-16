@@ -150,6 +150,14 @@
     overflow: hidden;
     position: relative;
     touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .ai-new-arrivals-products-container-{{ ai_gen_id }} img {
+    -webkit-user-drag: none;
+    user-select: none;
+    pointer-events: auto;
   }
 
   .ai-new-arrivals-products-{{ ai_gen_id }} {
@@ -504,16 +512,23 @@
         let mouseStartX = 0;
         let mouseCurrentX = 0;
         let isMouseDragging = false;
+        const DRAG_THRESHOLD = 5;
 
         this.sliderTrack.addEventListener('mousedown', (e) => {
+          e.preventDefault();
           mouseStartX = e.clientX;
+          mouseCurrentX = e.clientX;
           isMouseDragging = true;
+          this._swipeWasDrag = false;
           this.sliderTrack.style.cursor = 'grabbing';
         });
 
         this.sliderTrack.addEventListener('mousemove', (e) => {
           if (!isMouseDragging) return;
           mouseCurrentX = e.clientX;
+          if (Math.abs(mouseCurrentX - mouseStartX) > DRAG_THRESHOLD) {
+            this._swipeWasDrag = true;
+          }
         });
 
         this.sliderTrack.addEventListener('mouseup', () => {
@@ -538,6 +553,14 @@
             this.sliderTrack.style.cursor = 'grab';
           }
         });
+
+        this.sliderTrack.addEventListener('click', (e) => {
+          if (this._swipeWasDrag) {
+            e.preventDefault();
+            e.stopPropagation();
+            this._swipeWasDrag = false;
+          }
+        }, true);
 
         this.sliderTrack.style.cursor = 'grab';
       }
