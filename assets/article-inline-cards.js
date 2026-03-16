@@ -97,6 +97,17 @@
       .replace(/^-|-$/g, "");
   }
 
+  function getProductsFromLiquid() {
+    var el = document.getElementById("article-inline-products-json");
+    if (!el || !el.textContent) return null;
+    try {
+      return JSON.parse(el.textContent);
+    } catch (e) {
+      console.log("[AddCard] parse inline products JSON failed:", e.message);
+      return null;
+    }
+  }
+
   function fetchProductByHandle(handle) {
     if (!handle) return Promise.resolve(null);
     var url = "/products/" + handle + ".js";
@@ -115,7 +126,7 @@
       })
       .then(function (data) {
         if (!data || !data.id || !data.variants) throw new Error("invalid product");
-        console.log("[AddCard] product loaded:", data.title, "handle:", data.handle);
+        console.log("[AddCard] product loaded (fetch):", data.title, "handle:", data.handle);
         return data;
       });
   }
@@ -125,6 +136,13 @@
     var handle = toHandle(k);
     console.log("[AddCard] getProduct keyword:", JSON.stringify(k), "-> handle:", JSON.stringify(handle));
     if (!handle) return Promise.resolve(null);
+
+    var fromLiquid = getProductsFromLiquid();
+    if (fromLiquid && fromLiquid[handle]) {
+      console.log("[AddCard] product loaded (Liquid):", fromLiquid[handle].title, "handle:", handle);
+      return Promise.resolve(fromLiquid[handle]);
+    }
+
     return fetchProductByHandle(handle)
       .catch(function (err) {
         console.log("[AddCard] fetchProductByHandle failed:", err.message, "- trying suggest");
