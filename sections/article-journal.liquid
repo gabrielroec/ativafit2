@@ -27,10 +27,12 @@
     </div>
   </header>
 
+  {%- assign side_products = article.metafields.custom.side_product_card.value -%}
+
   <div class="article-journal__body">
-    <div class="article-journal__container article-journal__body-inner">
+    <div class="article-journal__container article-journal__body-inner{% if side_products != blank and side_products.size > 0 %} article-journal__body-inner--with-aside{% endif %}">
       <div class="article-journal__main">
-        <div class="article-journal__content rte">{{ article.content }}</div>
+        <div class="article-journal__content rte" id="article-journal-content">{{ article.content }}</div>
         {%- if section.settings.show_tags and article.tags.size > 0 -%}
           <div class="article-journal__tags">
             <span class="article-journal__tags-label">{{ 'blog.article.tags' | t | default: 'Tags' }}:</span>
@@ -56,50 +58,27 @@
           {%- endif -%}
         {%- endif -%}
       </div>
-      {%- if section.blocks.size > 0 -%}
+      {%- if side_products != blank and side_products.size > 0 -%}
         <aside class="article-journal__aside" aria-label="{{ 'blogs.article.related_products' | t | default: 'Related products' }}">
-          {%- for block in section.blocks -%}
-            {%- case block.type -%}
-              {%- when 'product_banner' -%}
-                {%- assign p1 = block.settings.product_1 -%}
-                {%- assign p2 = block.settings.product_2 -%}
-                {%- assign p3 = block.settings.product_3 -%}
-                {%- assign col = block.settings.collection -%}
-                {%- if p1 == blank and col != blank and col.products.size > 0 -%}
-                  {%- assign p1 = col.products[0] -%}
-                  {%- if col.products.size > 1 -%}{%- assign p2 = col.products[1] -%}{%- endif -%}
-                  {%- if col.products.size > 2 -%}{%- assign p3 = col.products[2] -%}{%- endif -%}
+          <div class="article-journal__aside-banner">
+            {%- if section.settings.aside_heading != blank -%}
+              <h3 class="article-journal__aside-heading">{{ section.settings.aside_heading | escape }}</h3>
+            {%- endif -%}
+            <div class="article-journal__aside-products">
+              {%- for product_ref in side_products -%}
+                {%- if product_ref != blank -%}
+                  {% render 'article-journal-aside-product', product: product_ref %}
                 {%- endif -%}
-                {%- if p1 == blank and col == blank -%}
-                  {%- for c in collections limit: 20 -%}
-                    {%- if c.products.size > 0 -%}
-                      {%- assign col = c -%}
-                      {%- assign p1 = col.products[0] -%}
-                      {%- if col.products.size > 1 -%}{%- assign p2 = col.products[1] -%}{%- endif -%}
-                      {%- if col.products.size > 2 -%}{%- assign p3 = col.products[2] -%}{%- endif -%}
-                      {%- break -%}
-                    {%- endif -%}
-                  {%- endfor -%}
-                {%- endif -%}
-                {%- if p1 != blank or p2 != blank or p3 != blank -%}
-                  <div class="article-journal__aside-banner" {{ block.shopify_attributes }}>
-                    {%- if block.settings.heading != blank -%}
-                      <h3 class="article-journal__aside-heading">{{ block.settings.heading | escape }}</h3>
-                    {%- endif -%}
-                    <div class="article-journal__aside-products">
-                      {%- if p1 != blank -%}{% render 'article-journal-aside-product', product: p1 %}{%- endif -%}
-                      {%- if p2 != blank -%}{% render 'article-journal-aside-product', product: p2 %}{%- endif -%}
-                      {%- if p3 != blank -%}{% render 'article-journal-aside-product', product: p3 %}{%- endif -%}
-                    </div>
-                  </div>
-                {%- endif -%}
-            {%- endcase -%}
-          {%- endfor -%}
+              {%- endfor -%}
+            </div>
+          </div>
         </aside>
       {%- endif -%}
     </div>
   </div>
 </article>
+
+<script src="{{ 'article-inline-cards.js' | asset_url }}" defer></script>
 
 <style>
 #ArticleJournal-{{ section.id }} { --aj-accent: {{ section.settings.accent_color }}; --aj-text: {{ section.settings.text_color }}; --aj-muted: {{ section.settings.muted_color }}; --aj-border: {{ section.settings.border_color }}; --aj-body-width: {{ section.settings.content_width }}px; }
@@ -110,7 +89,7 @@
 .article-journal__banner-placeholder { position: absolute; inset: 0; background: linear-gradient(135deg,#2c2c2c 0%,#1a1a1a 100%); }
 .article-journal__banner-overlay { position: absolute; inset: 0; background: linear-gradient(to top,rgba(0,0,0,.85) 0%,rgba(0,0,0,.4) 40%,transparent 70%); pointer-events: none; }
 .article-journal__header-inner { position: absolute; bottom: 0; left: 0; right: 0; padding: 2rem 24px 2.5rem; }
-.article-journal__container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+.article-journal__container { max-width: 1400px; margin: 0 auto; padding: 0 24px; }
 .article-journal__container--narrow { max-width: var(--aj-body-width,720px); }
 .article-journal__category { display: inline-block; font-size: .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--aj-accent); text-decoration: none; margin-bottom: .75rem; }
 .article-journal__category:hover { text-decoration: underline; }
@@ -120,7 +99,6 @@
 .article-journal__meta-item:not(:last-child)::after { content: "·"; position: absolute; right: -.6rem; opacity: .7; }
 .article-journal__meta-item--reading { font-style: italic; }
 .article-journal__body { color: var(--aj-text,#222); }
-.article-journal__content { max-width: var(--aj-body-width,720px); margin: 0 auto 2.5rem; font-size: 1.125rem; line-height: 1.75; }
 .article-journal__content :first-child { margin-top: 0; }
 .article-journal__content h1,.article-journal__content h2,.article-journal__content h3,.article-journal__content h4 { margin: 2em 0 .6em; font-weight: 700; line-height: 1.3; color: var(--aj-text,#222); }
 .article-journal__content h1{font-size:1.6em}.article-journal__content h2{font-size:1.4em}.article-journal__content h3{font-size:1.2em}.article-journal__content h4{font-size:1.1em}
@@ -128,7 +106,7 @@
 .article-journal__content a:not(.button) { color: var(--aj-accent); text-decoration: underline; text-underline-offset: 2px; }
 .article-journal__content blockquote { margin: 2rem 0; padding-left: 1.5rem; border-left: 4px solid var(--aj-accent); font-size: 1.1em; color: var(--aj-muted,#555); font-style: italic; }
 .article-journal__content ul,.article-journal__content ol { margin: 1.25em 0; padding-left: 1.5em; }
-.article-journal__content img { max-width: 100%; height: auto; margin: 1.5em 0; border-radius: 4px; }
+.article-journal__content img { width: 100%; max-width: 100%; height: auto; border-radius: 16px; }
 .article-journal__tags { max-width: var(--aj-body-width,720px); margin: 0 auto 2rem; padding-top: 1.5rem; border-top: 1px solid var(--aj-border,#e5e5e5); font-size: .9rem; color: var(--aj-muted,#555); }
 .article-journal__tags-label { font-weight: 600; margin-right: .25rem; }
 .article-journal__tag { color: var(--aj-accent); text-decoration: none; }
@@ -160,11 +138,37 @@
 .article-journal-aside-card__price-compare { color: var(--aj-muted,#555); text-decoration: line-through; margin-left: 6px; }
 .article-journal-aside-card__cta { font-size: .8rem; font-weight: 600; color: var(--aj-accent); }
 @media (min-width: 990px) {
-  .article-journal__body-inner { grid-template-columns: 1fr 300px; }
-  .article-journal__aside { position: sticky; top: 24px; }
+  .article-journal__body-inner--with-aside { grid-template-columns:  1fr 453px; }
+  .article-journal__aside { position: sticky; top: 124px; }
 }
 @media (max-width:749px){
   .article-journal__banner{aspect-ratio:16/10} .article-journal__header-inner{padding:1.5rem 16px 1.75rem} .article-journal__container,.article-journal__content{padding-left:16px;padding-right:16px} .article-journal__content{font-size:1.0625rem} .article-journal__meta{font-size:.8125rem} .article-journal__nav{grid-template-columns:1fr} .article-journal__nav-link--next{text-align:left} }
+.article-inline-card { margin: 2rem 0; border: 1px solid var(--aj-border,#e5e5e5); border-radius: 12px; overflow: hidden; background: #fff; }
+.article-inline-card--membership { padding: 1.25rem 1.5rem; }
+.article-inline-card__membership-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem; }
+.article-inline-card__membership-text { flex: 1; min-width: 200px; }
+.article-inline-card__membership-headline { font-size: 1.15rem; font-weight: 700; margin: 0 0 .35rem; color: var(--aj-text,#222); }
+.article-inline-card__membership-subhead { font-size: .9rem; color: var(--aj-muted,#555); margin: 0 0 .75rem; }
+.article-inline-card__membership-cta { display: inline-block; padding: 10px 20px; background: var(--aj-accent); color: #fff !important; font-weight: 600; font-size: .95rem; border-radius: 999px; text-decoration: none; border: none; }
+.article-inline-card__membership-cta:hover { opacity: .92; color: #fff !important; }
+.article-inline-card__membership-benefits { display: flex; gap: 1.25rem; flex-wrap: wrap; flex-shrink: 0; }
+.article-inline-card__benefit { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: .8rem; color: var(--aj-muted,#555); }
+.article-inline-card__benefit-icon { font-size: 1.5rem; }
+.article-inline-card--product .article-inline-card__product-link { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; padding: 1rem; text-decoration: none; color: inherit; }
+.article-inline-card--product .article-inline-card__product-link:hover { background: #fafafa; }
+.article-inline-card__product-image { flex-shrink: 0; width: 140px; border-radius: 8px; overflow: hidden; background: #f2f2f2; }
+.article-inline-card__product-img { width: 100%; height: auto; display: block; }
+.article-inline-card__product-info { flex: 1; min-width: 0; }
+.article-inline-card__product-title { font-size: 1rem; font-weight: 700; margin: 0 0 .35rem; color: var(--aj-text,#222); line-height: 1.25; }
+.article-inline-card__product-rating { font-size: .85rem; color: var(--aj-muted,#555); margin-bottom: .25rem; }
+.article-inline-card__stars { color: var(--aj-accent); }
+.article-inline-card__product-desc { font-size: .875rem; color: var(--aj-muted,#555); margin: 0 0 .5rem; line-height: 1.4; }
+.article-inline-card__product-price { margin: 0 0 .25rem; font-size: 1rem; }
+.article-inline-card__product-price .article-inline-card__price-current { font-weight: 700; color: var(--aj-text,#222); }
+.article-inline-card__product-price .article-inline-card__price-compare { color: var(--aj-muted,#555); text-decoration: line-through; margin-left: 6px; }
+.article-inline-card__product-promo { font-size: .85rem; color: var(--aj-accent); margin: 0 0 .5rem; }
+.article-inline-card__product-cta { display: inline-block; padding: 8px 18px; background: var(--aj-accent); color: #fff; font-weight: 600; font-size: .9rem; border-radius: 8px; }
+@media (min-width: 600px) { .article-inline-card__product-image { width: 200px; } }
 </style>
 
 {% schema %}
@@ -187,21 +191,10 @@
     {"type": "color", "id": "accent_color", "label": "Accent", "default": "#eb7122"},
     {"type": "color", "id": "text_color", "label": "Body text", "default": "#222021"},
     {"type": "color", "id": "muted_color", "label": "Muted text", "default": "#555555"},
-    {"type": "color", "id": "border_color", "label": "Borders", "default": "#e5e5e5"}
-  ],
-  "blocks": [
-    {
-      "type": "product_banner",
-      "name": "Product banner (aside)",
-      "limit": 6,
-      "settings": [
-        {"type": "text", "id": "heading", "label": "Heading", "default": "Recommended"},
-        {"type": "collection", "id": "collection", "label": "Fallback collection", "info": "If no products are selected below, first 3 products from this collection are shown."},
-        {"type": "product", "id": "product_1", "label": "Product 1"},
-        {"type": "product", "id": "product_2", "label": "Product 2"},
-        {"type": "product", "id": "product_3", "label": "Product 3"}
-      ]
-    }
+    {"type": "color", "id": "border_color", "label": "Borders", "default": "#e5e5e5"},
+    {"type": "header", "content": "Sidebar (metafield)"},
+    {"type": "paragraph", "content": "Sidebar products come from the blog post metafield custom.side_product_card (list of products). If empty, the sidebar is hidden."},
+    {"type": "text", "id": "aside_heading", "label": "Sidebar heading", "default": "Recommended"}
   ]
 }
 {% endschema %}
