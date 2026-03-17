@@ -162,7 +162,7 @@
 
   .ai-new-arrivals-products-{{ ai_gen_id }} {
     display: grid;
-    grid-template-columns: repeat(4, calc(50% - 10px));
+    grid-template-columns: repeat(12, calc(50% - 10px));
     gap: 20px;
     transition: transform 0.4s ease;
     height: 100%;
@@ -318,7 +318,7 @@
     }
 
     .ai-new-arrivals-products-{{ ai_gen_id }} {
-      grid-template-columns: repeat(4, calc(50% - 8px));
+      grid-template-columns: repeat(12, calc(50% - 8px));
       gap: 16px;
     }
 
@@ -328,7 +328,7 @@
   }
 {% endstyle %}
 
-<ai-new-arrivals-{{ ai_gen_id }} class="ai-new-arrivals-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+<ai-new-arrivals-{{ ai_gen_id }} class="ai-new-arrivals-{{ ai_gen_id }}" data-total-slides="{{ total_slides }}" {{ block.shopify_attributes }}>
   <div class="ai-new-arrivals-container-{{ ai_gen_id }}">
     <div class="ai-new-arrivals-header-{{ ai_gen_id }}">
       {% if block.settings.title != blank %}
@@ -359,10 +359,12 @@
         </a>
       </div>
 
+      {% assign max_products = 12 %}
+      {% assign total_slides = max_products | divided_by: 2 %}
       <div class="ai-new-arrivals-products-wrapper-{{ ai_gen_id }}">
         <div class="ai-new-arrivals-products-container-{{ ai_gen_id }}">
           <div class="ai-new-arrivals-products-{{ ai_gen_id }}" data-slider-track>
-            {% for i in (1..4) %}
+            {% for i in (1..max_products) %}
               {% liquid
                 assign product_key = 'product_' | append: i
                 assign product = block.settings[product_key]
@@ -435,8 +437,11 @@
         </div>
 
         <div class="ai-new-arrivals-slider-controls-{{ ai_gen_id }}" data-slider-controls>
-          <button class="ai-new-arrivals-slider-dot-{{ ai_gen_id }} active" data-slide="0" aria-label="Go to slide 1"></button>
-          <button class="ai-new-arrivals-slider-dot-{{ ai_gen_id }}" data-slide="1" aria-label="Go to slide 2"></button>
+          {% for slide_index in (0..total_slides) %}
+            {% if slide_index < total_slides %}
+              <button class="ai-new-arrivals-slider-dot-{{ ai_gen_id }} {% if slide_index == 0 %}active{% endif %}" data-slide="{{ slide_index }}" aria-label="Go to slide {{ slide_index | plus: 1 }}"></button>
+            {% endif %}
+          {% endfor %}
         </div>
       </div>
     </div>
@@ -455,7 +460,8 @@
       connectedCallback() {
         this.sliderTrack = this.querySelector('[data-slider-track]');
         this.dots = this.querySelectorAll('.ai-new-arrivals-slider-dot-{{ ai_gen_id }}');
-        
+        const totalSlidesAttr = this.getAttribute('data-total-slides');
+        if (totalSlidesAttr != null) this.totalSlides = parseInt(totalSlidesAttr, 10) || 2;
         if (!this.sliderTrack || !this.dots.length) return;
 
         this.setupSlider();
@@ -641,6 +647,46 @@
       "type": "product",
       "id": "product_4",
       "label": "Product 4"
+    },
+    {
+      "type": "product",
+      "id": "product_5",
+      "label": "Product 5"
+    },
+    {
+      "type": "product",
+      "id": "product_6",
+      "label": "Product 6"
+    },
+    {
+      "type": "product",
+      "id": "product_7",
+      "label": "Product 7"
+    },
+    {
+      "type": "product",
+      "id": "product_8",
+      "label": "Product 8"
+    },
+    {
+      "type": "product",
+      "id": "product_9",
+      "label": "Product 9"
+    },
+    {
+      "type": "product",
+      "id": "product_10",
+      "label": "Product 10"
+    },
+    {
+      "type": "product",
+      "id": "product_11",
+      "label": "Product 11"
+    },
+    {
+      "type": "product",
+      "id": "product_12",
+      "label": "Product 12"
     },
     {
       "type": "header",
