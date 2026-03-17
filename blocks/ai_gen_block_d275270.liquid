@@ -162,7 +162,7 @@
 
   .ai-new-arrivals-products-{{ ai_gen_id }} {
     display: grid;
-    grid-template-columns: repeat(4, calc(50% - 10px));
+    grid-template-columns: repeat(5, calc(50% - 10px));
     gap: 20px;
     transition: transform 0.4s ease;
     height: 100%;
@@ -318,7 +318,7 @@
     }
 
     .ai-new-arrivals-products-{{ ai_gen_id }} {
-      grid-template-columns: repeat(4, calc(50% - 8px));
+      grid-template-columns: repeat(5, calc(50% - 8px));
       gap: 16px;
     }
 
@@ -362,11 +362,11 @@
       <div class="ai-new-arrivals-products-wrapper-{{ ai_gen_id }}">
         <div class="ai-new-arrivals-products-container-{{ ai_gen_id }}">
           <div class="ai-new-arrivals-products-{{ ai_gen_id }}" data-slider-track>
-            {% for i in (1..4) %}
-              {% liquid
-                assign product_key = 'product_' | append: i
-                assign product = block.settings[product_key]
-              %}
+            {% assign product_order = "5,1,2,3,4" | split: "," %}
+            {% for i in product_order %}
+              {% assign i_stripped = i | strip %}
+              {% assign product_key = 'product_' | append: i_stripped %}
+              {% assign product = block.settings[product_key] %}
 
               {% if product != blank %}
                 <a href="{{ product.url }}" class="ai-new-arrivals-product-card-{{ ai_gen_id }}">
@@ -422,7 +422,7 @@
                   </div>
                   <div class="ai-new-arrivals-product-info-{{ ai_gen_id }}">
                     <div class="ai-new-arrivals-product-category-{{ ai_gen_id }}">Category</div>
-                    <h3 class="ai-new-arrivals-product-title-{{ ai_gen_id }}">Product {{ i }}</h3>
+                    <h3 class="ai-new-arrivals-product-title-{{ ai_gen_id }}">Product {{ i_stripped }}</h3>
                     <div class="ai-new-arrivals-product-price-{{ ai_gen_id }}">
                       <span class="ai-new-arrivals-price-current-{{ ai_gen_id }}">$99.00</span>
                       <span class="ai-new-arrivals-price-original-{{ ai_gen_id }}">$129.00</span>
@@ -437,6 +437,7 @@
         <div class="ai-new-arrivals-slider-controls-{{ ai_gen_id }}" data-slider-controls>
           <button class="ai-new-arrivals-slider-dot-{{ ai_gen_id }} active" data-slide="0" aria-label="Go to slide 1"></button>
           <button class="ai-new-arrivals-slider-dot-{{ ai_gen_id }}" data-slide="1" aria-label="Go to slide 2"></button>
+          <button class="ai-new-arrivals-slider-dot-{{ ai_gen_id }}" data-slide="2" aria-label="Go to slide 3"></button>
         </div>
       </div>
     </div>
@@ -641,6 +642,11 @@
       "type": "product",
       "id": "product_4",
       "label": "Product 4"
+    },
+    {
+      "type": "product",
+      "id": "product_5",
+      "label": "Product 5"
     },
     {
       "type": "header",
