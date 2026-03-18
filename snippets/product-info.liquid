@@ -5,12 +5,8 @@
   - product: {Object} Product object
   - section: {Object} Section object for settings
 
-  AtivaPeople — desconto dinâmico (metafields, namespace custom, key percentage_discount_ativapeople):
-  - Produto: product.metafields.custom.percentage_discount_ativapeople (integer ou decimal, ex.: 10, 15, 20)
-  - Loja (fallback): shop.metafields.custom.percentage_discount_ativapeople
-  - Se ambos vazios: 10%
-
-  Criar em Admin → Configurações → Dados personalizados → Produtos (e/ou Loja) → Adicionar definição.
+  AtivaPeople — preço só via custom.price_discount_ativapeople (produto → variante → loja)
+  - Preço com vírgula (formato Shopify BR/EU) — obrigatório normalizar antes de | plus (senão 100,5 vira 100).
 {% endcomment %}
 
 <div class="product-info-container_new">
@@ -156,34 +152,82 @@
       </div>
     {%- endif -%}
 
-    <!-- AtivaPeople Badge -->
+    <!-- AtivaPeople Badge (só com preço fixo no metafield; aceita 100,5 ou 100.5) -->
     {%- if section.settings.show_ativapeople_badge -%}
       {%- liquid
-        assign current_price = product.selected_or_first_available_variant.price
-        assign ap_pct_product = product.metafields.custom.percentage_discount_ativapeople.value
-        assign ap_pct_shop = shop.metafields.custom.percentage_discount_ativapeople.value
-        if ap_pct_product != blank
-          assign discount_percentage = ap_pct_product | plus: 0
-        elsif ap_pct_shop != blank
-          assign discount_percentage = ap_pct_shop | plus: 0
-        else
-          assign discount_percentage = 10
+        assign current_variant = product.selected_or_first_available_variant
+        assign ap_mf_fixed = false
+        assign ativapeople_display_cents = 0
+
+        assign mf_p = product.metafields.custom.price_discount_ativapeople
+        assign mf_v = current_variant.metafields.custom.price_discount_ativapeople
+        assign mf_s = shop.metafields.custom.price_discount_ativapeople
+
+        assign mf_use = mf_p
+        unless mf_p != blank and mf_p.value != blank
+          assign mf_use = mf_v
+          unless mf_v != blank and mf_v.value != blank
+            assign mf_use = mf_s
+          endunless
+        endunless
+
+        comment
+          Shopify (BR/EU) usa vírgula decimal. Em Ruby, "100,5"|plus vira 100 — sempre normalizar antes.
+          Inteiros tipo 100 (sem vírgula) continuam válidos.
+        endcomment
+        if mf_use != blank and mf_use.value != blank
+          assign ap_mf_fixed = true
+          assign _raw = ''
+          if mf_use.value.amount != blank
+            assign _raw = mf_use.value.amount | append: '' | strip
+          else
+            assign _raw = mf_use.value | append: '' | strip
+          endif
+          assign _raw = _raw | replace: ' ', '' | replace: ' ', '' | replace: "'", ''
+
+          if _raw contains ','
+            assign _pa = _raw | split: ','
+            if _pa.size == 2
+              assign _L = _pa[0] | strip
+              assign _R = _pa[1] | strip
+              assign _rL = _R | size
+              if _rL == 1 or _rL == 2
+                assign _L = _L | replace: '.', ''
+                assign _raw = _L | append: '.' | append: _R
+              elsif _rL == 3
+                if _L contains '.'
+                  assign _L = _L | replace: '.', ''
+                  assign _raw = _L | append: '.' | append: _R
+                else
+                  assign _raw = _L | append: _R
+                endif
+              else
+                assign _L = _L | replace: '.', ''
+                assign _raw = _L | append: '.' | append: _R
+              endif
+            else
+              assign _raw = _raw | replace: '.', '' | replace: ',', '.'
+            endif
+          endif
+
+          assign _u = _raw | plus: 0.0
+          assign ativapeople_display_cents = _u | times: 100 | round
         endif
-        if discount_percentage < 0
-          assign discount_percentage = 0
+
+        if ativapeople_display_cents < 0
+          assign ativapeople_display_cents = 0
         endif
-        if discount_percentage > 100
-          assign discount_percentage = 100
-        endif
-        assign discount_multiplier = 100 | minus: discount_percentage | divided_by: 100.0
-        assign discounted_price = current_price | times: discount_multiplier
       -%}
-      <div class="ativapeople-badge_new" data-ativapeople-discount-pct="{{ discount_percentage }}">
+      {%- if ap_mf_fixed -%}
+      <div
+        class="ativapeople-badge_new"
+        data-ativapeople-fixed-cents="{{ ativapeople_display_cents }}">
         <div class="ativapeople-message">
           <span class="ativapeople-text">Join <a href="/pages/membership" class="ativapeople-link">AtivaPeople</a> for</span>
-          <span class="ativapeople-price">{{ discounted_price | money }}</span>
+          <span class="ativapeople-price">{{ ativapeople_display_cents | money }}</span>
         </div>
       </div>
+      {%- endif -%}
     {%- endif -%}
   </div>
 
