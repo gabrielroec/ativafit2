@@ -1,0 +1,54 @@
+{% comment %}
+  Dado variant e product, retorna centavos do preço AtivaPeople (variante → produto).
+  Saída: só o número (0 se nenhum metafield). Uso: JSON na section para JS.
+{% endcomment %}
+{%- liquid
+  assign mf_v = variant.metafields.custom.price_discount_ativapeople
+  assign mf_p = product.metafields.custom.price_discount_ativapeople
+  assign mf_use = mf_v
+  unless mf_v != blank and mf_v.value != blank
+    assign mf_use = mf_p
+    unless mf_p != blank and mf_p.value != blank
+      assign mf_use = blank
+    endunless
+  endunless
+  assign out_cents = 0
+  if mf_use != blank and mf_use.value != blank
+    assign _raw = ''
+    if mf_use.value.amount != blank
+      assign _raw = mf_use.value.amount | append: '' | strip
+    else
+      assign _raw = mf_use.value | append: '' | strip
+    endif
+    assign _raw = _raw | replace: ' ', '' | replace: ' ', '' | replace: "'", ''
+    if _raw contains ','
+      assign _pa = _raw | split: ','
+      if _pa.size == 2
+        assign _L = _pa[0] | strip
+        assign _R = _pa[1] | strip
+        assign _rL = _R | size
+        if _rL == 1 or _rL == 2
+          assign _L = _L | replace: '.', ''
+          assign _raw = _L | append: '.' | append: _R
+        elsif _rL == 3
+          if _L contains '.'
+            assign _L = _L | replace: '.', ''
+            assign _raw = _L | append: '.' | append: _R
+          else
+            assign _raw = _L | append: _R
+          endif
+        else
+          assign _L = _L | replace: '.', ''
+          assign _raw = _L | append: '.' | append: _R
+        endif
+      else
+        assign _raw = _raw | replace: '.', '' | replace: ',', '.'
+      endif
+    endif
+    assign _u = _raw | plus: 0.0
+    assign out_cents = _u | times: 100 | round
+  endif
+  if out_cents < 0
+    assign out_cents = 0
+  endif
+-%}{{ out_cents }}

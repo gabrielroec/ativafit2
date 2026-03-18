@@ -79,6 +79,16 @@
 {% render 'product-benefit-popups'
   , section: section %}
 
+{%- if section.settings.show_ativapeople_badge -%}
+<script type="application/json" data-ativapeople-variant-cents>
+{
+  {%- for v in product.variants -%}
+    "{{ v.id }}": {% render 'ativapeople-cents-for-variant', variant: v, product: product %}{% unless forloop.last %},{% endunless %}
+  {%- endfor -%}
+}
+</script>
+{%- endif -%}
+
 <script>
   // ====================================================================
   // PRODUCT MAIN SECTION JAVASCRIPT
@@ -877,14 +887,23 @@
           }
         });
         
-        // AtivaPeople: só preço fixo do metafield (sem %)
-        const ativapeopleBadge = document.querySelector('.ativapeople-badge_new[data-ativapeople-fixed-cents]');
+        // AtivaPeople: variante → produto; mostrar/ocultar badge conforme mapa por variante
+        const ativapeopleBadge = document.querySelector('.ativapeople-badge_new');
         const ativapeoplePriceEl = document.querySelector('.ativapeople-price');
-        if (ativapeopleBadge && ativapeoplePriceEl) {
-          const fixedCents = ativapeopleBadge.getAttribute('data-ativapeople-fixed-cents');
-          if (fixedCents != null && fixedCents !== '') {
-            const n = parseInt(fixedCents, 10);
-            if (!Number.isNaN(n)) ativapeoplePriceEl.textContent = formatMoney(n);
+        const ativapeopleCentsJson = document.querySelector('script[data-ativapeople-variant-cents]');
+        if (ativapeopleBadge && ativapeoplePriceEl && ativapeopleCentsJson && variant.id) {
+          let variantCents = {};
+          try {
+            variantCents = JSON.parse(ativapeopleCentsJson.textContent || '{}');
+          } catch (e) {}
+          const cents = variantCents[variant.id];
+          if (cents != null && cents > 0) {
+            ativapeopleBadge.setAttribute('data-ativapeople-fixed-cents', String(cents));
+            ativapeopleBadge.style.display = '';
+            ativapeoplePriceEl.textContent = formatMoney(cents);
+          } else {
+            ativapeopleBadge.setAttribute('data-ativapeople-fixed-cents', '0');
+            ativapeopleBadge.style.display = 'none';
           }
         }
 
