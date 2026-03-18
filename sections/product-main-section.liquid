@@ -877,6 +877,17 @@
           }
         });
         
+        // AtivaPeople price (mesmo % do metafield, em data-ativapeople-discount-pct no badge)
+        const ativapeopleBadge = document.querySelector('.ativapeople-badge_new[data-ativapeople-discount-pct]');
+        const ativapeoplePriceEl = document.querySelector('.ativapeople-price');
+        if (ativapeopleBadge && ativapeoplePriceEl && variant.price != null) {
+          let pct = parseFloat(ativapeopleBadge.getAttribute('data-ativapeople-discount-pct'), 10);
+          if (Number.isNaN(pct) || pct < 0) pct = 10;
+          if (pct > 100) pct = 100;
+          const mult = (100 - pct) / 100;
+          ativapeoplePriceEl.textContent = formatMoney(Math.round(variant.price * mult));
+        }
+
         // Also update payment terms component if it exists
         const paymentTerms = document.querySelector('shopify-payment-terms');
         if (paymentTerms && variant.id) {

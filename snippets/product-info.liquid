@@ -4,8 +4,13 @@
   Accepts:
   - product: {Object} Product object
   - section: {Object} Section object for settings
-  Usage:
-  {% render 'product-info', product: product, section: section %}
+
+  AtivaPeople — desconto dinâmico (metafields, namespace custom, key percentage_discount_ativapeople):
+  - Produto: product.metafields.custom.percentage_discount_ativapeople (integer ou decimal, ex.: 10, 15, 20)
+  - Loja (fallback): shop.metafields.custom.percentage_discount_ativapeople
+  - Se ambos vazios: 10%
+
+  Criar em Admin → Configurações → Dados personalizados → Produtos (e/ou Loja) → Adicionar definição.
 {% endcomment %}
 
 <div class="product-info-container_new">
@@ -155,16 +160,29 @@
     {%- if section.settings.show_ativapeople_badge -%}
       {%- liquid
         assign current_price = product.selected_or_first_available_variant.price
-        assign discount_percentage = 10
+        assign ap_pct_product = product.metafields.custom.percentage_discount_ativapeople.value
+        assign ap_pct_shop = shop.metafields.custom.percentage_discount_ativapeople.value
+        if ap_pct_product != blank
+          assign discount_percentage = ap_pct_product | plus: 0
+        elsif ap_pct_shop != blank
+          assign discount_percentage = ap_pct_shop | plus: 0
+        else
+          assign discount_percentage = 10
+        endif
+        if discount_percentage < 0
+          assign discount_percentage = 0
+        endif
+        if discount_percentage > 100
+          assign discount_percentage = 100
+        endif
         assign discount_multiplier = 100 | minus: discount_percentage | divided_by: 100.0
         assign discounted_price = current_price | times: discount_multiplier
       -%}
-      
-      <div class="ativapeople-badge_new">
-          <div class="ativapeople-message">
-            <span class="ativapeople-text">Join <a href="/pages/membership" class="ativapeople-link">AtivaPeople</a> for</span>
-            <span class="ativapeople-price">{{ discounted_price | money }}</span>
-          </div>
+      <div class="ativapeople-badge_new" data-ativapeople-discount-pct="{{ discount_percentage }}">
+        <div class="ativapeople-message">
+          <span class="ativapeople-text">Join <a href="/pages/membership" class="ativapeople-link">AtivaPeople</a> for</span>
+          <span class="ativapeople-price">{{ discounted_price | money }}</span>
+        </div>
       </div>
     {%- endif -%}
   </div>

@@ -450,7 +450,7 @@
       constructor() {
         super();
         this.currentSlide = 0;
-        this.totalSlides = 2;
+        this.totalSlides = 3;
       }
 
       connectedCallback() {
@@ -472,90 +472,92 @@
       }
 
       setupTouchEvents() {
-        let startX = 0;
-        let startY = 0;
-        let currentX = 0;
-        let isDragging = false;
+        const track = this.sliderTrack;
+        const container = track.parentElement;
+        const DRAG_THRESHOLD = 5;
 
-        this.sliderTrack.addEventListener('touchstart', (e) => {
+        const applyDrag = (slideAtStart, dragDeltaPx) => {
+          const w = container.clientWidth;
+          if (!w) return;
+          const dragPct = (dragDeltaPx / w) * 100;
+          const totalPct = -(slideAtStart * 100) + dragPct;
+          track.style.transition = 'none';
+          track.style.transform = `translateX(${totalPct}%)`;
+        };
+
+        const endDrag = (slideAtStart, dragDeltaPx) => {
+          track.style.transition = '';
+          const w = container.clientWidth;
+          if (!w) return;
+          const effectiveSlide = slideAtStart - (dragDeltaPx / w);
+          const snap = Math.max(0, Math.min(this.totalSlides - 1, Math.round(effectiveSlide)));
+          this.goToSlide(snap);
+        };
+
+        let startX = 0, startY = 0, currentX = 0, slideAtStart = 0, isTouchDrag = false;
+
+        track.addEventListener('touchstart', (e) => {
           startX = e.touches[0].clientX;
           startY = e.touches[0].clientY;
           currentX = startX;
-          isDragging = true;
+          slideAtStart = this.currentSlide;
+          isTouchDrag = true;
         }, { passive: true });
 
-        this.sliderTrack.addEventListener('touchmove', (e) => {
-          if (!isDragging) return;
+        track.addEventListener('touchmove', (e) => {
+          if (!isTouchDrag) return;
           const x = e.touches[0].clientX;
           const y = e.touches[0].clientY;
+          currentX = x;
           const isHorizontal = Math.abs(x - startX) > Math.abs(y - startY);
           if (isHorizontal && Math.abs(x - startX) > 10) {
             e.preventDefault();
+            applyDrag(slideAtStart, x - startX);
           }
-          currentX = x;
         }, { passive: false });
 
-        this.sliderTrack.addEventListener('touchend', () => {
-          if (!isDragging) return;
-          isDragging = false;
-
-          const diff = startX - currentX;
-          
-          if (Math.abs(diff) > 50) {
-            if (diff > 0 && this.currentSlide < this.totalSlides - 1) {
-              this.goToSlide(this.currentSlide + 1);
-            } else if (diff < 0 && this.currentSlide > 0) {
-              this.goToSlide(this.currentSlide - 1);
-            }
-          }
+        track.addEventListener('touchend', () => {
+          if (!isTouchDrag) return;
+          isTouchDrag = false;
+          endDrag(slideAtStart, startX - currentX);
         });
 
-        let mouseStartX = 0;
-        let mouseCurrentX = 0;
-        let isMouseDragging = false;
-        const DRAG_THRESHOLD = 5;
+        let mouseStartX = 0, mouseSlideAtStart = 0, mouseLastDx = 0, isMouseDrag = false;
 
-        this.sliderTrack.addEventListener('mousedown', (e) => {
+        track.addEventListener('mousedown', (e) => {
           e.preventDefault();
           mouseStartX = e.clientX;
-          mouseCurrentX = e.clientX;
-          isMouseDragging = true;
+          mouseSlideAtStart = this.currentSlide;
+          mouseLastDx = 0;
+          isMouseDrag = true;
           this._swipeWasDrag = false;
-          this.sliderTrack.style.cursor = 'grabbing';
+          track.style.cursor = 'grabbing';
         });
 
-        this.sliderTrack.addEventListener('mousemove', (e) => {
-          if (!isMouseDragging) return;
-          mouseCurrentX = e.clientX;
-          if (Math.abs(mouseCurrentX - mouseStartX) > DRAG_THRESHOLD) {
-            this._swipeWasDrag = true;
+        track.addEventListener('mousemove', (e) => {
+          if (!isMouseDrag) return;
+          const dx = e.clientX - mouseStartX;
+          mouseLastDx = dx;
+          if (Math.abs(dx) > DRAG_THRESHOLD) this._swipeWasDrag = true;
+          applyDrag(mouseSlideAtStart, dx);
+        });
+
+        track.addEventListener('mouseup', (e) => {
+          if (!isMouseDrag) return;
+          isMouseDrag = false;
+          track.style.cursor = 'grab';
+          endDrag(mouseSlideAtStart, e.clientX - mouseStartX);
+        });
+
+        track.addEventListener('mouseleave', () => {
+          if (isMouseDrag) {
+            isMouseDrag = false;
+            track.style.cursor = 'grab';
+            endDrag(mouseSlideAtStart, mouseLastDx);
           }
         });
 
-        this.sliderTrack.addEventListener('mouseup', () => {
-          if (!isMouseDragging) return;
-          isMouseDragging = false;
-          this.sliderTrack.style.cursor = 'grab';
-
-          const diff = mouseStartX - mouseCurrentX;
-          
-          if (Math.abs(diff) > 50) {
-            if (diff > 0 && this.currentSlide < this.totalSlides - 1) {
-              this.goToSlide(this.currentSlide + 1);
-            } else if (diff < 0 && this.currentSlide > 0) {
-              this.goToSlide(this.currentSlide - 1);
-            }
-          }
-        });
-
-        this.sliderTrack.addEventListener('mouseleave', () => {
-          if (isMouseDragging) {
-            isMouseDragging = false;
-            this.sliderTrack.style.cursor = 'grab';
-          }
-        });
-
-        this.sliderTrack.addEventListener('click', (e) => {
+        track.addEventListener('click', (e) => {
           if (this._swipeWasDrag) {
             e.preventDefault();
             e.stopPropagation();
@@ -563,13 +565,13 @@
           }
         }, true);
 
-        this.sliderTrack.style.cursor = 'grab';
+        track.style.cursor = 'grab';
       }
 
       goToSlide(index) {
         this.currentSlide = index;
-        const offset = index * -100;
-        this.sliderTrack.style.transform = `translateX(${offset}%)`;
+        this.sliderTrack.style.transition = 'transform 0.4s ease';
+        this.sliderTrack.style.transform = `translateX(${index * -100}%)`;
 
         this.dots.forEach((dot, i) => {
           if (i === index) {
