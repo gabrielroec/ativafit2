@@ -254,6 +254,8 @@
     align-items: center;
     gap: 8px;
     margin-top: 20px;
+    display: none!important;
+    
   }
 
   .ai-new-arrivals-slider-dot-{{ ai_gen_id }} {
@@ -309,6 +311,7 @@
       max-width: 250px;
     }
   }
+ 
 {% endstyle %}
 
 <new-arrivals-{{ ai_gen_id }} class="ai-new-arrivals-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
@@ -341,7 +344,7 @@
 
       <div class="ai-new-arrivals-products-wrapper-{{ ai_gen_id }}">
         <div class="ai-new-arrivals-products-{{ ai_gen_id }}" data-slider>
-          {% for i in (1..4) %}
+          {% for i in (1..2) %}
             {% liquid
               assign product_key = 'product_' | append: i
               assign product = block.settings[product_key]
@@ -411,7 +414,6 @@
 
         <div class="ai-new-arrivals-slider-controls-{{ ai_gen_id }}" data-controls>
           <button class="ai-new-arrivals-slider-dot-{{ ai_gen_id }} active" data-slide="0" aria-label="Slide 1"></button>
-          <button class="ai-new-arrivals-slider-dot-{{ ai_gen_id }}" data-slide="1" aria-label="Slide 2"></button>
         </div>
       </div>
     </div>
@@ -424,7 +426,7 @@
       constructor() {
         super();
         this.currentSlide = 0;
-        this.totalSlides = 2;
+        this.totalSlides = 1;
       }
 
       connectedCallback() {
@@ -669,16 +671,6 @@
       "type": "product",
       "id": "product_2",
       "label": "Product 2"
-    },
-    {
-      "type": "product",
-      "id": "product_3",
-      "label": "Product 3"
-    },
-    {
-      "type": "product",
-      "id": "product_4",
-      "label": "Product 4"
     },
     {
       "type": "header",
