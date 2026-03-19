@@ -31,6 +31,9 @@
 
   <div class="article-journal__body">
     <div class="article-journal__container article-journal__body-inner{% if side_products != blank and side_products.size > 0 %} article-journal__body-inner--with-aside{% endif %}">
+      <nav class="article-journal__toc" aria-label="Table of contents" id="article-journal-toc-{{ section.id }}">
+        <ol class="article-journal__toc-list" id="article-journal-toc-list-{{ section.id }}"></ol>
+      </nav>
       <div class="article-journal__main">
         <div class="article-journal__content rte" id="article-journal-content">{{ article.content }}</div>
         {%- if section.settings.show_tags and article.tags.size > 0 -%}
@@ -79,6 +82,78 @@
 </article>
 
 <script src="{{ 'article-inline-cards.js' | asset_url }}" defer></script>
+<script>
+(function() {
+  function slugify(text) {
+    return text.trim().toLowerCase()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/[\s_-]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'section';
+  }
+  function initToc() {
+    var article = document.querySelector('.article-journal');
+    if (!article) return;
+    var content = document.getElementById('article-journal-content');
+    var tocList = article.querySelector('[id^="article-journal-toc-list-"]');
+    var bodyInner = article.querySelector('.article-journal__body-inner');
+    if (!content || !tocList || !bodyInner) return;
+    var headings = content.querySelectorAll('h2, h3');
+    if (headings.length === 0) return;
+    var idx = 0;
+    var subList = null;
+    headings.forEach(function(h) {
+      if (!h.id) h.id = 'toc-' + slugify(h.textContent) + '-' + (idx++);
+      if (h.tagName === 'H2') {
+        subList = null;
+        var li = document.createElement('li');
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.trim();
+        a.className = 'article-journal__toc-link';
+        a.setAttribute('data-toc-id', h.id);
+        li.appendChild(a);
+        tocList.appendChild(li);
+      } else {
+        if (!subList) {
+          var lastLi = tocList.lastElementChild;
+          if (!lastLi) return;
+          subList = document.createElement('ul');
+          subList.className = 'article-journal__toc-sublist';
+          lastLi.appendChild(subList);
+        }
+        var subLi = document.createElement('li');
+        var subA = document.createElement('a');
+        subA.href = '#' + h.id;
+        subA.textContent = h.textContent.trim();
+        subA.className = 'article-journal__toc-link article-journal__toc-link--sub';
+        subA.setAttribute('data-toc-id', h.id);
+        subLi.appendChild(subA);
+        subList.appendChild(subLi);
+      }
+    });
+    bodyInner.classList.add('article-journal__body-inner--with-toc');
+    var links = tocList.querySelectorAll('.article-journal__toc-link');
+    var allHeadings = content.querySelectorAll('h2, h3');
+    function setActive(id) {
+      links.forEach(function(link) {
+        link.classList.toggle('article-journal__toc-link--active', link.getAttribute('data-toc-id') === id);
+      });
+    }
+    function updateActive() {
+      var offset = 180;
+      var current = null;
+      allHeadings.forEach(function(h) {
+        if (h.getBoundingClientRect().top <= offset) current = h;
+      });
+      setActive(current ? current.id : (allHeadings[0].id || ''));
+    }
+    window.addEventListener('scroll', function() { requestAnimationFrame(updateActive); }, { passive: true });
+    updateActive();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initToc);
+  else initToc();
+})();
+</script>
 
 <style>
 #ArticleJournal-{{ section.id }} { --aj-accent: {{ section.settings.accent_color }}; --aj-text: {{ section.settings.text_color }}; --aj-muted: {{ section.settings.muted_color }}; --aj-border: {{ section.settings.border_color }}; --aj-body-width: {{ section.settings.content_width }}px; }
@@ -120,6 +195,15 @@
 .article-journal__nav-label { display: block; font-size: .8rem; font-weight: 600; color: var(--aj-accent); margin-bottom: .25rem; }
 .article-journal__nav-title { font-size: .95rem; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .article-journal__body-inner { display: grid; grid-template-columns: 1fr; gap: 2rem; align-items: start; }
+.article-journal__body-inner--with-toc { grid-template-columns: 200px 1fr; }
+.article-journal__toc { display: none; }
+.article-journal__body-inner--with-toc .article-journal__toc { display: block; position: sticky; top: 124px; min-width: 0; }
+.article-journal__toc-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.25rem; }
+.article-journal__toc-link { display: block; padding: 0.4rem 0 0.4rem 10px; font-size: 0.9rem!important; line-height: 1.35; color: var(--aj-muted,#555); text-decoration: none; border-left: 3px solid transparent; transition: color .2s, border-color .2s, font-weight .2s; }
+.article-journal__toc-link:hover { color: var(--aj-text,#222); }
+.article-journal__toc-link--active { color: var(--aj-accent); font-weight: 600; border-left-color: var(--aj-accent); }
+.article-journal__toc-sublist { list-style: none; margin: 0.15rem 0 0.5rem 0; padding: 0 0 0 8px; border-left: 1px solid var(--aj-border,#e5e5e5); }
+.article-journal__toc-link--sub { font-size: 0.85rem; padding-left: 8px; }
 .article-journal__main { min-width: 0; }
 .article-journal__aside { display: flex; flex-direction: column; gap: 1.5rem; }
 .article-journal__aside-banner { background: #f8f8f8; border: 1px solid var(--aj-border,#e5e5e5); border-radius: 10px; padding: 1rem; }
@@ -138,8 +222,13 @@
 .article-journal-aside-card__price-compare { color: var(--aj-muted,#555); text-decoration: line-through; margin-left: 6px; }
 .article-journal-aside-card__cta { font-size: .8rem; font-weight: 600; color: var(--aj-accent); }
 @media (min-width: 990px) {
-  .article-journal__body-inner--with-aside { grid-template-columns:  1fr 453px; }
+  .article-journal__body-inner--with-aside { grid-template-columns: 1fr 453px; }
+  .article-journal__body-inner--with-toc.article-journal__body-inner--with-aside { grid-template-columns: 200px 1fr 453px; }
   .article-journal__aside { position: sticky; top: 124px; }
+}
+@media (max-width: 989px) {
+  .article-journal__toc { display: none !important; }
+  .article-journal__body-inner--with-toc { grid-template-columns: 1fr; }
 }
 @media (max-width:749px){
   .article-journal__banner{aspect-ratio:16/10} .article-journal__header-inner{padding:1.5rem 16px 1.75rem} .article-journal__container,.article-journal__content{padding-left:16px;padding-right:16px} .article-journal__content{font-size:1.0625rem} .article-journal__meta{font-size:.8125rem} .article-journal__nav{grid-template-columns:1fr} .article-journal__nav-link--next{text-align:left} }
