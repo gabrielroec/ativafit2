@@ -23,8 +23,13 @@
   assign show_color_swatch = section.settings.show_filter_color_swatch
   assign facet_default = section.settings.facet_groups_default | default: 'first_open'
 
+  assign has_native_filters = false
+  if has_collection and collection_to_show.filters.size > 0
+    assign has_native_filters = true
+  endif
+
   assign active_filter_count = 0
-  if show_filters and has_collection
+  if has_native_filters
     for filter in collection_to_show.filters
       if filter.active_values.size > 0
         assign active_filter_count = active_filter_count | plus: filter.active_values.size
@@ -47,7 +52,7 @@
       {%- paginate collection_to_show.products by section.settings.products_per_page -%}
         <div class="collection-grid-simple__container">
 
-          {%- comment -%} Toolbar: search + mobile filter toggle + sort + count {%- endcomment -%}
+          {%- comment -%} Toolbar {%- endcomment -%}
           {%- if show_search or show_sort or show_count or show_filters -%}
             <div class="cf-toolbar">
               {%- if show_search -%}
@@ -71,9 +76,7 @@
                 <button type="button" class="cf-mobile-toggle" data-filter-drawer-toggle aria-label="Open filters">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><line x1="1" y1="4" x2="15" y2="4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="8" x2="11" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="12" x2="13" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
                   Filters
-                  {%- if active_filter_count > 0 -%}
-                    <span class="cf-mobile-toggle__count">{{ active_filter_count }}</span>
-                  {%- endif -%}
+                  <span class="cf-mobile-toggle__count" data-active-count style="{% if active_filter_count == 0 %}display:none{% endif %}">{{ active_filter_count }}</span>
                 </button>
               {%- endif -%}
 
@@ -91,7 +94,7 @@
               {%- endif -%}
 
               {%- if show_count -%}
-                <span class="cf-product-count">
+                <span class="cf-product-count" data-product-count>
                   {{ collection_to_show.products_count }}
                   {%- if collection_to_show.products_count == 1 %} product{% else %} products{% endif -%}
                 </span>
@@ -99,22 +102,36 @@
             </div>
           {%- endif -%}
 
-          {%- comment -%} Active filter pills {%- endcomment -%}
-          {%- if show_filters -%}
+          {%- comment -%} Active filter pills (native) {%- endcomment -%}
+          {%- if show_filters and has_native_filters -%}
             {%- render 'collection-active-filters', collection: collection_to_show -%}
           {%- endif -%}
 
-          {%- comment -%} Two-column layout: sidebar + grid {%- endcomment -%}
-          <div class="cf-layout{% unless show_filters and collection_to_show.filters.size > 0 %} cf-layout--no-filters{% endunless %}">
+          {%- comment -%} JS active pills (when no native filters) {%- endcomment -%}
+          {%- if show_filters and has_native_filters == false -%}
+            <div class="cf-active-filters" data-js-active-filters style="display:none;"></div>
+          {%- endif -%}
 
-            {%- comment -%} Sidebar filters (desktop) {%- endcomment -%}
-            {%- if show_filters and collection_to_show.filters.size > 0 -%}
+          {%- comment -%} Two-column layout: sidebar + grid {%- endcomment -%}
+          <div class="cf-layout{% unless show_filters %} cf-layout--no-filters{% endunless %}">
+
+            {%- comment -%} Sidebar (always render when show_filters is on) {%- endcomment -%}
+            {%- if show_filters -%}
               <aside class="cf-sidebar" aria-label="Collection filters">
-                {%- render 'collection-filters',
-                  collection: collection_to_show,
-                  show_color_swatch: show_color_swatch,
-                  facet_default: facet_default
-                -%}
+                {%- if has_native_filters -%}
+                  {%- render 'collection-filters',
+                    collection: collection_to_show,
+                    show_color_swatch: show_color_swatch,
+                    facet_default: facet_default
+                  -%}
+                {%- else -%}
+                  <div class="cf-filters-js" data-js-filters>
+                    <div class="cf-filters__groups" data-js-filter-groups></div>
+                    <div class="cf-filters__actions">
+                      <button type="button" class="cf-filters__clear" data-js-clear-all style="display:none;">Clear all</button>
+                    </div>
+                  </div>
+                {%- endif -%}
               </aside>
             {%- endif -%}
 
@@ -123,7 +140,13 @@
               {%- if collection_to_show.products.size > 0 -%}
                 <div class="collection-grid-simple__grid" data-collection-grid>
                   {%- for product in collection_to_show.products -%}
-                    <div class="collection-grid-simple__item">
+                    {%- assign pv = product.selected_or_first_available_variant -%}
+                    <div class="collection-grid-simple__item"
+                      data-product-type="{{ product.type | escape }}"
+                      data-product-vendor="{{ product.vendor | escape }}"
+                      data-product-price="{{ pv.price }}"
+                      data-product-available="{{ pv.available }}"
+                      data-product-tags="{{ product.tags | join: ',' | escape }}">
                       {%- render 'product-card-simple', product: product -%}
                     </div>
                   {%- endfor -%}
@@ -136,8 +159,15 @@
                           {%- assign idx = block.settings.variant_index | plus: 0 -%}
                           {%- assign extra_variant = block.settings.product.variants[idx] -%}
                         {%- endif -%}
-                        <div class="collection-grid-simple__item" {{ block.shopify_attributes }}>
-                          {%- render 'product-card-simple', product: block.settings.product, variant: extra_variant -%}
+                        {%- assign ep = block.settings.product -%}
+                        {%- assign epv = ep.selected_or_first_available_variant -%}
+                        <div class="collection-grid-simple__item" {{ block.shopify_attributes }}
+                          data-product-type="{{ ep.type | escape }}"
+                          data-product-vendor="{{ ep.vendor | escape }}"
+                          data-product-price="{{ epv.price }}"
+                          data-product-available="{{ epv.available }}"
+                          data-product-tags="{{ ep.tags | join: ',' | escape }}">
+                          {%- render 'product-card-simple', product: ep, variant: extra_variant -%}
                         </div>
                       {%- endif -%}
                     {%- endfor -%}
@@ -146,7 +176,8 @@
 
                 <div class="cf-no-results" data-no-search-results style="display: none;">
                   <h3 class="cf-no-results__title">No matching products</h3>
-                  <p class="cf-no-results__text">Try a different search term or clear your filters.</p>
+                  <p class="cf-no-results__text">Try a different search term or adjust your filters.</p>
+                  <button type="button" class="cf-no-results__link" data-js-clear-all>Clear all filters</button>
                 </div>
               {%- else -%}
                 <div class="cf-no-results">
@@ -167,7 +198,6 @@
       {%- endpaginate -%}
 
     {%- else -%}
-      {%- comment -%} No collection, only extra products {%- endcomment -%}
       <div class="collection-grid-simple__container">
         <div class="collection-grid-simple__grid" data-collection-grid>
           {%- for block in extra_products -%}
@@ -186,8 +216,8 @@
       </div>
     {%- endif -%}
 
-    {%- comment -%} Mobile filter drawer {%- endcomment -%}
-    {%- if show_filters and has_collection and collection_to_show.filters.size > 0 -%}
+    {%- comment -%} Mobile filter drawer — always rendered when show_filters is on {%- endcomment -%}
+    {%- if show_filters and has_collection -%}
       <div class="cf-drawer-overlay" data-filter-drawer-overlay></div>
       <div class="cf-drawer" data-filter-drawer aria-label="Filters" role="dialog" aria-modal="true">
         <div class="cf-drawer__header">
@@ -196,11 +226,9 @@
             <svg width="20" height="20" viewBox="0 0 20 20"><line x1="4" y1="4" x2="16" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="4" x2="4" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
           </button>
         </div>
-        <div class="cf-drawer__body" data-filter-drawer-body>
-          {%- comment -%} JS clones the sidebar form here {%- endcomment -%}
-        </div>
+        <div class="cf-drawer__body" data-filter-drawer-body></div>
         <div class="cf-drawer__footer">
-          <button type="button" class="cf-filters__apply" onclick="document.querySelector('[data-collection-filters-form-drawer]')?.submit()">
+          <button type="button" class="cf-filters__apply" data-filter-drawer-apply>
             Apply Filters
           </button>
         </div>
@@ -223,6 +251,9 @@
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 20px;
+  }
+  .cf-layout:not(.cf-layout--no-filters) .collection-grid-simple__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   #{{ section_id }} .collection-grid-simple__item {
     width: 100%;
@@ -387,13 +418,6 @@
   #{{ section_id }} .product-card-simple__variant-btn-inner--placeholder {
     background-color: #e5e5e5;
   }
-
-  /* When sidebar is present, 3 columns instead of 4 */
-  .cf-layout:not(.cf-layout--no-filters) #{{ section_id }} .collection-grid-simple__grid,
-  .cf-layout:not(.cf-layout--no-filters) .collection-grid-simple__grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
   @media (max-width: 990px) {
     .cf-layout:not(.cf-layout--no-filters) .collection-grid-simple__grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -418,7 +442,6 @@
     #{{ section_id }} .product-card-simple__stars {
       display: inline-flex;
       gap: 1px;
-      line-height: 1;
     }
     #{{ section_id }} .product-card-simple__star,
     #{{ section_id }} .product-card-simple__rating-value,
@@ -427,34 +450,19 @@
     }
     #{{ section_id }} .product-card-simple__title {
       font-size: 14px!important;
-      line-height: 1.3!important;
     }
   }
   @media (max-width: 340px) {
-    #{{ section_id }} .product-card-simple__stars {
-      display: inline-flex;
-      gap: 1px;
-      line-height: 1;
-    }
     #{{ section_id }} .product-card-simple__star,
     #{{ section_id }} .product-card-simple__rating-value,
     #{{ section_id }} .product-card-simple__rating-count {
       font-size: 12px!important;
     }
   }
-  @media (max-width: 320px) {
-    #{{ section_id }} .product-card-simple__title {
-      font-size: 14px!important;
-    }
-  }
-
-  /* Pagination spacing */
   #{{ section_id }} .collection-grid-simple__pagination {
     margin-top: 32px;
   }
 </style>
-
-{% comment %} Variant switcher for product-card-simple is in theme.liquid (product-card-simple.js) so it works in grid and in banner carousel/Swiper. {% endcomment %}
 
 {% schema %}
 {
@@ -464,7 +472,7 @@
       "type": "collection",
       "id": "collection",
       "label": "Collection",
-      "info": "Leave blank to show the current page's collection (e.g. on a collection page). Set to force a specific collection."
+      "info": "Leave blank to show the current page's collection."
     },
     {
       "type": "range",
@@ -489,15 +497,13 @@
       "type": "checkbox",
       "id": "show_filters",
       "label": "Show filters sidebar",
-      "default": true,
-      "info": "Uses Shopify native storefront filters. Configure available filters in Online Store > Navigation."
+      "default": true
     },
     {
       "type": "checkbox",
       "id": "show_filter_color_swatch",
       "label": "Show color swatches",
-      "default": true,
-      "info": "Renders color-type filters as circular swatches instead of checkboxes."
+      "default": true
     },
     {
       "type": "select",
@@ -559,15 +565,13 @@
         {
           "type": "product",
           "id": "product",
-          "label": "Product",
-          "info": "Add a product card that appears alongside the collection products, without adding it to the collection."
+          "label": "Product"
         },
         {
           "type": "select",
           "id": "variant_index",
           "label": "Variant",
           "default": "",
-          "info": "Which variant to show on the card. Order matches the product admin.",
           "options": [
             { "value": "", "label": "First available" },
             { "value": "0", "label": "1st variant" },
@@ -579,27 +583,7 @@
             { "value": "6", "label": "7th variant" },
             { "value": "7", "label": "8th variant" },
             { "value": "8", "label": "9th variant" },
-            { "value": "9", "label": "10th variant" },
-            { "value": "10", "label": "11th variant" },
-            { "value": "11", "label": "12th variant" },
-            { "value": "12", "label": "13th variant" },
-            { "value": "13", "label": "14th variant" },
-            { "value": "14", "label": "15th variant" },
-            { "value": "15", "label": "16th variant" },
-            { "value": "16", "label": "17th variant" },
-            { "value": "17", "label": "18th variant" },
-            { "value": "18", "label": "19th variant" },
-            { "value": "19", "label": "20th variant" },
-            { "value": "20", "label": "21st variant" },
-            { "value": "21", "label": "22nd variant" },
-            { "value": "22", "label": "23rd variant" },
-            { "value": "23", "label": "24th variant" },
-            { "value": "24", "label": "25th variant" },
-            { "value": "25", "label": "26th variant" },
-            { "value": "26", "label": "27th variant" },
-            { "value": "27", "label": "28th variant" },
-            { "value": "28", "label": "29th variant" },
-            { "value": "29", "label": "30th variant" }
+            { "value": "9", "label": "10th variant" }
           ]
         }
       ]
