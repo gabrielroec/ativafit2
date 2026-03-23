@@ -1,14 +1,44 @@
 {%- liquid
   assign section_id = 'CollectionGridSimple-' | append: section.id
-  if section.settings.collection != blank
-    assign collection_to_show = section.settings.collection
-  else
-    assign collection_to_show = collection
+  assign collection_to_show = section.settings.collection | default: collection
+
+  assign use_contextual_collection = false
+  if template.name == 'collection' and collection != blank
+    if section.settings.collection == blank
+      assign use_contextual_collection = true
+    elsif section.settings.collection.handle == collection.handle
+      assign use_contextual_collection = true
+    endif
   endif
+
+  if use_contextual_collection
+    assign product_collection = collection
+  else
+    assign product_collection = collection_to_show
+  endif
+
+  assign has_facets = false
+  if section.settings.show_filters and template.name == 'collection' and use_contextual_collection and product_collection.filters != empty
+    assign has_facets = true
+  endif
+
+  assign form_id = 'cgs-facets-form-' | append: section.id
+  assign sort_by = product_collection.sort_by | default: product_collection.default_sort_by
+
+  assign active_filters_count = 0
+  for filter in product_collection.filters
+    if filter.type == 'list'
+      assign active_filters_count = active_filters_count | plus: filter.active_values.size
+    elsif filter.type == 'price_range' and filter.min_value.value or filter.max_value.value
+      assign active_filters_count = active_filters_count | plus: 1
+    elsif filter.type == 'boolean' and filter.true_value.active
+      assign active_filters_count = active_filters_count | plus: 1
+    endif
+  endfor
 
   assign extra_products = section.blocks | where: 'type', 'extra_product'
   assign has_collection = false
-  if collection_to_show != blank and collection_to_show.products_count > 0
+  if product_collection != blank and product_collection.products_count > 0
     assign has_collection = true
   endif
   assign has_extras = false
@@ -17,39 +47,157 @@
   endif
 -%}
 
+{%- if has_facets -%}
+  {{ 'collection-facets-simple.css' | asset_url | stylesheet_tag }}
+{%- endif -%}
+
 {%- if has_collection or has_extras -%}
-  <section id="{{ section_id }}" class="collection-grid-simple">
+  <section
+    id="{{ section_id }}"
+    class="collection-grid-simple{% if has_facets %} collection-grid-simple--facets{% endif %}"
+  >
     {%- if has_collection -%}
-      {%- paginate collection_to_show.products by section.settings.products_per_page -%}
-        <div class="collection-grid-simple__container">
-          <div class="collection-grid-simple__grid">
-            {%- for product in collection_to_show.products -%}
-              <div class="collection-grid-simple__item">
-                {%- render 'product-card-simple', product: product -%}
+      {%- paginate product_collection.products by section.settings.products_per_page -%}
+        {%- if has_facets -%}
+          <div class="collection-grid-simple__shell">
+            <aside
+              class="collection-grid-simple__facets"
+              data-cgs-facets-root
+              aria-hidden="true"
+              id="{{ section_id }}-facets-aside"
+            >
+              <button
+                type="button"
+                class="cgs-facets-backdrop"
+                data-cgs-facets-close
+                aria-label="{{ 'general.accessibility.close' | t | escape }}"
+              ></button>
+              <div class="collection-grid-simple__facets-panel">
+                <div class="cgs-facets-mobile-head">
+                  <h2 class="cgs-facets-mobile-head__title" id="{{ section_id }}-facets-heading">
+                    {{ 'collection.filter.title' | t }}
+                  </h2>
+                  <button
+                    type="button"
+                    class="cgs-facets-mobile-head__close"
+                    data-cgs-facets-close
+                    aria-label="{{ 'general.accessibility.close' | t | escape }}"
+                  >
+                    ×
+                  </button>
+                </div>
+                {% render 'collection-facets-simple',
+                  product_collection: product_collection,
+                  form_id: form_id,
+                  sort_by: sort_by,
+                  show_swatches: section.settings.show_filter_color_swatch,
+                  groups_mode: section.settings.facet_groups_default,
+                  template_suffix: template.suffix,
+                  section_id: section_id
+                %}
               </div>
-            {%- endfor -%}
+            </aside>
 
-            {%- if has_extras and paginate.pages <= 1 or paginate.current_page == paginate.pages -%}
-              {%- for block in extra_products -%}
-                {%- if block.settings.product != blank -%}
-                  {%- assign extra_variant = nil -%}
-                  {%- if block.settings.variant_index != blank -%}
-                    {%- assign idx = block.settings.variant_index | plus: 0 -%}
-                    {%- assign extra_variant = block.settings.product.variants[idx] -%}
+            <div class="collection-grid-simple__main">
+              <div class="cgs-toolbar">
+                <button
+                  type="button"
+                  class="cgs-toolbar__filter"
+                  data-cgs-facets-open
+                  aria-expanded="false"
+                  aria-controls="{{ section_id }}-facets-aside"
+                >
+                  {{ 'collection.filter.show_filter' | t }}
+                  {%- if active_filters_count > 0 -%}
+                    <span class="cgs-toolbar__filter-badge">{{ active_filters_count }}</span>
                   {%- endif -%}
-                  <div class="collection-grid-simple__item" {{ block.shopify_attributes }}>
-                    {%- render 'product-card-simple', product: block.settings.product, variant: extra_variant -%}
-                  </div>
-                {%- endif -%}
-              {%- endfor -%}
-            {%- endif -%}
-          </div>
-        </div>
+                </button>
+                <p class="cgs-toolbar__meta">
+                  {{ 'collection.general.results_count' | t: count: paginate.items }}
+                </p>
+                <div class="cgs-toolbar__sort">
+                  <label class="cgs-toolbar__sort-label" for="cgs-sort-{{ section_id }}">{{ 'collection.sorting.title' | t }}</label>
+                  <select
+                    id="cgs-sort-{{ section_id }}"
+                    class="cgs-toolbar__sort-select"
+                    name="sort_by"
+                    form="{{ form_id }}"
+                    data-cgs-sort-select
+                  >
+                    {%- for option in product_collection.sort_options -%}
+                      <option value="{{ option.value | escape }}" {% if option.value == sort_by %}selected{% endif %}>
+                        {{ option.name }}
+                      </option>
+                    {%- endfor -%}
+                  </select>
+                </div>
+              </div>
 
-        {%- if section.settings.show_pagination and paginate.pages > 1 -%}
-          <div class="collection-grid-simple__pagination">
-            {%- render 'pagination', paginate: paginate -%}
+              <div class="collection-grid-simple__grid">
+                {%- for product in product_collection.products -%}
+                  <div class="collection-grid-simple__item">
+                    {%- render 'product-card-simple', product: product -%}
+                  </div>
+                {%- endfor -%}
+
+                {%- if paginate.items == 0 -%}
+                  <p class="cgs-empty" role="status">{{ 'collection.general.no_results' | t }}</p>
+                {%- endif -%}
+
+                {%- if has_extras and paginate.pages <= 1 or paginate.current_page == paginate.pages -%}
+                  {%- for block in extra_products -%}
+                    {%- if block.settings.product != blank -%}
+                      {%- assign extra_variant = nil -%}
+                      {%- if block.settings.variant_index != blank -%}
+                        {%- assign idx = block.settings.variant_index | plus: 0 -%}
+                        {%- assign extra_variant = block.settings.product.variants[idx] -%}
+                      {%- endif -%}
+                      <div class="collection-grid-simple__item" {{ block.shopify_attributes }}>
+                        {%- render 'product-card-simple', product: block.settings.product, variant: extra_variant -%}
+                      </div>
+                    {%- endif -%}
+                  {%- endfor -%}
+                {%- endif -%}
+              </div>
+
+              {%- if section.settings.show_pagination and paginate.pages > 1 -%}
+                <div class="collection-grid-simple__pagination">
+                  {%- render 'pagination', paginate: paginate -%}
+                </div>
+              {%- endif -%}
+            </div>
           </div>
+        {%- else -%}
+          <div class="collection-grid-simple__container">
+            <div class="collection-grid-simple__grid">
+              {%- for product in product_collection.products -%}
+                <div class="collection-grid-simple__item">
+                  {%- render 'product-card-simple', product: product -%}
+                </div>
+              {%- endfor -%}
+
+              {%- if has_extras and paginate.pages <= 1 or paginate.current_page == paginate.pages -%}
+                {%- for block in extra_products -%}
+                  {%- if block.settings.product != blank -%}
+                    {%- assign extra_variant = nil -%}
+                    {%- if block.settings.variant_index != blank -%}
+                      {%- assign idx = block.settings.variant_index | plus: 0 -%}
+                      {%- assign extra_variant = block.settings.product.variants[idx] -%}
+                    {%- endif -%}
+                    <div class="collection-grid-simple__item" {{ block.shopify_attributes }}>
+                      {%- render 'product-card-simple', product: block.settings.product, variant: extra_variant -%}
+                    </div>
+                  {%- endif -%}
+                {%- endfor -%}
+              {%- endif -%}
+            </div>
+          </div>
+
+          {%- if section.settings.show_pagination and paginate.pages > 1 -%}
+            <div class="collection-grid-simple__pagination">
+              {%- render 'pagination', paginate: paginate -%}
+            </div>
+          {%- endif -%}
         {%- endif -%}
       {%- endpaginate -%}
     {%- else -%}
@@ -71,6 +219,10 @@
       </div>
     {%- endif -%}
   </section>
+
+  {%- if has_facets -%}
+    <script src="{{ 'collection-facets-simple.js' | asset_url }}" defer></script>
+  {%- endif -%}
 {%- endif -%}
 
 <style>
@@ -263,7 +415,7 @@
     padding: 8px;
     font-size: 12px!important;
     font-weight: 600!important;
-  }
+    }
   }
 
    @media (max-width: 430px) {
@@ -290,7 +442,7 @@
   #{{ section_id }} .product-card-simple__star, #{{ section_id }} .product-card-simple__rating-value, #{{ section_id }} .product-card-simple__rating-count {
     font-size: 12px!important;
   }
- 
+
   }
   @media (max-width: 320px) {
     #{{ section_id }} .product-card-simple__title {
@@ -310,6 +462,30 @@
       "id": "collection",
       "label": "Collection",
       "info": "Leave blank to show the current page's collection (e.g. on a collection page). Set to force a specific collection."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_filters",
+      "label": "Show collection filters",
+      "default": true,
+      "info": "Uses Shopify storefront filtering. Configure filters in Shopify Admin → Search & Discovery. Only applies when the section shows the same collection as the page URL."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_filter_color_swatch",
+      "label": "Color swatches for color filters",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "facet_groups_default",
+      "label": "Filter groups default state",
+      "default": "first_open",
+      "options": [
+        { "value": "first_open", "label": "First group open" },
+        { "value": "all_open", "label": "All open" },
+        { "value": "all_closed", "label": "All closed" }
+      ]
     },
     {
       "type": "range",

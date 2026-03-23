@@ -1,0 +1,217 @@
+{%- comment -%}
+  Facetas de coleção (Shopify Storefront Filtering) — UI do tema Collection Grid Simple.
+  Parâmetros:
+  - product_collection: objeto collection contextual (com filtros da URL aplicados)
+  - form_id: id único do <form>
+  - sort_by: string atual de ordenação
+  - show_swatches: boolean — swatches para grupos “cor”
+  - groups_mode: 'first_open' | 'all_open' | 'all_closed'
+  - template_suffix: template.suffix (ex.: brand)
+  - section_id: id estável para ids de inputs (ex.: section.id)
+{%- endcomment -%}
+
+{%- liquid
+  assign color_label = 'color,colour,couleur,cor,colore,farbe,색,色,カラー,färg,farve,szín,barva' | split: ','
+  assign color_swatch_config = settings.color_swatch_config | newline_to_br | split: '<br />'
+-%}
+
+<form
+  id="{{ form_id }}"
+  class="cgs-facet-form"
+  method="get"
+  action="{{ product_collection.url }}"
+  aria-label="{{ 'collection.filter.all' | t | escape }}"
+>
+  {%- if product_collection.current_type != blank or product_collection.current_vendor != blank -%}
+    <input type="hidden" name="q" value="{{ product_collection.current_vendor | default: product_collection.current_type | escape }}">
+  {%- endif -%}
+
+  <div class="cgs-active-filters" role="region" aria-label="{{ 'collection.filter.title' | t }}">
+    {%- assign active_chips = 0 -%}
+    <div class="cgs-active-filters__chips">
+      {%- for filter in product_collection.filters -%}
+        {%- if filter.type == 'list' -%}
+          {%- for filter_value in filter.active_values -%}
+            {%- assign active_chips = active_chips | plus: 1 -%}
+            <a class="cgs-chip" href="{{ filter_value.url_to_remove }}">
+              <span class="cgs-chip__x" aria-hidden="true">×</span>
+              <span class="cgs-chip__text">{{ filter_value.label | escape }}</span>
+            </a>
+          {%- endfor -%}
+        {%- elsif filter.type == 'price_range' and filter.min_value.value or filter.max_value.value -%}
+          {%- assign active_chips = active_chips | plus: 1 -%}
+          <a class="cgs-chip" href="{{ filter.url_to_remove }}">
+            <span class="cgs-chip__x" aria-hidden="true">×</span>
+            <span class="cgs-chip__text">
+              {{- filter.min_value.value | default: 0 | money_without_trailing_zeros -}}
+              –
+              {{- filter.max_value.value | default: filter.range_max | money_without_trailing_zeros -}}
+            </span>
+          </a>
+        {%- elsif filter.type == 'boolean' and filter.true_value.active -%}
+          {%- assign active_chips = active_chips | plus: 1 -%}
+          <a class="cgs-chip" href="{{ filter.url_to_remove }}">
+            <span class="cgs-chip__x" aria-hidden="true">×</span>
+            <span class="cgs-chip__text">{{ filter.label | escape }}</span>
+          </a>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+    {%- if active_chips > 0 -%}
+      <a class="cgs-active-filters__clear" href="{{ product_collection.url }}?sort_by={{ sort_by | url_encode }}">
+        {{ 'collection.filter.clear_all' | t }}
+      </a>
+    {%- endif -%}
+  </div>
+
+  <div class="cgs-facet-groups">
+    {%- assign cgs_accordion_started = false -%}
+    {%- for filter in product_collection.filters -%}
+      {%- if template_suffix == 'brand' and filter.param_name == 'filter.p.vendor' and filter.values.size == 1 -%}
+        {%- continue -%}
+      {%- endif -%}
+
+      {%- assign filter_label_downcase = filter.label | downcase -%}
+      {%- assign show_color_swatch = false -%}
+      {%- if show_swatches -%}
+        {%- for kw in color_label -%}
+          {%- assign kw_strip = kw | strip -%}
+          {%- if filter_label_downcase == kw_strip or filter_label_downcase contains kw_strip -%}
+            {%- assign show_color_swatch = true -%}
+            {%- break -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
+
+      {%- assign is_open = false -%}
+      {%- unless filter.type == 'boolean' -%}
+        {%- if groups_mode == 'all_open' -%}
+          {%- assign is_open = true -%}
+        {%- elsif groups_mode == 'first_open' and cgs_accordion_started == false -%}
+          {%- assign is_open = true -%}
+          {%- assign cgs_accordion_started = true -%}
+        {%- endif -%}
+      {%- endunless -%}
+
+      <div class="cgs-facet-group">
+        {%- if filter.type == 'boolean' -%}
+          <div class="cgs-facet-group__head">
+            <label class="cgs-facet-boolean">
+              <input
+                type="checkbox"
+                name="{{ filter.param_name }}"
+                value="1"
+                class="cgs-facet-boolean__input"
+                {% if filter.true_value.active %}checked{% endif %}
+              >
+              <span class="cgs-facet-boolean__box" aria-hidden="true"></span>
+              <span class="cgs-facet-boolean__label">{{ filter.label | escape }}</span>
+            </label>
+          </div>
+        {%- else -%}
+          <details class="cgs-facet-details" {% if is_open %}open{% endif %}>
+            <summary class="cgs-facet-details__summary">
+              <span>{{ filter.label | escape }}</span>
+              <span class="cgs-facet-details__chevron" aria-hidden="true"></span>
+            </summary>
+            <div class="cgs-facet-details__body">
+              {%- case filter.type -%}
+                {%- when 'list' -%}
+                  {%- if show_color_swatch -%}
+                    <ul class="cgs-swatch-list" role="list">
+                      {%- for filter_value in filter.values -%}
+                        <li class="cgs-swatch-list__item">
+                          <input
+                            type="checkbox"
+                            class="cgs-swatch-list__input visually-hidden"
+                            name="{{ filter.param_name }}"
+                            id="cgs-{{ section_id }}-{{ filter.param_name | handle }}-{{ forloop.index }}"
+                            value="{{ filter_value.value | escape }}"
+                            {% if filter_value.active %}checked{% endif %}
+                          >
+                          <label
+                            class="cgs-swatch-list__label {% if filter_value.active %}is-active{% endif %}"
+                            for="cgs-{{ section_id }}-{{ filter.param_name | handle }}-{{ forloop.index }}"
+                            title="{{ filter_value.label | escape }}"
+                          >
+                            <span
+                              class="cgs-swatch-list__dot {% if filter_value.label == 'White' or filter_value.label == 'Blanc' %}cgs-swatch-list__dot--white{% endif %}"
+                              style="{% render 'color-swatch-style', color_swatch_config: color_swatch_config, value: filter_value.label | downcase %}"
+                            ></span>
+                            <span class="visually-hidden">{{ filter_value.label | escape }} ({{ filter_value.count }})</span>
+                          </label>
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                  {%- else -%}
+                    <ul class="cgs-checkbox-list" role="list">
+                      {%- for filter_value in filter.values -%}
+                        <li class="cgs-checkbox-list__item">
+                          <label class="cgs-checkbox">
+                            <input
+                              type="checkbox"
+                              class="cgs-checkbox__input"
+                              name="{{ filter.param_name }}"
+                              id="cgs-{{ section_id }}-{{ filter.param_name | handle }}-{{ forloop.index }}"
+                              value="{{ filter_value.value | escape }}"
+                              {% if filter_value.active %}checked{% endif %}
+                            >
+                            <span class="cgs-checkbox__box" aria-hidden="true"></span>
+                            <span class="cgs-checkbox__text">
+                              {{ filter_value.label | escape }}
+                              <span class="cgs-checkbox__count">({{ filter_value.count }})</span>
+                            </span>
+                          </label>
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                  {%- endif -%}
+                {%- when 'price_range' -%}
+                  {%- assign min_value = filter.min_value.value | default: 0.0 | divided_by: 100.0 -%}
+                  {%- assign max_value = filter.max_value.value | default: filter.range_max | divided_by: 100.0 -%}
+                  {%- assign range_max = filter.range_max | divided_by: 100.0 | ceil -%}
+                  <div class="cgs-price-range">
+                    <div class="cgs-price-range__fields">
+                      <div class="cgs-price-field">
+                        <span class="cgs-price-field__prefix">{{ cart.currency.symbol }}</span>
+                        <input
+                          class="cgs-price-field__input"
+                          type="number"
+                          inputmode="numeric"
+                          name="{{ filter.min_value.param_name }}"
+                          min="0"
+                          max="{{ range_max }}"
+                          placeholder="0"
+                          {% if filter.min_value.value %}value="{{ min_value | ceil }}"{% endif %}
+                          aria-label="{{ 'collection.filter.price_filter_from' | t }}"
+                        >
+                      </div>
+                      <span class="cgs-price-range__sep">–</span>
+                      <div class="cgs-price-field">
+                        <span class="cgs-price-field__prefix">{{ cart.currency.symbol }}</span>
+                        <input
+                          class="cgs-price-field__input"
+                          type="number"
+                          inputmode="numeric"
+                          name="{{ filter.max_value.param_name }}"
+                          min="0"
+                          max="{{ range_max }}"
+                          placeholder="{{ range_max }}"
+                          {% if filter.max_value.value %}value="{{ max_value | ceil }}"{% endif %}
+                          aria-label="{{ 'collection.filter.price_filter_to' | t }}"
+                        >
+                      </div>
+                    </div>
+                  </div>
+              {%- endcase -%}
+            </div>
+          </details>
+        {%- endif -%}
+      </div>
+    {%- endfor -%}
+  </div>
+
+  <div class="cgs-facet-form__actions">
+    <button type="submit" class="cgs-facet-form__submit">{{ 'collection.filter.view_results' | t }}</button>
+  </div>
+</form>
