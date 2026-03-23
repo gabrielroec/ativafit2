@@ -99,6 +99,9 @@
       priceMax: globalPriceMax
     };
 
+    /** Search text (combined with filters in applyFilters; updates every keystroke) */
+    var searchQuery = '';
+
     function buildCheckboxGroup(title, id, values, orderedKeys, isOpen) {
       var keys = orderedKeys || Object.keys(values).sort();
       var html = '<details class="cf-filter-group"' + (isOpen ? ' open' : '') + '>';
@@ -213,10 +216,12 @@
       var noRes = qs('[data-no-search-results]');
       var countEl = qs('[data-product-count]');
       var pillsEl = qs('[data-js-active-filters]');
+      var q = (searchQuery || '').trim().toLowerCase();
       var hasAny = activeFilters.categories.length > 0 ||
         activeFilters.availability !== null ||
         activeFilters.priceMin > globalPriceMin ||
-        activeFilters.priceMax < globalPriceMax;
+        activeFilters.priceMax < globalPriceMax ||
+        q.length > 0;
 
       items.forEach(function (item) {
         var show = true;
@@ -229,6 +234,15 @@
         if (activeFilters.availability === 'Out of stock' && avail) show = false;
         if (price < activeFilters.priceMin || price > activeFilters.priceMax) show = false;
 
+        if (show && q.length > 0) {
+          var title = item.getAttribute('data-product-title') || '';
+          var tags = item.getAttribute('data-product-tags') || '';
+          var card = item.querySelector('.product-card-simple__title');
+          var cardText = card ? card.textContent : '';
+          var hay = (title + ' ' + cardText + ' ' + cat + ' ' + tags).toLowerCase();
+          if (hay.indexOf(q) === -1) show = false;
+        }
+
         item.style.display = show ? '' : 'none';
         if (show) visible++;
       });
@@ -240,7 +254,8 @@
 
       var badge = qs('[data-active-count]');
       var ac = activeFilters.categories.length + (activeFilters.availability ? 1 : 0) +
-        (activeFilters.priceMin > globalPriceMin || activeFilters.priceMax < globalPriceMax ? 1 : 0);
+        (activeFilters.priceMin > globalPriceMin || activeFilters.priceMax < globalPriceMax ? 1 : 0) +
+        (q.length > 0 ? 1 : 0);
       if (badge) { badge.textContent = ac; badge.style.display = ac > 0 ? '' : 'none'; }
 
       /* Pills */
@@ -307,6 +322,11 @@
       activeFilters.availability = null;
       activeFilters.priceMin = globalPriceMin;
       activeFilters.priceMax = globalPriceMax;
+      searchQuery = '';
+      var si = qs('[data-collection-search]');
+      if (si) si.value = '';
+      var sc = qs('[data-search-clear]');
+      if (sc) sc.classList.remove('is-visible');
       syncCheckboxes();
       resetPriceUI();
       applyFilters();
@@ -358,6 +378,28 @@
 
     var drawerApply = qs('[data-filter-drawer-apply]');
     if (drawerApply) drawerApply.addEventListener('click', closeDrawer);
+
+    /* Search: same frame as filters — every keystroke, clearing restores grid */
+    var searchInput = qs('[data-collection-search]');
+    var searchClearBtn = qs('[data-search-clear]');
+    if (searchInput) {
+      searchInput.addEventListener('input', function () {
+        searchQuery = searchInput.value;
+        applyFilters();
+        if (searchClearBtn) searchClearBtn.classList.toggle('is-visible', searchQuery.trim().length > 0);
+      });
+      if (searchClearBtn) {
+        searchClearBtn.addEventListener('click', function () {
+          searchInput.value = '';
+          searchQuery = '';
+          applyFilters();
+          searchClearBtn.classList.remove('is-visible');
+          searchInput.focus();
+        });
+      }
+    }
+
+    applyFilters();
   }
 
   /* ==========================
@@ -447,42 +489,42 @@
   }
 
   /* ==========================
-     SEARCH
+     SEARCH (native-filter collections only; JS filters use search inside initJsFilters)
      ========================== */
-  function initSearch() {
+  function initSearchSimple() {
     var input = qs('[data-collection-search]');
     var clear = qs('[data-search-clear]');
     if (!input) return;
-    var timer;
 
     function run() {
       var q = input.value.trim().toLowerCase();
-      var items = qsa('.collection-grid-simple__item');
+      var gridItems = qsa('.collection-grid-simple__item');
       var noRes = qs('[data-no-search-results]');
       var vis = 0;
 
       if (clear) clear.classList.toggle('is-visible', q.length > 0);
 
-      items.forEach(function (item) {
-        if (item.style.display === 'none' && !q) return;
-        if (!q) { if (item.style.display === 'none') {} else { vis++; } return; }
-
+      gridItems.forEach(function (item) {
+        if (!q) {
+          item.style.display = '';
+          vis++;
+          return;
+        }
         var title = item.getAttribute('data-product-title') || '';
         var card = item.querySelector('.product-card-simple__title');
         var cardText = card ? card.textContent : '';
         var s = (title + ' ' + cardText).toLowerCase();
-
-        if (s.indexOf(q) !== -1) {
-          if (item.style.display !== 'none') vis++;
-        } else {
-          item.style.display = 'none';
-        }
+        var match = s.indexOf(q) !== -1;
+        item.style.display = match ? '' : 'none';
+        if (match) vis++;
       });
 
-      if (noRes) noRes.style.display = (q && vis === 0) ? '' : 'none';
+      if (noRes) noRes.style.display = q.length > 0 && vis === 0 ? '' : 'none';
+      var countEl = qs('[data-product-count]');
+      if (countEl) countEl.textContent = vis + (vis === 1 ? ' product' : ' products');
     }
 
-    input.addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(run, 200); });
+    input.addEventListener('input', run);
     if (clear) clear.addEventListener('click', function () { input.value = ''; run(); input.focus(); });
   }
 
@@ -513,9 +555,12 @@
   function init() {
     initDrawer();
     initSort();
-    initSearch();
     if (qs('[data-collection-filters-form]')) initNativeFilters();
-    if (qs('[data-js-filter-groups]')) initJsFilters();
+    if (qs('[data-js-filter-groups]')) {
+      initJsFilters();
+    } else {
+      initSearchSimple();
+    }
     initPriceRanges();
   }
 
