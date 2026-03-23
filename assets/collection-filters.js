@@ -1,83 +1,122 @@
 /**
  * Collection Filters — Universal JS
- * Builds smart filters from product data attributes when native Shopify filters aren't available.
- * Price range slider, mobile drawer, instant search, sort, client-side filtering.
+ * Smart category mapping based on product titles/tags (aligned with site menu).
+ * Price range slider, availability, mobile drawer, instant search, sort.
  */
 (function () {
   'use strict';
 
-  /* ==========================
-     UTILITY
-     ========================== */
   function qs(sel, ctx) { return (ctx || document).querySelector(sel); }
   function qsa(sel, ctx) { return Array.from((ctx || document).querySelectorAll(sel)); }
-  function money(cents) { return '$' + (cents / 100).toFixed(2).replace(/\.00$/, ''); }
 
   /* ==========================
-     JS FILTER ENGINE (fallback)
-     Reads data-product-* from .collection-grid-simple__item
+     SMART CATEGORY MAPPER
+     Maps products to menu-aligned categories using title + tags + type
+     ========================== */
+  var CATEGORIES = ['Strength', 'Cardio', 'Flexibility', 'Kids Trampoline', 'Accessory'];
+
+  function getCategory(title, tags, type) {
+    var t = (title || '').toLowerCase();
+    var tg = (tags || '').toLowerCase();
+    var tp = (type || '').toLowerCase();
+
+    if (tg.indexOf('accessories') !== -1 || tp === 'gift card' ||
+        t.indexOf('accessories') !== -1 || t.indexOf('replacement') !== -1 ||
+        t.indexOf('protection plan') !== -1 || t.indexOf('tray') !== -1) {
+      return 'Accessory';
+    }
+
+    if (t.indexOf('trampoline') !== -1 || t.indexOf('pulsar') !== -1 ||
+        t.indexOf('drift') !== -1 || t.indexOf('hopper') !== -1 ||
+        tg.indexOf('rebounder') !== -1) {
+      return 'Kids Trampoline';
+    }
+
+    if (t.indexOf('balance ball') !== -1 || t.indexOf('half ball') !== -1 ||
+        tp === 'yoga') {
+      return 'Flexibility';
+    }
+
+    if (t.indexOf('exercise bike') !== -1 || t.indexOf('foldable bike') !== -1 ||
+        tg.indexOf('foldable stationary bikes') !== -1 ||
+        t.indexOf('weighted vest') !== -1 || t.indexOf('gravity') !== -1 ||
+        tg.indexOf('vest') !== -1) {
+      return 'Cardio';
+    }
+
+    if (t.indexOf('dumbbell') !== -1 || t.indexOf('bench') !== -1 ||
+        t.indexOf('stand') !== -1 || t.indexOf('kettlebell') !== -1 ||
+        t.indexOf('massage gun') !== -1 || t.indexOf('pulse flex') !== -1 ||
+        tp === 'free weights' || tp === 'dumbbells' ||
+        t.indexOf('kit') !== -1 || t.indexOf('power kit') !== -1 ||
+        t.indexOf('activation kit') !== -1) {
+      return 'Strength';
+    }
+
+    return 'Other';
+  }
+
+  /* ==========================
+     JS FILTER ENGINE
      ========================== */
   function initJsFilters() {
     var container = qs('[data-js-filter-groups]');
     if (!container) return;
 
-    var items = qsa('.collection-grid-simple__item[data-product-type]');
+    var items = qsa('.collection-grid-simple__item[data-product-price]');
     if (items.length === 0) return;
 
-    /* Collect unique values */
-    var types = {};
-    var vendors = {};
+    var categories = {};
     var priceMin = Infinity;
     var priceMax = 0;
     var hasInStock = false;
     var hasOutOfStock = false;
 
     items.forEach(function (item) {
+      var title = item.getAttribute('data-product-title') || '';
+      var tags = item.getAttribute('data-product-tags') || '';
       var type = item.getAttribute('data-product-type') || '';
-      var vendor = item.getAttribute('data-product-vendor') || '';
       var price = parseInt(item.getAttribute('data-product-price') || '0', 10);
       var available = item.getAttribute('data-product-available') === 'true';
 
-      if (type) types[type] = (types[type] || 0) + 1;
-      if (vendor) vendors[vendor] = (vendors[vendor] || 0) + 1;
+      var cat = getCategory(title, tags, type);
+      item.setAttribute('data-product-category', cat);
+      categories[cat] = (categories[cat] || 0) + 1;
+
       if (price < priceMin) priceMin = price;
       if (price > priceMax) priceMax = price;
       if (available) hasInStock = true;
       if (!available) hasOutOfStock = true;
     });
 
-    /* State */
-    var activeFilters = {
-      types: [],
-      vendors: [],
-      availability: null,
-      priceMin: priceMin,
-      priceMax: priceMax
-    };
     var globalPriceMin = priceMin;
     var globalPriceMax = priceMax;
 
-    /* Build HTML for a filter group */
-    function buildGroup(title, id, values, isOpen) {
+    var activeFilters = {
+      categories: [],
+      availability: null,
+      priceMin: globalPriceMin,
+      priceMax: globalPriceMax
+    };
+
+    function buildCheckboxGroup(title, id, values, orderedKeys, isOpen) {
+      var keys = orderedKeys || Object.keys(values).sort();
       var html = '<details class="cf-filter-group"' + (isOpen ? ' open' : '') + '>';
       html += '<summary class="cf-filter-group__header">';
       html += '<span class="cf-filter-group__title">' + title + '</span>';
       html += '<svg class="cf-filter-group__chevron" width="12" height="12" viewBox="0 0 12 12"><polyline points="2 4 6 8 10 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-      html += '</summary>';
-      html += '<div class="cf-filter-group__body">';
-      html += '<ul class="cf-filter-list" role="list">';
+      html += '</summary><div class="cf-filter-group__body"><ul class="cf-filter-list" role="list">';
 
-      Object.keys(values).sort().forEach(function (label) {
-        var count = values[label];
+      keys.forEach(function (label) {
+        if (!values[label]) return;
         var cbId = 'jsf-' + id + '-' + label.replace(/[^a-zA-Z0-9]/g, '_');
         html += '<li class="cf-filter-list__item">';
         html += '<label class="cf-filter-checkbox" for="' + cbId + '">';
         html += '<input type="checkbox" class="cf-filter-checkbox__input" id="' + cbId + '" data-filter-key="' + id + '" data-filter-value="' + label + '">';
         html += '<span class="cf-filter-checkbox__box"><svg class="cf-filter-checkbox__check" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
         html += '<span class="cf-filter-checkbox__label">' + label + '</span>';
-        html += '<span class="cf-filter-checkbox__count">(' + count + ')</span>';
-        html += '</label>';
-        html += '</li>';
+        html += '<span class="cf-filter-checkbox__count">(' + values[label] + ')</span>';
+        html += '</label></li>';
       });
 
       html += '</ul></div></details>';
@@ -85,387 +124,312 @@
     }
 
     function buildPriceGroup() {
-      var minDollars = Math.floor(globalPriceMin / 100);
-      var maxDollars = Math.ceil(globalPriceMax / 100);
-      if (maxDollars <= minDollars) maxDollars = minDollars + 100;
+      var minD = Math.floor(globalPriceMin / 100);
+      var maxD = Math.ceil(globalPriceMax / 100);
+      if (maxD <= minD) maxD = minD + 100;
 
-      var html = '<details class="cf-filter-group" open>';
-      html += '<summary class="cf-filter-group__header">';
+      var html = '<details class="cf-filter-group"><summary class="cf-filter-group__header">';
       html += '<span class="cf-filter-group__title">Price</span>';
       html += '<svg class="cf-filter-group__chevron" width="12" height="12" viewBox="0 0 12 12"><polyline points="2 4 6 8 10 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-      html += '</summary>';
-      html += '<div class="cf-filter-group__body">';
-      html += '<div class="cf-price-range" data-price-range data-min="' + minDollars + '" data-max="' + maxDollars + '">';
+      html += '</summary><div class="cf-filter-group__body">';
+      html += '<div class="cf-price-range" data-price-range data-min="' + minD + '" data-max="' + maxD + '">';
       html += '<div class="cf-price-range__track"><div class="cf-price-range__bar" data-price-bar></div>';
-      html += '<input type="range" class="cf-price-range__input cf-price-range__input--min" min="' + minDollars + '" max="' + maxDollars + '" step="1" value="' + minDollars + '" data-price-range-min>';
-      html += '<input type="range" class="cf-price-range__input cf-price-range__input--max" min="' + minDollars + '" max="' + maxDollars + '" step="1" value="' + maxDollars + '" data-price-range-max>';
-      html += '</div>';
-      html += '<div class="cf-price-range__values">';
-      html += '<div class="cf-price-range__field"><span class="cf-price-range__currency">$</span><input type="number" class="cf-price-range__number" min="' + minDollars + '" max="' + maxDollars + '" value="' + minDollars + '" data-price-input-min></div>';
+      html += '<input type="range" class="cf-price-range__input cf-price-range__input--min" min="' + minD + '" max="' + maxD + '" step="1" value="' + minD + '" data-price-range-min>';
+      html += '<input type="range" class="cf-price-range__input cf-price-range__input--max" min="' + minD + '" max="' + maxD + '" step="1" value="' + maxD + '" data-price-range-max>';
+      html += '</div><div class="cf-price-range__values">';
+      html += '<div class="cf-price-range__field"><span class="cf-price-range__currency">$</span><input type="number" class="cf-price-range__number" min="' + minD + '" max="' + maxD + '" value="' + minD + '" data-price-input-min></div>';
       html += '<span class="cf-price-range__separator">—</span>';
-      html += '<div class="cf-price-range__field"><span class="cf-price-range__currency">$</span><input type="number" class="cf-price-range__number" min="' + minDollars + '" max="' + maxDollars + '" value="' + maxDollars + '" data-price-input-max></div>';
-      html += '</div></div>';
-      html += '</div></details>';
+      html += '<div class="cf-price-range__field"><span class="cf-price-range__currency">$</span><input type="number" class="cf-price-range__number" min="' + minD + '" max="' + maxD + '" value="' + maxD + '" data-price-input-max></div>';
+      html += '</div></div></div></details>';
       return html;
     }
 
-    /* Render filter groups */
+    /* Render */
     var groupsHtml = '';
 
-    /* Availability */
-    if (hasInStock || hasOutOfStock) {
-      var availVals = {};
-      if (hasInStock) availVals['In stock'] = items.filter(function (i) { return i.getAttribute('data-product-available') === 'true'; }).length;
-      if (hasOutOfStock) availVals['Out of stock'] = items.filter(function (i) { return i.getAttribute('data-product-available') !== 'true'; }).length;
-      groupsHtml += buildGroup('Availability', 'availability', availVals, true);
+    var orderedCats = CATEGORIES.filter(function (c) { return categories[c]; });
+    if (categories['Other']) orderedCats.push('Other');
+    if (orderedCats.length > 1) {
+      var catObj = {};
+      orderedCats.forEach(function (c) { catObj[c] = categories[c]; });
+      groupsHtml += buildCheckboxGroup('Category', 'category', catObj, orderedCats, true);
     }
 
-    /* Price */
+    if (hasInStock || hasOutOfStock) {
+      var avail = {};
+      if (hasInStock) avail['In stock'] = items.filter(function (i) { return i.getAttribute('data-product-available') === 'true'; }).length;
+      if (hasOutOfStock) avail['Out of stock'] = items.filter(function (i) { return i.getAttribute('data-product-available') !== 'true'; }).length;
+      groupsHtml += buildCheckboxGroup('Availability', 'availability', avail, null, false);
+    }
+
     if (globalPriceMax > globalPriceMin) {
       groupsHtml += buildPriceGroup();
     }
 
-    /* Product Type */
-    if (Object.keys(types).length > 1) {
-      groupsHtml += buildGroup('Product Type', 'type', types, false);
-    }
-
-    /* Vendor */
-    if (Object.keys(vendors).length > 1) {
-      groupsHtml += buildGroup('Brand', 'vendor', vendors, false);
-    }
-
     container.innerHTML = groupsHtml;
-
-    /* Init price range UI */
     initPriceRanges();
 
-    /* Listen for checkbox changes */
+    /* Event: checkbox change */
     container.addEventListener('change', function (e) {
       var input = e.target;
       if (!input.matches('.cf-filter-checkbox__input')) return;
-
       var key = input.getAttribute('data-filter-key');
       var val = input.getAttribute('data-filter-value');
 
-      if (key === 'type') {
-        toggleArrayValue(activeFilters.types, val, input.checked);
-      } else if (key === 'vendor') {
-        toggleArrayValue(activeFilters.vendors, val, input.checked);
+      if (key === 'category') {
+        toggle(activeFilters.categories, val, input.checked);
       } else if (key === 'availability') {
-        if (input.checked) {
-          activeFilters.availability = val;
-        } else {
-          activeFilters.availability = null;
-        }
+        activeFilters.availability = input.checked ? val : null;
         container.querySelectorAll('[data-filter-key="availability"]').forEach(function (cb) {
           if (cb !== input) cb.checked = false;
         });
       }
-
-      applyJsFilters();
+      applyFilters();
     });
 
-    /* Price range change via debounced input events */
-    var priceDebounce;
+    /* Event: price range */
+    var priceTimer;
     container.addEventListener('input', function (e) {
-      if (e.target.matches('[data-price-range-min], [data-price-range-max], [data-price-input-min], [data-price-input-max]')) {
-        clearTimeout(priceDebounce);
-        priceDebounce = setTimeout(function () {
-          var minInput = qs('[data-price-input-min]', container) || qs('[data-price-range-min]', container);
-          var maxInput = qs('[data-price-input-max]', container) || qs('[data-price-range-max]', container);
-          activeFilters.priceMin = (parseFloat(minInput.value) || 0) * 100;
-          activeFilters.priceMax = (parseFloat(maxInput.value) || Infinity) * 100;
-          applyJsFilters();
-        }, 400);
+      if (e.target.matches('[data-price-range-min],[data-price-range-max],[data-price-input-min],[data-price-input-max]')) {
+        clearTimeout(priceTimer);
+        priceTimer = setTimeout(function () {
+          var mi = qs('[data-price-input-min]', container) || qs('[data-price-range-min]', container);
+          var ma = qs('[data-price-input-max]', container) || qs('[data-price-range-max]', container);
+          activeFilters.priceMin = (parseFloat(mi.value) || 0) * 100;
+          activeFilters.priceMax = (parseFloat(ma.value) || Infinity) * 100;
+          applyFilters();
+        }, 350);
       }
     });
 
-    function toggleArrayValue(arr, val, add) {
+    function toggle(arr, val, add) {
       var idx = arr.indexOf(val);
       if (add && idx === -1) arr.push(val);
       if (!add && idx !== -1) arr.splice(idx, 1);
     }
 
-    function applyJsFilters() {
-      var visibleCount = 0;
-      var grid = qs('[data-collection-grid]');
-      var noResults = qs('[data-no-search-results]');
+    function applyFilters() {
+      var visible = 0;
+      var noRes = qs('[data-no-search-results]');
       var countEl = qs('[data-product-count]');
-      var clearBtns = qsa('[data-js-clear-all]');
-      var activePillsContainer = qs('[data-js-active-filters]');
-      var hasAny = activeFilters.types.length > 0 || activeFilters.vendors.length > 0 || activeFilters.availability !== null ||
-        activeFilters.priceMin > globalPriceMin || activeFilters.priceMax < globalPriceMax;
+      var pillsEl = qs('[data-js-active-filters]');
+      var hasAny = activeFilters.categories.length > 0 ||
+        activeFilters.availability !== null ||
+        activeFilters.priceMin > globalPriceMin ||
+        activeFilters.priceMax < globalPriceMax;
 
       items.forEach(function (item) {
         var show = true;
-        var type = item.getAttribute('data-product-type') || '';
-        var vendor = item.getAttribute('data-product-vendor') || '';
+        var cat = item.getAttribute('data-product-category') || '';
         var price = parseInt(item.getAttribute('data-product-price') || '0', 10);
-        var available = item.getAttribute('data-product-available') === 'true';
+        var avail = item.getAttribute('data-product-available') === 'true';
 
-        if (activeFilters.types.length > 0 && activeFilters.types.indexOf(type) === -1) show = false;
-        if (activeFilters.vendors.length > 0 && activeFilters.vendors.indexOf(vendor) === -1) show = false;
-        if (activeFilters.availability === 'In stock' && !available) show = false;
-        if (activeFilters.availability === 'Out of stock' && available) show = false;
+        if (activeFilters.categories.length > 0 && activeFilters.categories.indexOf(cat) === -1) show = false;
+        if (activeFilters.availability === 'In stock' && !avail) show = false;
+        if (activeFilters.availability === 'Out of stock' && avail) show = false;
         if (price < activeFilters.priceMin || price > activeFilters.priceMax) show = false;
 
         item.style.display = show ? '' : 'none';
-        if (show) visibleCount++;
+        if (show) visible++;
       });
 
-      if (noResults) noResults.style.display = (visibleCount === 0) ? '' : 'none';
-      if (countEl) countEl.textContent = visibleCount + (visibleCount === 1 ? ' product' : ' products');
+      if (noRes) noRes.style.display = visible === 0 ? '' : 'none';
+      if (countEl) countEl.textContent = visible + (visible === 1 ? ' product' : ' products');
 
-      clearBtns.forEach(function (btn) {
-        btn.style.display = hasAny ? '' : 'none';
-      });
+      qsa('[data-js-clear-all]').forEach(function (b) { b.style.display = hasAny ? '' : 'none'; });
 
-      /* Update active count badge */
-      var activeCount = activeFilters.types.length + activeFilters.vendors.length +
-        (activeFilters.availability ? 1 : 0) +
-        (activeFilters.priceMin > globalPriceMin || activeFilters.priceMax < globalPriceMax ? 1 : 0);
       var badge = qs('[data-active-count]');
-      if (badge) {
-        badge.textContent = activeCount;
-        badge.style.display = activeCount > 0 ? '' : 'none';
-      }
+      var ac = activeFilters.categories.length + (activeFilters.availability ? 1 : 0) +
+        (activeFilters.priceMin > globalPriceMin || activeFilters.priceMax < globalPriceMax ? 1 : 0);
+      if (badge) { badge.textContent = ac; badge.style.display = ac > 0 ? '' : 'none'; }
 
-      /* Build active pills */
-      if (activePillsContainer) {
-        var pillsHtml = '';
-        activeFilters.types.forEach(function (t) {
-          pillsHtml += '<button type="button" class="cf-active-pill" data-remove-filter="type" data-remove-value="' + t + '">';
-          pillsHtml += '<span class="cf-active-pill__label">Type: ' + t + '</span>';
-          pillsHtml += '<svg class="cf-active-pill__x" width="10" height="10" viewBox="0 0 10 10"><line x1="2" y1="2" x2="8" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="2" x2="2" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
-          pillsHtml += '</button>';
-        });
-        activeFilters.vendors.forEach(function (v) {
-          pillsHtml += '<button type="button" class="cf-active-pill" data-remove-filter="vendor" data-remove-value="' + v + '">';
-          pillsHtml += '<span class="cf-active-pill__label">Brand: ' + v + '</span>';
-          pillsHtml += '<svg class="cf-active-pill__x" width="10" height="10" viewBox="0 0 10 10"><line x1="2" y1="2" x2="8" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="2" x2="2" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
-          pillsHtml += '</button>';
+      /* Pills */
+      if (pillsEl) {
+        var ph = '';
+        activeFilters.categories.forEach(function (c) {
+          ph += pill('category', c, c);
         });
         if (activeFilters.availability) {
-          pillsHtml += '<button type="button" class="cf-active-pill" data-remove-filter="availability" data-remove-value="' + activeFilters.availability + '">';
-          pillsHtml += '<span class="cf-active-pill__label">' + activeFilters.availability + '</span>';
-          pillsHtml += '<svg class="cf-active-pill__x" width="10" height="10" viewBox="0 0 10 10"><line x1="2" y1="2" x2="8" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="2" x2="2" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
-          pillsHtml += '</button>';
+          ph += pill('availability', activeFilters.availability, activeFilters.availability);
         }
-        if (hasAny && pillsHtml) {
-          pillsHtml += '<button type="button" class="cf-active-pill cf-active-pill--clear" data-js-clear-all>Clear all</button>';
+        if (activeFilters.priceMin > globalPriceMin || activeFilters.priceMax < globalPriceMax) {
+          ph += pill('price', 'price', '$' + Math.floor(activeFilters.priceMin / 100) + ' — $' + Math.ceil(activeFilters.priceMax / 100));
         }
-        activePillsContainer.innerHTML = pillsHtml;
-        activePillsContainer.style.display = pillsHtml ? '' : 'none';
+        if (ph) {
+          ph += '<button type="button" class="cf-active-pill cf-active-pill--clear" data-js-clear-all>Clear all</button>';
+        }
+        pillsEl.innerHTML = ph;
+        pillsEl.style.display = ph ? '' : 'none';
 
-        /* Pill remove click */
-        activePillsContainer.querySelectorAll('[data-remove-filter]').forEach(function (pill) {
-          pill.addEventListener('click', function () {
-            var key = pill.getAttribute('data-remove-filter');
-            var val = pill.getAttribute('data-remove-value');
-            if (key === 'type') toggleArrayValue(activeFilters.types, val, false);
-            if (key === 'vendor') toggleArrayValue(activeFilters.vendors, val, false);
-            if (key === 'availability') activeFilters.availability = null;
+        pillsEl.querySelectorAll('[data-remove-filter]').forEach(function (p) {
+          p.addEventListener('click', function () {
+            var k = p.getAttribute('data-remove-filter');
+            var v = p.getAttribute('data-remove-value');
+            if (k === 'category') toggle(activeFilters.categories, v, false);
+            if (k === 'availability') activeFilters.availability = null;
+            if (k === 'price') { activeFilters.priceMin = globalPriceMin; activeFilters.priceMax = globalPriceMax; resetPriceUI(); }
             syncCheckboxes();
-            applyJsFilters();
+            applyFilters();
           });
         });
-        activePillsContainer.querySelectorAll('[data-js-clear-all]').forEach(function (btn) {
-          btn.addEventListener('click', clearAll);
-        });
+        pillsEl.querySelectorAll('[data-js-clear-all]').forEach(function (b) { b.addEventListener('click', clearAll); });
       }
+    }
+
+    function pill(key, value, label) {
+      return '<button type="button" class="cf-active-pill" data-remove-filter="' + key + '" data-remove-value="' + value + '">' +
+        '<span class="cf-active-pill__label">' + label + '</span>' +
+        '<svg class="cf-active-pill__x" width="10" height="10" viewBox="0 0 10 10"><line x1="2" y1="2" x2="8" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="2" x2="2" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>' +
+        '</button>';
     }
 
     function syncCheckboxes() {
-      container.querySelectorAll('.cf-filter-checkbox__input').forEach(function (cb) {
-        var key = cb.getAttribute('data-filter-key');
-        var val = cb.getAttribute('data-filter-value');
-        if (key === 'type') cb.checked = activeFilters.types.indexOf(val) !== -1;
-        if (key === 'vendor') cb.checked = activeFilters.vendors.indexOf(val) !== -1;
-        if (key === 'availability') cb.checked = activeFilters.availability === val;
+      qsa('.cf-filter-checkbox__input').forEach(function (cb) {
+        var k = cb.getAttribute('data-filter-key');
+        var v = cb.getAttribute('data-filter-value');
+        if (k === 'category') cb.checked = activeFilters.categories.indexOf(v) !== -1;
+        if (k === 'availability') cb.checked = activeFilters.availability === v;
       });
-      /* Also sync drawer checkboxes */
-      var drawerBody = qs('[data-filter-drawer-body]');
-      if (drawerBody) {
-        drawerBody.querySelectorAll('.cf-filter-checkbox__input').forEach(function (cb) {
-          var key = cb.getAttribute('data-filter-key');
-          var val = cb.getAttribute('data-filter-value');
-          if (key === 'type') cb.checked = activeFilters.types.indexOf(val) !== -1;
-          if (key === 'vendor') cb.checked = activeFilters.vendors.indexOf(val) !== -1;
-          if (key === 'availability') cb.checked = activeFilters.availability === val;
-        });
-      }
+    }
+
+    function resetPriceUI() {
+      var minD = Math.floor(globalPriceMin / 100);
+      var maxD = Math.ceil(globalPriceMax / 100);
+      qsa('[data-price-range-min]').forEach(function (el) { el.value = minD; });
+      qsa('[data-price-range-max]').forEach(function (el) { el.value = maxD; });
+      qsa('[data-price-input-min]').forEach(function (el) { el.value = minD; });
+      qsa('[data-price-input-max]').forEach(function (el) { el.value = maxD; });
+      initPriceRanges();
     }
 
     function clearAll() {
-      activeFilters.types = [];
-      activeFilters.vendors = [];
+      activeFilters.categories = [];
       activeFilters.availability = null;
       activeFilters.priceMin = globalPriceMin;
       activeFilters.priceMax = globalPriceMax;
       syncCheckboxes();
-      /* Reset price inputs */
-      var minSlider = qs('[data-price-range-min]', container);
-      var maxSlider = qs('[data-price-range-max]', container);
-      var minNum = qs('[data-price-input-min]', container);
-      var maxNum = qs('[data-price-input-max]', container);
-      if (minSlider) minSlider.value = Math.floor(globalPriceMin / 100);
-      if (maxSlider) maxSlider.value = Math.ceil(globalPriceMax / 100);
-      if (minNum) minNum.value = Math.floor(globalPriceMin / 100);
-      if (maxNum) maxNum.value = Math.ceil(globalPriceMax / 100);
-      initPriceRanges();
-      applyJsFilters();
+      resetPriceUI();
+      applyFilters();
     }
 
-    /* Clear all buttons outside container */
-    qsa('[data-js-clear-all]').forEach(function (btn) {
-      btn.addEventListener('click', clearAll);
-    });
+    qsa('[data-js-clear-all]').forEach(function (b) { b.addEventListener('click', clearAll); });
 
-    /* Clone filters into mobile drawer */
+    /* Clone into drawer */
     var drawerBody = qs('[data-filter-drawer-body]');
     if (drawerBody && drawerBody.children.length === 0) {
-      var jsFiltersEl = qs('[data-js-filters]');
-      if (jsFiltersEl) {
-        var clone = jsFiltersEl.cloneNode(true);
+      var src = qs('[data-js-filters]');
+      if (src) {
+        var clone = src.cloneNode(true);
         clone.removeAttribute('data-js-filters');
-
         clone.querySelectorAll('[id]').forEach(function (el) { el.id = el.id + '-d'; });
         clone.querySelectorAll('[for]').forEach(function (el) { el.setAttribute('for', el.getAttribute('for') + '-d'); });
-
         drawerBody.appendChild(clone);
         initPriceRangesIn(clone);
 
         clone.addEventListener('change', function (e) {
           var input = e.target;
           if (!input.matches('.cf-filter-checkbox__input')) return;
-          var key = input.getAttribute('data-filter-key');
-          var val = input.getAttribute('data-filter-value');
-          if (key === 'type') toggleArrayValue(activeFilters.types, val, input.checked);
-          if (key === 'vendor') toggleArrayValue(activeFilters.vendors, val, input.checked);
-          if (key === 'availability') {
-            activeFilters.availability = input.checked ? val : null;
+          var k = input.getAttribute('data-filter-key');
+          var v = input.getAttribute('data-filter-value');
+          if (k === 'category') toggle(activeFilters.categories, v, input.checked);
+          if (k === 'availability') {
+            activeFilters.availability = input.checked ? v : null;
             clone.querySelectorAll('[data-filter-key="availability"]').forEach(function (cb) { if (cb !== input) cb.checked = false; });
           }
           syncCheckboxes();
-          applyJsFilters();
+          applyFilters();
         });
 
-        var drawerPriceDebounce;
+        var dpt;
         clone.addEventListener('input', function (e) {
-          if (e.target.matches('[data-price-range-min], [data-price-range-max], [data-price-input-min], [data-price-input-max]')) {
-            clearTimeout(drawerPriceDebounce);
-            drawerPriceDebounce = setTimeout(function () {
+          if (e.target.matches('[data-price-range-min],[data-price-range-max],[data-price-input-min],[data-price-input-max]')) {
+            clearTimeout(dpt);
+            dpt = setTimeout(function () {
               var mi = qs('[data-price-input-min]', clone) || qs('[data-price-range-min]', clone);
               var ma = qs('[data-price-input-max]', clone) || qs('[data-price-range-max]', clone);
               activeFilters.priceMin = (parseFloat(mi.value) || 0) * 100;
               activeFilters.priceMax = (parseFloat(ma.value) || Infinity) * 100;
-              applyJsFilters();
-            }, 400);
+              applyFilters();
+            }, 350);
           }
         });
       }
     }
 
-    /* Apply button in drawer */
     var drawerApply = qs('[data-filter-drawer-apply]');
-    if (drawerApply) {
-      drawerApply.addEventListener('click', function () {
-        closeDrawer();
-      });
-    }
+    if (drawerApply) drawerApply.addEventListener('click', closeDrawer);
   }
 
   /* ==========================
      PRICE RANGE UI
      ========================== */
   function initPriceRanges() {
-    qsa('[data-price-range]').forEach(function (w) { initPriceRangeWidget(w); });
+    qsa('[data-price-range]').forEach(function (w) { priceWidget(w); });
   }
-
   function initPriceRangesIn(ctx) {
-    qsa('[data-price-range]', ctx).forEach(function (w) { initPriceRangeWidget(w); });
+    qsa('[data-price-range]', ctx).forEach(function (w) { priceWidget(w); });
   }
-
-  function initPriceRangeWidget(wrap) {
-    var inputMin = qs('[data-price-range-min]', wrap);
-    var inputMax = qs('[data-price-range-max]', wrap);
-    var numberMin = qs('[data-price-input-min]', wrap);
-    var numberMax = qs('[data-price-input-max]', wrap);
+  function priceWidget(wrap) {
+    var iMin = qs('[data-price-range-min]', wrap);
+    var iMax = qs('[data-price-range-max]', wrap);
+    var nMin = qs('[data-price-input-min]', wrap);
+    var nMax = qs('[data-price-input-max]', wrap);
     var bar = qs('[data-price-bar]', wrap);
-    if (!inputMin || !inputMax || !bar) return;
-
-    var rMin = parseFloat(inputMin.min) || 0;
-    var rMax = parseFloat(inputMin.max) || 1000;
+    if (!iMin || !iMax || !bar) return;
+    var lo = parseFloat(iMin.min) || 0;
+    var hi = parseFloat(iMin.max) || 1000;
 
     function update() {
-      var lo = parseFloat(inputMin.value);
-      var hi = parseFloat(inputMax.value);
-      bar.style.left = ((lo - rMin) / (rMax - rMin) * 100) + '%';
-      bar.style.width = (((hi - lo) / (rMax - rMin)) * 100) + '%';
+      var a = parseFloat(iMin.value), b = parseFloat(iMax.value);
+      bar.style.left = ((a - lo) / (hi - lo) * 100) + '%';
+      bar.style.width = (((b - a) / (hi - lo)) * 100) + '%';
     }
-
-    inputMin.addEventListener('input', function () {
-      if (parseFloat(inputMin.value) > parseFloat(inputMax.value)) inputMin.value = inputMax.value;
-      if (numberMin) numberMin.value = inputMin.value;
+    iMin.addEventListener('input', function () {
+      if (+iMin.value > +iMax.value) iMin.value = iMax.value;
+      if (nMin) nMin.value = iMin.value;
       update();
     });
-    inputMax.addEventListener('input', function () {
-      if (parseFloat(inputMax.value) < parseFloat(inputMin.value)) inputMax.value = inputMin.value;
-      if (numberMax) numberMax.value = inputMax.value;
+    iMax.addEventListener('input', function () {
+      if (+iMax.value < +iMin.value) iMax.value = iMin.value;
+      if (nMax) nMax.value = iMax.value;
       update();
     });
-    if (numberMin) {
-      numberMin.addEventListener('change', function () {
-        var v = Math.max(rMin, Math.min(parseFloat(numberMin.value) || rMin, parseFloat(inputMax.value)));
-        numberMin.value = v;
-        inputMin.value = v;
-        update();
-      });
-    }
-    if (numberMax) {
-      numberMax.addEventListener('change', function () {
-        var v = Math.min(rMax, Math.max(parseFloat(numberMax.value) || rMax, parseFloat(inputMin.value)));
-        numberMax.value = v;
-        inputMax.value = v;
-        update();
-      });
-    }
+    if (nMin) nMin.addEventListener('change', function () {
+      var v = Math.max(lo, Math.min(+nMin.value || lo, +iMax.value));
+      nMin.value = v; iMin.value = v; update();
+    });
+    if (nMax) nMax.addEventListener('change', function () {
+      var v = Math.min(hi, Math.max(+nMax.value || hi, +iMin.value));
+      nMax.value = v; iMax.value = v; update();
+    });
     update();
   }
 
   /* ==========================
-     MOBILE DRAWER
+     DRAWER
      ========================== */
-  var drawerEl, overlayEl;
-
   function openDrawer() {
-    drawerEl = qs('[data-filter-drawer]');
-    overlayEl = qs('[data-filter-drawer-overlay]');
-    if (drawerEl) drawerEl.classList.add('is-open');
-    if (overlayEl) overlayEl.classList.add('is-open');
+    var d = qs('[data-filter-drawer]');
+    var o = qs('[data-filter-drawer-overlay]');
+    if (d) d.classList.add('is-open');
+    if (o) o.classList.add('is-open');
     document.body.style.overflow = 'hidden';
   }
-
   function closeDrawer() {
-    drawerEl = qs('[data-filter-drawer]');
-    overlayEl = qs('[data-filter-drawer-overlay]');
-    if (drawerEl) drawerEl.classList.remove('is-open');
-    if (overlayEl) overlayEl.classList.remove('is-open');
+    var d = qs('[data-filter-drawer]');
+    var o = qs('[data-filter-drawer-overlay]');
+    if (d) d.classList.remove('is-open');
+    if (o) o.classList.remove('is-open');
     document.body.style.overflow = '';
   }
-
   function initDrawer() {
     var toggle = qs('[data-filter-drawer-toggle]');
-    var closeBtn = qs('[data-filter-drawer-close]');
-    overlayEl = qs('[data-filter-drawer-overlay]');
-
+    var close = qs('[data-filter-drawer-close]');
+    var overlay = qs('[data-filter-drawer-overlay]');
     if (toggle) toggle.addEventListener('click', openDrawer);
-    if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
-    if (overlayEl) overlayEl.addEventListener('click', closeDrawer);
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') closeDrawer();
-    });
+    if (close) close.addEventListener('click', closeDrawer);
+    if (overlay) overlay.addEventListener('click', closeDrawer);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeDrawer(); });
   }
 
   /* ==========================
@@ -475,61 +439,55 @@
     var sel = qs('[data-sort-select]');
     if (!sel) return;
     sel.addEventListener('change', function () {
-      var url = new URL(window.location.href);
-      url.searchParams.set('sort_by', sel.value);
-      url.searchParams.delete('page');
-      window.location.href = url.toString();
+      var u = new URL(window.location.href);
+      u.searchParams.set('sort_by', sel.value);
+      u.searchParams.delete('page');
+      window.location.href = u.toString();
     });
   }
 
   /* ==========================
-     SEARCH (client-side)
+     SEARCH
      ========================== */
   function initSearch() {
     var input = qs('[data-collection-search]');
-    var clearBtn = qs('[data-search-clear]');
+    var clear = qs('[data-search-clear]');
     if (!input) return;
-
     var timer;
+
     function run() {
       var q = input.value.trim().toLowerCase();
-      var cards = qsa('[data-product-card-simple]');
+      var items = qsa('.collection-grid-simple__item');
       var noRes = qs('[data-no-search-results]');
-      var visible = 0;
+      var vis = 0;
 
-      if (clearBtn) clearBtn.classList.toggle('is-visible', q.length > 0);
+      if (clear) clear.classList.toggle('is-visible', q.length > 0);
 
-      cards.forEach(function (card) {
-        var item = card.closest('.collection-grid-simple__item');
-        if (!item) return;
-        if (!q) { item.style.removeProperty('display'); visible++; return; }
-        var title = (card.querySelector('.product-card-simple__title') || {}).textContent || '';
-        var type = item.getAttribute('data-product-type') || '';
-        var vendor = item.getAttribute('data-product-vendor') || '';
-        var s = (title + ' ' + type + ' ' + vendor).toLowerCase();
-        var match = s.indexOf(q) !== -1;
-        if (match && item.style.display !== 'none') { visible++; }
-        else if (!match) { item.style.display = 'none'; }
+      items.forEach(function (item) {
+        if (item.style.display === 'none' && !q) return;
+        if (!q) { if (item.style.display === 'none') {} else { vis++; } return; }
+
+        var title = item.getAttribute('data-product-title') || '';
+        var card = item.querySelector('.product-card-simple__title');
+        var cardText = card ? card.textContent : '';
+        var s = (title + ' ' + cardText).toLowerCase();
+
+        if (s.indexOf(q) !== -1) {
+          if (item.style.display !== 'none') vis++;
+        } else {
+          item.style.display = 'none';
+        }
       });
 
-      if (noRes) noRes.style.display = (q && visible === 0) ? '' : 'none';
+      if (noRes) noRes.style.display = (q && vis === 0) ? '' : 'none';
     }
 
-    input.addEventListener('input', function () {
-      clearTimeout(timer);
-      timer = setTimeout(run, 200);
-    });
-    if (clearBtn) {
-      clearBtn.addEventListener('click', function () {
-        input.value = '';
-        run();
-        input.focus();
-      });
-    }
+    input.addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(run, 200); });
+    if (clear) clear.addEventListener('click', function () { input.value = ''; run(); input.focus(); });
   }
 
   /* ==========================
-     NATIVE FILTER AUTO-SUBMIT
+     NATIVE FILTERS (if available)
      ========================== */
   function initNativeFilters() {
     var form = qs('[data-collection-filters-form]');
@@ -537,8 +495,6 @@
     form.addEventListener('change', function (e) {
       if (e.target.matches('[data-filter-checkbox]')) form.submit();
     });
-
-    /* Clone into drawer */
     var drawerBody = qs('[data-filter-drawer-body]');
     if (drawerBody && drawerBody.children.length === 0) {
       var clone = form.cloneNode(true);
@@ -547,9 +503,7 @@
       clone.querySelectorAll('[for]').forEach(function (el) { el.setAttribute('for', el.getAttribute('for') + '-d'); });
       drawerBody.appendChild(clone);
       initPriceRangesIn(clone);
-      clone.addEventListener('change', function (e) {
-        if (e.target.matches('[data-filter-checkbox]')) clone.submit();
-      });
+      clone.addEventListener('change', function (e) { if (e.target.matches('[data-filter-checkbox]')) clone.submit(); });
     }
   }
 
@@ -560,14 +514,8 @@
     initDrawer();
     initSort();
     initSearch();
-
-    if (qs('[data-collection-filters-form]')) {
-      initNativeFilters();
-    }
-    if (qs('[data-js-filter-groups]')) {
-      initJsFilters();
-    }
-
+    if (qs('[data-collection-filters-form]')) initNativeFilters();
+    if (qs('[data-js-filter-groups]')) initJsFilters();
     initPriceRanges();
   }
 
