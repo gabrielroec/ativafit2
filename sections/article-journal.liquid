@@ -32,7 +32,12 @@
   <div class="article-journal__body">
     <div class="article-journal__container article-journal__body-inner{% if side_products != blank and side_products.size > 0 %} article-journal__body-inner--with-aside{% endif %}">
       <nav class="article-journal__toc" aria-label="Table of contents" id="article-journal-toc-{{ section.id }}">
-        <ol class="article-journal__toc-list" id="article-journal-toc-list-{{ section.id }}"></ol>
+        <button type="button" class="article-journal__toc-mobile-toggle" data-mobile-toc-toggle aria-expanded="false" aria-controls="article-journal-toc-panel-{{ section.id }}">
+          Contents
+        </button>
+        <div class="article-journal__toc-mobile-panel" id="article-journal-toc-panel-{{ section.id }}" data-mobile-toc-panel aria-hidden="true">
+          <ol class="article-journal__toc-list" id="article-journal-toc-list-{{ section.id }}"></ol>
+        </div>
       </nav>
       <div class="article-journal__main">
         <div class="article-journal__content rte" id="article-journal-content">{{ article.content }}</div>
@@ -112,7 +117,7 @@
       li.appendChild(a);
       tocList.appendChild(li);
     });
-    initMobileTocFab(article, tocList);
+    initMobileTocCollapsible(article);
     bodyInner.classList.add('article-journal__body-inner--with-toc');
     var allHeadings = content.querySelectorAll('h2');
     function setActive(id) {
@@ -131,57 +136,38 @@
     window.addEventListener('scroll', function() { requestAnimationFrame(updateActive); }, { passive: true });
     updateActive();
   }
-  function initMobileTocFab(article, tocList) {
-    if (!article || !tocList || tocList.children.length === 0) return;
-    if (article.querySelector('.article-journal__toc-fab')) return;
+  function initMobileTocCollapsible(article) {
+    if (!article) return;
+    var toc = article.querySelector('.article-journal__toc');
+    if (!toc) return;
 
-    var fab = document.createElement('div');
-    fab.className = 'article-journal__toc-fab';
-    fab.setAttribute('data-toc-fab', '');
+    var toggle = toc.querySelector('[data-mobile-toc-toggle]');
+    var panel = toc.querySelector('[data-mobile-toc-panel]');
+    if (!toggle || !panel) return;
 
-    var toggle = document.createElement('button');
-    toggle.type = 'button';
-    toggle.className = 'article-journal__toc-fab-toggle';
-    toggle.setAttribute('aria-expanded', 'false');
-    toggle.setAttribute('aria-label', 'Open table of contents');
-    toggle.textContent = 'Contents';
-
-    var panel = document.createElement('div');
-    panel.className = 'article-journal__toc-fab-panel';
-    panel.setAttribute('aria-hidden', 'true');
-    panel.innerHTML =
-      '<div class="article-journal__toc-fab-head">' +
-        '<strong class="article-journal__toc-fab-title">On this page</strong>' +
-        '<button type="button" class="article-journal__toc-fab-close" aria-label="Close table of contents">Close</button>' +
-      '</div>' +
-      '<ol class="article-journal__toc-list article-journal__toc-list--fab">' + tocList.innerHTML + '</ol>';
-
-    fab.appendChild(toggle);
-    fab.appendChild(panel);
-    article.appendChild(fab);
-
-    var closeBtn = panel.querySelector('.article-journal__toc-fab-close');
     function setOpen(next) {
-      fab.classList.toggle('is-open', next);
+      toc.classList.toggle('is-open', next);
       toggle.setAttribute('aria-expanded', next ? 'true' : 'false');
       panel.setAttribute('aria-hidden', next ? 'false' : 'true');
     }
 
-    toggle.addEventListener('click', function () { setOpen(!fab.classList.contains('is-open')); });
-    if (closeBtn) closeBtn.addEventListener('click', function () { setOpen(false); });
-
-    panel.querySelectorAll('.article-journal__toc-link').forEach(function (link) {
-      link.addEventListener('click', function () { setOpen(false); });
+    toggle.addEventListener('click', function () {
+      setOpen(!toc.classList.contains('is-open'));
     });
 
-    document.addEventListener('click', function (e) {
-      if (!fab.classList.contains('is-open')) return;
-      if (fab.contains(e.target)) return;
-      setOpen(false);
+    toc.querySelectorAll('.article-journal__toc-link').forEach(function (link) {
+      link.addEventListener('click', function () {
+        if (window.matchMedia('(max-width: 989px)').matches) setOpen(false);
+      });
     });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && fab.classList.contains('is-open')) setOpen(false);
-    });
+
+    function syncFromViewport() {
+      if (window.matchMedia('(max-width: 989px)').matches) setOpen(false);
+      else setOpen(true);
+    }
+
+    window.addEventListener('resize', syncFromViewport, { passive: true });
+    syncFromViewport();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initToc);
   else initToc();
@@ -256,7 +242,8 @@
 }
 .article-journal__toc-link:hover { color: var(--aj-text,#222) !important; }
 .article-journal__toc-link--active { color: var(--aj-accent) !important; font-weight: 600 !important; border-left-color: var(--aj-accent) !important; }
-.article-journal__toc-fab { display: none !important; }
+.article-journal__toc-mobile-toggle { display: none !important; }
+.article-journal__toc-mobile-panel { display: block !important; }
 .article-journal__main { min-width: 0; }
 .article-journal__aside { display: flex !important; flex-direction: column !important; gap: 0.75rem !important; }
 .article-journal__aside-banner {
@@ -321,8 +308,63 @@
   .article-journal__aside { position: sticky !important; top: 124px !important; align-self: start !important; }
 }
 @media (max-width: 989px) {
-  .article-journal__toc { display: none !important; }
-  .article-journal__body-inner--with-toc { grid-template-columns: 1fr; }
+  .article-journal__body-inner--with-toc {
+    display: block !important;
+    grid-template-columns: none !important;
+  }
+  .article-journal__toc {
+    display: block !important;
+    position: static !important;
+    top: auto !important;
+    min-width: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding-right: 0 !important;
+    margin: 0 0 14px !important;
+    width: 100% !important;
+  }
+  .article-journal__toc-mobile-toggle {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    appearance: none !important;
+    border: 1px solid var(--aj-border,#e5e5e5) !important;
+    border-radius: 10px !important;
+    background: #fff !important;
+    color: var(--aj-text,#222) !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    padding: 12px 14px !important;
+    line-height: 1.2 !important;
+    text-align: left !important;
+  }
+  .article-journal__toc-mobile-toggle::after {
+    content: '▾';
+    color: var(--aj-accent) !important;
+    font-size: 14px !important;
+    line-height: 1 !important;
+    margin-left: 10px !important;
+    transition: transform .2s ease !important;
+  }
+  .article-journal__toc.is-open .article-journal__toc-mobile-toggle::after {
+    transform: rotate(180deg) !important;
+  }
+  .article-journal__toc-mobile-panel {
+    display: none !important;
+    margin-top: 8px !important;
+    border: 1px solid var(--aj-border,#e5e5e5) !important;
+    border-radius: 10px !important;
+    background: #fff !important;
+    padding: 8px !important;
+    max-height: min(56vh, 420px) !important;
+    overflow: auto !important;
+  }
+  .article-journal__toc.is-open .article-journal__toc-mobile-panel { display: block !important; }
+  .article-journal__toc .article-journal__toc-link {
+    font-size: 14px !important;
+    padding: 0.45rem 0 0.45rem 8px !important;
+  }
   .article-journal__aside {
     width: 100% !important;
     position: static !important;
@@ -355,63 +397,6 @@
     text-align: center !important;
   }
 
-  .article-journal__toc-fab {
-    display: block !important;
-    position: fixed !important;
-    right: 14px !important;
-    bottom: 18px !important;
-    z-index: 35 !important;
-  }
-  .article-journal__toc-fab-toggle {
-    appearance: none !important;
-    border: 0 !important;
-    border-radius: 999px !important;
-    background: var(--aj-accent) !important;
-    color: #fff !important;
-    font-size: 14px !important;
-    font-weight: 700 !important;
-    line-height: 1 !important;
-    padding: 12px 16px !important;
-    box-shadow: 0 8px 24px rgba(0,0,0,.2) !important;
-  }
-  .article-journal__toc-fab-panel {
-    display: none !important;
-    position: absolute !important;
-    right: 0 !important;
-    bottom: calc(100% + 10px) !important;
-    width: min(86vw, 360px) !important;
-    max-height: min(70vh, 460px) !important;
-    overflow: auto !important;
-    border: 1px solid var(--aj-border,#e5e5e5) !important;
-    border-radius: 12px !important;
-    background: #fff !important;
-    box-shadow: 0 14px 34px rgba(0,0,0,.2) !important;
-    padding: 10px !important;
-  }
-  .article-journal__toc-fab.is-open .article-journal__toc-fab-panel { display: block !important; }
-  .article-journal__toc-fab-head {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    margin-bottom: 8px !important;
-    padding-bottom: 8px !important;
-    border-bottom: 1px solid var(--aj-border,#e5e5e5) !important;
-  }
-  .article-journal__toc-fab-title { font-size: 14px !important; color: var(--aj-text,#222) !important; }
-  .article-journal__toc-fab-close {
-    appearance: none !important;
-    border: 0 !important;
-    background: transparent !important;
-    color: var(--aj-accent) !important;
-    font-size: 14px !important;
-    font-weight: 700 !important;
-    padding: 4px !important;
-    line-height: 1 !important;
-  }
-  .article-journal__toc-list--fab .article-journal__toc-link {
-    font-size: 14px !important;
-    padding: 0.4rem 0 0.4rem 8px !important;
-  }
 }
 @media (max-width:749px){
   .article-journal__banner{aspect-ratio:16/10} .article-journal__header-inner{padding:1.5rem 16px 1.75rem} .article-journal__container,.article-journal__content{padding-left:16px;padding-right:16px} .article-journal__content{font-size:1.0625rem} .article-journal__meta{font-size:.8125rem} .article-journal__nav{grid-template-columns:1fr} .article-journal__nav-link--next{text-align:left} }
