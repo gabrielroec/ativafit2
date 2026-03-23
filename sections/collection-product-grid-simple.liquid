@@ -1,164 +1,160 @@
 {%- liquid
   assign section_id = 'CollectionGridSimple-' | append: section.id
-  assign collection_to_show = section.settings.collection | default: collection
-
-  assign use_contextual_collection = false
-  if template.name == 'collection' and collection != blank
-    if section.settings.collection == blank
-      assign use_contextual_collection = true
-    elsif section.settings.collection.handle == collection.handle
-      assign use_contextual_collection = true
-    endif
-  endif
-
-  if use_contextual_collection
-    assign product_collection = collection
+  if section.settings.collection != blank
+    assign collection_to_show = section.settings.collection
   else
-    assign product_collection = collection_to_show
+    assign collection_to_show = collection
   endif
-
-  assign has_facets = false
-  if section.settings.show_filters and template.name == 'collection' and use_contextual_collection and product_collection.filters != empty
-    assign has_facets = true
-  endif
-
-  assign form_id = 'cgs-facets-form-' | append: section.id
-  assign sort_by = product_collection.sort_by | default: product_collection.default_sort_by
-
-  assign active_filters_count = 0
-  for filter in product_collection.filters
-    if filter.type == 'list'
-      assign active_filters_count = active_filters_count | plus: filter.active_values.size
-    elsif filter.type == 'price_range' and filter.min_value.value or filter.max_value.value
-      assign active_filters_count = active_filters_count | plus: 1
-    elsif filter.type == 'boolean' and filter.true_value.active
-      assign active_filters_count = active_filters_count | plus: 1
-    endif
-  endfor
 
   assign extra_products = section.blocks | where: 'type', 'extra_product'
   assign has_collection = false
-  if product_collection != blank and product_collection.products_count > 0
+  if collection_to_show != blank and collection_to_show.products_count > 0
     assign has_collection = true
   endif
   assign has_extras = false
   if extra_products.size > 0
     assign has_extras = true
   endif
+
+  assign show_filters = section.settings.show_filters
+  assign show_search = section.settings.show_search
+  assign show_sort = section.settings.show_sort
+  assign show_count = section.settings.show_product_count
+  assign show_color_swatch = section.settings.show_filter_color_swatch
+  assign facet_default = section.settings.facet_groups_default | default: 'first_open'
+
+  assign active_filter_count = 0
+  if show_filters and has_collection
+    for filter in collection_to_show.filters
+      if filter.active_values.size > 0
+        assign active_filter_count = active_filter_count | plus: filter.active_values.size
+      endif
+      if filter.type == 'price_range'
+        if filter.min_value.value != nil or filter.max_value.value != nil
+          assign active_filter_count = active_filter_count | plus: 1
+        endif
+      endif
+    endfor
+  endif
 -%}
 
-{%- if has_facets -%}
-  {{ 'collection-facets-simple.css' | asset_url | stylesheet_tag }}
-{%- endif -%}
+{{ 'collection-filters.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'collection-filters.js' | asset_url }}" defer></script>
 
 {%- if has_collection or has_extras -%}
-  <section
-    id="{{ section_id }}"
-    class="collection-grid-simple{% if has_facets %} collection-grid-simple--facets{% endif %}"
-  >
+  <section id="{{ section_id }}" class="collection-grid-simple">
     {%- if has_collection -%}
-      {%- paginate product_collection.products by section.settings.products_per_page -%}
-        {%- if has_facets -%}
-          <div class="collection-grid-simple__shell">
-            <aside
-              class="collection-grid-simple__facets"
-              data-cgs-facets-root
-              aria-hidden="true"
-              id="{{ section_id }}-facets-aside"
-            >
-              <button
-                type="button"
-                class="cgs-facets-backdrop"
-                data-cgs-facets-close
-                aria-label="{{ 'general.accessibility.close' | t | escape }}"
-              ></button>
-              <div class="collection-grid-simple__facets-panel">
-                <div class="cgs-facets-mobile-head">
-                  <h2 class="cgs-facets-mobile-head__title" id="{{ section_id }}-facets-heading">
-                    {{ 'collection.filter.title' | t }}
-                  </h2>
-                  <button
-                    type="button"
-                    class="cgs-facets-mobile-head__close"
-                    data-cgs-facets-close
-                    aria-label="{{ 'general.accessibility.close' | t | escape }}"
-                  >
-                    ×
-                  </button>
-                </div>
-                {% render 'collection-facets-simple',
-                  product_collection: product_collection,
-                  form_id: form_id,
-                  sort_by: sort_by,
-                  show_swatches: section.settings.show_filter_color_swatch,
-                  groups_mode: section.settings.facet_groups_default,
-                  template_suffix: template.suffix,
-                  section_id: section_id
-                %}
-              </div>
-            </aside>
+      {%- paginate collection_to_show.products by section.settings.products_per_page -%}
+        <div class="collection-grid-simple__container">
 
-            <div class="collection-grid-simple__main">
-              <div class="cgs-toolbar">
-                <button
-                  type="button"
-                  class="cgs-toolbar__filter"
-                  data-cgs-facets-open
-                  aria-expanded="false"
-                  aria-controls="{{ section_id }}-facets-aside"
-                >
-                  {{ 'collection.filter.show_filter' | t }}
-                  {%- if active_filters_count > 0 -%}
-                    <span class="cgs-toolbar__filter-badge">{{ active_filters_count }}</span>
+          {%- comment -%} Toolbar: search + mobile filter toggle + sort + count {%- endcomment -%}
+          {%- if show_search or show_sort or show_count or show_filters -%}
+            <div class="cf-toolbar">
+              {%- if show_search -%}
+                <div class="cf-search">
+                  <input
+                    type="text"
+                    class="cf-search__input"
+                    placeholder="Search products..."
+                    data-collection-search
+                    aria-label="Search products in this collection">
+                  <button type="button" class="cf-search__clear" data-search-clear aria-label="Clear search">
+                    <svg width="14" height="14" viewBox="0 0 14 14"><line x1="3" y1="3" x2="11" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="3" x2="3" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                  </button>
+                  <span class="cf-search__icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/><line x1="11" y1="11" x2="14" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                  </span>
+                </div>
+              {%- endif -%}
+
+              {%- if show_filters -%}
+                <button type="button" class="cf-mobile-toggle" data-filter-drawer-toggle aria-label="Open filters">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><line x1="1" y1="4" x2="15" y2="4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="8" x2="11" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="12" x2="13" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                  Filters
+                  {%- if active_filter_count > 0 -%}
+                    <span class="cf-mobile-toggle__count">{{ active_filter_count }}</span>
                   {%- endif -%}
                 </button>
-                <p class="cgs-toolbar__meta">
-                  {{ 'collection.general.results_count' | t: count: paginate.items }}
-                </p>
-                <div class="cgs-toolbar__sort">
-                  <label class="cgs-toolbar__sort-label" for="cgs-sort-{{ section_id }}">{{ 'collection.sorting.title' | t }}</label>
-                  <select
-                    id="cgs-sort-{{ section_id }}"
-                    class="cgs-toolbar__sort-select"
-                    name="sort_by"
-                    form="{{ form_id }}"
-                    data-cgs-sort-select
-                  >
-                    {%- for option in product_collection.sort_options -%}
-                      <option value="{{ option.value | escape }}" {% if option.value == sort_by %}selected{% endif %}>
+              {%- endif -%}
+
+              {%- if show_sort -%}
+                <div class="cf-sort">
+                  <select class="cf-sort__select" data-sort-select aria-label="Sort products">
+                    {%- for option in collection_to_show.sort_options -%}
+                      <option value="{{ option.value }}" {% if collection_to_show.sort_by == option.value %}selected{% endif %}>
                         {{ option.name }}
                       </option>
                     {%- endfor -%}
                   </select>
+                  <svg class="cf-sort__chevron" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><polyline points="2 4 6 8 10 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
-              </div>
+              {%- endif -%}
 
-              <div class="collection-grid-simple__grid">
-                {%- for product in product_collection.products -%}
-                  <div class="collection-grid-simple__item">
-                    {%- render 'product-card-simple', product: product -%}
-                  </div>
-                {%- endfor -%}
+              {%- if show_count -%}
+                <span class="cf-product-count">
+                  {{ collection_to_show.products_count }}
+                  {%- if collection_to_show.products_count == 1 %} product{% else %} products{% endif -%}
+                </span>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
 
-                {%- if paginate.items == 0 -%}
-                  <p class="cgs-empty" role="status">{{ 'collection.general.no_results' | t }}</p>
-                {%- endif -%}
+          {%- comment -%} Active filter pills {%- endcomment -%}
+          {%- if show_filters -%}
+            {%- render 'collection-active-filters', collection: collection_to_show -%}
+          {%- endif -%}
 
-                {%- if has_extras and paginate.pages <= 1 or paginate.current_page == paginate.pages -%}
-                  {%- for block in extra_products -%}
-                    {%- if block.settings.product != blank -%}
-                      {%- assign extra_variant = nil -%}
-                      {%- if block.settings.variant_index != blank -%}
-                        {%- assign idx = block.settings.variant_index | plus: 0 -%}
-                        {%- assign extra_variant = block.settings.product.variants[idx] -%}
-                      {%- endif -%}
-                      <div class="collection-grid-simple__item" {{ block.shopify_attributes }}>
-                        {%- render 'product-card-simple', product: block.settings.product, variant: extra_variant -%}
-                      </div>
-                    {%- endif -%}
+          {%- comment -%} Two-column layout: sidebar + grid {%- endcomment -%}
+          <div class="cf-layout{% unless show_filters and collection_to_show.filters.size > 0 %} cf-layout--no-filters{% endunless %}">
+
+            {%- comment -%} Sidebar filters (desktop) {%- endcomment -%}
+            {%- if show_filters and collection_to_show.filters.size > 0 -%}
+              <aside class="cf-sidebar" aria-label="Collection filters">
+                {%- render 'collection-filters',
+                  collection: collection_to_show,
+                  show_color_swatch: show_color_swatch,
+                  facet_default: facet_default
+                -%}
+              </aside>
+            {%- endif -%}
+
+            {%- comment -%} Product grid {%- endcomment -%}
+            <div class="collection-grid-simple__main">
+              {%- if collection_to_show.products.size > 0 -%}
+                <div class="collection-grid-simple__grid" data-collection-grid>
+                  {%- for product in collection_to_show.products -%}
+                    <div class="collection-grid-simple__item">
+                      {%- render 'product-card-simple', product: product -%}
+                    </div>
                   {%- endfor -%}
-                {%- endif -%}
-              </div>
+
+                  {%- if has_extras and paginate.pages <= 1 or paginate.current_page == paginate.pages -%}
+                    {%- for block in extra_products -%}
+                      {%- if block.settings.product != blank -%}
+                        {%- assign extra_variant = nil -%}
+                        {%- if block.settings.variant_index != blank -%}
+                          {%- assign idx = block.settings.variant_index | plus: 0 -%}
+                          {%- assign extra_variant = block.settings.product.variants[idx] -%}
+                        {%- endif -%}
+                        <div class="collection-grid-simple__item" {{ block.shopify_attributes }}>
+                          {%- render 'product-card-simple', product: block.settings.product, variant: extra_variant -%}
+                        </div>
+                      {%- endif -%}
+                    {%- endfor -%}
+                  {%- endif -%}
+                </div>
+
+                <div class="cf-no-results" data-no-search-results style="display: none;">
+                  <h3 class="cf-no-results__title">No matching products</h3>
+                  <p class="cf-no-results__text">Try a different search term or clear your filters.</p>
+                </div>
+              {%- else -%}
+                <div class="cf-no-results">
+                  <h3 class="cf-no-results__title">No products found</h3>
+                  <p class="cf-no-results__text">Try removing some filters to see more products.</p>
+                  <a href="{{ collection_to_show.url }}" class="cf-no-results__link">Clear all filters</a>
+                </div>
+              {%- endif -%}
 
               {%- if section.settings.show_pagination and paginate.pages > 1 -%}
                 <div class="collection-grid-simple__pagination">
@@ -167,42 +163,13 @@
               {%- endif -%}
             </div>
           </div>
-        {%- else -%}
-          <div class="collection-grid-simple__container">
-            <div class="collection-grid-simple__grid">
-              {%- for product in product_collection.products -%}
-                <div class="collection-grid-simple__item">
-                  {%- render 'product-card-simple', product: product -%}
-                </div>
-              {%- endfor -%}
-
-              {%- if has_extras and paginate.pages <= 1 or paginate.current_page == paginate.pages -%}
-                {%- for block in extra_products -%}
-                  {%- if block.settings.product != blank -%}
-                    {%- assign extra_variant = nil -%}
-                    {%- if block.settings.variant_index != blank -%}
-                      {%- assign idx = block.settings.variant_index | plus: 0 -%}
-                      {%- assign extra_variant = block.settings.product.variants[idx] -%}
-                    {%- endif -%}
-                    <div class="collection-grid-simple__item" {{ block.shopify_attributes }}>
-                      {%- render 'product-card-simple', product: block.settings.product, variant: extra_variant -%}
-                    </div>
-                  {%- endif -%}
-                {%- endfor -%}
-              {%- endif -%}
-            </div>
-          </div>
-
-          {%- if section.settings.show_pagination and paginate.pages > 1 -%}
-            <div class="collection-grid-simple__pagination">
-              {%- render 'pagination', paginate: paginate -%}
-            </div>
-          {%- endif -%}
-        {%- endif -%}
+        </div>
       {%- endpaginate -%}
+
     {%- else -%}
+      {%- comment -%} No collection, only extra products {%- endcomment -%}
       <div class="collection-grid-simple__container">
-        <div class="collection-grid-simple__grid">
+        <div class="collection-grid-simple__grid" data-collection-grid>
           {%- for block in extra_products -%}
             {%- if block.settings.product != blank -%}
               {%- assign extra_variant = nil -%}
@@ -218,11 +185,28 @@
         </div>
       </div>
     {%- endif -%}
-  </section>
 
-  {%- if has_facets -%}
-    <script src="{{ 'collection-facets-simple.js' | asset_url }}" defer></script>
-  {%- endif -%}
+    {%- comment -%} Mobile filter drawer {%- endcomment -%}
+    {%- if show_filters and has_collection and collection_to_show.filters.size > 0 -%}
+      <div class="cf-drawer-overlay" data-filter-drawer-overlay></div>
+      <div class="cf-drawer" data-filter-drawer aria-label="Filters" role="dialog" aria-modal="true">
+        <div class="cf-drawer__header">
+          <span class="cf-drawer__title">Filters</span>
+          <button type="button" class="cf-drawer__close" data-filter-drawer-close aria-label="Close filters">
+            <svg width="20" height="20" viewBox="0 0 20 20"><line x1="4" y1="4" x2="16" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="4" x2="4" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="cf-drawer__body" data-filter-drawer-body>
+          {%- comment -%} JS clones the sidebar form here {%- endcomment -%}
+        </div>
+        <div class="cf-drawer__footer">
+          <button type="button" class="cf-filters__apply" onclick="document.querySelector('[data-collection-filters-form-drawer]')?.submit()">
+            Apply Filters
+          </button>
+        </div>
+      </div>
+    {%- endif -%}
+  </section>
 {%- endif -%}
 
 <style>
@@ -367,7 +351,6 @@
   #{{ section_id }} .product-card-simple__star--active {
     color: #000000;
   }
-
   #{{ section_id }} .product-card-simple__variants {
     display: flex;
     flex-wrap: wrap;
@@ -405,49 +388,69 @@
     background-color: #e5e5e5;
   }
 
+  /* When sidebar is present, 3 columns instead of 4 */
+  .cf-layout:not(.cf-layout--no-filters) #{{ section_id }} .collection-grid-simple__grid,
+  .cf-layout:not(.cf-layout--no-filters) .collection-grid-simple__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  @media (max-width: 990px) {
+    .cf-layout:not(.cf-layout--no-filters) .collection-grid-simple__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
   @media (max-width: 749px) {
     #{{ section_id }} .collection-grid-simple__grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
     }
+    #{{ section_id }} .collection-grid-simple__container {
+      padding: 0 16px;
+    }
     #{{ section_id }} .product-card-simple__atc {
-    width: 100%;
-    padding: 8px;
-    font-size: 12px!important;
-    font-weight: 600!important;
+      width: 100%;
+      padding: 8px;
+      font-size: 12px!important;
+      font-weight: 600!important;
     }
   }
-
-   @media (max-width: 430px) {
-     #{{ section_id }} .product-card-simple__stars {
-    display: inline-flex;
-    gap: 1px;
-    line-height: 1;
-  }
-  #{{ section_id }} .product-card-simple__star, #{{ section_id }} .product-card-simple__rating-value, #{{ section_id }} .product-card-simple__rating-count {
-    font-size: 14px!important;
-  }
-   #{{ section_id }} .product-card-simple__title {
-    font-size: 14px!important;
-    line-height: 1.3!important;
+  @media (max-width: 430px) {
+    #{{ section_id }} .product-card-simple__stars {
+      display: inline-flex;
+      gap: 1px;
+      line-height: 1;
+    }
+    #{{ section_id }} .product-card-simple__star,
+    #{{ section_id }} .product-card-simple__rating-value,
+    #{{ section_id }} .product-card-simple__rating-count {
+      font-size: 14px!important;
+    }
+    #{{ section_id }} .product-card-simple__title {
+      font-size: 14px!important;
+      line-height: 1.3!important;
     }
   }
-
-   @media (max-width: 340px) {
-     #{{ section_id }} .product-card-simple__stars {
-    display: inline-flex;
-    gap: 1px;
-    line-height: 1;
-  }
-  #{{ section_id }} .product-card-simple__star, #{{ section_id }} .product-card-simple__rating-value, #{{ section_id }} .product-card-simple__rating-count {
-    font-size: 12px!important;
-  }
-
+  @media (max-width: 340px) {
+    #{{ section_id }} .product-card-simple__stars {
+      display: inline-flex;
+      gap: 1px;
+      line-height: 1;
+    }
+    #{{ section_id }} .product-card-simple__star,
+    #{{ section_id }} .product-card-simple__rating-value,
+    #{{ section_id }} .product-card-simple__rating-count {
+      font-size: 12px!important;
+    }
   }
   @media (max-width: 320px) {
     #{{ section_id }} .product-card-simple__title {
       font-size: 14px!important;
     }
+  }
+
+  /* Pagination spacing */
+  #{{ section_id }} .collection-grid-simple__pagination {
+    margin-top: 32px;
   }
 </style>
 
@@ -464,30 +467,6 @@
       "info": "Leave blank to show the current page's collection (e.g. on a collection page). Set to force a specific collection."
     },
     {
-      "type": "checkbox",
-      "id": "show_filters",
-      "label": "Show collection filters",
-      "default": true,
-      "info": "Uses Shopify storefront filtering. Configure filters in Shopify Admin → Search & Discovery. Only applies when the section shows the same collection as the page URL."
-    },
-    {
-      "type": "checkbox",
-      "id": "show_filter_color_swatch",
-      "label": "Color swatches for color filters",
-      "default": true
-    },
-    {
-      "type": "select",
-      "id": "facet_groups_default",
-      "label": "Filter groups default state",
-      "default": "first_open",
-      "options": [
-        { "value": "first_open", "label": "First group open" },
-        { "value": "all_open", "label": "All open" },
-        { "value": "all_closed", "label": "All closed" }
-      ]
-    },
-    {
       "type": "range",
       "id": "products_per_page",
       "label": "Products per page",
@@ -501,6 +480,57 @@
       "id": "show_pagination",
       "label": "Show pagination",
       "default": true
+    },
+    {
+      "type": "header",
+      "content": "Filters & Search"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_filters",
+      "label": "Show filters sidebar",
+      "default": true,
+      "info": "Uses Shopify native storefront filters. Configure available filters in Online Store > Navigation."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_filter_color_swatch",
+      "label": "Show color swatches",
+      "default": true,
+      "info": "Renders color-type filters as circular swatches instead of checkboxes."
+    },
+    {
+      "type": "select",
+      "id": "facet_groups_default",
+      "label": "Filter groups default state",
+      "default": "first_open",
+      "options": [
+        { "value": "all_open", "label": "All open" },
+        { "value": "first_open", "label": "First open" },
+        { "value": "all_closed", "label": "All closed" }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_search",
+      "label": "Show search bar",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sort",
+      "label": "Show sort dropdown",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_product_count",
+      "label": "Show product count",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
     },
     {
       "type": "range",

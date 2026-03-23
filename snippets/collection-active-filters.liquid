@@ -1,0 +1,47 @@
+{%- comment -%}
+  Collection Active Filters — Pills row
+  Shows active filter values as removable chips/pills.
+
+  Required vars:
+    collection — the collection object
+{%- endcomment -%}
+
+{%- assign has_active_filters = false -%}
+{%- for filter in collection.filters -%}
+  {%- if filter.active_values.size > 0 or filter.min_value.value != nil or filter.max_value.value != nil -%}
+    {%- assign has_active_filters = true -%}
+    {%- break -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- if has_active_filters -%}
+  <div class="cf-active-filters">
+    {%- for filter in collection.filters -%}
+      {%- for value in filter.active_values -%}
+        <a href="{{ value.url_to_remove }}" class="cf-active-pill" aria-label="Remove filter: {{ value.label | escape }}">
+          <span class="cf-active-pill__label">{{ filter.label }}: {{ value.label }}</span>
+          <svg class="cf-active-pill__x" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+            <line x1="2" y1="2" x2="8" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="8" y1="2" x2="2" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </a>
+      {%- endfor -%}
+
+      {%- if filter.type == 'price_range' -%}
+        {%- if filter.min_value.value != nil or filter.max_value.value != nil -%}
+          {%- assign pmin = filter.min_value.value | default: 0 | money_without_currency | replace: ',', '' -%}
+          {%- assign pmax = filter.max_value.value | default: filter.range_max | money_without_currency | replace: ',', '' -%}
+          <a href="{{ filter.url_to_remove }}" class="cf-active-pill" aria-label="Remove price filter">
+            <span class="cf-active-pill__label">Price: ${{ pmin }} — ${{ pmax }}</span>
+            <svg class="cf-active-pill__x" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+              <line x1="2" y1="2" x2="8" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="8" y1="2" x2="2" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </a>
+        {%- endif -%}
+      {%- endif -%}
+    {%- endfor -%}
+
+    <a href="{{ collection.url }}" class="cf-active-pill cf-active-pill--clear">Clear all</a>
+  </div>
+{%- endif -%}

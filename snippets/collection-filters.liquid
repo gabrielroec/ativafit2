@@ -1,0 +1,183 @@
+{%- comment -%}
+  Collection Filters — Universal snippet
+  Renders Shopify native storefront filters as an accordion sidebar.
+  Supports: checkboxes, color swatches, price range.
+
+  Required vars:
+    collection  — the collection object (already filtered by Shopify)
+    show_color_swatch — boolean, render color filters as swatches
+    facet_default — "all_open" | "first_open" | "all_closed"
+{%- endcomment -%}
+
+{%- if collection.filters.size > 0 -%}
+  <form class="cf-filters-form" id="CollectionFiltersForm" data-collection-filters-form>
+    <input type="hidden" name="sort_by" value="{{ collection.sort_by }}">
+
+    <div class="cf-filters__groups">
+      {%- for filter in collection.filters -%}
+        {%- assign group_open = false -%}
+        {%- if facet_default == 'all_open' -%}
+          {%- assign group_open = true -%}
+        {%- elsif facet_default == 'first_open' and forloop.first -%}
+          {%- assign group_open = true -%}
+        {%- endif -%}
+
+        {%- if filter.active_values.size > 0 -%}
+          {%- assign group_open = true -%}
+        {%- endif -%}
+
+        <details class="cf-filter-group" {% if group_open %}open{% endif %}>
+          <summary class="cf-filter-group__header">
+            <span class="cf-filter-group__title">{{ filter.label | escape }}</span>
+            {%- if filter.active_values.size > 0 -%}
+              <span class="cf-filter-group__count">{{ filter.active_values.size }}</span>
+            {%- endif -%}
+            <svg class="cf-filter-group__chevron" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+              <polyline points="2 4 6 8 10 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </summary>
+
+          <div class="cf-filter-group__body">
+            {%- case filter.type -%}
+
+              {%- when 'list' -%}
+                {%- assign is_color = false -%}
+                {%- if show_color_swatch -%}
+                  {%- assign filter_label_down = filter.label | downcase -%}
+                  {%- if filter_label_down contains 'color' or filter_label_down contains 'colour' or filter_label_down contains 'cor' -%}
+                    {%- assign is_color = true -%}
+                  {%- endif -%}
+                {%- endif -%}
+
+                {%- if is_color -%}
+                  <div class="cf-filter-swatches">
+                    {%- for value in filter.values -%}
+                      {%- assign swatch_color = value.label | downcase | replace: ' ', '' -%}
+                      <label
+                        class="cf-swatch{% if value.active %} cf-swatch--active{% endif %}{% if value.count == 0 and value.active == false %} cf-swatch--disabled{% endif %}"
+                        title="{{ value.label | escape }} ({{ value.count }})"
+                        for="Filter-{{ filter.param_name }}-{{ forloop.index }}">
+                        <input
+                          type="checkbox"
+                          name="{{ filter.param_name }}"
+                          value="{{ value.value | escape }}"
+                          id="Filter-{{ filter.param_name }}-{{ forloop.index }}"
+                          {% if value.active %}checked{% endif %}
+                          {% if value.count == 0 and value.active == false %}disabled{% endif %}
+                          class="cf-swatch__input visually-hidden"
+                          data-filter-checkbox>
+                        <span class="cf-swatch__color" style="background-color: {{ swatch_color }};"></span>
+                      </label>
+                    {%- endfor -%}
+                  </div>
+                {%- else -%}
+                  <ul class="cf-filter-list" role="list">
+                    {%- for value in filter.values -%}
+                      <li class="cf-filter-list__item">
+                        <label
+                          class="cf-filter-checkbox{% if value.active %} cf-filter-checkbox--active{% endif %}{% if value.count == 0 and value.active == false %} cf-filter-checkbox--disabled{% endif %}"
+                          for="Filter-{{ filter.param_name }}-{{ forloop.index }}">
+                          <input
+                            type="checkbox"
+                            name="{{ filter.param_name }}"
+                            value="{{ value.value | escape }}"
+                            id="Filter-{{ filter.param_name }}-{{ forloop.index }}"
+                            {% if value.active %}checked{% endif %}
+                            {% if value.count == 0 and value.active == false %}disabled{% endif %}
+                            class="cf-filter-checkbox__input"
+                            data-filter-checkbox>
+                          <span class="cf-filter-checkbox__box" aria-hidden="true">
+                            <svg class="cf-filter-checkbox__check" width="10" height="8" viewBox="0 0 10 8" fill="none">
+                              <path d="M1 4L3.5 6.5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                          </span>
+                          <span class="cf-filter-checkbox__label">{{ value.label | escape }}</span>
+                          <span class="cf-filter-checkbox__count">({{ value.count }})</span>
+                        </label>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                {%- endif -%}
+
+              {%- when 'price_range' -%}
+                {%- assign price_min = filter.min_value.value | default: 0 | money_without_currency | replace: ',', '' | plus: 0 -%}
+                {%- assign price_max = filter.max_value.value | default: filter.range_max | money_without_currency | replace: ',', '' | plus: 0 -%}
+                {%- assign range_min = 0 -%}
+                {%- assign range_max = filter.range_max | money_without_currency | replace: ',', '' | plus: 0 -%}
+
+                <div class="cf-price-range" data-price-range data-min="{{ range_min }}" data-max="{{ range_max }}">
+                  <div class="cf-price-range__track">
+                    <div class="cf-price-range__bar" data-price-bar></div>
+                    <input
+                      type="range"
+                      class="cf-price-range__input cf-price-range__input--min"
+                      min="{{ range_min }}"
+                      max="{{ range_max }}"
+                      step="1"
+                      value="{{ price_min }}"
+                      data-price-range-min
+                      aria-label="Minimum price">
+                    <input
+                      type="range"
+                      class="cf-price-range__input cf-price-range__input--max"
+                      min="{{ range_min }}"
+                      max="{{ range_max }}"
+                      step="1"
+                      value="{{ price_max }}"
+                      data-price-range-max
+                      aria-label="Maximum price">
+                  </div>
+                  <div class="cf-price-range__values">
+                    <div class="cf-price-range__field">
+                      <span class="cf-price-range__currency">$</span>
+                      <input
+                        type="number"
+                        class="cf-price-range__number"
+                        name="{{ filter.min_value.param_name }}"
+                        min="{{ range_min }}"
+                        max="{{ range_max }}"
+                        value="{{ price_min }}"
+                        data-price-input-min
+                        aria-label="Min price">
+                    </div>
+                    <span class="cf-price-range__separator">—</span>
+                    <div class="cf-price-range__field">
+                      <span class="cf-price-range__currency">$</span>
+                      <input
+                        type="number"
+                        class="cf-price-range__number"
+                        name="{{ filter.max_value.param_name }}"
+                        min="{{ range_min }}"
+                        max="{{ range_max }}"
+                        value="{{ price_max }}"
+                        data-price-input-max
+                        aria-label="Max price">
+                    </div>
+                  </div>
+                </div>
+
+            {%- endcase -%}
+          </div>
+        </details>
+      {%- endfor -%}
+    </div>
+
+    <div class="cf-filters__actions">
+      <button type="submit" class="cf-filters__apply" data-filters-apply>
+        Apply Filters
+      </button>
+
+      {%- assign any_active = false -%}
+      {%- for filter in collection.filters -%}
+        {%- if filter.active_values.size > 0 or filter.min_value.value != nil or filter.max_value.value != nil -%}
+          {%- assign any_active = true -%}
+          {%- break -%}
+        {%- endif -%}
+      {%- endfor -%}
+
+      {%- if any_active -%}
+        <a href="{{ collection.url }}" class="cf-filters__clear">Clear all</a>
+      {%- endif -%}
+    </div>
+  </form>
+{%- endif -%}
