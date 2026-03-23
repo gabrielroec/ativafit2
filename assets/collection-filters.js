@@ -10,6 +10,110 @@
   function qsa(sel, ctx) { return Array.from((ctx || document).querySelectorAll(sel)); }
 
   /* ==========================
+     FUZZY COLLECTION SEARCH
+     - Várias palavras: todas precisam casar (AND), em qualquer ordem no texto.
+     - Subsequência: letras do termo na ordem no texto (ex.: "trmp" → "trampoline").
+     - Levenshtein leve: troca/esquecimento próximo ao tamanho da palavra.
+     ========================== */
+  function isSubsequence(token, text) {
+    if (!token.length) return true;
+    var j = 0;
+    for (var i = 0; i < text.length && j < token.length; i++) {
+      if (text.charAt(i) === token.charAt(j)) j++;
+    }
+    return j === token.length;
+  }
+
+  /** Remove vogais (ajuda termos curtos tipo "trm" a casar com "trampoline"). */
+  function consonantSkeleton(s) {
+    return s.replace(/[aeiou]/g, '');
+  }
+
+  function levenshteinWithin(a, b, max) {
+    var la = a.length;
+    var lb = b.length;
+    if (la === 0) return lb <= max ? lb : max + 1;
+    if (lb === 0) return la <= max ? la : max + 1;
+    if (Math.abs(la - lb) > max) return max + 1;
+    var prev = new Array(lb + 1);
+    var cur = new Array(lb + 1);
+    var j;
+    for (j = 0; j <= lb; j++) prev[j] = j;
+    for (var i = 1; i <= la; i++) {
+      cur[0] = i;
+      var rowMin = cur[0];
+      for (j = 1; j <= lb; j++) {
+        var cost = a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1;
+        cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + cost);
+        if (cur[j] < rowMin) rowMin = cur[j];
+      }
+      if (rowMin > max) return max + 1;
+      var swap = prev;
+      prev = cur;
+      cur = swap;
+    }
+    return prev[lb];
+  }
+
+  function tokenMatchesHaystack(token, hay, words) {
+    if (hay.indexOf(token) !== -1) return true;
+    var tl = token.length;
+    if (tl === 0) return true;
+    if (tl === 1) return false;
+
+    if (tl >= 3 && isSubsequence(token, hay)) return true;
+
+    if (tl >= 3 && tl <= 5) {
+      var skelHay = consonantSkeleton(hay);
+      if (skelHay.length >= tl && isSubsequence(token, skelHay)) return true;
+    }
+
+    var maxEd = tl <= 4 ? 1 : tl <= 8 ? 2 : 3;
+    var i;
+    var w;
+    var skelW;
+    for (i = 0; i < words.length; i++) {
+      w = words[i];
+      if (w.indexOf(token) !== -1) return true;
+      if (tl >= 3 && isSubsequence(token, w)) return true;
+      if (tl >= 3 && tl <= 5) {
+        skelW = consonantSkeleton(w);
+        if (skelW.length >= tl && isSubsequence(token, skelW)) return true;
+      }
+      if (Math.abs(w.length - tl) <= maxEd + 2 && levenshteinWithin(token, w, maxEd) <= maxEd) return true;
+    }
+
+    if (tl === 2) {
+      for (i = 0; i < words.length; i++) {
+        w = words[i];
+        if (w.length <= 5 && levenshteinWithin(token, w, 1) <= 1) return true;
+      }
+    }
+    return false;
+  }
+
+  /** query: string já trim/lowercase; hay: texto completo lowercase */
+  function haystackMatchesSearchQuery(query, hay) {
+    if (!query || !query.length) return true;
+    var tokens = query.split(/\s+/).filter(function (t) { return t.length > 0; });
+    if (tokens.length === 0) return true;
+    var words = hay.split(/[^a-z0-9]+/).filter(function (w) { return w.length > 0; });
+    for (var t = 0; t < tokens.length; t++) {
+      if (!tokenMatchesHaystack(tokens[t], hay, words)) return false;
+    }
+    return true;
+  }
+
+  function categorySearchHints(cat) {
+    if (cat === 'Kids Trampoline') return 'trampoline tramp rebounder jump mini fitness';
+    if (cat === 'Cardio') return 'cardio bike cycling vest endurance';
+    if (cat === 'Strength') return 'strength weights dumbbell kettlebell bench';
+    if (cat === 'Flexibility') return 'flexibility yoga balance stretching';
+    if (cat === 'Accessory') return 'accessory replacement protection tray';
+    return '';
+  }
+
+  /* ==========================
      SMART CATEGORY MAPPER
      Maps products to menu-aligned categories using title + tags + type
      ========================== */
@@ -237,10 +341,18 @@
         if (show && q.length > 0) {
           var title = item.getAttribute('data-product-title') || '';
           var tags = item.getAttribute('data-product-tags') || '';
+          var pType = item.getAttribute('data-product-type') || '';
+          var vendor = item.getAttribute('data-product-vendor') || '';
+          var handle = item.getAttribute('data-product-handle') || '';
+          var hints = categorySearchHints(cat);
           var card = item.querySelector('.product-card-simple__title');
           var cardText = card ? card.textContent : '';
-          var hay = (title + ' ' + cardText + ' ' + cat + ' ' + tags).toLowerCase();
-          if (hay.indexOf(q) === -1) show = false;
+          var hay = [title, cardText, cat, tags, pType, vendor, handle, hints]
+            .filter(Boolean)
+            .join(' ')
+            .toLowerCase()
+            .replace(/[-_]+/g, ' ');
+          if (!haystackMatchesSearchQuery(q, hay)) show = false;
         }
 
         item.style.display = show ? '' : 'none';
@@ -511,10 +623,20 @@
           return;
         }
         var title = item.getAttribute('data-product-title') || '';
+        var tags = item.getAttribute('data-product-tags') || '';
+        var pType = item.getAttribute('data-product-type') || '';
+        var vendor = item.getAttribute('data-product-vendor') || '';
+        var handle = item.getAttribute('data-product-handle') || '';
+        var cat = getCategory(title, tags, pType);
+        var hints = categorySearchHints(cat);
         var card = item.querySelector('.product-card-simple__title');
         var cardText = card ? card.textContent : '';
-        var s = (title + ' ' + cardText).toLowerCase();
-        var match = s.indexOf(q) !== -1;
+        var s = [title, cardText, tags, pType, vendor, handle, cat, hints]
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase()
+          .replace(/[-_]+/g, ' ');
+        var match = haystackMatchesSearchQuery(q, s);
         item.style.display = match ? '' : 'none';
         if (match) vis++;
       });
