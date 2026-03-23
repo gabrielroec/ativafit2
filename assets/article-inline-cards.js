@@ -46,12 +46,12 @@
         '" class="article-inline-card__product-img" loading="lazy">'
       : "";
 
-    var priceHTML =
-      '<span class="article-inline-card__price-current">' + formatMoney(v.price) + "</span>";
+    var priceHTML = '<span class="article-inline-card__price-current">' + formatMoney(v.price) + "</span>";
     if (v.compare_at_price && v.compare_at_price > v.price) {
-      priceHTML +=
-        ' <span class="article-inline-card__price-compare">' +
-        formatMoney(v.compare_at_price) + "</span>";
+      priceHTML =
+        '<span class="article-inline-card__price-compare">' +
+        formatMoney(v.compare_at_price) + "</span>" +
+        ' <span class="article-inline-card__price-current">' + formatMoney(v.price) + "</span>";
     }
 
     var descRaw = product.description
