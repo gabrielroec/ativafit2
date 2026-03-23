@@ -66,7 +66,7 @@
         '<a href="/products/' + product.handle + '" class="article-inline-card__product-link">' +
           '<div class="article-inline-card__product-image">' + imgTag + "</div>" +
           '<div class="article-inline-card__product-info">' +
-            '<h3 class="article-inline-card__product-title">' + product.title + "</h3>" +
+            '<p class="article-inline-card__product-title">' + product.title + "</p>" +
             (descRaw ? '<p class="article-inline-card__product-desc">' + descRaw + "</p>" : "") +
             '<p class="article-inline-card__product-price">' + priceHTML + "</p>" +
             '<p class="article-inline-card__product-promo">Save extra 10% + get an extended warranty :)</p>' +
