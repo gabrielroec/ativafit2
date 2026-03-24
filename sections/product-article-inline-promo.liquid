@@ -1,0 +1,47 @@
+{% comment %}
+  Usado só via Section Rendering API (não aparece no editor como página normal).
+  URL: /products/{handle}?view=card-promo&sections=article_inline_promo
+
+  No Admin → Settings → Custom data → Products, crie um metafield:
+  - Namespace/key: os mesmos configurados abaixo (padrão custom.article_inline_promo)
+  - Tipo: Single line text (ou Text)
+  - Preencha por produto o texto do promo do card inline no blog.
+
+  O arquivo assets/article-inline-cards.js lê esse JSON e monta .article-inline-card__product-promo.
+{% endcomment %}
+{% liquid
+  assign ns = section.settings.metafield_namespace | default: 'custom' | strip
+  assign ky = section.settings.metafield_key | default: 'article_inline_promo' | strip
+  assign mf = product.metafields[ns][ky]
+  assign promo_value = nil
+  if mf != blank and mf.value != blank
+    assign promo_value = mf.value
+  endif
+%}
+<script type="application/json" data-article-inline-promo-json>
+  {{- promo_value | json -}}
+</script>
+
+{% schema %}
+{
+  "name": "Article card promo API",
+  "tag": "section",
+  "class": "section-product-article-inline-promo",
+  "settings": [
+    {
+      "type": "text",
+      "id": "metafield_namespace",
+      "label": "Metafield namespace",
+      "default": "custom",
+      "info": "Ex.: custom (como no Admin → metafields do produto)"
+    },
+    {
+      "type": "text",
+      "id": "metafield_key",
+      "label": "Metafield key",
+      "default": "article_inline_promo",
+      "info": "Ex.: article_inline_promo — tipo recomendado: single line text"
+    }
+  ]
+}
+{% endschema %}

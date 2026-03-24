@@ -7,14 +7,74 @@
  * Triggers:
  *   "Add Card Membership"   -> membership card
  *   Product Card <handle>  -> product card (fetch /products/<handle>.js)
+ *
+ * Promo opcional por produto: metafield (padrão custom.article_inline_promo), exposto via
+ * template alternativo product.card-promo + sections/product-article-inline-promo.liquid
+ * (Section Rendering — ver comentário na section).
  */
 (function () {
   var PLACEHOLDER_PREFIX = "___ADD_CARD_";
   var PLACEHOLDER_SUFFIX = "___";
   var QUOTE_CHARS = '"\\u201C\\u201D\\u201E\\u00AB\\u00BB';
+  var PROMO_SECTION_ID = "article_inline_promo";
+  var PROMO_VIEW = "card-promo";
 
   function formatMoney(cents) {
     return "$" + (cents / 100).toFixed(2);
+  }
+
+  function shopifyRoot() {
+    if (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) {
+      var r = window.Shopify.routes.root;
+      return r.charAt(r.length - 1) === "/" ? r : r + "/";
+    }
+    return "/";
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  /**
+   * Metafields não vêm em /products/{handle}.js — buscamos um fragmento via Section Rendering.
+   */
+  function fetchArticleInlinePromo(handle) {
+    if (!handle) return Promise.resolve(null);
+    var url =
+      shopifyRoot() +
+      "products/" +
+      encodeURIComponent(handle) +
+      "?view=" +
+      encodeURIComponent(PROMO_VIEW) +
+      "&sections=" +
+      encodeURIComponent(PROMO_SECTION_ID);
+    return fetch(url, { credentials: "same-origin", headers: { Accept: "application/json" } })
+      .then(function (res) {
+        if (!res.ok) return null;
+        return res.json();
+      })
+      .then(function (data) {
+        if (!data || typeof data[PROMO_SECTION_ID] !== "string") return null;
+        var html = data[PROMO_SECTION_ID];
+        var doc = new DOMParser().parseFromString(html, "text/html");
+        var el = doc.querySelector("script[data-article-inline-promo-json]");
+        if (!el || el.textContent == null) return null;
+        try {
+          var v = JSON.parse(el.textContent.trim());
+          if (v === null || v === undefined) return null;
+          if (typeof v === "string" && v.trim()) return v.trim();
+          return null;
+        } catch (e) {
+          return null;
+        }
+      })
+      .catch(function () {
+        return null;
+      });
   }
 
   function buildMembershipCard() {
@@ -36,7 +96,7 @@
     );
   }
 
-  function buildProductCard(product) {
+  function buildProductCard(product, promoText) {
     var v = product.variants[0];
     var img = v.featured_image ? v.featured_image.src : product.featured_image;
     var imgTag = img
@@ -61,6 +121,12 @@
       descRaw += "\u2026";
     }
 
+    var promoHtml = "";
+    if (promoText) {
+      promoHtml =
+        '<p class="article-inline-card__product-promo">' + escapeHtml(promoText) + "</p>";
+    }
+
     return (
       '<div class="article-inline-card article-inline-card--product">' +
         '<a href="/products/' + product.handle + '" class="article-inline-card__product-link">' +
@@ -69,7 +135,7 @@
             '<p class="article-inline-card__product-title">' + product.title + "</p>" +
             (descRaw ? '<p class="article-inline-card__product-desc">' + descRaw + "</p>" : "") +
             '<p class="article-inline-card__product-price">' + priceHTML + "</p>" +
-            // article-inline-card__product-promo (desativado): Save extra 10% + extended warranty
+            promoHtml +
             '<span class="article-inline-card__product-cta">View product</span>' +
           "</div>" +
         "</a>" +
@@ -200,8 +266,15 @@
       }
       return getProduct(m.keyword)
         .then(function (product) {
-          m.html = product ? buildProductCard(product) : null;
-          return m;
+          if (!product) {
+            m.html = null;
+            return m;
+          }
+          var h = product.handle || m.keyword;
+          return fetchArticleInlinePromo(h).then(function (promo) {
+            m.html = buildProductCard(product, promo);
+            return m;
+          });
         })
         .catch(function () {
           m.html = null;
