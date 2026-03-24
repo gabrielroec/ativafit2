@@ -69,7 +69,7 @@
             '<p class="article-inline-card__product-title">' + product.title + "</p>" +
             (descRaw ? '<p class="article-inline-card__product-desc">' + descRaw + "</p>" : "") +
             '<p class="article-inline-card__product-price">' + priceHTML + "</p>" +
-            // '<p class="article-inline-card__product-promo">Save extra 10% + get an extended warranty :)</p>' +
+            // article-inline-card__product-promo (desativado): Save extra 10% + extended warranty
             '<span class="article-inline-card__product-cta">View product</span>' +
           "</div>" +
         "</a>" +
