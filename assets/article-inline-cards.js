@@ -16,7 +16,6 @@
   var PLACEHOLDER_PREFIX = "___ADD_CARD_";
   var PLACEHOLDER_SUFFIX = "___";
   var QUOTE_CHARS = '"\\u201C\\u201D\\u201E\\u00AB\\u00BB';
-  var PROMO_SECTION_ID = "article_inline_promo";
   var PROMO_VIEW = "card-promo";
 
   function formatMoney(cents) {
@@ -40,15 +39,15 @@
   }
 
   /**
-   * Metafields não vêm em /products/{handle}.js — buscamos um fragmento via Section Rendering.
+   * Metafields não vêm em /products/{handle}.js.
+   * Buscamos o HTML da página do template alternativo product.card-promo (?view=card-promo)
+   * e lemos o <script data-article-inline-promo-json> gerado pela section.
+   * (A Section Rendering API ?sections=... com view costuma ser instável; HTML completo é confiável.)
    */
-  function extractPromoFromSectionHtml(html) {
-    if (!html || typeof html !== "string") return null;
-    var doc = new DOMParser().parseFromString(html, "text/html");
-    var el = doc.querySelector("script[data-article-inline-promo-json]");
-    if (!el || el.textContent == null) return null;
+  function parsePromoJsonScript(inner) {
+    if (inner == null) return null;
     try {
-      var v = JSON.parse(el.textContent.trim());
+      var v = JSON.parse(String(inner).trim());
       if (v === null || v === undefined) return null;
       if (typeof v === "string" && v.trim()) return v.trim();
       return null;
@@ -57,15 +56,17 @@
     }
   }
 
-  function pickSectionHtmlFromResponse(data) {
-    if (!data || typeof data !== "object") return null;
-    if (typeof data[PROMO_SECTION_ID] === "string") return data[PROMO_SECTION_ID];
-    var keys = Object.keys(data);
-    for (var i = 0; i < keys.length; i++) {
-      var val = data[keys[i]];
-      if (typeof val === "string" && val.indexOf("data-article-inline-promo-json") !== -1) {
-        return val;
-      }
+  function extractPromoFromProductPromoPageHtml(html) {
+    if (!html || typeof html !== "string") return null;
+    var doc = new DOMParser().parseFromString(html, "text/html");
+    var el = doc.querySelector("script[data-article-inline-promo-json]");
+    if (el && el.textContent != null) {
+      var parsed = parsePromoJsonScript(el.textContent);
+      if (parsed) return parsed;
+    }
+    var m = html.match(/<script[^>]*\bdata-article-inline-promo-json\b[^>]*>([\s\S]*?)<\/script>/i);
+    if (m && m[1]) {
+      return parsePromoJsonScript(m[1]);
     }
     return null;
   }
@@ -77,27 +78,17 @@
       "products/" +
       encodeURIComponent(handle) +
       "?view=" +
-      encodeURIComponent(PROMO_VIEW) +
-      "&sections=" +
-      encodeURIComponent(PROMO_SECTION_ID);
+      encodeURIComponent(PROMO_VIEW);
     return fetch(url, {
       credentials: "same-origin",
-      headers: { Accept: "application/json", "X-Requested-With": "XMLHttpRequest" }
+      headers: { Accept: "text/html", "X-Requested-With": "XMLHttpRequest" }
     })
       .then(function (res) {
         if (!res.ok) return null;
         return res.text();
       })
-      .then(function (text) {
-        if (!text) return null;
-        var data;
-        try {
-          data = JSON.parse(text);
-        } catch (e) {
-          return null;
-        }
-        var html = pickSectionHtmlFromResponse(data);
-        return extractPromoFromSectionHtml(html);
+      .then(function (html) {
+        return extractPromoFromProductPromoPageHtml(html);
       })
       .catch(function () {
         return null;
