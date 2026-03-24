@@ -23,7 +23,7 @@
         '<div class="article-inline-card__membership-inner">' +
           '<div class="article-inline-card__membership-text">' +
             '<h3 class="article-inline-card__membership-headline">Love These Workouts?</h3>' +
-            '<p class="article-inline-card__membership-subhead">Become an AtivaPeople member and unlock 10% off &amp; pro workouts NOW!</p>' +
+            '<p class="article-inline-card__membership-subhead">Become an AtivaPeople member and unlock extra discount NOW!</p>' +
             '<a href="/pages/membership" class="article-inline-card__membership-cta">Join AtivaPeople Today</a>' +
           "</div>" +
           '<div class="article-inline-card__membership-benefits">' +
@@ -69,7 +69,7 @@
             '<p class="article-inline-card__product-title">' + product.title + "</p>" +
             (descRaw ? '<p class="article-inline-card__product-desc">' + descRaw + "</p>" : "") +
             '<p class="article-inline-card__product-price">' + priceHTML + "</p>" +
-            '<p class="article-inline-card__product-promo">Save extra 10% + get an extended warranty :)</p>' +
+            // '<p class="article-inline-card__product-promo">Save extra 10% + get an extended warranty :)</p>' +
             '<span class="article-inline-card__product-cta">View product</span>' +
           "</div>" +
         "</a>" +
