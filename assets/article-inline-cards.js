@@ -42,6 +42,34 @@
   /**
    * Metafields não vêm em /products/{handle}.js — buscamos um fragmento via Section Rendering.
    */
+  function extractPromoFromSectionHtml(html) {
+    if (!html || typeof html !== "string") return null;
+    var doc = new DOMParser().parseFromString(html, "text/html");
+    var el = doc.querySelector("script[data-article-inline-promo-json]");
+    if (!el || el.textContent == null) return null;
+    try {
+      var v = JSON.parse(el.textContent.trim());
+      if (v === null || v === undefined) return null;
+      if (typeof v === "string" && v.trim()) return v.trim();
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function pickSectionHtmlFromResponse(data) {
+    if (!data || typeof data !== "object") return null;
+    if (typeof data[PROMO_SECTION_ID] === "string") return data[PROMO_SECTION_ID];
+    var keys = Object.keys(data);
+    for (var i = 0; i < keys.length; i++) {
+      var val = data[keys[i]];
+      if (typeof val === "string" && val.indexOf("data-article-inline-promo-json") !== -1) {
+        return val;
+      }
+    }
+    return null;
+  }
+
   function fetchArticleInlinePromo(handle) {
     if (!handle) return Promise.resolve(null);
     var url =
@@ -52,25 +80,24 @@
       encodeURIComponent(PROMO_VIEW) +
       "&sections=" +
       encodeURIComponent(PROMO_SECTION_ID);
-    return fetch(url, { credentials: "same-origin", headers: { Accept: "application/json" } })
+    return fetch(url, {
+      credentials: "same-origin",
+      headers: { Accept: "application/json", "X-Requested-With": "XMLHttpRequest" }
+    })
       .then(function (res) {
         if (!res.ok) return null;
-        return res.json();
+        return res.text();
       })
-      .then(function (data) {
-        if (!data || typeof data[PROMO_SECTION_ID] !== "string") return null;
-        var html = data[PROMO_SECTION_ID];
-        var doc = new DOMParser().parseFromString(html, "text/html");
-        var el = doc.querySelector("script[data-article-inline-promo-json]");
-        if (!el || el.textContent == null) return null;
+      .then(function (text) {
+        if (!text) return null;
+        var data;
         try {
-          var v = JSON.parse(el.textContent.trim());
-          if (v === null || v === undefined) return null;
-          if (typeof v === "string" && v.trim()) return v.trim();
-          return null;
+          data = JSON.parse(text);
         } catch (e) {
           return null;
         }
+        var html = pickSectionHtmlFromResponse(data);
+        return extractPromoFromSectionHtml(html);
       })
       .catch(function () {
         return null;

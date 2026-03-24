@@ -10,12 +10,30 @@
   O arquivo assets/article-inline-cards.js lê esse JSON e monta .article-inline-card__product-promo.
 {% endcomment %}
 {% liquid
-  assign ns = section.settings.metafield_namespace | default: 'custom' | strip
+  assign ns = section.settings.metafield_namespace | default: 'custom' | strip | downcase
   assign ky = section.settings.metafield_key | default: 'article_inline_promo' | strip
-  assign mf = product.metafields[ns][ky]
   assign promo_value = nil
-  if mf != blank and mf.value != blank
-    assign promo_value = mf.value
+  comment
+    Acesso dinâmico product.metafields[ns][ky] é instável no Liquid.
+    Para custom.* use product.metafields.custom[chave].
+  endcomment
+  if ns == 'custom'
+    if ky == 'article_inline_promo'
+      assign promo_mf = product.metafields.custom.article_inline_promo
+      if promo_mf != blank and promo_mf.value != blank
+        assign promo_value = promo_mf.value
+      endif
+    else
+      assign promo_mf_other = product.metafields.custom[ky]
+      if promo_mf_other != blank and promo_mf_other.value != blank
+        assign promo_value = promo_mf_other.value
+      endif
+    endif
+  else
+    assign promo_mf_ns = product.metafields[ns][ky]
+    if promo_mf_ns != blank and promo_mf_ns.value != blank
+      assign promo_value = promo_mf_ns.value
+    endif
   endif
 %}
 <script type="application/json" data-article-inline-promo-json>
