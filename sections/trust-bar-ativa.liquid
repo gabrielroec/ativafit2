@@ -1,0 +1,153 @@
+{{ 'trust-bar-ativa.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'trust-bar-ativa.js' | asset_url }}" defer></script>
+
+{%- liquid
+  assign stagger = section.settings.stagger_ms | default: 90
+  assign border_custom = section.settings.border_color
+-%}
+
+<section
+  class="trust-bar-ativa"
+  style="
+    background-color: {{ section.settings.background_color }};
+    border-bottom-color: {{ border_custom | color_modify: 'alpha', 0.1 }};
+    --trust-bar-icon: {{ section.settings.icon_color }};
+    --trust-bar-text: {{ section.settings.text_color }};
+  "
+  data-trust-bar-ativa
+  aria-label="{{ section.settings.section_label | default: 'Benefícios e garantias' | escape }}"
+  {{ section.shopify_attributes }}>
+  <div class="trust-bar-ativa__inner">
+    {%- if section.blocks.size > 0 -%}
+      <ul class="trust-bar-ativa__grid" role="list">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'item' -%}
+            <li
+              class="trust-bar-ativa__item"
+              style="--trust-stagger: {{ forloop.index0 | times: stagger }}ms"
+              {{ block.shopify_attributes }}>
+              <span
+                class="material-symbols-outlined trust-bar-ativa__icon"
+                style="color: var(--trust-bar-icon);"
+                aria-hidden="true">{{ block.settings.icon | strip | escape }}</span>
+              <span class="trust-bar-ativa__text" style="color: var(--trust-bar-text);">{{ block.settings.text | escape }}</span>
+            </li>
+          {%- endif -%}
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Trust bar Ativa",
+  "tag": "section",
+  "class": "shopify-section-trust-bar-ativa",
+  "max_blocks": 8,
+  "settings": [
+    {
+      "type": "text",
+      "id": "section_label",
+      "label": "Nome da região (acessibilidade)",
+      "default": "Benefícios e garantias"
+    },
+    {
+      "type": "range",
+      "id": "stagger_ms",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "ms",
+      "label": "Atraso entre cada bloco (animação)",
+      "default": 90,
+      "info": "0 = todos ao mesmo tempo. Ignorado se o usuário preferir menos movimento."
+    },
+    {
+      "type": "header",
+      "content": "Cores"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Fundo",
+      "default": "#f3f3f3"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Cor base da borda inferior",
+      "default": "#dfc0b2",
+      "info": "A opacidade da linha é aplicada automaticamente (~10%)."
+    },
+    {
+      "type": "color",
+      "id": "icon_color",
+      "label": "Ícones",
+      "default": "#eb701f"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Texto",
+      "default": "#574237"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "icon",
+          "label": "Nome do ícone (Material Symbols)",
+          "default": "star",
+          "info": "Ex.: star, local_shipping, replay, verified. Lista em fonts.google.com/icons"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Texto",
+          "default": "4.9/5 from 2,000+ Reviews"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Trust bar Ativa",
+      "blocks": [
+        {
+          "type": "item",
+          "settings": {
+            "icon": "star",
+            "text": "4.9/5 from 2,000+ Reviews"
+          }
+        },
+        {
+          "type": "item",
+          "settings": {
+            "icon": "local_shipping",
+            "text": "Free Shipping within US"
+          }
+        },
+        {
+          "type": "item",
+          "settings": {
+            "icon": "replay",
+            "text": "30-Day Returns"
+          }
+        },
+        {
+          "type": "item",
+          "settings": {
+            "icon": "verified",
+            "text": "1-Year Warranty"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

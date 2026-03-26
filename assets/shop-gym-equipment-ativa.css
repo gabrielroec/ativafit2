@@ -1,0 +1,200 @@
+/**
+ * Shop Home Gym Equipment — grid de categorias com overlay em gradiente.
+ * Container: --ativa-section-container-max (1280px) em css-variables.liquid.
+ */
+
+.shop-gym-ativa {
+  --sg-gutter: clamp(1rem, 4vw, 1.5rem);
+  --sg-accent: #eb701f;
+  /* Aprox. GSAP expo.out / power3 — entrada suave ao soltar no fim */
+  --sg-ease-out: cubic-bezier(0.19, 1, 0.22, 1);
+  --sg-reveal-duration: 0.88s;
+  padding-block: clamp(3.5rem, 8vw, 6rem);
+}
+
+.shop-gym-ativa__inner {
+  width: 100%;
+  max-width: var(--ativa-section-container-max, 1280px);
+  margin-inline: auto;
+  padding-inline: var(--sg-gutter);
+}
+
+.shop-gym-ativa__heading {
+  margin: 0 0 clamp(2.5rem, 6vw, 4rem);
+  font-family: var(--font-ativa-headline-family), 'Space Grotesk', ui-sans-serif, system-ui, sans-serif !important;
+  font-weight: 900!important;
+  font-size: clamp(1.75rem, 4.5vw, 2.25rem)!important;
+  line-height: 1.1!important;
+  letter-spacing: -0.04em!important;
+  text-transform: uppercase!important;
+  text-align: center!important;
+  color: var(--sg-heading-color, #1a1c1c);
+}
+
+.shop-gym-ativa__reveal {
+  opacity: 0;
+  transform: translate3d(0, 1.75rem, 0);
+  transition:
+    opacity var(--sg-reveal-duration) var(--sg-ease-out),
+    transform var(--sg-reveal-duration) var(--sg-ease-out);
+  transition-delay: var(--sg-reveal-delay, 0ms);
+}
+
+.shop-gym-ativa--visible .shop-gym-ativa__reveal {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.shop-gym-ativa__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media screen and (min-width: 768px) {
+  .shop-gym-ativa__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .shop-gym-ativa__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.shop-gym-ativa__item {
+  margin: 0;
+}
+
+.shop-gym-ativa__card {
+  position: relative;
+  display: block;
+  height: 400px;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  background: var(--sg-card-bg, #eeeeee);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.08);
+  text-decoration: none;
+  color: inherit;
+}
+
+.shop-gym-ativa__card.shop-gym-ativa__reveal {
+  opacity: 0;
+  transform: translate3d(0, 2.25rem, 0);
+  transition:
+    opacity var(--sg-reveal-duration) var(--sg-ease-out),
+    transform var(--sg-reveal-duration) var(--sg-ease-out),
+    box-shadow 0.38s var(--sg-ease-out);
+  transition-delay: var(--sg-reveal-delay, 0ms);
+}
+
+.shop-gym-ativa--visible .shop-gym-ativa__card.shop-gym-ativa__reveal {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.shop-gym-ativa__card:hover,
+.shop-gym-ativa__card:focus-visible {
+  box-shadow: 0 20px 40px -12px rgb(0 0 0 / 0.22);
+}
+
+.shop-gym-ativa__card:focus-visible {
+  outline: 2px solid var(--sg-accent);
+  outline-offset: 3px;
+}
+
+.shop-gym-ativa__img,
+.shop-gym-ativa__card > svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.7s ease;
+}
+
+.shop-gym-ativa__card:hover .shop-gym-ativa__img,
+.shop-gym-ativa__card:focus-visible .shop-gym-ativa__img {
+  transform: scale(1.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shop-gym-ativa__reveal,
+  .shop-gym-ativa__card.shop-gym-ativa__reveal {
+    opacity: 1;
+    transform: none;
+    transition: box-shadow 0.2s ease;
+  }
+
+  .shop-gym-ativa__img {
+    transition: none;
+  }
+
+  .shop-gym-ativa__card:hover .shop-gym-ativa__img,
+  .shop-gym-ativa__card:focus-visible .shop-gym-ativa__img {
+    transform: none;
+  }
+
+  .shop-gym-ativa__cta-arrow {
+    transition: none;
+  }
+
+  .shop-gym-ativa__card:hover .shop-gym-ativa__cta-arrow,
+  .shop-gym-ativa__card:focus-visible .shop-gym-ativa__cta-arrow {
+    transform: none;
+  }
+}
+
+.shop-gym-ativa__gradient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to top, rgb(0 0 0 / 0.82) 0%, transparent 55%, transparent 100%);
+}
+
+.shop-gym-ativa__content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: clamp(1.25rem, 4vw, 2rem);
+  z-index: 1;
+}
+
+.shop-gym-ativa__card-title {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-ativa-headline-family), 'Space Grotesk', ui-sans-serif, system-ui, sans-serif !important;
+  font-weight: 700;
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.shop-gym-ativa__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-ativa-headline-family), 'Space Grotesk', ui-sans-serif, system-ui, sans-serif !important;
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: var(--sg-accent);
+}
+
+.shop-gym-ativa__cta-arrow.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined', sans-serif !important;
+  font-size: 1.125rem;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  line-height: 1;
+  transition: transform 0.3s ease;
+}
+
+.shop-gym-ativa__card:hover .shop-gym-ativa__cta-arrow,
+.shop-gym-ativa__card:focus-visible .shop-gym-ativa__cta-arrow {
+  transform: translateX(0.35rem);
+}

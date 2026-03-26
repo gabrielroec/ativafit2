@@ -1,0 +1,221 @@
+{{ 'shop-gym-equipment-ativa.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'shop-gym-equipment-ativa.js' | asset_url }}" defer></script>
+
+{%- liquid
+  assign stagger = section.settings.stagger_ms | default: 80
+-%}
+
+<section
+  class="shop-gym-ativa"
+  data-shop-gym-ativa
+  style="
+    --sg-heading-color: {{ section.settings.heading_color }};
+    --sg-card-bg: {{ section.settings.card_placeholder_bg }};
+    --sg-accent: {{ section.settings.accent_color }};
+  "
+  aria-label="{{ section.settings.section_a11y_label | default: 'Categorias de equipamentos' | escape }}"
+  {{ section.shopify_attributes }}>
+  <div class="shop-gym-ativa__inner">
+    {%- if section.settings.heading != blank -%}
+      <h2
+        class="shop-gym-ativa__heading shop-gym-ativa__reveal"
+        style="--sg-reveal-delay: 0ms">{{ section.settings.heading | escape }}</h2>
+    {%- endif -%}
+
+    {%- if section.blocks.size > 0 -%}
+      <ul class="shop-gym-ativa__grid" role="list">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'card' -%}
+            <li
+              class="shop-gym-ativa__item"
+              style="--sg-stagger: {{ forloop.index0 | plus: 1 | times: stagger }}ms"
+              {{ block.shopify_attributes }}>
+              {%- if block.settings.link != blank -%}
+                <a
+                  class="shop-gym-ativa__card shop-gym-ativa__reveal"
+                  style="--sg-reveal-delay: var(--sg-stagger, 0ms)"
+                  href="{{ block.settings.link }}">
+                  {%- if block.settings.image != blank -%}
+                    {{
+                      block.settings.image
+                      | image_url: width: 900
+                      | image_tag:
+                        class: 'shop-gym-ativa__img',
+                        widths: '375, 550, 700, 900',
+                        sizes: '(min-width: 990px) 25vw, (min-width: 768px) 50vw, 100vw',
+                        loading: 'lazy',
+                        alt: block.settings.image.alt | default: block.settings.title | escape
+                    }}
+                  {%- else -%}
+                    {{ 'lifestyle-1' | placeholder_svg_tag: 'shop-gym-ativa__img shop-gym-ativa__placeholder' }}
+                  {%- endif -%}
+
+                  <div class="shop-gym-ativa__gradient" aria-hidden="true"></div>
+
+                  <div class="shop-gym-ativa__content">
+                    {%- if block.settings.title != blank -%}
+                      <h3 class="shop-gym-ativa__card-title">{{ block.settings.title | escape }}</h3>
+                    {%- endif -%}
+                    <span class="shop-gym-ativa__cta">
+                      {{- block.settings.cta_label | default: 'View Gear' | escape -}}
+                      <span class="material-symbols-outlined shop-gym-ativa__cta-arrow" aria-hidden="true">arrow_forward</span>
+                    </span>
+                  </div>
+                </a>
+              {%- else -%}
+                <div
+                  class="shop-gym-ativa__card shop-gym-ativa__reveal"
+                  style="--sg-reveal-delay: var(--sg-stagger, 0ms)"
+                  role="group"
+                  aria-label="{{ block.settings.title | escape }}">
+                  {%- if block.settings.image != blank -%}
+                    {{
+                      block.settings.image
+                      | image_url: width: 900
+                      | image_tag:
+                        class: 'shop-gym-ativa__img',
+                        widths: '375, 550, 700, 900',
+                        sizes: '(min-width: 990px) 25vw, (min-width: 768px) 50vw, 100vw',
+                        loading: 'lazy',
+                        alt: block.settings.image.alt | default: block.settings.title | escape
+                    }}
+                  {%- else -%}
+                    {{ 'lifestyle-1' | placeholder_svg_tag: 'shop-gym-ativa__img shop-gym-ativa__placeholder' }}
+                  {%- endif -%}
+                  <div class="shop-gym-ativa__gradient" aria-hidden="true"></div>
+                  <div class="shop-gym-ativa__content">
+                    {%- if block.settings.title != blank -%}
+                      <h3 class="shop-gym-ativa__card-title">{{ block.settings.title | escape }}</h3>
+                    {%- endif -%}
+                    <span class="shop-gym-ativa__cta">
+                      {{- block.settings.cta_label | default: 'View Gear' | escape -}}
+                      <span class="material-symbols-outlined shop-gym-ativa__cta-arrow" aria-hidden="true">arrow_forward</span>
+                    </span>
+                  </div>
+                </div>
+              {%- endif -%}
+            </li>
+          {%- endif -%}
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Shop Home Gym Equipment",
+  "tag": "section",
+  "class": "shopify-section-shop-gym-equipment-ativa",
+  "max_blocks": 8,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Título da section",
+      "default": "Shop Home Gym Equipment"
+    },
+    {
+      "type": "text",
+      "id": "section_a11y_label",
+      "label": "Nome da região (acessibilidade)",
+      "default": "Categorias de equipamentos"
+    },
+    {
+      "type": "range",
+      "id": "stagger_ms",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "ms",
+      "label": "Atraso entre cada card (animação)",
+      "default": 80,
+      "info": "0 = todos juntos. Respeita “menos movimento” no sistema."
+    },
+    {
+      "type": "header",
+      "content": "Cores"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Cor do título",
+      "default": "#1a1c1c"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Cor do CTA / seta",
+      "default": "#eb701f"
+    },
+    {
+      "type": "color",
+      "id": "card_placeholder_bg",
+      "label": "Fundo do card (placeholder)",
+      "default": "#eeeeee"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "card",
+      "name": "Card de categoria",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Imagem"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Título",
+          "default": "Strength Training"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link do card",
+          "info": "Torna o card inteiro clicável."
+        },
+        {
+          "type": "text",
+          "id": "cta_label",
+          "label": "Texto do CTA",
+          "default": "View Gear"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Shop Home Gym Equipment",
+      "blocks": [
+        {
+          "type": "card",
+          "settings": {
+            "title": "Strength Training"
+          }
+        },
+        {
+          "type": "card",
+          "settings": {
+            "title": "Cardio Training"
+          }
+        },
+        {
+          "type": "card",
+          "settings": {
+            "title": "Flexibility Training"
+          }
+        },
+        {
+          "type": "card",
+          "settings": {
+            "title": "Family Fun"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

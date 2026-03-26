@@ -1,0 +1,288 @@
+{{ 'hero-ativa-home.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'hero-ativa-home.js' | asset_url }}" defer></script>
+
+{%- liquid
+  assign entrance_stagger = section.settings.entrance_stagger_ms | default: 90
+  assign bg = section.settings.background_image
+  assign media = section.settings.side_image
+  assign overlay_opacity = section.settings.overlay_opacity | divided_by: 100.0
+
+  assign button_primary_href = section.settings.button_primary_link
+  if button_primary_href == blank
+    assign button_primary_href = routes.all_products_collection_url
+  endif
+
+  assign button_secondary_href = section.settings.button_secondary_link
+  if button_secondary_href == blank
+    assign button_secondary_href = routes.root_url
+  endif
+
+  assign show_primary = false
+  assign show_secondary = false
+  if section.settings.button_primary_label != blank
+    assign show_primary = true
+  endif
+  if section.settings.button_secondary_label != blank
+    assign show_secondary = true
+  endif
+
+  assign side_alt = ''
+  if media != blank
+    assign side_alt = media.alt | strip
+  endif
+  if side_alt == blank and section.settings.subheading != blank
+    assign side_alt = section.settings.subheading | strip
+  endif
+  if side_alt == blank
+    assign side_alt = shop.name
+  endif
+  assign side_alt = side_alt | escape
+-%}
+
+<section
+  class="hero-ativa-home font-ativa-body"
+  data-hero-ativa-home
+  style="
+    --hero-ativa-overlay-opacity: {{ overlay_opacity }};
+    --hero-ativa-btn-primary-bg: {{ section.settings.primary_button_bg }};
+    --hero-ativa-btn-primary-text: {{ section.settings.primary_button_text }};
+    --hero-ativa-btn-secondary-text: {{ section.settings.secondary_button_text }};
+    --hero-ativa-btn-secondary-border: {{ section.settings.secondary_button_border }};
+  "
+  aria-label="{{ section.settings.section_a11y_label | escape }}"
+  {{ section.shopify_attributes }}>
+  <div class="hero-ativa-home__bg" aria-hidden="true">
+    {%- if bg != blank -%}
+      {{
+        bg
+        | image_url: width: 2400
+        | image_tag:
+          class: 'hero-ativa-home__bg-media',
+          widths: '375, 550, 750, 1100, 1500, 1920, 2400',
+          sizes: '100vw',
+          loading: 'eager',
+          fetchpriority: 'low',
+          alt: ''
+      }}
+    {%- else -%}
+      <div class="hero-ativa-home__bg-fallback">
+        {{ 'lifestyle-1' | placeholder_svg_tag: 'hero-ativa-home__bg-placeholder' }}
+      </div>
+    {%- endif -%}
+  </div>
+
+  <div class="hero-ativa-home__overlay" aria-hidden="true"></div>
+  <div
+    class="hero-ativa-home__noise"
+    aria-hidden="true"
+    {% unless section.settings.show_noise_overlay %}
+      hidden
+    {% endunless %}></div>
+
+  <div class="hero-ativa-home__inner">
+    <div class="hero-ativa-home__grid">
+      <div class="hero-ativa-home__content">
+        {%- if section.settings.heading != blank -%}
+          <h1
+            class="hero-ativa-home__title hero-ativa-home__entrance font-ativa-headline"
+            style="--hero-entrance-delay: 0ms">{{ section.settings.heading | newline_to_br }}</h1>
+        {%- else -%}
+          <h1
+            class="hero-ativa-home__title hero-ativa-home__entrance font-ativa-headline"
+            style="--hero-entrance-delay: 0ms">
+            START STRONG.<br>
+            BUILD YOUR HOME<br>
+            GYM YOUR WAY
+          </h1>
+        {%- endif -%}
+
+        {%- if section.settings.subheading != blank -%}
+          <p
+            class="hero-ativa-home__sub hero-ativa-home__entrance font-ativa-body"
+            style="--hero-entrance-delay: {{ entrance_stagger }}ms">{{ section.settings.subheading | escape }}</p>
+        {%- endif -%}
+
+        {%- if show_primary or show_secondary -%}
+          <div
+            class="hero-ativa-home__actions hero-ativa-home__entrance"
+            style="--hero-entrance-delay: {{ entrance_stagger | times: 2 }}ms">
+            {%- if show_primary -%}
+              <a
+                class="hero-ativa-home__btn hero-ativa-home__btn--primary font-ativa-headline"
+                href="{{ button_primary_href }}">
+                {{- section.settings.button_primary_label | escape -}}
+              </a>
+            {%- endif -%}
+            {%- if show_secondary -%}
+              <a
+                class="hero-ativa-home__btn hero-ativa-home__btn--secondary font-ativa-headline"
+                href="{{ button_secondary_href }}">
+                {{- section.settings.button_secondary_label | escape -}}
+              </a>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      </div>
+
+      <div
+        class="hero-ativa-home__media hero-ativa-home__entrance hero-ativa-home__entrance--media"
+        style="--hero-entrance-delay: {{ entrance_stagger | times: 3 }}ms">
+        <div class="hero-ativa-home__media-frame">
+          {%- if media != blank -%}
+            {{
+              media
+              | image_url: width: 1500
+              | image_tag:
+                class: 'hero-ativa-home__media-img',
+                widths: '400, 600, 800, 1000, 1200, 1500',
+                sizes: '(min-width: 900px) 36rem, 90vw',
+                loading: 'eager',
+                fetchpriority: 'high',
+                alt: side_alt
+            }}
+          {%- else -%}
+            {{ 'product-1' | placeholder_svg_tag: 'hero-ativa-home__media-img placeholder-svg' }}
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Hero Ativa Home",
+  "tag": "section",
+  "class": "shopify-section-hero-ativa-home",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Conteúdo"
+    },
+    {
+      "type": "textarea",
+      "id": "heading",
+      "label": "Título (H1)",
+      "default": "START STRONG.\nBUILD YOUR HOME\nGYM YOUR WAY",
+      "info": "Use uma linha nova para cada quebra de linha."
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Texto de apoio",
+      "default": "Strength, cardio, and full-body training — all from one space-saving system."
+    },
+    {
+      "type": "text",
+      "id": "section_a11y_label",
+      "label": "Nome da região (acessibilidade)",
+      "default": "Destaque principal",
+      "info": "Leitores de tela usam para identificar o bloco."
+    },
+    {
+      "type": "header",
+      "content": "Botões"
+    },
+    {
+      "type": "text",
+      "id": "button_primary_label",
+      "label": "Texto — botão principal",
+      "default": "SHOP DUMBBELLS"
+    },
+    {
+      "type": "url",
+      "id": "button_primary_link",
+      "label": "Link — botão principal",
+      "info": "Se vazio, usa a coleção de todos os produtos."
+    },
+    {
+      "type": "text",
+      "id": "button_secondary_label",
+      "label": "Texto — botão secundário",
+      "default": "EXPLORE HOME GYM SETUP"
+    },
+    {
+      "type": "url",
+      "id": "button_secondary_link",
+      "label": "Link — botão secundário",
+      "info": "Se vazio, usa a página inicial."
+    },
+    {
+      "type": "header",
+      "content": "Imagens"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Imagem de fundo (full width)",
+      "info": "Enquanto vazio, aparece o placeholder nativo Shopify em tom neutro."
+    },
+    {
+      "type": "image_picker",
+      "id": "side_image",
+      "label": "Imagem à direita (destaque)",
+      "info": "Enquanto vazio, usa o placeholder de produto. Defina texto alternativo na mídia para SEO."
+    },
+    {
+      "type": "header",
+      "content": "Visual"
+    },
+    {
+      "type": "range",
+      "id": "entrance_stagger_ms",
+      "min": 40,
+      "max": 200,
+      "step": 10,
+      "unit": "ms",
+      "label": "Animação — intervalo entre cada elemento",
+      "default": 90,
+      "info": "Título primeiro, depois texto, botões e imagem. Ignorado com “menos movimento” no sistema."
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 0,
+      "max": 85,
+      "step": 5,
+      "unit": "%",
+      "label": "Escurecimento do fundo",
+      "default": 35
+    },
+    {
+      "type": "checkbox",
+      "id": "show_noise_overlay",
+      "label": "Textura leve no fundo (CSS)",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "primary_button_bg",
+      "label": "Fundo — botão principal",
+      "default": "#EB701F"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_text",
+      "label": "Texto — botão principal",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_text",
+      "label": "Texto — botão secundário",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_border",
+      "label": "Borda — botão secundário",
+      "default": "#FFFFFF"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero Ativa Home"
+    }
+  ]
+}
+{% endschema %}
