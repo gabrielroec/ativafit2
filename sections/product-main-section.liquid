@@ -787,8 +787,20 @@
           // Only show buy it now if variant is available
           if (buyItNowBtn && {{ section.settings.show_buy_it_now | json }} && isVariantAvailable) {
             buyItNowBtn.style.display = '';
-          } else if (buyItNowBtn) {
+          } else           if (buyItNowBtn) {
             buyItNowBtn.style.display = 'none';
+          }
+        }
+
+        const stickyAtc = document.querySelector('#sticky-add-to-cart .sticky-add-to-cart-button');
+        if (stickyAtc) {
+          const inStockLabel = stickyAtc.getAttribute('data-in-stock-label') || 'Add to Cart';
+          if (isVariantAvailable) {
+            stickyAtc.disabled = false;
+            stickyAtc.textContent = inStockLabel;
+          } else {
+            stickyAtc.disabled = true;
+            stickyAtc.textContent = 'Sold Out';
           }
         }
       },
@@ -911,6 +923,22 @@
         const paymentTerms = document.querySelector('shopify-payment-terms');
         if (paymentTerms && variant.id) {
           paymentTerms.setAttribute('variant-id', variant.id);
+        }
+
+        // Sticky add-to-cart bar (outra section): mesmo preço da variante que o PDP
+        const stickyCurrent = document.querySelector('#sticky-add-to-cart .sticky-bar-price-current');
+        const stickyCompareWrap = document.querySelector('#sticky-add-to-cart .sticky-bar-price-compare-wrap');
+        const stickyCompare = document.querySelector('#sticky-add-to-cart .sticky-bar-price-compare');
+        if (stickyCurrent) {
+          stickyCurrent.textContent = formatMoney(variant.price);
+        }
+        if (stickyCompare && stickyCompareWrap) {
+          if (variant.compare_at_price && variant.compare_at_price > variant.price) {
+            stickyCompare.textContent = formatMoney(variant.compare_at_price);
+            stickyCompareWrap.style.display = '';
+          } else {
+            stickyCompareWrap.style.display = 'none';
+          }
         }
       },
       
@@ -1487,10 +1515,11 @@
         }
       }
       
-      // If no desktop selector, initialize buttons with first available variant
+      // If no desktop selector, initialize buttons (e preço sticky) com primeira variante disponível
       if (!variantSelectorDesktop && ProductVariants.variants.length > 0) {
         const firstVariant = ProductVariants.variants.find(v => v.available) || ProductVariants.variants[0];
         if (firstVariant) {
+          ProductVariants.updatePrice(firstVariant);
           ProductVariants.updateButtonsForVariant(firstVariant);
         }
       }
