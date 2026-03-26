@@ -23,9 +23,11 @@
   assign show_color_swatch = section.settings.show_filter_color_swatch
   assign facet_default = section.settings.facet_groups_default | default: 'first_open'
 
-  assign on_all_collection = false
-  if collection != blank and collection.handle == 'all'
-    assign on_all_collection = true
+  assign show_collection_filters_ui = false
+  if collection != blank
+    if collection.handle == 'all' or collection.handle == 'deals'
+      assign show_collection_filters_ui = true
+    endif
   endif
 
   assign show_toolbar_prefs = false
@@ -53,7 +55,7 @@
   endif
 -%}
 
-{%- if on_all_collection -%}
+{%- if show_collection_filters_ui -%}
   {{ 'collection-filters.css' | asset_url | stylesheet_tag }}
   <script src="{{ 'collection-filters.js' | asset_url }}" defer></script>
 {%- endif -%}
@@ -64,8 +66,8 @@
       {%- paginate collection_to_show.products by section.settings.products_per_page -%}
         <div class="collection-grid-simple__container">
 
-          {%- comment -%} Toolbar (somente /collections/all) {%- endcomment -%}
-          {%- if on_all_collection and show_toolbar_prefs -%}
+          {%- comment -%} Toolbar: /collections/all e /collections/deals {%- endcomment -%}
+          {%- if show_collection_filters_ui and show_toolbar_prefs -%}
             <div class="cf-toolbar">
               {%- if show_search -%}
                 <div class="cf-search">
@@ -115,20 +117,20 @@
           {%- endif -%}
 
           {%- comment -%} Active filter pills (native) {%- endcomment -%}
-          {%- if on_all_collection and show_filters and has_native_filters -%}
+          {%- if show_collection_filters_ui and show_filters and has_native_filters -%}
             {%- render 'collection-active-filters', collection: collection_to_show -%}
           {%- endif -%}
 
           {%- comment -%} JS active pills (when no native filters) {%- endcomment -%}
-          {%- if on_all_collection and show_filters and has_native_filters == false -%}
+          {%- if show_collection_filters_ui and show_filters and has_native_filters == false -%}
             <div class="cf-active-filters" data-js-active-filters style="display:none;"></div>
           {%- endif -%}
 
           {%- comment -%} Two-column layout: sidebar + grid {%- endcomment -%}
-          <div class="cf-layout{% unless on_all_collection and show_filters %} cf-layout--no-filters{% endunless %}">
+          <div class="cf-layout{% unless show_collection_filters_ui and show_filters %} cf-layout--no-filters{% endunless %}">
 
-            {%- comment -%} Sidebar (somente /collections/all) {%- endcomment -%}
-            {%- if on_all_collection and show_filters -%}
+            {%- comment -%} Sidebar: /collections/all e /collections/deals {%- endcomment -%}
+            {%- if show_collection_filters_ui and show_filters -%}
               <aside class="cf-sidebar" aria-label="Collection filters">
                 {%- if has_native_filters -%}
                   {%- render 'collection-filters',
@@ -230,8 +232,8 @@
       </div>
     {%- endif -%}
 
-    {%- comment -%} Mobile filter drawer — somente /collections/all {%- endcomment -%}
-    {%- if on_all_collection and show_filters and has_collection -%}
+    {%- comment -%} Mobile filter drawer: /collections/all e /collections/deals {%- endcomment -%}
+    {%- if show_collection_filters_ui and show_filters and has_collection -%}
       <div class="cf-drawer-overlay" data-filter-drawer-overlay></div>
       <div class="cf-drawer" data-filter-drawer aria-label="Filters" role="dialog" aria-modal="true">
         <div class="cf-drawer__header">
