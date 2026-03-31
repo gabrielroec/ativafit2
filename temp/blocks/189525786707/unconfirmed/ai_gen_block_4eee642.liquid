@@ -1,6 +1,539 @@
+{% doc %}
+  @prompt
+    Create a website section design with the following specifications:
+    
+    1. Layout:
+       - Full-width bottom image (hero-style) as background.
+       - Right-side floating panel overlaying the image (Desktop).
+       - Mobile version: floating panel stretches across the bottom, stacked vertically.
+    
+    2. Desktop panel:
+       - Position: right side, middle-lower or bottom-right corner.
+       - Width: ~30-40% of the image width.
+       - Height: ~40-60% of the image height.
+       - Background: semi-transparent dark color (50-70% opacity), subtle rounded corners (6-12px), soft shadow.
+       - Content (top to bottom):
+         * Headline (large, bold)
+         * Subheadline (smaller, descriptive)
+         * CTA button (high contrast color)
+         * Optional small note under the button (like “Save up to $XX”)
+    
+    3. Mobile panel:
+       - Stretches full width at the bottom.
+       - Vertical stack: Headline → Subheadline → CTA button → optional small note.
+       - Background: semi-transparent dark overlay on bottom 40-50% of image.
+       - Edge padding: 16-20px.
+    
+    4. CTA button:
+       - Desktop: 44-50px high; Mobile: 48-60px high.
+       - Bright color for high contrast.
+       - Interactive: hover slightly enlarges and adds shadow, click press effect.
+       - Text: short, action-oriented (e.g., “Shop Now” or “Learn More”).
+    
+    5. General style:
+       - Modern, clean, visually balanced.
+       - Ensure image main content is not blocked by the floating panel.
+       - Semi-transparent panel creates a floating effect while keeping background visible.
+    
+    6. Deliver:
+       - Show both Desktop and Mobile views side by side.
+       - Clearly indicate the floating panel’s size, placement, and hierarchy of text and buttons.
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-hero-floating-panel-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    display: block;
+  }
+
+  .ai-hero-floating-panel__image-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border-radius: {{ block.settings.image_border_radius }}px;
+  }
+
+  .ai-hero-floating-panel__image-{{ ai_gen_id }} {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .ai-hero-floating-panel__placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    min-height: 500px;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .ai-hero-floating-panel__placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    max-width: 800px;
+    max-height: 500px;
+  }
+
+  .ai-hero-floating-panel__empty-state-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 20px;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .ai-hero-floating-panel__panel-{{ ai_gen_id }} {
+    position: absolute;
+    background-color: {{ block.settings.panel_background_color }};
+    border-radius: {{ block.settings.panel_border_radius }}px;
+    padding: {{ block.settings.panel_padding_mobile }}px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    z-index: 2;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-hero-floating-panel__panel-{{ ai_gen_id }} {
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      border-bottom-left-radius: {{ block.settings.image_border_radius }}px;
+      border-bottom-right-radius: {{ block.settings.image_border_radius }}px;
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+    }
+  }
+
+  @media screen and (min-width: 750px) {
+    .ai-hero-floating-panel__panel-{{ ai_gen_id }} {
+      width: {{ block.settings.panel_width_desktop }}%;
+      padding: {{ block.settings.panel_padding_desktop }}px;
+      {% if block.settings.panel_position == 'bottom-right' %}
+        bottom: {{ block.settings.panel_offset_vertical }}px;
+        right: {{ block.settings.panel_offset_horizontal }}px;
+      {% elsif block.settings.panel_position == 'middle-right' %}
+        top: 50%;
+        transform: translateY(-50%);
+        right: {{ block.settings.panel_offset_horizontal }}px;
+      {% elsif block.settings.panel_position == 'bottom-left' %}
+        bottom: {{ block.settings.panel_offset_vertical }}px;
+        left: {{ block.settings.panel_offset_horizontal }}px;
+      {% elsif block.settings.panel_position == 'middle-left' %}
+        top: 50%;
+        transform: translateY(-50%);
+        left: {{ block.settings.panel_offset_horizontal }}px;
+      {% endif %}
+    }
+  }
+
+  .ai-hero-floating-panel__headline-{{ ai_gen_id }} {
+    margin: 0;
+    font-size: {{ block.settings.headline_size_mobile }}px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: {{ block.settings.headline_color }};
+  }
+
+  @media screen and (min-width: 750px) {
+    .ai-hero-floating-panel__headline-{{ ai_gen_id }} {
+      font-size: {{ block.settings.headline_size_desktop }}px;
+    }
+  }
+
+  .ai-hero-floating-panel__subheadline-{{ ai_gen_id }} {
+    margin: 0;
+    font-size: {{ block.settings.subheadline_size_mobile }}px;
+    line-height: 1.4;
+    color: {{ block.settings.subheadline_color }};
+  }
+
+  @media screen and (min-width: 750px) {
+    .ai-hero-floating-panel__subheadline-{{ ai_gen_id }} {
+      font-size: {{ block.settings.subheadline_size_desktop }}px;
+    }
+  }
+
+  .ai-hero-floating-panel__button-{{ ai_gen_id }} {
+    display: inline-block;
+    padding: 14px 32px;
+    background-color: {{ block.settings.button_background_color }};
+    color: {{ block.settings.button_text_color }};
+    text-decoration: none;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    font-size: {{ block.settings.button_font_size }}px;
+    font-weight: 600;
+    text-align: center;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 48px;
+    line-height: 1.2;
+  }
+
+  .ai-hero-floating-panel__button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.button_hover_color }};
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .ai-hero-floating-panel__button-{{ ai_gen_id }}:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  }
+
+  @media screen and (min-width: 750px) {
+    .ai-hero-floating-panel__button-{{ ai_gen_id }} {
+      min-height: 50px;
+    }
+  }
+
+  .ai-hero-floating-panel__note-{{ ai_gen_id }} {
+    margin: 0;
+    font-size: {{ block.settings.note_size }}px;
+    color: {{ block.settings.note_color }};
+    text-align: center;
+  }
+{% endstyle %}
+
+<div class="ai-hero-floating-panel-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-hero-floating-panel__image-wrapper-{{ ai_gen_id }}">
+    {% if block.settings.hero_image %}
+      <img
+        src="{{ block.settings.hero_image | image_url: width: 2000 }}"
+        alt="{{ block.settings.hero_image.alt | escape }}"
+        loading="lazy"
+        width="{{ block.settings.hero_image.width }}"
+        height="{{ block.settings.hero_image.height }}"
+        class="ai-hero-floating-panel__image-{{ ai_gen_id }}"
+      >
+    {% else %}
+      <div class="ai-hero-floating-panel__placeholder-{{ ai_gen_id }}">
+        {{ 'hero-apparel-1' | placeholder_svg_tag }}
+        <div class="ai-hero-floating-panel__empty-state-{{ ai_gen_id }}">
+          Add a hero image to get started
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="ai-hero-floating-panel__panel-{{ ai_gen_id }}">
+      {% if block.settings.headline != blank %}
+        <h2 class="ai-hero-floating-panel__headline-{{ ai_gen_id }}">
+          {{ block.settings.headline }}
+        </h2>
+      {% endif %}
+
+      {% if block.settings.subheadline != blank %}
+        <p class="ai-hero-floating-panel__subheadline-{{ ai_gen_id }}">
+          {{ block.settings.subheadline }}
+        </p>
+      {% endif %}
+
+      {% if block.settings.button_text != blank %}
+        <a
+          href="{{ block.settings.button_link }}"
+          class="ai-hero-floating-panel__button-{{ ai_gen_id }}"
+        >
+          {{ block.settings.button_text }}
+        </a>
+      {% endif %}
+
+      {% if block.settings.note_text != blank %}
+        <p class="ai-hero-floating-panel__note-{{ ai_gen_id }}">
+          {{ block.settings.note_text }}
+        </p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Hero with floating panel",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "Hero image"
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "label": "Image border radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Panel layout"
+    },
+    {
+      "type": "select",
+      "id": "panel_position",
+      "label": "Panel position (Desktop)",
+      "options": [
+        {
+          "value": "bottom-right",
+          "label": "Bottom right"
+        },
+        {
+          "value": "middle-right",
+          "label": "Middle right"
+        },
+        {
+          "value": "bottom-left",
+          "label": "Bottom left"
+        },
+        {
+          "value": "middle-left",
+          "label": "Middle left"
+        }
+      ],
+      "default": "bottom-right"
+    },
+    {
+      "type": "range",
+      "id": "panel_width_desktop",
+      "label": "Panel width (Desktop)",
+      "min": 25,
+      "max": 50,
+      "step": 5,
+      "unit": "%",
+      "default": 35
+    },
+    {
+      "type": "range",
+      "id": "panel_offset_horizontal",
+      "label": "Horizontal offset",
+      "min": 20,
+      "max": 100,
+      "step": 10,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "panel_offset_vertical",
+      "label": "Vertical offset",
+      "min": 20,
+      "max": 100,
+      "step": 10,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Panel style"
+    },
+    {
+      "type": "color",
+      "id": "panel_background_color",
+      "label": "Background color",
+      "default": "rgba(34, 32, 33, 0.85)"
+    },
+    {
+      "type": "range",
+      "id": "panel_border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "panel_padding_desktop",
+      "label": "Padding (Desktop)",
+      "min": 20,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "panel_padding_mobile",
+      "label": "Padding (Mobile)",
+      "min": 16,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Headline"
+    },
+    {
+      "type": "text",
+      "id": "headline",
+      "label": "Headline text",
+      "default": "Limited Time Offer"
+    },
+    {
+      "type": "color",
+      "id": "headline_color",
+      "label": "Headline color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "headline_size_desktop",
+      "label": "Size (Desktop)",
+      "min": 24,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "headline_size_mobile",
+      "label": "Size (Mobile)",
+      "min": 20,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 28
+    },
+    {
+      "type": "header",
+      "content": "Subheadline"
+    },
+    {
+      "type": "textarea",
+      "id": "subheadline",
+      "label": "Subheadline text",
+      "default": "Get premium fitness equipment at unbeatable prices. Shop now and transform your home gym."
+    },
+    {
+      "type": "color",
+      "id": "subheadline_color",
+      "label": "Subheadline color",
+      "default": "#e8e8e8"
+    },
+    {
+      "type": "range",
+      "id": "subheadline_size_desktop",
+      "label": "Size (Desktop)",
+      "min": 14,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "subheadline_size_mobile",
+      "label": "Size (Mobile)",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "Shop Now"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "color",
+      "id": "button_background_color",
+      "label": "Background color",
+      "default": "#eb7122"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_color",
+      "label": "Hover background color",
+      "default": "#d66420"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "button_font_size",
+      "label": "Font size",
+      "min": 14,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "Optional note"
+    },
+    {
+      "type": "text",
+      "id": "note_text",
+      "label": "Note text",
+      "default": "Save up to $100 on select items"
+    },
+    {
+      "type": "color",
+      "id": "note_color",
+      "label": "Note color",
+      "default": "#e8e8e8"
+    },
+    {
+      "type": "range",
+      "id": "note_size",
+      "label": "Font size",
+      "min": 11,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "default": 13
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero with floating panel"
+    }
+  ]
+}
 {% endschema %}
