@@ -1,0 +1,729 @@
+{%- liquid
+  assign sm_id = 'bundle-summary-' | append: section.id
+  assign checkout_href = section.settings.checkout_url
+  if checkout_href == blank
+    assign checkout_href = '/checkout'
+  endif
+-%}
+
+<aside
+  id="{{ sm_id }}"
+  class="bundle-configuration-sidebar"
+  data-bundle-summary-root
+  data-section-type="bundle-configuration-sidebar"
+  aria-label="{{ section.settings.sidebar_a11y_label | escape }}"
+  {{ section.shopify_attributes }}>
+  <div class="bundle-configuration-sidebar__panel">
+    <h2 class="bundle-configuration-sidebar__title">
+      <span class="bundle-configuration-sidebar__title-bar" aria-hidden="true"></span>
+      <span class="bundle-configuration-sidebar__title-text">{{ section.settings.heading | escape }}</span>
+    </h2>
+
+    <ul class="bundle-configuration-sidebar__lines">
+      <li
+        class="bundle-summary__line bundle-summary__line--empty"
+        data-summary-line="1"
+        data-empty-title="{{ section.settings.empty_line_label | escape }}">
+        <span class="bundle-summary__icon material-symbols-outlined" data-summary-line-icon aria-hidden="true">more_horiz</span>
+        <div class="bundle-summary__line-body">
+          <span class="bundle-summary__line-title" data-summary-line-title>—</span>
+          <span class="bundle-summary__line-cat" data-summary-line-cat></span>
+        </div>
+        <span class="bundle-summary__line-price" data-summary-line-price>—</span>
+      </li>
+      <li
+        class="bundle-summary__line bundle-summary__line--empty"
+        data-summary-line="2"
+        data-empty-title="{{ section.settings.empty_line_label | escape }}">
+        <span class="bundle-summary__icon material-symbols-outlined" data-summary-line-icon aria-hidden="true">more_horiz</span>
+        <div class="bundle-summary__line-body">
+          <span class="bundle-summary__line-title" data-summary-line-title>—</span>
+          <span class="bundle-summary__line-cat" data-summary-line-cat></span>
+        </div>
+        <span class="bundle-summary__line-price" data-summary-line-price>—</span>
+      </li>
+      <li
+        class="bundle-summary__line bundle-summary__line--empty"
+        data-summary-line="3"
+        data-empty-title="{{ section.settings.empty_line_label | escape }}">
+        <span class="bundle-summary__icon material-symbols-outlined" data-summary-line-icon aria-hidden="true">more_horiz</span>
+        <div class="bundle-summary__line-body">
+          <span class="bundle-summary__line-title" data-summary-line-title>—</span>
+          <span class="bundle-summary__line-cat" data-summary-line-cat></span>
+        </div>
+        <span class="bundle-summary__line-price" data-summary-line-price>—</span>
+      </li>
+    </ul>
+
+    <div class="bundle-configuration-sidebar__discount">
+      <p class="bundle-configuration-sidebar__discount-label">{{ section.settings.discount_heading | escape }}</p>
+      <p class="bundle-configuration-sidebar__discount-amount" data-summary-savings-amount>-$0.00</p>
+      {%- if section.settings.discount_footer != blank -%}
+        <div class="bundle-configuration-sidebar__discount-rule"></div>
+        <p class="bundle-configuration-sidebar__discount-foot">{{ section.settings.discount_footer | escape }}</p>
+      {%- endif -%}
+    </div>
+
+    <div class="bundle-configuration-sidebar__total">
+      <span class="bundle-configuration-sidebar__total-label">{{ section.settings.total_label | escape }}</span>
+      <span class="bundle-configuration-sidebar__total-value">
+        <span class="bundle-configuration-sidebar__total-bucks" data-summary-total-bucks>$0</span><span class="bundle-configuration-sidebar__total-sub" data-summary-total-sub></span>
+      </span>
+    </div>
+
+    <button
+      type="button"
+      class="bundle-configuration-sidebar__checkout"
+      data-bundle-checkout
+      data-checkout-url="{{ checkout_href }}"
+      data-alert-incomplete="{{ section.settings.checkout_alert | escape }}">
+      {{ section.settings.checkout_label | escape }}
+    </button>
+
+    <div class="bundle-configuration-sidebar__trust">
+      <div class="bundle-configuration-sidebar__trust-item">
+        <span class="material-symbols-outlined bundle-configuration-sidebar__trust-icon" aria-hidden="true">{{ section.settings.trust_1_icon | escape }}</span>
+        <span class="bundle-configuration-sidebar__trust-text">{{ section.settings.trust_1_text | escape }}</span>
+      </div>
+      <div class="bundle-configuration-sidebar__trust-item">
+        <span class="material-symbols-outlined bundle-configuration-sidebar__trust-icon" aria-hidden="true">{{ section.settings.trust_2_icon | escape }}</span>
+        <span class="bundle-configuration-sidebar__trust-text">{{ section.settings.trust_2_text | escape }}</span>
+      </div>
+      <div class="bundle-configuration-sidebar__trust-item">
+        <span class="material-symbols-outlined bundle-configuration-sidebar__trust-icon" aria-hidden="true">{{ section.settings.trust_3_icon | escape }}</span>
+        <span class="bundle-configuration-sidebar__trust-text">{{ section.settings.trust_3_text | escape }}</span>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<script src="{{ 'bundle-page-summary.js' | asset_url }}" defer></script>
+
+<style>
+  #{{ sm_id }}.bundle-configuration-sidebar {
+    --bcs-accent: {{ section.settings.accent_color }};
+    --bcs-panel-bg: {{ section.settings.panel_bg }};
+    --bcs-shadow: {{ section.settings.panel_shadow }};
+  }
+
+  @media screen and (min-width: 1100px) {
+    body.bundle-page--has-summary #main {
+      padding-right: {{ section.settings.main_offset_desktop }}px;
+    }
+  }
+
+  @media screen and (min-width: 1100px) {
+    #{{ sm_id }}.bundle-configuration-sidebar {
+      position: fixed;
+      top: {{ section.settings.fixed_top }}px;
+      right: {{ section.settings.fixed_right }}px;
+      width: {{ section.settings.panel_width }}px;
+      max-height: calc(100vh - {{ section.settings.fixed_top | plus: 24 }}px);
+      overflow-y: auto;
+      z-index: 25;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+
+  @media screen and (max-width: 1099px) {
+    body.bundle-page--has-summary #main {
+      padding-right: 0 !important;
+    }
+
+    #{{ sm_id }}.bundle-configuration-sidebar {
+      position: relative;
+      width: 100%;
+      max-width: 40rem;
+      margin: 0 auto {{ section.settings.mobile_margin_bottom }}px;
+      z-index: 1;
+    }
+  }
+
+  #{{ sm_id }} .bundle-configuration-sidebar__panel {
+    background: var(--bcs-panel-bg);
+    border-radius: {{ section.settings.panel_radius }}px;
+    padding: {{ section.settings.panel_padding }}px;
+    box-shadow: var(--bcs-shadow);
+    border: 1px solid {{ section.settings.panel_border }};
+  }
+
+  #{{ sm_id }} .bundle-configuration-sidebar__title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 {{ section.settings.title_margin_bottom }}px !important;
+    font-family: var(--heading-font-family) !important;
+    font-size: {{ section.settings.title_size }}px !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.04em !important;
+    text-transform: uppercase !important;
+    color: #000000 !important;
+    line-height: 1.2 !important;
+  }
+
+  #{{ sm_id }} .bundle-configuration-sidebar__title-bar {
+    width: 4px;
+    height: 1.25em;
+    border-radius: 2px;
+    background: var(--bcs-accent);
+    flex-shrink: 0;
+  }
+
+  #{{ sm_id }} .bundle-configuration-sidebar__lines {
+    list-style: none;
+    margin: 0 0 {{ section.settings.lines_margin_bottom }}px;
+    padding: 0;
+  }
+
+  #{{ sm_id }} .bundle-summary__line {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid #eeeeee;
+  }
+
+  #{{ sm_id }} .bundle-summary__line:last-of-type {
+    border-bottom: none;
+  }
+
+  #{{ sm_id }} .bundle-summary__icon.material-symbols-outlined {
+    font-family: 'Material Symbols Outlined', sans-serif !important;
+    font-size: 22px !important;
+    width: 28px;
+    text-align: center;
+    color: var(--bcs-accent) !important;
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24 !important;
+    flex-shrink: 0;
+    line-height: 1.2 !important;
+  }
+
+  #{{ sm_id }} .bundle-summary__icon--muted {
+    color: #bbbbbb !important;
+  }
+
+  #{{ sm_id }} .bundle-summary__line-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  #{{ sm_id }} .bundle-summary__line-title {
+    display: block;
+    font-family: var(--heading-font-family) !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: #000000 !important;
+    line-height: 1.3 !important;
+  }
+
+  #{{ sm_id }} .bundle-summary__line--empty .bundle-summary__line-title {
+    color: #999999 !important;
+    font-weight: 600 !important;
+  }
+
+  #{{ sm_id }} .bundle-summary__line-cat {
+    display: block;
+    font-family: var(--text-font-family) !important;
+    font-size: 11px !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+    color: #888888 !important;
+    margin-top: 4px !important;
+    line-height: 1.3 !important;
+  }
+
+  #{{ sm_id }} .bundle-summary__line-price {
+    font-family: var(--heading-font-family) !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: #000000 !important;
+    flex-shrink: 0;
+    line-height: 1.3 !important;
+  }
+
+  #{{ sm_id }} .bundle-summary__line--empty .bundle-summary__line-price {
+    color: #aaaaaa !important;
+  }
+
+  #{{ sm_id }} .bundle-configuration-sidebar__discount {
+    background: {{ section.settings.discount_box_bg }};
+    border-radius: {{ section.settings.discount_box_radius }}px;
+    padding: 16px 18px;
+    margin-bottom: {{ section.settings.discount_margin_bottom }}px;
+  }
+
+  #{{ sm_id }} .bundle-configuration-sidebar__discount-label {
+    font-family: var(--heading-font-family) !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.1em !important;
+    text-transform: uppercase !important;
+    color: var(--bcs-accent) !important;
+    margin: 0 0 6px !important;
+  }
+
+  #{{ sm_id }} .bundle-configuration-sidebar__discount-amount {
+    font-family: var(--heading-font-family) !important;
+    font-size: {{ section.settings.discount_amount_size }}px !important;
+    font-weight: 800 !important;
+    color: var(--bcs-accent) !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+  }
+
+  #{{ sm_id }} .bundle-configuration-sidebar__discount-rule {
+    height: 1px;
+    background: #e0e0e0;
+    margin: 12px 0 10px;
+  }
+
+  #{{ sm_id }} .bundle-configuration-sidebar__discount-foot {
+    font-family: var(--text-font-family) !important;
+    font-size: 10px !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+    color: #888888 !important;
+    margin: 0 !important;
+    line-height: 1.4 !important;
+  }
+
+  #{{ sm_id }} .bundle-configuration-sidebar__total {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: {{ section.settings.total_margin_bottom }}px;
+  }
+
+  #{{ sm_id }} .bundle-configuration-sidebar__total-label {
+    font-family: var(--heading-font-family) !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    color: #000000 !important;
+  }
+
+  #{{ sm_id }} .bundle-configuration-sidebar__total-value {
+    text-align: right;
+    line-height: 1;
+  }
+
+  #{{ sm_id }} .bundle-configuration-sidebar__total-bucks {
+    font-family: var(--heading-font-family) !important;
+    font-size: {{ section.settings.total_bucks_size }}px !important;
+    font-weight: 900 !important;
+    color: #000000 !important;
+  }
+
+  #{{ sm_id }} .bundle-configuration-sidebar__total-sub {
+    font-family: var(--heading-font-family) !important;
+    font-size: {{ section.settings.total_sub_size }}px !important;
+    font-weight: 800 !important;
+    color: #000000 !important;
+    vertical-align: 0.35em;
+    margin-left: 1px;
+  }
+
+  #{{ sm_id }} .bundle-configuration-sidebar__checkout {
+    width: 100%;
+    display: block;
+    font-family: var(--heading-font-family) !important;
+    font-size: {{ section.settings.checkout_font_size }}px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    color: #ffffff !important;
+    background: var(--bcs-accent) !important;
+    border: none;
+    border-radius: {{ section.settings.checkout_radius }}px;
+    padding: 16px 20px;
+    cursor: pointer;
+    margin-bottom: {{ section.settings.checkout_margin_bottom }}px;
+    box-shadow: 0 4px 16px rgba(235, 112, 31, 0.35);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  #{{ sm_id }} .bundle-configuration-sidebar__checkout:hover:not(:disabled) {
+    opacity: 0.95;
+  }
+
+  #{{ sm_id }} .bundle-configuration-sidebar__checkout:disabled {
+    opacity: 0.65;
+    cursor: wait;
+  }
+
+  #{{ sm_id }} .bundle-configuration-sidebar__checkout:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 3px;
+  }
+
+  #{{ sm_id }} .bundle-configuration-sidebar__trust {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    text-align: center;
+  }
+
+  #{{ sm_id }} .bundle-configuration-sidebar__trust-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  #{{ sm_id }} .bundle-configuration-sidebar__trust-icon.material-symbols-outlined {
+    font-family: 'Material Symbols Outlined', sans-serif !important;
+    font-size: 22px !important;
+    color: #999999 !important;
+    font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24 !important;
+  }
+
+  #{{ sm_id }} .bundle-configuration-sidebar__trust-text {
+    font-family: var(--text-font-family) !important;
+    font-size: 9px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+    color: #999999 !important;
+    line-height: 1.25 !important;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Bundle configuration",
+  "tag": "section",
+  "class": "section-bundle-configuration-sidebar",
+  "settings": [
+    {
+      "type": "text",
+      "id": "sidebar_a11y_label",
+      "label": "Nome da região (acessibilidade)",
+      "default": "Bundle configuration summary"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Título",
+      "default": "CONFIGURATION"
+    },
+    {
+      "type": "text",
+      "id": "empty_line_label",
+      "label": "Texto quando o passo está vazio",
+      "default": "Not selected"
+    },
+    {
+      "type": "text",
+      "id": "discount_heading",
+      "label": "Título do desconto",
+      "default": "BUNDLE APPLIED"
+    },
+    {
+      "type": "textarea",
+      "id": "discount_footer",
+      "label": "Texto abaixo do desconto",
+      "default": "OPTIMIZE FURTHER FOR MAXIMUM SAVINGS TIER"
+    },
+    {
+      "type": "text",
+      "id": "total_label",
+      "label": "Etiqueta do total",
+      "default": "ESTIMATED TOTAL"
+    },
+    {
+      "type": "text",
+      "id": "checkout_label",
+      "label": "Texto do botão",
+      "default": "CHECKOUT BUNDLE"
+    },
+    {
+      "type": "url",
+      "id": "checkout_url",
+      "label": "URL após adicionar ao carrinho",
+      "info": "Se vazio, usa /checkout. Após /cart/add.js o visitante é redirecionado."
+    },
+    {
+      "type": "text",
+      "id": "checkout_alert",
+      "label": "Alerta se passos incompletos",
+      "default": "Please complete steps 1 and 2 before checkout."
+    },
+    {
+      "type": "header",
+      "content": "Trust row"
+    },
+    {
+      "type": "text",
+      "id": "trust_1_icon",
+      "label": "Ícone 1 (Material)",
+      "default": "local_shipping"
+    },
+    {
+      "type": "text",
+      "id": "trust_1_text",
+      "label": "Texto 1",
+      "default": "Priority Ship"
+    },
+    {
+      "type": "text",
+      "id": "trust_2_icon",
+      "label": "Ícone 2 (Material)",
+      "default": "science"
+    },
+    {
+      "type": "text",
+      "id": "trust_2_text",
+      "label": "Texto 2",
+      "default": "Lab Tested"
+    },
+    {
+      "type": "text",
+      "id": "trust_3_icon",
+      "label": "Ícone 3 (Material)",
+      "default": "verified_user"
+    },
+    {
+      "type": "text",
+      "id": "trust_3_text",
+      "label": "Texto 3",
+      "default": "Full Warranty"
+    },
+    {
+      "type": "header",
+      "content": "Cores"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Cor de destaque",
+      "default": "#eb701f"
+    },
+    {
+      "type": "color",
+      "id": "panel_bg",
+      "label": "Fundo do painel",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "panel_border",
+      "label": "Borda do painel",
+      "default": "#eeeeee"
+    },
+    {
+      "type": "text",
+      "id": "panel_shadow",
+      "label": "Sombra (CSS)",
+      "default": "0 8px 32px rgba(0, 0, 0, 0.08)"
+    },
+    {
+      "type": "color",
+      "id": "discount_box_bg",
+      "label": "Fundo da caixa de desconto",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "header",
+      "content": "Layout desktop"
+    },
+    {
+      "type": "range",
+      "id": "panel_width",
+      "min": 300,
+      "max": 440,
+      "step": 4,
+      "unit": "px",
+      "label": "Largura do painel",
+      "default": 380
+    },
+    {
+      "type": "range",
+      "id": "main_offset_desktop",
+      "min": 320,
+      "max": 480,
+      "step": 4,
+      "unit": "px",
+      "label": "Espaço reservado à direita (#main)",
+      "default": 420
+    },
+    {
+      "type": "range",
+      "id": "fixed_top",
+      "min": 72,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "label": "Distância do topo (fixo)",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "fixed_right",
+      "min": 12,
+      "max": 48,
+      "step": 4,
+      "unit": "px",
+      "label": "Distância da direita",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "mobile_margin_bottom",
+      "min": 24,
+      "max": 64,
+      "step": 4,
+      "unit": "px",
+      "label": "Margem inferior (mobile)",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "panel_radius",
+      "min": 8,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Raio do painel",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "panel_padding",
+      "min": 16,
+      "max": 28,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding interno",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 14,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Tamanho do título CONFIGURATION",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "title_margin_bottom",
+      "min": 16,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Espaço abaixo do título",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "lines_margin_bottom",
+      "min": 12,
+      "max": 28,
+      "step": 2,
+      "unit": "px",
+      "label": "Espaço abaixo da lista",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "discount_box_radius",
+      "min": 8,
+      "max": 16,
+      "step": 2,
+      "unit": "px",
+      "label": "Raio da caixa de desconto",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "discount_amount_size",
+      "min": 22,
+      "max": 36,
+      "step": 1,
+      "unit": "px",
+      "label": "Tamanho do valor do desconto",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "discount_margin_bottom",
+      "min": 12,
+      "max": 28,
+      "step": 2,
+      "unit": "px",
+      "label": "Espaço abaixo do desconto",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "total_bucks_size",
+      "min": 28,
+      "max": 44,
+      "step": 1,
+      "unit": "px",
+      "label": "Tamanho do total (principal)",
+      "default": 34
+    },
+    {
+      "type": "range",
+      "id": "total_sub_size",
+      "min": 14,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Tamanho dos centavos (.00)",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "total_margin_bottom",
+      "min": 12,
+      "max": 28,
+      "step": 2,
+      "unit": "px",
+      "label": "Espaço abaixo do total",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "checkout_font_size",
+      "min": 12,
+      "max": 15,
+      "step": 1,
+      "unit": "px",
+      "label": "Tamanho do texto do checkout",
+      "default": 13
+    },
+    {
+      "type": "range",
+      "id": "checkout_radius",
+      "min": 8,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Raio do botão checkout",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "checkout_margin_bottom",
+      "min": 16,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Espaço abaixo do checkout",
+      "default": 22
+    }
+  ],
+  "presets": [
+    {
+      "name": "Bundle configuration",
+      "category": "Product"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,677 @@
+{%- liquid
+  assign brp_id = 'bundle-step-recovery-' | append: section.id
+  assign brp_product = section.settings.product
+  assign brp_variant = nil
+  if brp_product != blank
+    assign brp_variant = brp_product.selected_or_first_available_variant
+  endif
+
+  assign brp_save_cents = 0
+  assign brp_show_auto_save = false
+  if brp_variant != blank
+    assign brp_compare = brp_variant.compare_at_price
+    assign brp_price = brp_variant.price
+    if brp_compare != blank and brp_compare > brp_price and brp_compare > 0
+      assign brp_save_cents = brp_compare | minus: brp_price
+      assign brp_show_auto_save = true
+    endif
+  endif
+
+  assign brp_save_label = section.settings.save_badge_text | strip
+  if brp_save_label == blank and brp_show_auto_save
+    assign brp_save_money = brp_save_cents | money
+    assign brp_save_label = 'SAVE ' | append: brp_save_money
+  endif
+  assign brp_show_save_badge = false
+  if brp_save_label != blank
+    assign brp_show_save_badge = true
+  endif
+
+  assign brp_display_title = section.settings.card_title | strip
+  if brp_display_title == blank and brp_product != blank
+    assign brp_display_title = brp_product.title
+  endif
+-%}
+
+<section
+  id="{{ brp_id }}"
+  class="bundle-step-recovery-protocol"
+  data-section-type="bundle-step-recovery-protocol"
+  {{ section.shopify_attributes }}>
+  <div class="bundle-step-recovery-protocol__inner">
+    <h2 class="bundle-step-recovery-protocol__heading">
+      <span class="bundle-step-recovery-protocol__heading-num">{{ section.settings.step_number | escape }}</span>
+      <span class="bundle-step-recovery-protocol__heading-text">{{ section.settings.step_title | escape }}</span>
+    </h2>
+
+    {%- if brp_product != blank and brp_variant != blank -%}
+      {%- assign brp_included_default = section.settings.recovery_included_default -%}
+      <div
+        class="bundle-step-recovery-protocol__card{% if brp_included_default %} is-included{% endif %}"
+        data-bundle-recovery-card
+        data-bundle-variant-id="{{ brp_variant.id }}"
+        data-bundle-line-title="{{ brp_display_title | escape }}"
+        data-bundle-line-category="{{ section.settings.sidebar_category | escape }}"
+        data-bundle-icon="{{ section.settings.sidebar_icon | escape }}"
+        data-bundle-compare-price-cents="{{ brp_variant.compare_at_price | default: 0 }}"
+        data-bundle-price-cents="{{ brp_variant.price }}">
+        {%- if section.settings.lab_ribbon_text != blank -%}
+          <div class="bundle-step-recovery-protocol__ribbon" aria-hidden="true">
+            {{ section.settings.lab_ribbon_text | escape }}
+          </div>
+        {%- endif -%}
+
+        <div class="bundle-step-recovery-protocol__layout">
+          <div class="bundle-step-recovery-protocol__media">
+            {%- assign brp_img = brp_variant.image | default: brp_product.featured_image -%}
+            {%- if brp_img -%}
+              {{
+                brp_img
+                | image_url: width: 800
+                | image_tag:
+                  loading: 'lazy',
+                  class: 'bundle-step-recovery-protocol__img',
+                  widths: '200, 300, 400, 600, 800',
+                  sizes: '(min-width: 750px) 320px, 100vw',
+                  alt: brp_img.alt | default: brp_display_title | escape
+              }}
+            {%- else -%}
+              {{ 'product-1' | placeholder_svg_tag: 'bundle-step-recovery-protocol__img-ph' }}
+            {%- endif -%}
+          </div>
+
+          <div class="bundle-step-recovery-protocol__content">
+            <div class="bundle-step-recovery-protocol__title-row">
+              <h3 class="bundle-step-recovery-protocol__title">{{ brp_display_title | escape }}</h3>
+              {%- if brp_show_save_badge -%}
+                <span class="bundle-step-recovery-protocol__save-badge">{{ brp_save_label | escape }}</span>
+              {%- endif -%}
+            </div>
+
+            {%- if section.settings.description != blank -%}
+              <div class="bundle-step-recovery-protocol__description rte">{{ section.settings.description }}</div>
+            {%- endif -%}
+
+            <div class="bundle-step-recovery-protocol__footer">
+              <div class="bundle-step-recovery-protocol__prices">
+                {%- assign brp_compare = brp_variant.compare_at_price -%}
+                {%- assign brp_price = brp_variant.price -%}
+                {%- if brp_compare != blank and brp_compare > brp_price and brp_compare > 0 -%}
+                  <span class="bundle-step-recovery-protocol__price-compare">{{ brp_compare | money }}</span>
+                {%- endif -%}
+                <span class="bundle-step-recovery-protocol__price-current">{{ brp_price | money }}</span>
+              </div>
+              <button
+                type="button"
+                class="bundle-step-recovery-protocol__included{% if brp_included_default %} bundle-step-recovery-protocol__included--active{% endif %}"
+                data-bundle-recovery-toggle
+                aria-pressed="{% if brp_included_default %}true{% else %}false{% endif %}">
+                {{ section.settings.included_label | escape }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    {%- else -%}
+      <div class="bundle-step-recovery-protocol__empty">
+        {{ section.settings.empty_state_text | escape }}
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+<style>
+  #{{ brp_id }}.bundle-step-recovery-protocol {
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    background-color: {{ section.settings.background_color }};
+  }
+
+  #{{ brp_id }} .bundle-step-recovery-protocol__inner {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  #{{ brp_id }} .bundle-step-recovery-protocol__heading {
+    font-family: var(--heading-font-family) !important;
+    margin: 0 0 {{ section.settings.heading_margin_bottom }}px !important;
+    line-height: 1.05 !important;
+    text-transform: uppercase !important;
+    letter-spacing: -0.03em !important;
+  }
+
+  #{{ brp_id }} .bundle-step-recovery-protocol__heading-num {
+    color: {{ section.settings.step_number_color }} !important;
+    font-weight: 800 !important;
+    font-size: {{ section.settings.heading_num_size_mobile }}px !important;
+    margin-right: 0.35em !important;
+  }
+
+  #{{ brp_id }} .bundle-step-recovery-protocol__heading-text {
+    color: {{ section.settings.step_title_color }} !important;
+    font-weight: 900 !important;
+    font-size: {{ section.settings.heading_title_size_mobile }}px !important;
+  }
+
+  @media screen and (min-width: 750px) {
+    #{{ brp_id }} .bundle-step-recovery-protocol__heading-num {
+      font-size: {{ section.settings.heading_num_size_desktop }}px !important;
+    }
+    #{{ brp_id }} .bundle-step-recovery-protocol__heading-text {
+      font-size: {{ section.settings.heading_title_size_desktop }}px !important;
+    }
+  }
+
+  #{{ brp_id }} .bundle-step-recovery-protocol__card {
+    position: relative;
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: {{ section.settings.card_radius }}px;
+    overflow: hidden;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  #{{ brp_id }} .bundle-step-recovery-protocol__card.is-included {
+    border-width: 3px;
+    border-color: {{ section.settings.accent_color }};
+    box-shadow: 0 0 0 1px {{ section.settings.accent_color }};
+  }
+
+  #{{ brp_id }} .bundle-step-recovery-protocol__ribbon {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    font-family: var(--heading-font-family) !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase !important;
+    color: #ffffff !important;
+    background: {{ section.settings.accent_color }} !important;
+    padding: 10px 16px 10px 22px !important;
+    line-height: 1.2 !important;
+    border-radius: 0 0 0 12px !important;
+    max-width: 55%;
+    text-align: right;
+  }
+
+  #{{ brp_id }} .bundle-step-recovery-protocol__layout {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  @media screen and (min-width: 750px) {
+    #{{ brp_id }} .bundle-step-recovery-protocol__layout {
+      flex-direction: row;
+      align-items: stretch;
+      min-height: {{ section.settings.card_min_height_desktop }}px;
+    }
+  }
+
+  #{{ brp_id }} .bundle-step-recovery-protocol__media {
+    flex-shrink: 0;
+    background: #f2f2f2;
+    aspect-ratio: 1 / 1;
+    max-height: 320px;
+  }
+
+  @media screen and (min-width: 750px) {
+    #{{ brp_id }} .bundle-step-recovery-protocol__media {
+      width: {{ section.settings.media_width_desktop }}px;
+      max-height: none;
+      align-self: stretch;
+      min-height: 0;
+    }
+  }
+
+  #{{ brp_id }} .bundle-step-recovery-protocol__img,
+  #{{ brp_id }} .bundle-step-recovery-protocol__img-ph {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  #{{ brp_id }} .bundle-step-recovery-protocol__content {
+    flex: 1;
+    min-width: 0;
+    padding: {{ section.settings.content_padding }}px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  #{{ brp_id }} .bundle-step-recovery-protocol__title-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 14px;
+  }
+
+  #{{ brp_id }} .bundle-step-recovery-protocol__title {
+    font-family: var(--heading-font-family) !important;
+    font-size: {{ section.settings.title_size }}px !important;
+    font-weight: 700 !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    line-height: 1.2 !important;
+  }
+
+  #{{ brp_id }} .bundle-step-recovery-protocol__save-badge {
+    font-family: var(--heading-font-family) !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em !important;
+    text-transform: uppercase !important;
+    color: {{ section.settings.accent_color }} !important;
+    background: rgba(235, 112, 31, 0.16) !important;
+    padding: 6px 12px !important;
+    border-radius: 999px !important;
+    line-height: 1.2 !important;
+  }
+
+  #{{ brp_id }} .bundle-step-recovery-protocol__description {
+    font-family: var(--text-font-family) !important;
+    font-size: {{ section.settings.description_size }}px !important;
+    line-height: 1.55 !important;
+    color: {{ section.settings.description_color }} !important;
+    margin: 0 !important;
+  }
+
+  #{{ brp_id }} .bundle-step-recovery-protocol__description p {
+    margin: 0;
+  }
+
+  #{{ brp_id }} .bundle-step-recovery-protocol__footer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    margin-top: auto;
+    padding-top: 8px;
+  }
+
+  @media screen and (min-width: 750px) {
+    #{{ brp_id }} .bundle-step-recovery-protocol__footer {
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+  }
+
+  #{{ brp_id }} .bundle-step-recovery-protocol__prices {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  #{{ brp_id }} .bundle-step-recovery-protocol__price-compare {
+    font-size: {{ section.settings.compare_price_size }}px !important;
+    color: #888888 !important;
+    text-decoration: line-through !important;
+  }
+
+  #{{ brp_id }} .bundle-step-recovery-protocol__price-current {
+    font-family: var(--heading-font-family) !important;
+    font-size: {{ section.settings.current_price_size }}px !important;
+    font-weight: 700 !important;
+    color: {{ section.settings.accent_color }} !important;
+    line-height: 1 !important;
+  }
+
+  #{{ brp_id }} .bundle-step-recovery-protocol__included {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--heading-font-family) !important;
+    font-size: {{ section.settings.included_font_size }}px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+    color: #ffffff !important;
+    background: #000000 !important;
+    padding: 14px 22px !important;
+    border-radius: {{ section.settings.included_radius }}px !important;
+    line-height: 1.2 !important;
+    white-space: nowrap;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  #{{ brp_id }} .bundle-step-recovery-protocol__included:hover {
+    opacity: 0.92;
+  }
+
+  #{{ brp_id }} .bundle-step-recovery-protocol__included:focus-visible {
+    outline: 2px solid {{ section.settings.accent_color }};
+    outline-offset: 3px;
+  }
+
+  #{{ brp_id }} .bundle-step-recovery-protocol__included--active {
+    background: {{ section.settings.accent_color }} !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 14px rgba(235, 112, 31, 0.35);
+  }
+
+  #{{ brp_id }} .bundle-step-recovery-protocol__empty {
+    border: 2px dashed #e0e0e0;
+    border-radius: 12px;
+    padding: 48px 24px;
+    text-align: center;
+    font-family: var(--text-font-family) !important;
+    font-size: 14px !important;
+    color: #888888 !important;
+    background: #fafafa;
+  }
+
+</style>
+
+{% schema %}
+{
+  "name": "Step 3: recovery",
+  "tag": "section",
+  "class": "section-bundle-step-recovery-protocol",
+  "settings": [
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Produto incluído no bundle"
+    },
+    {
+      "type": "text",
+      "id": "card_title",
+      "label": "Título no card (opcional)",
+      "default": "Forge Recovery Gun",
+      "info": "Se vazio, usa o título do produto."
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Descrição",
+      "default": "<p>Optimize downtime with deep-tissue percussion therapy. A staple for elite bundle configurations.</p>"
+    },
+    {
+      "type": "text",
+      "id": "lab_ribbon_text",
+      "label": "Ribbon canto (ex.: LAB EXCLUSIVE)",
+      "default": "LAB EXCLUSIVE",
+      "info": "Vazio = oculta o ribbon."
+    },
+    {
+      "type": "text",
+      "id": "save_badge_text",
+      "label": "Badge de poupança (texto fixo)",
+      "default": "SAVE $30",
+      "info": "Se vazio e o produto tiver compare-at, mostra SAVE + valor calculado."
+    },
+    {
+      "type": "text",
+      "id": "included_label",
+      "label": "Etiqueta incluída no bundle",
+      "default": "INCLUDED IN BUNDLE"
+    },
+    {
+      "type": "checkbox",
+      "id": "recovery_included_default",
+      "label": "Incluído por defeito (clique para alternar)",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "sidebar_category",
+      "label": "Categoria na sidebar",
+      "default": "RECOVERY"
+    },
+    {
+      "type": "select",
+      "id": "sidebar_icon",
+      "label": "Ícone na sidebar (Material)",
+      "default": "vibration",
+      "options": [
+        { "value": "vibration", "label": "vibration (massage gun)" },
+        { "value": "physical_therapy", "label": "physical_therapy" },
+        { "value": "healing", "label": "healing" },
+        { "value": "fitness_center", "label": "fitness_center" }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "step_number",
+      "label": "Número do passo",
+      "default": "03"
+    },
+    {
+      "type": "text",
+      "id": "step_title",
+      "label": "Título do passo",
+      "default": "RECOVERY PROTOCOL"
+    },
+    {
+      "type": "text",
+      "id": "empty_state_text",
+      "label": "Mensagem sem produto",
+      "default": "Select a product in this section"
+    },
+    {
+      "type": "header",
+      "content": "Cores"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Fundo da secção",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Cor de destaque (preço, ribbon, save badge)",
+      "default": "#eb701f"
+    },
+    {
+      "type": "color",
+      "id": "step_number_color",
+      "label": "Cor do número (03)",
+      "default": "#e8b896"
+    },
+    {
+      "type": "color",
+      "id": "step_title_color",
+      "label": "Cor do título",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "description_color",
+      "label": "Cor da descrição",
+      "default": "#574237"
+    },
+    {
+      "type": "header",
+      "content": "Tipografia e layout"
+    },
+    {
+      "type": "range",
+      "id": "heading_num_size_mobile",
+      "min": 24,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "label": "Tamanho do número — mobile",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "heading_num_size_desktop",
+      "min": 28,
+      "max": 48,
+      "step": 1,
+      "unit": "px",
+      "label": "Tamanho do número — desktop",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "heading_title_size_mobile",
+      "min": 20,
+      "max": 36,
+      "step": 1,
+      "unit": "px",
+      "label": "Tamanho do título — mobile",
+      "default": 26
+    },
+    {
+      "type": "range",
+      "id": "heading_title_size_desktop",
+      "min": 24,
+      "max": 44,
+      "step": 1,
+      "unit": "px",
+      "label": "Tamanho do título — desktop",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "heading_margin_bottom",
+      "min": 16,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "Espaço abaixo do título",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 18,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "label": "Tamanho do título do produto",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "description_size",
+      "min": 14,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Tamanho da descrição",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "compare_price_size",
+      "min": 13,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Tamanho do preço riscado",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "current_price_size",
+      "min": 22,
+      "max": 36,
+      "step": 1,
+      "unit": "px",
+      "label": "Tamanho do preço atual",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "included_font_size",
+      "min": 11,
+      "max": 14,
+      "step": 1,
+      "unit": "px",
+      "label": "Tamanho da etiqueta incluída",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "min": 8,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Raio do card",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "included_radius",
+      "min": 4,
+      "max": 16,
+      "step": 2,
+      "unit": "px",
+      "label": "Raio da etiqueta preta",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "media_width_desktop",
+      "min": 260,
+      "max": 400,
+      "step": 10,
+      "unit": "px",
+      "label": "Largura da imagem — desktop",
+      "default": 320
+    },
+    {
+      "type": "range",
+      "id": "card_min_height_desktop",
+      "min": 240,
+      "max": 400,
+      "step": 10,
+      "unit": "px",
+      "label": "Altura mínima do card — desktop",
+      "default": 280
+    },
+    {
+      "type": "range",
+      "id": "content_padding",
+      "min": 16,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding do conteúdo",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 24,
+      "max": 96,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding superior",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 24,
+      "max": 96,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding inferior",
+      "default": 48
+    }
+  ],
+  "presets": [
+    {
+      "name": "Step 3: recovery",
+      "category": "Product"
+    }
+  ]
+}
+{% endschema %}
