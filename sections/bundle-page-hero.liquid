@@ -1,0 +1,627 @@
+{%- liquid
+  assign bph_id = 'bundle-page-hero-' | append: section.id
+  assign bph_bg = section.settings.background_image
+  assign bph_btn_href = section.settings.button_link
+  if bph_btn_href == blank
+    assign bph_btn_href = '#'
+  endif
+-%}
+
+<section
+  id="{{ bph_id }}"
+  class="bundle-page-hero"
+  data-section-type="bundle-page-hero"
+  aria-label="{{ section.settings.section_a11y_label | escape }}"
+  {{ section.shopify_attributes }}>
+  <div class="bundle-page-hero__media" aria-hidden="true">
+    {%- if bph_bg != blank -%}
+      {{
+        bph_bg
+        | image_url: width: 2400
+        | image_tag:
+          class: 'bundle-page-hero__bg-img',
+          widths: '375, 550, 750, 1100, 1500, 1920, 2400',
+          sizes: '100vw',
+          loading: 'eager',
+          fetchpriority: 'high',
+          alt: ''
+      }}
+    {%- else -%}
+      <div class="bundle-page-hero__bg-fallback">
+        {{ 'lifestyle-1' | placeholder_svg_tag: 'bundle-page-hero__bg-placeholder' }}
+      </div>
+    {%- endif -%}
+    <div class="bundle-page-hero__tint"></div>
+    <div class="bundle-page-hero__gradient"></div>
+  </div>
+
+  <div class="bundle-page-hero__inner">
+    <div class="bundle-page-hero__box">
+      {%- if section.settings.badge_text != blank -%}
+        <p class="bundle-page-hero__badge">{{ section.settings.badge_text | escape }}</p>
+      {%- endif -%}
+
+      <h1 class="bundle-page-hero__title">
+        {%- if section.settings.heading_line_1 != blank -%}
+          <span class="bundle-page-hero__title-line">{{ section.settings.heading_line_1 | escape }}</span>
+        {%- endif -%}
+        {%- if section.settings.heading_line_2_lead != blank or section.settings.heading_highlight != blank -%}
+          <span class="bundle-page-hero__title-line">
+            {{- section.settings.heading_line_2_lead | escape -}}
+            {%- if section.settings.heading_highlight != blank -%}
+              <span class="bundle-page-hero__title-accent">{{ section.settings.heading_highlight | escape }}</span>
+            {%- endif -%}
+          </span>
+        {%- endif -%}
+        {%- if section.settings.heading_line_3 != blank -%}
+          <span class="bundle-page-hero__title-line">{{ section.settings.heading_line_3 | escape }}</span>
+        {%- endif -%}
+      </h1>
+
+      {%- if section.settings.description != blank -%}
+        <div class="bundle-page-hero__description rte">{{ section.settings.description }}</div>
+      {%- endif -%}
+
+      {%- if section.settings.button_label != blank -%}
+        <a class="bundle-page-hero__cta" href="{{ bph_btn_href }}">{{ section.settings.button_label | escape }}</a>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  #{{ bph_id }}.bundle-page-hero {
+    --bph-accent: {{ section.settings.accent_color }};
+    --bph-title: {{ section.settings.title_color }};
+    --bph-desc: {{ section.settings.description_color }};
+    --bph-btn-bg: {{ section.settings.button_bg }};
+    --bph-btn-text: {{ section.settings.button_text_color }};
+    --bph-tint-opacity: {{ section.settings.image_tint_opacity | divided_by: 100.0 }};
+    --bph-gradient-white: {{ section.settings.gradient_white_stop }}%;
+    --bph-min-h: {{ section.settings.min_height_mobile }}px;
+    position: relative;
+    overflow: hidden;
+    min-height: var(--bph-min-h);
+    display: flex;
+    align-items: stretch;
+  }
+
+  @media screen and (min-width: 750px) {
+    #{{ bph_id }}.bundle-page-hero {
+      --bph-min-h: {{ section.settings.min_height_desktop }}px;
+    }
+  }
+
+  #{{ bph_id }} .bundle-page-hero__media {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  #{{ bph_id }} .bundle-page-hero__bg-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: {{ section.settings.image_position }};
+    display: block;
+  }
+
+  #{{ bph_id }} .bundle-page-hero__bg-fallback {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(145deg, #e8e8e8, #cfcfcf);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #{{ bph_id }} .bundle-page-hero__bg-placeholder {
+    width: 100%;
+    height: 100%;
+    opacity: 0.35;
+  }
+
+  #{{ bph_id }} .bundle-page-hero__tint {
+    position: absolute;
+    inset: 0;
+    background: #ffffff;
+    opacity: var(--bph-tint-opacity);
+    pointer-events: none;
+  }
+
+  #{{ bph_id }} .bundle-page-hero__gradient {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.97) 0%,
+      rgba(255, 255, 255, 0.88) calc(var(--bph-gradient-white) * 0.45),
+      rgba(255, 255, 255, 0.35) var(--bph-gradient-white),
+      rgba(255, 255, 255, 0) 100%
+    );
+  }
+
+  @media screen and (max-width: 749px) {
+    #{{ bph_id }} .bundle-page-hero__gradient {
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.96) 0%,
+        rgba(255, 255, 255, 0.82) 42%,
+        rgba(255, 255, 255, 0.45) 68%,
+        rgba(255, 255, 255, 0) 100%
+      );
+    }
+  }
+
+  #{{ bph_id }} .bundle-page-hero__inner {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: {{ section.settings.padding_top_mobile }}px 24px {{ section.settings.padding_bottom_mobile }}px;
+    display: flex;
+    align-items: center;
+    min-height: inherit;
+  }
+
+  @media screen and (min-width: 750px) {
+    #{{ bph_id }} .bundle-page-hero__inner {
+      padding-top: {{ section.settings.padding_top_desktop }}px;
+      padding-bottom: {{ section.settings.padding_bottom_desktop }}px;
+    }
+  }
+
+  #{{ bph_id }} .bundle-page-hero__box {
+    max-width: {{ section.settings.content_max_width }}px;
+    width: 100%;
+    text-align: center;
+  }
+
+  @media screen and (min-width: 750px) {
+    #{{ bph_id }} .bundle-page-hero__box {
+      text-align: left;
+    }
+  }
+
+  #{{ bph_id }} .bundle-page-hero__badge {
+    display: inline-block;
+    font-family: var(--heading-font-family) !important;
+    font-size: {{ section.settings.badge_font_size }}px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    color: #ffffff !important;
+    background-color: var(--bph-accent) !important;
+    padding: 6px 12px !important;
+    margin: 0 0 {{ section.settings.space_badge_title }}px !important;
+    line-height: 1.2 !important;
+  }
+
+  #{{ bph_id }} .bundle-page-hero__title {
+    font-family: var(--heading-font-family) !important;
+    font-size: {{ section.settings.title_size_mobile }}px !important;
+    line-height: {{ section.settings.title_line_height | plus: 0 }} !important;
+    font-weight: 900 !important;
+    letter-spacing: -0.04em !important;
+    text-transform: uppercase !important;
+    color: var(--bph-title) !important;
+    margin: 0 0 {{ section.settings.space_title_desc }}px !important;
+  }
+
+  @media screen and (min-width: 750px) {
+    #{{ bph_id }} .bundle-page-hero__title {
+      font-size: {{ section.settings.title_size_desktop }}px !important;
+    }
+  }
+
+  #{{ bph_id }} .bundle-page-hero__title-line {
+    display: block;
+  }
+
+  #{{ bph_id }} .bundle-page-hero__title-accent {
+    color: var(--bph-accent) !important;
+    font-style: italic !important;
+  }
+
+  #{{ bph_id }} .bundle-page-hero__description {
+    font-family: var(--text-font-family) !important;
+    font-size: {{ section.settings.description_size_mobile }}px !important;
+    line-height: 1.55 !important;
+    color: var(--bph-desc) !important;
+    margin: 0 0 {{ section.settings.space_desc_button }}px !important;
+    max-width: 36rem;
+  }
+
+  @media screen and (min-width: 750px) {
+    #{{ bph_id }} .bundle-page-hero__description {
+      font-size: {{ section.settings.description_size_desktop }}px !important;
+      margin-left: 0;
+      margin-right: auto;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    #{{ bph_id }} .bundle-page-hero__description {
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+
+  #{{ bph_id }} .bundle-page-hero__description p {
+    margin: 0;
+  }
+
+  #{{ bph_id }} .bundle-page-hero__description p + p {
+    margin-top: 0.75em;
+  }
+
+  #{{ bph_id }} .bundle-page-hero__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--heading-font-family) !important;
+    font-size: {{ section.settings.button_font_size }}px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+    text-decoration: none !important;
+    color: var(--bph-btn-text) !important;
+    background-color: var(--bph-btn-bg) !important;
+    padding: {{ section.settings.button_padding_y }}px {{ section.settings.button_padding_x }}px !important;
+    border-radius: 999px !important;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  #{{ bph_id }} .bundle-page-hero__cta:hover {
+    opacity: 0.92;
+  }
+
+  #{{ bph_id }} .bundle-page-hero__cta:focus-visible {
+    outline: 2px solid var(--bph-accent);
+    outline-offset: 4px;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Bundle page hero",
+  "tag": "section",
+  "class": "section-bundle-page-hero",
+  "settings": [
+    {
+      "type": "text",
+      "id": "section_a11y_label",
+      "label": "Nome da região (acessibilidade)",
+      "default": "Destaque da página de bundle"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Imagem de fundo"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Posição da imagem",
+      "default": "center center",
+      "options": [
+        { "value": "center center", "label": "Centro" },
+        { "value": "center right", "label": "Centro direita" },
+        { "value": "center left", "label": "Centro esquerda" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "image_tint_opacity",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "%",
+      "label": "Clareamento global sobre a foto",
+      "default": 18,
+      "info": "Camada branca suave para aproximar o look “high-key” do mockup."
+    },
+    {
+      "type": "range",
+      "id": "gradient_white_stop",
+      "min": 35,
+      "max": 85,
+      "step": 1,
+      "unit": "%",
+      "label": "Extensão do gradiente branco (desktop)",
+      "default": 58
+    },
+    {
+      "type": "header",
+      "content": "Conteúdo"
+    },
+    {
+      "type": "text",
+      "id": "badge_text",
+      "label": "Badge",
+      "default": "PERFORMANCE SERIES"
+    },
+    {
+      "type": "range",
+      "id": "badge_font_size",
+      "min": 10,
+      "max": 14,
+      "step": 1,
+      "unit": "px",
+      "label": "Tamanho do badge",
+      "default": 11
+    },
+    {
+      "type": "text",
+      "id": "heading_line_1",
+      "label": "Título — linha 1",
+      "default": "ENGINEER"
+    },
+    {
+      "type": "text",
+      "id": "heading_line_2_lead",
+      "label": "Título — linha 2 (antes da palavra de destaque)",
+      "default": "YOUR "
+    },
+    {
+      "type": "text",
+      "id": "heading_highlight",
+      "label": "Título — palavra de destaque (laranja, itálico)",
+      "default": "PRIME"
+    },
+    {
+      "type": "text",
+      "id": "heading_line_3",
+      "label": "Título — linha 3",
+      "default": "RESULTS"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Texto",
+      "default": "<p>Professional-grade equipment, bundled for elite performance. Save up to $100 on your precision setup.</p>"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Texto do botão",
+      "default": "START CONFIGURATION"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Link do botão",
+      "info": "Pode apontar para uma âncora na mesma página (ex.: #config) ou para uma coleção."
+    },
+    {
+      "type": "header",
+      "content": "Cores"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Cor de destaque (badge + palavra do título)",
+      "default": "#eb701f"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Cor do título",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "description_color",
+      "label": "Cor do texto",
+      "default": "#574237"
+    },
+    {
+      "type": "color",
+      "id": "button_bg",
+      "label": "Fundo do botão",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Texto do botão",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Tipografia e espaçamento"
+    },
+    {
+      "type": "range",
+      "id": "title_size_mobile",
+      "min": 28,
+      "max": 44,
+      "step": 1,
+      "unit": "px",
+      "label": "Título — mobile",
+      "default": 34
+    },
+    {
+      "type": "range",
+      "id": "title_size_desktop",
+      "min": 40,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "label": "Título — desktop",
+      "default": 56
+    },
+    {
+      "type": "select",
+      "id": "title_line_height",
+      "label": "Altura de linha do título",
+      "default": "0.98",
+      "options": [
+        { "value": "0.9", "label": "Muito compacto" },
+        { "value": "0.95", "label": "Compacto" },
+        { "value": "0.98", "label": "Padrão (mockup)" },
+        { "value": "1.05", "label": "Confortável" },
+        { "value": "1.12", "label": "Arejado" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "description_size_mobile",
+      "min": 14,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Texto — mobile",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "description_size_desktop",
+      "min": 15,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Texto — desktop",
+      "default": 17
+    },
+    {
+      "type": "range",
+      "id": "button_font_size",
+      "min": 12,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "label": "Tamanho do botão",
+      "default": 13
+    },
+    {
+      "type": "range",
+      "id": "button_padding_x",
+      "min": 24,
+      "max": 56,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding horizontal do botão",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "button_padding_y",
+      "min": 12,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "label": "Padding vertical do botão",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "content_max_width",
+      "min": 320,
+      "max": 640,
+      "step": 10,
+      "unit": "px",
+      "label": "Largura máxima do bloco de texto",
+      "default": 520
+    },
+    {
+      "type": "range",
+      "id": "space_badge_title",
+      "min": 12,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Espaço badge → título",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "space_title_desc",
+      "min": 12,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Espaço título → texto",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "space_desc_button",
+      "min": 20,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Espaço texto → botão",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "min_height_mobile",
+      "min": 420,
+      "max": 720,
+      "step": 10,
+      "unit": "px",
+      "label": "Altura mínima — mobile",
+      "default": 520
+    },
+    {
+      "type": "range",
+      "id": "min_height_desktop",
+      "min": 480,
+      "max": 900,
+      "step": 10,
+      "unit": "px",
+      "label": "Altura mínima — desktop",
+      "default": 640
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "min": 32,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding superior — mobile",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "min": 32,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding inferior — mobile",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_top_desktop",
+      "min": 48,
+      "max": 140,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding superior — desktop",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_desktop",
+      "min": 48,
+      "max": 140,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding inferior — desktop",
+      "default": 80
+    }
+  ],
+  "presets": [
+    {
+      "name": "Bundle page hero",
+      "category": "Storytelling"
+    }
+  ]
+}
+{% endschema %}
