@@ -1,0 +1,498 @@
+{%- liquid
+  assign mm_id = 'media-mentions-' | append: section.id
+  assign mm_kf = section.id | split: '__' | last | handleize | default: 'marquee'
+  assign mm_blocks_count = section.blocks.size
+  assign mm_duration = section.settings.marquee_seconds | default: 35
+  if mm_duration < 8
+    assign mm_duration = 8
+  endif
+  assign mm_strip_cycles = section.settings.strip_cycles | default: 3
+  if mm_strip_cycles < 1
+    assign mm_strip_cycles = 1
+  endif
+  if mm_strip_cycles > 12
+    assign mm_strip_cycles = 12
+  endif
+-%}
+
+<section
+  id="{{ mm_id }}"
+  class="media-mentions-marquee"
+  data-section-type="media-mentions-marquee">
+  <div class="media-mentions-marquee__inner">
+    {%- if section.settings.title != blank -%}
+      <h2 class="media-mentions-marquee__title">{{ section.settings.title | escape }}</h2>
+    {%- endif -%}
+
+    <div
+      class="media-mentions-marquee__viewport{% if section.settings.edge_fade %} media-mentions-marquee__viewport--fade{% endif %}"
+      {% unless mm_blocks_count > 0 %}
+        data-media-mentions-empty="true"
+      {% endunless %}>
+      <div
+        class="media-mentions-marquee__track"
+        data-media-mentions-track
+        style="--mm-duration: {{ mm_duration }}s;">
+        <div class="media-mentions-marquee__strip" data-media-mentions-strip>
+          {%- if mm_blocks_count > 0 -%}
+            {%- for mm_rep in (1..mm_strip_cycles) -%}
+              {%- for block in section.blocks -%}
+                {%- if block.type == 'logo' -%}
+                  {%- assign mm_logo_alt = block.settings.alt | default: 'Logo' -%}
+                  <div
+                    class="media-mentions-marquee__item"
+                    {% if mm_rep == 1 %}
+                      {{ block.shopify_attributes }}
+                    {% endif %}>
+                    {%- if block.settings.logo != blank -%}
+                      {%- if block.settings.link != blank -%}
+                        <a href="{{ block.settings.link }}" class="media-mentions-marquee__link" rel="noopener noreferrer" target="_blank">
+                      {%- endif -%}
+                      {{
+                        block.settings.logo
+                        | image_url: width: 400
+                        | image_tag:
+                          loading: 'lazy',
+                          class: 'media-mentions-marquee__img',
+                          widths: '120, 180, 240, 320, 400',
+                          alt: mm_logo_alt
+                      }}
+                      {%- if block.settings.link != blank -%}
+                        </a>
+                      {%- endif -%}
+                    {%- else -%}
+                      <div class="media-mentions-marquee__placeholder">
+                        <span class="media-mentions-marquee__placeholder-label">
+                          {{- block.settings.alt | default: 'Logo' | escape -}}
+                        </span>
+                      </div>
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
+              {%- endfor -%}
+            {%- endfor -%}
+          {%- else -%}
+            {%- for mm_rep in (1..mm_strip_cycles) -%}
+              {%- for i in (1..7) -%}
+                <div class="media-mentions-marquee__item">
+                  <div class="media-mentions-marquee__placeholder">
+                    <span class="media-mentions-marquee__placeholder-label">{{ 'Logo' | escape }}</span>
+                  </div>
+                </div>
+              {%- endfor -%}
+            {%- endfor -%}
+          {%- endif -%}
+        </div>
+        <div class="media-mentions-marquee__strip" aria-hidden="true">
+          {%- if mm_blocks_count > 0 -%}
+            {%- for mm_rep in (1..mm_strip_cycles) -%}
+              {%- for block in section.blocks -%}
+                {%- if block.type == 'logo' -%}
+                  <div class="media-mentions-marquee__item">
+                    {%- if block.settings.logo != blank -%}
+                      {%- if block.settings.link != blank -%}
+                        <a href="{{ block.settings.link }}" class="media-mentions-marquee__link" rel="noopener noreferrer" target="_blank" tabindex="-1">
+                      {%- endif -%}
+                      {{
+                        block.settings.logo
+                        | image_url: width: 400
+                        | image_tag:
+                          loading: 'lazy',
+                          class: 'media-mentions-marquee__img',
+                          widths: '120, 180, 240, 320, 400',
+                          alt: ''
+                      }}
+                      {%- if block.settings.link != blank -%}
+                        </a>
+                      {%- endif -%}
+                    {%- else -%}
+                      <div class="media-mentions-marquee__placeholder">
+                        <span class="media-mentions-marquee__placeholder-label">
+                          {{- block.settings.alt | default: 'Logo' | escape -}}
+                        </span>
+                      </div>
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
+              {%- endfor -%}
+            {%- endfor -%}
+          {%- else -%}
+            {%- for mm_rep in (1..mm_strip_cycles) -%}
+              {%- for i in (1..7) -%}
+                <div class="media-mentions-marquee__item">
+                  <div class="media-mentions-marquee__placeholder">
+                    <span class="media-mentions-marquee__placeholder-label">{{ 'Logo' | escape }}</span>
+                  </div>
+                </div>
+              {%- endfor -%}
+            {%- endfor -%}
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    var root = document.getElementById('{{ mm_id }}');
+    if (!root) return;
+    var track = root.querySelector('[data-media-mentions-track]');
+    var strip = root.querySelector('[data-media-mentions-strip]');
+    if (!track || !strip) return;
+
+    function motionReduced() {
+      return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+
+    function syncShift() {
+      if (motionReduced()) {
+        track.classList.remove('media-mentions-marquee__track--ready');
+        root.style.removeProperty('--mm-shift');
+        return;
+      }
+      var w = strip.getBoundingClientRect().width;
+      if (!w) return;
+      root.style.setProperty('--mm-shift', (-w).toFixed(2) + 'px');
+      track.classList.add('media-mentions-marquee__track--ready');
+    }
+
+    if (typeof ResizeObserver !== 'undefined') {
+      new ResizeObserver(syncShift).observe(strip);
+    }
+
+    syncShift();
+    requestAnimationFrame(syncShift);
+    requestAnimationFrame(function () {
+      requestAnimationFrame(syncShift);
+    });
+
+    window.addEventListener('load', syncShift);
+    window.addEventListener('resize', function () {
+      clearTimeout(root._mmMarqueeDebounce);
+      root._mmMarqueeDebounce = setTimeout(syncShift, 100);
+    });
+
+    strip.querySelectorAll('img').forEach(function (img) {
+      if (!img.complete) img.addEventListener('load', syncShift, { once: true });
+    });
+  })();
+</script>
+
+<style>
+  #{{ mm_id }} .media-mentions-marquee__inner {
+    background-color: {{ section.settings.background_color }};
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+  }
+
+  #{{ mm_id }} .media-mentions-marquee__title {
+    font-family: var(--heading-font-family) !important;
+    font-size: {{ section.settings.title_size }}px !important;
+    line-height: 1.25 !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.02em !important;
+    text-transform: uppercase !important;
+    text-align: center !important;
+    color: {{ section.settings.title_color }} !important;
+    margin: 0 auto {{ section.settings.title_margin_bottom }}px !important;
+    max-width: 80rem;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  #{{ mm_id }} .media-mentions-marquee__viewport {
+    overflow: hidden;
+    width: 100%;
+  }
+
+  #{{ mm_id }} .media-mentions-marquee__viewport--fade {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 7%,
+      #000 93%,
+      transparent
+    );
+    mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+  }
+
+  #{{ mm_id }} .media-mentions-marquee__track {
+    display: flex;
+    width: max-content;
+    flex-wrap: nowrap;
+    will-change: transform;
+    animation: none;
+  }
+
+  #{{ mm_id }} .media-mentions-marquee__track.media-mentions-marquee__track--ready {
+    animation: mm-marquee-{{ mm_kf }} var(--mm-duration, 35s) linear infinite;
+  }
+
+  @keyframes mm-marquee-{{ mm_kf }} {
+    0% {
+      transform: translate3d(0, 0, 0);
+    }
+    100% {
+      transform: translate3d(var(--mm-shift, 0px), 0, 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #{{ mm_id }} .media-mentions-marquee__track {
+      animation: none !important;
+      transform: translate3d(0, 0, 0) !important;
+      flex-wrap: wrap;
+      width: 100%;
+      max-width: 80rem;
+      margin: 0 auto;
+      justify-content: center;
+      row-gap: 1.5rem;
+    }
+
+    #{{ mm_id }} .media-mentions-marquee__strip {
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100% !important;
+      padding-right: 0 !important;
+    }
+
+    #{{ mm_id }} .media-mentions-marquee__strip[aria-hidden='true'] {
+      display: none !important;
+    }
+  }
+
+  #{{ mm_id }} .media-mentions-marquee__strip {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: {{ section.settings.logo_gap }}px;
+    padding-right: {{ section.settings.logo_gap }}px;
+  }
+
+  #{{ mm_id }} .media-mentions-marquee__item {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: {{ section.settings.logo_min_width }}px;
+  }
+
+  #{{ mm_id }} .media-mentions-marquee__link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+    text-decoration: none;
+  }
+
+  #{{ mm_id }} .media-mentions-marquee__img {
+    max-height: {{ section.settings.logo_max_height }}px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    filter: grayscale(1);
+    opacity: 0.85;
+    transition:
+      opacity 0.2s ease,
+      filter 0.2s ease;
+  }
+
+  #{{ mm_id }} .media-mentions-marquee__link:hover .media-mentions-marquee__img,
+  #{{ mm_id }} .media-mentions-marquee__link:focus-visible .media-mentions-marquee__img {
+    filter: grayscale(0);
+    opacity: 1;
+  }
+
+  #{{ mm_id }} .media-mentions-marquee__placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: {{ section.settings.logo_min_width }}px;
+    min-height: {{ section.settings.logo_max_height }}px;
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: 1px dashed rgba(0, 0, 0, 0.18);
+    background: rgba(0, 0, 0, 0.03);
+    box-sizing: border-box;
+  }
+
+  #{{ mm_id }} .media-mentions-marquee__placeholder-label {
+    font-family: var(--text-font-family) !important;
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+    font-weight: 500 !important;
+    color: rgba(0, 0, 0, 0.35) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.06em !important;
+    text-align: center !important;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Media mentions (marquee)",
+  "tag": "section",
+  "class": "section-media-mentions-marquee",
+  "max_blocks": 24,
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título",
+      "default": "Media Mentions"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 18,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "label": "Tamanho do título",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "title_margin_bottom",
+      "min": 16,
+      "max": 64,
+      "step": 4,
+      "unit": "px",
+      "label": "Espaço abaixo do título",
+      "default": 32
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Fundo da secção",
+      "default": "#f9f9f9"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Cor do título",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "logo_max_height",
+      "min": 24,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "label": "Altura máxima dos logos",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "logo_min_width",
+      "min": 72,
+      "max": 180,
+      "step": 4,
+      "unit": "px",
+      "label": "Largura mínima por item",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "logo_gap",
+      "min": 24,
+      "max": 96,
+      "step": 4,
+      "unit": "px",
+      "label": "Espaço entre logos",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "marquee_seconds",
+      "min": 10,
+      "max": 80,
+      "step": 1,
+      "unit": "s",
+      "label": "Duração de uma passagem completa",
+      "default": 35,
+      "info": "Maior = deslocamento mais lento. A animação usa a largura real da faixa (loop sem falhas)."
+    },
+    {
+      "type": "range",
+      "id": "strip_cycles",
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "label": "Repetições da lista de logos por faixa",
+      "default": 3,
+      "info": "Aumenta se ainda vir área vazia no ecrã — cada faixa duplicada fica mais longa."
+    },
+    {
+      "type": "checkbox",
+      "id": "edge_fade",
+      "label": "Desvanecer bordas do carrossel",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 24,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding superior",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 24,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding inferior",
+      "default": 56
+    }
+  ],
+  "blocks": [
+    {
+      "type": "logo",
+      "name": "Logo",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "logo",
+          "label": "Imagem (SVG ou PNG recomendado)"
+        },
+        {
+          "type": "text",
+          "id": "alt",
+          "label": "Texto alternativo / rótulo do placeholder",
+          "default": "Logo",
+          "info": "Usado na imagem e no retângulo-placeholder quando não há ficheiro."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link (opcional)",
+          "info": "Abre num novo separador."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Media mentions (marquee)",
+      "category": "Trust & social proof",
+      "blocks": [
+        { "type": "logo", "settings": { "alt": "Vogue" } },
+        { "type": "logo", "settings": { "alt": "GQ" } },
+        { "type": "logo", "settings": { "alt": "Men’s Health" } },
+        { "type": "logo", "settings": { "alt": "Wired" } },
+        { "type": "logo", "settings": { "alt": "Forbes" } },
+        { "type": "logo", "settings": { "alt": "Logo" } },
+        { "type": "logo", "settings": { "alt": "Logo" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

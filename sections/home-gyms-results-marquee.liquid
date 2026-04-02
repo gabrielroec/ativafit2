@@ -1,0 +1,570 @@
+{%- liquid
+  assign hg_id = 'home-gyms-marquee-' | append: section.id
+  assign hg_kf = section.id | split: '__' | last | handleize | default: 'home-gyms'
+  assign hg_blocks_count = section.blocks.size
+  assign hg_duration = section.settings.marquee_seconds | default: 45
+  if hg_duration < 12
+    assign hg_duration = 12
+  endif
+  assign hg_strip_cycles = section.settings.strip_cycles | default: 2
+  if hg_strip_cycles < 1
+    assign hg_strip_cycles = 1
+  endif
+  if hg_strip_cycles > 8
+    assign hg_strip_cycles = 8
+  endif
+-%}
+
+<section
+  id="{{ hg_id }}"
+  class="home-gyms-marquee"
+  data-section-type="home-gyms-results-marquee">
+  <div class="home-gyms-marquee__inner">
+    <div class="home-gyms-marquee__intro">
+      {%- if section.settings.title != blank -%}
+        <h2 class="home-gyms-marquee__title">{{ section.settings.title | escape }}</h2>
+      {%- endif -%}
+      {%- if section.settings.subtitle != blank -%}
+        <p class="home-gyms-marquee__subtitle">{{ section.settings.subtitle | escape }}</p>
+      {%- endif -%}
+    </div>
+
+    <div class="home-gyms-marquee__viewport">
+      <div
+        class="home-gyms-marquee__track"
+        data-home-gyms-track
+        style="--hg-duration: {{ hg_duration }}s;">
+        <div class="home-gyms-marquee__strip" data-home-gyms-strip>
+          {%- if hg_blocks_count > 0 -%}
+            {%- for hg_rep in (1..hg_strip_cycles) -%}
+              {%- for block in section.blocks -%}
+                {%- if block.type == 'card' -%}
+                  <div
+                    class="home-gyms-marquee__cell"
+                    {% if hg_rep == 1 %}
+                      {{ block.shopify_attributes }}
+                    {% endif %}>
+                    {%- render 'home-gyms-marquee-card',
+                      block: block,
+                      section: section,
+                      duplicate_strip: false
+                    -%}
+                  </div>
+                {%- endif -%}
+              {%- endfor -%}
+            {%- endfor -%}
+          {%- else -%}
+            {%- for hg_rep in (1..hg_strip_cycles) -%}
+              {%- for i in (1..4) -%}
+                <div class="home-gyms-marquee__cell">
+                  <div class="home-gyms-marquee__card home-gyms-marquee__card--placeholder" style="width: {{ section.settings.card_width }}px;">
+                    <div class="home-gyms-marquee__card-frame">
+                      <div class="home-gyms-marquee__ph"></div>
+                      <div class="home-gyms-marquee__tag-wrap">
+                        <span class="home-gyms-marquee__tag">{{ 'Community' | escape }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {%- endfor -%}
+            {%- endfor -%}
+          {%- endif -%}
+        </div>
+        <div class="home-gyms-marquee__strip" aria-hidden="true">
+          {%- if hg_blocks_count > 0 -%}
+            {%- for hg_rep in (1..hg_strip_cycles) -%}
+              {%- for block in section.blocks -%}
+                {%- if block.type == 'card' -%}
+                  <div class="home-gyms-marquee__cell">
+                    {%- render 'home-gyms-marquee-card',
+                      block: block,
+                      section: section,
+                      duplicate_strip: true
+                    -%}
+                  </div>
+                {%- endif -%}
+              {%- endfor -%}
+            {%- endfor -%}
+          {%- else -%}
+            {%- for hg_rep in (1..hg_strip_cycles) -%}
+              {%- for i in (1..4) -%}
+                <div class="home-gyms-marquee__cell">
+                  <div class="home-gyms-marquee__card home-gyms-marquee__card--placeholder" style="width: {{ section.settings.card_width }}px;">
+                    <div class="home-gyms-marquee__card-frame">
+                      <div class="home-gyms-marquee__ph"></div>
+                      <div class="home-gyms-marquee__tag-wrap">
+                        <span class="home-gyms-marquee__tag">{{ 'Community' | escape }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {%- endfor -%}
+            {%- endfor -%}
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    var root = document.getElementById('{{ hg_id }}');
+    if (!root) return;
+    var track = root.querySelector('[data-home-gyms-track]');
+    var strip = root.querySelector('[data-home-gyms-strip]');
+    if (!track || !strip) return;
+
+    function motionReduced() {
+      return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+
+    function syncShift() {
+      if (motionReduced()) {
+        track.classList.remove('home-gyms-marquee__track--ready');
+        root.style.removeProperty('--hg-shift');
+        return;
+      }
+      var w = strip.getBoundingClientRect().width;
+      if (!w) return;
+      root.style.setProperty('--hg-shift', (-w).toFixed(2) + 'px');
+      track.classList.add('home-gyms-marquee__track--ready');
+    }
+
+    if (typeof ResizeObserver !== 'undefined') {
+      new ResizeObserver(syncShift).observe(strip);
+    }
+
+    syncShift();
+    requestAnimationFrame(syncShift);
+    requestAnimationFrame(function () {
+      requestAnimationFrame(syncShift);
+    });
+
+    window.addEventListener('load', syncShift);
+    window.addEventListener('resize', function () {
+      clearTimeout(root._hgMarqueeDebounce);
+      root._hgMarqueeDebounce = setTimeout(syncShift, 100);
+    });
+
+    strip.querySelectorAll('img').forEach(function (img) {
+      if (!img.complete) img.addEventListener('load', syncShift, { once: true });
+    });
+  })();
+</script>
+
+<style>
+  #{{ hg_id }} .home-gyms-marquee__inner {
+    background-color: {{ section.settings.background_color }};
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    overflow: hidden;
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__intro {
+    max-width: 80rem;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 24px;
+    padding-right: 24px;
+    margin-bottom: {{ section.settings.intro_margin_bottom }}px;
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__title {
+    font-family: var(--heading-font-family) !important;
+    font-size: {{ section.settings.title_size }}px !important;
+    line-height: 1.15 !important;
+    font-weight: 900 !important;
+    letter-spacing: -0.04em !important;
+    text-transform: uppercase !important;
+    color: {{ section.settings.title_color }} !important;
+    margin: 0 0 {{ section.settings.title_sub_gap }}px !important;
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__subtitle {
+    font-family: var(--text-font-family) !important;
+    font-size: {{ section.settings.subtitle_size }}px !important;
+    line-height: 1.5 !important;
+    font-weight: var(--text-font-weight) !important;
+    color: {{ section.settings.subtitle_color }} !important;
+    margin: 0 !important;
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__viewport {
+    overflow: hidden;
+    width: 100%;
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__track {
+    display: flex;
+    width: max-content;
+    flex-wrap: nowrap;
+    will-change: transform;
+    animation: none;
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__track.home-gyms-marquee__track--ready {
+    animation: hg-marquee-{{ hg_kf }} var(--hg-duration, 45s) linear infinite;
+  }
+
+  /* Pausa ao pairar ou ao focar um link (facilita cliques) */
+  #{{ hg_id }} .home-gyms-marquee__viewport:hover .home-gyms-marquee__track.home-gyms-marquee__track--ready,
+  #{{ hg_id }} .home-gyms-marquee__viewport:focus-within .home-gyms-marquee__track.home-gyms-marquee__track--ready {
+    animation-play-state: paused;
+  }
+
+  @keyframes hg-marquee-{{ hg_kf }} {
+    0% {
+      transform: translate3d(0, 0, 0);
+    }
+    100% {
+      transform: translate3d(var(--hg-shift, 0px), 0, 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #{{ hg_id }} .home-gyms-marquee__track {
+      animation: none !important;
+      transform: translate3d(0, 0, 0) !important;
+      flex-wrap: wrap;
+      width: 100%;
+      max-width: 80rem;
+      margin: 0 auto;
+      justify-content: center;
+      gap: {{ section.settings.card_gap }}px;
+      padding-left: 24px;
+      padding-right: 24px;
+      box-sizing: border-box;
+    }
+
+    #{{ hg_id }} .home-gyms-marquee__strip {
+      flex-wrap: wrap !important;
+      justify-content: center !important;
+      width: 100% !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      gap: {{ section.settings.card_gap }}px !important;
+    }
+
+    #{{ hg_id }} .home-gyms-marquee__strip[aria-hidden='true'] {
+      display: none !important;
+    }
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__strip {
+    display: flex;
+    flex-shrink: 0;
+    align-items: stretch;
+    gap: {{ section.settings.card_gap }}px;
+    padding-left: 24px;
+    padding-right: 24px;
+    box-sizing: border-box;
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__cell {
+    flex-shrink: 0;
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__card {
+    display: block;
+    position: relative;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__card-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border-radius: {{ section.settings.card_radius }}px;
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__card-link:focus-visible {
+    outline: 2px solid {{ section.settings.title_color }};
+    outline-offset: 4px;
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__card-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 9 / 16;
+    overflow: hidden;
+    border-radius: {{ section.settings.card_radius }}px;
+    background: #e8e8e8;
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__card-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s ease;
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__card:hover .home-gyms-marquee__card-frame img,
+  #{{ hg_id }} .home-gyms-marquee__card-link:hover .home-gyms-marquee__card-frame img,
+  #{{ hg_id }} .home-gyms-marquee__card-link:focus-visible .home-gyms-marquee__card-frame img {
+    transform: scale(1.1);
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__ph {
+    width: 100%;
+    height: 100%;
+    min-height: 120px;
+    background: linear-gradient(145deg, #ececec, #d4d4d4);
+    border: 1px dashed rgba(0, 0, 0, 0.12);
+    box-sizing: border-box;
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__tag-wrap {
+    position: absolute;
+    bottom: 24px;
+    left: 24px;
+    right: 24px;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__tag {
+    display: inline-block;
+    font-family: var(--heading-font-family) !important;
+    font-size: 12px !important;
+    line-height: 1.2 !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase !important;
+    color: {{ section.settings.tag_text_color }} !important;
+    background: rgba(255, 255, 255, 0.9);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    padding: 8px 16px;
+    border-radius: 999px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Home gyms results marquee",
+  "tag": "section",
+  "class": "section-home-gyms-results-marquee",
+  "max_blocks": 16,
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título",
+      "default": "Real Home Gyms. Real Results."
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtítulo",
+      "default": "See how our community trains at home with Ativafit gear"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 24,
+      "max": 52,
+      "step": 1,
+      "unit": "px",
+      "label": "Tamanho do título",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "title_sub_gap",
+      "min": 4,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "label": "Espaço título → subtítulo",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "subtitle_size",
+      "min": 14,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "label": "Tamanho do subtítulo",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "intro_margin_bottom",
+      "min": 32,
+      "max": 96,
+      "step": 4,
+      "unit": "px",
+      "label": "Espaço abaixo do texto (antes do carrossel)",
+      "default": 64
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Fundo",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Cor do título",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "subtitle_color",
+      "label": "Cor do subtítulo",
+      "default": "#574237"
+    },
+    {
+      "type": "color",
+      "id": "tag_text_color",
+      "label": "Cor do texto da etiqueta",
+      "default": "#1a1c1c"
+    },
+    {
+      "type": "range",
+      "id": "card_width",
+      "min": 220,
+      "max": 380,
+      "step": 10,
+      "unit": "px",
+      "label": "Largura de cada card",
+      "default": 300
+    },
+    {
+      "type": "range",
+      "id": "card_gap",
+      "min": 16,
+      "max": 64,
+      "step": 4,
+      "unit": "px",
+      "label": "Espaço entre cards",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "min": 4,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "label": "Raio dos cantos do card",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "marquee_seconds",
+      "min": 20,
+      "max": 120,
+      "step": 1,
+      "unit": "s",
+      "label": "Duração de um loop completo",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "strip_cycles",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "label": "Repetições da lista por faixa",
+      "default": 2,
+      "info": "Aumenta se a faixa for mais curta que o ecrã."
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 32,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding superior",
+      "default": 96
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 32,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding inferior",
+      "default": 96
+    }
+  ],
+  "blocks": [
+    {
+      "type": "card",
+      "name": "Card",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Imagem"
+        },
+        {
+          "type": "text",
+          "id": "image_alt",
+          "label": "Texto alternativo da imagem",
+          "default": "Home gym"
+        },
+        {
+          "type": "text",
+          "id": "tag",
+          "label": "Etiqueta (hashtag)",
+          "default": "#garage gym",
+          "info": "Ex.: #garage gym — pode incluir ou não o #."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link do card",
+          "info": "Quando preenchido, o card inteiro (imagem + etiqueta) fica clicável e abre num novo separador."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Home gyms results marquee",
+      "category": "Storytelling",
+      "blocks": [
+        {
+          "type": "card",
+          "settings": {
+            "tag": "#garage gym",
+            "image_alt": "Garage gym"
+          }
+        },
+        {
+          "type": "card",
+          "settings": {
+            "tag": "#apartment gym",
+            "image_alt": "Apartment gym"
+          }
+        },
+        {
+          "type": "card",
+          "settings": {
+            "tag": "#living room",
+            "image_alt": "Living room workout"
+          }
+        },
+        {
+          "type": "card",
+          "settings": {
+            "tag": "#outdoor",
+            "image_alt": "Outdoor workout space"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

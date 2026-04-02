@@ -1,0 +1,468 @@
+{%- liquid
+  assign fi_id = 'fitness-insights-' | append: section.id
+  assign fi_blog = section.settings.blog
+  assign fi_limit = section.settings.post_count | default: 3
+  if fi_limit < 1
+    assign fi_limit = 3
+  endif
+  if fi_limit > 6
+    assign fi_limit = 6
+  endif
+  assign fi_accent = section.settings.accent_color | default: '#eb701f'
+  assign fi_bg = section.settings.background_color | default: '#ffffff'
+-%}
+
+<section
+  id="{{ fi_id }}"
+  class="fitness-insights-blog"
+  data-section-type="fitness-insights-blog">
+  <div class="fitness-insights-blog__inner">
+    <div class="fitness-insights-blog__header">
+      {%- if section.settings.title != blank -%}
+        <h2 class="fitness-insights-blog__heading">{{ section.settings.title | escape }}</h2>
+      {%- endif -%}
+      {%- if fi_blog != blank and section.settings.read_more_label != blank -%}
+        <a href="{{ fi_blog.url }}" class="fitness-insights-blog__read-more">
+          {{ section.settings.read_more_label | escape }}
+          <span class="material-symbols-outlined fitness-insights-blog__read-more-icon" aria-hidden="true">arrow_forward</span>
+        </a>
+      {%- endif -%}
+    </div>
+
+    <div class="fitness-insights-blog__grid">
+      {%- if fi_blog != blank -%}
+        {%- for article in fi_blog.articles limit: fi_limit -%}
+          {%- assign fi_img_alt = article.image.alt | default: article.title -%}
+          <a href="{{ article.url }}" class="fitness-insights-blog__card">
+            <div class="fitness-insights-blog__media">
+              {%- if article.image != blank -%}
+                {{
+                  article.image
+                  | image_url: width: 900
+                  | image_tag:
+                    loading: 'lazy',
+                    class: 'fitness-insights-blog__img',
+                    widths: '400, 600, 800, 900',
+                    sizes: '(min-width: 990px) 30vw, 100vw',
+                    alt: fi_img_alt
+                }}
+              {%- else -%}
+                <div class="fitness-insights-blog__img-placeholder" aria-hidden="true">
+                  {{ 'image' | placeholder_svg_tag: 'fitness-insights-blog__ph-svg' }}
+                </div>
+              {%- endif -%}
+            </div>
+            {%- liquid
+              assign fi_cat = article.tags.first | default: fi_blog.title
+            -%}
+            {%- if fi_cat != blank -%}
+              <p class="fitness-insights-blog__category">{{ fi_cat | upcase | escape }}</p>
+            {%- endif -%}
+            <h3 class="fitness-insights-blog__post-title">{{ article.title | escape }}</h3>
+            <p class="fitness-insights-blog__excerpt">
+              {%- if article.excerpt != blank -%}
+                {{ article.excerpt | strip_html | truncate: 160 }}
+              {%- else -%}
+                {{ article.content | strip_html | truncate: 160 }}
+              {%- endif -%}
+            </p>
+          </a>
+        {%- else -%}
+          {%- for i in (1..fi_limit) -%}
+            <div class="fitness-insights-blog__card fitness-insights-blog__card--placeholder">
+              <div class="fitness-insights-blog__media">
+                <div class="fitness-insights-blog__img-placeholder" aria-hidden="true">
+                  {{ 'image' | placeholder_svg_tag: 'fitness-insights-blog__ph-svg' }}
+                </div>
+              </div>
+              <p class="fitness-insights-blog__category">{{ section.settings.placeholder_category | escape }}</p>
+              <h3 class="fitness-insights-blog__post-title">{{ section.settings.placeholder_title | escape }}</h3>
+              <p class="fitness-insights-blog__excerpt">{{ section.settings.placeholder_excerpt | escape }}</p>
+            </div>
+          {%- endfor -%}
+        {%- endfor -%}
+      {%- else -%}
+        {%- for i in (1..fi_limit) -%}
+          <div class="fitness-insights-blog__card fitness-insights-blog__card--placeholder">
+            <div class="fitness-insights-blog__media">
+              <div class="fitness-insights-blog__img-placeholder" aria-hidden="true">
+                {{ 'image' | placeholder_svg_tag: 'fitness-insights-blog__ph-svg' }}
+              </div>
+            </div>
+            <p class="fitness-insights-blog__category">{{ section.settings.placeholder_category | escape }}</p>
+            <h3 class="fitness-insights-blog__post-title">{{ section.settings.placeholder_title | escape }}</h3>
+            <p class="fitness-insights-blog__excerpt">{{ section.settings.placeholder_excerpt | escape }}</p>
+          </div>
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  #{{ fi_id }}.fitness-insights-blog {
+    background-color: {{ fi_bg }} !important;
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+  }
+
+  #{{ fi_id }} .fitness-insights-blog__inner {
+    max-width: 80rem;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  #{{ fi_id }} .fitness-insights-blog__header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: {{ section.settings.header_margin_bottom }}px;
+  }
+
+  @media screen and (min-width: 640px) {
+    #{{ fi_id }} .fitness-insights-blog__header {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+  }
+
+  #{{ fi_id }} .fitness-insights-blog__heading {
+    font-family: var(--heading-font-family) !important;
+    font-size: {{ section.settings.title_size }}px !important;
+    line-height: 1.1 !important;
+    font-weight: 900 !important;
+    letter-spacing: -0.04em !important;
+    text-transform: uppercase !important;
+    color: {{ section.settings.heading_color }} !important;
+    margin: 0 !important;
+  }
+
+  #{{ fi_id }} .fitness-insights-blog__read-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--heading-font-family) !important;
+    font-size: {{ section.settings.read_more_size }}px !important;
+    font-weight: 700 !important;
+    color: {{ fi_accent }} !important;
+    text-decoration: none !important;
+    flex-shrink: 0;
+  }
+
+  #{{ fi_id }} .fitness-insights-blog__read-more:hover {
+    text-decoration: underline !important;
+  }
+
+  #{{ fi_id }} .fitness-insights-blog__read-more-icon.material-symbols-outlined {
+    font-family: 'Material Symbols Outlined', sans-serif !important;
+    font-size: 18px !important;
+    line-height: 1 !important;
+    font-weight: normal !important;
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24 !important;
+  }
+
+  #{{ fi_id }} .fitness-insights-blog__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: {{ section.settings.grid_gap }}px;
+  }
+
+  @media screen and (min-width: 768px) {
+    #{{ fi_id }} .fitness-insights-blog__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  #{{ fi_id }} .fitness-insights-blog__card {
+    display: block;
+    text-decoration: none !important;
+    color: inherit !important;
+    cursor: pointer;
+  }
+
+  #{{ fi_id }} .fitness-insights-blog__card--placeholder {
+    cursor: default;
+    pointer-events: none;
+  }
+
+  #{{ fi_id }} .fitness-insights-blog__media {
+    overflow: hidden;
+    border-radius: {{ section.settings.card_radius }}px;
+    aspect-ratio: 16 / 10;
+    margin-bottom: {{ section.settings.media_margin_bottom }}px;
+    background: #e8e8e8;
+  }
+
+  #{{ fi_id }} .fitness-insights-blog__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s ease;
+  }
+
+  #{{ fi_id }} a.fitness-insights-blog__card:hover .fitness-insights-blog__img {
+    transform: scale(1.05);
+  }
+
+  #{{ fi_id }} .fitness-insights-blog__img-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(145deg, #ececec, #dedede);
+  }
+
+  #{{ fi_id }} .fitness-insights-blog__img-placeholder svg,
+  #{{ fi_id }} .fitness-insights-blog__ph-svg {
+    width: 48px;
+    height: 48px;
+    opacity: 0.35;
+  }
+
+  #{{ fi_id }} .fitness-insights-blog__category {
+    font-family: var(--heading-font-family) !important;
+    font-size: 11px !important;
+    line-height: 1.3 !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase !important;
+    color: {{ fi_accent }} !important;
+    margin: 0 0 8px !important;
+  }
+
+  #{{ fi_id }} .fitness-insights-blog__post-title {
+    font-family: var(--heading-font-family) !important;
+    font-size: {{ section.settings.post_title_size }}px !important;
+    line-height: 1.25 !important;
+    font-weight: 700 !important;
+    color: {{ section.settings.post_title_color }} !important;
+    margin: 0 0 12px !important;
+    transition: color 0.2s ease;
+  }
+
+  #{{ fi_id }} a.fitness-insights-blog__card:hover .fitness-insights-blog__post-title {
+    color: {{ fi_accent }} !important;
+  }
+
+  #{{ fi_id }} .fitness-insights-blog__excerpt {
+    font-family: var(--text-font-family) !important;
+    font-size: {{ section.settings.excerpt_size }}px !important;
+    line-height: 1.5 !important;
+    font-weight: var(--text-font-weight) !important;
+    color: {{ section.settings.excerpt_color }} !important;
+    margin: 0 !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Fitness Insights (blog)",
+  "tag": "section",
+  "class": "section-fitness-insights-blog",
+  "settings": [
+    {
+      "type": "blog",
+      "id": "blog",
+      "label": "Blog",
+      "info": "Os artigos mais recentes deste blog aparecem na grelha."
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título da secção",
+      "default": "Fitness Insights"
+    },
+    {
+      "type": "text",
+      "id": "read_more_label",
+      "label": "Texto do link (ver blog)",
+      "default": "Read More"
+    },
+    {
+      "type": "range",
+      "id": "post_count",
+      "min": 3,
+      "max": 6,
+      "step": 1,
+      "label": "Número de artigos",
+      "default": 3
+    },
+    {
+      "type": "header",
+      "content": "Textos de placeholder (sem blog ou sem artigos)"
+    },
+    {
+      "type": "text",
+      "id": "placeholder_category",
+      "label": "Categoria (placeholder)",
+      "default": "Training Tips"
+    },
+    {
+      "type": "text",
+      "id": "placeholder_title",
+      "label": "Título (placeholder)",
+      "default": "How to Maximize Your Home Gym Space"
+    },
+    {
+      "type": "textarea",
+      "id": "placeholder_excerpt",
+      "label": "Excerto (placeholder)",
+      "default": "Small space doesn't mean small results. Learn how to arrange your gear for peak performance..."
+    },
+    {
+      "type": "header",
+      "content": "Cores"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Fundo da secção",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Cor de destaque (categorias, links)",
+      "default": "#eb701f"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Cor do título principal",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "post_title_color",
+      "label": "Cor dos títulos dos artigos",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "excerpt_color",
+      "label": "Cor do excerto",
+      "default": "#574237"
+    },
+    {
+      "type": "header",
+      "content": "Tipografia e espaçamento"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 28,
+      "max": 44,
+      "step": 1,
+      "unit": "px",
+      "label": "Tamanho do título da secção",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "read_more_size",
+      "min": 14,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Tamanho do link Read More",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "post_title_size",
+      "min": 16,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Tamanho do título do artigo",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "excerpt_size",
+      "min": 12,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "label": "Tamanho do excerto",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "header_margin_bottom",
+      "min": 32,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Espaço abaixo do cabeçalho",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "min": 24,
+      "max": 56,
+      "step": 2,
+      "unit": "px",
+      "label": "Espaço entre colunas",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "media_margin_bottom",
+      "min": 16,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Espaço abaixo da imagem",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "min": 4,
+      "max": 16,
+      "step": 2,
+      "unit": "px",
+      "label": "Raio dos cantos da imagem",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 48,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding superior",
+      "default": 96
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 48,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding inferior",
+      "default": 96
+    }
+  ],
+  "presets": [
+    {
+      "name": "Fitness Insights (blog)",
+      "category": "Blog"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,48 @@
+{%- liquid
+  assign tag_raw = block.settings.tag | strip
+  assign tag_show = tag_raw
+  if tag_show != blank
+    unless tag_show contains '#'
+      assign tag_show = '#' | append: tag_show
+    endunless
+  endif
+  assign img_alt = block.settings.image_alt | default: 'Community photo'
+  assign hg_img_sizes = '(max-width: 749px) 72vw, ' | append: section.settings.card_width | append: 'px'
+-%}
+
+<div class="home-gyms-marquee__card" style="width: {{ section.settings.card_width }}px;">
+  {%- if block.settings.link != blank -%}
+    <a
+      href="{{ block.settings.link }}"
+      class="home-gyms-marquee__card-link"
+      {% if duplicate_strip %}
+        tabindex="-1"
+      {% else %}
+        rel="noopener noreferrer"
+        target="_blank"
+      {% endif %}>
+  {%- endif -%}
+  <div class="home-gyms-marquee__card-frame">
+    {%- if block.settings.image != blank -%}
+      {{
+        block.settings.image
+        | image_url: width: 900
+        | image_tag:
+          loading: 'lazy',
+          widths: '300, 450, 600, 750, 900',
+          sizes: hg_img_sizes,
+          alt: img_alt
+      }}
+    {%- else -%}
+      <div class="home-gyms-marquee__ph"></div>
+    {%- endif -%}
+    {%- if tag_show != blank -%}
+      <div class="home-gyms-marquee__tag-wrap">
+        <span class="home-gyms-marquee__tag">{{ tag_show | escape }}</span>
+      </div>
+    {%- endif -%}
+  </div>
+  {%- if block.settings.link != blank -%}
+    </a>
+  {%- endif -%}
+</div>

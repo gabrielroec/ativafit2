@@ -1,0 +1,310 @@
+{%- liquid
+  assign cta_id = 'ativa-community-cta-' | append: section.id
+  assign cta_brand_orange = '#eb701f'
+  assign cta_bg = section.settings.background_color | default: cta_brand_orange
+-%}
+
+<section
+  id="{{ cta_id }}"
+  class="ativa-community-cta"
+  data-section-type="ativa-community-cta">
+  <div class="ativa-community-cta__inner">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="ativa-community-cta__title">{{ section.settings.heading | escape }}</h2>
+    {%- endif -%}
+
+    {%- if section.settings.body != blank -%}
+      <p class="ativa-community-cta__text">{{ section.settings.body | escape | newline_to_br }}</p>
+    {%- endif -%}
+
+    {%- if section.settings.button_label != blank -%}
+      {%- if section.settings.button_link != blank -%}
+        <a
+          class="ativa-community-cta__button"
+          href="{{ section.settings.button_link }}"
+          {% if section.settings.button_new_tab %}
+            target="_blank"
+            rel="noopener noreferrer"
+          {% endif %}>
+          {{ section.settings.button_label | escape }}
+        </a>
+      {%- else -%}
+        <span class="ativa-community-cta__button ativa-community-cta__button--static" role="text">
+          {{ section.settings.button_label | escape }}
+        </span>
+      {%- endif -%}
+    {%- endif -%}
+  </div>
+</section>
+
+<style>
+  /* Mesmo elemento: section#id.ativa-community-cta (não usar #id .classe — isso exige filho) */
+  #{{ cta_id }}.ativa-community-cta {
+    background-color: {{ cta_bg }} !important;
+    color: #ffffff;
+    text-align: center !important;
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+  }
+
+  #{{ cta_id }} .ativa-community-cta__inner {
+    max-width: 56rem;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 24px;
+    padding-right: 24px;
+    text-align: center !important;
+  }
+
+  #{{ cta_id }} .ativa-community-cta__title {
+    font-family: var(--heading-font-family) !important;
+    font-size: {{ section.settings.title_size_mobile }}px !important;
+    line-height: 1.1 !important;
+    font-weight: 900 !important;
+    letter-spacing: -0.04em !important;
+    text-transform: uppercase !important;
+    color: #ffffff !important;
+    text-align: center !important;
+    margin: 0 auto {{ section.settings.title_margin_bottom }}px !important;
+  }
+
+  @media screen and (min-width: 768px) {
+    #{{ cta_id }} .ativa-community-cta__title {
+      font-size: {{ section.settings.title_size_desktop }}px !important;
+    }
+  }
+
+  #{{ cta_id }} .ativa-community-cta__text {
+    font-family: var(--text-font-family) !important;
+    font-size: {{ section.settings.body_size_mobile }}px !important;
+    line-height: 1.625 !important;
+    font-weight: 300 !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+    text-align: center !important;
+    margin: 0 auto {{ section.settings.text_margin_bottom }}px !important;
+    max-width: 48rem;
+  }
+
+  @media screen and (min-width: 768px) {
+    #{{ cta_id }} .ativa-community-cta__text {
+      font-size: {{ section.settings.body_size_desktop }}px !important;
+    }
+  }
+
+  #{{ cta_id }} .ativa-community-cta__button {
+    display: inline-block;
+    font-family: var(--heading-font-family) !important;
+    font-size: {{ section.settings.button_font_size }}px !important;
+    line-height: 1.2 !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.2em !important;
+    text-transform: uppercase !important;
+    text-decoration: none !important;
+    color: {{ cta_bg }} !important;
+    background-color: #ffffff !important;
+    padding: {{ section.settings.button_padding_y }}px {{ section.settings.button_padding_x }}px !important;
+    border-radius: {{ section.settings.button_radius }}px !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.12);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  #{{ cta_id }} a.ativa-community-cta__button:hover {
+    transform: scale(1.05);
+  }
+
+  #{{ cta_id }} a.ativa-community-cta__button:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 4px;
+  }
+
+  #{{ cta_id }} .ativa-community-cta__button--static {
+    cursor: default;
+    box-shadow: none;
+    opacity: 0.85;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Ativa Community CTA",
+  "tag": "section",
+  "class": "section-ativa-community-cta",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Título",
+      "default": "Join the Ativa Community"
+    },
+    {
+      "type": "textarea",
+      "id": "body",
+      "label": "Texto",
+      "default": "Elevate your training with exclusive access to early product launches, member-only discounts, and expert workout guides tailored for your home gym setup."
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Texto do botão",
+      "default": "Sign Up Now"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Link do botão",
+      "info": "Ex.: página AtivaPeople ou registo. Se vazio, o botão aparece sem link."
+    },
+    {
+      "type": "checkbox",
+      "id": "button_new_tab",
+      "label": "Abrir link num novo separador",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Cores"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Fundo",
+      "default": "#eb701f",
+      "info": "Laranja de marca Ativafit (#eb701f). O texto do botão branco usa esta cor."
+    },
+    {
+      "type": "header",
+      "content": "Tipografia"
+    },
+    {
+      "type": "range",
+      "id": "title_size_mobile",
+      "min": 28,
+      "max": 44,
+      "step": 1,
+      "unit": "px",
+      "label": "Título — mobile",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "title_size_desktop",
+      "min": 36,
+      "max": 56,
+      "step": 1,
+      "unit": "px",
+      "label": "Título — desktop",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "body_size_mobile",
+      "min": 16,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "label": "Corpo — mobile",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "body_size_desktop",
+      "min": 18,
+      "max": 26,
+      "step": 1,
+      "unit": "px",
+      "label": "Corpo — desktop",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "button_font_size",
+      "min": 12,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Texto do botão",
+      "default": 14
+    },
+    {
+      "type": "header",
+      "content": "Espaçamento"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 48,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding vertical (topo)",
+      "default": 96
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 48,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding vertical (base)",
+      "default": 96
+    },
+    {
+      "type": "range",
+      "id": "title_margin_bottom",
+      "min": 16,
+      "max": 48,
+      "step": 4,
+      "unit": "px",
+      "label": "Espaço abaixo do título",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "text_margin_bottom",
+      "min": 24,
+      "max": 64,
+      "step": 4,
+      "unit": "px",
+      "label": "Espaço abaixo do texto (antes do botão)",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "button_padding_x",
+      "min": 24,
+      "max": 56,
+      "step": 2,
+      "unit": "px",
+      "label": "Botão — padding horizontal",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "button_padding_y",
+      "min": 12,
+      "max": 28,
+      "step": 2,
+      "unit": "px",
+      "label": "Botão — padding vertical",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "button_radius",
+      "min": 0,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "label": "Raio dos cantos do botão",
+      "default": 4
+    }
+  ],
+  "presets": [
+    {
+      "name": "Ativa Community CTA",
+      "category": "Call to action"
+    }
+  ]
+}
+{% endschema %}
