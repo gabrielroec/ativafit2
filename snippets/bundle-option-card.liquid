@@ -1,12 +1,12 @@
 {% comment %}
-  Card de opção para bundle (radio): imagem estilo product-card-simple, sem ATC.
+  Card de opção para bundle (radio/checkbox): imagem estilo product-card-simple, sem ATC.
   Parâmetros: product, variant, input_id, input_name, checked, card_title, card_description, badge_label,
-  line_category (sidebar), line_icon (Material Symbols)
+  line_category (sidebar), input_type (radio|checkbox)
 {% endcomment %}
 {%- liquid
   assign bo_line_title = card_title | default: product.title
   assign bo_line_cat = line_category | default: ''
-  assign bo_icon = line_icon | default: 'fitness_center'
+  assign bo_input_type = input_type | default: 'radio'
 -%}
 {%- if product != blank and variant != blank -%}
   {%- liquid
@@ -16,7 +16,7 @@
   -%}
   <label class="bundle-option-card" for="{{ input_id }}" data-bundle-option-card>
     <input
-      type="radio"
+      type="{{ bo_input_type }}"
       name="{{ input_name }}"
       id="{{ input_id }}"
       value="{{ variant.id }}"
@@ -25,9 +25,9 @@
       data-bundle-product-id="{{ product.id }}"
       data-bundle-line-title="{{ bo_line_title | escape }}"
       data-bundle-line-category="{{ bo_line_cat | escape }}"
-      data-bundle-icon="{{ bo_icon | escape }}"
       data-bundle-price-cents="{{ variant.price }}"
       data-bundle-compare-price-cents="{{ variant.compare_at_price | default: 0 }}"
+      data-bundle-discount-cents="{{ discount_cents | default: 0 }}"
       {% if checked %}checked{% endif %}>
     <span class="bundle-option-card__surface">
       <span class="bundle-option-card__media">

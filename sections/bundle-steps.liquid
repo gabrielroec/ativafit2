@@ -1,0 +1,395 @@
+{%- liquid
+  assign bs_id = 'bundle-steps-' | append: section.id
+  assign step1_name = 'bundle-dumbbell-base-' | append: section.id
+  assign step2_name = 'bundle-support-storage-' | append: section.id
+
+  assign s3_product = section.settings.step3_product
+  assign s3_variant = nil
+  if s3_product != blank
+    assign s3_variant = s3_product.selected_or_first_available_variant
+  endif
+  assign s3_save_cents = 0
+  assign s3_show_auto_save = false
+  if s3_variant != blank
+    assign s3_compare = s3_variant.compare_at_price
+    assign s3_price = s3_variant.price
+    if s3_compare != blank and s3_compare > s3_price and s3_compare > 0
+      assign s3_save_cents = s3_compare | minus: s3_price
+      assign s3_show_auto_save = true
+    endif
+  endif
+  assign s3_save_label = section.settings.step3_save_badge_text | strip
+  if s3_save_label == blank and s3_show_auto_save
+    assign s3_save_money = s3_save_cents | money
+    assign s3_save_label = 'SAVE ' | append: s3_save_money
+  endif
+  assign s3_display_title = section.settings.step3_card_title | strip
+  if s3_display_title == blank and s3_product != blank
+    assign s3_display_title = s3_product.title
+  endif
+
+  assign s1_discount_cents = section.settings.step1_item_discount | times: 100
+  assign s2_discount_cents = section.settings.step2_item_discount | times: 100
+  assign s3_discount_cents = section.settings.step3_item_discount | times: 100
+-%}
+
+<section id="{{ bs_id }}" class="bundle-steps" data-section-type="bundle-steps" {{ section.shopify_attributes }}>
+  <div class="bundle-steps__inner">
+    <div id="bundle-step-1" class="bundle-steps__part" data-section-type="bundle-step-dumbbell-base" data-bundle-step="1">
+      <h2 class="bundle-steps__heading">
+        <span class="bundle-steps__heading-num">{{ section.settings.step1_number | escape }}</span>
+        <span class="bundle-steps__heading-text">{{ section.settings.step1_title | escape }}</span>
+      </h2>
+      <fieldset class="bundle-steps__fieldset">
+        <legend class="visually-hidden">{{ section.settings.step1_legend | escape }}</legend>
+        <div class="bundle-steps__grid bundle-steps__grid--step1" role="radiogroup" aria-label="{{ section.settings.step1_legend | escape }}">
+          {%- assign s1_render = 0 -%}
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'step1_option' -%}
+              {%- assign s1_render = s1_render | plus: 1 -%}
+              <div class="bundle-steps__cell" {{ block.shopify_attributes }}>
+                {%- assign p = block.settings.product -%}
+                {%- if p != blank -%}
+                  {%- assign v = p.selected_or_first_available_variant -%}
+                  {%- assign input_id = 'bundle-s1-' | append: section.id | append: '-' | append: s1_render -%}
+                  {%- render 'bundle-option-card',
+                    product: p,
+                    variant: v,
+                    input_id: input_id,
+                    input_name: step1_name,
+                    input_type: 'checkbox',
+                    card_title: block.settings.card_title,
+                    card_description: block.settings.card_description,
+                    badge_label: block.settings.badge_label,
+                    line_category: block.settings.sidebar_category,
+                    discount_cents: s1_discount_cents
+                  -%}
+                {%- else -%}
+                  <div class="bundle-steps__placeholder"><span>{{ section.settings.empty_state_text | escape }}</span></div>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="bundle-steps__part" data-section-type="bundle-step-support-storage" data-bundle-step="2">
+      <h2 class="bundle-steps__heading">
+        <span class="bundle-steps__heading-num">{{ section.settings.step2_number | escape }}</span>
+        <span class="bundle-steps__heading-text">{{ section.settings.step2_title | escape }}</span>
+      </h2>
+      <div class="bundle-steps__lock-hint" data-bundle-lock-hint aria-live="polite">
+        <svg class="bundle-steps__lock-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="7" width="10" height="8" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M5 7V5a3 3 0 0 1 6 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span>Select at least 1 product in Step {{ section.settings.step1_number | escape }} to unlock this step.</span>
+      </div>
+      <fieldset class="bundle-steps__fieldset">
+        <legend class="visually-hidden">{{ section.settings.step2_legend | escape }}</legend>
+        <div class="bundle-steps__grid bundle-steps__grid--step2" role="radiogroup" aria-label="{{ section.settings.step2_legend | escape }}">
+          {%- assign s2_render = 0 -%}
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'step2_option' -%}
+              {%- assign s2_render = s2_render | plus: 1 -%}
+              <div class="bundle-steps__cell" {{ block.shopify_attributes }}>
+                {%- assign p = block.settings.product -%}
+                {%- if p != blank -%}
+                  {%- assign v = p.selected_or_first_available_variant -%}
+                  {%- assign input_id = 'bundle-s2-' | append: section.id | append: '-' | append: s2_render -%}
+                  {%- render 'bundle-option-card',
+                    product: p,
+                    variant: v,
+                    input_id: input_id,
+                    input_name: step2_name,
+                    input_type: 'checkbox',
+                    card_title: block.settings.card_title,
+                    card_description: block.settings.card_description,
+                    badge_label: block.settings.badge_label,
+                    line_category: block.settings.sidebar_category,
+                    discount_cents: s2_discount_cents
+                  -%}
+                {%- else -%}
+                  <div class="bundle-steps__placeholder"><span>{{ section.settings.empty_state_text | escape }}</span></div>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="bundle-steps__part" data-section-type="bundle-step-recovery-protocol" data-bundle-step="3">
+      <h2 class="bundle-steps__heading">
+        <span class="bundle-steps__heading-num">{{ section.settings.step3_number | escape }}</span>
+        <span class="bundle-steps__heading-text">{{ section.settings.step3_title | escape }}</span>
+        <span class="bundle-steps__heading-optional">(optional)</span>
+      </h2>
+      <div class="bundle-steps__lock-hint" data-bundle-lock-hint aria-live="polite">
+        <svg class="bundle-steps__lock-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="7" width="10" height="8" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M5 7V5a3 3 0 0 1 6 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span>Select at least 1 product in Step {{ section.settings.step2_number | escape }} to unlock this step.</span>
+      </div>
+      {%- if s3_product != blank and s3_variant != blank -%}
+        {%- assign s3_on = section.settings.step3_included_default -%}
+        <div
+        class="bundle-steps__recovery-card{% if s3_on %} is-included{% endif %}"
+          data-bundle-recovery-card
+          data-bundle-variant-id="{{ s3_variant.id }}"
+          data-bundle-line-title="{{ s3_display_title | escape }}"
+          data-bundle-line-category="{{ section.settings.step3_sidebar_category | escape }}"
+          data-bundle-compare-price-cents="{{ s3_variant.compare_at_price | default: 0 }}"
+          data-bundle-price-cents="{{ s3_variant.price }}"
+          data-bundle-discount-cents="{{ s3_discount_cents }}">
+          {%- if section.settings.step3_lab_ribbon_text != blank -%}
+            <div class="bundle-steps__recovery-ribbon">{{ section.settings.step3_lab_ribbon_text | escape }}</div>
+          {%- endif -%}
+          <div class="bundle-steps__recovery-layout">
+            <div class="bundle-steps__recovery-media">
+              {%- assign img = s3_variant.image | default: s3_product.featured_image -%}
+              {%- if img -%}
+                {{ img | image_url: width: 800 | image_tag: loading: 'lazy', class: 'bundle-steps__recovery-img', widths: '200, 300, 400, 600, 800', sizes: '(min-width: 750px) 320px, 100vw', alt: img.alt | default: s3_display_title | escape }}
+              {%- else -%}
+                {{ 'product-1' | placeholder_svg_tag: 'bundle-steps__recovery-img-ph' }}
+              {%- endif -%}
+            </div>
+            <div class="bundle-steps__recovery-content">
+              <div class="bundle-steps__recovery-title-row">
+                <h3 class="bundle-steps__recovery-title">{{ s3_display_title | escape }}</h3>
+                {%- if s3_save_label != blank -%}
+                  <span class="bundle-steps__recovery-save">{{ s3_save_label | escape }}</span>
+                {%- endif -%}
+              </div>
+              {%- if section.settings.step3_description != blank -%}
+                <div class="bundle-steps__recovery-description rte">{{ section.settings.step3_description }}</div>
+              {%- endif -%}
+              <div class="bundle-steps__recovery-footer">
+                <div class="bundle-steps__recovery-prices">
+                  {%- assign compare = s3_variant.compare_at_price -%}
+                  {%- assign price = s3_variant.price -%}
+                  {%- if compare != blank and compare > price and compare > 0 -%}
+                    <span class="bundle-steps__recovery-compare">{{ compare | money }}</span>
+                  {%- endif -%}
+                  <span class="bundle-steps__recovery-price">{{ price | money }}</span>
+                </div>
+                <button type="button" class="bundle-steps__recovery-include{% if s3_on %} bundle-steps__recovery-include--active{% endif %}" data-bundle-recovery-toggle aria-pressed="{% if s3_on %}true{% else %}false{% endif %}">
+                  {{ section.settings.step3_included_label | escape }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      {%- else -%}
+        <div class="bundle-steps__placeholder"><span>{{ section.settings.empty_state_text | escape }}</span></div>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  #{{ bs_id }}.bundle-steps { background: {{ section.settings.background_color }}; padding: {{ section.settings.padding_top }}px 0 {{ section.settings.padding_bottom }}px; }
+  #{{ bs_id }} .bundle-steps__inner { max-width: 80rem; margin: 0 auto; padding: 0 24px; }
+  #{{ bs_id }} .bundle-steps__part + .bundle-steps__part { margin-top: {{ section.settings.step_gap }}px; }
+  #{{ bs_id }} .bundle-steps__heading { margin: 0 0 {{ section.settings.heading_margin_bottom }}px !important; font-family: var(--heading-font-family) !important; text-transform: uppercase !important; letter-spacing: -0.03em !important; line-height: 1.05 !important; }
+  #{{ bs_id }} .bundle-steps__heading-num { color: {{ section.settings.step_number_color }} !important; font-weight: 800 !important; font-size: {{ section.settings.heading_num_size_mobile }}px !important; margin-right: 0.35em !important; }
+  #{{ bs_id }} .bundle-steps__heading-text { color: {{ section.settings.step_title_color }} !important; font-weight: 900 !important; font-size: {{ section.settings.heading_title_size_mobile }}px !important; }
+  @media screen and (min-width: 750px) {
+    #{{ bs_id }} .bundle-steps__heading-num { font-size: {{ section.settings.heading_num_size_desktop }}px !important; }
+    #{{ bs_id }} .bundle-steps__heading-text { font-size: {{ section.settings.heading_title_size_desktop }}px !important; }
+  }
+  #{{ bs_id }} .bundle-steps__fieldset { border: none; margin: 0; padding: 0; min-width: 0; }
+  #{{ bs_id }} .bundle-steps__grid { display: grid; grid-template-columns: 1fr; gap: {{ section.settings.grid_gap }}px; align-items: stretch; }
+  @media screen and (min-width: 750px) { #{{ bs_id }} .bundle-steps__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  #{{ bs_id }} .bundle-steps__cell { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  #{{ bs_id }} .bundle-option-card { display: flex; flex-direction: column; flex: 1; min-height: 0; height: 100%; cursor: pointer; margin: 0; }
+  #{{ bs_id }} .bundle-option-card__surface { display: flex; flex-direction: column; flex: 1; min-height: 0; height: 100%; background: #fff; border-radius: 10px; border: 1px solid #e5e5e5; overflow: hidden; transition: border-color .2s ease, box-shadow .2s ease; }
+  #{{ bs_id }} .bundle-option-card__input:checked + .bundle-option-card__surface { border-width: 3px; border-color: {{ section.settings.selection_border_color }}; box-shadow: 0 0 0 1px {{ section.settings.selection_border_color }}; }
+  #{{ bs_id }} .bundle-option-card__input:focus-visible + .bundle-option-card__surface { outline: 2px solid {{ section.settings.selection_border_color }}; outline-offset: 3px; }
+  #{{ bs_id }} .bundle-option-card__media { position: relative; background: #f2f2f2; aspect-ratio: 1 / 1; overflow: hidden; }
+  #{{ bs_id }} .bundle-option-card__img, #{{ bs_id }} .bundle-option-card__placeholder { width: 100%; height: 100%; object-fit: contain; display: block; }
+  #{{ bs_id }} .bundle-option-card__check { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; border-radius: 50%; background: {{ section.settings.selection_border_color }}; color: #fff; display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(.85); transition: opacity .2s ease, transform .2s ease; pointer-events: none; z-index: 2; }
+  #{{ bs_id }} .bundle-option-card__input:checked + .bundle-option-card__surface .bundle-option-card__check { opacity: 1; transform: scale(1); }
+  #{{ bs_id }} .bundle-option-card__body { padding: 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 0; }
+  #{{ bs_id }} [data-section-type='bundle-step-dumbbell-base'] .bundle-option-card__body { align-items: flex-start; text-align: left; }
+  #{{ bs_id }} [data-section-type='bundle-step-support-storage'] .bundle-option-card__body { align-items: center; text-align: center; }
+  #{{ bs_id }} .bundle-option-card__badge { font-family: var(--heading-font-family) !important; font-size: 11px !important; font-weight: 700 !important; letter-spacing: .08em !important; text-transform: uppercase !important; color: {{ section.settings.selection_border_color }} !important; background: rgba(235, 112, 31, .14) !important; padding: 5px 10px !important; border-radius: 6px !important; line-height: 1.2 !important; }
+  #{{ bs_id }} .bundle-option-card__title { font-family: var(--heading-font-family) !important; font-size: 16px !important; line-height: 1.3 !important; font-weight: 700 !important; color: #000 !important; margin: 0 !important; }
+  #{{ bs_id }} .bundle-option-card__desc { font-family: var(--text-font-family) !important; font-size: 14px !important; line-height: 1.45 !important; color: {{ section.settings.description_color }} !important; margin: 0 !important; }
+  #{{ bs_id }} .bundle-option-card__price-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-top: auto; padding-top: 4px; }
+  #{{ bs_id }} [data-section-type='bundle-step-support-storage'] .bundle-option-card__price-row { justify-content: center; width: 100%; }
+  #{{ bs_id }} .bundle-option-card__price { font-family: var(--heading-font-family) !important; font-size: 18px !important; font-weight: 700 !important; color: {{ section.settings.selection_border_color }} !important; line-height: 1 !important; }
+  #{{ bs_id }} [data-section-type='bundle-step-support-storage'] .bundle-option-card__price { color: #000 !important; }
+  #{{ bs_id }} [data-section-type='bundle-step-support-storage'] .bundle-option-card__input:checked + .bundle-option-card__surface .bundle-option-card__price { color: {{ section.settings.selection_border_color }} !important; }
+  #{{ bs_id }} .bundle-option-card__compare { font-size: 14px !important; color: #555 !important; text-decoration: line-through !important; }
+  #{{ bs_id }} .bundle-steps__placeholder { border: 2px dashed #e0e0e0; border-radius: 10px; min-height: 220px; display: flex; align-items: center; justify-content: center; padding: 24px; text-align: center; background: #fafafa; color: #888; }
+  #{{ bs_id }} .bundle-steps__recovery-card { position: relative; background: #fff; border: 1px solid #e5e5e5; border-radius: {{ section.settings.step3_card_radius }}px; overflow: hidden; transition: border-color .2s ease, box-shadow .2s ease; }
+  #{{ bs_id }} .bundle-steps__recovery-card.is-included { border-width: 3px; border-color: {{ section.settings.selection_border_color }}; box-shadow: 0 0 0 1px {{ section.settings.selection_border_color }}; }
+  #{{ bs_id }} .bundle-steps__recovery-ribbon { position: absolute; top: 0; right: 0; z-index: 2; font-family: var(--heading-font-family) !important; font-size: 10px !important; font-weight: 700 !important; letter-spacing: .12em !important; text-transform: uppercase !important; color: #fff !important; background: {{ section.settings.selection_border_color }} !important; padding: 10px 16px 10px 22px !important; border-radius: 0 0 0 12px !important; max-width: 55%; text-align: right; line-height: 1.2 !important; }
+  #{{ bs_id }} .bundle-steps__recovery-layout { display: flex; flex-direction: column; }
+  @media screen and (min-width: 750px) { #{{ bs_id }} .bundle-steps__recovery-layout { flex-direction: row; align-items: stretch; min-height: 280px; } }
+  #{{ bs_id }} .bundle-steps__recovery-media { flex-shrink: 0; background: #f2f2f2; aspect-ratio: 1 / 1; max-height: 320px; }
+  @media screen and (min-width: 750px) { #{{ bs_id }} .bundle-steps__recovery-media { width: 320px; max-height: none; align-self: stretch; min-height: 0; } }
+  #{{ bs_id }} .bundle-steps__recovery-img, #{{ bs_id }} .bundle-steps__recovery-img-ph { width: 100%; height: 100%; object-fit: contain; display: block; }
+  #{{ bs_id }} .bundle-steps__recovery-content { flex: 1; min-width: 0; padding: 24px; display: flex; flex-direction: column; gap: 12px; }
+  #{{ bs_id }} .bundle-steps__recovery-title-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+  #{{ bs_id }} .bundle-steps__recovery-title { font-family: var(--heading-font-family) !important; font-size: 22px !important; font-weight: 700 !important; color: #000 !important; margin: 0 !important; }
+  #{{ bs_id }} .bundle-steps__recovery-save { font-family: var(--heading-font-family) !important; font-size: 11px !important; font-weight: 700 !important; letter-spacing: .04em !important; text-transform: uppercase !important; color: {{ section.settings.selection_border_color }} !important; background: rgba(235, 112, 31, .16) !important; padding: 6px 12px !important; border-radius: 999px !important; }
+  #{{ bs_id }} .bundle-steps__recovery-description { font-family: var(--text-font-family) !important; font-size: 15px !important; line-height: 1.55 !important; color: {{ section.settings.description_color }} !important; margin: 0 !important; }
+  #{{ bs_id }} .bundle-steps__recovery-description p { margin: 0; }
+  #{{ bs_id }} .bundle-steps__recovery-footer { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; margin-top: auto; padding-top: 8px; }
+  @media screen and (min-width: 750px) { #{{ bs_id }} .bundle-steps__recovery-footer { flex-direction: row; align-items: flex-end; justify-content: space-between; } }
+  #{{ bs_id }} .bundle-steps__recovery-prices { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  #{{ bs_id }} .bundle-steps__recovery-compare { font-size: 15px !important; color: #888 !important; text-decoration: line-through !important; }
+  #{{ bs_id }} .bundle-steps__recovery-price { font-family: var(--heading-font-family) !important; font-size: 28px !important; font-weight: 700 !important; color: {{ section.settings.selection_border_color }} !important; line-height: 1 !important; }
+  #{{ bs_id }} .bundle-steps__recovery-include { display: inline-flex; align-items: center; justify-content: center; font-family: var(--heading-font-family) !important; font-size: 12px !important; font-weight: 700 !important; letter-spacing: .06em !important; text-transform: uppercase !important; color: #fff !important; background: #000 !important; padding: 14px 22px !important; border-radius: 8px !important; white-space: nowrap; border: none; cursor: pointer; transition: background-color .2s ease, box-shadow .2s ease; }
+  #{{ bs_id }} .bundle-steps__recovery-include--active { background: {{ section.settings.selection_border_color }} !important; box-shadow: 0 4px 14px rgba(235, 112, 31, .35); }
+  @media screen and (max-width: 749px) {
+    #{{ bs_id }} .bundle-steps__inner { padding: 0 16px; }
+    #{{ bs_id }} .bundle-steps__part + .bundle-steps__part { margin-top: 36px; }
+    #{{ bs_id }} .bundle-steps__grid--step1,
+    #{{ bs_id }} .bundle-steps__grid--step2 { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    #{{ bs_id }} .bundle-steps__grid--step1 .bundle-steps__cell:nth-child(3),
+    #{{ bs_id }} .bundle-steps__grid--step2 .bundle-steps__cell:nth-child(3) { grid-column: 1 / -1; max-width: calc(50% - 6px); justify-self: center; }
+    #{{ bs_id }} .bundle-option-card__body { padding: 12px; gap: 6px; }
+    #{{ bs_id }} .bundle-option-card__title { font-size: 14px !important; }
+    #{{ bs_id }} .bundle-option-card__desc { font-size: 12px !important; line-height: 1.35 !important; }
+    #{{ bs_id }} .bundle-option-card__price { font-size: 16px !important; }
+    #{{ bs_id }} .bundle-option-card__compare { font-size: 12px !important; }
+    #{{ bs_id }} .bundle-steps__recovery-layout { flex-direction: row; align-items: stretch; }
+    #{{ bs_id }} .bundle-steps__recovery-media { width: 42%; max-height: none; aspect-ratio: auto; }
+    #{{ bs_id }} .bundle-steps__recovery-content { padding: 14px; gap: 8px; }
+    #{{ bs_id }} .bundle-steps__recovery-title { font-size: 16px !important; }
+    #{{ bs_id }} .bundle-steps__recovery-save { font-size: 10px !important; padding: 4px 8px !important; }
+    #{{ bs_id }} .bundle-steps__recovery-description { font-size: 12px !important; line-height: 1.4 !important; }
+    #{{ bs_id }} .bundle-steps__recovery-compare { font-size: 12px !important; }
+    #{{ bs_id }} .bundle-steps__recovery-price { font-size: 22px !important; }
+    #{{ bs_id }} .bundle-steps__recovery-include { width: 100%; font-size: 11px !important; padding: 11px 14px !important; }
+  }
+
+  /* ── Step lock state ─────────────────────────────────────────────── */
+  #{{ bs_id }} .bundle-steps__heading-optional {
+    font-size: 0.5em !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+    color: #aaa !important;
+    margin-left: 0.5em !important;
+    vertical-align: middle !important;
+  }
+  #{{ bs_id }} .bundle-steps__lock-hint {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    background: #f8f8f8;
+    border-radius: 8px;
+    border-left: 3px solid #d8d8d8;
+    font-family: var(--text-font-family) !important;
+    font-size: 13px !important;
+    color: #888 !important;
+    line-height: 1.4 !important;
+  }
+  #{{ bs_id }} .bundle-steps__lock-icon { flex-shrink: 0; color: #bbb; }
+  #{{ bs_id }} .bundle-steps__part.is-locked .bundle-steps__lock-hint { display: flex; }
+  #{{ bs_id }} .bundle-steps__part.is-locked .bundle-steps__fieldset {
+    opacity: 0.28;
+    pointer-events: none;
+    user-select: none;
+    transition: opacity 0.25s ease;
+  }
+  #{{ bs_id }} .bundle-steps__part.is-locked [data-bundle-recovery-card] {
+    opacity: 0.28;
+    pointer-events: none;
+    user-select: none;
+    transition: opacity 0.25s ease;
+  }
+  #{{ bs_id }} .bundle-steps__part:not(.is-locked) .bundle-steps__fieldset,
+  #{{ bs_id }} .bundle-steps__part:not(.is-locked) [data-bundle-recovery-card] {
+    transition: opacity 0.25s ease;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Bundle steps",
+  "tag": "section",
+  "class": "section-bundle-steps",
+  "max_blocks": 6,
+  "settings": [
+    { "type": "text", "id": "step1_number", "label": "Step 1 número", "default": "01" },
+    { "type": "text", "id": "step1_title", "label": "Step 1 título", "default": "BUILD YOUR STRENGTH BASE" },
+    { "type": "text", "id": "step1_legend", "label": "Step 1 legenda (a11y)", "default": "Choose your dumbbell base" },
+    { "type": "text", "id": "step2_number", "label": "Step 2 número", "default": "02" },
+    { "type": "text", "id": "step2_title", "label": "Step 2 título", "default": "COMPLETE YOUR SETUP" },
+    { "type": "text", "id": "step2_legend", "label": "Step 2 legenda (a11y)", "default": "Choose support and storage" },
+    { "type": "text", "id": "step3_number", "label": "Step 3 número", "default": "03" },
+    { "type": "text", "id": "step3_title", "label": "Step 3 título", "default": "BOOST RECOVERY" },
+    { "type": "product", "id": "step3_product", "label": "Step 3 produto" },
+    { "type": "text", "id": "step3_card_title", "label": "Step 3 título do card", "default": "Forge Recovery Gun" },
+    { "type": "richtext", "id": "step3_description", "label": "Step 3 descrição", "default": "<p>Optimize downtime with deep-tissue percussion therapy. A staple for elite bundle configurations.</p>" },
+    { "type": "text", "id": "step3_lab_ribbon_text", "label": "Step 3 ribbon", "default": "BUNDLE EXCLUSIVE" },
+    { "type": "text", "id": "step3_save_badge_text", "label": "Step 3 save badge", "default": "SAVE $30" },
+    { "type": "text", "id": "step3_included_label", "label": "Step 3 botão", "default": "INCLUDED IN BUNDLE" },
+    { "type": "checkbox", "id": "step3_included_default", "label": "Step 3 incluído por padrão", "default": false },
+    { "type": "text", "id": "step3_sidebar_category", "label": "Step 3 categoria na sidebar", "default": "RECOVERY" },
+    { "type": "header", "content": "Descontos do bundle" },
+    { "type": "range", "id": "step1_item_discount", "min": 0, "max": 100, "step": 1, "unit": "$", "label": "Desconto por item (Step 1)", "default": 10 },
+    { "type": "range", "id": "step2_item_discount", "min": 0, "max": 100, "step": 1, "unit": "$", "label": "Desconto por item (Step 2)", "default": 10 },
+    { "type": "range", "id": "step3_item_discount", "min": 0, "max": 200, "step": 5, "unit": "$", "label": "Desconto Step 3 (item único)", "default": 30 },
+    { "type": "text", "id": "empty_state_text", "label": "Placeholder sem produto", "default": "Select a product in this block" },
+    { "type": "color", "id": "background_color", "label": "Fundo", "default": "#ffffff" },
+    { "type": "color", "id": "step_number_color", "label": "Cor número", "default": "#e8b896" },
+    { "type": "color", "id": "step_title_color", "label": "Cor título", "default": "#000000" },
+    { "type": "color", "id": "description_color", "label": "Cor descrição", "default": "#574237" },
+    { "type": "color", "id": "selection_border_color", "label": "Cor seleção", "default": "#eb701f" },
+    { "type": "range", "id": "heading_num_size_mobile", "min": 24, "max": 40, "step": 1, "unit": "px", "label": "Número mobile", "default": 32 },
+    { "type": "range", "id": "heading_num_size_desktop", "min": 28, "max": 48, "step": 1, "unit": "px", "label": "Número desktop", "default": 36 },
+    { "type": "range", "id": "heading_title_size_mobile", "min": 20, "max": 36, "step": 1, "unit": "px", "label": "Título mobile", "default": 26 },
+    { "type": "range", "id": "heading_title_size_desktop", "min": 24, "max": 44, "step": 1, "unit": "px", "label": "Título desktop", "default": 32 },
+    { "type": "range", "id": "heading_margin_bottom", "min": 16, "max": 48, "step": 2, "unit": "px", "label": "Espaço abaixo do heading", "default": 28 },
+    { "type": "range", "id": "grid_gap", "min": 12, "max": 32, "step": 2, "unit": "px", "label": "Gap cards", "default": 20 },
+    { "type": "range", "id": "step_gap", "min": 24, "max": 80, "step": 4, "unit": "px", "label": "Espaço entre steps", "default": 48 },
+    { "type": "range", "id": "padding_top", "min": 24, "max": 96, "step": 4, "unit": "px", "label": "Padding superior", "default": 48 },
+    { "type": "range", "id": "padding_bottom", "min": 24, "max": 96, "step": 4, "unit": "px", "label": "Padding inferior", "default": 48 },
+    { "type": "range", "id": "step3_card_radius", "min": 8, "max": 20, "step": 2, "unit": "px", "label": "Raio card step 3", "default": 12 }
+  ],
+  "blocks": [
+    {
+      "type": "step1_option",
+      "name": "Step 1 option",
+      "limit": 3,
+      "settings": [
+        { "type": "product", "id": "product", "label": "Produto" },
+        { "type": "text", "id": "card_title", "label": "Título do card" },
+        { "type": "textarea", "id": "card_description", "label": "Descrição" },
+        { "type": "text", "id": "badge_label", "label": "Badge" },
+        { "type": "text", "id": "sidebar_category", "label": "Categoria sidebar", "default": "ADJUSTABLE DUMBBELLS" }
+      ]
+    },
+    {
+      "type": "step2_option",
+      "name": "Step 2 option",
+      "limit": 3,
+      "settings": [
+        { "type": "product", "id": "product", "label": "Produto" },
+        { "type": "text", "id": "card_title", "label": "Título do card" },
+        { "type": "textarea", "id": "card_description", "label": "Descrição" },
+        { "type": "text", "id": "badge_label", "label": "Badge" },
+        { "type": "text", "id": "sidebar_category", "label": "Categoria sidebar", "default": "BENCH & STAND" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Bundle steps",
+      "category": "Product",
+      "blocks": [
+        { "type": "step1_option", "settings": { "product": "50lbs", "card_title": "50 lb Elite Set", "card_description": "Versatile range for all levels.", "badge_label": "CORE CHOICE", "sidebar_category": "ADJUSTABLE DUMBBELLS" } },
+        { "type": "step1_option", "settings": { "product": "66lbs", "card_title": "66 lb Pro Set", "card_description": "Engineered for strength progression.", "sidebar_category": "ADJUSTABLE DUMBBELLS" } },
+        { "type": "step1_option", "settings": { "product": "88lbs", "card_title": "88 lb Max Set", "card_description": "Elite performance capacity.", "sidebar_category": "ADJUSTABLE DUMBBELLS" } },
+        { "type": "step2_option", "settings": { "product": "adjustable-home-workout-bench", "card_title": "M2 Bench", "card_description": "Space-optimized folding design for home studios.", "sidebar_category": "FOLDING BENCH" } },
+        { "type": "step2_option", "settings": { "product": "pro-adjustable-weight-bench", "card_title": "M3 Pro Bench", "card_description": "Commercial-grade 7-position adjustability.", "sidebar_category": "PRO BENCH" } },
+        { "type": "step2_option", "settings": { "product": "home-workout-dumbbell-stand", "card_title": "Power Stand", "card_description": "Vertical storage for maximum space efficiency.", "sidebar_category": "VERTICAL STORAGE" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

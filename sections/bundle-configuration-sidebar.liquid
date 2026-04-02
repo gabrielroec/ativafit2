@@ -4,6 +4,7 @@
   if checkout_href == blank
     assign checkout_href = '/checkout'
   endif
+  assign bcs_grid_col2 = section.settings.panel_width | plus: section.settings.fixed_right
 -%}
 
 <aside
@@ -13,18 +14,38 @@
   data-section-type="bundle-configuration-sidebar"
   aria-label="{{ section.settings.sidebar_a11y_label | escape }}"
   {{ section.shopify_attributes }}>
-  <div class="bundle-configuration-sidebar__panel">
-    <h2 class="bundle-configuration-sidebar__title">
-      <span class="bundle-configuration-sidebar__title-bar" aria-hidden="true"></span>
-      <span class="bundle-configuration-sidebar__title-text">{{ section.settings.heading | escape }}</span>
-    </h2>
+  <button
+    type="button"
+    class="bundle-configuration-sidebar__mobile-toggle"
+    data-bundle-mobile-toggle
+    aria-expanded="false"
+    aria-controls="{{ sm_id }}-panel">
+    {{ section.settings.mobile_toggle_label | escape }}
+  </button>
+  <div class="bundle-configuration-sidebar__mobile-backdrop" data-bundle-mobile-backdrop></div>
+  <div id="{{ sm_id }}-panel" class="bundle-configuration-sidebar__panel">
+    <div class="bundle-configuration-sidebar__title-row">
+      <h2 class="bundle-configuration-sidebar__title">
+        <span class="bundle-configuration-sidebar__title-bar" aria-hidden="true"></span>
+        <span class="bundle-configuration-sidebar__title-text">{{ section.settings.heading | escape }}</span>
+      </h2>
+      <button
+        type="button"
+        class="bundle-configuration-sidebar__mobile-close"
+        data-bundle-mobile-close
+        aria-label="{{ section.settings.mobile_close_label | escape }}">
+        <span class="visually-hidden">{{ section.settings.mobile_close_label | escape }}</span>
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M5 5L15 15M15 5L5 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
 
     <ul class="bundle-configuration-sidebar__lines">
       <li
         class="bundle-summary__line bundle-summary__line--empty"
         data-summary-line="1"
         data-empty-title="{{ section.settings.empty_line_label | escape }}">
-        <span class="bundle-summary__icon material-symbols-outlined" data-summary-line-icon aria-hidden="true">more_horiz</span>
         <div class="bundle-summary__line-body">
           <span class="bundle-summary__line-title" data-summary-line-title>—</span>
           <span class="bundle-summary__line-cat" data-summary-line-cat></span>
@@ -35,7 +56,6 @@
         class="bundle-summary__line bundle-summary__line--empty"
         data-summary-line="2"
         data-empty-title="{{ section.settings.empty_line_label | escape }}">
-        <span class="bundle-summary__icon material-symbols-outlined" data-summary-line-icon aria-hidden="true">more_horiz</span>
         <div class="bundle-summary__line-body">
           <span class="bundle-summary__line-title" data-summary-line-title>—</span>
           <span class="bundle-summary__line-cat" data-summary-line-cat></span>
@@ -46,7 +66,6 @@
         class="bundle-summary__line bundle-summary__line--empty"
         data-summary-line="3"
         data-empty-title="{{ section.settings.empty_line_label | escape }}">
-        <span class="bundle-summary__icon material-symbols-outlined" data-summary-line-icon aria-hidden="true">more_horiz</span>
         <div class="bundle-summary__line-body">
           <span class="bundle-summary__line-title" data-summary-line-title>—</span>
           <span class="bundle-summary__line-cat" data-summary-line-cat></span>
@@ -82,15 +101,12 @@
 
     <div class="bundle-configuration-sidebar__trust">
       <div class="bundle-configuration-sidebar__trust-item">
-        <span class="material-symbols-outlined bundle-configuration-sidebar__trust-icon" aria-hidden="true">{{ section.settings.trust_1_icon | escape }}</span>
         <span class="bundle-configuration-sidebar__trust-text">{{ section.settings.trust_1_text | escape }}</span>
       </div>
       <div class="bundle-configuration-sidebar__trust-item">
-        <span class="material-symbols-outlined bundle-configuration-sidebar__trust-icon" aria-hidden="true">{{ section.settings.trust_2_icon | escape }}</span>
         <span class="bundle-configuration-sidebar__trust-text">{{ section.settings.trust_2_text | escape }}</span>
       </div>
       <div class="bundle-configuration-sidebar__trust-item">
-        <span class="material-symbols-outlined bundle-configuration-sidebar__trust-icon" aria-hidden="true">{{ section.settings.trust_3_icon | escape }}</span>
         <span class="bundle-configuration-sidebar__trust-text">{{ section.settings.trust_3_text | escape }}</span>
       </div>
     </div>
@@ -106,36 +122,175 @@
     --bcs-shadow: {{ section.settings.panel_shadow }};
   }
 
+  /* Página bundle: hero 100% + [steps | sidebar] em grid (#main). Requer body.bundle-page-layout (theme.liquid). */
   @media screen and (min-width: 1100px) {
-    body.bundle-page--has-summary #main {
-      padding-right: {{ section.settings.main_offset_desktop }}px;
+    body.bundle-page-layout #main {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) {{ bcs_grid_col2 }}px;
+      column-gap: {{ section.settings.layout_column_gap }}px;
+      align-items: start;
+      width: 100%;
+      grid-template-areas:
+        'bundle-hero bundle-hero'
+        'bundle-steps bundle-side'
+        'bundle-main bundle-main';
     }
-  }
 
-  @media screen and (min-width: 1100px) {
-    #{{ sm_id }}.bundle-configuration-sidebar {
-      position: fixed;
+    body.bundle-page-layout #main > .shopify-section:has([data-section-type='bundle-page-hero']) {
+      grid-area: bundle-hero;
+    }
+
+    body.bundle-page-layout #main > .shopify-section:has([data-section-type='bundle-steps']) {
+      grid-area: bundle-steps;
+    }
+
+    body.bundle-page-layout #main > .shopify-section:has([data-section-type='bundle-configuration-sidebar']) {
+      grid-area: bundle-side;
+      align-self: start;
+      position: sticky;
       top: {{ section.settings.fixed_top }}px;
-      right: {{ section.settings.fixed_right }}px;
-      width: {{ section.settings.panel_width }}px;
+      z-index: 5;
+      box-sizing: border-box;
+      padding-right: {{ section.settings.fixed_right }}px;
       max-height: calc(100vh - {{ section.settings.fixed_top | plus: 24 }}px);
       overflow-y: auto;
-      z-index: 25;
       -webkit-overflow-scrolling: touch;
     }
-  }
 
-  @media screen and (max-width: 1099px) {
-    body.bundle-page--has-summary #main {
-      padding-right: 0 !important;
+    body.bundle-page-layout #main > .shopify-section:has(section[data-section-type='page']) {
+      grid-area: bundle-main;
     }
 
     #{{ sm_id }}.bundle-configuration-sidebar {
       position: relative;
       width: 100%;
-      max-width: 40rem;
-      margin: 0 auto {{ section.settings.mobile_margin_bottom }}px;
+      max-width: {{ section.settings.panel_width }}px;
+      margin-left: auto;
+    }
+  }
+
+  #{{ sm_id }} .bundle-configuration-sidebar__mobile-toggle,
+  #{{ sm_id }} .bundle-configuration-sidebar__mobile-backdrop {
+    display: none;
+  }
+
+  #{{ sm_id }} .bundle-configuration-sidebar__mobile-close {
+    display: none;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: #f2f2f2;
+    color: #000000;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  #{{ sm_id }} .bundle-configuration-sidebar__mobile-close:hover {
+    background: #e8e8e8;
+  }
+
+  #{{ sm_id }} .bundle-configuration-sidebar__mobile-close:focus-visible {
+    outline: 2px solid var(--bcs-accent);
+    outline-offset: 2px;
+  }
+
+  @media screen and (max-width: 1099px) {
+    body.bundle-mobile-open {
+      overflow: hidden;
+    }
+
+    body.bundle-page-layout #main {
+      padding-bottom: 92px;
+    }
+
+    #{{ sm_id }}.bundle-configuration-sidebar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      z-index: 45;
+      pointer-events: none;
+    }
+
+    #{{ sm_id }} .bundle-configuration-sidebar__mobile-toggle {
+      display: block;
+      pointer-events: auto;
+      position: fixed;
+      left: 16px;
+      right: 16px;
+      bottom: 16px;
+      height: 52px;
+      border: none;
+      border-radius: 999px;
+      background: var(--bcs-accent);
+      color: #ffffff;
+      font-family: var(--heading-font-family) !important;
+      font-size: 13px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.08em !important;
+      text-transform: uppercase !important;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      z-index: 48;
+    }
+
+    #{{ sm_id }} .bundle-configuration-sidebar__mobile-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s ease;
+      z-index: 46;
+    }
+
+    #{{ sm_id }} .bundle-configuration-sidebar__panel {
+      pointer-events: auto;
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      max-height: 78vh;
+      overflow-y: auto;
+      border-radius: 18px 18px 0 0;
+      transform: translateY(105%);
+      transition: transform 0.24s ease;
+      z-index: 47;
+      margin: 0;
+    }
+
+    #{{ sm_id }}.is-mobile-open .bundle-configuration-sidebar__mobile-backdrop {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    #{{ sm_id }}.is-mobile-open .bundle-configuration-sidebar__panel {
+      transform: translateY(0);
+    }
+
+    #{{ sm_id }}.is-mobile-open .bundle-configuration-sidebar__mobile-toggle {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #{{ sm_id }} .bundle-configuration-sidebar__mobile-close {
+      display: inline-flex;
+    }
+
+    #{{ sm_id }} .bundle-configuration-sidebar__title-row {
+      position: sticky;
+      top: 0;
       z-index: 1;
+      padding-top: 4px;
+      margin-top: -4px;
+      background: linear-gradient(to bottom, var(--bcs-panel-bg) 70%, transparent);
     }
   }
 
@@ -147,11 +302,19 @@
     border: 1px solid {{ section.settings.panel_border }};
   }
 
+  #{{ sm_id }} .bundle-configuration-sidebar__title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 {{ section.settings.title_margin_bottom }}px !important;
+  }
+
   #{{ sm_id }} .bundle-configuration-sidebar__title {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin: 0 0 {{ section.settings.title_margin_bottom }}px !important;
+    margin: 0 !important;
     font-family: var(--heading-font-family) !important;
     font-size: {{ section.settings.title_size }}px !important;
     font-weight: 900 !important;
@@ -187,21 +350,6 @@
     border-bottom: none;
   }
 
-  #{{ sm_id }} .bundle-summary__icon.material-symbols-outlined {
-    font-family: 'Material Symbols Outlined', sans-serif !important;
-    font-size: 22px !important;
-    width: 28px;
-    text-align: center;
-    color: var(--bcs-accent) !important;
-    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24 !important;
-    flex-shrink: 0;
-    line-height: 1.2 !important;
-  }
-
-  #{{ sm_id }} .bundle-summary__icon--muted {
-    color: #bbbbbb !important;
-  }
-
   #{{ sm_id }} .bundle-summary__line-body {
     flex: 1;
     min-width: 0;
@@ -232,17 +380,34 @@
     line-height: 1.3 !important;
   }
 
+  #{{ sm_id }} .bundle-summary__line-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    flex-shrink: 0;
+    gap: 3px;
+  }
+
   #{{ sm_id }} .bundle-summary__line-price {
     font-family: var(--heading-font-family) !important;
     font-size: 15px !important;
     font-weight: 700 !important;
     color: #000000 !important;
-    flex-shrink: 0;
     line-height: 1.3 !important;
   }
 
   #{{ sm_id }} .bundle-summary__line--empty .bundle-summary__line-price {
     color: #aaaaaa !important;
+  }
+
+  #{{ sm_id }} .bundle-summary__line-saving {
+    font-family: var(--text-font-family) !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em !important;
+    text-transform: uppercase !important;
+    color: var(--bcs-accent) !important;
+    line-height: 1.2 !important;
   }
 
   #{{ sm_id }} .bundle-configuration-sidebar__discount {
@@ -266,7 +431,7 @@
     font-family: var(--heading-font-family) !important;
     font-size: {{ section.settings.discount_amount_size }}px !important;
     font-weight: 800 !important;
-    color: var(--bcs-accent) !important;
+    color: #22a047 !important;
     margin: 0 !important;
     line-height: 1 !important;
   }
@@ -353,6 +518,12 @@
     cursor: wait;
   }
 
+  #{{ sm_id }} .bundle-configuration-sidebar__checkout.is-incomplete {
+    background: #b0b0b0 !important;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
   #{{ sm_id }} .bundle-configuration-sidebar__checkout:focus-visible {
     outline: 2px solid #000000;
     outline-offset: 3px;
@@ -367,16 +538,9 @@
 
   #{{ sm_id }} .bundle-configuration-sidebar__trust-item {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 6px;
-  }
-
-  #{{ sm_id }} .bundle-configuration-sidebar__trust-icon.material-symbols-outlined {
-    font-family: 'Material Symbols Outlined', sans-serif !important;
-    font-size: 22px !important;
-    color: #999999 !important;
-    font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24 !important;
+    justify-content: center;
+    text-align: center;
   }
 
   #{{ sm_id }} .bundle-configuration-sidebar__trust-text {
@@ -401,6 +565,18 @@
       "id": "sidebar_a11y_label",
       "label": "Nome da região (acessibilidade)",
       "default": "Bundle configuration summary"
+    },
+    {
+      "type": "text",
+      "id": "mobile_toggle_label",
+      "label": "Texto do botão flutuante (mobile)",
+      "default": "MY BUNDLE"
+    },
+    {
+      "type": "text",
+      "id": "mobile_close_label",
+      "label": "Rótulo do botão fechar (mobile, acessibilidade)",
+      "default": "Fechar configuração"
     },
     {
       "type": "text",
@@ -448,17 +624,11 @@
       "type": "text",
       "id": "checkout_alert",
       "label": "Alerta se passos incompletos",
-      "default": "Please complete steps 1 and 2 before checkout."
+      "default": "Please select Bundle 1 before checkout."
     },
     {
       "type": "header",
       "content": "Trust row"
-    },
-    {
-      "type": "text",
-      "id": "trust_1_icon",
-      "label": "Ícone 1 (Material)",
-      "default": "local_shipping"
     },
     {
       "type": "text",
@@ -468,21 +638,9 @@
     },
     {
       "type": "text",
-      "id": "trust_2_icon",
-      "label": "Ícone 2 (Material)",
-      "default": "science"
-    },
-    {
-      "type": "text",
       "id": "trust_2_text",
       "label": "Texto 2",
       "default": "Lab Tested"
-    },
-    {
-      "type": "text",
-      "id": "trust_3_icon",
-      "label": "Ícone 3 (Material)",
-      "default": "verified_user"
     },
     {
       "type": "text",
@@ -540,13 +698,13 @@
     },
     {
       "type": "range",
-      "id": "main_offset_desktop",
-      "min": 320,
-      "max": 480,
+      "id": "layout_column_gap",
+      "min": 16,
+      "max": 48,
       "step": 4,
       "unit": "px",
-      "label": "Espaço reservado à direita (#main)",
-      "default": 420
+      "label": "Espaço entre colunas (steps / sidebar)",
+      "default": 32
     },
     {
       "type": "range",
@@ -555,7 +713,7 @@
       "max": 160,
       "step": 4,
       "unit": "px",
-      "label": "Distância do topo (fixo)",
+      "label": "Offset sticky (abaixo do header)",
       "default": 100
     },
     {
@@ -565,7 +723,7 @@
       "max": 48,
       "step": 4,
       "unit": "px",
-      "label": "Distância da direita",
+      "label": "Margem direita da coluna da sidebar",
       "default": 24
     },
     {

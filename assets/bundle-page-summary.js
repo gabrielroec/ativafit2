@@ -28,13 +28,6 @@
     return Number.isFinite(n) ? n : 0;
   }
 
-  function parseCompareCentsFromInput(input) {
-    if (!input) return 0;
-    var raw = input.getAttribute('data-bundle-compare-price-cents');
-    var n = parseInt(raw, 10);
-    return Number.isFinite(n) ? n : 0;
-  }
-
   function init(root) {
     if (!root || root.getAttribute('data-bundle-summary-init') === '1') return;
     root.setAttribute('data-bundle-summary-init', '1');
@@ -43,52 +36,97 @@
     var totalBucksEl = root.querySelector('[data-summary-total-bucks]');
     var totalSubEl = root.querySelector('[data-summary-total-sub]');
     var checkoutBtn = root.querySelector('[data-bundle-checkout]');
+    var mobileToggleBtn = root.querySelector('[data-bundle-mobile-toggle]');
+    var mobileBackdrop = root.querySelector('[data-bundle-mobile-backdrop]');
+    var mobileCloseBtn = root.querySelector('[data-bundle-mobile-close]');
+    var linesRoot = root.querySelector('.bundle-configuration-sidebar__lines');
+    var step3Section = document.querySelector('[data-section-type="bundle-step-recovery-protocol"]');
 
-    document.body.classList.add('bundle-page--has-summary');
-
-    function findCheckedInStep(type) {
+    function getCheckedInStep(type) {
       var sec = document.querySelector('[data-section-type="' + type + '"]');
-      if (!sec) return null;
-      return sec.querySelector('.bundle-option-card__input:checked');
+      if (!sec) return [];
+      return Array.prototype.slice.call(sec.querySelectorAll('.bundle-option-card__input:checked'));
     }
 
     function getRecoveryCard() {
-      var sec = document.querySelector('[data-section-type="bundle-step-recovery-protocol"]');
-      if (!sec) return null;
-      return sec.querySelector('[data-bundle-recovery-card]');
+      if (!step3Section) return null;
+      return step3Section.querySelector('[data-bundle-recovery-card]');
     }
 
-    function setLine(slot, title, category, iconName, priceCents, empty) {
-      var li = root.querySelector('[data-summary-line="' + slot + '"]');
-      if (!li) return;
-      var icon = li.querySelector('[data-summary-line-icon]');
-      var titleEl = li.querySelector('[data-summary-line-title]');
-      var catEl = li.querySelector('[data-summary-line-cat]');
-      var priceEl = li.querySelector('[data-summary-line-price]');
-      li.classList.toggle('bundle-summary__line--empty', !!empty);
-      if (empty) {
-        if (icon) {
-          icon.textContent = 'more_horiz';
-          icon.classList.add('bundle-summary__icon--muted');
-        }
-        if (titleEl) titleEl.textContent = li.getAttribute('data-empty-title') || '—';
-        if (catEl) catEl.textContent = '';
-        if (priceEl) priceEl.textContent = '—';
+    function ensureFallbackLine() {
+      if (!linesRoot) return;
+      if (linesRoot.querySelector('[data-summary-empty-row]')) return;
+      linesRoot.innerHTML =
+        '<li class="bundle-summary__line bundle-summary__line--empty" data-summary-empty-row>' +
+        '<div class="bundle-summary__line-body">' +
+        '<span class="bundle-summary__line-title">No items selected yet</span>' +
+        '</div>' +
+        '<span class="bundle-summary__line-price">—</span>' +
+        '</li>';
+    }
+
+    function renderLines(lines) {
+      if (!linesRoot) return;
+      if (!lines.length) {
+        ensureFallbackLine();
         return;
       }
-      if (icon) {
-        icon.textContent = iconName || 'circle';
-        icon.classList.remove('bundle-summary__icon--muted');
-      }
-      if (titleEl) titleEl.textContent = title || '';
-      if (catEl) catEl.textContent = category || '';
-      if (priceEl) priceEl.textContent = formatMoney(priceCents);
+      linesRoot.innerHTML = '';
+      lines.forEach(function (line) {
+        var li = document.createElement('li');
+        li.className = 'bundle-summary__line';
+
+        var body = document.createElement('div');
+        body.className = 'bundle-summary__line-body';
+
+        var title = document.createElement('span');
+        title.className = 'bundle-summary__line-title';
+        title.textContent = line.title || '';
+
+        var category = document.createElement('span');
+        category.className = 'bundle-summary__line-cat';
+        category.textContent = line.category || '';
+
+        body.appendChild(title);
+        body.appendChild(category);
+
+        var right = document.createElement('div');
+        right.className = 'bundle-summary__line-right';
+
+        var price = document.createElement('span');
+        price.className = 'bundle-summary__line-price';
+        price.textContent = formatMoney(line.priceCents);
+        right.appendChild(price);
+
+        if (line.discountCents > 0) {
+          var saving = document.createElement('span');
+          saving.className = 'bundle-summary__line-saving';
+          saving.textContent = 'saving ' + formatMoney(line.discountCents);
+          right.appendChild(saving);
+        }
+
+        li.appendChild(body);
+        li.appendChild(right);
+        linesRoot.appendChild(li);
+      });
+    }
+
+    function closeMobilePanel() {
+      root.classList.remove('is-mobile-open');
+      document.body.classList.remove('bundle-mobile-open');
+      if (mobileToggleBtn) mobileToggleBtn.setAttribute('aria-expanded', 'false');
+    }
+
+    function openMobilePanel() {
+      root.classList.add('is-mobile-open');
+      document.body.classList.add('bundle-mobile-open');
+      if (mobileToggleBtn) mobileToggleBtn.setAttribute('aria-expanded', 'true');
     }
 
     function updateTotals(subtotalCents, savingsCents) {
       var total = Math.max(0, subtotalCents);
       if (savingsAmountEl) {
-        savingsAmountEl.textContent = '-' + formatMoney(Math.max(0, savingsCents));
+        savingsAmountEl.textContent = 'SAVING ' + formatMoney(Math.max(0, savingsCents));
       }
       if (totalBucksEl && totalSubEl) {
         var full = formatMoney(total);
@@ -103,61 +141,93 @@
       }
     }
 
+    function updateStepLocks() {
+      var step1Count = getCheckedInStep('bundle-step-dumbbell-base').length;
+
+      var step2El = document.querySelector('[data-section-type="bundle-step-support-storage"]');
+      var step3El = document.querySelector('[data-section-type="bundle-step-recovery-protocol"]');
+
+      // ── Step 2: locked until step 1 has ≥1 selection ──
+      var step2Locked = step1Count === 0;
+      if (step2El) {
+        if (step2Locked) {
+          step2El.querySelectorAll('.bundle-option-card__input').forEach(function (inp) {
+            inp.checked = false;
+            inp.disabled = true;
+          });
+        } else {
+          step2El.querySelectorAll('.bundle-option-card__input').forEach(function (inp) {
+            inp.disabled = false;
+          });
+        }
+        step2El.classList.toggle('is-locked', step2Locked);
+      }
+
+      var step2Count = step2Locked ? 0 : getCheckedInStep('bundle-step-support-storage').length;
+
+      // ── Step 3: locked until step 2 has ≥1 selection ──
+      var step3Locked = step2Locked || step2Count === 0;
+      if (step3El) {
+        if (step3Locked) {
+          var recoveryCard = step3El.querySelector('[data-bundle-recovery-card]');
+          if (recoveryCard && recoveryCard.classList.contains('is-included')) {
+            recoveryCard.classList.remove('is-included');
+            var recovBtn = recoveryCard.querySelector('[data-bundle-recovery-toggle]');
+            if (recovBtn) {
+              recovBtn.setAttribute('aria-pressed', 'false');
+              recovBtn.classList.remove('bundle-steps__recovery-include--active');
+            }
+          }
+        }
+        var recoveryToggle = step3El.querySelector('[data-bundle-recovery-toggle]');
+        if (recoveryToggle) recoveryToggle.disabled = step3Locked;
+        step3El.classList.toggle('is-locked', step3Locked);
+      }
+
+      // ── Checkout button: incomplete state ──
+      if (checkoutBtn) {
+        checkoutBtn.classList.toggle('is-incomplete', step1Count === 0 || step2Count === 0);
+      }
+    }
+
     function refresh() {
       var subtotal = 0;
       var savings = 0;
+      var summaryLines = [];
 
-      var r1 = findCheckedInStep('bundle-step-dumbbell-base');
-      if (r1) {
-        var r1Price = parseCentsFromInput(r1);
-        var r1Compare = parseCompareCentsFromInput(r1);
-        setLine(
-          '1',
-          r1.getAttribute('data-bundle-line-title') || '',
-          r1.getAttribute('data-bundle-line-category') || '',
-          r1.getAttribute('data-bundle-icon') || 'fitness_center',
-          r1Price,
-          false
-        );
-        subtotal += r1Price;
-        if (r1Compare > r1Price) savings += r1Compare - r1Price;
-      } else {
-        setLine('1', '', '', '', 0, true);
-      }
+      var step1Inputs = getCheckedInStep('bundle-step-dumbbell-base');
+      var step2Inputs = getCheckedInStep('bundle-step-support-storage');
 
-      var r2 = findCheckedInStep('bundle-step-support-storage');
-      if (r2) {
-        var r2Price = parseCentsFromInput(r2);
-        var r2Compare = parseCompareCentsFromInput(r2);
-        setLine(
-          '2',
-          r2.getAttribute('data-bundle-line-title') || '',
-          r2.getAttribute('data-bundle-line-category') || '',
-          r2.getAttribute('data-bundle-icon') || 'event_seat',
-          r2Price,
-          false
-        );
-        subtotal += r2Price;
-        if (r2Compare > r2Price) savings += r2Compare - r2Price;
-      } else {
-        setLine('2', '', '', '', 0, true);
-      }
+      step1Inputs.concat(step2Inputs).forEach(function (input) {
+        var price = parseCentsFromInput(input);
+        var discount = parseInt(input.getAttribute('data-bundle-discount-cents') || '0', 10) || 0;
+        subtotal += price;
+        savings += discount;
+        summaryLines.push({
+          title: input.getAttribute('data-bundle-line-title') || '',
+          category: input.getAttribute('data-bundle-line-category') || '',
+          priceCents: price,
+          discountCents: discount,
+        });
+      });
 
       var card = getRecoveryCard();
       if (card && card.classList.contains('is-included')) {
-        var t = card.getAttribute('data-bundle-line-title') || '';
-        var cat = card.getAttribute('data-bundle-line-category') || '';
-        var ic = card.getAttribute('data-bundle-icon') || 'vibration';
-        var pc = parseInt(card.getAttribute('data-bundle-price-cents') || '0', 10) || 0;
-        var cc = parseInt(card.getAttribute('data-bundle-compare-price-cents') || '0', 10) || 0;
-        setLine('3', t, cat, ic, pc, false);
-        subtotal += pc;
-        if (cc > pc) savings += cc - pc;
-      } else {
-        setLine('3', '', '', '', 0, true);
+        var price = parseInt(card.getAttribute('data-bundle-price-cents') || '0', 10) || 0;
+        var discount = parseInt(card.getAttribute('data-bundle-discount-cents') || '0', 10) || 0;
+        subtotal += price;
+        savings += discount;
+        summaryLines.push({
+          title: card.getAttribute('data-bundle-line-title') || '',
+          category: card.getAttribute('data-bundle-line-category') || '',
+          priceCents: price,
+          discountCents: discount,
+        });
       }
 
+      renderLines(summaryLines);
       updateTotals(subtotal, savings);
+      updateStepLocks();
     }
 
     document.addEventListener('change', function (e) {
@@ -175,27 +245,63 @@
       var on = !card.classList.contains('is-included');
       card.classList.toggle('is-included', on);
       toggle.setAttribute('aria-pressed', on ? 'true' : 'false');
-      toggle.classList.toggle('bundle-step-recovery-protocol__included--active', on);
+      toggle.classList.toggle('bundle-steps__recovery-include--active', on);
       refresh();
+    });
+
+    if (mobileToggleBtn) {
+      mobileToggleBtn.addEventListener('click', function () {
+        if (root.classList.contains('is-mobile-open')) {
+          closeMobilePanel();
+        } else {
+          openMobilePanel();
+        }
+      });
+    }
+
+    if (mobileBackdrop) {
+      mobileBackdrop.addEventListener('click', function () {
+        closeMobilePanel();
+      });
+    }
+
+    if (mobileCloseBtn) {
+      mobileCloseBtn.addEventListener('click', function () {
+        closeMobilePanel();
+      });
+    }
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && root.classList.contains('is-mobile-open')) {
+        closeMobilePanel();
+      }
     });
 
     if (checkoutBtn) {
       checkoutBtn.addEventListener('click', function () {
-        var r1 = findCheckedInStep('bundle-step-dumbbell-base');
-        var r2 = findCheckedInStep('bundle-step-support-storage');
+        var step1 = getCheckedInStep('bundle-step-dumbbell-base');
+        var step2 = getCheckedInStep('bundle-step-support-storage');
         var card = getRecoveryCard();
-        if (!r1 || !r2) {
+        if (!step1.length || !step2.length) {
           window.alert(checkoutBtn.getAttribute('data-alert-incomplete') || 'Please complete all steps.');
           return;
         }
-        var items = [
-          { id: parseInt(r1.value, 10), quantity: 1 },
-          { id: parseInt(r2.value, 10), quantity: 1 },
-        ];
+        var qtyByVariantId = {};
+        step1.concat(step2).forEach(function (input) {
+          var id = parseInt(input.value, 10);
+          if (!Number.isFinite(id)) return;
+          qtyByVariantId[id] = (qtyByVariantId[id] || 0) + 1;
+        });
         if (card && card.classList.contains('is-included')) {
           var vid = card.getAttribute('data-bundle-variant-id');
-          if (vid) items.push({ id: parseInt(vid, 10), quantity: 1 });
+          var addOnId = parseInt(vid, 10);
+          if (Number.isFinite(addOnId)) {
+            qtyByVariantId[addOnId] = (qtyByVariantId[addOnId] || 0) + 1;
+          }
         }
+        var items = Object.keys(qtyByVariantId).map(function (id) {
+          return { id: parseInt(id, 10), quantity: qtyByVariantId[id] };
+        });
         checkoutBtn.disabled = true;
         fetch('/cart/add.js', {
           method: 'POST',
@@ -218,5 +324,15 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('[data-bundle-summary-root]').forEach(init);
+
+    // Smooth scroll for hero CTA → Step 1
+    document.addEventListener('click', function (e) {
+      var link = e.target.closest('a[href="#bundle-step-1"]');
+      if (!link) return;
+      var target = document.getElementById('bundle-step-1');
+      if (!target) return;
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   });
 })();
