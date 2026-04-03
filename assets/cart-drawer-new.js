@@ -512,7 +512,7 @@ document.addEventListener("DOMContentLoaded", () => {
             window.CartNotification.success({
               title: "Product Added!",
               message:
-                'Join <a href="https://www.ativafit.com/pages/ativapeople-rewards-program" target="_blank" style="color: #eb701f; text-decoration: underline; font-weight: bold;">AtivaPeople</a> & get 10% off your first order.',
+                'Join <a href="https://www.ativafit.com/pages/ativapeople-rewards-program" target="_blank" style="color: #eb701f; text-decoration: underline; font-weight: bold;">AtivaPeople</a> & get extra discount.',
               type: "success",
             });
           }
@@ -670,7 +670,7 @@ document.addEventListener("DOMContentLoaded", () => {
               window.CartNotification.success({
                 title: "Product Added!",
                 message:
-                  'Join <a href="https://www.ativafit.com/pages/ativapeople-rewards-program" target="_blank" style="color: #eb701f; text-decoration: underline; font-weight: bold;">AtivaPeople</a> & get 10% off your first order.',
+                  'Join <a href="https://www.ativafit.com/pages/ativapeople-rewards-program" target="_blank" style="color: #eb701f; text-decoration: underline; font-weight: bold;">AtivaPeople</a> & get extra discount.',
                 type: "success",
               });
             }
