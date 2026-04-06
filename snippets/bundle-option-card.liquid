@@ -1,0 +1,71 @@
+{% comment %}
+  Bundle option card (radio/checkbox): product-card-simple style image, no ATC.
+  Parameters: product, variant, input_id, input_name, checked, card_title, card_description, badge_label,
+  line_category (sidebar), input_type (radio|checkbox), discount_cents
+{% endcomment %}
+{%- liquid
+  assign bo_line_title = card_title | default: product.title
+  assign bo_line_cat = line_category | default: ''
+  assign bo_input_type = input_type | default: 'radio'
+-%}
+{%- if product != blank and variant != blank -%}
+  {%- liquid
+    assign bo_image = variant.image | default: product.featured_image
+    assign bo_price = variant.price
+    assign bo_compare = variant.compare_at_price
+  -%}
+  <label class="bundle-option-card" for="{{ input_id }}" data-bundle-option-card>
+    <input
+      type="{{ bo_input_type }}"
+      name="{{ input_name }}"
+      id="{{ input_id }}"
+      value="{{ variant.id }}"
+      class="bundle-option-card__input visually-hidden"
+      data-bundle-variant-id="{{ variant.id }}"
+      data-bundle-product-id="{{ product.id }}"
+      data-bundle-line-title="{{ bo_line_title | escape }}"
+      data-bundle-line-category="{{ bo_line_cat | escape }}"
+      data-bundle-price-cents="{{ variant.price }}"
+      data-bundle-compare-price-cents="{{ variant.compare_at_price | default: 0 }}"
+      data-bundle-discount-cents="{{ discount_cents | default: 0 }}"
+      {% if checked %}checked{% endif %}>
+    <span class="bundle-option-card__surface">
+      <span class="bundle-option-card__media">
+        {%- if bo_image -%}
+          {{
+            bo_image
+            | image_url: width: 800
+            | image_tag:
+              loading: 'lazy',
+              class: 'bundle-option-card__img',
+              widths: '200, 300, 400, 600, 800',
+              sizes: '(min-width: 990px) 30vw, (min-width: 750px) 33vw, 100vw',
+              alt: bo_image.alt | default: card_title | default: product.title | escape
+          }}
+        {%- else -%}
+          {{ 'product-1' | placeholder_svg_tag: 'bundle-option-card__placeholder' }}
+        {%- endif -%}
+        <span class="bundle-option-card__check" aria-hidden="true">
+          <svg width="14" height="11" viewBox="0 0 14 11" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M1 5.5L5 9.5L13 1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </span>
+      <span class="bundle-option-card__body">
+        {%- if badge_label != blank -%}
+          <span class="bundle-option-card__badge">{{ badge_label | escape }}</span>
+        {%- endif -%}
+        <span class="bundle-option-card__title">{{ card_title | default: product.title | escape }}</span>
+        {%- if card_description != blank -%}
+          <span class="bundle-option-card__desc">{{ card_description | escape }}</span>
+        {%- endif -%}
+        <span class="bundle-option-card__price-row">
+          <span class="bundle-option-card__price">{{ bo_price | money }}</span>
+          {%- if bo_compare != blank and bo_compare > bo_price and bo_compare > 0 -%}
+            <span class="bundle-option-card__compare">{{ bo_compare | money }}</span>
+          {%- endif -%}
+        </span>
+      </span>
+    </span>
+  </label>
+{%- endif -%}

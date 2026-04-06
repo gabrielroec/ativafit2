@@ -1,7 +1,12 @@
-{%- comment -%} 
-                              Sticky Add to Cart Bar
-                              Appears at the bottom of the screen after scrolling to encourage product purchase 
+{%- comment -%}
+  Sticky Add to Cart Bar
+  Preço e disponibilidade devem seguir a variante selecionada (igual ao PDP).
+  product.price no Liquid é o mínimo entre variantes — errado para produtos com single vs set.
 {%- endcomment -%}
+{%- liquid
+  assign sticky_variant = product.selected_or_first_available_variant
+  assign sticky_image = sticky_variant.featured_image | default: product.featured_image
+-%}
 
 <div
   class="sticky-add-to-cart-wrapper"
@@ -12,10 +17,10 @@
       <!-- Product image and title -->
       <div class="sticky-product-info">
         <div class="sticky-product-image">
-          {%- if product.featured_image -%}
+          {%- if sticky_image -%}
             <img
-              src="{{ product.featured_image | img_url: '120x' }}"
-              alt="{{ product.featured_image.alt | escape }}"
+              src="{{ sticky_image | image_url: width: 120 }}"
+              alt="{{ sticky_image.alt | default: product.title | escape }}"
               width="60"
               height="60"
               loading="lazy">
@@ -26,14 +31,20 @@
         <div class="sticky-product-details">
           <h3 class="sticky-product-title">{{ product.title }}</h3>
           <div class="sticky-product-price">
-            <span class="price-item price-item--regular">
-              {{ product.price | money }}
+            <span class="price-item price-item--regular sticky-bar-price-current">
+              {{ sticky_variant.price | money }}
             </span>
-            {%- if product.compare_at_price > product.price -%}
-              <span class="price-item price-item--sale">
-                <s>{{ product.compare_at_price | money }}</s>
-              </span>
-            {%- endif -%}
+            <span
+              class="price-item price-item--sale sticky-bar-price-compare-wrap"
+              {% unless sticky_variant.compare_at_price > sticky_variant.price %}
+                style="display: none;"
+              {% endunless %}>
+              <s class="sticky-bar-price-compare">
+                {%- if sticky_variant.compare_at_price > sticky_variant.price -%}
+                  {{ sticky_variant.compare_at_price | money }}
+                {%- endif -%}
+              </s>
+            </span>
           </div>
         </div>
       </div>
@@ -44,9 +55,10 @@
           type="button"
           class="sticky-add-to-cart-button"
           data-product-id="{{ product.id }}"
-          {% unless product.available %}
+          data-in-stock-label="{{ section.settings.button_text | default: 'Add to Cart' | escape }}"
+          {% unless sticky_variant.available %}
           disabled{% endunless %}>
-          {%- if product.available -%}
+          {%- if sticky_variant.available -%}
             {{ section.settings.button_text | default: 'Add to Cart' }}
           {%- else -%}
             Sold Out
@@ -208,11 +220,8 @@
   document.addEventListener('DOMContentLoaded', function() {
     const stickyBar = document.getElementById('sticky-add-to-cart');
     if (!stickyBar) {
-      console.log('Sticky bar not found');
       return;
     }
-    
-    console.log('Sticky bar found:', stickyBar);
     
     const scrollThreshold = parseInt(stickyBar.dataset.scrollThreshold) || 300;
     const addToCartButton = document.querySelector('.sticky-add-to-cart-button');
@@ -225,24 +234,16 @@
                          document.querySelector('[data-product-id]') ||
                          document.querySelector('.product-form');
     
-    console.log('Is product page:', isProductPage);
-    console.log('Body classes:', document.body.className);
-    console.log('URL pathname:', window.location.pathname);
-    
     if (!isProductPage) {
-      console.log('Hiding sticky bar - not a product page');
       stickyBar.style.display = 'none';
       return;
     }
     
     // Handle scroll events
     function handleScroll() {
-      console.log('Scroll Y:', window.scrollY, 'Threshold:', scrollThreshold);
       if (window.scrollY > scrollThreshold) {
-        console.log('Adding visible class');
         stickyBar.classList.add('visible');
       } else {
-        console.log('Removing visible class');
         stickyBar.classList.remove('visible');
       }
     }
