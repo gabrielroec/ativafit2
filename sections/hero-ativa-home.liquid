@@ -40,7 +40,7 @@
 -%}
 
 <section
-  class="hero-ativa-home font-ativa-body"
+  class="hero-ativa-home font-ativa-body{% unless section.settings.show_side_image_card %} hero-ativa-home--no-side-media{% endunless %}"
   data-hero-ativa-home
   style="
     --hero-ativa-overlay-opacity: {{ overlay_opacity }};
@@ -124,27 +124,29 @@
         {%- endif -%}
       </div>
 
-      <div
-        class="hero-ativa-home__media hero-ativa-home__entrance hero-ativa-home__entrance--media"
-        style="--hero-entrance-delay: {{ entrance_stagger | times: 3 }}ms">
-        <div class="hero-ativa-home__media-frame">
-          {%- if media != blank -%}
-            {{
-              media
-              | image_url: width: 1500
-              | image_tag:
-                class: 'hero-ativa-home__media-img',
-                widths: '400, 600, 800, 1000, 1200, 1500',
-                sizes: '(min-width: 900px) 36rem, 90vw',
-                loading: 'eager',
-                fetchpriority: 'high',
-                alt: side_alt
-            }}
-          {%- else -%}
-            {{ 'product-1' | placeholder_svg_tag: 'hero-ativa-home__media-img placeholder-svg' }}
-          {%- endif -%}
+      {%- if section.settings.show_side_image_card -%}
+        <div
+          class="hero-ativa-home__media hero-ativa-home__entrance hero-ativa-home__entrance--media"
+          style="--hero-entrance-delay: {{ entrance_stagger | times: 3 }}ms">
+          <div class="hero-ativa-home__media-frame">
+            {%- if media != blank -%}
+              {{
+                media
+                | image_url: width: 1500
+                | image_tag:
+                  class: 'hero-ativa-home__media-img',
+                  widths: '400, 600, 800, 1000, 1200, 1500',
+                  sizes: '(min-width: 900px) 36rem, 90vw',
+                  loading: 'eager',
+                  fetchpriority: 'high',
+                  alt: side_alt
+              }}
+            {%- else -%}
+              {{ 'product-1' | placeholder_svg_tag: 'hero-ativa-home__media-img placeholder-svg' }}
+            {%- endif -%}
+          </div>
         </div>
-      </div>
+      {%- endif -%}
     </div>
   </div>
 </section>
@@ -157,75 +159,82 @@
   "settings": [
     {
       "type": "header",
-      "content": "Conteúdo"
+      "content": "Content"
     },
     {
       "type": "textarea",
       "id": "heading",
-      "label": "Título (H1)",
+      "label": "Title (H1)",
       "default": "START STRONG.\nBUILD YOUR HOME\nGYM YOUR WAY",
-      "info": "Use uma linha nova para cada quebra de linha."
+      "info": "Use a new line for each line break."
     },
     {
       "type": "textarea",
       "id": "subheading",
-      "label": "Texto de apoio",
+      "label": "Supporting text",
       "default": "Strength, cardio, and full-body training — all from one space-saving system."
     },
     {
       "type": "text",
       "id": "section_a11y_label",
-      "label": "Nome da região (acessibilidade)",
-      "default": "Destaque principal",
-      "info": "Leitores de tela usam para identificar o bloco."
+      "label": "Region name (accessibility)",
+      "default": "Main hero",
+      "info": "Screen readers use this to identify the block."
     },
     {
       "type": "header",
-      "content": "Botões"
+      "content": "Buttons"
     },
     {
       "type": "text",
       "id": "button_primary_label",
-      "label": "Texto — botão principal",
+      "label": "Text — primary button",
       "default": "SHOP DUMBBELLS"
     },
     {
       "type": "url",
       "id": "button_primary_link",
-      "label": "Link — botão principal",
-      "info": "Se vazio, usa a coleção de todos os produtos."
+      "label": "Link — primary button",
+      "info": "If empty, uses the All products collection."
     },
     {
       "type": "text",
       "id": "button_secondary_label",
-      "label": "Texto — botão secundário",
+      "label": "Text — secondary button",
       "default": "EXPLORE HOME GYM SETUP"
     },
     {
       "type": "url",
       "id": "button_secondary_link",
-      "label": "Link — botão secundário",
-      "info": "Se vazio, usa a página inicial."
+      "label": "Link — secondary button",
+      "info": "If empty, uses the home page."
     },
     {
       "type": "header",
-      "content": "Imagens"
+      "content": "Images"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_side_image_card",
+      "label": "Show image card (right side)",
+      "default": false,
+      "info": "Off: background image only, full width. On: shows the card with side image below (mobile) or on the right (desktop)."
     },
     {
       "type": "image_picker",
       "id": "background_image",
-      "label": "Imagem de fundo (full width)",
-      "info": "Enquanto vazio, aparece o placeholder nativo Shopify em tom neutro."
+      "label": "Background image (full width)",
+      "info": "While empty, Shopify’s neutral placeholder is shown."
     },
     {
       "type": "image_picker",
       "id": "side_image",
-      "label": "Imagem à direita (destaque)",
-      "info": "Enquanto vazio, usa o placeholder de produto. Defina texto alternativo na mídia para SEO."
+      "label": "Card image (side highlight)",
+      "info": "Only shows when “Show image card” is on. If empty, uses the product placeholder. Set alt text on the asset for SEO."
     },
     {
       "type": "header",
-      "content": "Visual"
+      "content": "Look & feel"
     },
     {
       "type": "range",
@@ -234,9 +243,9 @@
       "max": 200,
       "step": 10,
       "unit": "ms",
-      "label": "Animação — intervalo entre cada elemento",
+      "label": "Animation — delay between each element",
       "default": 90,
-      "info": "Título primeiro, depois texto, botões e imagem. Ignorado com “menos movimento” no sistema."
+      "info": "Title first, then text, buttons, and image. Ignored when “reduce motion” is enabled."
     },
     {
       "type": "range",
@@ -245,37 +254,37 @@
       "max": 85,
       "step": 5,
       "unit": "%",
-      "label": "Escurecimento do fundo",
+      "label": "Background dimming",
       "default": 35
     },
     {
       "type": "checkbox",
       "id": "show_noise_overlay",
-      "label": "Textura leve no fundo (CSS)",
+      "label": "Light background texture (CSS)",
       "default": true
     },
     {
       "type": "color",
       "id": "primary_button_bg",
-      "label": "Fundo — botão principal",
+      "label": "Background — primary button",
       "default": "#EB701F"
     },
     {
       "type": "color",
       "id": "primary_button_text",
-      "label": "Texto — botão principal",
+      "label": "Text — primary button",
       "default": "#FFFFFF"
     },
     {
       "type": "color",
       "id": "secondary_button_text",
-      "label": "Texto — botão secundário",
+      "label": "Text — secondary button",
       "default": "#FFFFFF"
     },
     {
       "type": "color",
       "id": "secondary_button_border",
-      "label": "Borda — botão secundário",
+      "label": "Border — secondary button",
       "default": "#FFFFFF"
     }
   ],

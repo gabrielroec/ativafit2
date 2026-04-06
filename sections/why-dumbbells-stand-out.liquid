@@ -199,7 +199,7 @@
     gap: 16px;
   }
 
-  /* Mesmo padrão do trust-bar-ativa: ícone = ligadura Material Symbols, sem herdar fonte do card */
+  /* Same pattern as trust-bar-ativa: icon = Material Symbols ligature, no card font inheritance */
   #{{ sid }} .why-dumbbells-stand-out__icon.material-symbols-outlined {
     font-family: 'Material Symbols Outlined', sans-serif !important;
     font-size: 26px !important;
@@ -238,6 +238,9 @@
   #{{ sid }} .why-dumbbells-stand-out__video-shell {
     position: relative;
     width: 100%;
+    max-width: min({{ section.settings.video_shell_max_width | default: 820 }}px, 100%);
+    margin-left: auto;
+    margin-right: auto;
     border-radius: 12px;
     overflow: hidden;
     background: #d5d5d5;
@@ -462,7 +465,7 @@
       "unit": "px",
       "label": "Space below grid",
       "default": 48,
-      "info": "Espaço antes do bloco de vídeo (se estiver ativo)."
+      "info": "Space before the video block (when enabled)."
     },
     {
       "type": "header",
@@ -471,38 +474,38 @@
     {
       "type": "video",
       "id": "demo_video",
-      "label": "Vídeo (MP4 hospedado na Shopify)",
-      "info": "Opcional. Sem vídeo, mostra-se o mesmo visual em modo placeholder (play desativado). Abaixo da grelha de benefícios."
+      "label": "Video (MP4 hosted on Shopify)",
+      "info": "Optional. Without video, the same look shows as a placeholder (play disabled). Below the benefits grid."
     },
     {
       "type": "image_picker",
       "id": "video_poster",
-      "label": "Imagem de capa (opcional)",
-      "info": "Se vazio, usa a miniatura gerada pelo vídeo; o estado placeholder mantém textura + ícone."
+      "label": "Poster image (optional)",
+      "info": "If empty, uses the video-generated thumbnail; placeholder keeps texture + icon."
     },
     {
       "type": "text",
       "id": "video_heading",
-      "label": "Nome da região (acessibilidade)",
+      "label": "Region name (accessibility)",
       "default": "Product demo video",
-      "info": "Lido por leitores de ecrã na área do vídeo."
+      "info": "Read by screen readers in the video area."
     },
     {
       "type": "text",
       "id": "video_play_label",
-      "label": "Etiqueta do botão de reprodução",
+      "label": "Play button label",
       "default": "Play product demo video"
     },
     {
       "type": "text",
       "id": "video_placeholder_aria",
-      "label": "Acessibilidade — botão desativado (sem vídeo)",
+      "label": "Accessibility — disabled button (no video)",
       "default": "Demo video not available yet"
     },
     {
       "type": "text",
       "id": "video_placeholder_caption",
-      "label": "Texto sob o play (só quando não há vídeo)",
+      "label": "Text under play (only when there is no video)",
       "default": "Add a video in this section’s settings to enable playback."
     },
     {
@@ -512,8 +515,19 @@
       "max": 64,
       "step": 4,
       "unit": "px",
-      "label": "Espaço extra acima do vídeo",
+      "label": "Extra space above video",
       "default": 0
+    },
+    {
+      "type": "range",
+      "id": "video_shell_max_width",
+      "min": 320,
+      "max": 1200,
+      "step": 20,
+      "unit": "px",
+      "label": "Max video width",
+      "default": 820,
+      "info": "Caps width and height (16:9) and centers the block. Lower values = smaller video."
     },
     {
       "type": "header",
@@ -582,14 +596,14 @@
         {
           "type": "select",
           "id": "icon",
-          "label": "Ícone (Material Symbols)",
+          "label": "Icon (Material Symbols)",
           "default": "widgets",
-          "info": "Os quatro ícones do layout original: widgets, speed, architecture, lock — mesmo uso que em trust-bar-ativa.",
+          "info": "The four original layout icons: widgets, speed, architecture, lock — same usage as trust-bar-ativa.",
           "options": [
             { "value": "widgets", "label": "widgets — 12-in-1 / grid" },
-            { "value": "speed", "label": "speed — rápido / dial" },
-            { "value": "architecture", "label": "architecture — construção / aço" },
-            { "value": "lock", "label": "lock — seguro / estável" }
+            { "value": "speed", "label": "speed — fast / dial" },
+            { "value": "architecture", "label": "architecture — build / steel" },
+            { "value": "lock", "label": "lock — secure / stable" }
           ]
         },
         {

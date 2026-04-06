@@ -3,17 +3,19 @@
 
 {%- liquid
   assign stagger = section.settings.stagger_ms | default: 80
+  assign mobile_layout = section.settings.mobile_layout | default: 'carousel'
 -%}
 
 <section
   class="shop-gym-ativa"
   data-shop-gym-ativa
+  data-mobile-layout="{{ mobile_layout }}"
   style="
     --sg-heading-color: {{ section.settings.heading_color }};
     --sg-card-bg: {{ section.settings.card_placeholder_bg }};
     --sg-accent: {{ section.settings.accent_color }};
   "
-  aria-label="{{ section.settings.section_a11y_label | default: 'Categorias de equipamentos' | escape }}"
+  aria-label="{{ section.settings.section_a11y_label | default: 'Equipment categories' | escape }}"
   {{ section.shopify_attributes }}>
   <div class="shop-gym-ativa__inner">
     {%- if section.settings.heading != blank -%}
@@ -23,7 +25,7 @@
     {%- endif -%}
 
     {%- if section.blocks.size > 0 -%}
-      <ul class="shop-gym-ativa__grid" role="list">
+      <ul class="shop-gym-ativa__grid shop-gym-ativa__grid--mobile-{{ mobile_layout }}" role="list">
         {%- for block in section.blocks -%}
           {%- if block.type == 'card' -%}
             <li
@@ -98,6 +100,12 @@
           {%- endif -%}
         {%- endfor -%}
       </ul>
+
+      {%- if mobile_layout == 'carousel' -%}
+        <div class="shop-gym-ativa__carousel-ui" data-shop-gym-carousel-ui hidden>
+          <div class="shop-gym-ativa__dots" data-shop-gym-dots role="group" aria-label="Carousel navigation"></div>
+        </div>
+      {%- endif -%}
     {%- endif -%}
   </div>
 </section>
@@ -112,14 +120,31 @@
     {
       "type": "text",
       "id": "heading",
-      "label": "Título da section",
+      "label": "Section title",
       "default": "Shop Home Gym Equipment"
     },
     {
       "type": "text",
       "id": "section_a11y_label",
-      "label": "Nome da região (acessibilidade)",
-      "default": "Categorias de equipamentos"
+      "label": "Region name (accessibility)",
+      "default": "Equipment categories"
+    },
+    {
+      "type": "select",
+      "id": "mobile_layout",
+      "label": "Mobile layout",
+      "options": [
+        {
+          "value": "carousel",
+          "label": "Carousel"
+        },
+        {
+          "value": "grid",
+          "label": "Grid (2 per row)"
+        }
+      ],
+      "default": "carousel",
+      "info": "On screens ≥768px the grid stays (2 columns, then 4). This option applies to mobile only."
     },
     {
       "type": "range",
@@ -128,59 +153,59 @@
       "max": 200,
       "step": 10,
       "unit": "ms",
-      "label": "Atraso entre cada card (animação)",
+      "label": "Delay between each card (animation)",
       "default": 80,
-      "info": "0 = todos juntos. Respeita “menos movimento” no sistema."
+      "info": "0 = all at once. Honors “reduce motion” in system settings."
     },
     {
       "type": "header",
-      "content": "Cores"
+      "content": "Colors"
     },
     {
       "type": "color",
       "id": "heading_color",
-      "label": "Cor do título",
+      "label": "Heading color",
       "default": "#1a1c1c"
     },
     {
       "type": "color",
       "id": "accent_color",
-      "label": "Cor do CTA / seta",
+      "label": "CTA / arrow color",
       "default": "#eb701f"
     },
     {
       "type": "color",
       "id": "card_placeholder_bg",
-      "label": "Fundo do card (placeholder)",
+      "label": "Card background (placeholder)",
       "default": "#eeeeee"
     }
   ],
   "blocks": [
     {
       "type": "card",
-      "name": "Card de categoria",
+      "name": "Category card",
       "settings": [
         {
           "type": "image_picker",
           "id": "image",
-          "label": "Imagem"
+          "label": "Image"
         },
         {
           "type": "text",
           "id": "title",
-          "label": "Título",
+          "label": "Title",
           "default": "Strength Training"
         },
         {
           "type": "url",
           "id": "link",
-          "label": "Link do card",
-          "info": "Torna o card inteiro clicável."
+          "label": "Card link",
+          "info": "Makes the whole card clickable."
         },
         {
           "type": "text",
           "id": "cta_label",
-          "label": "Texto do CTA",
+          "label": "CTA text",
           "default": "View Gear"
         }
       ]

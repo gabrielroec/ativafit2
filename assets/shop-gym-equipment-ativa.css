@@ -1,12 +1,12 @@
 /**
- * Shop Home Gym Equipment — grid de categorias com overlay em gradiente.
- * Container: --ativa-section-container-max (1280px) em css-variables.liquid.
+ * Shop Home Gym Equipment — category grid with gradient overlay.
+ * Container: --ativa-section-container-max (1280px) in css-variables.liquid.
  */
 
 .shop-gym-ativa {
   --sg-gutter: clamp(1rem, 4vw, 1.5rem);
   --sg-accent: #eb701f;
-  /* Aprox. GSAP expo.out / power3 — entrada suave ao soltar no fim */
+  /* ~GSAP expo.out / power3 — smooth settle at the end */
   --sg-ease-out: cubic-bezier(0.19, 1, 0.22, 1);
   --sg-reveal-duration: 0.88s;
   padding-block: clamp(3.5rem, 8vw, 6rem);
@@ -54,9 +54,63 @@
   padding: 0;
 }
 
+/* Mobile: 2-column grid (only with --mobile-grid modifier) */
+@media screen and (max-width: 767px) {
+  .shop-gym-ativa__grid--mobile-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem 1rem;
+  }
+}
+
+/* Mobile: horizontal carousel with snap */
+@media screen and (max-width: 767px) {
+  .shop-gym-ativa__grid--mobile-carousel {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 1rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--sg-gutter);
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    margin-inline: calc(var(--sg-gutter) * -1);
+    padding-inline: var(--sg-gutter);
+    padding-bottom: 0.25rem;
+    scrollbar-width: none;
+  }
+
+  .shop-gym-ativa__grid--mobile-carousel::-webkit-scrollbar {
+    display: none;
+  }
+
+  .shop-gym-ativa__grid--mobile-carousel .shop-gym-ativa__item {
+    flex: 0 0 min(22rem, calc(100% - 2.5rem));
+    scroll-snap-align: center;
+    min-width: 0;
+  }
+}
+
 @media screen and (min-width: 768px) {
   .shop-gym-ativa__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Restore grid on tablet+ when mobile used carousel */
+  .shop-gym-ativa__grid--mobile-carousel {
+    display: grid;
+    flex-wrap: unset;
+    overflow-x: visible;
+    overflow-y: visible;
+    scroll-snap-type: none;
+    margin-inline: 0;
+    padding-inline: 0;
+    padding-bottom: 0;
+  }
+
+  .shop-gym-ativa__grid--mobile-carousel .shop-gym-ativa__item {
+    flex: unset;
+    scroll-snap-align: unset;
   }
 }
 
@@ -197,4 +251,64 @@
 .shop-gym-ativa__card:hover .shop-gym-ativa__cta-arrow,
 .shop-gym-ativa__card:focus-visible .shop-gym-ativa__cta-arrow {
   transform: translateX(0.35rem);
+}
+
+/* Carousel indicators (mobile) */
+.shop-gym-ativa__carousel-ui {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.25rem;
+}
+
+.shop-gym-ativa__carousel-ui[hidden] {
+  display: none !important;
+}
+
+@media screen and (min-width: 768px) {
+  .shop-gym-ativa__carousel-ui {
+    display: none !important;
+  }
+}
+
+.shop-gym-ativa__dots {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.shop-gym-ativa__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: rgb(26 28 28 / 0.22);
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.2s ease;
+}
+
+.shop-gym-ativa__dot:hover {
+  background: rgb(26 28 28 / 0.4);
+}
+
+.shop-gym-ativa__dot[aria-current='true'] {
+  background: var(--sg-accent, #eb701f);
+  transform: scale(1.15);
+}
+
+.shop-gym-ativa__dot:focus-visible {
+  outline: 2px solid var(--sg-accent, #eb701f);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shop-gym-ativa__grid--mobile-carousel {
+    scroll-snap-type: none;
+  }
+
+  .shop-gym-ativa__dot {
+    transition: none;
+  }
 }

@@ -8,6 +8,17 @@
   endif
   assign img_alt = block.settings.image_alt | default: 'Community photo'
   assign hg_img_sizes = '(max-width: 749px) 72vw, ' | append: section.settings.card_width | append: 'px'
+  assign media_url = block.settings.media_url | strip
+  assign img_src_low = ''
+  if block.settings.image != blank and block.settings.image.src != blank
+    assign img_src_low = block.settings.image.src | downcase
+  endif
+  assign is_gif_upload = false
+  if img_src_low contains '.gif'
+    assign is_gif_upload = true
+  endif
+  assign hg_card_w = section.settings.card_width
+  assign hg_card_h = section.settings.card_width | times: 16 | divided_by: 9
 -%}
 
 <div class="home-gyms-marquee__card" style="width: {{ section.settings.card_width }}px;">
@@ -23,16 +34,43 @@
       {% endif %}>
   {%- endif -%}
   <div class="home-gyms-marquee__card-frame">
-    {%- if block.settings.image != blank -%}
-      {{
-        block.settings.image
-        | image_url: width: 900
-        | image_tag:
-          loading: 'lazy',
-          widths: '300, 450, 600, 750, 900',
-          sizes: hg_img_sizes,
-          alt: img_alt
-      }}
+    {%- if media_url != blank -%}
+      <img
+        class="home-gyms-marquee__card-img"
+        src="{{ media_url }}"
+        alt="{{ img_alt | escape }}"
+        width="{{ hg_card_w }}"
+        height="{{ hg_card_h }}"
+        loading="lazy"
+        decoding="async">
+    {%- elsif block.settings.image != blank -%}
+      {%- if is_gif_upload -%}
+        {{
+          block.settings.image
+          | image_url
+          | image_tag:
+            loading: 'lazy',
+            decoding: 'async',
+            class: 'home-gyms-marquee__card-img',
+            width: hg_card_w,
+            height: hg_card_h,
+            alt: img_alt
+        }}
+      {%- else -%}
+        {{
+          block.settings.image
+          | image_url: width: 900
+          | image_tag:
+            loading: 'lazy',
+            decoding: 'async',
+            widths: '300, 450, 600, 750, 900',
+            sizes: hg_img_sizes,
+            class: 'home-gyms-marquee__card-img',
+            width: hg_card_w,
+            height: hg_card_h,
+            alt: img_alt
+        }}
+      {%- endif -%}
     {%- else -%}
       <div class="home-gyms-marquee__ph"></div>
     {%- endif -%}

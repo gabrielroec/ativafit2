@@ -1,6 +1,10 @@
+{{ 'shop-gym-equipment-ativa.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'shop-gym-equipment-ativa.js' | asset_url }}" defer></script>
+
 {%- liquid
   assign ttc_id = 'trusted-tech-critics-' | append: section.id
   assign ttc_bg = section.settings.background_color | default: '#f3f3f3'
+  assign ttc_accent = section.settings.accent_color | default: '#eb701f'
 -%}
 
 <section
@@ -17,7 +21,12 @@
       {%- endif -%}
     </div>
 
-    <div class="trusted-tech-critics__grid">
+    <div
+      class="trusted-tech-critics__shop-carousel"
+      data-shop-gym-ativa
+      data-mobile-layout="carousel"
+      style="--sg-accent: {{ ttc_accent }}; --sg-gutter: clamp(1rem, 4vw, 1.5rem);">
+      <ul class="shop-gym-ativa__grid shop-gym-ativa__grid--mobile-carousel" role="list">
       {%- for block in section.blocks -%}
         {%- liquid
           assign ttc_video = block.settings.video
@@ -45,7 +54,8 @@
           endif
         -%}
 
-        <article class="trusted-tech-critics__card" {{ block.shopify_attributes }}>
+        <li class="shop-gym-ativa__item" {{ block.shopify_attributes }}>
+        <article class="trusted-tech-critics__card">
           <div class="trusted-tech-critics__media-shell">
             <div class="trusted-tech-critics__preview{% unless ttc_has_video %} trusted-tech-critics__preview--static{% endunless %}" data-ttc-preview>
               {%- if block.settings.thumbnail != blank -%}
@@ -107,13 +117,11 @@
               {%- endif -%}
             </div>
           </div>
-
-          {%- if block.settings.quote != blank -%}
-            <p class="trusted-tech-critics__quote">{{ block.settings.quote | escape }}</p>
-          {%- endif -%}
         </article>
+        </li>
       {%- else -%}
         {%- for i in (1..3) -%}
+        <li class="shop-gym-ativa__item">
           <article class="trusted-tech-critics__card trusted-tech-critics__card--placeholder">
             <div class="trusted-tech-critics__media-shell">
               <div class="trusted-tech-critics__preview trusted-tech-critics__preview--static">
@@ -125,10 +133,15 @@
                 </button>
               </div>
             </div>
-            <p class="trusted-tech-critics__quote">{{ section.settings.placeholder_quote | escape }}</p>
           </article>
+        </li>
         {%- endfor -%}
       {%- endfor -%}
+      </ul>
+
+      <div class="shop-gym-ativa__carousel-ui" data-shop-gym-carousel-ui hidden>
+        <div class="shop-gym-ativa__dots" data-shop-gym-dots role="group" aria-label="Carousel navigation"></div>
+      </div>
     </div>
   </div>
 </section>
@@ -203,14 +216,24 @@
     margin: 0 !important;
   }
 
-  #{{ ttc_id }} .trusted-tech-critics__grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: {{ section.settings.grid_gap }}px;
+  /* Mobile carousel + dots: shop-gym-equipment-ativa.css (same as Shop Home Gym). Desktop: 3 columns. */
+  #{{ ttc_id }} .trusted-tech-critics__shop-carousel {
+    width: 100%;
+  }
+
+  #{{ ttc_id }} .shop-gym-ativa__item {
+    list-style: none;
   }
 
   @media screen and (min-width: 768px) {
-    #{{ ttc_id }} .trusted-tech-critics__grid {
+    #{{ ttc_id }} .shop-gym-ativa__grid--mobile-carousel {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: {{ section.settings.grid_gap }}px;
+    }
+  }
+
+  @media screen and (min-width: 990px) {
+    #{{ ttc_id }} .shop-gym-ativa__grid--mobile-carousel {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
@@ -222,7 +245,6 @@
     background: #dfdfdf;
     aspect-ratio: 16 / 9;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-    margin-bottom: 14px;
   }
 
   #{{ ttc_id }} .trusted-tech-critics__preview {
@@ -290,15 +312,6 @@
     cursor: not-allowed;
     opacity: 0.9;
   }
-
-  #{{ ttc_id }} .trusted-tech-critics__quote {
-    font-family: var(--text-font-family) !important;
-    font-size: {{ section.settings.quote_size }}px !important;
-    line-height: 1.5 !important;
-    font-style: italic !important;
-    color: {{ section.settings.quote_color }} !important;
-    margin: 0 !important;
-  }
 </style>
 
 {% schema %}
@@ -311,58 +324,52 @@
     {
       "type": "text",
       "id": "title",
-      "label": "Título",
+      "label": "Title",
       "default": "Trusted by Tech Critics"
     },
     {
       "type": "text",
       "id": "subtitle",
-      "label": "Subtítulo",
+      "label": "Subtitle",
       "default": "In-depth Reviews from Top Creators"
     },
     {
       "type": "text",
       "id": "play_label",
-      "label": "Texto do botão play (acessibilidade)",
-      "default": "Reproduzir review em vídeo"
-    },
-    {
-      "type": "textarea",
-      "id": "placeholder_quote",
-      "label": "Quote placeholder",
-      "default": "\"The most precise dial mechanism I've used this year.\" - FitTech Daily"
+      "label": "Play button text (accessibility)",
+      "default": "Play video review"
     },
     {
       "type": "header",
-      "content": "Cores"
+      "content": "Colors"
     },
     {
       "type": "color",
       "id": "background_color",
-      "label": "Fundo da secção",
+      "label": "Section background",
       "default": "#f3f3f3"
     },
     {
       "type": "color",
       "id": "title_color",
-      "label": "Cor do título",
+      "label": "Title color",
       "default": "#000000"
     },
     {
       "type": "color",
       "id": "subtitle_color",
-      "label": "Cor do subtítulo",
+      "label": "Subtitle color",
       "default": "#574237"
     },
     {
       "type": "color",
-      "id": "quote_color",
-      "label": "Cor da quote",
-      "default": "#574237"
+      "id": "accent_color",
+      "label": "Accent color (mobile carousel dots)",
+      "default": "#eb701f"
     },
     {
       "type": "header",
-      "content": "Tipografia e espaçamento"
+      "content": "Typography and spacing"
     },
     {
       "type": "range",
@@ -371,7 +378,7 @@
       "max": 44,
       "step": 1,
       "unit": "px",
-      "label": "Tamanho do título",
+      "label": "Title size",
       "default": 40
     },
     {
@@ -381,18 +388,8 @@
       "max": 20,
       "step": 1,
       "unit": "px",
-      "label": "Tamanho do subtítulo",
+      "label": "Subtitle size",
       "default": 16
-    },
-    {
-      "type": "range",
-      "id": "quote_size",
-      "min": 13,
-      "max": 18,
-      "step": 1,
-      "unit": "px",
-      "label": "Tamanho da quote",
-      "default": 15
     },
     {
       "type": "range",
@@ -401,7 +398,7 @@
       "max": 80,
       "step": 4,
       "unit": "px",
-      "label": "Espaço abaixo do cabeçalho",
+      "label": "Space below header",
       "default": 64
     },
     {
@@ -411,7 +408,7 @@
       "max": 48,
       "step": 2,
       "unit": "px",
-      "label": "Espaço entre colunas",
+      "label": "Column gap",
       "default": 32
     },
     {
@@ -421,7 +418,7 @@
       "max": 20,
       "step": 2,
       "unit": "px",
-      "label": "Raio dos cards",
+      "label": "Card corner radius",
       "default": 12
     },
     {
@@ -431,7 +428,7 @@
       "max": 120,
       "step": 4,
       "unit": "px",
-      "label": "Padding superior",
+      "label": "Padding top",
       "default": 96
     },
     {
@@ -441,7 +438,7 @@
       "max": 120,
       "step": 4,
       "unit": "px",
-      "label": "Padding inferior",
+      "label": "Padding bottom",
       "default": 96
     }
   ],
@@ -453,30 +450,31 @@
         {
           "type": "video",
           "id": "video",
-          "label": "Vídeo MP4 (Shopify picker)",
-          "info": "Tem prioridade quando preenchido."
+          "label": "MP4 video (Shopify picker)",
+          "info": "Takes priority when set."
         },
         {
           "type": "url",
           "id": "youtube_url",
-          "label": "Link do YouTube",
-          "info": "Aceita youtu.be, watch?v=, embed e shorts."
+          "label": "YouTube link",
+          "info": "Supports youtu.be, watch?v=, embed, and shorts URLs."
         },
         {
           "type": "image_picker",
           "id": "thumbnail",
-          "label": "Thumbnail custom (opcional)"
+          "label": "Custom thumbnail (optional)"
         },
         {
           "type": "textarea",
           "id": "quote",
-          "label": "Quote",
+          "label": "Description (accessibility)",
+          "info": "Used for thumbnail alt text and embed title; not shown on the page.",
           "default": "\"The most precise dial mechanism I've used this year.\" - FitTech Daily"
         },
         {
           "type": "text",
           "id": "play_label",
-          "label": "Acessibilidade do botão play (opcional)"
+          "label": "Play button accessibility label (optional)"
         }
       ]
     }

@@ -1,3 +1,7 @@
+{%- liquid
+  assign mobile_layout = section.settings.mobile_layout | default: 'carousel'
+  assign desktop_layout = section.settings.desktop_layout | default: 'carousel'
+-%}
 {%- style -%}
   .banner-product-showcase {
     padding: 0 20px;
@@ -63,19 +67,25 @@
     display: flex;
     align-items: stretch;
   }
-  .banner-product-showcase__carousel .swiper-slide {
+  .banner-product-showcase__carousel .swiper-slide,
+  .banner-product-showcase__mobile-grid-cell,
+  .banner-product-showcase__desktop-grid-cell {
     height: auto;
     min-height: 420px;
     display: flex !important;
     align-items: stretch !important;
     box-sizing: border-box;
   }
-  .banner-product-showcase__carousel .swiper-slide > * {
+  .banner-product-showcase__carousel .swiper-slide > *,
+  .banner-product-showcase__mobile-grid-cell > *,
+  .banner-product-showcase__desktop-grid-cell > * {
     width: 100%;
     flex: 1;
     min-width: 0;
   }
-  .banner-product-showcase__carousel .swiper-slide .product-card-simple__card {
+  .banner-product-showcase__carousel .swiper-slide .product-card-simple__card,
+  .banner-product-showcase__mobile-grid-cell .product-card-simple__card,
+  .banner-product-showcase__desktop-grid-cell .product-card-simple__card {
     width: 100%;
     height: 100%;
     min-height: 420px;
@@ -85,20 +95,20 @@
     background: #fff;
     border-radius: 10px;
   }
-  .banner-product-showcase__carousel .product-card-simple__link {
+  .banner-product-showcase__carousel .product-card-simple__link, .banner-product-showcase__mobile-grid .product-card-simple__link, .banner-product-showcase__desktop-grid .product-card-simple__link {
     display: block;
     text-decoration: none;
     color: inherit;
     flex-shrink: 0;
   }
-  .banner-product-showcase__carousel .product-card-simple__image {
+  .banner-product-showcase__carousel .product-card-simple__image, .banner-product-showcase__mobile-grid .product-card-simple__image, .banner-product-showcase__desktop-grid .product-card-simple__image {
     position: relative;
     background: #f2f2f2;
     aspect-ratio: 1 / 1;
     overflow: hidden;
     flex-shrink: 0;
   }
-  .banner-product-showcase__carousel .product-card-simple__discount-badge {
+  .banner-product-showcase__carousel .product-card-simple__discount-badge, .banner-product-showcase__mobile-grid .product-card-simple__discount-badge, .banner-product-showcase__desktop-grid .product-card-simple__discount-badge {
     position: absolute;
     top: 10px;
     left: 10px;
@@ -111,14 +121,14 @@
     line-height: 1;
     z-index: 1;
   }
-  .banner-product-showcase__carousel .product-card-simple__image img,
-  .banner-product-showcase__carousel .product-card-simple__image svg {
+  .banner-product-showcase__carousel .product-card-simple__image img, .banner-product-showcase__mobile-grid .product-card-simple__image img, .banner-product-showcase__desktop-grid .product-card-simple__image img,
+  .banner-product-showcase__carousel .product-card-simple__image svg, .banner-product-showcase__mobile-grid .product-card-simple__image svg, .banner-product-showcase__desktop-grid .product-card-simple__image svg {
     width: 100%;
     height: 100%;
     object-fit: contain;
     display: block;
   }
-  .banner-product-showcase__carousel .product-card-simple__content {
+  .banner-product-showcase__carousel .product-card-simple__content, .banner-product-showcase__mobile-grid .product-card-simple__content, .banner-product-showcase__desktop-grid .product-card-simple__content {
     padding: 12px 14px;
     flex: 1;
     display: flex;
@@ -128,7 +138,7 @@
     min-height: 0;
     overflow: hidden;
   }
-  .banner-product-showcase__carousel .product-card-simple__title {
+  .banner-product-showcase__carousel .product-card-simple__title, .banner-product-showcase__mobile-grid .product-card-simple__title, .banner-product-showcase__desktop-grid .product-card-simple__title {
     font-size: 14px;
     font-weight: 600;
     line-height: 1.3;
@@ -139,28 +149,28 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  .banner-product-showcase__carousel .product-card-simple__title a {
+  .banner-product-showcase__carousel .product-card-simple__title a, .banner-product-showcase__mobile-grid .product-card-simple__title a, .banner-product-showcase__desktop-grid .product-card-simple__title a {
     color: inherit;
     text-decoration: none;
   }
-  .banner-product-showcase__carousel .product-card-simple__title a:hover {
+  .banner-product-showcase__carousel .product-card-simple__title a:hover, .banner-product-showcase__mobile-grid .product-card-simple__title a:hover, .banner-product-showcase__desktop-grid .product-card-simple__title a:hover {
     color: #EB701F;
   }
-  .banner-product-showcase__carousel .product-card-simple__price {
+  .banner-product-showcase__carousel .product-card-simple__price, .banner-product-showcase__mobile-grid .product-card-simple__price, .banner-product-showcase__desktop-grid .product-card-simple__price {
     font-size: 14px;
     font-weight: 700;
     flex-shrink: 0;
   }
-  .banner-product-showcase__carousel .product-card-simple__price-compare {
+  .banner-product-showcase__carousel .product-card-simple__price-compare, .banner-product-showcase__mobile-grid .product-card-simple__price-compare, .banner-product-showcase__desktop-grid .product-card-simple__price-compare {
     text-decoration: line-through;
     color: #888;
     margin-left: 6px;
   }
-  .banner-product-showcase__carousel .product-card-simple__form {
+  .banner-product-showcase__carousel .product-card-simple__form, .banner-product-showcase__mobile-grid .product-card-simple__form, .banner-product-showcase__desktop-grid .product-card-simple__form {
     margin: auto 0 0;
     flex-shrink: 0;
   }
-  .banner-product-showcase__carousel .product-card-simple__atc {
+  .banner-product-showcase__carousel .product-card-simple__atc, .banner-product-showcase__mobile-grid .product-card-simple__atc, .banner-product-showcase__desktop-grid .product-card-simple__atc {
     width: 100%;
     padding: 10px 14px;
     font-size: 12px;
@@ -174,28 +184,30 @@
     transition: background 0.2s
     , opacity 0.2s;
   }
-  .banner-product-showcase__carousel .product-card-simple__atc:hover:not(:disabled) {
+  .banner-product-showcase__carousel .product-card-simple__atc:hover:not(:disabled), .banner-product-showcase__mobile-grid .product-card-simple__atc:hover:not(:disabled), .banner-product-showcase__desktop-grid .product-card-simple__atc:hover:not(:disabled) {
     background: #c23d12;
   }
-  .banner-product-showcase__carousel .product-card-simple__atc:disabled {
+  .banner-product-showcase__carousel .product-card-simple__atc:disabled, .banner-product-showcase__mobile-grid .product-card-simple__atc:disabled, .banner-product-showcase__desktop-grid .product-card-simple__atc:disabled {
     opacity: 0.6;
     cursor: not-allowed;
   }
-  .banner-product-showcase__carousel .product-card-simple__variants {
+  .banner-product-showcase__carousel .product-card-simple__variants, .banner-product-showcase__mobile-grid .product-card-simple__variants, .banner-product-showcase__desktop-grid .product-card-simple__variants {
     flex-shrink: 0;
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    padding: 8px 14px 0;
+    padding: 0;
+    margin: 0;
+    justify-content: flex-start;
   }
-  .banner-product-showcase__carousel .product-card-simple__rating {
+  .banner-product-showcase__carousel .product-card-simple__rating, .banner-product-showcase__mobile-grid .product-card-simple__rating, .banner-product-showcase__desktop-grid .product-card-simple__rating {
     flex-shrink: 0;
     display: flex;
     align-items: center;
     gap: 4px;
     font-size: 12px;
   }
-  .banner-product-showcase__carousel .product-card-simple__variant-btn {
+  .banner-product-showcase__carousel .product-card-simple__variant-btn, .banner-product-showcase__mobile-grid .product-card-simple__variant-btn, .banner-product-showcase__desktop-grid .product-card-simple__variant-btn {
     width: 36px;
     height: 36px;
     padding: 0;
@@ -206,11 +218,11 @@
     overflow: hidden;
     transition: border-color 0.2s;
   }
-  .banner-product-showcase__carousel .product-card-simple__variant-btn--selected,
-  .banner-product-showcase__carousel .product-card-simple__variant-btn:hover {
+  .banner-product-showcase__carousel .product-card-simple__variant-btn--selected, .banner-product-showcase__mobile-grid .product-card-simple__variant-btn--selected, .banner-product-showcase__desktop-grid .product-card-simple__variant-btn--selected,
+  .banner-product-showcase__carousel .product-card-simple__variant-btn:hover, .banner-product-showcase__mobile-grid .product-card-simple__variant-btn:hover, .banner-product-showcase__desktop-grid .product-card-simple__variant-btn:hover {
     border-color: #EB701F;
   }
-  .banner-product-showcase__carousel .product-card-simple__variant-btn-inner {
+  .banner-product-showcase__carousel .product-card-simple__variant-btn-inner, .banner-product-showcase__mobile-grid .product-card-simple__variant-btn-inner, .banner-product-showcase__desktop-grid .product-card-simple__variant-btn-inner {
     display: block;
     width: 100%;
     height: 100%;
@@ -218,10 +230,10 @@
     background-position: center;
     background-repeat: no-repeat;
   }
-  .banner-product-showcase__carousel .product-card-simple__stars {
+  .banner-product-showcase__carousel .product-card-simple__stars, .banner-product-showcase__mobile-grid .product-card-simple__stars, .banner-product-showcase__desktop-grid .product-card-simple__stars {
     color: #ddd;
   }
-  .banner-product-showcase__carousel .product-card-simple__star--active {
+  .banner-product-showcase__carousel .product-card-simple__star--active, .banner-product-showcase__mobile-grid .product-card-simple__star--active, .banner-product-showcase__desktop-grid .product-card-simple__star--active {
     color: #EB701F;
   }
 
@@ -249,6 +261,48 @@
     background: #EB701F;
   }
 
+  /* Mobile: grelha 2 colunas (sem Swiper) vs carrossel — controlado por .banner-product-showcase--mobile-* */
+  .banner-product-showcase__mobile-grid {
+    display: none;
+  }
+  @media screen and (max-width: 767px) {
+    .banner-product-showcase--mobile-grid .banner-product-showcase__mobile-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      width: 100%;
+    }
+    .banner-product-showcase--mobile-grid .banner-product-showcase__swiper-shell {
+      display: none !important;
+    }
+  }
+  @media screen and (min-width: 768px) {
+    .banner-product-showcase__mobile-grid {
+      display: none !important;
+    }
+  }
+
+  /* Desktop: grelha 4 colunas (sem Swiper) vs carrossel */
+  .banner-product-showcase__desktop-grid {
+    display: none;
+  }
+  @media screen and (min-width: 768px) {
+    .banner-product-showcase--desktop-grid .banner-product-showcase__desktop-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 20px;
+      width: 100%;
+    }
+    .banner-product-showcase--desktop-grid .banner-product-showcase__swiper-shell {
+      display: none !important;
+    }
+  }
+  @media screen and (max-width: 767px) {
+    .banner-product-showcase__desktop-grid {
+      display: none !important;
+    }
+  }
+
   @media screen and (max-width: 768px) {
     .banner-product-showcase {
       padding: 0 10px;
@@ -272,7 +326,11 @@
   }
 {%- endstyle -%}
 
-<div class="banner-product-showcase">
+<div
+  class="banner-product-showcase banner-product-showcase--mobile-{{ mobile_layout }} banner-product-showcase--desktop-{{ desktop_layout }}"
+  id="banner-showcase-{{ section.id }}"
+  data-banner-showcase-mobile="{{ mobile_layout }}"
+  data-banner-showcase-desktop="{{ desktop_layout }}">
   <div class="banner-product-showcase__header">
     {% if section.settings.title != blank %}
       <h2 class="banner-product-showcase__title">{{ section.settings.title }}</h2>
@@ -284,48 +342,137 @@
 
   <div class="banner-product-showcase__grid">
     <div class="banner-product-showcase__products-area">
-      <div class="banner-product-showcase__carousel-container">
-        <div id="carousel-{{ section.id }}" class="banner-product-showcase__carousel swiper">
-          <div class="swiper-wrapper">
-            {% assign has_products = false %}
-            {% for block in section.blocks %}
-              {% if block.type == 'product' and block.settings.product != blank %}
-                {% assign has_products = true %}
-                {% assign product = all_products[block.settings.product] %}
-                <div class="swiper-slide">
-                  {% render 'product-card-simple'
-                    , product: product %}
-                </div>
-              {% endif %}
-            {% endfor %}
-          </div>
+      {%- liquid
+        assign has_products = false
+        for block in section.blocks
+          if block.type == 'product' and block.settings.product != blank
+            assign has_products = true
+          endif
+        endfor
+      -%}
+      {%- if mobile_layout == 'grid' -%}
+        <div class="banner-product-showcase__mobile-grid">
+          {% for block in section.blocks %}
+            {% if block.type == 'product' and block.settings.product != blank %}
+              {% assign product = all_products[block.settings.product] %}
+              <div class="banner-product-showcase__mobile-grid-cell">
+                {% render 'product-card-simple', product: product, show_reviews: section.settings.show_product_card_reviews %}
+              </div>
+            {% endif %}
+          {% endfor %}
         </div>
-        <div class="banner-product-showcase__pagination" id="carousel-pagination-{{ section.id }}"></div>
-        {% unless has_products %}
-          <p style="margin-top:10px;color:#888;">No products added to this section yet.</p>
-        {% endunless %}
+      {%- endif -%}
+
+      {%- if desktop_layout == 'grid' -%}
+        <div class="banner-product-showcase__desktop-grid">
+          {% for block in section.blocks %}
+            {% if block.type == 'product' and block.settings.product != blank %}
+              {% assign product = all_products[block.settings.product] %}
+              <div class="banner-product-showcase__desktop-grid-cell">
+                {% render 'product-card-simple', product: product, show_reviews: section.settings.show_product_card_reviews %}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {%- endif -%}
+
+      <div class="banner-product-showcase__swiper-shell">
+        <div class="banner-product-showcase__carousel-container">
+          <div id="carousel-{{ section.id }}" class="banner-product-showcase__carousel swiper">
+            <div class="swiper-wrapper">
+              {% for block in section.blocks %}
+                {% if block.type == 'product' and block.settings.product != blank %}
+                  {% assign product = all_products[block.settings.product] %}
+                  <div class="swiper-slide">
+                    {% render 'product-card-simple', product: product, show_reviews: section.settings.show_product_card_reviews %}
+                  </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+          <div class="banner-product-showcase__pagination" id="carousel-pagination-{{ section.id }}"></div>
+        </div>
       </div>
+      {% unless has_products %}
+        <p style="margin-top:10px;color:#888;">No products added to this section yet.</p>
+      {% endunless %}
     </div>
   </div>
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    var el = document.querySelector('#carousel-{{ section.id }}');
-    if (!el || typeof Swiper === 'undefined') { return; }
-    new Swiper(el, {
-      slidesPerView: 2,
-      spaceBetween: 20,
-      centeredSlides: false,
-      loop: false,
-      pagination: { el: '#carousel-pagination-{{ section.id }}', clickable: true, dynamicBullets: true },
-      breakpoints: {
-        320:  { slidesPerView: 2, spaceBetween: 10 },
-        768:  { slidesPerView: 3, spaceBetween: 15 },
-        1024: { slidesPerView: 4, spaceBetween: 20 }
+  (function () {
+    var sectionId = '{{ section.id }}';
+    var mobileLayout = {{ mobile_layout | json }};
+    var desktopLayout = {{ desktop_layout | json }};
+    var root = document.getElementById('banner-showcase-' + sectionId);
+    var el = document.querySelector('#carousel-' + sectionId);
+    var paginationEl = document.querySelector('#carousel-pagination-' + sectionId);
+    var swiperInstance = null;
+    var mq = window.matchMedia('(min-width: 768px)');
+
+    function shouldUseSwiper() {
+      if (mq.matches) {
+        return desktopLayout === 'carousel';
       }
+      return mobileLayout === 'carousel';
+    }
+
+    function destroySwiper() {
+      if (swiperInstance && typeof swiperInstance.destroy === 'function') {
+        try {
+          swiperInstance.destroy(true, true);
+        } catch (e) {}
+        swiperInstance = null;
+      }
+    }
+
+    function initSwiper() {
+      if (!el || typeof Swiper === 'undefined') return;
+      if (!shouldUseSwiper()) {
+        destroySwiper();
+        return;
+      }
+      if (swiperInstance) {
+        swiperInstance.update();
+        return;
+      }
+      swiperInstance = new Swiper(el, {
+        slidesPerView: 2,
+        spaceBetween: 20,
+        centeredSlides: false,
+        loop: false,
+        pagination: {
+          el: paginationEl,
+          clickable: true,
+          dynamicBullets: true
+        },
+        breakpoints: {
+          320: { slidesPerView: 2, spaceBetween: 10 },
+          768: { slidesPerView: 3, spaceBetween: 15 },
+          1024: { slidesPerView: 4, spaceBetween: 20 }
+        }
+      });
+    }
+
+    function onReady() {
+      initSwiper();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', onReady);
+    } else {
+      onReady();
+    }
+
+    mq.addEventListener('change', initSwiper);
+
+    document.addEventListener('shopify:section:load', function (event) {
+      if (!root || !event.target.contains(root)) return;
+      destroySwiper();
+      setTimeout(initSwiper, 0);
     });
-  });
+  })();
 </script>
 
 {% schema %}
@@ -359,6 +506,40 @@
         "default": 36
       },
       {
+        "type": "select",
+        "id": "mobile_layout",
+        "label": "Mobile layout",
+        "options": [
+          {
+            "value": "carousel",
+            "label": "Carousel (Swiper)"
+          },
+          {
+            "value": "grid",
+            "label": "Grid (2 per row)"
+          }
+        ],
+        "default": "carousel",
+        "info": "Applies to screens &lt;768px. Pair with “Desktop layout” below."
+      },
+      {
+        "type": "select",
+        "id": "desktop_layout",
+        "label": "Desktop layout",
+        "options": [
+          {
+            "value": "carousel",
+            "label": "Carousel (Swiper)"
+          },
+          {
+            "value": "grid",
+            "label": "Grid (4 per row)"
+          }
+        ],
+        "default": "carousel",
+        "info": "Grid: 4 products per row without Swiper. Carousel: same as previous desktop behavior."
+      },
+      {
         "type": "text",
         "id": "button_text",
         "label": "Button Text",
@@ -367,6 +548,17 @@
         "type": "url",
         "id": "button_link",
         "label": "Button Link"
+      },
+      {
+        "type": "header",
+        "content": "Product cards"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_product_card_reviews",
+        "label": "Show ratings (stars) on cards",
+        "default": false,
+        "info": "Off by default. Variants appear below the title to align names across cards."
       }
     ],
     "blocks": [

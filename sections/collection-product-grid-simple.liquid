@@ -162,7 +162,7 @@
                       data-product-price="{{ pv.price }}"
                       data-product-available="{{ pv.available }}"
                       data-product-tags="{{ product.tags | join: ',' | escape }}">
-                      {%- render 'product-card-simple', product: product -%}
+                      {%- render 'product-card-simple', product: product, show_reviews: section.settings.show_product_card_reviews -%}
                     </div>
                   {%- endfor -%}
 
@@ -183,7 +183,7 @@
                           data-product-price="{{ epv.price }}"
                           data-product-available="{{ epv.available }}"
                           data-product-tags="{{ ep.tags | join: ',' | escape }}">
-                          {%- render 'product-card-simple', product: ep, variant: extra_variant -%}
+                          {%- render 'product-card-simple', product: ep, variant: extra_variant, show_reviews: section.settings.show_product_card_reviews -%}
                         </div>
                       {%- endif -%}
                     {%- endfor -%}
@@ -224,7 +224,7 @@
                 {%- assign extra_variant = block.settings.product.variants[idx] -%}
               {%- endif -%}
               <div class="collection-grid-simple__item" {{ block.shopify_attributes }}>
-                {%- render 'product-card-simple', product: block.settings.product, variant: extra_variant -%}
+                {%- render 'product-card-simple', product: block.settings.product, variant: extra_variant, show_reviews: section.settings.show_product_card_reviews -%}
               </div>
             {%- endif -%}
           {%- endfor -%}
@@ -401,9 +401,10 @@
   #{{ section_id }} .product-card-simple__variants {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 8px;
-    padding: 10px 16px 0;
+    padding: 0;
+    margin: 0;
   }
   #{{ section_id }} .product-card-simple__variant-btn {
     width: 40px;
@@ -498,7 +499,7 @@
       "max": 48,
       "step": 3,
       "default": 12,
-      "info": "Com filtros/busca no tema, valores altos (ex.: 48) carregam mais itens numa página para o filtro JS ver toda a lista. A paginação só aparece quando há mais de uma página."
+      "info": "With theme filters/search, higher values (e.g. 48) load more items per page so the JS filter can see the full list. Pagination only shows when there is more than one page."
     },
     {
       "type": "checkbox",
@@ -550,6 +551,17 @@
       "id": "show_product_count",
       "label": "Show product count",
       "default": true
+    },
+    {
+      "type": "header",
+      "content": "Product cards"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_product_card_reviews",
+      "label": "Show ratings (stars) on cards",
+      "default": false,
+      "info": "Off by default. The variant picker sits below the title to align names."
     },
     {
       "type": "header",
