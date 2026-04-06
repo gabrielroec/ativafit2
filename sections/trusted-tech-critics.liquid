@@ -80,6 +80,15 @@
                     sizes: '(min-width: 990px) 30vw, 100vw',
                     alt: block.settings.quote | default: 'Video review'
                 }}
+              {%- elsif ttc_has_youtube -%}
+                <img
+                  class="trusted-tech-critics__preview-img trusted-tech-critics__preview-img--youtube"
+                  src="https://i.ytimg.com/vi/{{ ttc_youtube_id }}/hqdefault.jpg"
+                  width="480"
+                  height="360"
+                  loading="lazy"
+                  decoding="async"
+                  alt="{{ block.settings.quote | default: 'YouTube video review' | escape }}">
               {%- else -%}
                 <div class="trusted-tech-critics__placeholder" aria-hidden="true">
                   {{ 'image' | placeholder_svg_tag: 'trusted-tech-critics__placeholder-svg' }}
@@ -457,7 +466,7 @@
           "type": "url",
           "id": "youtube_url",
           "label": "YouTube link",
-          "info": "Supports youtu.be, watch?v=, embed, and shorts URLs."
+          "info": "Supports youtu.be, watch?v=, embed, and shorts URLs. Without a custom thumbnail, the YouTube poster image is used."
         },
         {
           "type": "image_picker",

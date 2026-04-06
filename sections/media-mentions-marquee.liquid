@@ -39,24 +39,45 @@
               {%- for block in section.blocks -%}
                 {%- if block.type == 'logo' -%}
                   {%- assign mm_logo_alt = block.settings.alt | default: 'Logo' -%}
+                  {%- liquid
+                    assign mm_logo_img = block.settings.logo
+                    assign mm_logo_src_low = mm_logo_img.src | default: '' | downcase
+                    assign mm_logo_is_svg = false
+                    if mm_logo_src_low contains '.svg'
+                      assign mm_logo_is_svg = true
+                    endif
+                  -%}
                   <div
                     class="media-mentions-marquee__item"
                     {% if mm_rep == 1 %}
                       {{ block.shopify_attributes }}
                     {% endif %}>
-                    {%- if block.settings.logo != blank -%}
+                    {%- if mm_logo_img != blank -%}
                       {%- if block.settings.link != blank -%}
                         <a href="{{ block.settings.link }}" class="media-mentions-marquee__link" rel="noopener noreferrer" target="_blank">
                       {%- endif -%}
-                      {{
-                        block.settings.logo
-                        | image_url: width: 400
-                        | image_tag:
-                          loading: 'lazy',
-                          class: 'media-mentions-marquee__img',
-                          widths: '120, 180, 240, 320, 400',
-                          alt: mm_logo_alt
-                      }}
+                      {%- comment -%} Eager load: lazy + overflow marquee often skips off-screen strip images. SVG: width param can break URL. {%- endcomment -%}
+                      {%- if mm_logo_is_svg -%}
+                        <img
+                          class="media-mentions-marquee__img"
+                          src="{{ mm_logo_img | image_url }}"
+                          alt="{{ mm_logo_alt | escape }}"
+                          width="{{ mm_logo_img.width | default: 240 }}"
+                          height="{{ mm_logo_img.height | default: 80 }}"
+                          loading="eager"
+                          decoding="async">
+                      {%- else -%}
+                        {{
+                          mm_logo_img
+                          | image_url: width: 800
+                          | image_tag:
+                            loading: 'eager',
+                            class: 'media-mentions-marquee__img',
+                            widths: '120, 180, 240, 320, 400, 600, 800',
+                            sizes: '(min-width: 990px) 260px, min(50vw, 320px)',
+                            alt: mm_logo_alt
+                        }}
+                      {%- endif -%}
                       {%- if block.settings.link != blank -%}
                         </a>
                       {%- endif -%}
@@ -88,20 +109,41 @@
             {%- for mm_rep in (1..mm_strip_cycles) -%}
               {%- for block in section.blocks -%}
                 {%- if block.type == 'logo' -%}
+                  {%- liquid
+                    assign mm_logo_img_dup = block.settings.logo
+                    assign mm_logo_src_low_dup = mm_logo_img_dup.src | default: '' | downcase
+                    assign mm_logo_is_svg_dup = false
+                    if mm_logo_src_low_dup contains '.svg'
+                      assign mm_logo_is_svg_dup = true
+                    endif
+                  -%}
                   <div class="media-mentions-marquee__item">
-                    {%- if block.settings.logo != blank -%}
+                    {%- if mm_logo_img_dup != blank -%}
                       {%- if block.settings.link != blank -%}
                         <a href="{{ block.settings.link }}" class="media-mentions-marquee__link" rel="noopener noreferrer" target="_blank" tabindex="-1">
                       {%- endif -%}
-                      {{
-                        block.settings.logo
-                        | image_url: width: 400
-                        | image_tag:
-                          loading: 'lazy',
-                          class: 'media-mentions-marquee__img',
-                          widths: '120, 180, 240, 320, 400',
-                          alt: ''
-                      }}
+                      {%- if mm_logo_is_svg_dup -%}
+                        <img
+                          class="media-mentions-marquee__img"
+                          src="{{ mm_logo_img_dup | image_url }}"
+                          alt=""
+                          width="{{ mm_logo_img_dup.width | default: 240 }}"
+                          height="{{ mm_logo_img_dup.height | default: 80 }}"
+                          loading="eager"
+                          decoding="async"
+                          aria-hidden="true">
+                      {%- else -%}
+                        {{
+                          mm_logo_img_dup
+                          | image_url: width: 800
+                          | image_tag:
+                            loading: 'eager',
+                            class: 'media-mentions-marquee__img',
+                            widths: '120, 180, 240, 320, 400, 600, 800',
+                            sizes: '(min-width: 990px) 260px, min(50vw, 320px)',
+                            alt: ''
+                        }}
+                      {%- endif -%}
                       {%- if block.settings.link != blank -%}
                         </a>
                       {%- endif -%}
@@ -286,11 +328,14 @@
     text-decoration: none;
   }
 
+  /* height (not only max-height) scales small assets up; object-fit keeps aspect ratio */
   #{{ mm_id }} .media-mentions-marquee__img {
-    max-height: {{ section.settings.logo_max_height }}px;
+    height: {{ section.settings.logo_max_height }}px;
     width: auto;
-    height: auto;
+    max-width: min(45vw, {{ section.settings.logo_min_width | times: 28 | divided_by: 10 }}px);
+    max-height: {{ section.settings.logo_max_height }}px;
     object-fit: contain;
+    object-position: center;
     display: block;
     filter: grayscale(1);
     opacity: 0.85;
@@ -378,12 +423,13 @@
     {
       "type": "range",
       "id": "logo_max_height",
-      "min": 24,
-      "max": 64,
+      "min": 28,
+      "max": 80,
       "step": 2,
       "unit": "px",
-      "label": "Max logo height",
-      "default": 36
+      "label": "Logo display height",
+      "default": 56,
+      "info": "Fixed row height; logos scale to fit (small files grow to match)."
     },
     {
       "type": "range",
@@ -393,7 +439,8 @@
       "step": 4,
       "unit": "px",
       "label": "Min width per item",
-      "default": 100
+      "default": 140,
+      "info": "Horizontal slot per logo; also caps max logo width (×2.8)."
     },
     {
       "type": "range",
