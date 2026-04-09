@@ -228,19 +228,19 @@
   /* Mobile carousel + dots: shop-gym-equipment-ativa.css (same as Shop Home Gym). Desktop: 3 columns. */
   #{{ ttc_id }} .trusted-tech-critics__shop-carousel {
     width: 100%;
-    /* Design reference 291×400 — same ratio on every breakpoint */
-    --ttc-card-aspect-w: 291;
-    --ttc-card-aspect-h: 400;
+    /* Landscape video frame — same ratio on every breakpoint */
+    --ttc-card-aspect-w: 16;
+    --ttc-card-aspect-h: 9;
   }
 
   #{{ ttc_id }} .shop-gym-ativa__item {
     list-style: none;
   }
 
-  /* Carousel slide width matches design card width; height follows aspect-ratio below */
+  /* Mobile carousel: wider slide fits 16:9 cards better than old portrait min-width */
   @media screen and (max-width: 767px) {
     #{{ ttc_id }} .shop-gym-ativa__grid--mobile-carousel .shop-gym-ativa__item {
-      flex: 0 0 min(291px, calc(100% - 2.5rem));
+      flex: 0 0 min(400px, calc(100% - 2.5rem));
     }
   }
 
@@ -281,12 +281,29 @@
     display: none !important;
   }
 
-  #{{ ttc_id }} .trusted-tech-critics__preview-img,
-  #{{ ttc_id }} .trusted-tech-critics__video-el,
-  #{{ ttc_id }} .trusted-tech-critics__player iframe {
+  #{{ ttc_id }} .trusted-tech-critics__preview-img {
     width: 100%;
     height: 100%;
     display: block;
+    object-fit: cover;
+  }
+
+  /* Fills .media-shell when preview is hidden (was in-flow → 0 height before) */
+  #{{ ttc_id }} .trusted-tech-critics__player {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: #000;
+  }
+
+  #{{ ttc_id }} .trusted-tech-critics__player .trusted-tech-critics__video-el,
+  #{{ ttc_id }} .trusted-tech-critics__player iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    border: 0;
     object-fit: cover;
   }
 
