@@ -6,6 +6,9 @@
 .shop-gym-ativa {
   --sg-gutter: clamp(1rem, 4vw, 1.5rem);
   --sg-accent: #eb701f;
+  /* Card media box: same proportion at every breakpoint (width drives height) */
+  --sg-card-aspect-w: 291;
+  --sg-card-aspect-h: 400;
   /* ~GSAP expo.out / power3 — smooth settle at the end */
   --sg-ease-out: cubic-bezier(0.19, 1, 0.22, 1);
   --sg-reveal-duration: 0.88s;
@@ -127,7 +130,9 @@
 .shop-gym-ativa__card {
   position: relative;
   display: block;
-  height: 400px;
+  width: 100%;
+  height: auto;
+  aspect-ratio: var(--sg-card-aspect-w) / var(--sg-card-aspect-h);
   overflow: hidden;
   border-radius: 0.5rem;
   background: var(--sg-card-bg, #eeeeee);
@@ -163,6 +168,9 @@
 
 .shop-gym-ativa__img,
 .shop-gym-ativa__card > svg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;

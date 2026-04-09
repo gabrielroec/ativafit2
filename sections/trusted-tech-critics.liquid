@@ -228,10 +228,20 @@
   /* Mobile carousel + dots: shop-gym-equipment-ativa.css (same as Shop Home Gym). Desktop: 3 columns. */
   #{{ ttc_id }} .trusted-tech-critics__shop-carousel {
     width: 100%;
+    /* Design reference 291×400 — same ratio on every breakpoint */
+    --ttc-card-aspect-w: 291;
+    --ttc-card-aspect-h: 400;
   }
 
   #{{ ttc_id }} .shop-gym-ativa__item {
     list-style: none;
+  }
+
+  /* Carousel slide width matches design card width; height follows aspect-ratio below */
+  @media screen and (max-width: 767px) {
+    #{{ ttc_id }} .shop-gym-ativa__grid--mobile-carousel .shop-gym-ativa__item {
+      flex: 0 0 min(291px, calc(100% - 2.5rem));
+    }
   }
 
   @media screen and (min-width: 768px) {
@@ -247,12 +257,18 @@
     }
   }
 
+  #{{ ttc_id }} .trusted-tech-critics__card {
+    display: block;
+    width: 100%;
+  }
+
   #{{ ttc_id }} .trusted-tech-critics__media-shell {
     position: relative;
     border-radius: {{ section.settings.card_radius }}px;
     overflow: hidden;
     background: #dfdfdf;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: var(--ttc-card-aspect-w) / var(--ttc-card-aspect-h);
+    width: 100%;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
   }
 

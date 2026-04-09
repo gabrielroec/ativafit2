@@ -29,7 +29,9 @@
       {%- endif -%}
     </div>
 
-    <div class="fitness-insights-blog__grid">
+    <div
+      class="fitness-insights-blog__grid"
+      style="--fi-grid-gap: {{ section.settings.grid_gap }}px;">
       {%- if fi_blog != blank -%}
         {%- for article in fi_blog.articles limit: fi_limit -%}
           {%- assign fi_img_alt = article.image.alt | default: article.title -%}
@@ -168,12 +170,58 @@
   #{{ fi_id }} .fitness-insights-blog__grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: {{ section.settings.grid_gap }}px;
+    gap: var(--fi-grid-gap, 40px);
+  }
+
+  /* Mobile: horizontal carousel — 2 cards visible per viewport */
+  @media screen and (max-width: 767px) {
+    #{{ fi_id }} .fitness-insights-blog__grid {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      gap: var(--fi-grid-gap, 40px);
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      scroll-padding-inline: 0;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-x: contain;
+      scrollbar-width: none;
+      margin-left: -24px;
+      margin-right: -24px;
+      padding-left: 24px;
+      padding-right: 24px;
+      padding-bottom: 4px;
+    }
+
+    #{{ fi_id }} .fitness-insights-blog__grid::-webkit-scrollbar {
+      display: none;
+    }
+
+    #{{ fi_id }} .fitness-insights-blog__grid > .fitness-insights-blog__card {
+      flex: 0 0 calc((100% - var(--fi-grid-gap, 40px)) / 2);
+      min-width: 0;
+      scroll-snap-align: start;
+    }
   }
 
   @media screen and (min-width: 768px) {
     #{{ fi_id }} .fitness-insights-blog__grid {
+      display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
+      overflow-x: visible;
+      overflow-y: visible;
+      scroll-snap-type: none;
+      margin-left: 0;
+      margin-right: 0;
+      padding-left: 0;
+      padding-right: 0;
+      padding-bottom: 0;
+    }
+
+    #{{ fi_id }} .fitness-insights-blog__grid > .fitness-insights-blog__card {
+      flex: unset;
+      scroll-snap-align: unset;
     }
   }
 

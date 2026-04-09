@@ -2,12 +2,44 @@
   assign cta_id = 'ativa-community-cta-' | append: section.id
   assign cta_brand_orange = '#eb701f'
   assign cta_bg = section.settings.background_color | default: cta_brand_orange
+  assign bg_image = section.settings.background_image
+  assign use_bg_image = false
+  if bg_image != blank
+    assign use_bg_image = true
+  endif
+  assign overlay_opacity = section.settings.overlay_opacity | default: 35 | divided_by: 100.0
+  assign show_noise = section.settings.show_noise_overlay | default: true
 -%}
 
 <section
   id="{{ cta_id }}"
-  class="ativa-community-cta"
-  data-section-type="ativa-community-cta">
+  class="ativa-community-cta{% if use_bg_image %} ativa-community-cta--bg-image{% endif %}"
+  data-section-type="ativa-community-cta"
+  {% if use_bg_image %}
+    style="--ativa-cta-overlay-opacity: {{ overlay_opacity }};"
+  {% endif %}>
+  {%- if use_bg_image -%}
+    <div class="ativa-community-cta__bg" aria-hidden="true">
+      {{
+        bg_image
+        | image_url: width: 2400
+        | image_tag:
+          class: 'ativa-community-cta__bg-media',
+          widths: '375, 550, 750, 1100, 1500, 1920, 2400',
+          sizes: '100vw',
+          loading: 'lazy',
+          fetchpriority: 'low',
+          alt: ''
+      }}
+    </div>
+    <div class="ativa-community-cta__overlay" aria-hidden="true"></div>
+    <div
+      class="ativa-community-cta__noise"
+      aria-hidden="true"
+      {% unless show_noise %}
+        hidden
+      {% endunless %}></div>
+  {%- endif -%}
   <div class="ativa-community-cta__inner">
     {%- if section.settings.heading != blank -%}
       <h2 class="ativa-community-cta__title">{{ section.settings.heading | escape }}</h2>
@@ -40,11 +72,62 @@
 <style>
   /* Same element: section#id.ativa-community-cta (do not use #id .class — that requires a descendant) */
   #{{ cta_id }}.ativa-community-cta {
-    background-color: {{ cta_bg }} !important;
     color: #ffffff;
     text-align: center !important;
     padding-top: {{ section.settings.padding_top }}px;
     padding-bottom: {{ section.settings.padding_bottom }}px;
+  }
+
+  #{{ cta_id }}.ativa-community-cta:not(.ativa-community-cta--bg-image) {
+    background-color: {{ cta_bg }} !important;
+  }
+
+  #{{ cta_id }}.ativa-community-cta--bg-image {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background-color: {{ cta_bg }};
+  }
+
+  #{{ cta_id }} .ativa-community-cta__bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  #{{ cta_id }} .ativa-community-cta__bg-media {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  #{{ cta_id }} .ativa-community-cta__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background-color: rgb(0 0 0 / var(--ativa-cta-overlay-opacity, 0.35));
+    mix-blend-mode: multiply;
+  }
+
+  #{{ cta_id }} .ativa-community-cta__noise {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.07;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='a'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23a)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+  }
+
+  #{{ cta_id }} .ativa-community-cta__noise[hidden] {
+    display: none !important;
+  }
+
+  #{{ cta_id }}.ativa-community-cta--bg-image .ativa-community-cta__inner {
+    position: relative;
+    z-index: 2;
   }
 
   #{{ cta_id }} .ativa-community-cta__inner {
@@ -162,14 +245,38 @@
     },
     {
       "type": "header",
-      "content": "Colors"
+      "content": "Background"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background image",
+      "info": "When set, replaces the background color (image takes priority). Color stays as fallback behind the image and for the button text."
     },
     {
       "type": "color",
       "id": "background_color",
-      "label": "Background",
+      "label": "Background color",
       "default": "#eb701f",
-      "info": "Ativafit brand orange (#eb701f). White button text uses this color."
+      "info": "Used when no image is set. With an image, fills any gap and sets the white button’s text color."
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 0,
+      "max": 90,
+      "step": 5,
+      "unit": "%",
+      "label": "Image overlay darkness",
+      "default": 35,
+      "info": "Only applies when a background image is set (same idea as the home hero)."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_noise_overlay",
+      "label": "Show subtle noise texture on image",
+      "default": true,
+      "info": "Matches the home hero texture when using a background image."
     },
     {
       "type": "header",
