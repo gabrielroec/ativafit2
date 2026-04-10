@@ -181,7 +181,11 @@
               </div>
             {%- else -%}
               {%- liquid
-                assign bg = bs.background_image
+                assign bg_d = bs.background_image
+                assign bg_m = bs.background_image_mobile
+                if bg_m == blank
+                  assign bg_m = bg_d
+                endif
                 assign media = bs.side_image
                 assign button_primary_href = bs.button_primary_link
                 if button_primary_href == blank
@@ -212,32 +216,38 @@
                 assign side_alt = side_alt | escape
               -%}
               <div class="hero-ativa-home__bg" aria-hidden="true">
-                {%- if bg != blank -%}
-                  {%- if forloop.first -%}
-                    {{
-                      bg
-                      | image_url: width: 2400
-                      | image_tag:
-                        class: 'hero-ativa-home__bg-media hero-ativa-home__bg-media--cover',
-                        widths: '375, 550, 750, 1100, 1500, 1920, 2400',
-                        sizes: '100vw',
-                        loading: 'eager',
-                        fetchpriority: 'high',
-                        alt: ''
-                    }}
-                  {%- else -%}
-                    {{
-                      bg
-                      | image_url: width: 2400
-                      | image_tag:
-                        class: 'hero-ativa-home__bg-media hero-ativa-home__bg-media--cover',
-                        widths: '375, 550, 750, 1100, 1500, 1920, 2400',
-                        sizes: '100vw',
-                        loading: 'lazy',
-                        fetchpriority: 'low',
-                        alt: ''
-                    }}
-                  {%- endif -%}
+                {%- if bg_d != blank or bg_m != blank -%}
+                  <picture class="hero-ativa-home__picture-full">
+                    {%- if bg_m != blank -%}
+                      <source
+                        media="(max-width: 768px)"
+                        srcset="{{ bg_m | image_url: width: 800 }} 800w, {{ bg_m | image_url: width: 1200 }} 1200w, {{ bg_m | image_url: width: 1600 }} 1600w"
+                        sizes="100vw">
+                    {%- endif -%}
+                    {%- if bg_d != blank -%}
+                      <img
+                        class="hero-ativa-home__bg-media hero-ativa-home__bg-media--cover"
+                        src="{{ bg_d | image_url: width: 1920 }}"
+                        srcset="{{ bg_d | image_url: width: 1200 }} 1200w, {{ bg_d | image_url: width: 1800 }} 1800w, {{ bg_d | image_url: width: 2400 }} 2400w"
+                        sizes="100vw"
+                        width="{{ bg_d.width | default: 1920 }}"
+                        height="{{ bg_d.height | default: 1080 }}"
+                        loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+                        fetchpriority="{% if forloop.first %}high{% else %}low{% endif %}"
+                        alt="">
+                    {%- elsif bg_m != blank -%}
+                      <img
+                        class="hero-ativa-home__bg-media hero-ativa-home__bg-media--cover"
+                        src="{{ bg_m | image_url: width: 1200 }}"
+                        srcset="{{ bg_m | image_url: width: 800 }} 800w, {{ bg_m | image_url: width: 1200 }} 1200w, {{ bg_m | image_url: width: 1600 }} 1600w"
+                        sizes="100vw"
+                        width="{{ bg_m.width | default: 1200 }}"
+                        height="{{ bg_m.height | default: 800 }}"
+                        loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+                        fetchpriority="{% if forloop.first %}high{% else %}low{% endif %}"
+                        alt="">
+                    {%- endif -%}
+                  </picture>
                 {%- else -%}
                   <div class="hero-ativa-home__bg-fallback">
                     {{ 'lifestyle-1' | placeholder_svg_tag: 'hero-ativa-home__bg-placeholder' }}
@@ -670,7 +680,13 @@
         {
           "type": "image_picker",
           "id": "background_image",
-          "label": "Background image"
+          "label": "Background image (desktop)"
+        },
+        {
+          "type": "image_picker",
+          "id": "background_image_mobile",
+          "label": "Background image (mobile)",
+          "info": "768px and below. If empty, uses the desktop background."
         },
         {
           "type": "image_picker",
