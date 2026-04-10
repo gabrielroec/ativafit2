@@ -3,152 +3,387 @@
 
 {%- liquid
   assign entrance_stagger = section.settings.entrance_stagger_ms | default: 90
-  assign bg = section.settings.background_image
-  assign media = section.settings.side_image
-  assign overlay_opacity = section.settings.overlay_opacity | divided_by: 100.0
+  assign ar_m_key = section.settings.aspect_ratio_mobile | default: '1_1'
+  case ar_m_key
+    when '21_9'
+      assign ar_w_m = 21
+      assign ar_h_m = 9
+    when '16_9'
+      assign ar_w_m = 16
+      assign ar_h_m = 9
+    when '3_2'
+      assign ar_w_m = 3
+      assign ar_h_m = 2
+    when '4_3'
+      assign ar_w_m = 4
+      assign ar_h_m = 3
+    when '1_1'
+      assign ar_w_m = 1
+      assign ar_h_m = 1
+    when '1_2'
+      assign ar_w_m = 1
+      assign ar_h_m = 2
+    else
+      assign ar_w_m = 1
+      assign ar_h_m = 1
+  endcase
 
-  assign button_primary_href = section.settings.button_primary_link
-  if button_primary_href == blank
-    assign button_primary_href = routes.all_products_collection_url
-  endif
+  assign ar_d_key = section.settings.aspect_ratio_desktop | default: '16_9'
+  case ar_d_key
+    when '21_9'
+      assign ar_w_d = 21
+      assign ar_h_d = 9
+    when '16_9'
+      assign ar_w_d = 16
+      assign ar_h_d = 9
+    when '3_2'
+      assign ar_w_d = 3
+      assign ar_h_d = 2
+    when '4_3'
+      assign ar_w_d = 4
+      assign ar_h_d = 3
+    when '1_1'
+      assign ar_w_d = 1
+      assign ar_h_d = 1
+    when '1_2'
+      assign ar_w_d = 1
+      assign ar_h_d = 2
+    else
+      assign ar_w_d = 16
+      assign ar_h_d = 9
+  endcase
 
-  assign button_secondary_href = section.settings.button_secondary_link
-  if button_secondary_href == blank
-    assign button_secondary_href = routes.root_url
-  endif
+  assign slide_count = 0
+  assign first_slide_is_image_only = false
+  assign first_slide_index = 0
+  for block in section.blocks
+    if block.type == 'slide'
+      assign slide_count = slide_count | plus: 1
+      if first_slide_index == 0
+        if block.settings.layout == 'image_only'
+          assign first_slide_is_image_only = true
+        endif
+        assign first_slide_index = 1
+      endif
+    endif
+  endfor
 
-  assign show_primary = false
-  assign show_secondary = false
-  if section.settings.button_primary_label != blank
-    assign show_primary = true
-  endif
-  if section.settings.button_secondary_label != blank
-    assign show_secondary = true
-  endif
-
-  assign side_alt = ''
-  if media != blank
-    assign side_alt = media.alt | strip
-  endif
-  if side_alt == blank and section.settings.subheading != blank
-    assign side_alt = section.settings.subheading | strip
-  endif
-  if side_alt == blank
-    assign side_alt = shop.name
-  endif
-  assign side_alt = side_alt | escape
+  assign autoplay_ms = section.settings.autoplay_interval | default: 6 | times: 1000
 -%}
 
 <section
-  class="hero-ativa-home font-ativa-body{% unless section.settings.show_side_image_card %} hero-ativa-home--no-side-media{% endunless %}"
+  class="hero-ativa-home font-ativa-body"
   data-hero-ativa-home
+  data-hero-slide-count="{{ slide_count }}"
+  data-hero-autoplay="{% if section.settings.autoplay and slide_count > 1 %}true{% else %}false{% endif %}"
+  data-hero-autoplay-ms="{{ autoplay_ms }}"
   style="
-    --hero-ativa-overlay-opacity: {{ overlay_opacity }};
+    --hero-ativa-aspect-w-mobile: {{ ar_w_m }};
+    --hero-ativa-aspect-h-mobile: {{ ar_h_m }};
+    --hero-ativa-aspect-w-desktop: {{ ar_w_d }};
+    --hero-ativa-aspect-h-desktop: {{ ar_h_d }};
+    --hero-ativa-min-h-mobile: {% if section.settings.min_height_mobile_rem > 0 %}{{ section.settings.min_height_mobile_rem }}rem{% else %}0px{% endif %};
+    --hero-ativa-min-h-desktop: {% if section.settings.min_height_desktop_rem > 0 %}{{ section.settings.min_height_desktop_rem }}rem{% else %}0px{% endif %};
     --hero-ativa-btn-primary-bg: {{ section.settings.primary_button_bg }};
     --hero-ativa-btn-primary-text: {{ section.settings.primary_button_text }};
     --hero-ativa-btn-secondary-text: {{ section.settings.secondary_button_text }};
     --hero-ativa-btn-secondary-border: {{ section.settings.secondary_button_border }};
   "
+  aria-roledescription="carousel"
   aria-label="{{ section.settings.section_a11y_label | escape }}"
   {{ section.shopify_attributes }}>
-  <div class="hero-ativa-home__bg" aria-hidden="true">
-    {%- if bg != blank -%}
-      {{
-        bg
-        | image_url: width: 2400
-        | image_tag:
-          class: 'hero-ativa-home__bg-media',
-          widths: '375, 550, 750, 1100, 1500, 1920, 2400',
-          sizes: '100vw',
-          loading: 'eager',
-          fetchpriority: 'low',
-          alt: ''
-      }}
-    {%- else -%}
-      <div class="hero-ativa-home__bg-fallback">
-        {{ 'lifestyle-1' | placeholder_svg_tag: 'hero-ativa-home__bg-placeholder' }}
-      </div>
+  {%- if slide_count > 0 -%}
+    {%- if first_slide_is_image_only -%}
+      <h1 class="hero-ativa-home__visually-hidden">{{ section.settings.fallback_page_title | default: shop.name | escape }}</h1>
     {%- endif -%}
-  </div>
+    <div class="hero-ativa-home__viewport" data-hero-viewport>
+      <div
+        class="hero-ativa-home__scroller"
+        id="hero-scroller-{{ section.id }}"
+        data-hero-scroller
+        tabindex="0"
+        role="region"
+        aria-label="{{ section.settings.carousel_region_label | default: 'Promotional slides' | escape }}">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'slide' -%}
+          {%- liquid
+            assign bs = block.settings
+            assign is_image_only = false
+            if bs.layout == 'image_only'
+              assign is_image_only = true
+            endif
+            assign ov = bs.overlay_opacity | default: 35 | divided_by: 100.0
+          -%}
+          <article
+            id="hero-slide-{{ section.id }}-{{ forloop.index0 }}"
+            class="hero-ativa-home__slide{% if is_image_only %} hero-ativa-home__slide--image-only{% endif %}"
+            data-hero-slide
+            aria-roledescription="slide"
+            aria-label="{% if bs.slide_accessible_label != blank %}{{ bs.slide_accessible_label | escape }}{% else %}Slide {{ forloop.index }} of {{ slide_count }}{% endif %}"
+            {{ block.shopify_attributes }}>
+            {%- if is_image_only -%}
+              {%- liquid
+                assign img_d = bs.image_desktop
+                assign img_m = bs.image_mobile
+                if img_m == blank
+                  assign img_m = img_d
+                endif
+                assign alt_img = bs.image_alt | strip | escape
+              -%}
+              <div class="hero-ativa-home__slide-media">
+                {%- if bs.slide_link != blank -%}
+                  <a
+                    href="{{ bs.slide_link }}"
+                    class="hero-ativa-home__slide-sole-link"
+                    {% if alt_img != blank %}
+                      aria-label="{{ alt_img }}"
+                    {% else %}
+                      aria-label="{{ bs.slide_accessible_label | default: 'View slide' | escape }}"
+                    {% endif %}>
+                {%- endif -%}
+                {%- if img_d != blank or img_m != blank -%}
+                  <picture class="hero-ativa-home__picture-full">
+                    {%- if img_m != blank -%}
+                      <source
+                        media="(max-width: 749px)"
+                        srcset="{{ img_m | image_url: width: 800 }} 800w, {{ img_m | image_url: width: 1200 }} 1200w, {{ img_m | image_url: width: 1600 }} 1600w"
+                        sizes="100vw">
+                    {%- endif -%}
+                    {%- if img_d != blank -%}
+                      <img
+                        class="hero-ativa-home__bg-media hero-ativa-home__bg-media--cover"
+                        src="{{ img_d | image_url: width: 1920 }}"
+                        srcset="{{ img_d | image_url: width: 1200 }} 1200w, {{ img_d | image_url: width: 1800 }} 1800w, {{ img_d | image_url: width: 2400 }} 2400w"
+                        sizes="100vw"
+                        width="{{ img_d.width | default: 1920 }}"
+                        height="{{ img_d.height | default: 1080 }}"
+                        loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+                        fetchpriority="{% if forloop.first %}high{% else %}low{% endif %}"
+                        alt="{{ alt_img }}">
+                    {%- elsif img_m != blank -%}
+                      <img
+                        class="hero-ativa-home__bg-media hero-ativa-home__bg-media--cover"
+                        src="{{ img_m | image_url: width: 1200 }}"
+                        width="{{ img_m.width | default: 1200 }}"
+                        height="{{ img_m.height | default: 800 }}"
+                        loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+                        alt="{{ alt_img }}">
+                    {%- endif -%}
+                  </picture>
+                {%- else -%}
+                  <div class="hero-ativa-home__bg-fallback">
+                    {{ 'lifestyle-1' | placeholder_svg_tag: 'hero-ativa-home__bg-placeholder' }}
+                  </div>
+                {%- endif -%}
+                {%- if bs.slide_link != blank -%}
+                  </a>
+                {%- endif -%}
+              </div>
+            {%- else -%}
+              {%- liquid
+                assign bg = bs.background_image
+                assign media = bs.side_image
+                assign button_primary_href = bs.button_primary_link
+                if button_primary_href == blank
+                  assign button_primary_href = routes.all_products_collection_url
+                endif
+                assign button_secondary_href = bs.button_secondary_link
+                if button_secondary_href == blank
+                  assign button_secondary_href = routes.root_url
+                endif
+                assign show_primary = false
+                assign show_secondary = false
+                if bs.button_primary_label != blank
+                  assign show_primary = true
+                endif
+                if bs.button_secondary_label != blank
+                  assign show_secondary = true
+                endif
+                assign side_alt = ''
+                if media != blank
+                  assign side_alt = media.alt | strip
+                endif
+                if side_alt == blank and bs.subheading != blank
+                  assign side_alt = bs.subheading | strip
+                endif
+                if side_alt == blank
+                  assign side_alt = shop.name
+                endif
+                assign side_alt = side_alt | escape
+              -%}
+              <div class="hero-ativa-home__bg" aria-hidden="true">
+                {%- if bg != blank -%}
+                  {%- if forloop.first -%}
+                    {{
+                      bg
+                      | image_url: width: 2400
+                      | image_tag:
+                        class: 'hero-ativa-home__bg-media hero-ativa-home__bg-media--cover',
+                        widths: '375, 550, 750, 1100, 1500, 1920, 2400',
+                        sizes: '100vw',
+                        loading: 'eager',
+                        fetchpriority: 'high',
+                        alt: ''
+                    }}
+                  {%- else -%}
+                    {{
+                      bg
+                      | image_url: width: 2400
+                      | image_tag:
+                        class: 'hero-ativa-home__bg-media hero-ativa-home__bg-media--cover',
+                        widths: '375, 550, 750, 1100, 1500, 1920, 2400',
+                        sizes: '100vw',
+                        loading: 'lazy',
+                        fetchpriority: 'low',
+                        alt: ''
+                    }}
+                  {%- endif -%}
+                {%- else -%}
+                  <div class="hero-ativa-home__bg-fallback">
+                    {{ 'lifestyle-1' | placeholder_svg_tag: 'hero-ativa-home__bg-placeholder' }}
+                  </div>
+                {%- endif -%}
+              </div>
+              <div class="hero-ativa-home__overlay" style="--hero-ativa-overlay-opacity: {{ ov }};"></div>
 
-  <div class="hero-ativa-home__overlay" aria-hidden="true"></div>
-  <div
-    class="hero-ativa-home__noise"
-    aria-hidden="true"
-    {% unless section.settings.show_noise_overlay %}
-      hidden
-    {% endunless %}></div>
+              <div class="hero-ativa-home__inner">
+                <div class="hero-ativa-home__grid{% unless bs.show_side_image_card %} hero-ativa-home--no-side-media{% endunless %}">
+                  <div class="hero-ativa-home__content">
+                    {%- if bs.heading != blank -%}
+                      {%- if forloop.first -%}
+                        <h1
+                          class="hero-ativa-home__title hero-ativa-home__entrance font-ativa-headline"
+                          style="--hero-entrance-delay: 0ms">
+                          {{- bs.heading | newline_to_br -}}
+                        </h1>
+                      {%- else -%}
+                        <h2
+                          class="hero-ativa-home__title hero-ativa-home__entrance font-ativa-headline"
+                          style="--hero-entrance-delay: 0ms">
+                          {{- bs.heading | newline_to_br -}}
+                        </h2>
+                      {%- endif -%}
+                    {%- else -%}
+                      {%- if forloop.first -%}
+                        <h1
+                          class="hero-ativa-home__title hero-ativa-home__entrance font-ativa-headline"
+                          style="--hero-entrance-delay: 0ms">
+                          START STRONG.<br>
+                          BUILD YOUR HOME<br>
+                          GYM YOUR WAY
+                        </h1>
+                      {%- else -%}
+                        <h2
+                          class="hero-ativa-home__title hero-ativa-home__entrance font-ativa-headline"
+                          style="--hero-entrance-delay: 0ms">
+                          START STRONG.<br>
+                          BUILD YOUR HOME<br>
+                          GYM YOUR WAY
+                        </h2>
+                      {%- endif -%}
+                    {%- endif -%}
 
-  <div class="hero-ativa-home__inner">
-    <div class="hero-ativa-home__grid">
-      <div class="hero-ativa-home__content">
-        {%- if section.settings.heading != blank -%}
-          <h1
-            class="hero-ativa-home__title hero-ativa-home__entrance font-ativa-headline"
-            style="--hero-entrance-delay: 0ms">{{ section.settings.heading | newline_to_br }}</h1>
-        {%- else -%}
-          <h1
-            class="hero-ativa-home__title hero-ativa-home__entrance font-ativa-headline"
-            style="--hero-entrance-delay: 0ms">
-            START STRONG.<br>
-            BUILD YOUR HOME<br>
-            GYM YOUR WAY
-          </h1>
-        {%- endif -%}
+                    {%- if bs.subheading != blank -%}
+                      <p
+                        class="hero-ativa-home__sub hero-ativa-home__entrance font-ativa-body"
+                        style="--hero-entrance-delay: {{ entrance_stagger }}ms">
+                        {{- bs.subheading | escape -}}
+                      </p>
+                    {%- endif -%}
 
-        {%- if section.settings.subheading != blank -%}
-          <p
-            class="hero-ativa-home__sub hero-ativa-home__entrance font-ativa-body"
-            style="--hero-entrance-delay: {{ entrance_stagger }}ms">{{ section.settings.subheading | escape }}</p>
-        {%- endif -%}
+                    {%- if show_primary or show_secondary -%}
+                      <div
+                        class="hero-ativa-home__actions hero-ativa-home__entrance"
+                        style="--hero-entrance-delay: {{ entrance_stagger | times: 2 }}ms">
+                        {%- if show_primary -%}
+                          <a
+                            class="hero-ativa-home__btn hero-ativa-home__btn--primary font-ativa-headline"
+                            href="{{ button_primary_href }}">
+                            {{- bs.button_primary_label | escape -}}
+                          </a>
+                        {%- endif -%}
+                        {%- if show_secondary -%}
+                          <a
+                            class="hero-ativa-home__btn hero-ativa-home__btn--secondary font-ativa-headline"
+                            href="{{ button_secondary_href }}">
+                            {{- bs.button_secondary_label | escape -}}
+                          </a>
+                        {%- endif -%}
+                      </div>
+                    {%- endif -%}
+                  </div>
 
-        {%- if show_primary or show_secondary -%}
-          <div
-            class="hero-ativa-home__actions hero-ativa-home__entrance"
-            style="--hero-entrance-delay: {{ entrance_stagger | times: 2 }}ms">
-            {%- if show_primary -%}
-              <a
-                class="hero-ativa-home__btn hero-ativa-home__btn--primary font-ativa-headline"
-                href="{{ button_primary_href }}">
-                {{- section.settings.button_primary_label | escape -}}
-              </a>
+                  {%- if bs.show_side_image_card -%}
+                    <div
+                      class="hero-ativa-home__media hero-ativa-home__entrance hero-ativa-home__entrance--media"
+                      style="--hero-entrance-delay: {{ entrance_stagger | times: 3 }}ms">
+                      <div class="hero-ativa-home__media-frame">
+                        {%- if media != blank -%}
+                          {{
+                            media
+                            | image_url: width: 1500
+                            | image_tag:
+                              class: 'hero-ativa-home__media-img',
+                              widths: '400, 600, 800, 1000, 1200, 1500',
+                              sizes: '(min-width: 900px) 36rem, 90vw',
+                              loading: 'lazy',
+                              fetchpriority: 'high',
+                              alt: side_alt
+                          }}
+                        {%- else -%}
+                          {{ 'product-1' | placeholder_svg_tag: 'hero-ativa-home__media-img placeholder-svg' }}
+                        {%- endif -%}
+                      </div>
+                    </div>
+                  {%- endif -%}
+                </div>
+              </div>
             {%- endif -%}
-            {%- if show_secondary -%}
-              <a
-                class="hero-ativa-home__btn hero-ativa-home__btn--secondary font-ativa-headline"
-                href="{{ button_secondary_href }}">
-                {{- section.settings.button_secondary_label | escape -}}
-              </a>
-            {%- endif -%}
-          </div>
-        {%- endif -%}
+          </article>
+          {%- endif -%}
+        {%- endfor -%}
       </div>
 
-      {%- if section.settings.show_side_image_card -%}
-        <div
-          class="hero-ativa-home__media hero-ativa-home__entrance hero-ativa-home__entrance--media"
-          style="--hero-entrance-delay: {{ entrance_stagger | times: 3 }}ms">
-          <div class="hero-ativa-home__media-frame">
-            {%- if media != blank -%}
-              {{
-                media
-                | image_url: width: 1500
-                | image_tag:
-                  class: 'hero-ativa-home__media-img',
-                  widths: '400, 600, 800, 1000, 1200, 1500',
-                  sizes: '(min-width: 900px) 36rem, 90vw',
-                  loading: 'eager',
-                  fetchpriority: 'high',
-                  alt: side_alt
-              }}
-            {%- else -%}
-              {{ 'product-1' | placeholder_svg_tag: 'hero-ativa-home__media-img placeholder-svg' }}
-            {%- endif -%}
+      <div
+        class="hero-ativa-home__noise hero-ativa-home__noise--viewport"
+        aria-hidden="true"
+        {% unless section.settings.show_noise_overlay %}
+          hidden
+        {% endunless %}></div>
+
+      {%- if slide_count > 1 -%}
+        {%- if section.settings.show_arrows -%}
+          <button
+            type="button"
+            class="hero-ativa-home__arrow hero-ativa-home__arrow--prev"
+            data-hero-prev
+            aria-controls="hero-scroller-{{ section.id }}"
+            aria-label="{{ section.settings.prev_label | default: 'Previous slide' | escape }}">
+            <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+          </button>
+          <button
+            type="button"
+            class="hero-ativa-home__arrow hero-ativa-home__arrow--next"
+            data-hero-next
+            aria-controls="hero-scroller-{{ section.id }}"
+            aria-label="{{ section.settings.next_label | default: 'Next slide' | escape }}">
+            <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+          </button>
+        {%- endif -%}
+        {%- if section.settings.show_dots -%}
+          <div class="hero-ativa-home__dots-wrap" data-hero-dots-wrap>
+            <div class="hero-ativa-home__dots" data-hero-dots role="tablist" aria-label="{{ section.settings.dots_label | default: 'Slide indicators' | escape }}"></div>
           </div>
-        </div>
+        {%- endif -%}
       {%- endif -%}
     </div>
-  </div>
+
+    <p class="hero-ativa-home__visually-hidden" aria-live="polite" aria-atomic="true" data-hero-live></p>
+  {%- else -%}
+    <div class="hero-ativa-home__empty">
+      <p>{{ section.settings.empty_state_text | default: 'Add slides in the theme editor.' | escape }}</p>
+    </div>
+  {%- endif -%}
 </section>
 
 {% schema %}
@@ -156,85 +391,140 @@
   "name": "Hero Ativa Home",
   "tag": "section",
   "class": "shopify-section-hero-ativa-home",
+  "max_blocks": 5,
   "settings": [
-    {
-      "type": "header",
-      "content": "Content"
-    },
-    {
-      "type": "textarea",
-      "id": "heading",
-      "label": "Title (H1)",
-      "default": "START STRONG.\nBUILD YOUR HOME\nGYM YOUR WAY",
-      "info": "Use a new line for each line break."
-    },
-    {
-      "type": "textarea",
-      "id": "subheading",
-      "label": "Supporting text",
-      "default": "Strength, cardio, and full-body training — all from one space-saving system."
-    },
     {
       "type": "text",
       "id": "section_a11y_label",
-      "label": "Region name (accessibility)",
-      "default": "Main hero",
-      "info": "Screen readers use this to identify the block."
-    },
-    {
-      "type": "header",
-      "content": "Buttons"
+      "label": "Section name (accessibility)",
+      "default": "Featured highlights",
+      "info": "Announced as the carousel name for screen readers."
     },
     {
       "type": "text",
-      "id": "button_primary_label",
-      "label": "Text — primary button",
-      "default": "SHOP DUMBBELLS"
-    },
-    {
-      "type": "url",
-      "id": "button_primary_link",
-      "label": "Link — primary button",
-      "info": "If empty, uses the All products collection."
+      "id": "fallback_page_title",
+      "label": "Hidden page title (if first slide is image-only)",
+      "default": "Home",
+      "info": "Visually hidden H1 for SEO and screen readers when the first slide has no text heading."
     },
     {
       "type": "text",
-      "id": "button_secondary_label",
-      "label": "Text — secondary button",
-      "default": "EXPLORE HOME GYM SETUP"
+      "id": "carousel_region_label",
+      "label": "Slide region label (accessibility)",
+      "default": "Promotional slides"
     },
     {
-      "type": "url",
-      "id": "button_secondary_link",
-      "label": "Link — secondary button",
-      "info": "If empty, uses the home page."
+      "type": "text",
+      "id": "prev_label",
+      "label": "Previous button label",
+      "default": "Previous slide"
+    },
+    {
+      "type": "text",
+      "id": "next_label",
+      "label": "Next button label",
+      "default": "Next slide"
+    },
+    {
+      "type": "text",
+      "id": "dots_label",
+      "label": "Dots label (accessibility)",
+      "default": "Slide indicators"
+    },
+    {
+      "type": "textarea",
+      "id": "empty_state_text",
+      "label": "Empty state message",
+      "default": "Add up to five slides in the theme editor."
     },
     {
       "type": "header",
-      "content": "Images"
+      "content": "Carousel"
     },
     {
       "type": "checkbox",
-      "id": "show_side_image_card",
-      "label": "Show image card (right side)",
-      "default": false,
-      "info": "Off: background image only, full width. On: shows the card with side image below (mobile) or on the right (desktop)."
+      "id": "autoplay",
+      "label": "Autoplay (multiple slides)",
+      "default": true,
+      "info": "Disabled when the visitor prefers reduced motion."
     },
     {
-      "type": "image_picker",
-      "id": "background_image",
-      "label": "Background image (full width)",
-      "info": "While empty, Shopify’s neutral placeholder is shown."
+      "type": "range",
+      "id": "autoplay_interval",
+      "min": 4,
+      "max": 12,
+      "step": 1,
+      "unit": "s",
+      "label": "Autoplay interval",
+      "default": 6
     },
     {
-      "type": "image_picker",
-      "id": "side_image",
-      "label": "Card image (side highlight)",
-      "info": "Only shows when “Show image card” is on. If empty, uses the product placeholder. Set alt text on the asset for SEO."
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "Show previous / next arrows",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dots",
+      "label": "Show slide dots",
+      "default": true
     },
     {
       "type": "header",
-      "content": "Look & feel"
+      "content": "Slide frame (responsive height)"
+    },
+    {
+      "type": "select",
+      "id": "aspect_ratio_mobile",
+      "label": "Aspect ratio — mobile (max-width 899px)",
+      "options": [
+        { "value": "1_1", "label": "1:1 (square)" },
+        { "value": "1_2", "label": "1:2 (portrait strip)" },
+        { "value": "16_9", "label": "16:9" },
+        { "value": "21_9", "label": "21:9" },
+        { "value": "3_2", "label": "3:2" },
+        { "value": "4_3", "label": "4:3" }
+      ],
+      "default": "1_1",
+      "info": "Height scales with viewport width below 900px."
+    },
+    {
+      "type": "select",
+      "id": "aspect_ratio_desktop",
+      "label": "Aspect ratio — desktop (900px and up)",
+      "options": [
+        { "value": "16_9", "label": "16:9" },
+        { "value": "21_9", "label": "21:9 (cinematic)" },
+        { "value": "3_2", "label": "3:2" },
+        { "value": "4_3", "label": "4:3" },
+        { "value": "1_1", "label": "1:1" },
+        { "value": "1_2", "label": "1:2 (portrait strip)" }
+      ],
+      "default": "16_9",
+      "info": "Height scales with viewport width from 900px up."
+    },
+    {
+      "type": "range",
+      "id": "min_height_mobile_rem",
+      "min": 0,
+      "max": 36,
+      "step": 1,
+      "unit": "rem",
+      "label": "Minimum height — mobile",
+      "default": 18,
+      "info": "0 = aspect ratio only."
+    },
+    {
+      "type": "range",
+      "id": "min_height_desktop_rem",
+      "min": 0,
+      "max": 48,
+      "step": 1,
+      "unit": "rem",
+      "label": "Minimum height — desktop",
+      "default": 22,
+      "info": "0 = aspect ratio only."
     },
     {
       "type": "range",
@@ -243,54 +533,181 @@
       "max": 200,
       "step": 10,
       "unit": "ms",
-      "label": "Animation — delay between each element",
+      "label": "Stagger animation delay (content slides)",
       "default": 90,
-      "info": "Title first, then text, buttons, and image. Ignored when “reduce motion” is enabled."
-    },
-    {
-      "type": "range",
-      "id": "overlay_opacity",
-      "min": 0,
-      "max": 85,
-      "step": 5,
-      "unit": "%",
-      "label": "Background dimming",
-      "default": 35
+      "info": "Ignored when reduced motion is on."
     },
     {
       "type": "checkbox",
       "id": "show_noise_overlay",
-      "label": "Light background texture (CSS)",
+      "label": "Light texture over slides",
       "default": true
     },
     {
       "type": "color",
       "id": "primary_button_bg",
-      "label": "Background — primary button",
+      "label": "Primary button background",
       "default": "#EB701F"
     },
     {
       "type": "color",
       "id": "primary_button_text",
-      "label": "Text — primary button",
+      "label": "Primary button text",
       "default": "#FFFFFF"
     },
     {
       "type": "color",
       "id": "secondary_button_text",
-      "label": "Text — secondary button",
+      "label": "Secondary button text",
       "default": "#FFFFFF"
     },
     {
       "type": "color",
       "id": "secondary_button_border",
-      "label": "Border — secondary button",
+      "label": "Secondary button border",
       "default": "#FFFFFF"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "settings": [
+        {
+          "type": "select",
+          "id": "layout",
+          "label": "Slide type",
+          "options": [
+            { "value": "content", "label": "Heading, text & buttons" },
+            { "value": "image_only", "label": "Image only (responsive)" }
+          ],
+          "default": "content"
+        },
+        {
+          "type": "text",
+          "id": "slide_accessible_label",
+          "label": "Short slide description (accessibility)",
+          "info": "Optional. Helps screen readers, e.g. “Spring sale banner”."
+        },
+        {
+          "type": "header",
+          "content": "Image-only slide"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_desktop",
+          "label": "Image — desktop",
+          "info": "Wide image. Also used on mobile if mobile image is empty."
+        },
+        {
+          "type": "image_picker",
+          "id": "image_mobile",
+          "label": "Image — mobile",
+          "info": "Portrait-friendly crop. Optional."
+        },
+        {
+          "type": "text",
+          "id": "image_alt",
+          "label": "Image description (accessibility)",
+          "info": "Required for image-only slides when linking or for SEO."
+        },
+        {
+          "type": "url",
+          "id": "slide_link",
+          "label": "Optional link (whole slide)"
+        },
+        {
+          "type": "header",
+          "content": "Content slide — copy & buttons"
+        },
+        {
+          "type": "textarea",
+          "id": "heading",
+          "label": "Heading",
+          "default": "START STRONG.\nBUILD YOUR HOME\nGYM YOUR WAY",
+          "info": "Line breaks = new lines. Use H2 for SEO when multiple slides exist."
+        },
+        {
+          "type": "textarea",
+          "id": "subheading",
+          "label": "Supporting text",
+          "default": "Strength, cardio, and full-body training — all from one space-saving system."
+        },
+        {
+          "type": "text",
+          "id": "button_primary_label",
+          "label": "Primary button text",
+          "default": "SHOP DUMBBELLS"
+        },
+        {
+          "type": "url",
+          "id": "button_primary_link",
+          "label": "Primary button link",
+          "info": "If empty, uses the all-products collection."
+        },
+        {
+          "type": "text",
+          "id": "button_secondary_label",
+          "label": "Secondary button text",
+          "default": "EXPLORE HOME GYM SETUP"
+        },
+        {
+          "type": "url",
+          "id": "button_secondary_link",
+          "label": "Secondary button link",
+          "info": "If empty, uses the home page."
+        },
+        {
+          "type": "header",
+          "content": "Content slide — media"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_side_image_card",
+          "label": "Show side image card",
+          "default": false
+        },
+        {
+          "type": "image_picker",
+          "id": "background_image",
+          "label": "Background image"
+        },
+        {
+          "type": "image_picker",
+          "id": "side_image",
+          "label": "Side card image",
+          "info": "Only when “Show side image card” is on."
+        },
+        {
+          "type": "range",
+          "id": "overlay_opacity",
+          "min": 0,
+          "max": 85,
+          "step": 5,
+          "unit": "%",
+          "label": "Background dimming (content slides)",
+          "default": 35
+        }
+      ]
     }
   ],
   "presets": [
     {
-      "name": "Hero Ativa Home"
+      "name": "Hero Ativa Home",
+      "blocks": [
+        {
+          "type": "slide",
+          "settings": {
+            "layout": "content",
+            "heading": "START STRONG.\nBUILD YOUR HOME\nGYM YOUR WAY",
+            "subheading": "Strength, cardio, and full-body training — all from one space-saving system.",
+            "button_primary_label": "SHOP DUMBBELLS",
+            "button_secondary_label": "EXPLORE HOME GYM SETUP",
+            "show_side_image_card": false,
+            "overlay_opacity": 35
+          }
+        }
+      ]
     }
   ]
 }

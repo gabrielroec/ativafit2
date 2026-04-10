@@ -10,18 +10,232 @@
   font-family: var(--font-ativa-body-family), 'Lexend', ui-sans-serif, system-ui, sans-serif !important;
   position: relative;
   isolation: isolate;
-  overflow: hidden;
-  min-height: clamp(22rem, 75vh, 50rem);
-  display: flex;
-  align-items: center;
+  overflow: visible;
   color: #fff;
+  background-color: #1a1a1a;
+}
+
+/* -------------------------------------------------------------------------
+   Carousel viewport — height from aspect ratio × viewport width (+ optional floor)
+   ------------------------------------------------------------------------- */
+.hero-ativa-home__viewport {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: var(--hero-ativa-aspect-w-mobile, 1) / var(--hero-ativa-aspect-h-mobile, 1);
   background-color: var(--hero-ativa-fallback-bg);
 }
 
 @media screen and (max-width: 899px) {
-  .hero-ativa-home {
-    /* ~metade da altura mínima em relação ao desktop (clamp 22rem / 75vh / 50rem) */
-    min-height: clamp(11rem, 37.5vh, 25rem);
+  .hero-ativa-home__viewport {
+    min-height: var(--hero-ativa-min-h-mobile, 0px);
+  }
+}
+
+@media screen and (min-width: 900px) {
+  .hero-ativa-home__viewport {
+    aspect-ratio: var(--hero-ativa-aspect-w-desktop, 16) / var(--hero-ativa-aspect-h-desktop, 9);
+    min-height: var(--hero-ativa-min-h-desktop, 0px);
+  }
+}
+
+.hero-ativa-home__scroller {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.hero-ativa-home__scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.hero-ativa-home__scroller:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.hero-ativa-home__slide {
+  position: relative;
+  flex: 0 0 100%;
+  width: 100%;
+  min-height: 100%;
+  align-self: stretch;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  overflow: hidden;
+}
+
+.hero-ativa-home__slide--image-only {
+  background-color: var(--hero-ativa-fallback-bg);
+}
+
+/* Content slides: stack background, overlay, and foreground */
+.hero-ativa-home__slide:not(.hero-ativa-home__slide--image-only) .hero-ativa-home__inner {
+  position: relative;
+  z-index: 2;
+  min-height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+}
+
+.hero-ativa-home__slide-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero-ativa-home__slide-sole-link {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: block;
+  text-decoration: none;
+}
+
+.hero-ativa-home__picture-full {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+.hero-ativa-home__bg-media--cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.hero-ativa-home__noise--viewport {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.hero-ativa-home__arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 6;
+  transform: translateY(-50%);
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(0 0 0 / 0.45);
+  color: #fff;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.hero-ativa-home__arrow:hover {
+  background: rgb(0 0 0 / 0.6);
+}
+
+.hero-ativa-home__arrow:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.hero-ativa-home__arrow--prev {
+  left: clamp(0.5rem, 2vw, 1rem);
+}
+
+.hero-ativa-home__arrow--next {
+  right: clamp(0.5rem, 2vw, 1rem);
+}
+
+.hero-ativa-home__arrow .material-symbols-outlined {
+  font-family: 'Material Symbols Outlined', sans-serif !important;
+  font-size: 1.75rem !important;
+  line-height: 1 !important;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24 !important;
+}
+
+.hero-ativa-home__dots-wrap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: clamp(0.75rem, 2.5vw, 1.25rem);
+  z-index: 6;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.hero-ativa-home__dots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  pointer-events: auto;
+}
+
+.hero-ativa-home__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.45);
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.hero-ativa-home__dot[aria-current='true'] {
+  background: var(--hero-ativa-btn-primary-bg, var(--hero-ativa-orange));
+  transform: scale(1.2);
+}
+
+.hero-ativa-home__dot:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.hero-ativa-home__empty {
+  padding: clamp(3rem, 10vw, 5rem) var(--hero-ativa-gutter);
+  text-align: center;
+  color: #888;
+  background: #f3f3f3;
+}
+
+.hero-ativa-home__visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-ativa-home__scroller {
+    scroll-behavior: auto;
+  }
+
+  .hero-ativa-home__arrow,
+  .hero-ativa-home__dot {
+    transition: none;
   }
 }
 
@@ -156,6 +370,15 @@
 }
 
 @media screen and (max-width: 899px) {
+  /* Tighter frame (e.g. 1:1) — smaller type + spacing so copy + CTAs fit */
+  .hero-ativa-home__inner {
+    padding-block: clamp(0.75rem, 3.5vw, 1.35rem);
+  }
+
+  .hero-ativa-home__grid {
+    gap: clamp(0.65rem, 2.8vw, 1.1rem);
+  }
+
   .hero-ativa-home__content {
     margin-inline: auto;
     text-align: center;
@@ -165,11 +388,18 @@
   .hero-ativa-home__title {
     margin-inline: auto;
     text-align: center;
+    margin-bottom: clamp(0.35rem, 2vw, 0.65rem) !important;
+    font-size: clamp(1.2rem, 5.4vw, 2rem) !important;
+    line-height: 1.06 !important;
+    letter-spacing: -0.03em !important;
   }
 
   .hero-ativa-home__sub {
-    margin-inline: auto!important;
+    margin-inline: auto !important;
     text-align: center;
+    margin-bottom: clamp(0.5rem, 2.5vw, 0.85rem) !important;
+    font-size: clamp(0.78rem, 2.9vw, 0.9375rem) !important;
+    line-height: 1.45 !important;
   }
 
   .hero-ativa-home__actions {
@@ -177,11 +407,16 @@
     width: 100%;
     flex-direction: column;
     align-items: stretch;
+    gap: 0.45rem;
   }
 
   .hero-ativa-home__btn {
     width: 100%;
     box-sizing: border-box;
+    min-height: 2.45rem;
+    padding: 0.55rem 0.9rem;
+    font-size: clamp(0.58rem, 2.5vw, 0.6875rem) !important;
+    letter-spacing: 0.09em;
   }
 }
 

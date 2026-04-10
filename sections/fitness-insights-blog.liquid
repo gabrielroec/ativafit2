@@ -1,15 +1,13 @@
 {%- liquid
   assign fi_id = 'fitness-insights-' | append: section.id
-  assign fi_blog = section.settings.blog
-  assign fi_limit = section.settings.post_count | default: 3
-  if fi_limit < 1
-    assign fi_limit = 3
-  endif
-  if fi_limit > 6
-    assign fi_limit = 6
-  endif
   assign fi_accent = section.settings.accent_color | default: '#eb701f'
   assign fi_bg = section.settings.background_color | default: '#ffffff'
+  assign fi_card_count = 0
+  for block in section.blocks
+    if block.type == 'post' and block.settings.article != blank
+      assign fi_card_count = fi_card_count | plus: 1
+    endif
+  endfor
 -%}
 
 <section
@@ -21,8 +19,8 @@
       {%- if section.settings.title != blank -%}
         <h2 class="fitness-insights-blog__heading">{{ section.settings.title | escape }}</h2>
       {%- endif -%}
-      {%- if fi_blog != blank and section.settings.read_more_label != blank -%}
-        <a href="{{ fi_blog.url }}" class="fitness-insights-blog__read-more">
+      {%- if section.settings.read_more_label != blank and section.settings.read_more_link != blank -%}
+        <a href="{{ section.settings.read_more_link }}" class="fitness-insights-blog__read-more">
           {{ section.settings.read_more_label | escape }}
           <span class="material-symbols-outlined fitness-insights-blog__read-more-icon" aria-hidden="true">arrow_forward</span>
         </a>
@@ -32,59 +30,51 @@
     <div
       class="fitness-insights-blog__grid"
       style="--fi-grid-gap: {{ section.settings.grid_gap }}px;">
-      {%- if fi_blog != blank -%}
-        {%- for article in fi_blog.articles limit: fi_limit -%}
-          {%- assign fi_img_alt = article.image.alt | default: article.title -%}
-          <a href="{{ article.url }}" class="fitness-insights-blog__card">
-            <div class="fitness-insights-blog__media">
-              {%- if article.image != blank -%}
-                {{
-                  article.image
-                  | image_url: width: 900
-                  | image_tag:
-                    loading: 'lazy',
-                    class: 'fitness-insights-blog__img',
-                    widths: '400, 600, 800, 900',
-                    sizes: '(min-width: 990px) 30vw, 100vw',
-                    alt: fi_img_alt
-                }}
-              {%- else -%}
-                <div class="fitness-insights-blog__img-placeholder" aria-hidden="true">
-                  {{ 'image' | placeholder_svg_tag: 'fitness-insights-blog__ph-svg' }}
+      {%- if fi_card_count > 0 -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'post' -%}
+            {%- assign article = block.settings.article -%}
+            {%- if article != blank -%}
+              {%- assign fi_img_alt = article.image.alt | default: article.title -%}
+              <a href="{{ article.url }}" class="fitness-insights-blog__card" {{ block.shopify_attributes }}>
+                <div class="fitness-insights-blog__media">
+                  {%- if article.image != blank -%}
+                    {{
+                      article.image
+                      | image_url: width: 900
+                      | image_tag:
+                        loading: 'lazy',
+                        class: 'fitness-insights-blog__img',
+                        widths: '400, 600, 800, 900',
+                        sizes: '(min-width: 990px) 30vw, 100vw',
+                        alt: fi_img_alt
+                    }}
+                  {%- else -%}
+                    <div class="fitness-insights-blog__img-placeholder" aria-hidden="true">
+                      {{ 'image' | placeholder_svg_tag: 'fitness-insights-blog__ph-svg' }}
+                    </div>
+                  {%- endif -%}
                 </div>
-              {%- endif -%}
-            </div>
-            {%- liquid
-              assign fi_cat = article.tags.first | default: fi_blog.title
-            -%}
-            {%- if fi_cat != blank -%}
-              <p class="fitness-insights-blog__category">{{ fi_cat | upcase | escape }}</p>
+                {%- liquid
+                  assign fi_cat = article.tags.first | default: article.blog.title
+                -%}
+                {%- if fi_cat != blank -%}
+                  <p class="fitness-insights-blog__category">{{ fi_cat | upcase | escape }}</p>
+                {%- endif -%}
+                <h3 class="fitness-insights-blog__post-title">{{ article.title | escape }}</h3>
+                <p class="fitness-insights-blog__excerpt">
+                  {%- if article.excerpt != blank -%}
+                    {{ article.excerpt | strip_html | truncate: 160 }}
+                  {%- else -%}
+                    {{ article.content | strip_html | truncate: 160 }}
+                  {%- endif -%}
+                </p>
+              </a>
             {%- endif -%}
-            <h3 class="fitness-insights-blog__post-title">{{ article.title | escape }}</h3>
-            <p class="fitness-insights-blog__excerpt">
-              {%- if article.excerpt != blank -%}
-                {{ article.excerpt | strip_html | truncate: 160 }}
-              {%- else -%}
-                {{ article.content | strip_html | truncate: 160 }}
-              {%- endif -%}
-            </p>
-          </a>
-        {%- else -%}
-          {%- for i in (1..fi_limit) -%}
-            <div class="fitness-insights-blog__card fitness-insights-blog__card--placeholder">
-              <div class="fitness-insights-blog__media">
-                <div class="fitness-insights-blog__img-placeholder" aria-hidden="true">
-                  {{ 'image' | placeholder_svg_tag: 'fitness-insights-blog__ph-svg' }}
-                </div>
-              </div>
-              <p class="fitness-insights-blog__category">{{ section.settings.placeholder_category | escape }}</p>
-              <h3 class="fitness-insights-blog__post-title">{{ section.settings.placeholder_title | escape }}</h3>
-              <p class="fitness-insights-blog__excerpt">{{ section.settings.placeholder_excerpt | escape }}</p>
-            </div>
-          {%- endfor -%}
+          {%- endif -%}
         {%- endfor -%}
       {%- else -%}
-        {%- for i in (1..fi_limit) -%}
+        {%- for i in (1..3) -%}
           <div class="fitness-insights-blog__card fitness-insights-blog__card--placeholder">
             <div class="fitness-insights-blog__media">
               <div class="fitness-insights-blog__img-placeholder" aria-hidden="true">
@@ -314,16 +304,11 @@
 
 {% schema %}
 {
-  "name": "Fitness Insights (blog)",
+  "name": "Fitness Insights",
   "tag": "section",
   "class": "section-fitness-insights-blog",
+  "max_blocks": 50,
   "settings": [
-    {
-      "type": "blog",
-      "id": "blog",
-      "label": "Blog",
-      "info": "The latest posts from this blog appear in the grid."
-    },
     {
       "type": "text",
       "id": "title",
@@ -333,21 +318,19 @@
     {
       "type": "text",
       "id": "read_more_label",
-      "label": "Link label (view blog)",
-      "default": "Read More"
+      "label": "Link label (optional)",
+      "default": "Read More",
+      "info": "Shown only if “Link URL” is set (e.g. your blog index)."
     },
     {
-      "type": "range",
-      "id": "post_count",
-      "min": 3,
-      "max": 6,
-      "step": 1,
-      "label": "Number of posts",
-      "default": 3
+      "type": "url",
+      "id": "read_more_link",
+      "label": "Link URL (optional)",
+      "info": "e.g. link to your blog listing page."
     },
     {
       "type": "header",
-      "content": "Placeholder copy (no blog or no posts)"
+      "content": "Placeholder (no posts selected yet)"
     },
     {
       "type": "text",
@@ -506,10 +489,28 @@
       "default": 96
     }
   ],
+  "blocks": [
+    {
+      "type": "post",
+      "name": "Blog post",
+      "settings": [
+        {
+          "type": "article",
+          "id": "article",
+          "label": "Blog post"
+        }
+      ]
+    }
+  ],
   "presets": [
     {
-      "name": "Fitness Insights (blog)",
-      "category": "Blog"
+      "name": "Fitness Insights",
+      "category": "Blog",
+      "blocks": [
+        { "type": "post" },
+        { "type": "post" },
+        { "type": "post" }
+      ]
     }
   ]
 }
