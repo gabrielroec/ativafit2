@@ -182,7 +182,13 @@
             {%- else -%}
               {%- liquid
                 assign bg_d = bs.background_image
+                if bg_d == blank
+                  assign bg_d = bs.image_desktop
+                endif
                 assign bg_m = bs.background_image_mobile
+                if bg_m == blank
+                  assign bg_m = bs.image_mobile
+                endif
                 if bg_m == blank
                   assign bg_m = bg_d
                 endif
@@ -217,25 +223,18 @@
               -%}
               <div class="hero-ativa-home__bg" aria-hidden="true">
                 {%- if bg_d != blank or bg_m != blank -%}
+                  {%- comment -%}
+                    Mobile-first: &lt;img&gt; = arte estreita; &lt;source min-width 769px&gt; = desktop.
+                    Evita alguns casos em que o navegador prioriza só o src do img (padrão antigo max-width no source).
+                  {%- endcomment -%}
                   <picture class="hero-ativa-home__picture-full">
-                    {%- if bg_m != blank -%}
+                    {%- if bg_d != blank -%}
                       <source
-                        media="(max-width: 768px)"
-                        srcset="{{ bg_m | image_url: width: 800 }} 800w, {{ bg_m | image_url: width: 1200 }} 1200w, {{ bg_m | image_url: width: 1600 }} 1600w"
+                        media="(min-width: 769px)"
+                        srcset="{{ bg_d | image_url: width: 1200 }} 1200w, {{ bg_d | image_url: width: 1800 }} 1800w, {{ bg_d | image_url: width: 2400 }} 2400w"
                         sizes="100vw">
                     {%- endif -%}
-                    {%- if bg_d != blank -%}
-                      <img
-                        class="hero-ativa-home__bg-media hero-ativa-home__bg-media--cover"
-                        src="{{ bg_d | image_url: width: 1920 }}"
-                        srcset="{{ bg_d | image_url: width: 1200 }} 1200w, {{ bg_d | image_url: width: 1800 }} 1800w, {{ bg_d | image_url: width: 2400 }} 2400w"
-                        sizes="100vw"
-                        width="{{ bg_d.width | default: 1920 }}"
-                        height="{{ bg_d.height | default: 1080 }}"
-                        loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
-                        fetchpriority="{% if forloop.first %}high{% else %}low{% endif %}"
-                        alt="">
-                    {%- elsif bg_m != blank -%}
+                    {%- if bg_m != blank -%}
                       <img
                         class="hero-ativa-home__bg-media hero-ativa-home__bg-media--cover"
                         src="{{ bg_m | image_url: width: 1200 }}"
