@@ -223,10 +223,7 @@
               -%}
               <div class="hero-ativa-home__bg" aria-hidden="true">
                 {%- if bg_d != blank or bg_m != blank -%}
-                  {%- comment -%}
-                    Mobile-first: &lt;img&gt; = arte estreita; &lt;source min-width 769px&gt; = desktop.
-                    Evita alguns casos em que o navegador prioriza só o src do img (padrão antigo max-width no source).
-                  {%- endcomment -%}
+                  {%- comment -%} picture mobile-first: img base + source min-width 769px para desktop {%- endcomment -%}
                   <picture class="hero-ativa-home__picture-full">
                     {%- if bg_d != blank -%}
                       <source
@@ -612,7 +609,7 @@
           "type": "image_picker",
           "id": "image_mobile",
           "label": "Image — mobile",
-          "info": "Portrait-friendly crop. Optional."
+          "info": "Portrait-friendly crop. For slides with heading/buttons: also used as full-width background ≤768px if “Background image (mobile)” is empty."
         },
         {
           "type": "text",
@@ -679,13 +676,14 @@
         {
           "type": "image_picker",
           "id": "background_image",
-          "label": "Background image (desktop)"
+          "label": "Background image (desktop)",
+          "info": "If empty, uses “Image — desktop” from image-only fields when set."
         },
         {
           "type": "image_picker",
           "id": "background_image_mobile",
           "label": "Background image (mobile)",
-          "info": "768px and below. If empty, uses the desktop background."
+          "info": "768px and below. If empty, uses “Image — mobile” when set; otherwise the desktop background."
         },
         {
           "type": "image_picker",
