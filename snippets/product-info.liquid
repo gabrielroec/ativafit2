@@ -10,6 +10,60 @@
   - Vírgula decimal (Shopify BR/EU) normalizada antes de | plus.
 {% endcomment %}
 
+{%- liquid
+  assign ativapeople_display_cents = 0
+  assign ap_mf_fixed = false
+  assign current_variant = product.selected_or_first_available_variant
+  assign mf_v = current_variant.metafields.custom.price_discount_ativapeople
+  assign mf_p = product.metafields.custom.price_discount_ativapeople
+  assign mf_use = mf_v
+  unless mf_v != blank and mf_v.value != blank
+    assign mf_use = mf_p
+    unless mf_p != blank and mf_p.value != blank
+      assign mf_use = blank
+    endunless
+  endunless
+  if mf_use != blank and mf_use.value != blank
+    assign ap_mf_fixed = true
+    assign _raw = ''
+    if mf_use.value.amount != blank
+      assign _raw = mf_use.value.amount | append: '' | strip
+    else
+      assign _raw = mf_use.value | append: '' | strip
+    endif
+    assign _raw = _raw | replace: ' ', '' | replace: ' ', '' | replace: "'", ''
+    if _raw contains ','
+      assign _pa = _raw | split: ','
+      if _pa.size == 2
+        assign _L = _pa[0] | strip
+        assign _R = _pa[1] | strip
+        assign _rL = _R | size
+        if _rL == 1 or _rL == 2
+          assign _L = _L | replace: '.', ''
+          assign _raw = _L | append: '.' | append: _R
+        elsif _rL == 3
+          if _L contains '.'
+            assign _L = _L | replace: '.', ''
+            assign _raw = _L | append: '.' | append: _R
+          else
+            assign _raw = _L | append: _R
+          endif
+        else
+          assign _L = _L | replace: '.', ''
+          assign _raw = _L | append: '.' | append: _R
+        endif
+      else
+        assign _raw = _raw | replace: '.', '' | replace: ',', '.'
+      endif
+    endif
+    assign _u = _raw | plus: 0.0
+    assign ativapeople_display_cents = _u | times: 100 | round
+  endif
+  if ativapeople_display_cents < 0
+    assign ativapeople_display_cents = 0
+  endif
+-%}
+
 <div class="product-info-container_new">
   <!-- Product Badges -->
   {%- if section.settings.show_badges -%}
@@ -153,71 +207,8 @@
       </div>
     {%- endif -%}
 
-    <!-- AtivaPeople Badge (só com preço fixo no metafield; aceita 100,5 ou 100.5) -->
+    <!-- AtivaPeople Badge (same metafield as member line; computed once at top of snippet) -->
     {%- if section.settings.show_ativapeople_badge -%}
-      {%- liquid
-        assign current_variant = product.selected_or_first_available_variant
-        assign ap_mf_fixed = false
-        assign ativapeople_display_cents = 0
-
-        assign mf_v = current_variant.metafields.custom.price_discount_ativapeople
-        assign mf_p = product.metafields.custom.price_discount_ativapeople
-
-        assign mf_use = mf_v
-        unless mf_v != blank and mf_v.value != blank
-          assign mf_use = mf_p
-          unless mf_p != blank and mf_p.value != blank
-            assign mf_use = blank
-          endunless
-        endunless
-
-        comment
-          Shopify (BR/EU) usa vírgula decimal. Em Ruby, "100,5"|plus vira 100 — sempre normalizar antes.
-          Inteiros tipo 100 (sem vírgula) continuam válidos.
-        endcomment
-        if mf_use != blank and mf_use.value != blank
-          assign ap_mf_fixed = true
-          assign _raw = ''
-          if mf_use.value.amount != blank
-            assign _raw = mf_use.value.amount | append: '' | strip
-          else
-            assign _raw = mf_use.value | append: '' | strip
-          endif
-          assign _raw = _raw | replace: ' ', '' | replace: ' ', '' | replace: "'", ''
-
-          if _raw contains ','
-            assign _pa = _raw | split: ','
-            if _pa.size == 2
-              assign _L = _pa[0] | strip
-              assign _R = _pa[1] | strip
-              assign _rL = _R | size
-              if _rL == 1 or _rL == 2
-                assign _L = _L | replace: '.', ''
-                assign _raw = _L | append: '.' | append: _R
-              elsif _rL == 3
-                if _L contains '.'
-                  assign _L = _L | replace: '.', ''
-                  assign _raw = _L | append: '.' | append: _R
-                else
-                  assign _raw = _L | append: _R
-                endif
-              else
-                assign _L = _L | replace: '.', ''
-                assign _raw = _L | append: '.' | append: _R
-              endif
-            else
-              assign _raw = _raw | replace: '.', '' | replace: ',', '.'
-            endif
-          endif
-
-          assign _u = _raw | plus: 0.0
-          assign ativapeople_display_cents = _u | times: 100 | round
-        endif
-
-        if ativapeople_display_cents < 0
-          assign ativapeople_display_cents = 0
-        endif
-      -%}
       <div
         class="ativapeople-badge_new"
         data-ativapeople-fixed-cents="{{ ativapeople_display_cents }}"
@@ -228,7 +219,57 @@
         </div>
       </div>
     {%- endif -%}
+
+    {%- liquid
+      assign wds_ps = product.metafields.product_schema
+      assign wds_pill_rating = nil
+      assign wds_pill_count = 0
+      if wds_ps.th_ratingValue != blank
+        assign wds_pill_rating = wds_ps.th_ratingValue | plus: 0.0
+        assign wds_pill_count = wds_ps.th_ratingCount | default: 0 | plus: 0
+      endif
+      if wds_pill_count == 0 or wds_pill_rating == blank
+        assign wds_rm = product.metafields.reviews.rating
+        assign wds_rc = product.metafields.reviews.rating_count
+        if wds_rm != blank
+          assign wds_ro = wds_rm.value | default: wds_rm
+          assign wds_cc = wds_rc.value | default: wds_rc | default: 0 | plus: 0
+          if wds_ro != blank and wds_cc > 0
+            assign wds_pill_rating = wds_ro.rating | plus: 0.0
+            assign wds_pill_count = wds_cc
+          endif
+        endif
+      endif
+    -%}
+    {%- if wds_pill_rating != blank and wds_pill_count > 0 -%}
+      <div
+        class="product-info-rating-pill"
+        role="img"
+        aria-label="Rating {{ wds_pill_rating | round: 2 }} out of 5, {{ wds_pill_count }} reviews">
+        <svg
+          class="product-info-rating-pill__star"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          focusable="false">
+          <path fill="currentColor" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+        </svg>
+        <span class="product-info-rating-pill__value">{{ wds_pill_rating | round: 2 }}</span>
+        <span class="product-info-rating-pill__sep" aria-hidden="true">·</span>
+        <span class="product-info-rating-pill__count">{{ wds_pill_count }} reviews</span>
+      </div>
+    {%- endif -%}
   </div>
+
+  {%- if ap_mf_fixed and ativapeople_display_cents > 0 -%}
+    <p class="product-info-member-line_new">
+      <span class="product-info-member-line__muted">Member price </span>
+      <span class="product-info-member-line__price">{{ ativapeople_display_cents | money }}</span>
+      <span class="product-info-member-line__muted" aria-hidden="true"> · </span>
+      <a href="/pages/membership" class="product-info-member-line__link">Join AtivaPeople</a>
+    </p>
+  {%- endif -%}
 
   <!-- Mini Media Mentions (only when enabled in section settings) -->
   {% if section.settings.show_media_mentions_carousel == true %}
