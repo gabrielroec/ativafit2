@@ -1,4 +1,10 @@
 {%- liquid
+  if hg_rep == blank
+    assign hg_rep = 1
+  endif
+  if card_index == blank
+    assign card_index = 0
+  endif
   assign tag_raw = block.settings.tag | strip
   assign tag_show = tag_raw
   if tag_show != blank
@@ -19,6 +25,25 @@
   endif
   assign hg_card_w = section.settings.card_width
   assign hg_card_h = section.settings.card_width | times: 16 | divided_by: 9
+
+  assign hg_eager_n = section.settings.eager_first_cards | default: 2
+  if hg_eager_n < 0
+    assign hg_eager_n = 0
+  endif
+  if hg_eager_n > 8
+    assign hg_eager_n = 8
+  endif
+  assign card_load_priority = false
+  if duplicate_strip == false and hg_rep == 1 and card_index < hg_eager_n
+    assign card_load_priority = true
+  endif
+  if card_load_priority
+    assign img_loading = 'eager'
+    assign img_fetchpriority = 'high'
+  else
+    assign img_loading = 'lazy'
+    assign img_fetchpriority = 'low'
+  endif
 -%}
 
 <div class="home-gyms-marquee__card" style="width: {{ section.settings.card_width }}px;">
@@ -41,35 +66,70 @@
         alt="{{ img_alt | escape }}"
         width="{{ hg_card_w }}"
         height="{{ hg_card_h }}"
-        loading="lazy"
-        decoding="async">
+        loading="{{ img_loading }}"
+        decoding="async"
+        fetchpriority="{{ img_fetchpriority }}">
     {%- elsif block.settings.image != blank -%}
       {%- if is_gif_upload -%}
-        {{
-          block.settings.image
-          | image_url
-          | image_tag:
-            loading: 'lazy',
-            decoding: 'async',
-            class: 'home-gyms-marquee__card-img',
-            width: hg_card_w,
-            height: hg_card_h,
-            alt: img_alt
-        }}
+        {%- if card_load_priority -%}
+          {{
+            block.settings.image
+            | image_url
+            | image_tag:
+              loading: 'eager',
+              decoding: 'async',
+              fetchpriority: 'high',
+              class: 'home-gyms-marquee__card-img',
+              width: hg_card_w,
+              height: hg_card_h,
+              alt: img_alt
+          }}
+        {%- else -%}
+          {{
+            block.settings.image
+            | image_url
+            | image_tag:
+              loading: 'lazy',
+              decoding: 'async',
+              fetchpriority: 'low',
+              class: 'home-gyms-marquee__card-img',
+              width: hg_card_w,
+              height: hg_card_h,
+              alt: img_alt
+          }}
+        {%- endif -%}
       {%- else -%}
-        {{
-          block.settings.image
-          | image_url: width: 900
-          | image_tag:
-            loading: 'lazy',
-            decoding: 'async',
-            widths: '300, 450, 600, 750, 900',
-            sizes: hg_img_sizes,
-            class: 'home-gyms-marquee__card-img',
-            width: hg_card_w,
-            height: hg_card_h,
-            alt: img_alt
-        }}
+        {%- if card_load_priority -%}
+          {{
+            block.settings.image
+            | image_url: width: 900
+            | image_tag:
+              loading: 'eager',
+              decoding: 'async',
+              fetchpriority: 'high',
+              widths: '300, 450, 600, 750, 900',
+              sizes: hg_img_sizes,
+              class: 'home-gyms-marquee__card-img',
+              width: hg_card_w,
+              height: hg_card_h,
+              alt: img_alt
+          }}
+        {%- else -%}
+          {{
+            block.settings.image
+            | image_url: width: 900
+            | image_tag:
+              loading: 'lazy',
+              decoding: 'async',
+              fetchpriority: 'low',
+              widths: '300, 450, 600, 750, 900',
+              sizes: hg_img_sizes,
+              class: 'home-gyms-marquee__card-img',
+              width: hg_card_w,
+              height: hg_card_h,
+              alt: img_alt
+          }}
+        {%- endif -%}
       {%- endif -%}
     {%- else -%}
       <div class="home-gyms-marquee__ph"></div>

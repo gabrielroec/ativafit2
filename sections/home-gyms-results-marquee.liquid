@@ -47,7 +47,9 @@
                     {%- render 'home-gyms-marquee-card',
                       block: block,
                       section: section,
-                      duplicate_strip: false
+                      duplicate_strip: false,
+                      hg_rep: hg_rep,
+                      card_index: forloop.index0
                     -%}
                   </div>
                 {%- endif -%}
@@ -79,7 +81,9 @@
                     {%- render 'home-gyms-marquee-card',
                       block: block,
                       section: section,
-                      duplicate_strip: true
+                      duplicate_strip: true,
+                      hg_rep: hg_rep,
+                      card_index: forloop.index0
                     -%}
                   </div>
                 {%- endif -%}
@@ -112,8 +116,8 @@
     var root = document.getElementById('{{ hg_id }}');
     if (!root) return;
     var track = root.querySelector('[data-home-gyms-track]');
-    var strip = root.querySelector('[data-home-gyms-strip]');
-    if (!track || !strip) return;
+    var stripPrimary = root.querySelector('[data-home-gyms-strip]');
+    if (!track || !stripPrimary) return;
 
     function motionReduced() {
       return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -125,31 +129,59 @@
         root.style.removeProperty('--hg-shift');
         return;
       }
-      var w = strip.getBoundingClientRect().width;
+      var w = stripPrimary.getBoundingClientRect().width;
       if (!w) return;
       root.style.setProperty('--hg-shift', (-w).toFixed(2) + 'px');
       track.classList.add('home-gyms-marquee__track--ready');
     }
 
-    if (typeof ResizeObserver !== 'undefined') {
-      new ResizeObserver(syncShift).observe(strip);
+    function bindImageLoads() {
+      root.querySelectorAll('[data-home-gyms-strip] img').forEach(function (img) {
+        if (!img.complete) img.addEventListener('load', syncShift, { once: true });
+      });
     }
 
-    syncShift();
-    requestAnimationFrame(syncShift);
-    requestAnimationFrame(function () {
+    function initMarquee() {
+      if (root._hgMarqueeInit) return;
+      root._hgMarqueeInit = true;
+
+      if (typeof ResizeObserver !== 'undefined') {
+        new ResizeObserver(syncShift).observe(stripPrimary);
+      }
+
+      syncShift();
       requestAnimationFrame(syncShift);
-    });
+      requestAnimationFrame(function () {
+        requestAnimationFrame(syncShift);
+      });
 
-    window.addEventListener('load', syncShift);
-    window.addEventListener('resize', function () {
-      clearTimeout(root._hgMarqueeDebounce);
-      root._hgMarqueeDebounce = setTimeout(syncShift, 100);
-    });
+      window.addEventListener('load', syncShift);
+      window.addEventListener('resize', function () {
+        clearTimeout(root._hgMarqueeDebounce);
+        root._hgMarqueeDebounce = setTimeout(syncShift, 100);
+      });
 
-    strip.querySelectorAll('img').forEach(function (img) {
-      if (!img.complete) img.addEventListener('load', syncShift, { once: true });
-    });
+      bindImageLoads();
+    }
+
+    var marginPx = {{ section.settings.defer_init_margin | default: 320 }};
+    var rootMarginStr = marginPx > 0 ? marginPx + 'px' : '0px';
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(
+        function (entries, obs) {
+          entries.forEach(function (e) {
+            if (e.isIntersecting) {
+              initMarquee();
+              obs.disconnect();
+            }
+          });
+        },
+        { root: null, rootMargin: rootMarginStr, threshold: 0 }
+      );
+      io.observe(root);
+    } else {
+      initMarquee();
+    }
   })();
 </script>
 
@@ -193,18 +225,20 @@
   #{{ hg_id }} .home-gyms-marquee__viewport {
     overflow: hidden;
     width: 100%;
+    contain: layout style;
   }
 
   #{{ hg_id }} .home-gyms-marquee__track {
     display: flex;
     width: max-content;
     flex-wrap: nowrap;
-    will-change: transform;
     animation: none;
   }
 
   #{{ hg_id }} .home-gyms-marquee__track.home-gyms-marquee__track--ready {
+    will-change: transform;
     animation: hg-marquee-{{ hg_kf }} var(--hg-duration, 45s) linear infinite;
+    transform: translate3d(0, 0, 0);
   }
 
   /* Pause on hover or when a link is focused (easier clicking) */
@@ -502,6 +536,31 @@
       "unit": "px",
       "label": "Padding bottom",
       "default": 96
+    },
+    {
+      "type": "header",
+      "content": "Performance"
+    },
+    {
+      "type": "range",
+      "id": "eager_first_cards",
+      "min": 0,
+      "max": 6,
+      "step": 1,
+      "label": "Eager-load first cards (visible strip)",
+      "default": 2,
+      "info": "First N cards in the first row use high fetch priority and eager loading. Repeats and the duplicate marquee strip stay lazy/low priority. Use 0 if this section is far below the fold."
+    },
+    {
+      "type": "range",
+      "id": "defer_init_margin",
+      "min": 0,
+      "max": 800,
+      "step": 40,
+      "unit": "px",
+      "label": "Start marquee JS before scroll (margin)",
+      "default": 320,
+      "info": "IntersectionObserver expands the viewport by this amount so animation and layout run slightly before the section enters the screen. 0 = init only when any part of the section is visible."
     }
   ],
   "blocks": [
@@ -513,7 +572,7 @@
           "type": "image_picker",
           "id": "image",
           "label": "Image or GIF",
-          "info": "PNG, JPG, WebP, or animated GIF (upload via Content > Files). GIFs use the original file to preserve animation."
+          "info": "PNG, JPG, WebP, or animated GIF (upload via Content > Files). GIFs use the original file to preserve animation. Heavy GIFs hurt load time — prefer optimized short loops or MP4/WebM in Files when possible."
         },
         {
           "type": "url",
