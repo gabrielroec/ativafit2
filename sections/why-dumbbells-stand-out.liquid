@@ -24,11 +24,31 @@
             {%- if block.type == 'feature' -%}
               <div class="why-dumbbells-stand-out__card" {{ block.shopify_attributes }}>
                 <div class="why-dumbbells-stand-out__card-inner">
-                  {%- if block.settings.icon != blank -%}
+                  {%- liquid
+                    assign wds_icon_sym = block.settings.icon_custom | strip
+                    if wds_icon_sym == blank
+                      assign wds_icon_sym = block.settings.icon | default: 'widgets'
+                    endif
+                  -%}
+                  {%- if block.settings.icon_image != blank -%}
+                    <span class="why-dumbbells-stand-out__icon why-dumbbells-stand-out__icon--custom" aria-hidden="true">
+                      {{
+                        block.settings.icon_image
+                        | image_url: width: 128
+                        | image_tag:
+                          loading: 'lazy',
+                          decoding: 'async',
+                          widths: '48, 64, 96, 128',
+                          sizes: '40px',
+                          class: 'why-dumbbells-stand-out__icon-img',
+                          alt: ''
+                      }}
+                    </span>
+                  {%- elsif wds_icon_sym != blank -%}
                     <span
                       class="material-symbols-outlined why-dumbbells-stand-out__icon"
                       style="color: var(--wds-icon-color);"
-                      aria-hidden="true">{{ block.settings.icon | strip | escape }}</span>
+                      aria-hidden="true">{{ wds_icon_sym | escape }}</span>
                   {%- endif -%}
                   <div class="why-dumbbells-stand-out__card-text">
                     {%- if block.settings.title != blank -%}
@@ -356,7 +376,7 @@
       scroll-snap-align: center;
     }
 
-    /* Ícone em cima → título → texto (mais legível em cards estreitos no carrossel) */
+    /* Mobile: icon above title for narrow cards */
     #{{ sid }} .why-dumbbells-stand-out__card-inner {
       flex-direction: column;
       align-items: center;
@@ -370,6 +390,11 @@
 
     #{{ sid }} .why-dumbbells-stand-out__icon.material-symbols-outlined {
       font-size: 36px !important;
+    }
+
+    #{{ sid }} .why-dumbbells-stand-out__icon--custom .why-dumbbells-stand-out__icon-img {
+      width: 36px;
+      height: 36px;
     }
 
     #{{ sid }} .why-dumbbells-stand-out__carousel-ui {
@@ -460,6 +485,21 @@
   }
 
   /* Same pattern as trust-bar-ativa: icon = Material Symbols ligature, no card font inheritance */
+  #{{ sid }} .why-dumbbells-stand-out__icon--custom {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #{{ sid }} .why-dumbbells-stand-out__icon--custom .why-dumbbells-stand-out__icon-img {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+    object-position: center;
+    display: block;
+  }
+
   #{{ sid }} .why-dumbbells-stand-out__icon.material-symbols-outlined {
     font-family: 'Material Symbols Outlined', sans-serif !important;
     font-size: 26px !important;
@@ -865,11 +905,23 @@
       "name": "Feature",
       "settings": [
         {
+          "type": "image_picker",
+          "id": "icon_image",
+          "label": "Custom icon image",
+          "info": "Optional. When set, replaces the Material Symbol. Use a square PNG or SVG for best results."
+        },
+        {
+          "type": "text",
+          "id": "icon_custom",
+          "label": "Custom Material Symbol name",
+          "info": "Optional. Any Material Symbols Outlined ligature (e.g. fitness_center, bolt). When filled, overrides the preset below."
+        },
+        {
           "type": "select",
           "id": "icon",
-          "label": "Icon (Material Symbols)",
+          "label": "Preset icon (Material Symbols)",
           "default": "widgets",
-          "info": "The four original layout icons: widgets, speed, architecture, lock — same usage as trust-bar-ativa.",
+          "info": "Used when custom image and custom name are empty. Original set: widgets, speed, architecture, lock.",
           "options": [
             { "value": "widgets", "label": "widgets — 12-in-1 / grid" },
             { "value": "speed", "label": "speed — fast / dial" },
