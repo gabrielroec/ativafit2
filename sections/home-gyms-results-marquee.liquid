@@ -162,6 +162,52 @@
       });
 
       bindImageLoads();
+      initGifPlay();
+    }
+
+    function initGifPlay() {
+      root.addEventListener('click', function (e) {
+        var btn = e.target.closest('.home-gyms-marquee__gif-play');
+        if (!btn || !root.contains(btn)) return;
+        e.preventDefault();
+        e.stopPropagation();
+        var wrap = btn.closest('[data-home-gyms-gif]');
+        if (!wrap || wrap.getAttribute('data-hg-loading') === 'true' || wrap.getAttribute('data-hg-played') === 'true') return;
+        var src = wrap.dataset.gifSrc || wrap.getAttribute('data-gif-src');
+        if (!src) return;
+        wrap.setAttribute('data-hg-loading', 'true');
+        btn.disabled = true;
+        var poster = wrap.querySelector('.home-gyms-marquee__gif-poster');
+        var anim = document.createElement('img');
+        anim.className = 'home-gyms-marquee__gif-anim home-gyms-marquee__card-img';
+        anim.alt = wrap.getAttribute('data-gif-alt') || '';
+        anim.decoding = 'async';
+        anim.loading = 'eager';
+        anim.setAttribute('fetchpriority', 'high');
+        function finishPlay() {
+          wrap.setAttribute('data-hg-played', 'true');
+          wrap.removeAttribute('data-hg-loading');
+          wrap.classList.add('home-gyms-marquee__gif--playing');
+          if (poster) poster.style.display = 'none';
+          if (btn.parentNode) btn.remove();
+          syncShift();
+        }
+        function onFail() {
+          wrap.removeAttribute('data-hg-loading');
+          btn.disabled = false;
+        }
+        anim.onload = function () {
+          if (typeof anim.decode === 'function') {
+            anim.decode().then(finishPlay).catch(finishPlay);
+          } else {
+            finishPlay();
+          }
+        };
+        anim.onerror = onFail;
+        wrap.insertBefore(anim, btn);
+        anim.src = src;
+        syncShift();
+      });
     }
 
     var marginPx = {{ section.settings.defer_init_margin | default: 320 }};
@@ -306,6 +352,106 @@
     color: inherit;
   }
 
+  #{{ hg_id }} .home-gyms-marquee__card--gif {
+    border-radius: {{ section.settings.card_radius }}px;
+    overflow: hidden;
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__card-hit {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: {{ section.settings.card_radius }}px;
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__card-hit:focus-visible {
+    outline: 2px solid {{ section.settings.title_color }};
+    outline-offset: 4px;
+    z-index: 3;
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__gif {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    isolation: isolate;
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__gif-poster:not(.home-gyms-marquee__gif-poster--empty) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__gif-poster--empty {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(145deg, #ececec, #d4d4d4);
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__gif-anim {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s ease;
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__gif-play {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 3;
+    width: 3.75rem;
+    height: 3.75rem;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(0 0 0 / 0.48);
+    color: #fff;
+    transform: translate(-50%, -50%);
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__gif-play:hover {
+    background: rgb(0 0 0 / 0.62);
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__gif-play:focus-visible {
+    outline: 2px solid {{ section.settings.title_color }};
+    outline-offset: 3px;
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__gif-play-icon {
+    display: flex;
+    margin-left: 2px;
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__gif--playing .home-gyms-marquee__gif-play {
+    display: none !important;
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__card:hover .home-gyms-marquee__gif:not(.home-gyms-marquee__gif--playing) .home-gyms-marquee__gif-poster,
+  #{{ hg_id }} .home-gyms-marquee__card:hover .home-gyms-marquee__gif--playing .home-gyms-marquee__gif-anim {
+    transform: scale(1.1);
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__card:hover .home-gyms-marquee__gif:not(.home-gyms-marquee__gif--playing) .home-gyms-marquee__gif-poster--empty {
+    transform: none;
+  }
+
   #{{ hg_id }} .home-gyms-marquee__card-link {
     display: block;
     text-decoration: none;
@@ -320,11 +466,27 @@
 
   #{{ hg_id }} .home-gyms-marquee__card-frame {
     position: relative;
+    z-index: 2;
     width: 100%;
     aspect-ratio: 9 / 16;
     overflow: hidden;
     border-radius: {{ section.settings.card_radius }}px;
     background: #e8e8e8;
+    pointer-events: none;
+  }
+
+  /* Frame deixa passar cliques para o link por baixo; só play e GIF animado capturam */
+  #{{ hg_id }} .home-gyms-marquee__card-frame .home-gyms-marquee__gif {
+    pointer-events: none;
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__card-frame .home-gyms-marquee__gif-play,
+  #{{ hg_id }} .home-gyms-marquee__card-frame .home-gyms-marquee__gif-anim {
+    pointer-events: auto;
+  }
+
+  #{{ hg_id }} .home-gyms-marquee__card-frame .home-gyms-marquee__gif-poster {
+    pointer-events: none;
   }
 
   #{{ hg_id }} .home-gyms-marquee__card-frame .home-gyms-marquee__card-img,
@@ -338,11 +500,11 @@
   }
 
   #{{ hg_id }} .home-gyms-marquee__card:hover .home-gyms-marquee__card-frame .home-gyms-marquee__card-img,
-  #{{ hg_id }} .home-gyms-marquee__card:hover .home-gyms-marquee__card-frame img,
+  #{{ hg_id }} .home-gyms-marquee__card:hover .home-gyms-marquee__card-frame img:not(.home-gyms-marquee__gif-poster),
   #{{ hg_id }} .home-gyms-marquee__card-link:hover .home-gyms-marquee__card-frame .home-gyms-marquee__card-img,
-  #{{ hg_id }} .home-gyms-marquee__card-link:hover .home-gyms-marquee__card-frame img,
+  #{{ hg_id }} .home-gyms-marquee__card-link:hover .home-gyms-marquee__card-frame img:not(.home-gyms-marquee__gif-poster),
   #{{ hg_id }} .home-gyms-marquee__card-link:focus-visible .home-gyms-marquee__card-frame .home-gyms-marquee__card-img,
-  #{{ hg_id }} .home-gyms-marquee__card-link:focus-visible .home-gyms-marquee__card-frame img {
+  #{{ hg_id }} .home-gyms-marquee__card-link:focus-visible .home-gyms-marquee__card-frame img:not(.home-gyms-marquee__gif-poster) {
     transform: scale(1.1);
   }
 
@@ -361,7 +523,7 @@
     left: 24px;
     right: 24px;
     pointer-events: none;
-    z-index: 1;
+    z-index: 4;
   }
 
   #{{ hg_id }} .home-gyms-marquee__tag {
@@ -561,6 +723,12 @@
       "label": "Start marquee JS before scroll (margin)",
       "default": 320,
       "info": "IntersectionObserver expands the viewport by this amount so animation and layout run slightly before the section enters the screen. 0 = init only when any part of the section is visible."
+    },
+    {
+      "type": "text",
+      "id": "gif_play_label",
+      "label": "GIF play button label (accessibility)",
+      "default": "Play animation"
     }
   ],
   "blocks": [
@@ -572,13 +740,19 @@
           "type": "image_picker",
           "id": "image",
           "label": "Image or GIF",
-          "info": "PNG, JPG, WebP, or animated GIF (upload via Content > Files). GIFs use the original file to preserve animation. Heavy GIFs hurt load time — prefer optimized short loops or MP4/WebM in Files when possible."
+          "info": "PNG, JPG, WebP, or animated GIF. GIFs show a still JPG preview and load the animation only after Play. Heavy GIFs still affect performance after play — prefer short loops or MP4/WebM when possible."
         },
         {
           "type": "url",
           "id": "media_url",
           "label": "Media URL (optional)",
-          "info": "If set, replaces the image above. Useful for GIFs or media hosted elsewhere."
+          "info": "If set, replaces the image above. GIF URLs load only after the user taps Play (best performance). Use “GIF poster” for a still preview."
+        },
+        {
+          "type": "image_picker",
+          "id": "gif_poster",
+          "label": "GIF poster (static)",
+          "info": "Optional still image before play. Recommended for GIFs via URL. Uploads from “Image or GIF” use an automatic JPG frame when possible."
         },
         {
           "type": "text",

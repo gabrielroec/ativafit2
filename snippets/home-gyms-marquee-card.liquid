@@ -15,6 +15,7 @@
   assign img_alt = block.settings.image_alt | default: 'Community photo'
   assign hg_img_sizes = '(max-width: 749px) 72vw, ' | append: section.settings.card_width | append: 'px'
   assign media_url = block.settings.media_url | strip
+  assign media_url_lc = media_url | downcase
   assign img_src_low = ''
   if block.settings.image != blank and block.settings.image.src != blank
     assign img_src_low = block.settings.image.src | downcase
@@ -22,6 +23,14 @@
   assign is_gif_upload = false
   if img_src_low contains '.gif'
     assign is_gif_upload = true
+  endif
+  assign is_gif_media = false
+  if media_url != blank and media_url_lc contains '.gif'
+    assign is_gif_media = true
+  endif
+  assign is_gif = false
+  if is_gif_upload or is_gif_media
+    assign is_gif = true
   endif
   assign hg_card_w = section.settings.card_width
   assign hg_card_h = section.settings.card_width | times: 16 | divided_by: 9
@@ -44,10 +53,24 @@
     assign img_loading = 'lazy'
     assign img_fetchpriority = 'low'
   endif
+
+  assign gif_data_src = ''
+  assign gif_poster_src = ''
+  if is_gif_media
+    assign gif_data_src = media_url
+    if block.settings.gif_poster != blank
+      assign gif_poster_src = block.settings.gif_poster | image_url: width: 720
+    endif
+  elsif is_gif_upload
+    assign gif_data_src = block.settings.image | image_url
+    assign gif_poster_src = block.settings.image | image_url: width: 720, format: 'jpg'
+  endif
+
+  assign gif_play_aria = section.settings.gif_play_label | default: 'Play animation'
 -%}
 
-<div class="home-gyms-marquee__card" style="width: {{ section.settings.card_width }}px;">
-  {%- if block.settings.link != blank -%}
+<div class="home-gyms-marquee__card{% if is_gif %} home-gyms-marquee__card--gif{% endif %}" style="width: {{ section.settings.card_width }}px;">
+  {%- if block.settings.link != blank and is_gif == false -%}
     <a
       href="{{ block.settings.link }}"
       class="home-gyms-marquee__card-link"
@@ -59,7 +82,52 @@
       {% endif %}>
   {%- endif -%}
   <div class="home-gyms-marquee__card-frame">
-    {%- if media_url != blank -%}
+    {%- if is_gif -%}
+      <div
+        class="home-gyms-marquee__gif"
+        data-home-gyms-gif
+        data-gif-src="{{ gif_data_src | escape }}"
+        data-gif-alt="{{ img_alt | escape }}">
+        {%- if gif_poster_src != blank -%}
+          {%- if card_load_priority -%}
+            <img
+              class="home-gyms-marquee__gif-poster"
+              src="{{ gif_poster_src }}"
+              alt=""
+              width="{{ hg_card_w }}"
+              height="{{ hg_card_h }}"
+              loading="eager"
+              decoding="async"
+              fetchpriority="high">
+          {%- else -%}
+            <img
+              class="home-gyms-marquee__gif-poster"
+              src="{{ gif_poster_src }}"
+              alt=""
+              width="{{ hg_card_w }}"
+              height="{{ hg_card_h }}"
+              loading="lazy"
+              decoding="async"
+              fetchpriority="low">
+          {%- endif -%}
+        {%- else -%}
+          <div class="home-gyms-marquee__gif-poster home-gyms-marquee__gif-poster--empty" aria-hidden="true"></div>
+        {%- endif -%}
+        <button
+          type="button"
+          class="home-gyms-marquee__gif-play"
+          aria-label="{{ gif_play_aria | escape }}"
+          {% if duplicate_strip %}
+            tabindex="-1" aria-hidden="true"
+          {% endif %}>
+          <span class="home-gyms-marquee__gif-play-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          </span>
+        </button>
+      </div>
+    {%- elsif media_url != blank -%}
       <img
         class="home-gyms-marquee__card-img"
         src="{{ media_url }}"
@@ -70,35 +138,6 @@
         decoding="async"
         fetchpriority="{{ img_fetchpriority }}">
     {%- elsif block.settings.image != blank -%}
-      {%- if is_gif_upload -%}
-        {%- if card_load_priority -%}
-          {{
-            block.settings.image
-            | image_url
-            | image_tag:
-              loading: 'eager',
-              decoding: 'async',
-              fetchpriority: 'high',
-              class: 'home-gyms-marquee__card-img',
-              width: hg_card_w,
-              height: hg_card_h,
-              alt: img_alt
-          }}
-        {%- else -%}
-          {{
-            block.settings.image
-            | image_url
-            | image_tag:
-              loading: 'lazy',
-              decoding: 'async',
-              fetchpriority: 'low',
-              class: 'home-gyms-marquee__card-img',
-              width: hg_card_w,
-              height: hg_card_h,
-              alt: img_alt
-          }}
-        {%- endif -%}
-      {%- else -%}
         {%- if card_load_priority -%}
           {{
             block.settings.image
@@ -130,7 +169,6 @@
               alt: img_alt
           }}
         {%- endif -%}
-      {%- endif -%}
     {%- else -%}
       <div class="home-gyms-marquee__ph"></div>
     {%- endif -%}
@@ -140,7 +178,19 @@
       </div>
     {%- endif -%}
   </div>
-  {%- if block.settings.link != blank -%}
+  {%- if block.settings.link != blank and is_gif -%}
+    <a
+      href="{{ block.settings.link }}"
+      class="home-gyms-marquee__card-hit"
+      {% if duplicate_strip %}
+        tabindex="-1" aria-hidden="true"
+      {% else %}
+        rel="noopener noreferrer"
+        target="_blank"
+      {% endif %}
+      aria-label="{{ img_alt | escape }}"></a>
+  {%- endif -%}
+  {%- if block.settings.link != blank and is_gif == false -%}
     </a>
   {%- endif -%}
 </div>
