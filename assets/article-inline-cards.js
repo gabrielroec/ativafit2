@@ -5,12 +5,18 @@
  * O script busca o produto em /products/<handle>.js e monta o card. Nada mais para configurar.
  *
  * Triggers:
- *   "Add Card Membership"   -> membership card
- *   Product Card <handle>  -> product card (fetch /products/<handle>.js)
+ *   "Add Card Membership"                          -> membership card
+ *   Product Card <handle>                          -> product card (fetch /products/<handle>.js)
+ *   Product Card <handle> "Custom description"     -> product card com descrição custom (override por post)
+ *   "Add Card <handle>" "Custom description"       -> idem, variante entre aspas
  *
- * Promo opcional por produto: metafield (padrão custom.article_inline_promo), exposto via
- * template alternativo product.card-promo + sections/product-article-inline-promo.liquid
- * (Section Rendering — ver comentário na section).
+ * Notas:
+ * - A descrição custom só afeta este post (fica escrita no corpo do post).
+ * - Tags HTML são removidas da descrição; aspas podem ser retas (") ou tipográficas (“ ” „ « »).
+ * - Se a descrição custom for vazia/ausente, usa-se o fallback (product.description até 80 chars).
+ *
+ * Promo opcional por produto (continua igual): metafield (padrão custom.article_inline_promo),
+ * exposto via template alternativo product.card-promo + sections/product-article-inline-promo.liquid.
  */
 (function () {
   var PLACEHOLDER_PREFIX = "___ADD_CARD_";
@@ -114,7 +120,7 @@
     );
   }
 
-  function buildProductCard(product, promoText) {
+  function buildProductCard(product, promoText, descOverride) {
     var v = product.variants[0];
     var img = v.featured_image ? v.featured_image.src : product.featured_image;
     var imgTag = img
@@ -132,11 +138,19 @@
         ' <span class="article-inline-card__price-current">' + formatMoney(v.price) + "</span>";
     }
 
-    var descRaw = product.description
-      ? product.description.replace(/<[^>]*>/g, "").substring(0, 80)
-      : "";
-    if (product.description && product.description.replace(/<[^>]*>/g, "").length > 80) {
-      descRaw += "\u2026";
+    // Description: per-post override (inline na matéria) > product.description truncado em 80 chars
+    var descHtml = "";
+    var overrideClean = stripTags(descOverride || "").trim();
+    if (overrideClean) {
+      descHtml = '<p class="article-inline-card__product-desc">' + escapeHtml(overrideClean) + "</p>";
+    } else if (product.description) {
+      var descRaw = product.description.replace(/<[^>]*>/g, "").substring(0, 80);
+      if (product.description.replace(/<[^>]*>/g, "").length > 80) {
+        descRaw += "\u2026";
+      }
+      if (descRaw) {
+        descHtml = '<p class="article-inline-card__product-desc">' + descRaw + "</p>";
+      }
     }
 
     var promoHtml = "";
@@ -151,7 +165,7 @@
           '<div class="article-inline-card__product-image">' + imgTag + "</div>" +
           '<div class="article-inline-card__product-info">' +
             '<p class="article-inline-card__product-title">' + product.title + "</p>" +
-            (descRaw ? '<p class="article-inline-card__product-desc">' + descRaw + "</p>" : "") +
+            descHtml +
             '<p class="article-inline-card__product-price">' + priceHTML + "</p>" +
             promoHtml +
             '<span class="article-inline-card__product-cta">View product</span>' +
@@ -236,6 +250,10 @@
     var html = container.innerHTML;
     var matches = [];
     var quoteClass = "[" + QUOTE_CHARS + "]";
+    // separador permitido entre handle e descrição opcional (espaços, &nbsp; ou tags HTML)
+    var sep = "(?:\\s|&nbsp;|<[^>]*>)*";
+    // descrição opcional entre aspas (aceita aspas diferentes de abertura/fecho)
+    var descPart = "(?:" + sep + quoteClass + "([\\s\\S]+?)" + quoteClass + ")?";
 
     // 1) Membership: "Add Card Membership" (com aspas)
     var reMembership = new RegExp(quoteClass + "Add\\s*Card\\s+Membership" + quoteClass, "gi");
@@ -245,21 +263,27 @@
       return PLACEHOLDER_PREFIX + idx + PLACEHOLDER_SUFFIX;
     });
 
-    // 2) Product com aspas: "Add Card <handle>" (só quando handle = só a-z0-9-)
-    var reAddCardHandle = new RegExp(quoteClass + "Add\\s*Card\\s+([a-z0-9-]+)" + quoteClass, "gi");
-    html = html.replace(reAddCardHandle, function (fullMatch, handle) {
+    // 2) Product com aspas: "Add Card <handle>" + (opcional) "Custom description"
+    var reAddCardHandle = new RegExp(
+      quoteClass + "Add\\s*Card\\s+([a-z0-9-]+)" + quoteClass + descPart,
+      "gi"
+    );
+    html = html.replace(reAddCardHandle, function (fullMatch, handle, desc) {
       if (!handle) return fullMatch;
       var idx = matches.length;
-      matches.push({ keyword: handle });
+      matches.push({ keyword: handle, desc: desc || "" });
       return PLACEHOLDER_PREFIX + idx + PLACEHOLDER_SUFFIX;
     });
 
-    // 3) Product sem aspas: "Product Card " + (opcional: tags) + handle
-    var reProduct = /Product\s+Card\s+(?:<[^>]*>\s*)*([a-z0-9-]+)/gi;
-    html = html.replace(reProduct, function (fullMatch, handle) {
+    // 3) Product sem aspas: Product Card <handle> + (opcional) "Custom description"
+    var reProduct = new RegExp(
+      "Product\\s+Card\\s+(?:<[^>]*>\\s*)*([a-z0-9-]+)" + descPart,
+      "gi"
+    );
+    html = html.replace(reProduct, function (fullMatch, handle, desc) {
       var idx = matches.length;
       var h = (handle || "").trim();
-      matches.push({ keyword: h });
+      matches.push({ keyword: h, desc: desc || "" });
       return PLACEHOLDER_PREFIX + idx + PLACEHOLDER_SUFFIX;
     });
 
@@ -290,7 +314,7 @@
           }
           var h = product.handle || m.keyword;
           return fetchArticleInlinePromo(h).then(function (promo) {
-            m.html = buildProductCard(product, promo);
+            m.html = buildProductCard(product, promo, m.desc);
             return m;
           });
         })
