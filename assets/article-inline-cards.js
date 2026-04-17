@@ -260,8 +260,13 @@
     var quoteClass = "[" + QUOTE_CHARS + "]";
     // separador permitido entre handle e textos opcionais (espaços, &nbsp; ou tags HTML)
     var sep = "(?:\\s|&nbsp;|<[^>]*>)*";
-    // trecho opcional entre aspas (aceita aspas diferentes de abertura/fecho, pode ser vazio)
-    var quotedPart = "(?:" + sep + quoteClass + "([\\s\\S]*?)" + quoteClass + ")?";
+    // conteúdo dentro de aspas: consome tags HTML inteiras (<...>) OU caracteres que não sejam aspas.
+    // Isso evita que aspas DENTRO de atributos (ex.: <span data-x="default">) quebrem o match quando o
+    // editor do Shopify embrulha o texto em spans com atributos.
+    var notQuote = "[^" + QUOTE_CHARS + "]";
+    var innerQuoted = "(?:<[^>]*>|" + notQuote + ")*?";
+    // trecho opcional entre aspas (aceita aspas retas/tipográficas, pode ser vazio)
+    var quotedPart = "(?:" + sep + quoteClass + "(" + innerQuoted + ")" + quoteClass + ")?";
     // dois trechos opcionais em sequência: 1º = descrição, 2º = CTA
     var descAndCtaParts = quotedPart + quotedPart;
 
