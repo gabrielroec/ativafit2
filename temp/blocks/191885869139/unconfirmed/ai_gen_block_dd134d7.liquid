@@ -1,6 +1,319 @@
+{% doc %}
+  @prompt
+    请帮我编写一个网页前端板块
+    
+    1. 结构要求：
+    
+    中心上方是一个主标题。
+    
+    主标题下方是一个横向排列的奖状/Logo 展示区
+    布局需要响应式，在手机端自动堆叠。
+    
+    2. 样式可调节性（关键）：
+    请使用 CSS 变量 (Variables) 来编写样式，以便我能通过修改变量轻松调节以下内容：
+    
+    --title-font-size: 标题的字体大小。
+    
+    --section-bg-color: 整个板块的背景颜色。
+    
+    --text-color: 文字的颜色。
+    
+    3. 技术栈：
+    请提供纯 [HTML+CSS / React + Tailwind / Vue] (选择一个你熟悉的技术栈) 的代码实现。图片请先用占位图代替。
+    
+    
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-awards-section-{{ ai_gen_id }} {
+    display: block;
+    width: {{ block.settings.desktop_width_percent }}%;
+    max-width: 100%;
+    background-color: {{ block.settings.section_bg_color }};
+    padding: {{ block.settings.section_padding }}px 20px;
+  }
+
+  .ai-awards-container-{{ ai_gen_id }} {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .ai-awards-title-{{ ai_gen_id }} {
+    text-align: center;
+    font-size: {{ block.settings.title_font_size }}px;
+    color: {{ block.settings.text_color }};
+    margin: 0 0 {{ block.settings.title_spacing }}px 0;
+    font-weight: 600;
+  }
+
+  .ai-awards-grid-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax({{ block.settings.logo_min_width }}px, 1fr));
+    gap: {{ block.settings.logo_gap }}px;
+    align-items: center;
+    justify-items: center;
+  }
+
+  .ai-awards-item-{{ ai_gen_id }} {
+    width: 100%;
+    max-width: {{ block.settings.logo_max_width }}px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-awards-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    opacity: {{ block.settings.logo_opacity }};
+    transition: opacity 0.3s ease;
+  }
+
+  .ai-awards-image-{{ ai_gen_id }}:hover {
+    opacity: 1;
+  }
+
+  .ai-awards-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    background-color: #f4f4f4;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .ai-awards-placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: auto;
+    max-width: 150px;
+    opacity: 0.3;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-awards-section-{{ ai_gen_id }} {
+      padding: {{ block.settings.section_padding | times: 0.6 }}px 16px;
+    }
+
+    .ai-awards-title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.title_font_size | times: 0.8 }}px;
+      margin-bottom: {{ block.settings.title_spacing | times: 0.7 }}px;
+    }
+
+    .ai-awards-grid-{{ ai_gen_id }} {
+      grid-template-columns: repeat(auto-fit, minmax({{ block.settings.logo_min_width | times: 0.7 }}px, 1fr));
+      gap: {{ block.settings.logo_gap | times: 0.7 }}px;
+    }
+  }
+{% endstyle %}
+
+<awards-showcase-{{ ai_gen_id }}
+  class="ai-awards-section-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-awards-container-{{ ai_gen_id }}">
+    {% if block.settings.title != blank %}
+      <h2 class="ai-awards-title-{{ ai_gen_id }}">{{ block.settings.title }}</h2>
+    {% endif %}
+
+    <div class="ai-awards-grid-{{ ai_gen_id }}">
+      {% for i in (1..6) %}
+        {% liquid
+          assign logo_key = 'logo_' | append: i
+          assign logo = block.settings[logo_key]
+        %}
+
+        <div class="ai-awards-item-{{ ai_gen_id }}">
+          {% if logo != blank %}
+            <img
+              src="{{ logo | image_url: width: 400 }}"
+              alt="{{ logo.alt | escape }}"
+              loading="lazy"
+              width="{{ logo.width }}"
+              height="{{ logo.height }}"
+              class="ai-awards-image-{{ ai_gen_id }}"
+            >
+          {% else %}
+            <div class="ai-awards-placeholder-{{ ai_gen_id }}">
+              {{ 'image' | placeholder_svg_tag }}
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</awards-showcase-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class AwardsShowcase{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.style.display = 'block';
+      }
+    }
+
+    customElements.define('awards-showcase-{{ ai_gen_id }}', AwardsShowcase{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Awards showcase",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Trusted by Industry Leaders"
+    },
+    {
+      "type": "header",
+      "content": "Logos"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_1",
+      "label": "Logo 1"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_2",
+      "label": "Logo 2"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_3",
+      "label": "Logo 3"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_4",
+      "label": "Logo 4"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_5",
+      "label": "Logo 5"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_6",
+      "label": "Logo 6"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Desktop width",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "section_padding",
+      "label": "Section padding",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "title_spacing",
+      "label": "Title spacing",
+      "min": 20,
+      "max": 80,
+      "step": 5,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "logo_gap",
+      "label": "Logo gap",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "logo_min_width",
+      "label": "Logo minimum width",
+      "min": 80,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "logo_max_width",
+      "label": "Logo maximum width",
+      "min": 100,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "default": 180
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "range",
+      "id": "title_font_size",
+      "label": "Title font size",
+      "min": 20,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "color",
+      "id": "section_bg_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#333333"
+    },
+    {
+      "type": "range",
+      "id": "logo_opacity",
+      "label": "Logo opacity",
+      "min": 0.3,
+      "max": 1,
+      "step": 0.1,
+      "default": 0.7
+    }
+  ],
+  "presets": [
+    {
+      "name": "Awards showcase"
+    }
+  ]
+}
 {% endschema %}
