@@ -5,15 +5,18 @@
  * O script busca o produto em /products/<handle>.js e monta o card. Nada mais para configurar.
  *
  * Triggers:
- *   "Add Card Membership"                          -> membership card
- *   Product Card <handle>                          -> product card (fetch /products/<handle>.js)
- *   Product Card <handle> "Custom description"     -> product card com descrição custom (override por post)
- *   "Add Card <handle>" "Custom description"       -> idem, variante entre aspas
+ *   "Add Card Membership"                                    -> membership card
+ *   Product Card <handle>                                    -> product card (fetch /products/<handle>.js)
+ *   Product Card <handle> "Custom description"               -> descrição custom (override por post)
+ *   Product Card <handle> "Custom description" "Buy now"     -> descrição + CTA custom (override por post)
+ *   Product Card <handle> "" "Buy now"                       -> só CTA custom (mantém descrição fallback)
+ *   "Add Card <handle>" "Custom description" "Buy now"       -> idem, variante entre aspas
  *
  * Notas:
- * - A descrição custom só afeta este post (fica escrita no corpo do post).
- * - Tags HTML são removidas da descrição; aspas podem ser retas (") ou tipográficas (“ ” „ « »).
+ * - Override por post: tanto a descrição quanto o texto do CTA ficam escritos no corpo do post.
+ * - Tags HTML são removidas da descrição/CTA; aspas podem ser retas (") ou tipográficas (“ ” „ « »).
  * - Se a descrição custom for vazia/ausente, usa-se o fallback (product.description até 80 chars).
+ * - Se o CTA custom for vazio/ausente, usa-se o texto padrão "View product".
  *
  * Promo opcional por produto (continua igual): metafield (padrão custom.article_inline_promo),
  * exposto via template alternativo product.card-promo + sections/product-article-inline-promo.liquid.
@@ -23,6 +26,7 @@
   var PLACEHOLDER_SUFFIX = "___";
   var QUOTE_CHARS = '"\\u201C\\u201D\\u201E\\u00AB\\u00BB';
   var PROMO_VIEW = "card-promo";
+  var DEFAULT_CTA = "View product";
 
   function formatMoney(cents) {
     return "$" + (cents / 100).toFixed(2);
@@ -120,7 +124,7 @@
     );
   }
 
-  function buildProductCard(product, promoText, descOverride) {
+  function buildProductCard(product, promoText, descOverride, ctaOverride) {
     var v = product.variants[0];
     var img = v.featured_image ? v.featured_image.src : product.featured_image;
     var imgTag = img
@@ -159,6 +163,10 @@
         '<p class="article-inline-card__product-promo">' + escapeHtml(promoText) + "</p>";
     }
 
+    // CTA: per-post override (inline na matéria) > texto padrão "View product"
+    var ctaClean = stripTags(ctaOverride || "").trim();
+    var ctaText = ctaClean || DEFAULT_CTA;
+
     return (
       '<div class="article-inline-card article-inline-card--product">' +
         '<a href="/products/' + product.handle + '" class="article-inline-card__product-link">' +
@@ -168,7 +176,7 @@
             descHtml +
             '<p class="article-inline-card__product-price">' + priceHTML + "</p>" +
             promoHtml +
-            '<span class="article-inline-card__product-cta">View product</span>' +
+            '<span class="article-inline-card__product-cta">' + escapeHtml(ctaText) + "</span>" +
           "</div>" +
         "</a>" +
       "</div>"
@@ -250,10 +258,12 @@
     var html = container.innerHTML;
     var matches = [];
     var quoteClass = "[" + QUOTE_CHARS + "]";
-    // separador permitido entre handle e descrição opcional (espaços, &nbsp; ou tags HTML)
+    // separador permitido entre handle e textos opcionais (espaços, &nbsp; ou tags HTML)
     var sep = "(?:\\s|&nbsp;|<[^>]*>)*";
-    // descrição opcional entre aspas (aceita aspas diferentes de abertura/fecho)
-    var descPart = "(?:" + sep + quoteClass + "([\\s\\S]+?)" + quoteClass + ")?";
+    // trecho opcional entre aspas (aceita aspas diferentes de abertura/fecho, pode ser vazio)
+    var quotedPart = "(?:" + sep + quoteClass + "([\\s\\S]*?)" + quoteClass + ")?";
+    // dois trechos opcionais em sequência: 1º = descrição, 2º = CTA
+    var descAndCtaParts = quotedPart + quotedPart;
 
     // 1) Membership: "Add Card Membership" (com aspas)
     var reMembership = new RegExp(quoteClass + "Add\\s*Card\\s+Membership" + quoteClass, "gi");
@@ -263,27 +273,27 @@
       return PLACEHOLDER_PREFIX + idx + PLACEHOLDER_SUFFIX;
     });
 
-    // 2) Product com aspas: "Add Card <handle>" + (opcional) "Custom description"
+    // 2) Product com aspas: "Add Card <handle>" + (opcional) "Custom description" + (opcional) "CTA"
     var reAddCardHandle = new RegExp(
-      quoteClass + "Add\\s*Card\\s+([a-z0-9-]+)" + quoteClass + descPart,
+      quoteClass + "Add\\s*Card\\s+([a-z0-9-]+)" + quoteClass + descAndCtaParts,
       "gi"
     );
-    html = html.replace(reAddCardHandle, function (fullMatch, handle, desc) {
+    html = html.replace(reAddCardHandle, function (fullMatch, handle, desc, cta) {
       if (!handle) return fullMatch;
       var idx = matches.length;
-      matches.push({ keyword: handle, desc: desc || "" });
+      matches.push({ keyword: handle, desc: desc || "", cta: cta || "" });
       return PLACEHOLDER_PREFIX + idx + PLACEHOLDER_SUFFIX;
     });
 
-    // 3) Product sem aspas: Product Card <handle> + (opcional) "Custom description"
+    // 3) Product sem aspas: Product Card <handle> + (opcional) "Custom description" + (opcional) "CTA"
     var reProduct = new RegExp(
-      "Product\\s+Card\\s+(?:<[^>]*>\\s*)*([a-z0-9-]+)" + descPart,
+      "Product\\s+Card\\s+(?:<[^>]*>\\s*)*([a-z0-9-]+)" + descAndCtaParts,
       "gi"
     );
-    html = html.replace(reProduct, function (fullMatch, handle, desc) {
+    html = html.replace(reProduct, function (fullMatch, handle, desc, cta) {
       var idx = matches.length;
       var h = (handle || "").trim();
-      matches.push({ keyword: h, desc: desc || "" });
+      matches.push({ keyword: h, desc: desc || "", cta: cta || "" });
       return PLACEHOLDER_PREFIX + idx + PLACEHOLDER_SUFFIX;
     });
 
@@ -314,7 +324,7 @@
           }
           var h = product.handle || m.keyword;
           return fetchArticleInlinePromo(h).then(function (promo) {
-            m.html = buildProductCard(product, promo, m.desc);
+            m.html = buildProductCard(product, promo, m.desc, m.cta);
             return m;
           });
         })
