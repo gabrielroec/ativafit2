@@ -28,6 +28,23 @@
   var PROMO_VIEW = "card-promo";
   var DEFAULT_CTA = "View product";
 
+  // Ratings hardcoded por produto. Handle -> { rating, count }.
+  // Se o handle não estiver aqui, usa DEFAULT_RATING.
+  var DEFAULT_RATING = { rating: "4.95", count: "200+ reviews" };
+  var PRODUCT_RATINGS = {
+    // Exemplos — ajuste conforme os handles reais:
+    // '27-5-lbs-adjustable-weight-dumbbell': { rating: '4.95', count: '200+ reviews' },
+    // '50lb-adjustable-weight-dumbbell':     { rating: '4.95', count: '200+ reviews' },
+    // '66lb-adjustable-weight-dumbbell':     { rating: '4.95', count: '200+ reviews' }
+  };
+
+  // Estrelinha amarela (inline SVG) — cor fixa p/ não depender do --aj-accent
+  var STAR_SVG =
+    '<svg class="article-inline-card__stars" viewBox="0 0 24 24" width="14" height="14" ' +
+    'fill="#FACC15" aria-hidden="true" focusable="false">' +
+    '<path d="M12 17.3 6.18 21l1.55-6.64L2 9.76l6.82-.59L12 3l3.18 6.17 6.82.59-5.73 4.6L17.82 21z"/>' +
+    "</svg>";
+
   function formatMoney(cents) {
     return "$" + (cents / 100).toFixed(2);
   }
@@ -167,12 +184,23 @@
     var ctaClean = stripTags(ctaOverride || "").trim();
     var ctaText = ctaClean || DEFAULT_CTA;
 
+    // Rating: per-handle map (PRODUCT_RATINGS) > DEFAULT_RATING
+    var r = PRODUCT_RATINGS[product.handle] || DEFAULT_RATING;
+    var ratingHtml =
+      '<p class="article-inline-card__product-rating">' +
+        STAR_SVG +
+        ' <span class="article-inline-card__rating-value">' + escapeHtml(r.rating) + "</span>" +
+        ' <span class="article-inline-card__rating-sep" aria-hidden="true">·</span> ' +
+        '<span class="article-inline-card__rating-count">' + escapeHtml(r.count) + "</span>" +
+      "</p>";
+
     return (
       '<div class="article-inline-card article-inline-card--product">' +
         '<a href="/products/' + product.handle + '" class="article-inline-card__product-link">' +
           '<div class="article-inline-card__product-image">' + imgTag + "</div>" +
           '<div class="article-inline-card__product-info">' +
             '<p class="article-inline-card__product-title">' + product.title + "</p>" +
+            ratingHtml +
             descHtml +
             '<p class="article-inline-card__product-price">' + priceHTML + "</p>" +
             promoHtml +
