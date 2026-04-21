@@ -56,7 +56,12 @@
               href="{{ block.settings.override_link }}"
               class="shop-by-goal-va__tab shop-by-goal-va__tab--link"
               {{ block.shopify_attributes }}>
-              {{ block.settings.label | escape }}
+              {%- if block.settings.icon != blank and block.settings.icon != 'none' -%}
+                <span class="shop-by-goal-va__tab-icon" aria-hidden="true">
+                  {%- render 'shop-by-goal-v-a-icon', icon: block.settings.icon -%}
+                </span>
+              {%- endif -%}
+              <span class="shop-by-goal-va__tab-label">{{ block.settings.label | escape }}</span>
             </a>
           {%- else -%}
             <button
@@ -68,7 +73,12 @@
               tabindex="{% if is_active %}0{% else %}-1{% endif %}"
               class="shop-by-goal-va__tab"
               {{ block.shopify_attributes }}>
-              {{ block.settings.label | escape }}
+              {%- if block.settings.icon != blank and block.settings.icon != 'none' -%}
+                <span class="shop-by-goal-va__tab-icon" aria-hidden="true">
+                  {%- render 'shop-by-goal-v-a-icon', icon: block.settings.icon -%}
+                </span>
+              {%- endif -%}
+              <span class="shop-by-goal-va__tab-label">{{ block.settings.label | escape }}</span>
             </button>
           {%- endif -%}
         {%- endfor -%}
@@ -283,6 +293,26 @@
   #{{ sid }} .shop-by-goal-va__tab[aria-selected="true"] {
     background: {{ section.settings.tab_active_bg }};
     color: {{ section.settings.tab_active_text }};
+  }
+
+  #{{ sid }} .shop-by-goal-va__tab-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+    flex-shrink: 0;
+    line-height: 0;
+  }
+
+  #{{ sid }} .shop-by-goal-va__tab-icon .icon-version-a {
+    width: 18px;
+    height: 18px;
+    display: block;
+    color: inherit;
+  }
+
+  #{{ sid }} .shop-by-goal-va__tab-label {
+    display: inline-block;
   }
 
   /* ===== Panels ===== */
@@ -954,6 +984,21 @@
           "id": "label",
           "label": "Tab label",
           "default": "Best Sellers"
+        },
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "options": [
+            { "value": "none", "label": "None" },
+            { "value": "bestsellers", "label": "Best sellers (trophy)" },
+            { "value": "strength", "label": "Strength (dumbbell)" },
+            { "value": "cardio", "label": "Cardio (heart)" },
+            { "value": "flexibility", "label": "Flexibility (yoga)" },
+            { "value": "family", "label": "Family fun (ball)" },
+            { "value": "all-collections", "label": "All collections" }
+          ],
+          "default": "none"
         },
         {
           "type": "collection",
