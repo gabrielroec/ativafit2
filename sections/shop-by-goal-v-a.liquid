@@ -1,0 +1,1002 @@
+{%- liquid
+  assign sid = 'shop-by-goal-va-' | append: section.id
+  assign mobile_layout = section.settings.mobile_layout | default: 'carousel'
+
+  assign grid_class = 'shop-by-goal-va__grid'
+  if mobile_layout == 'carousel'
+    assign grid_class_mobile = 'shop-by-goal-va__grid--m-carousel'
+  else
+    assign grid_class_mobile = 'shop-by-goal-va__grid--m-grid2'
+  endif
+-%}
+
+<section
+  id="{{ sid }}"
+  class="shop-by-goal-va"
+  data-section-type="shop-by-goal-v-a">
+  <div class="shop-by-goal-va__container">
+    {%- if section.settings.title != blank or section.settings.subtitle != blank -%}
+      <header class="shop-by-goal-va__header">
+        {%- if section.settings.title != blank -%}
+          <h2 class="shop-by-goal-va__title">{{ section.settings.title | escape }}</h2>
+        {%- endif -%}
+        {%- if section.settings.subtitle != blank -%}
+          <p class="shop-by-goal-va__subtitle">{{ section.settings.subtitle | escape }}</p>
+        {%- endif -%}
+      </header>
+    {%- endif -%}
+
+    {%- if section.blocks.size > 0 -%}
+      {%- comment -%} First pass: render tabs {%- endcomment -%}
+      {%- assign active_tab_assigned = false -%}
+      <div
+        class="shop-by-goal-va__tabs"
+        role="tablist"
+        aria-label="{{ section.settings.tablist_label | default: 'Shop by goal categories' | escape }}">
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign is_link = false
+            if block.settings.override_link != blank
+              assign is_link = true
+            endif
+            assign tab_id = sid | append: '-tab-' | append: forloop.index
+            assign panel_id = sid | append: '-panel-' | append: forloop.index
+
+            assign is_active = false
+            unless is_link
+              unless active_tab_assigned
+                assign is_active = true
+                assign active_tab_assigned = true
+              endunless
+            endunless
+          -%}
+
+          {%- if is_link -%}
+            <a
+              href="{{ block.settings.override_link }}"
+              class="shop-by-goal-va__tab shop-by-goal-va__tab--link"
+              {{ block.shopify_attributes }}>
+              {{ block.settings.label | escape }}
+            </a>
+          {%- else -%}
+            <button
+              type="button"
+              role="tab"
+              id="{{ tab_id }}"
+              aria-controls="{{ panel_id }}"
+              aria-selected="{% if is_active %}true{% else %}false{% endif %}"
+              tabindex="{% if is_active %}0{% else %}-1{% endif %}"
+              class="shop-by-goal-va__tab"
+              {{ block.shopify_attributes }}>
+              {{ block.settings.label | escape }}
+            </button>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+
+      {%- comment -%} Second pass: render panels (only for non-link blocks) {%- endcomment -%}
+      {%- assign active_panel_assigned = false -%}
+      <div class="shop-by-goal-va__panels">
+        {%- for block in section.blocks -%}
+          {%- if block.settings.override_link == blank -%}
+            {%- liquid
+              assign tab_id = sid | append: '-tab-' | append: forloop.index
+              assign panel_id = sid | append: '-panel-' | append: forloop.index
+
+              assign is_active = false
+              unless active_panel_assigned
+                assign is_active = true
+                assign active_panel_assigned = true
+              endunless
+
+              assign default_limit = section.settings.max_products_default | default: 4
+              assign limit_n = block.settings.max_products | default: 0
+              if limit_n == 0
+                assign limit_n = default_limit
+              endif
+
+              assign coll = collections[block.settings.collection]
+            -%}
+
+            <div
+              id="{{ panel_id }}"
+              role="tabpanel"
+              aria-labelledby="{{ tab_id }}"
+              class="shop-by-goal-va__panel"
+              {% unless is_active %}hidden{% endunless %}
+              tabindex="0">
+              {%- if coll != blank and coll.products.size > 0 -%}
+                <ul class="{{ grid_class }} {{ grid_class_mobile }}" role="list">
+                  {%- for product in coll.products limit: limit_n -%}
+                    <li class="shop-by-goal-va__item">
+                      {%- render 'product-card-simple',
+                        product: product,
+                        show_reviews: section.settings.show_reviews
+                      -%}
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              {%- else -%}
+                <div class="shop-by-goal-va__empty" role="status">
+                  <p class="shop-by-goal-va__empty-text">
+                    {{- section.settings.empty_text | default: 'No products yet.' | escape -}}
+                  </p>
+                  {%- if section.settings.empty_link != blank -%}
+                    <a href="{{ section.settings.empty_link }}" class="shop-by-goal-va__empty-cta">
+                      {{- section.settings.empty_cta_label | default: 'Browse all' | escape -}}
+                    </a>
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    {%- else -%}
+      <div class="shop-by-goal-va__empty-state" role="status">
+        <p>{{ 'Add tabs in the theme editor to display collections here.' }}</p>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+<style>
+  #{{ sid }}.shop-by-goal-va {
+    background-color: {{ section.settings.background_color }};
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+  }
+
+  #{{ sid }} .shop-by-goal-va__container {
+    max-width: 80rem;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  #{{ sid }} .shop-by-goal-va__header {
+    text-align: center;
+    margin: 0 auto 24px;
+  }
+
+  #{{ sid }} .shop-by-goal-va__title {
+    font-family: "Barlow", sans-serif !important;
+    font-size: {{ section.settings.title_size_mobile }}px !important;
+    line-height: 1.15 !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.01em !important;
+    text-transform: uppercase !important;
+    color: {{ section.settings.title_color }} !important;
+    margin: 0 !important;
+  }
+
+  #{{ sid }} .shop-by-goal-va__subtitle {
+    font-family: "Barlow", sans-serif !important;
+    font-size: 15px !important;
+    line-height: 1.4 !important;
+    font-weight: 400 !important;
+    color: {{ section.settings.subtitle_color }} !important;
+    margin: 8px 0 0 !important;
+  }
+
+  @media screen and (min-width: 768px) {
+    #{{ sid }} .shop-by-goal-va__title {
+      font-size: {{ section.settings.title_size_desktop }}px !important;
+    }
+    #{{ sid }} .shop-by-goal-va__header {
+      margin-bottom: 32px;
+    }
+  }
+
+  /* ===== Tabs ===== */
+  #{{ sid }} .shop-by-goal-va__tabs {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 4px;
+    padding: {{ section.settings.tab_pill_padding }}px;
+    background: {{ section.settings.tab_pill_bg }};
+    border-radius: {{ section.settings.tab_pill_radius }}px;
+    margin: 0 auto 32px;
+    max-width: max-content;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    cursor: grab;
+    touch-action: pan-y;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  #{{ sid }} .shop-by-goal-va__tabs.is-dragging {
+    cursor: grabbing;
+    scroll-behavior: auto;
+  }
+
+  #{{ sid }} .shop-by-goal-va__tabs.is-dragging .shop-by-goal-va__tab {
+    pointer-events: none;
+  }
+
+  #{{ sid }} .shop-by-goal-va__tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media screen and (max-width: 749px) {
+    #{{ sid }} .shop-by-goal-va__tabs {
+      max-width: calc(100% + 48px);
+      margin-left: -24px;
+      margin-right: -24px;
+      padding-left: 24px;
+      padding-right: 24px;
+      border-radius: 0;
+      background: transparent;
+      justify-content: flex-start;
+    }
+    /* Simulate pill look on mobile even without outer radius */
+    #{{ sid }} .shop-by-goal-va__tabs::before {
+      content: '';
+      flex-shrink: 0;
+      width: 0;
+    }
+  }
+
+  #{{ sid }} .shop-by-goal-va__tab {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 11px 20px;
+    min-height: 40px;
+    font-family: "Barlow", sans-serif !important;
+    font-size: 13px;
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: {{ section.settings.tab_inactive_text }};
+    background: transparent;
+    border: 0;
+    border-radius: {{ section.settings.tab_item_radius }}px;
+    cursor: pointer;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: background-color 0.18s ease, color 0.18s ease;
+  }
+
+  @media screen and (max-width: 749px) {
+    #{{ sid }} .shop-by-goal-va__tab {
+      background: {{ section.settings.tab_pill_bg }};
+    }
+  }
+
+  #{{ sid }} .shop-by-goal-va__tab:hover:not([aria-selected="true"]) {
+    color: {{ section.settings.tab_active_bg }};
+  }
+
+  #{{ sid }} .shop-by-goal-va__tab:focus-visible {
+    outline: 2px solid {{ section.settings.tab_active_bg }};
+    outline-offset: 2px;
+  }
+
+  #{{ sid }} .shop-by-goal-va__tab[aria-selected="true"] {
+    background: {{ section.settings.tab_active_bg }};
+    color: {{ section.settings.tab_active_text }};
+  }
+
+  /* ===== Panels ===== */
+  #{{ sid }} .shop-by-goal-va__panels {
+    position: relative;
+  }
+
+  #{{ sid }} .shop-by-goal-va__panel[hidden] {
+    display: none !important;
+  }
+
+  #{{ sid }} .shop-by-goal-va__panel:focus {
+    outline: none;
+  }
+
+  /* ===== Grid (desktop default) ===== */
+  #{{ sid }} .shop-by-goal-va__grid {
+    display: grid;
+    grid-template-columns: repeat({{ section.settings.columns_desktop }}, minmax(0, 1fr));
+    gap: {{ section.settings.grid_gap }}px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  @media screen and (max-width: 989px) {
+    #{{ sid }} .shop-by-goal-va__grid {
+      grid-template-columns: repeat({{ section.settings.columns_tablet }}, minmax(0, 1fr));
+      gap: 16px;
+    }
+  }
+
+  /* ===== Mobile layouts ===== */
+  @media screen and (max-width: 749px) {
+    /* Carousel with snap */
+    #{{ sid }} .shop-by-goal-va__grid.shop-by-goal-va__grid--m-carousel {
+      display: flex;
+      flex-wrap: nowrap;
+      grid-template-columns: none;
+      gap: 12px;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x mandatory;
+      scroll-padding-left: 24px;
+      scroll-padding-right: 24px;
+      padding-left: 24px;
+      padding-right: 24px;
+      margin-left: -24px;
+      margin-right: -24px;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    #{{ sid }} .shop-by-goal-va__grid.shop-by-goal-va__grid--m-carousel::-webkit-scrollbar {
+      display: none;
+    }
+
+    #{{ sid }} .shop-by-goal-va__grid.shop-by-goal-va__grid--m-carousel > li {
+      flex: 0 0 80%;
+      max-width: 320px;
+      scroll-snap-align: start;
+    }
+
+    /* Grid 2 cols */
+    #{{ sid }} .shop-by-goal-va__grid.shop-by-goal-va__grid--m-grid2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+  }
+
+  #{{ sid }} .shop-by-goal-va__item {
+    min-width: 0;
+  }
+
+  /* ===== Empty states ===== */
+  #{{ sid }} .shop-by-goal-va__empty,
+  #{{ sid }} .shop-by-goal-va__empty-state {
+    padding: 48px 24px;
+    text-align: center;
+    background: #f9f9f9;
+    border-radius: 12px;
+    font-family: "Barlow", sans-serif !important;
+    color: #555;
+  }
+
+  #{{ sid }} .shop-by-goal-va__empty-cta {
+    display: inline-block;
+    margin-top: 12px;
+    color: {{ section.settings.tab_active_bg }};
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* ===== Motion ===== */
+  @media (prefers-reduced-motion: reduce) {
+    #{{ sid }} .shop-by-goal-va__tab {
+      transition: none;
+    }
+  }
+
+  /* =========================================================
+     Product card (scoped copy — mirrors banner-product-showcase)
+     ========================================================= */
+  #{{ sid }} .product-card-simple__card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    min-height: 420px;
+  }
+
+  #{{ sid }} .product-card-simple__link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    flex-shrink: 0;
+  }
+
+  #{{ sid }} .product-card-simple__image {
+    position: relative;
+    background: #f2f2f2;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    flex-shrink: 0;
+    border-radius: 10px;
+  }
+
+  #{{ sid }} .product-card-simple__image img,
+  #{{ sid }} .product-card-simple__image svg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  #{{ sid }} .product-card-simple__discount-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 6px 12px;
+    font-family: "Barlow", sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    background: {{ section.settings.tab_active_bg }};
+    border-radius: 999px;
+    line-height: 1;
+    z-index: 1;
+  }
+
+  #{{ sid }} .product-card-simple__content {
+    padding: 14px 4px 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  #{{ sid }} .product-card-simple__title {
+    font-family: "Barlow", sans-serif !important;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+    margin: 0;
+    color: #1a1c1c;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  #{{ sid }} .product-card-simple__title a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  #{{ sid }} .product-card-simple__title a:hover {
+    color: {{ section.settings.tab_active_bg }};
+  }
+
+  #{{ sid }} .product-card-simple__variants {
+    flex-shrink: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 0;
+    margin: 0;
+    justify-content: flex-start;
+  }
+
+  #{{ sid }} .product-card-simple__variant-btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 2px solid #e5e5e5;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  #{{ sid }} .product-card-simple__variant-btn--selected,
+  #{{ sid }} .product-card-simple__variant-btn:hover {
+    border-color: {{ section.settings.tab_active_bg }};
+  }
+
+  #{{ sid }} .product-card-simple__variant-btn-inner {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  #{{ sid }} .product-card-simple__price {
+    font-family: "Barlow", sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1c1c;
+    flex-shrink: 0;
+  }
+
+  #{{ sid }} .product-card-simple__price-compare {
+    text-decoration: line-through;
+    color: #888;
+    font-weight: 500;
+    margin-left: 6px;
+  }
+
+  #{{ sid }} .product-card-simple__rating {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+  }
+
+  #{{ sid }} .product-card-simple__stars {
+    color: #ddd;
+  }
+
+  #{{ sid }} .product-card-simple__star--active {
+    color: {{ section.settings.tab_active_bg }};
+  }
+
+  #{{ sid }} .product-card-simple__form {
+    margin: auto 0 0;
+    flex-shrink: 0;
+  }
+
+  #{{ sid }} .product-card-simple__atc {
+    width: 100%;
+    padding: 12px 14px;
+    font-family: "Barlow", sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 8px;
+    background: {{ section.settings.tab_active_bg }};
+    color: {{ section.settings.tab_active_text }};
+    cursor: pointer;
+    transition: background 0.2s, opacity 0.2s;
+  }
+
+  #{{ sid }} .product-card-simple__atc:hover:not(:disabled) {
+    background: #c23d12;
+  }
+
+  #{{ sid }} .product-card-simple__atc:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  @media screen and (max-width: 749px) {
+    #{{ sid }} .product-card-simple__card {
+      min-height: 0;
+    }
+    #{{ sid }} .product-card-simple__atc {
+      padding: 11px 12px;
+      font-size: 12px;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    var root = document.getElementById('{{ sid }}');
+    if (!root || root.dataset.hgShopByGoalInit === '1') return;
+    root.dataset.hgShopByGoalInit = '1';
+
+    var tablist = root.querySelector('[role="tablist"]');
+    if (!tablist) return;
+
+    var tabs = Array.prototype.slice.call(tablist.querySelectorAll('[role="tab"]'));
+    if (tabs.length === 0) return;
+
+    function panelFor(tab) {
+      var id = tab.getAttribute('aria-controls');
+      return id ? root.querySelector('#' + CSS.escape(id)) : null;
+    }
+
+    function activate(tab, setFocus) {
+      tabs.forEach(function (t) {
+        var selected = t === tab;
+        t.setAttribute('aria-selected', selected ? 'true' : 'false');
+        t.setAttribute('tabindex', selected ? '0' : '-1');
+        var p = panelFor(t);
+        if (p) {
+          if (selected) {
+            p.removeAttribute('hidden');
+          } else {
+            p.setAttribute('hidden', '');
+          }
+        }
+      });
+      if (setFocus) tab.focus();
+    }
+
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        activate(tab, false);
+      });
+      tab.addEventListener('keydown', function (e) {
+        var idx = tabs.indexOf(tab);
+        var next = null;
+        switch (e.key) {
+          case 'ArrowRight':
+            next = tabs[(idx + 1) % tabs.length];
+            break;
+          case 'ArrowLeft':
+            next = tabs[(idx - 1 + tabs.length) % tabs.length];
+            break;
+          case 'Home':
+            next = tabs[0];
+            break;
+          case 'End':
+            next = tabs[tabs.length - 1];
+            break;
+        }
+        if (next) {
+          e.preventDefault();
+          activate(next, true);
+        }
+      });
+    });
+
+    /* ===== Drag to scroll (mouse support) ===== */
+    var DRAG_THRESHOLD = 6;
+    var isPointerDown = false;
+    var isDragging = false;
+    var startX = 0;
+    var startScrollLeft = 0;
+    var activePointerId = null;
+    var suppressNextClick = false;
+
+    function isOverflowing() {
+      return tablist.scrollWidth - tablist.clientWidth > 1;
+    }
+
+    function onPointerDown(e) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      if (!isOverflowing()) return;
+      isPointerDown = true;
+      isDragging = false;
+      startX = e.clientX;
+      startScrollLeft = tablist.scrollLeft;
+      activePointerId = e.pointerId;
+    }
+
+    function onPointerMove(e) {
+      if (!isPointerDown || e.pointerId !== activePointerId) return;
+      var dx = e.clientX - startX;
+      if (!isDragging && Math.abs(dx) > DRAG_THRESHOLD) {
+        isDragging = true;
+        tablist.classList.add('is-dragging');
+        try { tablist.setPointerCapture(activePointerId); } catch (err) {}
+      }
+      if (isDragging) {
+        e.preventDefault();
+        tablist.scrollLeft = startScrollLeft - dx;
+      }
+    }
+
+    function onPointerEnd(e) {
+      if (!isPointerDown) return;
+      if (e.pointerId !== activePointerId && e.type !== 'pointercancel') return;
+      if (isDragging) {
+        suppressNextClick = true;
+        setTimeout(function () { suppressNextClick = false; }, 0);
+      }
+      try { tablist.releasePointerCapture(activePointerId); } catch (err) {}
+      tablist.classList.remove('is-dragging');
+      isPointerDown = false;
+      isDragging = false;
+      activePointerId = null;
+    }
+
+    tablist.addEventListener('pointerdown', onPointerDown);
+    tablist.addEventListener('pointermove', onPointerMove);
+    tablist.addEventListener('pointerup', onPointerEnd);
+    tablist.addEventListener('pointercancel', onPointerEnd);
+    tablist.addEventListener('pointerleave', onPointerEnd);
+
+    tablist.addEventListener('click', function (e) {
+      if (suppressNextClick) {
+        e.preventDefault();
+        e.stopPropagation();
+        suppressNextClick = false;
+      }
+    }, true);
+
+    tablist.addEventListener('dragstart', function (e) { e.preventDefault(); });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Shop by Goal V.A",
+  "tag": "section",
+  "class": "section-shop-by-goal-v-a",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Shop by Goal"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle"
+    },
+    {
+      "type": "text",
+      "id": "tablist_label",
+      "label": "Tablist accessibility label",
+      "default": "Shop by goal categories",
+      "info": "Read by screen readers to describe the tab group."
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Columns (desktop)",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "columns_tablet",
+      "label": "Columns (tablet)",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "select",
+      "id": "mobile_layout",
+      "label": "Mobile layout",
+      "options": [
+        { "value": "carousel", "label": "Carousel (swipe)" },
+        { "value": "grid2", "label": "Grid 2 columns" }
+      ],
+      "default": "carousel"
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "label": "Gap between cards",
+      "min": 8,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "max_products_default",
+      "label": "Default products per tab",
+      "min": 2,
+      "max": 16,
+      "step": 1,
+      "default": 4,
+      "info": "Can be overridden per block."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_reviews",
+      "label": "Show product reviews",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "title_size_desktop",
+      "label": "Title size (desktop)",
+      "min": 20,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "title_size_mobile",
+      "label": "Title size (mobile)",
+      "min": 18,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 22
+    },
+    {
+      "type": "header",
+      "content": "Tab pill"
+    },
+    {
+      "type": "range",
+      "id": "tab_pill_padding",
+      "label": "Pill inner padding",
+      "min": 0,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "tab_pill_radius",
+      "label": "Pill border radius",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "tab_item_radius",
+      "label": "Active tab border radius",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "subtitle_color",
+      "label": "Subtitle",
+      "default": "#574237"
+    },
+    {
+      "type": "color",
+      "id": "tab_pill_bg",
+      "label": "Tab pill background",
+      "default": "#f3f3f3"
+    },
+    {
+      "type": "color",
+      "id": "tab_inactive_text",
+      "label": "Tab (inactive) text",
+      "default": "#1a1c1c"
+    },
+    {
+      "type": "color",
+      "id": "tab_active_bg",
+      "label": "Tab (active) background",
+      "default": "#eb701f"
+    },
+    {
+      "type": "color",
+      "id": "tab_active_text",
+      "label": "Tab (active) text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "header",
+      "content": "Empty state"
+    },
+    {
+      "type": "text",
+      "id": "empty_text",
+      "label": "Empty text",
+      "default": "No products yet."
+    },
+    {
+      "type": "text",
+      "id": "empty_cta_label",
+      "label": "Empty CTA label",
+      "default": "Browse all"
+    },
+    {
+      "type": "url",
+      "id": "empty_link",
+      "label": "Empty CTA link"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "goal_tab",
+      "name": "Tab",
+      "limit": 10,
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Tab label",
+          "default": "Best Sellers"
+        },
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection",
+          "info": "Leave empty only if using 'Override link' below."
+        },
+        {
+          "type": "range",
+          "id": "max_products",
+          "label": "Max products (override)",
+          "min": 0,
+          "max": 16,
+          "step": 1,
+          "default": 0,
+          "info": "0 = use section default."
+        },
+        {
+          "type": "header",
+          "content": "Link mode (optional)"
+        },
+        {
+          "type": "url",
+          "id": "override_link",
+          "label": "Override link",
+          "info": "If filled, this tab becomes a plain navigation link (no collection panel). Ideal for 'See all collections'."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Shop by Goal V.A",
+      "category": "Collections",
+      "blocks": [
+        { "type": "goal_tab", "settings": { "label": "Best Sellers" } },
+        { "type": "goal_tab", "settings": { "label": "Strength Training" } },
+        { "type": "goal_tab", "settings": { "label": "Cardio Training" } },
+        { "type": "goal_tab", "settings": { "label": "Flexibility Training" } },
+        { "type": "goal_tab", "settings": { "label": "Family Fun" } },
+        { "type": "goal_tab", "settings": { "label": "See all collections" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
