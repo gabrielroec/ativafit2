@@ -1,3 +1,9 @@
+{%- comment -%}
+  ⚠️ CLS debt: Tailwind CDN compiles classes at runtime (after first paint).
+  Causes guaranteed layout shift on LP load.
+  Fix path: pre-compile Tailwind to a static CSS asset and link via asset_url.
+  See plan fase3-tailwind.
+{%- endcomment -%}
 <script src="https://cdn.tailwindcss.com"></script>
 {% schema %}
 {
@@ -33,8 +39,21 @@
 </div>
 <section class="bg-black text-white text-center md:py-[50px] py-[20px] px-[20px]">
     <div class="relative max-w-[900px] mx-auto">
-      <div id="videoContainer" class="relative w-full bg-black rounded-[10px] overflow-hidden">
-        <img src="{{ section.settings.thumbnail | image_url }}" alt="Video Thumbnail" class="w-full cursor-pointer" onclick="replaceWithVideo()">
+      {%- comment -%}
+        CLS fix: container com altura fixa (500px) igual ao iframe que será injetado,
+        e a thumbnail com object-cover dentro. Assim troca img->iframe não muda layout.
+      {%- endcomment -%}
+      <div id="videoContainer" class="relative w-full bg-black rounded-[10px] overflow-hidden" style="aspect-ratio: 900 / 500; min-height: 500px;">
+        <img
+          src="{{ section.settings.thumbnail | image_url: width: 1800 }}"
+          alt="Video Thumbnail"
+          class="w-full cursor-pointer"
+          style="width:100%; height:100%; object-fit: cover;"
+          width="{{ section.settings.thumbnail.width | default: 1800 }}"
+          height="{{ section.settings.thumbnail.height | default: 1000 }}"
+          loading="lazy"
+          decoding="async"
+          onclick="replaceWithVideo()">
         <div class="absolute inset-0 flex justify-center items-center">
           <button onclick="replaceWithVideo()" class="bg-white p-[15px] rounded-full shadow-lg">
             <svg class="w-[60px] h-[60px] text-black" fill="currentColor" viewBox="0 0 20 20">
@@ -49,6 +68,6 @@
   <script>
     function replaceWithVideo() {
       const videoContainer = document.getElementById('videoContainer');
-      videoContainer.innerHTML = `<iframe class='w-full h-[500px] rounded-[10px]' src='{{ section.settings.video_url }}?autoplay=1&mute=1' frameborder='0' allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+      videoContainer.innerHTML = `<iframe class='w-full h-[500px] rounded-[10px]' style='width:100%;height:100%;' src='{{ section.settings.video_url }}?autoplay=1&mute=1' frameborder='0' allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
     }
   </script>

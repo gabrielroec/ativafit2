@@ -1,3 +1,7 @@
+{%- comment -%}
+  ⚠️ CLS debt: Tailwind CDN runtime compilation. Pre-compile to static CSS asset.
+  See plan fase3-tailwind.
+{%- endcomment -%}
 <script src="https://cdn.tailwindcss.com"></script>
 {% schema %}
 {
@@ -38,7 +42,14 @@
   <h2 class="md:text-[32px] text-[28px] font-bold text-left max-w-[1310px] mx-auto">{{ section.settings.heading }}</h2>
   <div class="flex flex-col md:flex-row mt-[30px] max-w-[1310px] mx-auto">
     <div class="md:w-[45%]">
-      <img src="{{ section.settings.left_image | image_url }}" alt="Comparison Left Image" class="w-full h-full object-cover">
+      <img
+        src="{{ section.settings.left_image | image_url: width: 1000 }}"
+        alt="Comparison Left Image"
+        class="w-full h-full object-cover"
+        width="{{ section.settings.left_image.width | default: 1000 }}"
+        height="{{ section.settings.left_image.height | default: 800 }}"
+        loading="lazy"
+        decoding="async">
     </div>
 
     <div class="md:w-[55%] relative overflow-hidden hover">
@@ -46,7 +57,14 @@
         <div class="flex flex-col items-center w-[50%] h-full justify-between border border-black hover:border-[#eb7122] p-[20px]">
           <div class="text-center">
             <div class="w-[133px] h-[144px] md:w-[280px] md:h-[350px] mx-auto">
-              <img src="{{ section.settings.product_image | image_url }}" alt="Product" class="w-full h-full object-cover">
+              <img
+                src="{{ section.settings.product_image | image_url: width: 560 }}"
+                alt="Product"
+                class="w-full h-full object-cover"
+                width="{{ section.settings.product_image.width | default: 280 }}"
+                height="{{ section.settings.product_image.height | default: 350 }}"
+                loading="lazy"
+                decoding="async">
             </div>
             <p class="text-[14px] font-bold mt-[10px] min-h-[70px] md:min-h-auto uppercase">Ativafit Hot & Cold Massage Gun</p>
           </div>
@@ -68,7 +86,14 @@
         <div class="flex flex-col items-center w-[50%] h-full justify-between border border-black hover:border-[#eb7122] p-[20px]">
             <div class="text-center">
               <div class="w-[133px] h-[144px] md:w-[280px] md:h-[350px] mx-auto mx-auto">
-                <img src="{{ section.settings.competitor_image | image_url }}" alt="Product" class="w-full h-full object-cover">
+                <img
+                  src="{{ section.settings.competitor_image | image_url: width: 560 }}"
+                  alt="Product"
+                  class="w-full h-full object-cover"
+                  width="{{ section.settings.competitor_image.width | default: 280 }}"
+                  height="{{ section.settings.competitor_image.height | default: 350 }}"
+                  loading="lazy"
+                  decoding="async">
               </div>
               <p class="text-[14px] font-bold mt-[10px] min-h-[70px] md:min-h-auto">OTHER</p>
             </div>

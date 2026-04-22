@@ -978,15 +978,19 @@
     }
   }
 
-  /* SPACER - INICIALMENTE 0, só cresce quando sticky */
+  /* SPACER - INICIALMENTE 0, só cresce quando sticky.
+     Sem transition — evita jank/CLS visual quando cresce.
+     Placed immediately AFTER .unified-header, so the CSS fallback
+     `.unified-header.sticky + .unified-header-spacer` works sem JS. */
   .unified-header-spacer {
     height: 0;
-    transition: height 0.3s ease;
     overflow: hidden;
+    contain: layout;
   }
 
   /* QUANDO STICKY - spacer cresce para compensar */
-  .unified-header.sticky + .unified-header-spacer {
+  .unified-header.sticky + .unified-header-spacer,
+  .unified-header.sticky ~ .unified-header-spacer {
     height: var(--unified-header-height, 0px);
   }
 
@@ -1183,9 +1187,6 @@
 
 {%- endstyle -%}
 
-<!-- Spacer para compensar o espaço do header quando sticky -->
-<div class="unified-header-spacer" id="unified-header-spacer"></div>
-
 <!-- Componente Unificado Header + Announcement -->
 <div class="unified-header" id="unified-header">
 
@@ -1257,7 +1258,7 @@
               {%- assign logo_alt = section.settings.logo.alt | default: shop.name | escape -%}
               {%- assign logo_height = section.settings.logo.height -%}
               {%- assign logo_width = section.settings.logo.width -%}
-              {{ section.settings.logo | image_url: width: 300 | image_tag: class: 'header-logo-image', alt: logo_alt, width: logo_width, height: logo_height, loading: 'lazy' }}
+              {{ section.settings.logo | image_url: width: 300 | image_tag: class: 'header-logo-image', alt: logo_alt, width: logo_width, height: logo_height, loading: 'eager', fetchpriority: 'high' }}
             {% else %}
               <img
                 class="header-logo-image"
@@ -1265,7 +1266,8 @@
                 alt="{{ shop.name | escape }}"
                 width="120"
                 height="120"
-                loading="lazy">
+                loading="eager"
+                fetchpriority="high">
             {% endif %}
           </a>
 
@@ -1608,6 +1610,9 @@
 
 </div>
 
+<!-- Spacer reserva espaço quando o header vira fixed (sticky). DOM depois do header para CSS fallback funcionar. -->
+<div class="unified-header-spacer" id="unified-header-spacer" aria-hidden="true"></div>
+
 <script>
   class UnifiedHeaderManager {
     constructor() {
@@ -1623,48 +1628,66 @@
   
     init() {
       if (!this.header) return;
-  
-      // Calcula altura inicial com delay para garantir que o DOM esteja pronto
-      setTimeout(() => this.updateHeight(), 100);
-      setTimeout(() => this.updateHeight(), 500);
-  
+
+      // Mede altura imediata (já renderizou no HTML). Sem setTimeout.
+      this.updateHeight();
+
+      // Re-mede após load (fontes custom podem mudar layout).
+      if (document.readyState === 'complete') {
+        requestAnimationFrame(() => this.updateHeight());
+      } else {
+        window.addEventListener('load', () => requestAnimationFrame(() => this.updateHeight()), { once: true });
+      }
+
+      // ResizeObserver — reage a mudanças reais de tamanho do header (fontes,
+      // anúncios dinâmicos, resize). Substitui setTimeout + resize handler.
+      if (typeof ResizeObserver !== 'undefined') {
+        this._ro = new ResizeObserver(() => {
+          // Importante: quando sticky, não queremos recalcular o spacer
+          // baseado na altura sticky (menor) — manter a altura original
+          // reservada até sair do sticky. Mas é seguro atualizar --unified-header-height.
+          this.updateHeight(true);
+        });
+        this._ro.observe(this.header);
+      } else {
+        // Fallback para browsers antigos
+        window.addEventListener('resize', () => this.updateHeight(), { passive: true });
+      }
+
       // Scroll handler otimizado
       let ticking = false;
       window.addEventListener('scroll', () => {
         if (!ticking) {
           requestAnimationFrame(() => {
             this.checkPosition();
-            this.updateProgressBar(); // NOVO: Atualiza a progress bar
+            this.updateProgressBar();
             ticking = false;
           });
           ticking = true;
         }
       }, { passive: true });
-  
-      // Resize handler
-      window.addEventListener('resize', () => {
-        this.updateHeight();
-      });
-  
+
       // Mobile menu handlers
       this.setupMobileMenu();
-      
+
       // Initial position check
       this.checkPosition();
     }
-  
-    updateHeight() {
+
+    updateHeight(fromObserver) {
       if (!this.header || !this.spacer) return;
-      
-      this.headerHeight = this.header.offsetHeight;
-      
-      // Inicialmente o spacer deve ser 0
+
+      // Quando sticky, `offsetHeight` reflete a altura REDUZIDA do header sticky.
+      // Preservamos a altura "natural" (antes de virar sticky) para o spacer
+      // manter exatamente o mesmo espaço e evitar CLS.
       if (!this.isSticky) {
+        this.headerHeight = this.header.offsetHeight;
         this.spacer.style.height = '0px';
+        document.documentElement.style.setProperty('--unified-header-height', `${this.headerHeight}px`);
+      } else if (!fromObserver) {
+        // Chamado manualmente (ex: resize real durante sticky) — mantém reserva com base no último valor natural.
+        document.documentElement.style.setProperty('--unified-header-height', `${this.headerHeight}px`);
       }
-      
-      // Set CSS custom properties for other components
-      document.documentElement.style.setProperty('--unified-header-height', `${this.headerHeight}px`);
     }
   
     checkPosition() {
@@ -1699,23 +1722,30 @@
     }
   
     makeSticky() {
-      // Adiciona classe sticky
-      this.header.classList.add('sticky');
-      
-      // Ajusta spacer imediatamente
+      // Captura altura natural ANTES de virar fixed (ainda in-flow).
+      // Isso garante que o spacer reserve exatamente o mesmo espaço,
+      // independente do shrink causado pela classe .sticky.
+      const naturalHeight = this.header.offsetHeight;
+      if (naturalHeight > 0) {
+        this.headerHeight = naturalHeight;
+        document.documentElement.style.setProperty('--unified-header-height', `${naturalHeight}px`);
+      }
+
+      // Spacer e classe aplicados juntos no mesmo frame — sem layout gap.
       this.spacer.style.height = `${this.headerHeight}px`;
-      
+      this.header.classList.add('sticky');
       this.isSticky = true;
     }
-  
+
     removeSticky() {
-      // Remove classe sticky
       this.header.classList.remove('sticky');
-      
-      // Zera spacer imediatamente
       this.spacer.style.height = '0px';
-      
       this.isSticky = false;
+
+      // Re-mede depois que o layout voltou ao normal.
+      requestAnimationFrame(() => {
+        if (!this.isSticky) this.updateHeight();
+      });
     }
   
     setupMobileMenu() {

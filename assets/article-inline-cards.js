@@ -148,7 +148,8 @@
       ? '<img src="' +
         img.replace(/\.([a-z]+)(\?|$)/, "_400x.$1$2") +
         '" alt="' + product.title.replace(/"/g, "&quot;") +
-        '" class="article-inline-card__product-img" loading="lazy">'
+        '" class="article-inline-card__product-img" loading="lazy" decoding="async"' +
+        ' width="400" height="400">'
       : "";
 
     var priceHTML = '<span class="article-inline-card__price-current">' + formatMoney(v.price) + "</span>";
