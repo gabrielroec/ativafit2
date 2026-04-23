@@ -116,6 +116,49 @@
     .ai-awards-placeholder-{{ ai_gen_id }} {
       width: {{ block.settings.logo_width_percent | times: 0.8 }}%;
     }
+
+    .ai-awards-cta-wrap-{{ ai_gen_id }} {
+      margin-top: {{ block.settings.cta_margin_top | times: 0.85 }}px;
+    }
+
+    .ai-awards-cta-{{ ai_gen_id }} {
+      font-size: {{ block.settings.cta_font_size | times: 0.92 }}px;
+      padding: {{ block.settings.cta_padding_y | times: 0.9 }}px {{ block.settings.cta_padding_x | times: 0.9 }}px;
+    }
+  }
+
+  .ai-awards-cta-wrap-{{ ai_gen_id }} {
+    text-align: center;
+    margin-top: {{ block.settings.cta_margin_top }}px;
+  }
+
+  .ai-awards-cta-{{ ai_gen_id }} {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Barlow", "Barlow Fallback", sans-serif;
+    font-weight: 700;
+    font-size: {{ block.settings.cta_font_size }}px;
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: {{ block.settings.cta_text_color }};
+    background-color: {{ block.settings.cta_bg_color }};
+    border-radius: 8px;
+    padding: {{ block.settings.cta_padding_y }}px {{ block.settings.cta_padding_x }}px;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  }
+
+  .ai-awards-cta-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.cta_bg_hover }};
+    color: {{ block.settings.cta_text_hover }};
+    transform: translateY(-1px);
+  }
+
+  .ai-awards-cta-{{ ai_gen_id }}:focus-visible {
+    outline: 2px solid {{ block.settings.cta_text_color }};
+    outline-offset: 3px;
   }
 {% endstyle %}
 
@@ -152,6 +195,22 @@
           {% endif %}
         </div>
       {% endfor %}
+    </div>
+
+    {% liquid
+      assign cta_label_eff = block.settings.cta_label | strip
+      if cta_label_eff == blank
+        assign cta_label_eff = 'OUR AWARD DUMBELLS'
+      endif
+      assign cta_url_eff = block.settings.cta_url | strip
+      if cta_url_eff == blank
+        assign cta_url_eff = '/collections/adjustable-dumbbells'
+      endif
+    %}
+    <div class="ai-awards-cta-wrap-{{ ai_gen_id }}">
+      <a href="{{ cta_url_eff }}" class="ai-awards-cta-{{ ai_gen_id }}">
+        {{- cta_label_eff | escape -}}
+      </a>
     </div>
   </div>
 </awards-showcase-{{ ai_gen_id }}>
@@ -204,6 +263,87 @@
       "type": "image_picker",
       "id": "logo_3",
       "label": "Logo 3"
+    },
+    {
+      "type": "header",
+      "content": "CTA (below logos)"
+    },
+    {
+      "type": "text",
+      "id": "cta_label",
+      "label": "CTA text",
+      "default": "OUR AWARD DUMBELLS"
+    },
+    {
+      "type": "text",
+      "id": "cta_url",
+      "label": "CTA link",
+      "default": "/collections/adjustable-dumbbells",
+      "info": "Caminho interno (ex.: /collections/adjustable-dumbbells) ou URL completa."
+    },
+    {
+      "type": "range",
+      "id": "cta_margin_top",
+      "label": "Space above CTA",
+      "min": 12,
+      "max": 64,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "cta_font_size",
+      "label": "CTA font size",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "cta_padding_y",
+      "label": "CTA vertical padding",
+      "min": 8,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "cta_padding_x",
+      "label": "CTA horizontal padding",
+      "min": 16,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 28
+    },
+    {
+      "type": "color",
+      "id": "cta_text_color",
+      "label": "CTA text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "cta_bg_color",
+      "label": "CTA background",
+      "default": "#f26522"
+    },
+    {
+      "type": "color",
+      "id": "cta_text_hover",
+      "label": "CTA text (hover)",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "cta_bg_hover",
+      "label": "CTA background (hover)",
+      "default": "#d65518"
     },
     {
       "type": "header",
