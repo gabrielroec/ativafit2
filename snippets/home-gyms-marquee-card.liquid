@@ -56,14 +56,17 @@
 
   assign gif_data_src = ''
   assign gif_poster_src = ''
+  # Width do poster dimensionado ao tamanho real de exibição.
+  # Card é ~300px desktop, até 72vw mobile. 540 cobre DPR=1.8 em mobile full-width
+  # sem desperdiçar bytes. Evita 720 antigo (~211KB por card).
   if is_gif_media
     assign gif_data_src = media_url
     if block.settings.gif_poster != blank
-      assign gif_poster_src = block.settings.gif_poster | image_url: width: 720
+      assign gif_poster_src = block.settings.gif_poster | image_url: width: 540
     endif
   elsif is_gif_upload
     assign gif_data_src = block.settings.image | image_url
-    assign gif_poster_src = block.settings.image | image_url: width: 720, format: 'jpg'
+    assign gif_poster_src = block.settings.image | image_url: width: 540, format: 'jpg'
   endif
 
   assign gif_play_aria = section.settings.gif_play_label | default: 'Play animation'
@@ -138,15 +141,20 @@
         decoding="async"
         fetchpriority="{{ img_fetchpriority }}">
     {%- elsif block.settings.image != blank -%}
+        {%- comment -%}
+          Card exibido a 300px (desktop) ou 72vw (mobile até 749px).
+          Em mobile @ 72vw com DPR=2 precisa ~540w. Desktop @ 300px com DPR=2 = 600w.
+          600w de fallback é o teto real; widths menores cobrem mobile.
+        {%- endcomment -%}
         {%- if card_load_priority -%}
           {{
             block.settings.image
-            | image_url: width: 900
+            | image_url: width: 600
             | image_tag:
               loading: 'eager',
               decoding: 'async',
               fetchpriority: 'high',
-              widths: '300, 450, 600, 750, 900',
+              widths: '240, 360, 480, 600',
               sizes: hg_img_sizes,
               class: 'home-gyms-marquee__card-img',
               width: hg_card_w,
@@ -156,12 +164,12 @@
         {%- else -%}
           {{
             block.settings.image
-            | image_url: width: 900
+            | image_url: width: 600
             | image_tag:
               loading: 'lazy',
               decoding: 'async',
               fetchpriority: 'low',
-              widths: '300, 450, 600, 750, 900',
+              widths: '240, 360, 480, 600',
               sizes: hg_img_sizes,
               class: 'home-gyms-marquee__card-img',
               width: hg_card_w,

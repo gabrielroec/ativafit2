@@ -325,17 +325,33 @@
                       style="--hero-entrance-delay: {{ entrance_stagger | times: 3 }}ms">
                       <div class="hero-ativa-home__media-frame">
                         {%- if media != blank -%}
-                          {{
-                            media
-                            | image_url: width: 1500
-                            | image_tag:
-                              class: 'hero-ativa-home__media-img',
-                              widths: '400, 600, 800, 1000, 1200, 1500',
-                              sizes: '(min-width: 769px) 36rem, 90vw',
-                              loading: 'lazy',
-                              fetchpriority: 'high',
-                              alt: side_alt
-                          }}
+                          {%- if forloop.first -%}
+                            {{
+                              media
+                              | image_url: width: 1500
+                              | image_tag:
+                                class: 'hero-ativa-home__media-img',
+                                widths: '400, 600, 800, 1000, 1200, 1500',
+                                sizes: '(min-width: 769px) 36rem, 90vw',
+                                loading: 'eager',
+                                fetchpriority: 'high',
+                                decoding: 'async',
+                                alt: side_alt
+                            }}
+                          {%- else -%}
+                            {{
+                              media
+                              | image_url: width: 1500
+                              | image_tag:
+                                class: 'hero-ativa-home__media-img',
+                                widths: '400, 600, 800, 1000, 1200, 1500',
+                                sizes: '(min-width: 769px) 36rem, 90vw',
+                                loading: 'lazy',
+                                fetchpriority: 'low',
+                                decoding: 'async',
+                                alt: side_alt
+                            }}
+                          {%- endif -%}
                         {%- else -%}
                           {{ 'product-1' | placeholder_svg_tag: 'hero-ativa-home__media-img placeholder-svg' }}
                         {%- endif -%}

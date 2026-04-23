@@ -19,7 +19,11 @@
   </script>
 
     <!-- End Google Tag Manager -->
-    {% render 'visually_io_sdk' %}
+    {%- comment -%}
+      Visually.io (LOOMI) SDK removido em 2026-04 — stack de testes consolidada
+      no Intelligems. Ganho esperado: ~3 scripts third-party a menos, economia
+      de ~80ms de long task + preconnect de live.visually-io.com eliminado.
+    {%- endcomment -%}
 
     <script
       src="https://analytics.ahrefs.com/analytics.js"
@@ -65,12 +69,17 @@
       rel="preload"
       as="script"
       href="{{ 'theme.min.js' | asset_url }}">
-    <link rel="preconnect" href="https://cdn.shopify.com">
-    <link rel="preconnect" href="https://fonts.shopifycdn.com">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    {%- comment -%}
+      Preconnect budget: Lighthouse alerta acima de 4. Mantemos apenas os críticos
+      para LCP (cdn.shopify.com onde está o hero e as fontes Google). O resto vira
+      dns-prefetch (quase zero custo, só resolve DNS).
+    {%- endcomment -%}
+    <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.cdnfonts.com" crossorigin>
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.shopifycdn.com">
+    <link rel="dns-prefetch" href="https://fonts.cdnfonts.com">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
     <link rel="dns-prefetch" href="https://productreviews.shopifycdn.com">
     <link rel="dns-prefetch" href="https://ajax.googleapis.com">
     <link rel="dns-prefetch" href="https://maps.googleapis.com">
