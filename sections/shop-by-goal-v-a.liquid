@@ -27,12 +27,23 @@
     {%- endif -%}
 
     {%- if section.blocks.size > 0 -%}
-      {%- comment -%} First pass: render tabs {%- endcomment -%}
+      {%- comment -%} First pass: render tabs (+ setas para rolar a faixa quando houver overflow) {%- endcomment -%}
       {%- assign active_tab_assigned = false -%}
-      <div
-        class="shop-by-goal-va__tabs"
-        role="tablist"
-        aria-label="{{ section.settings.tablist_label | default: 'Shop by goal categories' | escape }}">
+      <div class="shop-by-goal-va__tabs-row">
+        <button
+          type="button"
+          class="shop-by-goal-va__tabs-arrow shop-by-goal-va__tabs-arrow--prev"
+          aria-label="{{ section.settings.tabs_scroll_prev_label | default: 'Rolar categorias para a esquerda' | escape }}"
+          hidden
+          data-tabs-scroll="prev">
+          <svg class="shop-by-goal-va__tabs-arrow-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+            <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div
+          class="shop-by-goal-va__tabs"
+          role="tablist"
+          aria-label="{{ section.settings.tablist_label | default: 'Shop by goal categories' | escape }}">
         {%- for block in section.blocks -%}
           {%- liquid
             assign is_link = false
@@ -82,6 +93,17 @@
             </button>
           {%- endif -%}
         {%- endfor -%}
+        </div>
+        <button
+          type="button"
+          class="shop-by-goal-va__tabs-arrow shop-by-goal-va__tabs-arrow--next"
+          aria-label="{{ section.settings.tabs_scroll_next_label | default: 'Rolar categorias para a direita' | escape }}"
+          hidden
+          data-tabs-scroll="next">
+          <svg class="shop-by-goal-va__tabs-arrow-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+            <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
       </div>
 
       {%- comment -%} Second pass: render panels (only for non-link blocks) {%- endcomment -%}
@@ -199,17 +221,67 @@
     }
   }
 
+  /* ===== Tabs row (setas + faixa rolável) ===== */
+  #{{ sid }} .shop-by-goal-va__tabs-row {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto 32px;
+  }
+
+  #{{ sid }} .shop-by-goal-va__tabs-arrow {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: {{ section.settings.tab_pill_bg }};
+    color: {{ section.settings.tab_inactive_text }};
+    cursor: pointer;
+    transition: background-color 0.18s ease, color 0.18s ease, opacity 0.18s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  #{{ sid }} .shop-by-goal-va__tabs-arrow:hover:not(:disabled) {
+    background: {{ section.settings.tab_active_bg }};
+    color: {{ section.settings.tab_active_text }};
+  }
+
+  #{{ sid }} .shop-by-goal-va__tabs-arrow:focus-visible {
+    outline: 2px solid {{ section.settings.tab_active_bg }};
+    outline-offset: 2px;
+  }
+
+  #{{ sid }} .shop-by-goal-va__tabs-arrow:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  #{{ sid }} .shop-by-goal-va__tabs-arrow-svg {
+    display: block;
+    pointer-events: none;
+  }
+
   /* ===== Tabs ===== */
   #{{ sid }} .shop-by-goal-va__tabs {
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
     gap: 4px;
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: max-content;
     padding: {{ section.settings.tab_pill_padding }}px;
     background: {{ section.settings.tab_pill_bg }};
     border-radius: {{ section.settings.tab_pill_radius }}px;
-    margin: 0 auto 32px;
-    max-width: max-content;
     overflow-x: auto;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
@@ -234,21 +306,33 @@
   }
 
   @media screen and (max-width: 749px) {
-    #{{ sid }} .shop-by-goal-va__tabs {
+    #{{ sid }} .shop-by-goal-va__tabs-row {
       max-width: calc(100% + 48px);
       margin-left: -24px;
       margin-right: -24px;
-      padding-left: 24px;
-      padding-right: 24px;
+      padding-left: 8px;
+      padding-right: 8px;
+      gap: 4px;
+    }
+
+    #{{ sid }} .shop-by-goal-va__tabs {
+      padding-left: 16px;
+      padding-right: 16px;
       border-radius: 0;
       background: transparent;
       justify-content: flex-start;
     }
+
     /* Simulate pill look on mobile even without outer radius */
     #{{ sid }} .shop-by-goal-va__tabs::before {
       content: '';
       flex-shrink: 0;
       width: 0;
+    }
+
+    #{{ sid }} .shop-by-goal-va__tabs-arrow {
+      width: 36px;
+      height: 36px;
     }
   }
 
@@ -721,6 +805,7 @@
       isPointerDown = false;
       isDragging = false;
       activePointerId = null;
+      updateTabsScrollArrows();
     }
 
     tablist.addEventListener('pointerdown', onPointerDown);
@@ -738,6 +823,53 @@
     }, true);
 
     tablist.addEventListener('dragstart', function (e) { e.preventDefault(); });
+
+    /* ===== Setas: scroll horizontal na faixa de tabs ===== */
+    var btnPrev = root.querySelector('[data-tabs-scroll="prev"]');
+    var btnNext = root.querySelector('[data-tabs-scroll="next"]');
+
+    function updateTabsScrollArrows() {
+      if (!btnPrev || !btnNext) return;
+      var overflow = isOverflowing();
+      btnPrev.hidden = !overflow;
+      btnNext.hidden = !overflow;
+      if (!overflow) {
+        btnPrev.disabled = false;
+        btnNext.disabled = false;
+        return;
+      }
+      var maxScroll = tablist.scrollWidth - tablist.clientWidth;
+      var sl = tablist.scrollLeft;
+      btnPrev.disabled = sl <= 1;
+      btnNext.disabled = sl >= maxScroll - 1;
+    }
+
+    function scrollTabsStrip(dir) {
+      var amount = Math.max(120, Math.floor(tablist.clientWidth * 0.45));
+      var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      tablist.scrollBy({ left: dir * amount, behavior: reduced ? 'auto' : 'smooth' });
+    }
+
+    if (btnPrev && btnNext) {
+      btnPrev.addEventListener('click', function (e) {
+        e.preventDefault();
+        scrollTabsStrip(-1);
+      });
+      btnNext.addEventListener('click', function (e) {
+        e.preventDefault();
+        scrollTabsStrip(1);
+      });
+      tablist.addEventListener('scroll', updateTabsScrollArrows, { passive: true });
+      if (window.ResizeObserver) {
+        var roTabs = new ResizeObserver(function () {
+          updateTabsScrollArrows();
+        });
+        roTabs.observe(tablist);
+      } else {
+        window.addEventListener('resize', updateTabsScrollArrows);
+      }
+      updateTabsScrollArrows();
+    }
   })();
 </script>
 
@@ -764,6 +896,20 @@
       "label": "Tablist accessibility label",
       "default": "Shop by goal categories",
       "info": "Read by screen readers to describe the tab group."
+    },
+    {
+      "type": "text",
+      "id": "tabs_scroll_prev_label",
+      "label": "Seta esquerda (acessibilidade)",
+      "default": "Rolar categorias para a esquerda",
+      "info": "Só aparece quando as tabs não cabem na tela."
+    },
+    {
+      "type": "text",
+      "id": "tabs_scroll_next_label",
+      "label": "Seta direita (acessibilidade)",
+      "default": "Rolar categorias para a direita",
+      "info": "Só aparece quando as tabs não cabem na tela."
     },
     {
       "type": "header",
