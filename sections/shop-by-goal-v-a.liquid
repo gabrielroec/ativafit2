@@ -128,6 +128,14 @@
               endif
 
               assign coll = collections[block.settings.collection]
+              assign mp1 = block.settings.product_1
+              assign mp2 = block.settings.product_2
+              assign mp3 = block.settings.product_3
+              assign mp4 = block.settings.product_4
+              assign use_manual_products = false
+              if mp1 != blank or mp2 != blank or mp3 != blank or mp4 != blank
+                assign use_manual_products = true
+              endif
             -%}
 
             <div
@@ -137,7 +145,35 @@
               class="shop-by-goal-va__panel"
               {% unless is_active %}hidden{% endunless %}
               tabindex="0">
-              {%- if coll != blank and coll.products.size > 0 -%}
+              {%- if use_manual_products -%}
+                {%- assign manual_shown = 0 -%}
+                <ul class="{{ grid_class }} {{ grid_class_mobile }}" role="list">
+                  {%- if mp1 != blank and manual_shown < limit_n -%}
+                    <li class="shop-by-goal-va__item">
+                      {%- render 'product-card-simple', product: mp1, show_reviews: section.settings.show_reviews -%}
+                    </li>
+                    {%- assign manual_shown = manual_shown | plus: 1 -%}
+                  {%- endif -%}
+                  {%- if mp2 != blank and manual_shown < limit_n -%}
+                    <li class="shop-by-goal-va__item">
+                      {%- render 'product-card-simple', product: mp2, show_reviews: section.settings.show_reviews -%}
+                    </li>
+                    {%- assign manual_shown = manual_shown | plus: 1 -%}
+                  {%- endif -%}
+                  {%- if mp3 != blank and manual_shown < limit_n -%}
+                    <li class="shop-by-goal-va__item">
+                      {%- render 'product-card-simple', product: mp3, show_reviews: section.settings.show_reviews -%}
+                    </li>
+                    {%- assign manual_shown = manual_shown | plus: 1 -%}
+                  {%- endif -%}
+                  {%- if mp4 != blank and manual_shown < limit_n -%}
+                    <li class="shop-by-goal-va__item">
+                      {%- render 'product-card-simple', product: mp4, show_reviews: section.settings.show_reviews -%}
+                    </li>
+                    {%- assign manual_shown = manual_shown | plus: 1 -%}
+                  {%- endif -%}
+                </ul>
+              {%- elsif coll != blank and coll.products.size > 0 -%}
                 <ul class="{{ grid_class }} {{ grid_class_mobile }}" role="list">
                   {%- for product in coll.products limit: limit_n -%}
                     <li class="shop-by-goal-va__item">
@@ -1150,7 +1186,35 @@
           "type": "collection",
           "id": "collection",
           "label": "Collection",
-          "info": "Leave empty only if using 'Override link' below."
+          "info": "Usada quando nenhum produto manual está definido abaixo. Deixe vazio se esta aba só usar produtos manuais ou link."
+        },
+        {
+          "type": "header",
+          "content": "Produtos manuais (opcional)"
+        },
+        {
+          "type": "paragraph",
+          "content": "Se escolher um ou mais produtos, esta aba mostra só eles (nesta ordem), até o limite \"Max products\". Ignora a coleção acima."
+        },
+        {
+          "type": "product",
+          "id": "product_1",
+          "label": "Product 1"
+        },
+        {
+          "type": "product",
+          "id": "product_2",
+          "label": "Product 2"
+        },
+        {
+          "type": "product",
+          "id": "product_3",
+          "label": "Product 3"
+        },
+        {
+          "type": "product",
+          "id": "product_4",
+          "label": "Product 4"
         },
         {
           "type": "range",
