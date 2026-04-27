@@ -81,6 +81,38 @@
     {%- endif -%}
   {%- endif -%}
 
+  {%- comment -%} Faixa laranja acima do título (bloco opcional `pdp_free_shipping_banner` ou defaults) {%- endcomment -%}
+  {%- if section.settings.show_benefits -%}
+    {%- liquid
+      assign fs_b = section.blocks | where: 'type', 'pdp_free_shipping_banner' | first
+      assign fs_show = true
+      assign fs_text = 'Get Free Shipping when you order now'
+      assign fs_bg = '#F97316'
+      assign fs_fg = '#ffffff'
+      if fs_b
+        if fs_b.settings.enabled == false
+          assign fs_show = false
+        endif
+        if fs_b.settings.text != blank
+          assign fs_text = fs_b.settings.text
+        endif
+        if fs_b.settings.background != blank
+          assign fs_bg = fs_b.settings.background
+        endif
+        if fs_b.settings.text_color != blank
+          assign fs_fg = fs_b.settings.text_color
+        endif
+      endif
+    -%}
+    {%- if fs_show -%}
+      <div class="pdp-free-shipping-wrap"{% if fs_b %} {{ fs_b.shopify_attributes }}{% endif %}>
+        <p class="pdp-free-shipping-badge" style="background-color: {{ fs_bg }}; color: {{ fs_fg }};">
+          {{- fs_text | escape -}}
+        </p>
+      </div>
+    {%- endif -%}
+  {%- endif -%}
+
   <!-- Product Title -->
   <h1 class="product-name_new">
     {%- if section.settings.product_title != blank -%}

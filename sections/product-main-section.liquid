@@ -10,7 +10,7 @@
                                                                                                                                           Dependencies: 
                                                                                                                                           - product-gallery.liquid snippet 
                                                                                                                                           - product-info.liquid snippet 
-                                                                                                                                          - product-benefits.liquid snippet 
+                                                                                                                                          - product-benefits.liquid (faixa trust + badges; sem Embla)
                                                                                                                                           - product-add-to-cart.liquid snippet 
                                                                                                                                           - product-accordions.liquid snippet 
                                                                                                                                           - product-benefit-popups.liquid snippet 
@@ -18,12 +18,6 @@
 {% endcomment %}
 
 {{ 'product-main-section.css' | asset_url | stylesheet_tag }}
-{%- assign has_benefits = section.settings.show_benefits -%}
-{%- assign mention_blocks = section.blocks | where: 'type', 'mini_media_mention' -%}
-{%- comment -%} Embla só para o carrossel de benefícios; Media Mentions usa scroll nativo (sem lib) {%- endcomment -%}
-{%- if has_benefits -%}
-  <script src="https://unpkg.com/embla-carousel@8.0.0/embla-carousel.umd.js" defer></script>
-{%- endif -%}
 
 <section
   class="pp-full_new"
@@ -1767,15 +1761,15 @@
         "step": 1,
         "default": 5,
         "info": "Time between automatic slides"
-      }, {
+      },       {
         "type": "header",
-        "content": "Benefits Section"
+        "content": "PDP — frete grátis + trust badges"
       }, {
         "type": "checkbox",
         "id": "show_benefits",
-        "label": "Show Benefits",
+        "label": "Show free-shipping strip + trust badges",
         "default": true,
-        "info": "Configure individual benefits using Benefit blocks"
+        "info": "Above the title: orange free-shipping strip. Below ATC area: two trust badges. Use blocks \"PDP — Free shipping strip\" (optional) and \"PDP — Trust badge\" (up to 2). Legacy \"Benefit\" blocks are no longer rendered here (popups still work if configured)."
       }, {
         "type": "header",
         "content": "Media mentions (buy box)"
@@ -1958,9 +1952,64 @@
         ]
       },
       {
-        "type": "benefit",
-        "name": "Benefit",
+        "type": "pdp_free_shipping_banner",
+        "name": "PDP — Free shipping strip",
+        "limit": 1,
         "settings": [
+          {
+            "type": "checkbox",
+            "id": "enabled",
+            "label": "Show strip",
+            "default": true
+          },
+          {
+            "type": "text",
+            "id": "text",
+            "label": "Text",
+            "default": "Get Free Shipping when you order now"
+          },
+          {
+            "type": "color",
+            "id": "background",
+            "label": "Background",
+            "default": "#F97316"
+          },
+          {
+            "type": "color",
+            "id": "text_color",
+            "label": "Text color",
+            "default": "#FFFFFF"
+          }
+        ]
+      },
+      {
+        "type": "pdp_trust_badge",
+        "name": "PDP — Trust badge",
+        "limit": 2,
+        "settings": [
+          {
+            "type": "image_picker",
+            "id": "image",
+            "label": "Icon",
+            "info": "Recommended ~45px wide. If empty, slot 1 uses warranty file, slot 2 uses support file from Shopify Files."
+          },
+          {
+            "type": "text",
+            "id": "label",
+            "label": "Label",
+            "default": "1-Year Warranty Included",
+            "info": "No 2º badge, use por exemplo: Worry-Free Purchase."
+          }
+        ]
+      },
+      {
+        "type": "benefit",
+        "name": "Benefit (legacy)",
+        "settings": [
+          {
+            "type": "paragraph",
+            "content": "Este tipo não é mais exibido no buy box (substituído por PDP — Trust badge). Mantido para não quebrar JSON antigo; popups com título + conteúdo ainda funcionam."
+          },
           {
             "type": "text",
             "id": "title",
