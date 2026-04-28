@@ -62,6 +62,17 @@
   if ativapeople_display_cents < 0
     assign ativapeople_display_cents = 0
   endif
+
+  # Não mostrar member line no PDP /products/pro-adjustable-weight-bench
+  assign show_member_price_line = true
+  assign _req_path = request.path | default: '' | strip
+  if _req_path contains 'products/pro-adjustable-weight-bench'
+    assign show_member_price_line = false
+  endif
+  assign _member_line_handle = product.handle | default: '' | strip | downcase
+  if _member_line_handle == 'pro-adjustable-weight-bench'
+    assign show_member_price_line = false
+  endif
 -%}
 
 <div class="product-info-container_new">
@@ -326,7 +337,7 @@
   </script>
 
   
-  {%- if ap_mf_fixed and ativapeople_display_cents > 0 -%}
+  {%- if ap_mf_fixed and ativapeople_display_cents > 0 and show_member_price_line -%}
     <p class="product-info-member-line_new">
       <span class="product-info-member-line__muted">Member price </span>
       <span class="product-info-member-line__price">{{ ativapeople_display_cents | money }}</span>
