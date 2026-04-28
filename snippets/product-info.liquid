@@ -252,47 +252,78 @@
       </div>
     {%- endif -%}
 
-    {%- liquid
-      assign wds_ps = product.metafields.product_schema
-      assign wds_pill_rating = nil
-      assign wds_pill_count = 0
-      if wds_ps.th_ratingValue != blank
-        assign wds_pill_rating = wds_ps.th_ratingValue | plus: 0.0
-        assign wds_pill_count = wds_ps.th_ratingCount | default: 0 | plus: 0
-      endif
-      if wds_pill_count == 0 or wds_pill_rating == blank
-        assign wds_rm = product.metafields.reviews.rating
-        assign wds_rc = product.metafields.reviews.rating_count
-        if wds_rm != blank
-          assign wds_ro = wds_rm.value | default: wds_rm
-          assign wds_cc = wds_rc.value | default: wds_rc | default: 0 | plus: 0
-          if wds_ro != blank and wds_cc > 0
-            assign wds_pill_rating = wds_ro.rating | plus: 0.0
-            assign wds_pill_count = wds_cc
-          endif
-        endif
-      endif
-    -%}
-    {%- if wds_pill_rating != blank and wds_pill_count > 0 -%}
-      <div
-        class="product-info-rating-pill"
-        role="img"
-        aria-label="Rating {{ wds_pill_rating | round: 2 }} out of 5, {{ wds_pill_count }} reviews">
-        <svg
-          class="product-info-rating-pill__star"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-          focusable="false">
-          <path fill="currentColor" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-        </svg>
-        <span class="product-info-rating-pill__value">{{ wds_pill_rating | round: 2 }}</span>
-        <span class="product-info-rating-pill__sep" aria-hidden="true">·</span>
-        <span class="product-info-rating-pill__count">{{ wds_pill_count }} reviews</span>
-      </div>
-    {%- endif -%}
+    <a
+      href="#judgeme_product_reviews"
+      class="product-info-rating-pill"
+      data-judgeme-pill
+      hidden>
+      <span class="product-info-rating-pill__stars" aria-hidden="true"></span>
+      <span class="product-info-rating-pill__value"></span>
+      <span class="product-info-rating-pill__sep" aria-hidden="true">·</span>
+      <span class="product-info-rating-pill__count"></span>
+    </a>
   </div>
+
+  <script>
+    (function () {
+      var pill = document.querySelector('[data-judgeme-pill]');
+      if (!pill) return;
+
+      var starsEl = pill.querySelector('.product-info-rating-pill__stars');
+      var valueEl = pill.querySelector('.product-info-rating-pill__value');
+      var countEl = pill.querySelector('.product-info-rating-pill__count');
+
+      function findJudgemeTarget() {
+        return (
+          document.getElementById('judgeme_product_reviews') ||
+          document.querySelector('.jdgm-rev-widg') ||
+          document.querySelector('.jdgm-rev-widg__summary-inner')
+        );
+      }
+
+      pill.addEventListener('click', function (e) {
+        var target = findJudgemeTarget();
+        if (!target) return;
+        e.preventDefault();
+        var top = target.getBoundingClientRect().top + window.pageYOffset - 80;
+        window.scrollTo({ top: top, behavior: 'smooth' });
+      });
+
+      function sync() {
+        var summary = document.querySelector('.jdgm-rev-widg__summary-inner');
+        if (!summary) return false;
+
+        var avgEl = summary.querySelector('.jdgm-rev-widg__summary-average');
+        var textEl = summary.querySelector('.jdgm-rev-widg__summary-text');
+        var starsSrc = summary.querySelector('.jdgm-rev-widg__summary-stars');
+        if (!avgEl || !textEl || !starsSrc) return false;
+
+        var avg = parseFloat(avgEl.textContent);
+        var countMatch = textEl.textContent.match(/\d+/);
+        var count = countMatch ? parseInt(countMatch[0], 10) : 0;
+        if (!avg || !count) return false;
+
+        var starsClone = starsSrc.cloneNode(true);
+        var avgInClone = starsClone.querySelector('.jdgm-rev-widg__summary-average');
+        if (avgInClone) avgInClone.remove();
+        starsEl.innerHTML = starsClone.innerHTML;
+
+        valueEl.textContent = avg.toFixed(2) + ' / 5';
+        countEl.textContent = count + (count === 1 ? ' review' : ' reviews');
+        pill.setAttribute('aria-label', 'Rating ' + avg.toFixed(2) + ' out of 5, ' + count + ' reviews');
+        pill.removeAttribute('hidden');
+        return true;
+      }
+
+      if (sync()) return;
+
+      var obs = new MutationObserver(function () {
+        if (sync()) obs.disconnect();
+      });
+      obs.observe(document.body, { childList: true, subtree: true });
+      setTimeout(function () { obs.disconnect(); }, 15000);
+    })();
+  </script>
 
   
   {%- if ap_mf_fixed and ativapeople_display_cents > 0 -%}
