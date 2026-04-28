@@ -1,20 +1,9 @@
-{% comment %} 
-  Pairs Well With Slide
-   
-  Renders a single slide for the "Pairs Well With" section.
-   
-  Accepts: 
-  - product: {Object} Product object 
-  - section: {Object} Section object for settings 
-  - slide_index: {Number} Index of the slide (0-based) 
-  - is_first: {Boolean} Whether this is the first slide
-   
-  Usage:
-  {% render 'pairs-well-with-slide', product: product, section: section, slide_index: 0, is_first: true %} 
+{% comment %}
+  Card único — "Pairs well with" (lista vertical; sem carrossel).
+  Parâmetros: product, section, block (opcional, para shopify_attributes no editor)
 {% endcomment %}
 
 {%- if product != blank -%}
-  {%- comment -%} Find cheapest variant {%- endcomment -%}
   {%- assign cheapest_variant = product.selected_or_first_available_variant -%}
   {%- assign lowest_price = cheapest_variant.price -%}
   {%- for variant in product.variants -%}
@@ -23,26 +12,24 @@
       {%- assign lowest_price = variant.price -%}
     {%- endif -%}
   {%- endfor -%}
-  
-  {%- comment -%} Use variant image if available, otherwise use product featured image {%- endcomment -%}
+
   {%- assign display_image = product.featured_image -%}
   {%- if cheapest_variant.featured_image != blank -%}
     {%- assign display_image = cheapest_variant.featured_image -%}
   {%- endif -%}
-  
-  <div class="pairs-well-with-slide_new {% if is_first %}active_new{% endif %}" data-slide-index="{{ slide_index }}">
+
+  <div class="pairs-well-with-card_new"{% if block %} {{ block.shopify_attributes }}{% endif %}>
     <div class="pairs-well-with-content_new">
-      {%- comment -%} Product Image {%- endcomment -%}
       <div class="pairs-well-with-image-wrapper_new">
         {%- if display_image != blank -%}
           <a href="{{ product.url }}" class="pairs-well-with-image-link_new">
             <img
               src="{{ display_image | image_url: width: 600 }}"
-              alt="{{ product.title }}"
+              alt="{{ product.title | escape }}"
               class="pairs-well-with-image_new"
               width="600"
               height="600"
-              loading="{% if is_first %}eager{% else %}lazy{% endif %}">
+              loading="lazy">
           </a>
         {%- else -%}
           <div class="pairs-well-with-image-placeholder_new">
@@ -51,7 +38,6 @@
         {%- endif -%}
       </div>
 
-      {%- comment -%} Product Info {%- endcomment -%}
       <div class="pairs-well-with-info-wrapper_new">
         <h3 class="pairs-well-with-product-title_new">
           <a href="{{ product.url }}">{{ product.title }}</a>
@@ -65,27 +51,18 @@
         </div>
 
         {%- if product.available and cheapest_variant -%}
-          {%- form 'product'
-            , product
-            , class: 'pairs-well-with-form_new' -%}
-            <input
-              type="hidden"
-              name="id"
-              value="{{ cheapest_variant.id }}">
+          {%- form 'product', product, class: 'pairs-well-with-form_new' -%}
+            <input type="hidden" name="id" value="{{ cheapest_variant.id }}">
             <button
               type="submit"
               name="add"
               class="pairs-well-with-add-btn_new"
-              aria-label="Add {{ product.title }} to cart">
+              aria-label="Add {{ product.title | escape }} to cart">
               {{ section.settings.pairs_well_with_add_to_cart_text | default: 'ADD TO CART' }}
             </button>
           {%- endform -%}
         {%- else -%}
-          <button
-            type="button"
-            class="pairs-well-with-add-btn_new"
-            disabled
-            aria-label="Sold out">
+          <button type="button" class="pairs-well-with-add-btn_new" disabled aria-label="Sold out">
             Sold Out
           </button>
         {%- endif -%}

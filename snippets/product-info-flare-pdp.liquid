@@ -1,0 +1,152 @@
+{% comment %}
+  Coluna de informações do produto — layout Flare (new-product-main-section).
+  Mesma lógica de preço AtivaPeople / metafields que product-info.liquid, markup enxuto.
+{% endcomment %}
+
+{%- liquid
+  assign ativapeople_display_cents = 0
+  assign ap_mf_fixed = false
+  assign current_variant = product.selected_or_first_available_variant
+  assign mf_v = current_variant.metafields.custom.price_discount_ativapeople
+  assign mf_p = product.metafields.custom.price_discount_ativapeople
+  assign mf_use = mf_v
+  unless mf_v != blank and mf_v.value != blank
+    assign mf_use = mf_p
+    unless mf_p != blank and mf_p.value != blank
+      assign mf_use = blank
+    endunless
+  endunless
+  if mf_use != blank and mf_use.value != blank
+    assign ap_mf_fixed = true
+    assign _raw = ''
+    if mf_use.value.amount != blank
+      assign _raw = mf_use.value.amount | append: '' | strip
+    else
+      assign _raw = mf_use.value | append: '' | strip
+    endif
+    assign _raw = _raw | replace: ' ', '' | replace: ' ', '' | replace: "'", ''
+    if _raw contains ','
+      assign _pa = _raw | split: ','
+      if _pa.size == 2
+        assign _L = _pa[0] | strip
+        assign _R = _pa[1] | strip
+        assign _rL = _R | size
+        if _rL == 1 or _rL == 2
+          assign _L = _L | replace: '.', ''
+          assign _raw = _L | append: '.' | append: _R
+        elsif _rL == 3
+          if _L contains '.'
+            assign _L = _L | replace: '.', ''
+            assign _raw = _L | append: '.' | append: _R
+          else
+            assign _raw = _L | append: _R
+          endif
+        else
+          assign _L = _L | replace: '.', ''
+          assign _raw = _L | append: '.' | append: _R
+        endif
+      else
+        assign _raw = _raw | replace: '.', '' | replace: ',', '.'
+      endif
+    endif
+    assign _u = _raw | plus: 0.0
+    assign ativapeople_display_cents = _u | times: 100 | round
+  endif
+  if ativapeople_display_cents < 0
+    assign ativapeople_display_cents = 0
+  endif
+
+  assign wds_ps = product.metafields.product_schema
+  assign wds_pill_rating = nil
+  assign wds_pill_count = 0
+  if wds_ps.th_ratingValue != blank
+    assign wds_pill_rating = wds_ps.th_ratingValue | plus: 0.0
+    assign wds_pill_count = wds_ps.th_ratingCount | default: 0 | plus: 0
+  endif
+  if wds_pill_count == 0 or wds_pill_rating == blank
+    assign wds_rm = product.metafields.reviews.rating
+    assign wds_rc = product.metafields.reviews.rating_count
+    if wds_rm != blank
+      assign wds_ro = wds_rm.value | default: wds_rm
+      assign wds_cc = wds_rc.value | default: wds_rc | default: 0 | plus: 0
+      if wds_ro != blank and wds_cc > 0
+        assign wds_pill_rating = wds_ro.rating | plus: 0.0
+        assign wds_pill_count = wds_cc
+      endif
+    endif
+  endif
+-%}
+
+<div class="product-info-container_new flare-pdp__info">
+  {%- if section.settings.show_badges -%}
+    {%- assign badge_blocks = section.blocks | where: 'type', 'product_badge' -%}
+    {%- if badge_blocks.size > 0 -%}
+      <div class="product-badges_new flare-pdp__badges">
+        {%- for block in badge_blocks -%}
+          {%- if block.settings.badge_text != blank -%}
+            <span class="product-badge_new flare-pdp__badge" {{ block.shopify_attributes }}>
+              {{ block.settings.badge_text | upcase }}
+            </span>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  {%- endif -%}
+
+  <h1 class="product-name_new flare-pdp__title">
+    {%- if section.settings.product_title != blank -%}
+      {{ section.settings.product_title }}
+    {%- else -%}
+      {{ product.title }}
+    {%- endif -%}
+  </h1>
+
+  {%- assign reviews_block = section.blocks | where: 'type', 'reviews' | first -%}
+  {%- if wds_pill_count > 0 -%}
+    <div
+      class="flare-pdp__reviews"
+      role="img"
+      aria-label="{{ wds_pill_rating | round: 1 }} de 5 estrelas, {{ wds_pill_count }} avaliações">
+      <div class="flare-pdp__stars" aria-hidden="true">
+        {%- for i in (1..5) -%}
+          <svg class="flare-pdp__star" width="18" height="18" viewBox="0 0 24 24" focusable="false">
+            <path fill="currentColor" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+          </svg>
+        {%- endfor -%}
+      </div>
+      <span class="flare-pdp__review-count">({{ wds_pill_count }} reviews)</span>
+    </div>
+  {%- elsif reviews_block and reviews_block.settings.enabled and reviews_block.settings.review_text != blank -%}
+    <div class="flare-pdp__reviews flare-pdp__reviews--fallback">
+      {{ reviews_block.settings.review_text }}
+    </div>
+  {%- endif -%}
+
+  <div class="flare-pdp__price-block">
+    <div class="product-price-container_new">
+      <p class="product-price_new flare-pdp__price">{{ product.selected_or_first_available_variant.price | money }}</p>
+      {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
+        <p class="product-price-original_new flare-pdp__compare">{{ product.selected_or_first_available_variant.compare_at_price | money }}</p>
+      {%- endif -%}
+    </div>
+  </div>
+
+  {%- if section.settings.show_ativapeople_badge -%}
+    <div
+      class="ativapeople-badge_new flare-pdp__ativapeople-badge"
+      data-ativapeople-fixed-cents="{{ ativapeople_display_cents }}"
+      {% unless ap_mf_fixed %}style="display: none;"{% endunless %}>
+      <span class="sr-only">Member pricing</span>
+      <div class="flare-pdp__ativapeople-row">
+        <a href="/pages/membership" class="flare-pdp__ativapeople-brand">AtivaPeople</a>
+        <span class="flare-pdp__ativapeople-amount">
+          <span class="ativapeople-price flare-pdp__ativapeople-price">{{ ativapeople_display_cents | money }}</span>
+        </span>
+      </div>
+    </div>
+  {%- endif -%}
+
+  {% if section.settings.show_media_mentions_carousel == true %}
+    {% render 'product-media-mentions', section: section %}
+  {% endif %}
+</div>

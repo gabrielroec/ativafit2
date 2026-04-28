@@ -1,0 +1,188 @@
+{% comment %}
+  Formulário compra — layout Flare: Shop Pay terms, pills de variante, quantidade, CTAs empilhados.
+{% endcomment %}
+
+{%- assign selected_variant = product.selected_or_first_available_variant -%}
+{%- assign product_form_id = 'product-form-' | append: section.id -%}
+{%- assign payment_options_block = section.blocks | where: 'type', 'payment_options' | first -%}
+
+{%- assign should_show_waitlist = false -%}
+{%- if section.settings.show_waitlist_button -%}
+  {%- if section.settings.waitlist_variant_ids == blank or section.settings.waitlist_variant_ids == '' -%}
+    {%- assign should_show_waitlist = true -%}
+  {%- else -%}
+    {%- assign selected_variant_id_string = selected_variant.id | append: '' -%}
+    {%- assign selected_variant_title = selected_variant.title | strip | downcase -%}
+    {%- assign variant_list = section.settings.waitlist_variant_ids | split: ',' -%}
+    {%- for variant_item in variant_list -%}
+      {%- assign variant_item_trimmed = variant_item | strip -%}
+      {%- assign variant_item_lower = variant_item_trimmed | downcase -%}
+      {%- if variant_item_trimmed == selected_variant_id_string or variant_item_lower == selected_variant_title -%}
+        {%- assign should_show_waitlist = true -%}
+        {%- break -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+{%- endif -%}
+
+{%- form 'product', product, id: product_form_id, class: 'product-form_new flare-pdp__form' -%}
+  <input
+    type="hidden"
+    name="id"
+    value="{{ selected_variant.id }}"
+    id="product-variant-id-{{ section.id }}">
+
+  {%- if payment_options_block and payment_options_block.settings.show_payment_terms -%}
+    <div class="payment-options-form flare-pdp__payment-terms">
+      {{ form | payment_terms }}
+    </div>
+  {%- endif -%}
+
+  {%- if selected_variant.available or should_show_waitlist -%}
+    <div class="flare-pdp__buy-stack">
+      {%- if product.variants.size > 1 and section.settings.show_variant_selector -%}
+        <div class="flare-pdp__field flare-pdp__field--variants">
+          <span class="flare-pdp__field-label" id="flare-variant-label-{{ section.id }}">
+            {{- section.settings.variant_label | default: 'Select Option' | upcase -}}
+          </span>
+          <select
+            id="variant-selector_new"
+            class="variant-selector_new flare-pdp__variant-select-sr"
+            aria-labelledby="flare-variant-label-{{ section.id }}"
+            onchange="updateVariant(this)">
+            {%- for variant in product.variants -%}
+              <option
+                value="{{ variant.id }}"
+                {% if variant == selected_variant %}
+                selected{% endif %}
+                {% unless variant.available %}
+                disabled{% endunless %}>
+                {{ variant.title }}
+                {%- unless variant.available %}
+                  - Sold Out{% endunless -%}
+              </option>
+            {%- endfor -%}
+          </select>
+          <div class="flare-pdp__variant-pills" role="group" aria-labelledby="flare-variant-label-{{ section.id }}">
+            {%- for variant in product.variants -%}
+              <button
+                type="button"
+                class="flare-pdp__variant-pill{% if variant == selected_variant %} is-active{% endif %}"
+                data-variant-id="{{ variant.id }}"
+                {% unless variant.available %}
+                disabled{% endunless %}>
+                {{- variant.title -}}
+              </button>
+            {%- endfor -%}
+          </div>
+        </div>
+      {%- endif -%}
+
+      {%- if section.settings.show_quantity_selector -%}
+        <div class="flare-pdp__field flare-pdp__field--quantity quantity-wrapper_new">
+          <span class="flare-pdp__field-label" id="flare-qty-label-{{ section.id }}">
+            {{- section.settings.quantity_label | default: 'Quantity' | upcase -}}
+          </span>
+          <div class="quantity-selector_new flare-pdp__qty" role="group" aria-labelledby="flare-qty-label-{{ section.id }}">
+            <button type="button" class="quantity-btn_new" id="flare-qty-minus" aria-label="{{ 'cart.items.decrease_quantity' | t }}">−</button>
+            <input
+              type="number"
+              name="quantity"
+              id="quantity_new"
+              class="quantity-input_new"
+              value="1"
+              min="1"
+              inputmode="numeric"
+              aria-label="{{ 'product.form.quantity' | t }}">
+            <button type="button" class="quantity-btn_new" id="flare-qty-plus" aria-label="{{ 'cart.items.increase_quantity' | t }}">+</button>
+          </div>
+        </div>
+      {%- else -%}
+        <input type="hidden" name="quantity" value="1" id="quantity_new">
+      {%- endif -%}
+
+      <div class="flare-pdp__cta-row">
+        {%- if section.settings.show_waitlist_button -%}
+          <button
+            type="button"
+            class="add-to-cart-btn_new waitlist-btn_new klaviyo_waitlist_trigger flare-pdp__btn flare-pdp__btn--waitlist {% if product.variants.size > 1 and section.settings.show_variant_selector %}has-variant-selector_new{% endif %}"
+            data-klaviyo-form-id="{{ section.settings.klaviyo_form_id | escape }}"
+            data-variant-id="{{ selected_variant.id }}"
+            style="{% unless should_show_waitlist %}display: none;{% endunless %}"
+            aria-label="{{ section.settings.waitlist_button_text | default: 'Join the Waitlist' }}">
+            {{ section.settings.waitlist_button_text | default: 'Join the Waitlist' }}
+          </button>
+        {%- endif -%}
+
+        <button
+          type="submit"
+          name="add"
+          class="add-to-cart-btn_new flare-pdp__btn flare-pdp__btn--atc {% if product.variants.size > 1 and section.settings.show_variant_selector %}has-variant-selector_new{% endif %}"
+          data-variant-id="{{ selected_variant.id }}"
+          style="{% if section.settings.show_waitlist_button and should_show_waitlist or selected_variant.available == false %}display: none;{% endif %}"
+          aria-label="{{ section.settings.add_to_cart_text | default: 'Add to cart' }}">
+          <span class="flare-pdp__atc-inner">
+            <svg class="flare-pdp__atc-icon" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path fill="currentColor" d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1.003 1.003 0 0 0 20 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
+            </svg>
+            <span class="flare-pdp__atc-label">{{ section.settings.add_to_cart_text | default: 'Add to Cart' }}</span>
+          </span>
+        </button>
+      </div>
+
+      {%- if section.settings.show_buy_it_now and should_show_waitlist == false and selected_variant.available -%}
+        <button
+          type="button"
+          class="buy-it-now-btn_new flare-pdp__btn flare-pdp__btn--checkout"
+          onclick="buyItNow()"
+          aria-label="{{ section.settings.buy_it_now_text | default: 'Buy It Now' }}">
+          <span class="flare-pdp__checkout-label">{{ section.settings.buy_it_now_text | default: 'Buy It Now' }}</span>
+        </button>
+      {%- endif -%}
+
+      {%- if payment_options_block and payment_options_block.settings.show_dynamic_checkout and selected_variant.available -%}
+        <div
+          id="dynamic-checkout-{{ section.id }}"
+          {% if section.settings.remove_shop_pay_button %}
+          class="hide-shop-pay_new flare-pdp__dynamic-checkout"
+          {% else %}
+          class="flare-pdp__dynamic-checkout"
+          {% endif %}>
+          {{ form | payment_button }}
+        </div>
+      {%- endif -%}
+    </div>
+  {%- else -%}
+    <button
+      type="button"
+      class="add-to-cart-btn_new flare-pdp__btn"
+      disabled
+      aria-label="Sold out">
+      Sold Out
+    </button>
+  {%- endif -%}
+{%- endform -%}
+
+{%- if payment_options_block and payment_options_block.settings.show_payment_icons -%}
+  <div class="payment-icons_new">
+    <img
+      src="https://www.ativafit.com/cdn/shop/files/bank_e49b0ef7-0b7d-46e6-b59d-f28b627ed7a3_1024x1024.png?v=1707126791"
+      alt="Accepted payment methods"
+      class="payment-icons__static-image_new"
+      width="1024"
+      height="1024"
+      loading="lazy">
+  </div>
+{%- endif -%}
+
+{%- if payment_options_block and payment_options_block.settings.payment_text != blank -%}
+  <div class="payment-text_new">
+    {{ payment_options_block.settings.payment_text }}
+  </div>
+{%- endif -%}
+
+{%- if section.settings.show_ativapeople_cta -%}
+  <p class="ativapeople-cta_new">
+    {{ section.settings.ativapeople_cta_text }}
+  </p>
+{%- endif -%}

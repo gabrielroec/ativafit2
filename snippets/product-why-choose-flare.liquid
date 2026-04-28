@@ -1,0 +1,50 @@
+{% comment %}
+  Bloco "Why choose this?" — grelha 2x2 (new-product-main-section).
+  Desktop: coluna esquerda, por baixo da galeria (flare-pdp-layout__left).
+  Mobile: após trust strip e antes do editorial (ordem via CSS display:contents + flex order).
+  Blocos: why_choose_item (ícone image_picker opcional, título, texto).
+{% endcomment %}
+
+{%- if section.settings.show_why_choose -%}
+  {%- assign why_items = section.blocks | where: 'type', 'why_choose_item' -%}
+  {%- if why_items.size > 0 -%}
+    <div class="why-choose-flare" data-why-choose-flare>
+      {%- if section.settings.why_choose_heading != blank -%}
+        <h2 class="why-choose-flare__title">{{ section.settings.why_choose_heading | escape }}</h2>
+      {%- endif -%}
+
+      <div class="why-choose-flare__grid">
+        {%- for block in why_items limit: 4 -%}
+          <div class="why-choose-flare__card" {{ block.shopify_attributes }}>
+            <div class="why-choose-flare__icon-wrap">
+              {%- if block.settings.icon != blank -%}
+                <img
+                  class="why-choose-flare__icon-img"
+                  src="{{ block.settings.icon | image_url: width: 120 }}"
+                  alt=""
+                  width="56"
+                  height="56"
+                  loading="lazy"
+                  decoding="async">
+              {%- else -%}
+                <span class="why-choose-flare__icon-ph" aria-hidden="true">
+                  {{- 'image' | placeholder_svg_tag: 'why-choose-flare__placeholder-svg' -}}
+                </span>
+              {%- endif -%}
+            </div>
+
+            <div class="why-choose-flare__card-body">
+              {%- if block.settings.heading != blank -%}
+                <h3 class="why-choose-flare__card-title">{{ block.settings.heading | escape }}</h3>
+              {%- endif -%}
+
+              {%- if block.settings.description != blank -%}
+                <p class="why-choose-flare__card-text">{{ block.settings.description | strip_html | newline_to_br }}</p>
+              {%- endif -%}
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+  {%- endif -%}
+{%- endif -%}

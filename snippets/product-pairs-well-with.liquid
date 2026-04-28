@@ -1,560 +1,267 @@
-{% comment %} 
-                                    Product Pairs Well With Component
-                                     
-                                    Renders a carousel of related/complementary products (up to 5 products).
-                                     
-                                    Accepts: 
-                                    - section: {Object} Section object for settings
-                                     
-                                    Usage:
-                                    {% render 'product-pairs-well-with', section: section %} 
+{% comment %}
+  "Pairs well with" — lista vertical de cards (sem carrossel, sem View all).
+  Até 5 produtos via blocos `pairs_well_with_product`.
 {% endcomment %}
 
 {%- if section.settings.show_pairs_well_with -%}
-  <div class="pairs-well-with_new" id="pairs-well-with-{{ section.id }}">
-    {%- if section.settings.pairs_well_with_title != blank -%}
-      <h2 class="pairs-well-with-title_new">{{ section.settings.pairs_well_with_title }}</h2>
+  {%- assign product_count = 0 -%}
+  {%- for block in section.blocks -%}
+    {%- if block.type == 'pairs_well_with_product' and block.settings.product != blank -%}
+      {%- assign selected_product = all_products[block.settings.product] -%}
+      {%- if selected_product != blank -%}
+        {%- assign product_count = product_count | plus: 1 -%}
+      {%- endif -%}
     {%- endif -%}
+  {%- endfor -%}
 
-    <div class="pairs-well-with-slider_new">
-      {%- assign product_count = 0 -%}
-
-      {%- comment -%} Count products from blocks {%- endcomment -%}
-      {%- for block in section.blocks -%}
-        {%- if block.type == 'pairs_well_with_product' and block.settings.product != blank -%}
-          {%- assign selected_product = all_products[block.settings.product] -%}
-          {%- if selected_product != blank -%}
-            {%- assign product_count = product_count | plus: 1 -%}
-          {%- endif -%}
-        {%- endif -%}
-      {%- endfor -%}
-
-      {%- if product_count > 0 -%}
-        <div class="pairs-well-with-container_new" tabindex="0">
-          {%- assign slide_index = 0 -%}
-          {%- assign is_first_product = true -%}
-
-          {%- comment -%} Render products from blocks {%- endcomment -%}
-          {%- for block in section.blocks -%}
-            {%- if block.type == 'pairs_well_with_product' and block.settings.product != blank -%}
-              {%- assign slide_product = all_products[block.settings.product] -%}
-              {%- if slide_product != blank -%}
-                {%- render 'pairs-well-with-slide'
-                  , product: slide_product
-                  , section: section
-                  , slide_index: slide_index
-                  , is_first: is_first_product -%}
-                {%- assign slide_index = slide_index | plus: 1 -%}
-                {%- assign is_first_product = false -%}
-              {%- endif -%}
-            {%- endif -%}
-          {%- endfor -%}
+  {%- if product_count > 0 -%}
+    <div class="pairs-well-with_new" id="pairs-well-with-{{ section.id }}">
+      {%- if section.settings.pairs_well_with_title != blank -%}
+        <div class="pairs-well-with-head_new">
+          <h2 class="pairs-well-with-title_new">{{ section.settings.pairs_well_with_title }}</h2>
         </div>
-
-        {%- comment -%} Navigation dots {%- endcomment -%}
-        {%- if product_count > 1 -%}
-          <div class="pairs-well-with-dots_new" id="pairs-well-with-dots-{{ section.id }}">
-            {%- for i in (1..product_count) -%}
-              <button
-                type="button"
-                class="pairs-well-with-dot_new {% if forloop.first %}active_new{% endif %}"
-                data-slide-index="{{ forloop.index0 }}"
-                aria-label="Go to slide {{ forloop.index }}"></button>
-            {%- endfor -%}
-          </div>
-        {%- endif -%}
       {%- endif -%}
-    </div>
-  </div>
 
-  <script>
-    (function() {
-      const sliderId = 'pairs-well-with-{{ section.id }}';
-      const slider = document.querySelector(`#${sliderId}`);
-      const container = slider?.querySelector('.pairs-well-with-container_new');
-      const slides = container?.querySelectorAll('.pairs-well-with-slide_new');
-      const dots = slider?.querySelectorAll('.pairs-well-with-dot_new');
-      
-      if (!container || !slider || !slides || slides.length <= 1) return;
-      
-      let currentIndex = 0;
-      let autoPlayInterval = null;
-      let isTransitioning = false;
-      
-      const updateSlider = (direction = 'next') => {
-        if (isTransitioning) return;
-        isTransitioning = true;
-        
-        // Remove active class from all slides
-        slides.forEach((slide, index) => {
-          slide.classList.remove('active_new', 'slide-in_new', 'slide-out_new');
-          
-          if (index === currentIndex) {
-            slide.classList.add('active_new', 'slide-in_new');
-          } else if (index === currentIndex - 1 || (currentIndex === 0 && index === slides.length - 1)) {
-            slide.classList.add('slide-out_new');
-          }
-        });
-        
-        // Update dots
-        if (dots && dots.length > 0) {
-          dots.forEach((dot, index) => {
-            dot.classList.toggle('active_new', index === currentIndex);
-          });
-        }
-        
-        setTimeout(() => {
-          isTransitioning = false;
-        }, 300);
-      };
-      
-      const goToSlide = (index) => {
-        if (index < 0) index = slides.length - 1;
-        if (index >= slides.length) index = 0;
-        currentIndex = index;
-        updateSlider();
-      };
-      
-      const nextSlide = () => {
-        goToSlide(currentIndex + 1);
-        {%- if section.settings.pairs_well_with_auto_play -%}
-          stopAutoPlay();
-          startAutoPlay();
-        {%- endif -%}
-      };
-      
-      const prevSlide = () => {
-        goToSlide(currentIndex - 1);
-        {%- if section.settings.pairs_well_with_auto_play -%}
-          stopAutoPlay();
-          startAutoPlay();
-        {%- endif -%}
-      };
-      
-      // Dot navigation
-      if (dots && dots.length > 0) {
-        dots.forEach((dot, index) => {
-          dot.addEventListener('click', () => {
-            goToSlide(index);
-            {%- if section.settings.pairs_well_with_auto_play -%}
-              stopAutoPlay();
-              startAutoPlay();
+      <div class="pairs-well-with-stack_new">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'pairs_well_with_product' and block.settings.product != blank -%}
+            {%- assign slide_product = all_products[block.settings.product] -%}
+            {%- if slide_product != blank -%}
+              {% render 'pairs-well-with-slide', product: slide_product, section: section, block: block %}
             {%- endif -%}
-          });
-        });
-      }
-      
-      // Touch/swipe support
-      let touchStartX = 0;
-      let touchStartY = 0;
-      let isDragging = false;
-      let touchThreshold = 50;
-      let hasMoved = false;
-      
-      container.addEventListener('touchstart', (e) => {
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
-        isDragging = true;
-        hasMoved = false;
-        container.style.userSelect = 'none';
-        container.style.webkitUserSelect = 'none';
-      }, { passive: true });
-      
-      container.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
-        
-        const touchCurrentX = e.touches[0].clientX;
-        const touchCurrentY = e.touches[0].clientY;
-        const diffX = Math.abs(touchStartX - touchCurrentX);
-        const diffY = Math.abs(touchStartY - touchCurrentY);
-        
-        // Se ainda não moveu o suficiente, não previne o scroll
-        if (diffX < 10 && diffY < 10) {
-          return;
-        }
-        
-        // Marca como movido se ainda não foi marcado
-        if (!hasMoved) {
-        hasMoved = true;
-        }
-        
-        // Só previne o scroll se o movimento for principalmente horizontal
-        if (diffX > diffY && diffX > 10) {
-          e.preventDefault();
-        }
-      }, { passive: false });
-      
-      container.addEventListener('touchend', (e) => {
-        if (!isDragging) return;
-        
-        const touchEndX = e.changedTouches[0].clientX;
-        const touchEndY = e.changedTouches[0].clientY;
-        const diffX = touchStartX - touchEndX;
-        const diffY = touchStartY - touchEndY;
-        
-        container.style.userSelect = '';
-        container.style.webkitUserSelect = '';
-        
-        // Só executa o swipe se foi um movimento horizontal claro
-        if (hasMoved && Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > touchThreshold) {
-          if (diffX > 0) {
-            // Swipe left - next slide
-            nextSlide();
-          } else {
-            // Swipe right - previous slide
-            prevSlide();
-          }
-        }
-        
-        isDragging = false;
-        hasMoved = false;
-      }, { passive: true });
-      
-      // Mouse drag support for desktop
-      let mouseDown = false;
-      let mouseStartX = 0;
-      let mouseStartY = 0;
-      
-      container.addEventListener('mousedown', (e) => {
-        // Prevent text selection
-        e.preventDefault();
-        mouseDown = true;
-        mouseStartX = e.clientX;
-        mouseStartY = e.clientY;
-        container.style.cursor = 'grabbing';
-        container.style.userSelect = 'none';
-        container.style.webkitUserSelect = 'none';
-        slider.style.userSelect = 'none';
-        slider.style.webkitUserSelect = 'none';
-      });
-      
-      document.addEventListener('mousemove', (e) => {
-        if (!mouseDown) return;
-        e.preventDefault();
-      });
-      
-      document.addEventListener('mouseup', (e) => {
-        if (!mouseDown) return;
-        
-        const diffX = mouseStartX - e.clientX;
-        const diffY = mouseStartY - e.clientY;
-        
-        container.style.cursor = 'grab';
-        container.style.userSelect = '';
-        container.style.webkitUserSelect = '';
-        slider.style.userSelect = '';
-        slider.style.webkitUserSelect = '';
-        
-        // Only trigger slide if horizontal movement is greater than vertical
-        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
-          if (diffX > 0) {
-            // Drag left - next slide
-            nextSlide();
-          } else {
-            // Drag right - previous slide
-            prevSlide();
-          }
-        }
-        
-        mouseDown = false;
-      });
-      
-      // Keyboard navigation
-      container.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowLeft') {
-          e.preventDefault();
-          prevSlide();
-        } else if (e.key === 'ArrowRight') {
-          e.preventDefault();
-          nextSlide();
-        }
-      });
-      
-      // Auto-play (optional)
-      const startAutoPlay = () => {
-        {%- if section.settings.pairs_well_with_auto_play -%}
-          if (autoPlayInterval) clearInterval(autoPlayInterval);
-          
-          autoPlayInterval = setInterval(() => {
-            nextSlide();
-          }, {{ section.settings.pairs_well_with_auto_play_interval | default: 5000 }});
-        {%- endif -%}
-      };
-      
-      const stopAutoPlay = () => {
-        if (autoPlayInterval) {
-          clearInterval(autoPlayInterval);
-          autoPlayInterval = null;
-        }
-      };
-      
-      {%- if section.settings.pairs_well_with_auto_play -%}
-        startAutoPlay();
-        
-        // Pause on hover
-        slider.addEventListener('mouseenter', stopAutoPlay);
-        slider.addEventListener('mouseleave', startAutoPlay);
-      {%- endif -%}
-      
-      // Initialize
-      updateSlider();
-    })();
-  </script>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  {%- endif -%}
 
   <style>
     .pairs-well-with_new {
-      margin-top: 20px;
+      margin-top: 28px;
+      width: 100%;
       max-width: 1200px;
       margin-left: auto;
       margin-right: auto;
     }
 
+    .pairs-well-with-head_new {
+      margin-bottom: 16px;
+    }
+
     .pairs-well-with-title_new {
-      font-size: 18px !important;
-      font-weight: 700;
-      color: #EB701F;
-      margin-bottom: 30px;
+      margin: 0;
+      font-family: "Barlow", "Barlow Fallback", sans-serif;
+      font-size: 15px !important;
+      font-weight: 700 !important;
+      color: #111827 !important;
       text-align: left;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      line-height: 1.3;
     }
 
-    .pairs-well-with-slider_new {
-      position: relative;
+    .pairs-well-with-stack_new {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
       width: 100%;
-      overflow: hidden;
-      user-select: none;
-      -webkit-user-select: none;
     }
 
-    .pairs-well-with-container_new {
-      position: relative;
-      width: 100%;
-      transition: transform 0.3s ease;
-      cursor: grab;
+    .pairs-well-with-card_new {
+      border: 1px solid #eb701f;
+      border-radius: 2px;
+      padding: 16px 18px;
+      background: transparent;
+      box-sizing: border-box;
     }
-
-    .pairs-well-with-container_new:active {
-      cursor: grabbing;
-    }
-
-    .pairs-well-with-slide_new {
-      display: none;
-      width: 100%;
-      opacity: 0;
-      transform: translateX(20px);
-      transition: opacity 0.3s ease
-      , transform 0.3s ease;
-    }
-
-    .pairs-well-with-slide_new.active_new {
-      display: block;
-      opacity: 1;
-      transform: translateX(0);
-    }
-
-    .pairs-well-with-slide_new.slide-in_new {
-      animation: slideIn 0.3s ease forwards;
-    }
-
-    .pairs-well-with-slide_new.slide-out_new {
-      animation: slideOut 0.3s ease forwards;
-    }
-
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateX(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-
-    @keyframes slideOut {
-      from {
-        opacity: 1;
-        transform: translateX(0);
-      }
-      to {
-        opacity: 0;
-        transform: translateX(-30px);
-      }
-    }
-
 
     .pairs-well-with-content_new {
       display: flex;
-      gap: 30px;
+      flex-direction: row;
+      gap: 20px;
       align-items: center;
     }
 
+    .pairs-well-with-image-wrapper_new {
+      flex-shrink: 0;
+    }
 
     .pairs-well-with-image-link_new {
-      display: block;
-      width: 100%;
-      aspect-ratio: 1;
-      background: #F2F2F2;
-      width: 200px;
-      height: 130px;
-      border-radius: 20px;
-    }
-
-    .pairs-well-with-image_new {
-      width: 200px;
-      height: 130px;
-      object-fit: contain;
-      padding: 20px;
-      display: block;
-    }
-
-    .pairs-well-with-image-placeholder_new {
-      width: 100%;
-      aspect-ratio: 1;
-      background: #f9f9f9;
       display: flex;
       align-items: center;
       justify-content: center;
+      width: 120px;
+      height: 120px;
+      background: transparent;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .pairs-well-with-image_new {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      padding: 6px;
+    }
+
+    .pairs-well-with-image-placeholder_new {
+      width: 120px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
     }
 
     .pairs-well-with-info-wrapper_new {
       flex: 1;
+      min-width: 0;
       display: flex;
       flex-direction: column;
       gap: 0;
+      align-items: flex-start;
     }
 
     .pairs-well-with-product-title_new {
       margin: 0 !important;
-      font-size: 18px !important;
-      font-weight: 600;
-      line-height: 18px !important;
+      font-family: "Barlow", "Barlow Fallback", sans-serif;
+      font-size: 17px !important;
+      font-weight: 700 !important;
+      line-height: 1.25 !important;
     }
 
     .pairs-well-with-product-title_new a {
-      color: #000;
+      color: #111827;
       text-decoration: none;
-      transition: color 0.2s;
+      transition: color 0.2s ease;
     }
 
     .pairs-well-with-product-title_new a:hover {
-      color: #EB701F;
+      color: #eb701f;
     }
 
     .pairs-well-with-price_new {
       display: flex;
-      align-items: center;
-      gap: 15px;
+      align-items: baseline;
       flex-wrap: wrap;
+      gap: 10px;
     }
 
     .pairs-well-with-price-current_new {
-      font-size: 20px !important;
-      font-weight: 700;
-      color: #EB701F;
+      font-family: "Barlow", "Barlow Fallback", sans-serif;
+      font-size: 22px !important;
+      font-weight: 700 !important;
+      color: #eb701f !important;
     }
 
     .pairs-well-with-price-original_new {
       font-size: 15px !important;
-      color: #999;
+      color: #9ca3af;
       text-decoration: line-through;
     }
 
     .pairs-well-with-form_new {
-      margin: 0;
+      margin: 4px 0 0;
+      width: 100%;
     }
 
     .pairs-well-with-add-btn_new {
       width: 100%;
-      max-width: fit-content !important;
-      padding: 4px 50px !important;
-      background: #EB701F;
-      color: #fff;
+      max-width: 220px;
+      padding: 12px 24px !important;
+      background: #111827;
+      color: #fff !important;
       border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 700;
+      border-radius: 2px;
+      font-family: "Barlow", "Barlow Fallback", sans-serif;
+      font-size: 13px !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: background 0.2s ease, opacity 0.2s ease;
     }
 
     .pairs-well-with-add-btn_new:hover:not(:disabled) {
-      background: #d85f0f;
+      background: #1f2937;
     }
 
     .pairs-well-with-add-btn_new:disabled {
-      background: #ccc;
+      background: #d1d5db;
+      color: #6b7280 !important;
       cursor: not-allowed;
     }
 
-    .pairs-well-with-dots_new {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .pairs-well-with-dot_new {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      border: none;
-      background: #fff;
-      border: 1px solid #000;
-      cursor: pointer;
-      padding: 0;
-      transition: all 0.3s ease;
-    }
-
-    .pairs-well-with-dot_new.active_new {
-      background: #000;
-      width: 32px;
-      border-radius: 6px;
-    }
-
-    @media (max-width: 768px) {
-      .pairs-well-with-price_new{
-        justify-content: center;
-      }
-      .pairs-well-with-form_new{
-        text-align: center;
-      }
+    /* Mobile / coluna estreita: imagem à esquerda, texto e CTA à direita (poupa altura) */
+    @media (max-width: 1024px) {
       .pairs-well-with_new {
-        padding: 0 15px;
-        margin-top: 40px;
+        padding: 0 2px;
       }
 
-      .pairs-well-with-title_new {
-        font-size: 24px;
-        margin-bottom: 20px;
+      .pairs-well-with-stack_new {
+        gap: 10px;
+      }
+
+      .pairs-well-with-card_new {
+        padding: 10px 12px;
       }
 
       .pairs-well-with-content_new {
-        flex-direction: column;
-        gap: 30px;
+        flex-direction: row;
+        align-items: center;
+        gap: 12px;
+        text-align: left;
+      }
+
+      .pairs-well-with-image-wrapper_new {
+        flex-shrink: 0;
+      }
+
+      .pairs-well-with-image-link_new,
+      .pairs-well-with-image-placeholder_new {
+        width: 76px;
+        height: 76px;
+        max-width: none;
+        margin: 0;
       }
 
       .pairs-well-with-info-wrapper_new {
-        width: 100%;
+        align-items: flex-start;
+        width: auto;
+        min-width: 0;
+        flex: 1;
       }
 
-      .pairs-well-with-product-title_new {
-        font-size: 22px;
-        text-align: center;
+      #pairs-well-with-{{ section.id }} .pairs-well-with-product-title_new {
+        font-size: 14px !important;
+        line-height: 1.25 !important;
+      }
+
+      .pairs-well-with-price_new {
+        justify-content: flex-start;
+        gap: 8px;
       }
 
       .pairs-well-with-price-current_new {
-        font-size: 28px;
+        font-size: 17px !important;
       }
 
       .pairs-well-with-price-original_new {
-        font-size: 20px;
+        font-size: 12px !important;
+      }
+
+      .pairs-well-with-form_new {
+        margin-top: 6px;
+        width: 100%;
+        max-width: 100%;
       }
 
       .pairs-well-with-add-btn_new {
+        width: 100%;
         max-width: 100%;
-        padding: 16px 24px;
-        font-size: 14px;
+        padding: 8px 12px !important;
+        font-size: 11px !important;
       }
     }
   </style>

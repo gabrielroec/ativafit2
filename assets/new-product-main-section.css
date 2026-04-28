@@ -1,6 +1,6 @@
 /* ======================================================================
-   NEW PRODUCT MAIN SECTION STYLES
-   Ativafit - Product Page Styles (fork of product-main-section.css)
+   PRODUCT MAIN SECTION STYLES
+   Ativafit - Product Page Styles
    ====================================================================== */
 
 /* Base Container */
@@ -25,10 +25,27 @@
   justify-content: space-between;
 }
 
-.product-gallery-container_new {
-  max-width: 50% !important;
+/* Coluna esquerda: galeria + Why choose (sticky no desktop) */
+.product-gallery-column_new {
+  flex: 1;
+  min-width: 0;
+  max-width: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
   position: sticky;
   top: 150px;
+  align-self: flex-start;
+}
+
+.product-gallery-column_new .product-gallery-container_new {
+  position: static;
+  max-width: 100% !important;
+  top: auto;
+}
+
+.product-gallery-container_new {
+  max-width: 100% !important;
   flex: 1 !important;
 }
 
@@ -294,6 +311,7 @@
   font-weight: 500;
 }
 
+
 /* Member price line — same metafield as AtivaPeople badge (product-info.liquid) */
 .product-info-member-line_new {
   margin: 0!important;
@@ -304,6 +322,10 @@
   color: #888888;
   display: none;
 }
+[data-section-type="product-main"][data-product-handle="pro-adjustable-weight-bench"] .product-info-member-line_new {
+  display: none !important;
+}
+
 
 .product-info-member-line__price {
   color: #e07240;
@@ -810,7 +832,7 @@
   width: 100%;
   aspect-ratio: 4/3;
   background: #f6f6f6;
-  border-radius: 20px;
+  border-radius: 0;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -867,7 +889,7 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
-  border-radius: 20px;
+  border-radius: 0!important;
 }
 
 .video-play-overlay_new {
@@ -981,7 +1003,7 @@
   width: 80px;
   aspect-ratio: 4/3;
   object-fit: cover;
-  border-radius: 12px;
+  border-radius: 0;
   border: 2px solid transparent;
   cursor: pointer;
   flex-shrink: 0;
@@ -1538,6 +1560,12 @@ body.modal-open_new {
   width: 50% !important;
 }
 
+[data-section-type="new-product-main"].flare-pdp .flare-pdp-layout__info-before,
+[data-section-type="new-product-main"].flare-pdp .flare-pdp-layout__info-after {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
 /* ======================================================================
    BUTTONS STYLES
    ====================================================================== */
@@ -1631,62 +1659,96 @@ body.modal-open_new {
 }
 
 /* ======================================================================
-   ACCORDION STYLES
+   ACCORDION STYLES (labels em caps + chevron; acento #eb701f)
    ====================================================================== */
 
 .product-accordion_new {
-  margin-top: 20px;
+  margin-top: 24px;
+  padding: 0 2px;
 }
 
 .accordion-item_new {
-  border-bottom: 1px solid #313131;
+  border-bottom: 1px solid #d4cfc8;
   margin-bottom: 0;
 }
 
 .accordion-item_new:first-child {
-  border-top: 1px solid #313131;
+  border-top: 1px solid #d4cfc8;
 }
 
 .accordion-header_new {
   width: 100%;
-  background: none;
+  background: transparent;
   border: none;
   text-align: left;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0;
+  padding: 18px 0 18px 0;
+  gap: 16px;
   font-family: "Barlow", "Barlow Fallback", sans-serif;
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 700 !important;
-  color: #eb701f !important;
-  transition: all 0.2s ease;
+  color: #111827 !important;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .accordion-header_new:hover {
-  color: #eb701f !important;
+  color: #111827 !important;
+ 
 }
 
 .accordion-header_new.active_new {
-  color: #eb701f !important;
+  color: #111827 !important;
+}
+
+.accordion-header_new:focus-visible {
+  outline: 2px solid #eb701f;
+  outline-offset: 2px;
+}
+
+.accordion-title_new{
+  font-family: "Barlow", "Barlow Fallback", sans-serif;
+  font-size: 14px !important;
+  font-weight: 700;
+  color: #111827;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.06em
+  padding-top: 10px;
+  line-height: 1.35;
 }
 
 .accordion-title_new {
-  font-size: 18px !important;
-  font-weight: 700;
-  color: #eb701f;
-  margin: 10px 0;
-  text-align: left;
-  text-transform: uppercase;
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+
+.flare-story__heading {
+  margin: 0 0 16px;
 }
 
 .accordion-icon_new {
-  font-size: 24px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0;
+  color: #eb701f;
+  line-height: 0;
+  transition: transform 0.25s ease;
+}
 
-  color: #666;
-  transition: transform 0.3s ease;
-  margin-left: 16px;
+.accordion-icon_new svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+}
+
+.accordion-header_new.active_new .accordion-icon_new {
+  transform: rotate(180deg);
 }
 
 .accordion-content_new {
@@ -1698,7 +1760,7 @@ body.modal-open_new {
 
 .accordion-content_new.active_new {
   max-height: 2000px;
-  padding: 0 0 20px;
+  padding: 0 16px 22px;
 }
 
 .accordion-body_new {
@@ -1757,7 +1819,8 @@ body.modal-open_new {
 }
 
 .accordion-link_new:hover {
-  color: #d65a0f;
+  color: #eb701f;
+  opacity: 0.88;
 }
 
 /* ======================================================================
@@ -1884,10 +1947,36 @@ body.modal-open_new {
 @media (max-width: 1024px) {
   .product-main_new {
     flex-direction: column;
-    gap: 40px;
+    gap: 0px;
     padding: 0 20px !important;
   }
+  .why-choose-flare__card{
+    padding:0!important;
+  }
 
+  [data-section-type="new-product-main"].flare-pdp .flare-pdp-layout__left {
+    display: contents;
+  }
+
+  [data-section-type="new-product-main"].flare-pdp .flare-pdp-layout__gallery {
+    order: 1;
+  }
+
+  [data-section-type="new-product-main"].flare-pdp .flare-pdp-layout__info-before {
+    order: 2;
+  }
+
+  [data-section-type="new-product-main"].flare-pdp .flare-pdp-layout__why-choose {
+    order: 3;
+    width: 100%;
+    min-width: 0;
+  }
+
+  [data-section-type="new-product-main"].flare-pdp .flare-pdp-layout__info-after {
+    order: 4;
+  }
+
+  .product-gallery-column_new,
   .product-gallery-container_new,
   .product-info-wrapper_new {
     width: 100% !important;
@@ -1921,6 +2010,55 @@ body.modal-open_new {
 
   .product-price-container_new.desktop-only_new {
     display: flex !important;
+  }
+
+  [data-section-type="new-product-main"].flare-pdp .product-main_new.flare-pdp-layout {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    column-gap: 40px;
+    row-gap: 0px;
+    align-items: start;
+    width: 100% !important;
+  }
+
+  [data-section-type="new-product-main"].flare-pdp .flare-pdp-layout__left {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    align-self: start;
+    min-width: 0;
+    width: 100%;
+    max-width: none;
+    position: sticky;
+    top: 150px;
+  }
+
+  [data-section-type="new-product-main"].flare-pdp .flare-pdp-layout__left .product-gallery-column_new {
+    max-width: 100% !important;
+    flex: 0 0 auto;
+    position: static;
+    top: auto;
+    align-self: stretch;
+  }
+
+  [data-section-type="new-product-main"].flare-pdp .flare-pdp-layout__info-before {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+  }
+
+  [data-section-type="new-product-main"].flare-pdp .flare-pdp-layout__info-after {
+    grid-column: 2;
+    grid-row: 2;
+    min-width: 0;
+  }
+
+  [data-section-type="new-product-main"].flare-pdp .flare-pdp-layout__why-choose {
+    width: 100%;
+    min-width: 0;
   }
 }
 
@@ -2336,7 +2474,6 @@ body.modal-open_new {
   max-width: 370px;
   margin: 0!important;
   padding: 4px 10px;
-  border-radius: 8px;
   font-family: "Barlow", "Barlow Fallback", sans-serif;
   font-size: 12px;
   line-height: 1.35;
@@ -2359,6 +2496,7 @@ body.modal-open_new {
   gap: 0px;
   min-width: 0;
   padding: 10px 12px;
+  border: 1px solid #d1d5db;
   border-radius: 4px;
   background: #fff;
   box-sizing: border-box;
@@ -2393,4 +2531,496 @@ body.modal-open_new {
   .pdp-trust-badge__text {
     font-size: 12px;
   }
+}
+
+/* ======================================================================
+   Flare PDP — layout new-product-main-section (referência print)
+   ====================================================================== */
+
+
+.flare-pdp__info {
+  width: 100% !important;
+  gap: 8px !important;
+}
+
+.flare-pdp__badges {
+  margin-bottom: 2px;
+}
+
+.flare-pdp__badge {
+  background: #eb701f;
+  color: #fff;
+  border-radius: 2px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 6px 12px;
+}
+
+.flare-pdp__title {
+  font-size: 28px;
+  line-height: 1.2;
+  color: #111827;
+  font-weight: 700;
+}
+
+.flare-pdp__reviews {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.flare-pdp__stars {
+  display: flex;
+  gap: 2px;
+  color: #eb701f;
+}
+
+.flare-pdp__star {
+  display: block;
+}
+
+.flare-pdp__review-count {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.flare-pdp__reviews--fallback {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.flare-pdp__price-block {
+  margin-top: 4px;
+}
+
+.flare-pdp__price-block .product-price-container_new {
+  flex-direction: row;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.flare-pdp__price {
+  color: #eb701f !important;
+  font-size: 32px !important;
+  line-height: 1.1 !important;
+  font-weight: 700 !important;
+}
+
+.flare-pdp__compare {
+  font-size: 20px !important;
+}
+
+/* AtivaPeople — Flare: bloco simples (sem gradiente, brilho ou sparkle) */
+.flare-pdp .flare-pdp__ativapeople-badge.ativapeople-badge_new {
+  margin-top: 10px;
+  background: #fffaf6;
+  color: #111827;
+  border: 1px solid rgba(235, 112, 31, 0.22);
+  border-radius: 8px;
+  padding: 10px 14px;
+  box-shadow: none;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+  overflow: visible;
+}
+
+.flare-pdp .flare-pdp__ativapeople-badge.ativapeople-badge_new::before {
+  display: none;
+}
+
+.flare-pdp .flare-pdp__ativapeople-badge.ativapeople-badge_new:hover {
+  transform: none;
+  box-shadow: none;
+  background: #fff4ec;
+  border-color: rgba(235, 112, 31, 0.38);
+}
+
+.flare-pdp .flare-pdp__ativapeople-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.flare-pdp .flare-pdp__ativapeople-brand {
+  font-family: "Barlow", "Barlow Fallback", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #eb701f;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.flare-pdp .flare-pdp__ativapeople-brand:hover {
+  color: #c75a12;
+  border-bottom-color: rgba(235, 112, 31, 0.35);
+}
+
+.flare-pdp .flare-pdp__ativapeople-brand:focus-visible {
+  outline: 2px solid #eb701f;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.flare-pdp .flare-pdp__ativapeople-amount {
+  flex-shrink: 0;
+}
+
+.flare-pdp .flare-pdp__ativapeople-badge .ativapeople-price,
+.flare-pdp .flare-pdp__ativapeople-price {
+  font-family: "Barlow", "Barlow Fallback", sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  text-shadow: none;
+  position: static;
+}
+
+.flare-pdp .flare-pdp__ativapeople-badge .ativapeople-price::after {
+  content: none;
+  display: none;
+  animation: none;
+}
+
+@media (max-width: 768px) {
+  .flare-pdp .flare-pdp__ativapeople-badge.ativapeople-badge_new {
+    padding: 8px 12px;
+    margin-top: 8px;
+  }
+
+  .flare-pdp .flare-pdp__ativapeople-brand {
+    font-size: 13px;
+  }
+
+  .flare-pdp .flare-pdp__ativapeople-badge .ativapeople-price,
+  .flare-pdp .flare-pdp__ativapeople-price {
+    font-size: 16px;
+  }
+}
+
+.flare-pdp__form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.flare-pdp__payment-terms {
+  margin: 0 0 8px;
+}
+
+.flare-pdp__payment-terms shopify-payment-terms {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.45;
+}
+
+.flare-pdp__buy-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin-top: 2px;
+}
+
+.flare-pdp__field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.flare-pdp__field--variants {
+  position: relative;
+}
+
+.flare-pdp__field-label {
+  font-family: "Barlow", "Barlow Fallback", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #6b7280;
+}
+
+.flare-pdp__variant-select-sr {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  border: 0 !important;
+  white-space: nowrap !important;
+}
+
+.flare-pdp__variant-pills {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.flare-pdp__variant-pill {
+  font-family: "Barlow", "Barlow Fallback", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 14px 16px;
+  border: 2px solid #d1d5db;
+  border-radius: 2px;
+  background: #fff;
+  color: #6b7280;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.flare-pdp__variant-pill:hover:not(:disabled) {
+  border-color: #9ca3af;
+}
+
+.flare-pdp__variant-pill.is-active {
+  border-color: #eb701f;
+  color: #eb701f;
+}
+
+.flare-pdp__variant-pill:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.flare-pdp__qty {
+  width: 100%;
+  max-width: 200px;
+  justify-content: space-between;
+  border-radius: 2px;
+  border-width: 1px;
+  border-color: #d1d5db;
+  height: 48px;
+}
+
+.flare-pdp__btn--atc {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 100% !important;
+  max-width: none !important;
+  padding: 14px 20px !important;
+  border-radius: 2px !important;
+}
+
+.flare-pdp__atc-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.flare-pdp__atc-icon {
+  flex-shrink: 0;
+}
+
+.flare-pdp__btn--checkout {
+  background: #1f2937 !important;
+  color: #fff !important;
+  border: none !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin-top: 0 !important;
+  padding: 14px 20px !important;
+  border-radius: 2px !important;
+}
+
+.flare-pdp__btn--checkout:hover {
+  background: #111827 !important;
+  color: #fff !important;
+}
+
+.flare-pdp__dynamic-checkout {
+  margin-top: 6px;
+}
+
+.flare-pdp__cta-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.flare-pdp__trust-strip {
+  margin: 20px 0 12px;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: "Barlow", "Barlow Fallback", sans-serif;
+  font-size: 12px!important;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+  line-height: 1.45;
+  text-align: center;
+}
+
+/* Editorial — após trust strip / why choose (mesma coluna no mobile) */
+.flare-story {
+  margin: 12px 0 8px;
+  width: 100%;
+  max-width: 100%;
+  text-align: left;
+  padding-top: 20px;
+  border-top: 1px solid #d1d5db;
+}
+
+.flare-story__body {
+  font-family: "Barlow", "Barlow Fallback", sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.65;
+  color: #374151;
+}
+
+.flare-story__body p {
+  margin: 0 0 14px;
+}
+
+.flare-story__body p:last-child {
+  margin-bottom: 0;
+}
+
+.flare-story__body a {
+  color: #eb701f;
+  text-decoration: underline;
+}
+
+.flare-story__body a:hover {
+  opacity: 0.88;
+}
+
+[data-section-type="new-product-main"] .thumbnail-container_new.active_new .thumbnail_new {
+  border-color: #eb701f;
+  box-shadow: 0 0 0 1px #eb701f;
+}
+
+/* ======================================================================
+   Why choose this? (trust strip → why choose → editorial)
+   ====================================================================== */
+
+.why-choose-flare {
+  width: 100%;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+[data-section-type="new-product-main"] .why-choose-flare h2.why-choose-flare__title,
+.pp-full_new.flare-pdp .why-choose-flare h2.why-choose-flare__title {
+  margin: 0 0 18px !important;
+  font-family: "Barlow", "Barlow Fallback", sans-serif !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #111827;
+  line-height: 1.3 !important;
+  text-align: center;
+}
+
+.why-choose-flare__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(8px, 2.5vw, 14px);
+  width: 100%;
+  align-items: stretch;
+}
+
+.why-choose-flare__card {
+  border: none;
+  border-radius: 0;
+  padding: clamp(10px, 2.5vw, 14px);
+  align-items: flex-start!important;
+  background: transparent;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: clamp(10px, 2.5vw, 14px);
+  min-width: 0;
+}
+
+.why-choose-flare__icon-wrap {
+  flex-shrink: 0;
+  width: clamp(48px, 12vw, 64px);
+  height: clamp(48px, 12vw, 64px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f4f6;
+  border-radius: 10px;
+  color: #eb701f;
+}
+
+.why-choose-flare__icon-img {
+  width: clamp(28px, 7vw, 40px);
+  height: clamp(28px, 7vw, 40px);
+  object-fit: contain;
+  display: block;
+}
+
+.why-choose-flare__icon-ph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: #eb701f;
+}
+
+.why-choose-flare__icon-ph svg {
+  width: clamp(26px, 6.5vw, 36px);
+  height: clamp(26px, 6.5vw, 36px);
+}
+
+.why-choose-flare__card-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 4px;
+  text-align: left;
+}
+
+.why-choose-flare__icon-ph svg,
+.why-choose-flare__icon-ph path {
+  fill: currentColor;
+}
+
+[data-section-type="new-product-main"] .why-choose-flare h3.why-choose-flare__card-title,
+.pp-full_new.flare-pdp .why-choose-flare h3.why-choose-flare__card-title {
+  margin: 0 !important;
+  font-family: "Barlow", "Barlow Fallback", sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: #111827;
+  line-height: 1.25 !important;
+  word-break: break-word;
+}
+
+[data-section-type="new-product-main"] .why-choose-flare p.why-choose-flare__card-text,
+.pp-full_new.flare-pdp .why-choose-flare p.why-choose-flare__card-text {
+  margin: 0 !important;
+  font-family: "Barlow", "Barlow Fallback", sans-serif !important;
+  font-size: 14px !important;
+  line-height: 1.45 !important;
+  color: #4b5563;
+  word-break: break-word;
+}
+
+@media (max-width: 1024px) {
+  [data-section-type="new-product-main"].flare-pdp .product-info-wrapper_new {
+    width: 100% !important;
+    max-width: none;
+  }
+  [data-section-type="new-product-main"] .why-choose-flare p.why-choose-flare__card-text,
+.pp-full_new.flare-pdp .why-choose-flare p.why-choose-flare__card-text {
+  font-size: 12px!important;
+}
 }

@@ -62,6 +62,12 @@
   if ativapeople_display_cents < 0
     assign ativapeople_display_cents = 0
   endif
+
+  assign hide_member_price_line = false
+  assign _product_handle_lc = product.handle | strip | downcase
+  if _product_handle_lc == 'pro-adjustable-weight-bench'
+    assign hide_member_price_line = true
+  endif
 -%}
 
 <div class="product-info-container_new">
@@ -294,7 +300,7 @@
     {%- endif -%}
   </div>
 
-  {%- if ap_mf_fixed and ativapeople_display_cents > 0 -%}
+  {%- if ap_mf_fixed and ativapeople_display_cents > 0 and hide_member_price_line == false -%}
     <p class="product-info-member-line_new">
       <span class="product-info-member-line__muted">Member price </span>
       <span class="product-info-member-line__price">{{ ativapeople_display_cents | money }}</span>
