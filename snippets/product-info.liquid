@@ -63,9 +63,16 @@
     assign ativapeople_display_cents = 0
   endif
 
+  comment
+    Esconder linha "Member price" neste PDP (handle pode divergir na loja; usamos vários critérios).
+  endcomment
   assign hide_member_price_line = false
-  assign _product_handle_lc = product.handle | strip | downcase
+  assign _product_handle_lc = product.handle | default: '' | strip | downcase
   if _product_handle_lc == 'pro-adjustable-weight-bench'
+    assign hide_member_price_line = true
+  endif
+  assign _apb_store = all_products['pro-adjustable-weight-bench']
+  if _apb_store != blank and product.id == _apb_store.id
     assign hide_member_price_line = true
   endif
 -%}
@@ -300,14 +307,16 @@
     {%- endif -%}
   </div>
 
-  {%- if ap_mf_fixed and ativapeople_display_cents > 0 and hide_member_price_line == false -%}
-    <p class="product-info-member-line_new">
-      <span class="product-info-member-line__muted">Member price </span>
-      <span class="product-info-member-line__price">{{ ativapeople_display_cents | money }}</span>
-      <span class="product-info-member-line__muted" aria-hidden="true"> · </span>
-      <a href="/pages/membership" class="product-info-member-line__link">Join AtivaPeople</a>
-    </p>
-  {%- endif -%}
+  {%- unless hide_member_price_line -%}
+    {%- if ap_mf_fixed and ativapeople_display_cents > 0 -%}
+      <p class="product-info-member-line_new">
+        <span class="product-info-member-line__muted">Member price </span>
+        <span class="product-info-member-line__price">{{ ativapeople_display_cents | money }}</span>
+        <span class="product-info-member-line__muted" aria-hidden="true"> · </span>
+        <a href="/pages/membership" class="product-info-member-line__link">Join AtivaPeople</a>
+      </p>
+    {%- endif -%}
+  {%- endunless -%}
 
   <!-- Mini Media Mentions (only when enabled in section settings) -->
   {% if section.settings.show_media_mentions_carousel == true %}
