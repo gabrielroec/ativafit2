@@ -1,5 +1,5 @@
 {% comment %} 
-                                                                                                                                          New Product Main Section - Refactored
+                                                                                                                                          Product Main Section - Refactored
                                                                                                                                            
                                                                                                                                           Professional product page section following Shopify 2.0 best practices.
                                                                                                                                           Uses modular snippets for better organization and maintainability.
@@ -9,52 +9,49 @@
                                                                                                                                            
                                                                                                                                           Dependencies: 
                                                                                                                                           - product-gallery.liquid snippet 
-                                                                                                                                          - product-why-choose-flare.liquid (desktop: sob a galeria; mobile: após trust strip, antes do editorial) 
-                                                                                                                                          - product-info-flare-pdp.liquid snippet 
-                                                                                                                                          - product-add-to-cart-flare-pdp.liquid snippet 
-                                                                                                                                          - product-trust-strip-flare.liquid 
-                                                                                                                                          - product-flare-story.liquid (abaixo da faixa de confiança) 
+                                                                                                                                          - product-info.liquid snippet 
+                                                                                                                                          - product-benefits.liquid (faixa trust + badges; sem Embla)
+                                                                                                                                          - product-add-to-cart.liquid snippet 
                                                                                                                                           - product-accordions.liquid snippet 
                                                                                                                                           - product-benefit-popups.liquid snippet 
-                                                                                                                                          - new-product-main-section.css asset 
+                                                                                                                                          - product-main-section.css asset 
 {% endcomment %}
 
-{{ 'new-product-main-section.css' | asset_url | stylesheet_tag }}
+{{ 'product-main-section.css' | asset_url | stylesheet_tag }}
 
 <section
-  class="pp-full_new flare-pdp"
+  class="pp-full_new"
   data-section-id="{{ section.id }}"
-  data-section-type="new-product-main">
+  data-section-type="product-main">
   <div class="container-product-page_new">
-    <div class="product-main_new flare-pdp-layout">
-      <div class="flare-pdp-layout__left">
-        <div class="product-gallery-column_new flare-pdp-layout__gallery">
-          {% render 'product-gallery'
-            , product: product
-            , section: section %}
-        </div>
-        <div class="flare-pdp-layout__why-choose">
-          {% render 'product-why-choose-flare', section: section %}
-        </div>
-      </div>
+    <div class="product-main_new">
 
-      <div class="product-info-wrapper_new flare-pdp-layout__info-before">
-        {% render 'product-info-flare-pdp'
-          , product: product
-          , section: section %}
-        {% render 'product-add-to-cart-flare-pdp'
-          , product: product
-          , section: section %}
-        {% render 'product-trust-strip-flare', section: section %}
-      </div>
+      <!-- Product Gallery -->
+      {% render 'product-gallery'
+        , product: product
+        , section: section %}
 
-      <div class="product-info-wrapper_new flare-pdp-layout__info-after">
-        {% render 'product-flare-story', section: section %}
-        {% render 'product-accordions'
-          , section: section %}
+      <!-- Product Information -->
+      <div class="product-info-wrapper_new">
+      {% render 'product-info'
+        , product: product
+        , section: section %}
+
+        <!-- Add to Cart Section -->
+      {% render 'product-add-to-cart'
+        , product: product
+        , section: section %}
+        <!-- Benefits Section -->
+      {% render 'product-benefits'
+        , section: section %}
+        <!-- Accordions -->
+      {% render 'product-accordions'
+        , section: section %}
+
+
+        <!-- Pairs Well With Section -->
         {% render 'product-pairs-well-with'
           , section: section %}
-      </div>
 
       <!-- Mobile Price (shown only on mobile) -->
       {% comment %} {%- if section.settings.show_mobile_price -%}
@@ -65,6 +62,9 @@
                                                                                                                                                                                                                                                                                                                                                             {%- endif -%}
                                                                                                                                                                                                                                                                                                                                                           </div>
                                                                                                                                                                                                                                                                     {%- endif -%} {% endcomment %}
+
+
+      </div>
 
     </div>
   </div></section>
@@ -85,7 +85,7 @@
 
 <script>
   // ====================================================================
-  // NEW PRODUCT MAIN SECTION JAVASCRIPT
+  // PRODUCT MAIN SECTION JAVASCRIPT
   // ====================================================================
   
   (function() {
@@ -1031,37 +1031,20 @@
       }
       
       const quantity = parseInt(document.getElementById('quantity_new')?.value || 1);
-      const btn = document.querySelector('.product-form_new .flare-pdp__btn--atc')
-        || document.querySelector('.product-form_new button[name="add"].add-to-cart-btn_new:not(.waitlist-btn_new)')
-        || document.querySelector('button[name="add"].add-to-cart-btn_new:not(.waitlist-btn_new)');
+      const btn = document.querySelector('.add-to-cart-btn_new');
       
       if (!variantId) {
         alert('Please select a product variant');
         return;
       }
       
-      if (!btn) {
-        console.warn('Add to cart button not found');
-        return;
-      }
-      
-      const atcLabel = btn.querySelector('.flare-pdp__atc-label');
-      const setAtcLabel = (text) => {
-        if (atcLabel) {
-          atcLabel.textContent = text;
-        } else {
-          btn.textContent = text;
-        }
-      };
-      const getAtcLabel = () => (atcLabel ? atcLabel.textContent.trim() : btn.textContent.trim());
-      
       // Prevent multiple submissions
       if (btn.dataset.processing === 'true') {
         return;
       }
       
-      const originalText = getAtcLabel();
-      setAtcLabel('ADDING...');
+      const originalText = btn.textContent;
+      btn.textContent = 'ADDING...';
       btn.disabled = true;
       btn.style.opacity = '0.7';
       btn.dataset.processing = 'true';
@@ -1079,7 +1062,7 @@
         '.product-price_new, .product-info__price--current, .price, .current-price, [data-price]'
       );
       
-      console.log("[new-product-main-section.liquid] Looking for price elements:", {
+      console.log("[product-main-section.liquid] Looking for price elements:", {
         oldPriceElement: !!oldPriceElement,
         oldPriceText: oldPriceElement?.textContent,
         currentPriceElement: !!currentPriceElement,
@@ -1094,7 +1077,7 @@
           const oldPrice = parseFloat(oldPriceText) * 100; // Convert to cents
           const currentPrice = parseFloat(currentPriceText) * 100; // Convert to cents
           
-          console.log("[new-product-main-section.liquid] Extracted prices:", {
+          console.log("[product-main-section.liquid] Extracted prices:", {
             oldPrice,
             currentPrice,
             difference: oldPrice - currentPrice,
@@ -1108,21 +1091,21 @@
               percentage: Math.round(((oldPrice - currentPrice) / oldPrice) * 100),
             };
             
-            console.log("[new-product-main-section.liquid] ✅ Captured discount info:", discountInfo);
+            console.log("[product-main-section.liquid] ✅ Captured discount info:", discountInfo);
           }
         }
       } else {
-        console.log("[new-product-main-section.liquid] ⚠️ Could not find price elements on page");
+        console.log("[product-main-section.liquid] ⚠️ Could not find price elements on page");
       }
       
       // If no discount found from page HTML, try to fetch variant data from Shopify API
       if (!discountInfo) {
-        console.log("[new-product-main-section.liquid] Trying to fetch variant data from Shopify API for variant:", variantId);
+        console.log("[product-main-section.liquid] Trying to fetch variant data from Shopify API for variant:", variantId);
         try {
           const variantResponse = await fetch(`/variants/${variantId}.js`);
           if (variantResponse.ok) {
             const variantData = await variantResponse.json();
-            console.log("[new-product-main-section.liquid] Variant data from Shopify:", {
+            console.log("[product-main-section.liquid] Variant data from Shopify:", {
               price: variantData.price,
               compare_at_price: variantData.compare_at_price,
             });
@@ -1134,11 +1117,11 @@
                 savings: variantData.compare_at_price - variantData.price,
                 percentage: Math.round(((variantData.compare_at_price - variantData.price) / variantData.compare_at_price) * 100),
               };
-              console.log("[new-product-main-section.liquid] ✅ Captured discount from Shopify API:", discountInfo);
+              console.log("[product-main-section.liquid] ✅ Captured discount from Shopify API:", discountInfo);
             }
           }
         } catch (apiError) {
-          console.log("[new-product-main-section.liquid] Could not fetch variant data from API:", apiError);
+          console.log("[product-main-section.liquid] Could not fetch variant data from API:", apiError);
         }
       }
       // ====================================================================
@@ -1172,9 +1155,9 @@
           const addedVariantId = addedItem.variant_id || addedItem.id;
           
           window.cartDiscountData.set(addedVariantId.toString(), discountInfo);
-          console.log("[new-product-main-section.liquid] ✅ Stored discount data for variant:", addedVariantId, discountInfo);
+          console.log("[product-main-section.liquid] ✅ Stored discount data for variant:", addedVariantId, discountInfo);
         } else {
-          console.log("[new-product-main-section.liquid] ⚠️ No discount info to store or no items in response");
+          console.log("[product-main-section.liquid] ⚠️ No discount info to store or no items in response");
         }
         // ====================================================================
         
@@ -1193,13 +1176,13 @@
           
           // Force multiple reloads to ensure discount is detected (same as cart-drawer.js)
           setTimeout(async () => {
-            console.log("[new-product-main-section.liquid] Second reload at 300ms...");
+            console.log("[product-main-section.liquid] Second reload at 300ms...");
             await window.cartDrawer.loadCartData();
             await window.cartDrawer.updateRecommendedSection();
           }, 300);
           
           setTimeout(async () => {
-            console.log("[new-product-main-section.liquid] Third reload at 600ms...");
+            console.log("[product-main-section.liquid] Third reload at 600ms...");
             await window.cartDrawer.loadCartData();
             await window.cartDrawer.updateRecommendedSection();
           }, 600);
@@ -1226,9 +1209,9 @@
           }
         }, 300);
         
-        setAtcLabel('ADDED ✓');
+        btn.textContent = 'ADDED ✓';
         setTimeout(() => {
-          setAtcLabel(originalText);
+          btn.textContent = originalText;
           btn.disabled = false;
           btn.style.opacity = '1';
           delete btn.dataset.processing;
@@ -1244,7 +1227,7 @@
           alert('Error adding product to cart. Please try again.');
         }
         
-        setAtcLabel(originalText);
+        btn.textContent = originalText;
         btn.disabled = false;
         btn.style.opacity = '1';
         delete btn.dataset.processing;
@@ -1270,29 +1253,15 @@
       }
       
       const quantity = parseInt(document.getElementById('quantity_new')?.value || 1);
-      const btn = document.querySelector('.flare-pdp__btn--checkout') || document.querySelector('.buy-it-now-btn_new');
+      const btn = document.querySelector('.buy-it-now-btn_new');
       
       if (!variantId) {
         alert('Please select a product variant');
         return;
       }
       
-      if (!btn) {
-        return;
-      }
-      
-      const checkoutLabel = btn.querySelector('.flare-pdp__checkout-label');
-      const setCheckoutLabel = (text) => {
-        if (checkoutLabel) {
-          checkoutLabel.textContent = text;
-        } else {
-          btn.textContent = text;
-        }
-      };
-      const getCheckoutLabel = () => (checkoutLabel ? checkoutLabel.textContent.trim() : btn.textContent.trim());
-      
-      const originalText = getCheckoutLabel();
-      setCheckoutLabel('PROCESSING...');
+      const originalText = btn.textContent;
+      btn.textContent = 'PROCESSING...';
       btn.disabled = true;
       btn.style.opacity = '0.7';
       
@@ -1313,7 +1282,7 @@
       } catch (error) {
         console.error('Buy It Now error:', error);
         alert('Error processing your order. Please try again.');
-        setCheckoutLabel(originalText);
+        btn.textContent = originalText;
         btn.disabled = false;
         btn.style.opacity = '1';
       }
@@ -1325,18 +1294,19 @@
     
     window.toggleAccordion = function(header) {
       const content = header.nextElementSibling;
+      const icon = header.querySelector('.accordion-icon_new');
       const isActive = content.classList.contains('active_new');
       
-      document.querySelectorAll('.accordion-header_new').forEach((item) => {
-        item.classList.remove('active_new');
-        item.setAttribute('aria-expanded', 'false');
-      });
-      document.querySelectorAll('.accordion-content_new').forEach((item) => item.classList.remove('active_new'));
+      // Remove active from all
+      document.querySelectorAll('.accordion-header_new').forEach(item => item.classList.remove('active_new'));
+      document.querySelectorAll('.accordion-content_new').forEach(item => item.classList.remove('active_new'));
+      document.querySelectorAll('.accordion-icon_new').forEach(item => item.textContent = '+');
       
+      // Toggle current
       if (!isActive) {
         header.classList.add('active_new');
-        header.setAttribute('aria-expanded', 'true');
         content.classList.add('active_new');
+        icon.textContent = '-';
       }
     };
     
@@ -1407,7 +1377,7 @@
     // BENEFITS CAROUSEL (Embla)
     // ====================================================================
     function initBenefitsCarousel() {
-      var section = document.querySelector('[data-section-type="new-product-main"]');
+      var section = document.querySelector('[data-section-type="product-main"]');
       if (!section) return;
       var wrap = section.querySelector('[data-benefits-carousel]');
       if (!wrap) return;
@@ -1494,40 +1464,6 @@
     // ====================================================================
     
     document.addEventListener('DOMContentLoaded', () => {
-      const flareRoot = document.querySelector('[data-section-type="new-product-main"]');
-      const syncFlarePillsFromSelect = () => {
-        const sel = document.getElementById('variant-selector_new');
-        if (!sel || !sel.classList.contains('flare-pdp__variant-select-sr')) return;
-        const val = String(sel.value);
-        (flareRoot || document).querySelectorAll('.flare-pdp__variant-pill').forEach((pill) => {
-          pill.classList.toggle('is-active', pill.getAttribute('data-variant-id') === val);
-        });
-      };
-      if (flareRoot) {
-        flareRoot.querySelectorAll('.flare-pdp__variant-pill').forEach((pill) => {
-          pill.addEventListener('click', function () {
-            const sel = document.getElementById('variant-selector_new');
-            if (!sel || this.disabled) return;
-            sel.value = this.getAttribute('data-variant-id');
-            ProductVariants.updateVariant(sel);
-            syncFlarePillsFromSelect();
-          });
-        });
-      }
-      const qtyIn = document.getElementById('quantity_new');
-      const qtyMinus = document.getElementById('flare-qty-minus');
-      const qtyPlus = document.getElementById('flare-qty-plus');
-      if (qtyIn && qtyMinus && qtyPlus) {
-        qtyMinus.addEventListener('click', function () {
-          let v = parseInt(qtyIn.value, 10) || 1;
-          if (v > 1) qtyIn.value = String(v - 1);
-        });
-        qtyPlus.addEventListener('click', function () {
-          let v = parseInt(qtyIn.value, 10) || 1;
-          qtyIn.value = String(v + 1);
-        });
-      }
-
       ProductGallery.init();
       BenefitPopups.init();
       initBenefitsCarousel();
@@ -1549,7 +1485,6 @@
         variantSelectorDesktop.addEventListener('change', (e) => {
           e.preventDefault();
           ProductVariants.updateVariant(variantSelectorDesktop);
-          syncFlarePillsFromSelect();
         });
         
         // Initialize price with current selected variant
@@ -1559,7 +1494,6 @@
           ProductVariants.updatePrice(currentVariant);
           ProductVariants.updateButtonsForVariant(currentVariant);
         }
-        syncFlarePillsFromSelect();
       }
       
       // Initialize mobile selector
@@ -1738,8 +1672,8 @@
 
 {% schema %}
   {
-    "name": "New Product Main",
-    "class": "new-product-main-section",
+    "name": "Product Main",
+    "class": "product-main-section",
     "settings": [
       {
         "type": "header",
@@ -1827,6 +1761,15 @@
         "step": 1,
         "default": 5,
         "info": "Time between automatic slides"
+      },       {
+        "type": "header",
+        "content": "PDP — frete grátis + trust badges"
+      }, {
+        "type": "checkbox",
+        "id": "show_benefits",
+        "label": "Show free-shipping strip + trust badges",
+        "default": true,
+        "info": "Above the title: orange free-shipping strip. Below ATC area: two trust badges. Use blocks \"PDP — Free shipping strip\" (optional) and \"PDP — Trust badge\" (up to 2). Legacy \"Benefit\" blocks are no longer rendered here (popups still work if configured)."
       }, {
         "type": "header",
         "content": "Media mentions (buy box)"
@@ -1922,76 +1865,9 @@
         "id": "waitlist_variant_ids",
         "label": "Waitlist Variants (Optional)",
         "info": "Comma-separated list of variant IDs or names that should show the waitlist button. Leave empty to show for all variants. Examples: 123456789,987654321 or Sunrise,Midnight"
-      }, {
-        "type": "header",
-        "content": "Flare PDP — faixa de confiança"
-      }, {
-        "type": "checkbox",
-        "id": "show_flare_trust_strip",
-        "label": "Mostrar faixa de confiança (texto)",
-        "default": true
-      }, {
-        "type": "textarea",
-        "id": "flare_trust_strip_text",
-        "label": "Texto da faixa",
-        "default": "SHIPS FREE • 30-DAY RETURNS • COVERED BY WARRANTY • WE'RE HERE TO HELP"
-      }, {
-        "type": "header",
-        "content": "Editorial (below trust strip)"
-      }, {
-        "type": "checkbox",
-        "id": "show_flare_story",
-        "label": "Show editorial block",
-        "default": true
-      }, {
-        "type": "text",
-        "id": "flare_story_heading",
-        "label": "Heading",
-        "default": "Performance Redefined."
-      }, {
-        "type": "richtext",
-        "id": "flare_story_body",
-        "label": "Body",
-        "default": "<p>The Ativafit Flare 88 Lb Adjustable Dumbbell Set is the ultimate solution for the serious home athlete. Designed with a focus on ergonomics and mechanical reliability, these dumbbells offer a seamless transition between weights, allowing you to maintain high intensity during drop sets and circuit training.</p><p>Crafted for durability and precision, the Flare series features a non-slip textured grip and a robust core structure that handles the toughest workouts. Whether you're focusing on strength building or metabolic conditioning, the 88lb capacity ensures you have room to grow for years to advance.</p>"
-      }, {
-        "type": "header",
-        "content": "Why choose this? (below gallery)"
-      }, {
-        "type": "checkbox",
-        "id": "show_why_choose",
-        "label": "Show section below gallery",
-        "default": true
-      }, {
-        "type": "text",
-        "id": "why_choose_heading",
-        "label": "Section heading",
-        "default": "WHY CHOOSE THIS?"
       }
     ],
     "blocks": [
-      {
-        "type": "why_choose_item",
-        "name": "Why choose — card",
-        "limit": 4,
-        "settings": [
-          {
-            "type": "image_picker",
-            "id": "icon",
-            "label": "Icon",
-            "info": "Optional. Square PNG/SVG works best. If empty, a theme placeholder is shown."
-          }, {
-            "type": "text",
-            "id": "heading",
-            "label": "Title",
-            "default": "Feature title"
-          }, {
-            "type": "textarea",
-            "id": "description",
-            "label": "Description",
-            "default": "Short supporting copy for this benefit."
-          }
-        ]
-      },
       {
         "type": "pairs_well_with_product",
         "name": "Pairs Well With Product",
@@ -2090,7 +1966,7 @@
             "type": "text",
             "id": "text",
             "label": "Text",
-            "default": "BEST SELLER"
+            "default": "Get Free Shipping when you order now"
           },
           {
             "type": "color",
@@ -2318,36 +2194,8 @@
     ],
     "presets": [
       {
-        "name": "New Product Main Section",
+        "name": "Product Main Section",
         "blocks": [
-          {
-            "type": "why_choose_item",
-            "settings": {
-              "heading": "Precision Build",
-              "description": "High-tensile steel for maximum durability."
-            }
-          },
-          {
-            "type": "why_choose_item",
-            "settings": {
-              "heading": "Rapid Change",
-              "description": "Switch weights in seconds via dial system."
-            }
-          },
-          {
-            "type": "why_choose_item",
-            "settings": {
-              "heading": "Space Efficient",
-              "description": "Replaces 17 sets of dumbbells."
-            }
-          },
-          {
-            "type": "why_choose_item",
-            "settings": {
-              "heading": "Safety Lock",
-              "description": "Secure plates with dial-locking system."
-            }
-          },
           {
             "type": "accordion_item",
             "settings": {

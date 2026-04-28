@@ -22,8 +22,7 @@
 <section
   class="pp-full_new"
   data-section-id="{{ section.id }}"
-  data-section-type="product-main"
-  data-product-handle="{{ product.handle | escape }}">
+  data-section-type="product-main">
   <div class="container-product-page_new">
     <div class="product-main_new">
 
@@ -1295,18 +1294,19 @@
     
     window.toggleAccordion = function(header) {
       const content = header.nextElementSibling;
+      const icon = header.querySelector('.accordion-icon_new');
       const isActive = content.classList.contains('active_new');
       
-      document.querySelectorAll('.accordion-header_new').forEach((item) => {
-        item.classList.remove('active_new');
-        item.setAttribute('aria-expanded', 'false');
-      });
-      document.querySelectorAll('.accordion-content_new').forEach((item) => item.classList.remove('active_new'));
+      // Remove active from all
+      document.querySelectorAll('.accordion-header_new').forEach(item => item.classList.remove('active_new'));
+      document.querySelectorAll('.accordion-content_new').forEach(item => item.classList.remove('active_new'));
+      document.querySelectorAll('.accordion-icon_new').forEach(item => item.textContent = '+');
       
+      // Toggle current
       if (!isActive) {
         header.classList.add('active_new');
-        header.setAttribute('aria-expanded', 'true');
         content.classList.add('active_new');
+        icon.textContent = '-';
       }
     };
     
