@@ -1,0 +1,749 @@
+{% comment %}
+  Product Main Section — New PDP (Stitch reference, 2026-04-28)
+  Reference design: stitch.withgoogle.com/projects/3661639363294894472
+  Standalone section — does not depend on existing product-main-section assets.
+  Inline SVG icons (no external icon font dependency).
+{% endcomment %}
+
+{{ 'product-main-new-pdp-28-apr.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign show_compare = false
+  if current_variant.compare_at_price > current_variant.price
+    assign show_compare = true
+  endif
+
+  assign bento_blocks = section.blocks | where: 'type', 'bento_item'
+  assign accordion_blocks = section.blocks | where: 'type', 'accordion'
+  assign pairs_block = section.blocks | where: 'type', 'pairs_well_with' | first
+-%}
+
+{%- capture icon_chevron -%}<svg class="np-pdp__icon" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg>{%- endcapture -%}
+{%- capture icon_chevron_left -%}<svg class="np-pdp__icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 6l-6 6 6 6"/></svg>{%- endcapture -%}
+{%- capture icon_chevron_right -%}<svg class="np-pdp__icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9 6l6 6-6 6"/></svg>{%- endcapture -%}
+{%- capture icon_minus -%}<svg class="np-pdp__icon" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M5 12h14"/></svg>{%- endcapture -%}
+{%- capture icon_plus -%}<svg class="np-pdp__icon" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>{%- endcapture -%}
+{%- capture icon_play -%}<svg class="np-pdp__icon" width="32" height="32" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" fill="rgba(0,0,0,0.55)"/><path fill="#fff" d="M10 8.5l5 3.5-5 3.5z"/></svg>{%- endcapture -%}
+{%- capture icon_arrow_right -%}<svg class="np-pdp__icon" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg>{%- endcapture -%}
+{%- capture icon_bag -%}<svg class="np-pdp__icon" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M6 7h12l-1 13H7L6 7z"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M9 7V5a3 3 0 016 0v2"/></svg>{%- endcapture -%}
+
+<section
+  class="np-pdp"
+  data-section-id="{{ section.id }}"
+  data-section-type="product-main-new-pdp-28-apr"
+  data-product-handle="{{ product.handle }}">
+  <div class="np-pdp__container">
+
+    {%- if section.settings.show_breadcrumbs -%}
+      <nav class="np-pdp__breadcrumbs" aria-label="Breadcrumb">
+        <a href="{{ routes.root_url }}">Home</a>
+        <span aria-hidden="true">/</span>
+        {%- if collection -%}
+          <a href="{{ collection.url }}">{{ collection.title }}</a>
+          <span aria-hidden="true">/</span>
+        {%- endif -%}
+        <span class="np-pdp__breadcrumbs-current">{{ product.title }}</span>
+      </nav>
+    {%- endif -%}
+
+    <div class="np-pdp__grid">
+
+      {%- comment -%} ================ LEFT COLUMN (sticky) ================ {%- endcomment -%}
+      <div class="np-pdp__left">
+
+        {%- comment -%} Gallery {%- endcomment -%}
+        <div class="np-pdp__gallery" data-np-gallery>
+          {%- if product.media.size > 0 -%}
+            <div class="np-pdp__gallery-main" data-np-gallery-main>
+              {%- for media in product.media -%}
+                <div
+                  class="np-pdp__gallery-slide{% if forloop.first %} is-active{% endif %}"
+                  data-np-slide="{{ forloop.index0 }}">
+                  {%- case media.media_type -%}
+                    {%- when 'image' -%}
+                      <img
+                        src="{{ media | image_url: width: 1200 }}"
+                        alt="{{ media.alt | escape }}"
+                        loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+                        width="1200"
+                        height="1200">
+                    {%- when 'video', 'external_video' -%}
+                      {{ media | media_tag: image_size: '1200x', autoplay: false, loop: false, controls: true, preload: 'metadata' }}
+                    {%- else -%}
+                      {{ media | media_tag }}
+                  {%- endcase -%}
+                </div>
+              {%- endfor -%}
+            </div>
+
+            {%- if product.media.size > 1 -%}
+              <div class="np-pdp__gallery-thumbs-wrap">
+                <button
+                  type="button"
+                  class="np-pdp__gallery-nav np-pdp__gallery-nav--prev"
+                  data-np-thumbs-nav="-1"
+                  aria-label="Previous thumbnails">{{ icon_chevron_left }}</button>
+                <div class="np-pdp__gallery-thumbs" data-np-gallery-thumbs>
+                  {%- for media in product.media -%}
+                    <button
+                      type="button"
+                      class="np-pdp__gallery-thumb{% if forloop.first %} is-active{% endif %}"
+                      data-np-thumb="{{ forloop.index0 }}"
+                      aria-label="View media {{ forloop.index }}">
+                      <img
+                        src="{{ media.preview_image | image_url: width: 200 }}"
+                        alt=""
+                        loading="lazy"
+                        width="200"
+                        height="200">
+                      {%- if media.media_type != 'image' -%}
+                        <span class="np-pdp__gallery-thumb-icon">{{ icon_play }}</span>
+                      {%- endif -%}
+                    </button>
+                  {%- endfor -%}
+                </div>
+                <button
+                  type="button"
+                  class="np-pdp__gallery-nav np-pdp__gallery-nav--next"
+                  data-np-thumbs-nav="1"
+                  aria-label="Next thumbnails">{{ icon_chevron_right }}</button>
+              </div>
+            {%- endif -%}
+          {%- else -%}
+            <div class="np-pdp__gallery-placeholder">{{ 'product-1' | placeholder_svg_tag }}</div>
+          {%- endif -%}
+        </div>
+
+        {%- comment -%} Bento "Why Choose This?" {%- endcomment -%}
+        {%- if bento_blocks.size > 0 -%}
+          <section class="np-pdp__bento">
+            <h2 class="np-pdp__bento-title">{{ section.settings.bento_title }}</h2>
+            <div class="np-pdp__bento-grid">
+              {%- for block in bento_blocks -%}
+                <article class="np-pdp__bento-card" {{ block.shopify_attributes }}>
+                  <span class="np-pdp__bento-icon" aria-hidden="true">
+                    {%- case block.settings.icon -%}
+                      {%- when 'shield' -%}
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                      {%- when 'bolt' -%}
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+                      {%- when 'grid' -%}
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                      {%- when 'lock' -%}
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+                      {%- when 'star' -%}
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12,2 15,9 22,9.5 17,14.5 18.5,22 12,18 5.5,22 7,14.5 2,9.5 9,9"/></svg>
+                      {%- when 'check' -%}
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
+                      {%- when 'truck' -%}
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 7h13v10H1z"/><path d="M14 10h5l3 3v4h-8z"/><circle cx="6" cy="19" r="2"/><circle cx="17" cy="19" r="2"/></svg>
+                      {%- when 'clock' -%}
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                      {%- when 'flame' -%}
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1 4 5 5 5 10a5 5 0 11-10 0c0-3 2-3 2-6 2 1 3 2 3 4z"/></svg>
+                      {%- when 'dumbbell' -%}
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8v8M3 10v4M18 8v8M21 10v4M6 12h12"/></svg>
+                      {%- else -%}
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
+                    {%- endcase -%}
+                  </span>
+                  <h3 class="np-pdp__bento-card-title">{{ block.settings.title }}</h3>
+                  <p class="np-pdp__bento-card-text">{{ block.settings.text }}</p>
+                </article>
+              {%- endfor -%}
+            </div>
+          </section>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%} ================ RIGHT COLUMN ================ {%- endcomment -%}
+      <div class="np-pdp__right">
+
+        {%- if section.settings.show_best_seller_badge and section.settings.best_seller_text != blank -%}
+          <div class="np-pdp__badge-wrap">
+            <span class="np-pdp__badge">{{ section.settings.best_seller_text }}</span>
+          </div>
+        {%- endif -%}
+
+        <h1 class="np-pdp__title">{{ product.title }}</h1>
+
+        {%- comment -%} Judge.me-synced rating pill (clickable → reviews) {%- endcomment -%}
+        <a
+          href="#judgeme_product_reviews"
+          class="np-pdp__rating-pill"
+          data-judgeme-pill
+          hidden>
+          <span class="np-pdp__rating-stars" aria-hidden="true"></span>
+          <span class="np-pdp__rating-value"></span>
+          <span class="np-pdp__rating-sep" aria-hidden="true">·</span>
+          <span class="np-pdp__rating-count"></span>
+        </a>
+
+        <product-form class="np-pdp__form" data-np-form>
+          {%- form 'product', product, id: 'np-pdp-form', class: 'np-pdp__form-inner', novalidate: 'novalidate' -%}
+            <input type="hidden" name="id" value="{{ current_variant.id }}" data-np-variant-id>
+
+            <div class="np-pdp__price-block">
+              <p class="np-pdp__price">
+                <span data-np-price>{{ current_variant.price | money }}</span>
+                {%- if show_compare -%}
+                  <span class="np-pdp__price-compare" data-np-price-compare>{{ current_variant.compare_at_price | money }}</span>
+                {%- endif -%}
+              </p>
+              {%- if section.settings.show_payment_terms -%}
+                <div class="np-pdp__payment-terms">
+                  {{ form | payment_terms }}
+                </div>
+              {%- endif -%}
+            </div>
+
+            {%- if product.has_only_default_variant == false -%}
+              <div class="np-pdp__variants" data-np-variants>
+                {%- for option in product.options_with_values -%}
+                  {%- assign option_index = forloop.index0 -%}
+                  <fieldset class="np-pdp__variant-group" data-np-option-index="{{ option_index }}">
+                    <legend class="np-pdp__variant-label">{{ option.name }}</legend>
+                    <div class="np-pdp__variant-buttons">
+                      {%- for value in option.values -%}
+                        {%- assign input_id = 'np-pdp-opt-' | append: section.id | append: '-' | append: option_index | append: '-' | append: forloop.index -%}
+                        <input
+                          type="radio"
+                          class="np-pdp__variant-input"
+                          name="np-option-{{ option_index }}"
+                          id="{{ input_id }}"
+                          value="{{ value | escape }}"
+                          {% if option.selected_value == value %}checked{% endif %}>
+                        <label
+                          for="{{ input_id }}"
+                          class="np-pdp__variant-button"
+                          data-np-option-value="{{ value | escape }}">
+                          {{ value }}
+                        </label>
+                      {%- endfor -%}
+                    </div>
+                  </fieldset>
+                {%- endfor -%}
+              </div>
+            {%- endif -%}
+
+            <div class="np-pdp__quantity">
+              <label class="np-pdp__variant-label" for="np-pdp-qty-{{ section.id }}">Quantity</label>
+              <div class="np-pdp__quantity-control">
+                <button type="button" class="np-pdp__quantity-btn" data-np-qty-step="-1" aria-label="Decrease quantity">{{ icon_minus }}</button>
+                <input
+                  id="np-pdp-qty-{{ section.id }}"
+                  class="np-pdp__quantity-input"
+                  type="number"
+                  name="quantity"
+                  value="1"
+                  min="1"
+                  data-np-qty>
+                <button type="button" class="np-pdp__quantity-btn" data-np-qty-step="1" aria-label="Increase quantity">{{ icon_plus }}</button>
+              </div>
+            </div>
+
+            <div class="np-pdp__actions">
+              <button
+                type="submit"
+                name="add"
+                class="np-pdp__cta np-pdp__cta--primary"
+                data-np-add-to-cart>
+                {{ icon_bag }}
+                <span data-np-add-to-cart-label>{{ section.settings.add_to_cart_text | default: 'Add to cart' }}</span>
+              </button>
+              <button
+                type="button"
+                class="np-pdp__cta np-pdp__cta--secondary"
+                data-np-checkout-now>
+                <span data-np-checkout-label>{{ section.settings.checkout_now_text | default: 'Checkout now' }}</span>
+              </button>
+            </div>
+          {%- endform -%}
+        </product-form>
+
+        {%- if section.settings.trust_line != blank -%}
+          <p class="np-pdp__trust">{{ section.settings.trust_line }}</p>
+        {%- endif -%}
+
+        {%- liquid
+          assign mf_desc = product.metafields.custom.product_description_mf
+          assign description_html = blank
+          if mf_desc != blank and mf_desc.value != blank
+            assign description_html = mf_desc.value
+          elsif section.settings.description_fallback != blank
+            assign description_html = section.settings.description_fallback
+          endif
+        -%}
+        {%- if section.settings.description_title != blank or description_html != blank -%}
+          <section class="np-pdp__description">
+            {%- if section.settings.description_title != blank -%}
+              <h2 class="np-pdp__description-title">{{ section.settings.description_title }}</h2>
+            {%- endif -%}
+            {%- if description_html != blank -%}
+              <div class="np-pdp__description-body rte">{{ description_html }}</div>
+            {%- endif -%}
+          </section>
+        {%- endif -%}
+
+        {%- if accordion_blocks.size > 0 -%}
+          <section class="np-pdp__accordions">
+            {%- for block in accordion_blocks -%}
+              <details class="np-pdp__accordion" {{ block.shopify_attributes }}>
+                <summary class="np-pdp__accordion-summary">
+                  <h3 class="np-pdp__accordion-title">{{ block.settings.title }}</h3>
+                  <span class="np-pdp__accordion-icon" aria-hidden="true">{{ icon_chevron }}</span>
+                </summary>
+                <div class="np-pdp__accordion-body rte">{{ block.settings.body }}</div>
+              </details>
+            {%- endfor -%}
+          </section>
+        {%- endif -%}
+
+        {%- if pairs_block and pairs_block.settings.product != blank -%}
+          {%- assign p = all_products[pairs_block.settings.product] -%}
+          {%- if p != blank -%}
+            <section class="np-pdp__pairs" {{ pairs_block.shopify_attributes }}>
+              <header class="np-pdp__pairs-header">
+                <h2 class="np-pdp__pairs-title">{{ pairs_block.settings.heading }}</h2>
+                {%- if pairs_block.settings.view_all_url != blank -%}
+                  <a class="np-pdp__pairs-view-all" href="{{ pairs_block.settings.view_all_url }}">
+                    View all
+                    {{ icon_arrow_right }}
+                  </a>
+                {%- endif -%}
+              </header>
+              <a class="np-pdp__pairs-card" href="{{ p.url }}">
+                <div class="np-pdp__pairs-image">
+                  {%- if p.featured_image -%}
+                    <img src="{{ p.featured_image | image_url: width: 300 }}" alt="{{ p.title | escape }}" loading="lazy" width="200" height="200">
+                  {%- endif -%}
+                </div>
+                <div class="np-pdp__pairs-info">
+                  <h3 class="np-pdp__pairs-name">{{ p.title }}</h3>
+                  <p class="np-pdp__pairs-price">{{ p.price | money }}</p>
+                  <span class="np-pdp__pairs-cta">Add to cart</span>
+                </div>
+              </a>
+            </section>
+          {%- endif -%}
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+
+  <script type="application/json" data-np-variants-data>
+    {{ product.variants | json }}
+  </script>
+</section>
+
+<script>
+  (function () {
+    var section = document.querySelector('[data-section-type="product-main-new-pdp-28-apr"][data-section-id="{{ section.id }}"]');
+    if (!section) return;
+
+    // ==================== Gallery ====================
+    var thumbs = section.querySelectorAll('[data-np-thumb]');
+    var slides = section.querySelectorAll('[data-np-slide]');
+    var thumbsTrack = section.querySelector('[data-np-gallery-thumbs]');
+
+    function showSlide(idx) {
+      slides.forEach(function (s) { s.classList.toggle('is-active', s.dataset.npSlide == idx); });
+      thumbs.forEach(function (t) { t.classList.toggle('is-active', t.dataset.npThumb == idx); });
+    }
+    thumbs.forEach(function (t) {
+      t.addEventListener('click', function () { showSlide(t.dataset.npThumb); });
+    });
+
+    // Thumbs carousel — scroll by ~3 thumbs per arrow click
+    section.querySelectorAll('[data-np-thumbs-nav]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (!thumbsTrack) return;
+        var dir = parseInt(btn.dataset.npThumbsNav, 10);
+        var firstThumb = thumbsTrack.querySelector('.np-pdp__gallery-thumb');
+        var step = firstThumb ? (firstThumb.offsetWidth + 12) * 3 : 240;
+        thumbsTrack.scrollBy({ left: step * dir, behavior: 'smooth' });
+      });
+    });
+
+    function updateThumbsNav() {
+      if (!thumbsTrack) return;
+      var prev = section.querySelector('[data-np-thumbs-nav="-1"]');
+      var next = section.querySelector('[data-np-thumbs-nav="1"]');
+      var atStart = thumbsTrack.scrollLeft <= 1;
+      var atEnd = thumbsTrack.scrollLeft + thumbsTrack.clientWidth >= thumbsTrack.scrollWidth - 1;
+      if (prev) prev.disabled = atStart;
+      if (next) next.disabled = atEnd;
+    }
+    if (thumbsTrack) {
+      thumbsTrack.addEventListener('scroll', updateThumbsNav, { passive: true });
+      window.addEventListener('resize', updateThumbsNav);
+      updateThumbsNav();
+    }
+
+    // ==================== Variant picker ====================
+    var variantsData = JSON.parse(section.querySelector('[data-np-variants-data]').textContent);
+    var variantInput = section.querySelector('[data-np-variant-id]');
+    var priceEl = section.querySelector('[data-np-price]');
+    var priceCompareEl = section.querySelector('[data-np-price-compare]');
+    var addBtn = section.querySelector('[data-np-add-to-cart]');
+    var addLabel = section.querySelector('[data-np-add-to-cart-label]');
+    var checkoutBtn = section.querySelector('[data-np-checkout-now]');
+    var checkoutLabel = section.querySelector('[data-np-checkout-label]');
+    var qtyInput = section.querySelector('[data-np-qty]');
+    var optionGroups = section.querySelectorAll('[data-np-option-index]');
+
+    var ADD_TEXT = addLabel ? addLabel.textContent.trim() : 'Add to cart';
+    var CHECKOUT_TEXT = checkoutLabel ? checkoutLabel.textContent.trim() : 'Checkout now';
+
+    function getSelectedOptions() {
+      var selected = [];
+      optionGroups.forEach(function (group) {
+        var checked = group.querySelector('input[type="radio"]:checked');
+        selected[parseInt(group.dataset.npOptionIndex, 10)] = checked ? checked.value : null;
+      });
+      return selected;
+    }
+
+    function findVariant(optionsArr) {
+      return variantsData.find(function (v) {
+        return v.options.every(function (opt, i) { return opt === optionsArr[i]; });
+      });
+    }
+
+    function formatMoney(cents) {
+      return '$' + (cents / 100).toFixed(2);
+    }
+
+    function applyAvailability() {
+      var selected = getSelectedOptions();
+      optionGroups.forEach(function (group) {
+        var idx = parseInt(group.dataset.npOptionIndex, 10);
+        var inputs = group.querySelectorAll('input[type="radio"]');
+        inputs.forEach(function (input) {
+          var probe = selected.slice();
+          probe[idx] = input.value;
+          var match = variantsData.find(function (v) {
+            return v.options.every(function (opt, i) {
+              return probe[i] == null || opt === probe[i];
+            });
+          });
+          var label = group.querySelector('label[for="' + input.id + '"]');
+          if (label) label.classList.toggle('is-unavailable', !match || !match.available);
+        });
+      });
+    }
+
+    function updateForVariant(variant) {
+      if (!variant) {
+        addBtn.disabled = true;
+        if (checkoutBtn) checkoutBtn.disabled = true;
+        if (addLabel) addLabel.textContent = 'Unavailable';
+        return;
+      }
+      variantInput.value = variant.id;
+      if (priceEl) priceEl.textContent = formatMoney(variant.price);
+      if (priceCompareEl) {
+        if (variant.compare_at_price && variant.compare_at_price > variant.price) {
+          priceCompareEl.textContent = formatMoney(variant.compare_at_price);
+          priceCompareEl.hidden = false;
+        } else {
+          priceCompareEl.hidden = true;
+        }
+      }
+      addBtn.disabled = !variant.available;
+      if (checkoutBtn) checkoutBtn.disabled = !variant.available;
+      if (addLabel) addLabel.textContent = variant.available ? ADD_TEXT : 'Sold out';
+      if (checkoutLabel) checkoutLabel.textContent = variant.available ? CHECKOUT_TEXT : 'Sold out';
+
+      var url = new URL(window.location.href);
+      url.searchParams.set('variant', variant.id);
+      window.history.replaceState({}, '', url);
+    }
+
+    optionGroups.forEach(function (group) {
+      group.addEventListener('change', function () {
+        var variant = findVariant(getSelectedOptions());
+        applyAvailability();
+        updateForVariant(variant);
+      });
+    });
+    applyAvailability();
+
+    // ==================== Quantity ====================
+    section.querySelectorAll('[data-np-qty-step]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (!qtyInput) return;
+        var step = parseInt(btn.dataset.npQtyStep, 10);
+        var next = Math.max(1, parseInt(qtyInput.value, 10) + step);
+        qtyInput.value = next;
+      });
+    });
+
+    // ==================== Checkout Now (add + redirect) ====================
+    if (checkoutBtn) {
+      checkoutBtn.addEventListener('click', function () {
+        if (checkoutBtn.disabled) return;
+        var qty = qtyInput ? parseInt(qtyInput.value, 10) || 1 : 1;
+        var variantId = variantInput.value;
+        if (!variantId) return;
+
+        checkoutBtn.disabled = true;
+        if (checkoutLabel) checkoutLabel.textContent = 'Processing…';
+
+        fetch('{{ routes.cart_add_url }}.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({ items: [{ id: parseInt(variantId, 10), quantity: qty }] })
+        })
+          .then(function (r) {
+            if (!r.ok) throw new Error('Add to cart failed');
+            window.location.href = '{{ routes.cart_url }}/checkout';
+          })
+          .catch(function () {
+            checkoutBtn.disabled = false;
+            if (checkoutLabel) checkoutLabel.textContent = CHECKOUT_TEXT;
+            window.location.href = '{{ routes.cart_url }}';
+          });
+      });
+    }
+
+    // ==================== Judge.me rating pill sync ====================
+    var pill = section.querySelector('[data-judgeme-pill]');
+    if (pill) {
+      var starsEl = pill.querySelector('.np-pdp__rating-stars');
+      var valueEl = pill.querySelector('.np-pdp__rating-value');
+      var countEl = pill.querySelector('.np-pdp__rating-count');
+
+      pill.addEventListener('click', function (e) {
+        var target = document.getElementById('judgeme_product_reviews') ||
+                     document.querySelector('.jdgm-rev-widg') ||
+                     document.querySelector('.jdgm-rev-widg__summary-inner');
+        if (!target) return;
+        e.preventDefault();
+        var top = target.getBoundingClientRect().top + window.pageYOffset - 80;
+        window.scrollTo({ top: top, behavior: 'smooth' });
+      });
+
+      function syncPill() {
+        var summary = document.querySelector('.jdgm-rev-widg__summary-inner');
+        if (!summary) return false;
+        var avgEl = summary.querySelector('.jdgm-rev-widg__summary-average');
+        var textEl = summary.querySelector('.jdgm-rev-widg__summary-text');
+        var starsSrc = summary.querySelector('.jdgm-rev-widg__summary-stars');
+        if (!avgEl || !textEl || !starsSrc) return false;
+
+        var avg = parseFloat(avgEl.textContent);
+        var countMatch = textEl.textContent.match(/\d+/);
+        var count = countMatch ? parseInt(countMatch[0], 10) : 0;
+        if (!avg || !count) return false;
+
+        var clone = starsSrc.cloneNode(true);
+        var avgInClone = clone.querySelector('.jdgm-rev-widg__summary-average');
+        if (avgInClone) avgInClone.remove();
+        starsEl.innerHTML = clone.innerHTML;
+        valueEl.textContent = avg.toFixed(2) + ' / 5';
+        countEl.textContent = count + (count === 1 ? ' review' : ' reviews');
+        pill.setAttribute('aria-label', 'Rating ' + avg.toFixed(2) + ' out of 5, ' + count + ' reviews');
+        pill.removeAttribute('hidden');
+        return true;
+      }
+
+      if (!syncPill()) {
+        var obs = new MutationObserver(function () { if (syncPill()) obs.disconnect(); });
+        obs.observe(document.body, { childList: true, subtree: true });
+        setTimeout(function () { obs.disconnect(); }, 15000);
+      }
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Product main (new PDP)",
+  "tag": "section",
+  "class": "section-product-main-new-pdp",
+  "enabled_on": {
+    "templates": ["product"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Header"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "label": "Show breadcrumbs",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Top of right column"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_best_seller_badge",
+      "label": "Show top badge",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "best_seller_text",
+      "label": "Top badge text",
+      "default": "BEST SELLER"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_payment_terms",
+      "label": "Show Shop Pay installments",
+      "info": "Renders the official Shopify payment terms component (Pay in 4 with Shop Pay).",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Cart"
+    },
+    {
+      "type": "text",
+      "id": "add_to_cart_text",
+      "label": "Add to cart label",
+      "default": "Add to cart"
+    },
+    {
+      "type": "text",
+      "id": "checkout_now_text",
+      "label": "Checkout button label",
+      "default": "Checkout now"
+    },
+    {
+      "type": "text",
+      "id": "trust_line",
+      "label": "Trust line (use • to separate)",
+      "default": "Ships Free • 30-Day Returns • Covered by Warranty • We're Here to Help"
+    },
+    {
+      "type": "header",
+      "content": "Description block"
+    },
+    {
+      "type": "text",
+      "id": "description_title",
+      "label": "Description title",
+      "default": "Performance Redefined."
+    },
+    {
+      "type": "richtext",
+      "id": "description_fallback",
+      "label": "Description fallback",
+      "info": "Reads from metafield custom.product_description_mf first. This text is used only when the metafield is empty.",
+      "default": "<p>Premium quality equipment engineered for performance and durability. Designed to deliver consistent results, this product combines refined craftsmanship with everyday usability — built to support your goals, session after session.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Bento — Why Choose This?"
+    },
+    {
+      "type": "text",
+      "id": "bento_title",
+      "label": "Bento section title",
+      "default": "Why Choose This?"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "bento_item",
+      "name": "Bento card",
+      "limit": 8,
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "default": "shield",
+          "options": [
+            { "value": "shield", "label": "Shield (durability)" },
+            { "value": "bolt", "label": "Bolt (speed)" },
+            { "value": "grid", "label": "Grid (space)" },
+            { "value": "lock", "label": "Lock (safety)" },
+            { "value": "star", "label": "Star (quality)" },
+            { "value": "check", "label": "Check (verified)" },
+            { "value": "truck", "label": "Truck (shipping)" },
+            { "value": "clock", "label": "Clock (time)" },
+            { "value": "flame", "label": "Flame (energy)" },
+            { "value": "dumbbell", "label": "Dumbbell" }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Precision Build"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Description",
+          "default": "High-tensile steel for maximum durability."
+        }
+      ]
+    },
+    {
+      "type": "accordion",
+      "name": "Accordion",
+      "limit": 8,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Key Features"
+        },
+        {
+          "type": "richtext",
+          "id": "body",
+          "label": "Body",
+          "default": "<ul><li>Patented rapid-adjustment dial mechanism</li><li>Premium non-slip textured grip</li><li>Durable high-tensile steel construction</li><li>Includes custom-molded storage trays</li></ul>"
+        }
+      ]
+    },
+    {
+      "type": "pairs_well_with",
+      "name": "Pairs well with",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Pairs Well With"
+        },
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        },
+        {
+          "type": "url",
+          "id": "view_all_url",
+          "label": "View all link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product main (new PDP)",
+      "blocks": [
+        { "type": "bento_item", "settings": { "icon": "shield", "title": "Precision Build", "text": "High-tensile steel for maximum durability." } },
+        { "type": "bento_item", "settings": { "icon": "bolt", "title": "Rapid Change", "text": "Switch weights in seconds via dial system." } },
+        { "type": "bento_item", "settings": { "icon": "grid", "title": "Space Efficient", "text": "Replaces 17 sets of dumbbells." } },
+        { "type": "bento_item", "settings": { "icon": "lock", "title": "Safety Lock", "text": "Secure plates with dial-locking system." } },
+        { "type": "accordion", "settings": { "title": "Key Features", "body": "<ul><li>Patented rapid-adjustment dial mechanism</li><li>Premium non-slip textured grip</li><li>Durable high-tensile steel construction</li><li>Includes custom-molded storage trays</li></ul>" } },
+        { "type": "accordion", "settings": { "title": "Use Tips and Manual", "body": "<p>Always ensure the dial is fully engaged before lifting the dumbbell from the tray.</p>" } },
+        { "type": "accordion", "settings": { "title": "Tech Specs", "body": "<p><strong>Weight Range:</strong> 5 to 88 lbs per dumbbell<br><strong>Settings:</strong> 17 weight levels</p>" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
