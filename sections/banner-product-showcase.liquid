@@ -1,4 +1,12 @@
-{{ 'banner-product-showcase.css' | asset_url | stylesheet_tag }}
+{%- comment -%} Async CSS — banner is mid-page, no need to block render. {%- endcomment -%}
+<link
+  rel="preload"
+  as="style"
+  href="{{ 'banner-product-showcase.css' | asset_url }}"
+  onload="this.onload=null;this.rel='stylesheet'">
+<noscript>
+  <link rel="stylesheet" href="{{ 'banner-product-showcase.css' | asset_url }}">
+</noscript>
 {%- liquid
   assign mobile_layout = section.settings.mobile_layout | default: 'carousel'
   assign desktop_layout = section.settings.desktop_layout | default: 'carousel'

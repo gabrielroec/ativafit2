@@ -1,4 +1,18 @@
-{{ 'shop-gym-equipment-ativa.css' | asset_url | stylesheet_tag }}
+{%- comment -%} Async CSS — section is mid-page; tiny critical block keeps card grid sane while CSS loads. {%- endcomment -%}
+<style>
+.shop-gym-ativa{display:block}
+.shop-gym-ativa__inner{max-width:1280px;margin:0 auto;padding:48px 16px}
+.shop-gym-ativa__grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;list-style:none;margin:0;padding:0}
+@media(min-width:768px){.shop-gym-ativa__grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+</style>
+<link
+  rel="preload"
+  as="style"
+  href="{{ 'shop-gym-equipment-ativa.css' | asset_url }}"
+  onload="this.onload=null;this.rel='stylesheet'">
+<noscript>
+  <link rel="stylesheet" href="{{ 'shop-gym-equipment-ativa.css' | asset_url }}">
+</noscript>
 <script src="{{ 'shop-gym-equipment-ativa.js' | asset_url }}" defer></script>
 
 {%- liquid
@@ -40,12 +54,14 @@
                   {%- if block.settings.image != blank -%}
                     {{
                       block.settings.image
-                      | image_url: width: 900
+                      | image_url: width: 600
                       | image_tag:
                         class: 'shop-gym-ativa__img',
-                        widths: '375, 550, 700, 900',
+                        widths: '300, 400, 500, 600',
                         sizes: '(min-width: 990px) 25vw, (min-width: 768px) 50vw, 100vw',
                         loading: 'lazy',
+                        decoding: 'async',
+                        fetchpriority: 'low',
                         alt: block.settings.image.alt | default: block.settings.title | escape
                     }}
                   {%- else -%}
@@ -73,12 +89,14 @@
                   {%- if block.settings.image != blank -%}
                     {{
                       block.settings.image
-                      | image_url: width: 900
+                      | image_url: width: 600
                       | image_tag:
                         class: 'shop-gym-ativa__img',
-                        widths: '375, 550, 700, 900',
+                        widths: '300, 400, 500, 600',
                         sizes: '(min-width: 990px) 25vw, (min-width: 768px) 50vw, 100vw',
                         loading: 'lazy',
+                        decoding: 'async',
+                        fetchpriority: 'low',
                         alt: block.settings.image.alt | default: block.settings.title | escape
                     }}
                   {%- else -%}

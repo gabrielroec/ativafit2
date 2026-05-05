@@ -65,20 +65,16 @@
       as="script"
       href="{{ 'theme.min.js' | asset_url }}">
     {%- comment -%}
-      Preconnect budget: Lighthouse alerta acima de 4. Mantemos apenas os críticos
-      para LCP (cdn.shopify.com onde está o hero e as fontes Google). O resto vira
-      dns-prefetch (quase zero custo, só resolve DNS).
+      Preconnect budget: Lighthouse warns above 4. Kept the two critical for LCP
+      (cdn.shopify.com for hero asset + fonts.gstatic.com for the woff2 chain).
+      Removed unused dns-prefetch entries (ajax.googleapis.com, maps.* — none of
+      these are referenced anywhere on the home/cart/PDP).
     {%- endcomment -%}
     <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
     <link rel="dns-prefetch" href="https://fonts.shopifycdn.com">
-    <link rel="dns-prefetch" href="https://fonts.cdnfonts.com">
-    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
     <link rel="dns-prefetch" href="https://productreviews.shopifycdn.com">
-    <link rel="dns-prefetch" href="https://ajax.googleapis.com">
-    <link rel="dns-prefetch" href="https://maps.googleapis.com">
-    <link rel="dns-prefetch" href="https://maps.gstatic.com">
 
 
     {% render 'css-variables' %}
@@ -208,8 +204,31 @@
       })(document, document.head, document.body);
     </script>
 
-    <link rel="stylesheet" href="{{ 'global.css' | asset_url }}">
-    <link rel="stylesheet" href="{{ 'theme.min.css' | asset_url }}">
+    {%- comment -%}
+      global.css + theme.min.css moved to preload→onload to remove ~990ms of
+      render-blocking time on slow 4G (Lighthouse measured global.css alone at
+      499ms blocking). theme.min.css is reported as ~95% unused on the home
+      page (28.2 KiB of unused CSS), so async loading is safe.
+
+      The hero, header, and trust bar load their own section CSS via
+      stylesheet_tag for above-the-fold paint integrity.
+    {%- endcomment -%}
+    <link
+      rel="preload"
+      as="style"
+      href="{{ 'global.css' | asset_url }}"
+      onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+      <link rel="stylesheet" href="{{ 'global.css' | asset_url }}">
+    </noscript>
+    <link
+      rel="preload"
+      as="style"
+      href="{{ 'theme.min.css' | asset_url }}"
+      onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+      <link rel="stylesheet" href="{{ 'theme.min.css' | asset_url }}">
+    </noscript>
     {% render 'microdata-schema' %}
 
     <script>
@@ -376,7 +395,7 @@
 
     <meta name="google-site-verification" content="MMiNaiXOwNEI9BAzMcFWKtn93PFIXJS6nFRcAl-4Pwo" />
 
-    {% include 'pagefly-app-header' %}
+    {%- comment -%} PageFly removed entirely (app no longer in use, 2026-05). {%- endcomment -%}
     {{ content_for_header }}
     {%- comment -%} bundler-custom.css em preload→onload (antes era render-blocking) {%- endcomment -%}
     <link
@@ -470,24 +489,7 @@
       <script src="{{ 'cwv-debug.js' | asset_url }}" defer></script>
     {%- endif -%}
 
-    {%- comment -%} jQuery CDN removido — já carregado via assets/jquery.min.js (evita duplicação) {%- endcomment -%}
-    <script>
-      (function(){
-        var idle = window.requestIdleCallback || function(cb){setTimeout(cb,3000);};
-        idle(function(){
-          try {
-            if (window.__pagefly_helper_store__) {
-              window.__pagefly_helper_store__.subscribe(function() {
-                fetch('/cart.json').then(function(r){return r.json();}).then(function(cart){
-                  document.documentElement.dispatchEvent(new CustomEvent('product:added',{bubbles:true,detail:{quantity:1}}));
-                  document.querySelectorAll('.header__cart-count, [data-cart-count]').forEach(function(el){el.textContent=cart.item_count;});
-                                  });
-      });
-            }
-          } catch(e){}
-        });
-      })();
-    </script>
+    {%- comment -%} PageFly cart sync IIFE removed — PageFly app no longer in use (2026-05). {%- endcomment -%}
 
     <!-- Google Tag Manager (noscript) New -->
     <noscript>

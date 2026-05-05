@@ -1,4 +1,29 @@
-{{ 'hero-ativa-home.css' | asset_url | stylesheet_tag }}
+{%- comment -%}
+  Critical hero CSS — inlined to reserve aspect-ratio space and position the
+  LCP image immediately, without waiting for hero-ativa-home.css to download.
+  The full stylesheet then arrives async (preload→onload).
+{%- endcomment -%}
+<style>
+.hero-ativa-home{position:relative;color:#fff;background:#1a1a1a;isolation:isolate;overflow:visible}
+.hero-ativa-home__viewport{position:relative;width:100%;max-width:100%;aspect-ratio:var(--hero-ativa-aspect-w-mobile,1)/var(--hero-ativa-aspect-h-mobile,1);background:#666}
+@media(max-width:768px){.hero-ativa-home__viewport{min-height:var(--hero-ativa-min-h-mobile,0px)}}
+@media(min-width:769px){.hero-ativa-home__viewport{aspect-ratio:var(--hero-ativa-aspect-w-desktop,16)/var(--hero-ativa-aspect-h-desktop,9);min-height:var(--hero-ativa-min-h-desktop,0px)}}
+.hero-ativa-home__scroller{display:flex;width:100%;height:100%;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none}
+.hero-ativa-home__scroller::-webkit-scrollbar{display:none}
+.hero-ativa-home__slide{position:relative;flex:0 0 100%;width:100%;min-height:100%;scroll-snap-align:start;overflow:hidden}
+.hero-ativa-home__slide-media,.hero-ativa-home__bg{position:absolute;inset:0;z-index:0}
+.hero-ativa-home__picture-full{display:block;width:100%;height:100%;margin:0}
+.hero-ativa-home__bg-media,.hero-ativa-home__bg-media--cover{width:100%;height:100%;object-fit:cover;object-position:center;display:block}
+.hero-ativa-home__visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+</style>
+<link
+  rel="preload"
+  as="style"
+  href="{{ 'hero-ativa-home.css' | asset_url }}"
+  onload="this.onload=null;this.rel='stylesheet'">
+<noscript>
+  <link rel="stylesheet" href="{{ 'hero-ativa-home.css' | asset_url }}">
+</noscript>
 <script src="{{ 'hero-ativa-home.js' | asset_url }}" defer></script>
 
 {%- comment -%}
@@ -34,14 +59,19 @@
     endif
   endif
 -%}
+{%- comment -%}
+  Hero LCP image is displayed at ~412 CSS px on Moto-G-class devices (DPR 1–2).
+  Preload candidate ladder right-sized to 480/640/800 (mobile) and 1200/1600
+  (desktop) — Lighthouse flagged 900w mobile / 2000w desktop as wasteful.
+{%- endcomment -%}
 {%- if hero_lcp_d != blank or hero_lcp_m != blank -%}
   {%- if hero_lcp_m != blank -%}
     <link
       rel="preload"
       as="image"
       fetchpriority="high"
-      href="{{ hero_lcp_m | image_url: width: 900 }}"
-      imagesrcset="{{ hero_lcp_m | image_url: width: 600 }} 600w, {{ hero_lcp_m | image_url: width: 900 }} 900w, {{ hero_lcp_m | image_url: width: 1200 }} 1200w"
+      href="{{ hero_lcp_m | image_url: width: 640 }}"
+      imagesrcset="{{ hero_lcp_m | image_url: width: 480 }} 480w, {{ hero_lcp_m | image_url: width: 640 }} 640w, {{ hero_lcp_m | image_url: width: 800 }} 800w"
       imagesizes="100vw"
       media="(max-width: 768px)">
   {%- endif -%}
@@ -50,8 +80,8 @@
       rel="preload"
       as="image"
       fetchpriority="high"
-      href="{{ hero_lcp_d | image_url: width: 1600 }}"
-      imagesrcset="{{ hero_lcp_d | image_url: width: 1200 }} 1200w, {{ hero_lcp_d | image_url: width: 1600 }} 1600w, {{ hero_lcp_d | image_url: width: 2000 }} 2000w"
+      href="{{ hero_lcp_d | image_url: width: 1200 }}"
+      imagesrcset="{{ hero_lcp_d | image_url: width: 1000 }} 1000w, {{ hero_lcp_d | image_url: width: 1200 }} 1200w, {{ hero_lcp_d | image_url: width: 1600 }} 1600w"
       imagesizes="100vw"
       media="(min-width: 769px)">
   {%- endif -%}
@@ -209,20 +239,20 @@
                       {%- if forloop.first -%}
                         <source
                           media="(max-width: 768px)"
-                          srcset="{{ img_m | image_url: width: 600 }} 600w, {{ img_m | image_url: width: 900 }} 900w, {{ img_m | image_url: width: 1200 }} 1200w"
+                          srcset="{{ img_m | image_url: width: 480 }} 480w, {{ img_m | image_url: width: 640 }} 640w, {{ img_m | image_url: width: 800 }} 800w"
                           sizes="100vw">
                       {%- else -%}
                         <source
                           media="(max-width: 768px)"
-                          srcset="{{ img_m | image_url: width: 900 }}">
+                          srcset="{{ img_m | image_url: width: 800 }}">
                       {%- endif -%}
                     {%- endif -%}
                     {%- if img_d != blank -%}
                       <img
                         class="hero-ativa-home__bg-media hero-ativa-home__bg-media--cover"
-                        src="{{ img_d | image_url: width: 1600 }}"
+                        src="{{ img_d | image_url: width: 1200 }}"
                         {% if forloop.first %}
-                          srcset="{{ img_d | image_url: width: 1200 }} 1200w, {{ img_d | image_url: width: 1600 }} 1600w, {{ img_d | image_url: width: 2000 }} 2000w"
+                          srcset="{{ img_d | image_url: width: 1000 }} 1000w, {{ img_d | image_url: width: 1200 }} 1200w, {{ img_d | image_url: width: 1600 }} 1600w"
                           sizes="100vw"
                         {% endif %}
                         width="{{ img_d.width | default: 1920 }}"
@@ -301,20 +331,20 @@
                       {%- if forloop.first -%}
                         <source
                           media="(min-width: 769px)"
-                          srcset="{{ bg_d | image_url: width: 1200 }} 1200w, {{ bg_d | image_url: width: 1600 }} 1600w, {{ bg_d | image_url: width: 2000 }} 2000w"
+                          srcset="{{ bg_d | image_url: width: 1000 }} 1000w, {{ bg_d | image_url: width: 1200 }} 1200w, {{ bg_d | image_url: width: 1600 }} 1600w"
                           sizes="100vw">
                       {%- else -%}
                         <source
                           media="(min-width: 769px)"
-                          srcset="{{ bg_d | image_url: width: 1600 }}">
+                          srcset="{{ bg_d | image_url: width: 1200 }}">
                       {%- endif -%}
                     {%- endif -%}
                     {%- if bg_m != blank -%}
                       <img
                         class="hero-ativa-home__bg-media hero-ativa-home__bg-media--cover"
-                        src="{{ bg_m | image_url: width: 1200 }}"
+                        src="{{ bg_m | image_url: width: 800 }}"
                         {% if forloop.first %}
-                          srcset="{{ bg_m | image_url: width: 600 }} 600w, {{ bg_m | image_url: width: 900 }} 900w, {{ bg_m | image_url: width: 1200 }} 1200w"
+                          srcset="{{ bg_m | image_url: width: 480 }} 480w, {{ bg_m | image_url: width: 640 }} 640w, {{ bg_m | image_url: width: 800 }} 800w"
                           sizes="100vw"
                         {% endif %}
                         width="{{ bg_m.width | default: 1200 }}"
