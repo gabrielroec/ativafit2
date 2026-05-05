@@ -1,0 +1,64 @@
+/**
+ * Theme overrides — third-party widget patches that previously lived as
+ * inline <style> blocks inside layout/theme.liquid. Extracted to a cacheable
+ * asset so the rules ship once and HTML stays smaller.
+ *
+ * Covers: Loloyal launcher, Bon-loyalty button, RivyO testimonial bg,
+ * Bundler app product titles, Judge.me unicode star fallback.
+ */
+
+/* Loloyal launcher position */
+.boom-launcher.loloyal-launcher-wrapper {
+  position: fixed;
+  bottom: 60px !important;
+  left: 70px !important;
+  z-index: 2147483647;
+}
+
+/* RivyO testimonial card — force white bg over inline styles from the app */
+.rivyoTestimonialItem,
+div.rivyoTestimonialItem,
+.rivyoTestimonialItem[style*="background"],
+.rivyoTestimonialItem[style*="background-color"],
+.rivyoTestimonialItem[style],
+body .rivyoTestimonialItem,
+html body .rivyoTestimonialItem {
+  background-color: #fff !important;
+  background: #fff !important;
+}
+
+/* Bundle Builder H3 — replaces app's <a class="bndlr-product-title"> with semantic h3 */
+.bndlr-product-title-h3 {
+  font-family: 'Barlow', sans-serif !important;
+  font-size: 16px !important;
+  line-height: 1.4 !important;
+  color: #333 !important;
+  margin: 0 !important;
+  text-decoration: none !important;
+  display: block !important;
+}
+.bndlr-product-title-h3:hover {
+  color: #EB701F !important;
+  text-decoration: underline !important;
+}
+.bndlr-product-title-h3.bndlr-product-title {
+  /* Inherits from base class above */
+}
+
+/* Judge.me star — unicode fallback in case the icon font fails to load */
+.jdgm-star.jdgm--on::before,
+.jdgm-star.jdgm--on:before {
+  content: "★" !important;
+  font-family: inherit !important;
+  font-size: inherit !important;
+  color: inherit !important;
+  opacity: 1 !important;
+}
+.jdgm-star.jdgm--off::before,
+.jdgm-star.jdgm--off:before {
+  content: "★" !important;
+  font-family: inherit !important;
+  font-size: inherit !important;
+  color: inherit !important;
+  opacity: 0.3 !important;
+}

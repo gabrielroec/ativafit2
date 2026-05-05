@@ -138,63 +138,80 @@
               endif
             -%}
 
+            {%- comment -%}
+              Active panel renders its product cards immediately (visible on
+              first paint, contributes to LCP candidates if hero hadn't won).
+              Inactive panels render their card markup inside a <template>,
+              which keeps the HTML reachable for SEO/Theme Editor but skips
+              image downloads, JS init, and DOM cost until the user clicks
+              the tab. Hydration: on first tab activation, we replace the
+              <template> with its content (clones the DocumentFragment).
+            {%- endcomment -%}
             <div
               id="{{ panel_id }}"
               role="tabpanel"
               aria-labelledby="{{ tab_id }}"
               class="shop-by-goal-va__panel"
               {% unless is_active %}hidden{% endunless %}
+              {% unless is_active %}data-shop-goal-deferred="1"{% endunless %}
               tabindex="0">
-              {%- if use_manual_products -%}
-                {%- assign manual_shown = 0 -%}
-                <ul class="{{ grid_class }} {{ grid_class_mobile }}" role="list">
-                  {%- if mp1 != blank and manual_shown < limit_n -%}
-                    <li class="shop-by-goal-va__item">
-                      {%- render 'product-card-simple', product: mp1, show_reviews: section.settings.show_reviews -%}
-                    </li>
-                    {%- assign manual_shown = manual_shown | plus: 1 -%}
-                  {%- endif -%}
-                  {%- if mp2 != blank and manual_shown < limit_n -%}
-                    <li class="shop-by-goal-va__item">
-                      {%- render 'product-card-simple', product: mp2, show_reviews: section.settings.show_reviews -%}
-                    </li>
-                    {%- assign manual_shown = manual_shown | plus: 1 -%}
-                  {%- endif -%}
-                  {%- if mp3 != blank and manual_shown < limit_n -%}
-                    <li class="shop-by-goal-va__item">
-                      {%- render 'product-card-simple', product: mp3, show_reviews: section.settings.show_reviews -%}
-                    </li>
-                    {%- assign manual_shown = manual_shown | plus: 1 -%}
-                  {%- endif -%}
-                  {%- if mp4 != blank and manual_shown < limit_n -%}
-                    <li class="shop-by-goal-va__item">
-                      {%- render 'product-card-simple', product: mp4, show_reviews: section.settings.show_reviews -%}
-                    </li>
-                    {%- assign manual_shown = manual_shown | plus: 1 -%}
-                  {%- endif -%}
-                </ul>
-              {%- elsif coll != blank and coll.products.size > 0 -%}
-                <ul class="{{ grid_class }} {{ grid_class_mobile }}" role="list">
-                  {%- for product in coll.products limit: limit_n -%}
-                    <li class="shop-by-goal-va__item">
-                      {%- render 'product-card-simple',
-                        product: product,
-                        show_reviews: section.settings.show_reviews
-                      -%}
-                    </li>
-                  {%- endfor -%}
-                </ul>
+              {%- capture panel_inner -%}
+                {%- if use_manual_products -%}
+                  {%- assign manual_shown = 0 -%}
+                  <ul class="{{ grid_class }} {{ grid_class_mobile }}" role="list">
+                    {%- if mp1 != blank and manual_shown < limit_n -%}
+                      <li class="shop-by-goal-va__item">
+                        {%- render 'product-card-simple', product: mp1, show_reviews: section.settings.show_reviews -%}
+                      </li>
+                      {%- assign manual_shown = manual_shown | plus: 1 -%}
+                    {%- endif -%}
+                    {%- if mp2 != blank and manual_shown < limit_n -%}
+                      <li class="shop-by-goal-va__item">
+                        {%- render 'product-card-simple', product: mp2, show_reviews: section.settings.show_reviews -%}
+                      </li>
+                      {%- assign manual_shown = manual_shown | plus: 1 -%}
+                    {%- endif -%}
+                    {%- if mp3 != blank and manual_shown < limit_n -%}
+                      <li class="shop-by-goal-va__item">
+                        {%- render 'product-card-simple', product: mp3, show_reviews: section.settings.show_reviews -%}
+                      </li>
+                      {%- assign manual_shown = manual_shown | plus: 1 -%}
+                    {%- endif -%}
+                    {%- if mp4 != blank and manual_shown < limit_n -%}
+                      <li class="shop-by-goal-va__item">
+                        {%- render 'product-card-simple', product: mp4, show_reviews: section.settings.show_reviews -%}
+                      </li>
+                      {%- assign manual_shown = manual_shown | plus: 1 -%}
+                    {%- endif -%}
+                  </ul>
+                {%- elsif coll != blank and coll.products.size > 0 -%}
+                  <ul class="{{ grid_class }} {{ grid_class_mobile }}" role="list">
+                    {%- for product in coll.products limit: limit_n -%}
+                      <li class="shop-by-goal-va__item">
+                        {%- render 'product-card-simple',
+                          product: product,
+                          show_reviews: section.settings.show_reviews
+                        -%}
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                {%- else -%}
+                  <div class="shop-by-goal-va__empty" role="status">
+                    <p class="shop-by-goal-va__empty-text">
+                      {{- section.settings.empty_text | default: 'No products yet.' | escape -}}
+                    </p>
+                    {%- if section.settings.empty_link != blank -%}
+                      <a href="{{ section.settings.empty_link }}" class="shop-by-goal-va__empty-cta">
+                        {{- section.settings.empty_cta_label | default: 'Browse all' | escape -}}
+                      </a>
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
+              {%- endcapture -%}
+              {%- if is_active -%}
+                {{ panel_inner }}
               {%- else -%}
-                <div class="shop-by-goal-va__empty" role="status">
-                  <p class="shop-by-goal-va__empty-text">
-                    {{- section.settings.empty_text | default: 'No products yet.' | escape -}}
-                  </p>
-                  {%- if section.settings.empty_link != blank -%}
-                    <a href="{{ section.settings.empty_link }}" class="shop-by-goal-va__empty-cta">
-                      {{- section.settings.empty_cta_label | default: 'Browse all' | escape -}}
-                    </a>
-                  {%- endif -%}
-                </div>
+                <template data-shop-goal-template>{{ panel_inner }}</template>
               {%- endif -%}
             </div>
           {%- endif -%}
@@ -747,6 +764,18 @@
       return id ? root.querySelector('#' + CSS.escape(id)) : null;
     }
 
+    function hydrate(panel) {
+      if (!panel || !panel.hasAttribute('data-shop-goal-deferred')) return;
+      var tpl = panel.querySelector('template[data-shop-goal-template]');
+      if (!tpl) return;
+      /* Replace the <template> with its rendered content. Document fragment
+         clones any embedded <img> with proper loading="lazy" already in place
+         from product-card-simple. */
+      var frag = tpl.content.cloneNode(true);
+      tpl.replaceWith(frag);
+      panel.removeAttribute('data-shop-goal-deferred');
+    }
+
     function activate(tab, setFocus) {
       tabs.forEach(function (t) {
         var selected = t === tab;
@@ -755,6 +784,7 @@
         var p = panelFor(t);
         if (p) {
           if (selected) {
+            hydrate(p);
             p.removeAttribute('hidden');
           } else {
             p.setAttribute('hidden', '');

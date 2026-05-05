@@ -3,32 +3,27 @@
 <html class="no-js" lang="{{ request.locale.iso_code }}">
   <head>
     {%- comment -%}
-      ⚠️ DUPLICATED GTM CONTAINERS — action required from marketing/ops team.
-      There are TWO GTM containers loaded on every page (NG7LT26D here + PXMZSFK below).
-      Each container loads its own tag stack independently, doubling JS cost and CLS risk.
-      Decide which one is authoritative and remove the other.
-      See plan fase3-gtm.
-    {%- endcomment -%}
-    <!-- Google Tag Manager (container NG7LT26D) -->
-    <script>
-      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-      })(window,document,'script','dataLayer','GTM-NG7LT26D');
-  </script>
+      ⚠️ DUPLICATED GTM CONTAINERS — pending decision from marketing/ops team.
+      Both NG7LT26D and PXMZSFK still loaded; both are now deferred to first
+      user interaction or after `load` (whichever comes first), matching the
+      pattern used for Hotjar/Twitter/Reddit further down. dataLayer is still
+      created early so any pre-load events from theme code are captured and
+      replayed when GTM bootstraps.
 
-    <!-- End Google Tag Manager -->
+      To reduce TBT further: remove one container after confirming with marketing.
+    {%- endcomment -%}
+    <script>window.dataLayer = window.dataLayer || [];</script>
     {%- comment -%}
       Visually.io (LOOMI) SDK removido em 2026-04 — stack de testes consolidada
       no Intelligems. Ganho esperado: ~3 scripts third-party a menos, economia
       de ~80ms de long task + preconnect de live.visually-io.com eliminado.
     {%- endcomment -%}
 
-    <script
-      src="https://analytics.ahrefs.com/analytics.js"
-      data-key="lqzucNIXjItSH4hJMLxs4w"
-      async></script>
+    {%- comment -%}
+      Ahrefs analytics — moved to deferred-tracking block below (loads on first
+      user interaction or after `load`). Async at top of <head> still steals
+      bandwidth from the LCP image on slow connections.
+    {%- endcomment -%}
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, height=device-height, minimum-scale=1.0, maximum-scale=1.0">
     <meta name="theme-color" content="{{ settings.accent_color }}">
@@ -145,14 +140,22 @@
         href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&display=swap">
     </noscript>
 
-    <link
-      rel="preload"
-      as="style"
-      href="https://fonts.cdnfonts.com/css/inter"
-      onload="this.onload=null;this.rel='stylesheet'">
-    <noscript>
-      <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/inter">
-    </noscript>
+    {%- comment -%}
+      Inter font — only used by split-banner and workout-blog-posts sections.
+      Gated out of pages that don't use them (notably the homepage). The
+      "Inter Fallback" @font-face metric override above still applies — when
+      Inter does load on those pages, the swap is shift-free.
+    {%- endcomment -%}
+    {%- if request.page_type != 'index' and request.page_type != 'cart' -%}
+      <link
+        rel="preload"
+        as="style"
+        href="https://fonts.cdnfonts.com/css/inter"
+        onload="this.onload=null;this.rel='stylesheet'">
+      <noscript>
+        <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/inter">
+      </noscript>
+    {%- endif -%}
 
     {% render 'google-fonts-ativa' %}
 
@@ -263,20 +266,26 @@
     {%- comment -%} CSS e JS são carregados pela própria section cart-drawer.liquid {%- endcomment -%}
     <script>
       window.shopifyCountryCode = '{{ localization.country.iso_code | default: "" }}';
-      /* Geolocation deferred to after load to avoid blocking main thread */
-      window.addEventListener('load', function() {
-        setTimeout(function() {
-      fetch('https://ipapi.co/json/')
-            .then(function(r) { return r.json(); })
-            .then(function(d) {
-              if (d.country_code) {
+      /* Geolocation only fetched on demand — first cart-drawer open or first add-to-cart.
+         Saves a DNS+TLS handshake to ipapi.co for visitors that never open the cart. */
+      (function(){
+        var fetched = false;
+        function ensureCountry() {
+          if (fetched) return;
+          fetched = true;
+          fetch('https://ipapi.co/json/')
+            .then(function(r){ return r.json(); })
+            .then(function(d){
+              if (d && d.country_code) {
                 window.shopifyCountryCode = d.country_code;
                 if (window.cartDrawer && window.cartDrawer.isOpen) window.cartDrawer.loadCartData();
               }
             })
-            .catch(function() {});
-        }, 2000);
-        });
+            .catch(function(){});
+        }
+        document.addEventListener('cart:open', ensureCountry, { once: true, passive: true });
+        document.addEventListener('product:added', ensureCountry, { once: true, passive: true });
+      })();
     </script>
 
     {%- comment -%} cart-payment-terms moved to <body> (was invalid HTML inside <head>) — see bottom of file {%- endcomment -%}
@@ -319,46 +328,40 @@
       </script>
     {%- endif -%}
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-11366836138"></script>
+    {%- comment -%}
+      Google Ads gtag (AW-11366836138) — moved to deferred-tracking block.
+      gtag() helper + dataLayer are still defined early so any pre-load events
+      are queued and replayed when gtag.js eventually loads on first interaction.
+    {%- endcomment -%}
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
+      window.gtag = window.gtag || function(){window.dataLayer.push(arguments);};
       gtag('js', new Date());
-
       gtag('config', 'AW-11366836138');
     </script>
 
     {%- comment -%} Twitter Pixel — deferred to after user interaction (INP fix) — loaded via deferred-tracking below {%- endcomment -%}
 
-    <!-- Google Tag Manager -->
-    <!--
-      <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);  })(window,document,'script','dataLayer','GTM-M985N39');</script>
-    -->
-    <!-- End Google Tag Manager -->
+    {%- comment -%} Legacy GTM-M985N39 container removed — not used since 2024. {%- endcomment -%}
 
-    {%- comment -%} ⚠️ Second GTM container — duplicated with NG7LT26D above. Consolidate. {%- endcomment -%}
-    <!-- Google Tag Manager (container PXMZSFK) -->
-    <script>
-      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-      })(window,document,'script','dataLayer','GTM-PXMZSFK');
-    </script>
-    <!-- End Google Tag Manager -->
-    {%- comment -%} Hotjar 2 — deferred to after user interaction (INP fix) {%- endcomment -%}
-
-    {%- comment -%} Reddit Pixel — deferred to after user interaction (INP fix) {%- endcomment -%}
+    {%- comment -%} GTM containers (NG7LT26D + PXMZSFK), Ahrefs and gtag.js are loaded by the deferred-tracking block at end of <body>. {%- endcomment -%}
     {% render 'digismoothie-candyrack' %}
-    <link
-      rel="preload"
-      as="style"
-      href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
-      onload="this.onload=null;this.rel='stylesheet'">
-    <noscript>
-      <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    </noscript>
+    {%- comment -%}
+      Font Awesome 4.7 — only legacy pro-* sections (pro-block02/03/05, pro-video,
+      pro-social, main-product-shane) use .fa-* classes. Gated out of pages that
+      don't reference those sections (notably the homepage). Saves ~90KB CSS +
+      font request on home/cart/account.
+    {%- endcomment -%}
+    {%- if request.page_type != 'index' and request.page_type != 'cart' and request.page_type != 'customers/account' and request.page_type != 'customers/login' and request.page_type != 'customers/register' and request.page_type != 'customers/order' and request.page_type != 'customers/addresses' and request.page_type != 'customers/reset_password' -%}
+      <link
+        rel="preload"
+        as="style"
+        href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+        onload="this.onload=null;this.rel='stylesheet'">
+      <noscript>
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+      </noscript>
+    {%- endif -%}
     <link
       rel="preload"
       as="style"
@@ -386,81 +389,19 @@
     </noscript>
   </head>
 
-  <style>
-    .boom-launcher.loloyal-launcher-wrapper {
-      position: fixed;
-      bottom: 60px !important;
-      left: 70px !important;
-      z-index: 2147483647;
-    }
-    button#bon-loyalty-btn {
-      {% comment %} height: 50px !important;
-      right: -211px !important;
-      top: 60%; {% endcomment %}
-      /* transform: translateY(10px) !important; */
-      {% comment %} width: 236px; {% endcomment %}
-      {% comment %} z-index: 50 !important;
-          padding: 10px 20px; {% endcomment %}
-    }
-    /* Técnica 1: Múltiplos !important com seletores mais específicos */
-    .rivyoTestimonialItem {
-      background-color: #fff !important;
-      background: #fff !important;
-    }
-
-    /* Técnica 2: Seletores mais específicos */
-    div.rivyoTestimonialItem,
-    .rivyoTestimonialItem[style*="background"],
-    .rivyoTestimonialItem[style*="background-color"] {
-      background-color: #fff !important;
-      background: #fff !important;
-    }
-
-    /* Técnica 3: Usando atributo style com máxima especificidade */
-    .rivyoTestimonialItem[style] {
-      background-color: #fff !important;
-      background: #fff !important;
-    }
-
-    /* Técnica 4: Seletores aninhados para máxima especificidade */
-    body .rivyoTestimonialItem,
-    html body .rivyoTestimonialItem {
-      background-color: #fff !important;
-      background: #fff !important;
-    }
-
-    /* Bundle Builder H3 Styles */
-    .bndlr-product-title-h3 {
-      font-family: 'Barlow'
-      , sans-serif !important;
-
-      font-size: 16px !important;
-      line-height: 1.4 !important;
-      color: #333 !important;
-      margin: 0 !important;
-      text-decoration: none !important;
-      display: block !important;
-    }
-
-    .bndlr-product-title-h3:hover {
-      color: #EB701F !important;
-      text-decoration: underline !important;
-    }
-
-    /* Garantir que os estilos do Bundle Builder sejam mantidos */
-    .bndlr-product-title-h3.bndlr-product-title {
-    ;
-    /* Herda todos os estilos da classe original */
-  }
-  </style>
-
-  <style>
-    .rivyoTestimonialItem,
-    .rivyoTestimonialItem[style] {
-      background-color: #fff !important;
-      background: #fff !important;
-    }
-  </style>
+  {%- comment -%}
+    Theme overrides (rivyo, bndlr, loloyal, etc.) extracted to a cacheable asset.
+    See assets/theme-overrides.css. Loaded preload→stylesheet so it doesn't
+    block rendering.
+  {%- endcomment -%}
+  <link
+    rel="preload"
+    as="style"
+    href="{{ 'theme-overrides.css' | asset_url }}"
+    onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" href="{{ 'theme-overrides.css' | asset_url }}">
+  </noscript>
 
   {%- if request.path == '/products/ripple-half-ball-balance-ball' -%}
     <style>
@@ -521,8 +462,13 @@
       {% endform %}
     </div>
 
-    {%- comment -%} CWV debug (only active with ?debug-cwv=1 in URL) {%- endcomment -%}
-    <script src="{{ 'cwv-debug.js' | asset_url }}" defer></script>
+    {%- comment -%}
+      CWV debug — only loaded when explicitly requested via ?debug-cwv=1 or
+      inside the Theme Editor (design_mode). Was loaded on every visitor before.
+    {%- endcomment -%}
+    {%- if request.design_mode or request.path contains 'debug-cwv' -%}
+      <script src="{{ 'cwv-debug.js' | asset_url }}" defer></script>
+    {%- endif -%}
 
     {%- comment -%} jQuery CDN removido — já carregado via assets/jquery.min.js (evita duplicação) {%- endcomment -%}
     <script>
@@ -569,7 +515,12 @@
     {%- comment -%} Error Handler Script {%- endcomment -%}
     <script src="{{ 'error-handler.js' | asset_url }}" defer></script>
 
-    {%- comment -%} Bundle Builder Title Converter Script (INP + CLS optimized) {%- endcomment -%}
+    {%- comment -%}
+      Bundle Builder Title Converter — only loads on pages that may host the
+      bundler app (product/landing pages and bundle template). Running it
+      site-wide is wasted work on home/cart/account.
+    {%- endcomment -%}
+    {%- if request.page_type == 'product' or request.page_type == 'page' or template.suffix == 'bundle-page' or template.suffix == 'landing' -%}
     <script>
       (function() {
         'use strict';
@@ -674,6 +625,7 @@
         };
       })();
     </script>
+    {%- endif -%}
 
     {%- comment -%} Ativafit Brand Name Corrector Script (INP + CLS optimized)
       Observer escopado + auto-disconnect após 10s inatividade ou 30s totais.
@@ -745,27 +697,18 @@
       })();
     </script>
 
-    {%- comment -%} Judge.me Star Unicode Fix — CSS-only (INP-optimized) {%- endcomment -%}
-    <style>
-      .jdgm-star.jdgm--on::before,
-      .jdgm-star.jdgm--on:before {
-        content: "★" !important;
-        font-family: inherit !important;
-        font-size: inherit !important;
-        color: inherit !important;
-        opacity: 1 !important;
-      }
-      .jdgm-star.jdgm--off::before,
-      .jdgm-star.jdgm--off:before {
-        content: "★" !important;
-                font-family: inherit !important;
-                font-size: inherit !important;
-                color: inherit !important;
-        opacity: 0.3 !important;
-      }
-    </style>
+    {%- comment -%} Judge.me unicode star fallback moved to assets/theme-overrides.css {%- endcomment -%}
 
-    {%- comment -%} Deferred Third-Party Tracking — only loads after first user interaction (INP fix) {%- endcomment -%}
+    {%- comment -%}
+      Deferred Third-Party Tracking — loads on first user interaction OR after
+      the load event + 3.5s, whichever comes first. Includes:
+        - GTM NG7LT26D + PXMZSFK (both still active; consolidate when marketing decides)
+        - Google Ads gtag.js (AW-11366836138)
+        - Ahrefs analytics
+        - Hotjar (×2), Twitter, Reddit pixels
+      dataLayer + gtag() are stubbed earlier in <head> so events fired before
+      this loader runs are queued and replayed.
+    {%- endcomment -%}
     <script>
       (function() {
         var loaded = false;
@@ -773,6 +716,26 @@
           if (loaded) return;
           loaded = true;
           ['click','scroll','keydown','touchstart'].forEach(function(e){ document.removeEventListener(e, loadTracking, {capture:true}); });
+
+          /* GTM container NG7LT26D */
+          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+          })(window,document,'script','dataLayer','GTM-NG7LT26D');
+
+          /* GTM container PXMZSFK */
+          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+          })(window,document,'script','dataLayer','GTM-PXMZSFK');
+
+          /* Google Ads gtag (AW-11366836138) */
+          (function(){var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=AW-11366836138';document.head.appendChild(s);})();
+
+          /* Ahrefs analytics */
+          (function(){var s=document.createElement('script');s.async=true;s.src='https://analytics.ahrefs.com/analytics.js';s.setAttribute('data-key','lqzucNIXjItSH4hJMLxs4w');document.head.appendChild(s);})();
 
           /* Hotjar 1 (hjid: 6368517) */
           (function(h,o,t,j,a,r){
@@ -804,7 +767,12 @@
           !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);rdt('init','t2_w2f9doa7');rdt('track','PageVisit');
         }
         ['click','scroll','keydown','touchstart'].forEach(function(e){ document.addEventListener(e, loadTracking, {capture:true,once:true,passive:true}); });
-        setTimeout(loadTracking, 5000);
+        /* Fallback: load tracking after page load + 3.5s if user is idle. Bots & previews still get tracked. */
+        if (document.readyState === 'complete') {
+          setTimeout(loadTracking, 3500);
+        } else {
+          window.addEventListener('load', function(){ setTimeout(loadTracking, 3500); }, { once: true });
+        }
       })();
     </script>
   <script src="{{ 'bundler-carousel.js' | asset_url }}" defer></script>

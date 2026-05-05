@@ -1,6 +1,62 @@
 {{ 'hero-ativa-home.css' | asset_url | stylesheet_tag }}
 <script src="{{ 'hero-ativa-home.js' | asset_url }}" defer></script>
 
+{%- comment -%}
+  LCP preload — emits a <link rel="preload" as="image"> for the first slide's
+  hero image with responsive imagesrcset/imagesizes. The browser starts the
+  fetch as soon as it parses this tag, before reaching the <img> below.
+  Done here (not in <head>) because section settings only resolve at section
+  render time. On homepages this typically improves LCP by 100–300ms.
+{%- endcomment -%}
+{%- liquid
+  assign hero_first = section.blocks[0]
+  if hero_first.type == 'slide'
+    assign hero_first_settings = hero_first.settings
+    assign hero_first_layout = hero_first_settings.layout
+    if hero_first_layout == 'image_only'
+      assign hero_lcp_d = hero_first_settings.image_desktop
+      assign hero_lcp_m = hero_first_settings.image_mobile
+    else
+      assign hero_lcp_d = hero_first_settings.background_image
+      if hero_lcp_d == blank
+        assign hero_lcp_d = hero_first_settings.image_desktop
+      endif
+      assign hero_lcp_m = hero_first_settings.background_image_mobile
+      if hero_lcp_m == blank
+        assign hero_lcp_m = hero_first_settings.image_mobile
+      endif
+    endif
+    if hero_lcp_m == blank
+      assign hero_lcp_m = hero_lcp_d
+    endif
+    if hero_lcp_d == blank
+      assign hero_lcp_d = hero_lcp_m
+    endif
+  endif
+-%}
+{%- if hero_lcp_d != blank or hero_lcp_m != blank -%}
+  {%- if hero_lcp_m != blank -%}
+    <link
+      rel="preload"
+      as="image"
+      fetchpriority="high"
+      href="{{ hero_lcp_m | image_url: width: 900 }}"
+      imagesrcset="{{ hero_lcp_m | image_url: width: 600 }} 600w, {{ hero_lcp_m | image_url: width: 900 }} 900w, {{ hero_lcp_m | image_url: width: 1200 }} 1200w"
+      imagesizes="100vw"
+      media="(max-width: 768px)">
+  {%- endif -%}
+  {%- if hero_lcp_d != blank -%}
+    <link
+      rel="preload"
+      as="image"
+      fetchpriority="high"
+      href="{{ hero_lcp_d | image_url: width: 1600 }}"
+      imagesrcset="{{ hero_lcp_d | image_url: width: 1200 }} 1200w, {{ hero_lcp_d | image_url: width: 1600 }} 1600w, {{ hero_lcp_d | image_url: width: 2000 }} 2000w"
+      imagesizes="100vw"
+      media="(min-width: 769px)">
+  {%- endif -%}
+{%- endif -%}
+
 {%- liquid
   assign entrance_stagger = section.settings.entrance_stagger_ms | default: 90
   assign ar_m_key = section.settings.aspect_ratio_mobile | default: '1_1'
@@ -143,22 +199,37 @@
                 {%- endif -%}
                 {%- if img_d != blank or img_m != blank -%}
                   <picture class="hero-ativa-home__picture-full">
+                    {%- comment -%}
+                      First slide = LCP. Right-sized srcset (1200/1600/2000 desktop,
+                      600/900/1200 mobile). Non-first slides ship a single ~1200w
+                      candidate to skip a srcset entirely (saves bytes — they are
+                      lazy and most users never reach them).
+                    {%- endcomment -%}
                     {%- if img_m != blank -%}
-                      <source
-                        media="(max-width: 768px)"
-                        srcset="{{ img_m | image_url: width: 800 }} 800w, {{ img_m | image_url: width: 1200 }} 1200w, {{ img_m | image_url: width: 1600 }} 1600w"
-                        sizes="100vw">
+                      {%- if forloop.first -%}
+                        <source
+                          media="(max-width: 768px)"
+                          srcset="{{ img_m | image_url: width: 600 }} 600w, {{ img_m | image_url: width: 900 }} 900w, {{ img_m | image_url: width: 1200 }} 1200w"
+                          sizes="100vw">
+                      {%- else -%}
+                        <source
+                          media="(max-width: 768px)"
+                          srcset="{{ img_m | image_url: width: 900 }}">
+                      {%- endif -%}
                     {%- endif -%}
                     {%- if img_d != blank -%}
                       <img
                         class="hero-ativa-home__bg-media hero-ativa-home__bg-media--cover"
-                        src="{{ img_d | image_url: width: 1920 }}"
-                        srcset="{{ img_d | image_url: width: 1200 }} 1200w, {{ img_d | image_url: width: 1800 }} 1800w, {{ img_d | image_url: width: 2400 }} 2400w"
-                        sizes="100vw"
+                        src="{{ img_d | image_url: width: 1600 }}"
+                        {% if forloop.first %}
+                          srcset="{{ img_d | image_url: width: 1200 }} 1200w, {{ img_d | image_url: width: 1600 }} 1600w, {{ img_d | image_url: width: 2000 }} 2000w"
+                          sizes="100vw"
+                        {% endif %}
                         width="{{ img_d.width | default: 1920 }}"
                         height="{{ img_d.height | default: 1080 }}"
                         loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
                         fetchpriority="{% if forloop.first %}high{% else %}low{% endif %}"
+                        decoding="{% if forloop.first %}sync{% else %}async{% endif %}"
                         alt="{{ alt_img }}">
                     {%- elsif img_m != blank -%}
                       <img
@@ -167,6 +238,7 @@
                         width="{{ img_m.width | default: 1200 }}"
                         height="{{ img_m.height | default: 800 }}"
                         loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+                        decoding="{% if forloop.first %}sync{% else %}async{% endif %}"
                         alt="{{ alt_img }}">
                     {%- endif -%}
                   </picture>
@@ -226,21 +298,30 @@
                   {%- comment -%} picture mobile-first: img base + source min-width 769px para desktop {%- endcomment -%}
                   <picture class="hero-ativa-home__picture-full">
                     {%- if bg_d != blank -%}
-                      <source
-                        media="(min-width: 769px)"
-                        srcset="{{ bg_d | image_url: width: 1200 }} 1200w, {{ bg_d | image_url: width: 1800 }} 1800w, {{ bg_d | image_url: width: 2400 }} 2400w"
-                        sizes="100vw">
+                      {%- if forloop.first -%}
+                        <source
+                          media="(min-width: 769px)"
+                          srcset="{{ bg_d | image_url: width: 1200 }} 1200w, {{ bg_d | image_url: width: 1600 }} 1600w, {{ bg_d | image_url: width: 2000 }} 2000w"
+                          sizes="100vw">
+                      {%- else -%}
+                        <source
+                          media="(min-width: 769px)"
+                          srcset="{{ bg_d | image_url: width: 1600 }}">
+                      {%- endif -%}
                     {%- endif -%}
                     {%- if bg_m != blank -%}
                       <img
                         class="hero-ativa-home__bg-media hero-ativa-home__bg-media--cover"
                         src="{{ bg_m | image_url: width: 1200 }}"
-                        srcset="{{ bg_m | image_url: width: 800 }} 800w, {{ bg_m | image_url: width: 1200 }} 1200w, {{ bg_m | image_url: width: 1600 }} 1600w"
-                        sizes="100vw"
+                        {% if forloop.first %}
+                          srcset="{{ bg_m | image_url: width: 600 }} 600w, {{ bg_m | image_url: width: 900 }} 900w, {{ bg_m | image_url: width: 1200 }} 1200w"
+                          sizes="100vw"
+                        {% endif %}
                         width="{{ bg_m.width | default: 1200 }}"
                         height="{{ bg_m.height | default: 800 }}"
                         loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
                         fetchpriority="{% if forloop.first %}high{% else %}low{% endif %}"
+                        decoding="{% if forloop.first %}sync{% else %}async{% endif %}"
                         alt="">
                     {%- endif -%}
                   </picture>

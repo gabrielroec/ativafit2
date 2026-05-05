@@ -56,7 +56,12 @@
                       {%- if block.settings.link != blank -%}
                         <a href="{{ block.settings.link }}" class="media-mentions-marquee__link" rel="noopener noreferrer" target="_blank">
                       {%- endif -%}
-                      {%- comment -%} Eager load: lazy + overflow marquee often skips off-screen strip images. SVG: width param can break URL. {%- endcomment -%}
+                      {%- comment -%}
+                        Logos are below the fold and the marquee animation only
+                        starts when the section is in viewport (IntersectionObserver
+                        in script below). loading="lazy" + decoding="async" lets
+                        browsers skip 30+ logo bytes on initial pageload.
+                      {%- endcomment -%}
                       {%- if mm_logo_is_svg -%}
                         <img
                           class="media-mentions-marquee__img"
@@ -64,16 +69,18 @@
                           alt="{{ mm_logo_alt | escape }}"
                           width="{{ mm_logo_img.width | default: 240 }}"
                           height="{{ mm_logo_img.height | default: 80 }}"
-                          loading="eager"
+                          loading="lazy"
                           decoding="async">
                       {%- else -%}
                         {{
                           mm_logo_img
-                          | image_url: width: 800
+                          | image_url: width: 400
                           | image_tag:
-                            loading: 'eager',
+                            loading: 'lazy',
+                            decoding: 'async',
+                            fetchpriority: 'low',
                             class: 'media-mentions-marquee__img',
-                            widths: '120, 180, 240, 320, 400, 600, 800',
+                            widths: '120, 180, 240, 320, 400',
                             sizes: '(min-width: 990px) 260px, min(50vw, 320px)',
                             alt: mm_logo_alt
                         }}
@@ -129,17 +136,20 @@
                           alt=""
                           width="{{ mm_logo_img_dup.width | default: 240 }}"
                           height="{{ mm_logo_img_dup.height | default: 80 }}"
-                          loading="eager"
+                          loading="lazy"
                           decoding="async"
+                          fetchpriority="low"
                           aria-hidden="true">
                       {%- else -%}
                         {{
                           mm_logo_img_dup
-                          | image_url: width: 800
+                          | image_url: width: 400
                           | image_tag:
-                            loading: 'eager',
+                            loading: 'lazy',
+                            decoding: 'async',
+                            fetchpriority: 'low',
                             class: 'media-mentions-marquee__img',
-                            widths: '120, 180, 240, 320, 400, 600, 800',
+                            widths: '120, 180, 240, 320, 400',
                             sizes: '(min-width: 990px) 260px, min(50vw, 320px)',
                             alt: ''
                         }}
@@ -182,6 +192,7 @@
     var track = root.querySelector('[data-media-mentions-track]');
     var strip = root.querySelector('[data-media-mentions-strip]');
     if (!track || !strip) return;
+    var initialized = false;
 
     function motionReduced() {
       return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -199,25 +210,40 @@
       track.classList.add('media-mentions-marquee__track--ready');
     }
 
-    if (typeof ResizeObserver !== 'undefined') {
-      new ResizeObserver(syncShift).observe(strip);
+    function init() {
+      if (initialized) return;
+      initialized = true;
+
+      if (typeof ResizeObserver !== 'undefined') {
+        new ResizeObserver(syncShift).observe(strip);
+      }
+      syncShift();
+      requestAnimationFrame(syncShift);
+      requestAnimationFrame(function () { requestAnimationFrame(syncShift); });
+
+      window.addEventListener('load', syncShift);
+      window.addEventListener('resize', function () {
+        clearTimeout(root._mmMarqueeDebounce);
+        root._mmMarqueeDebounce = setTimeout(syncShift, 100);
+      });
+
+      strip.querySelectorAll('img').forEach(function (img) {
+        if (!img.complete) img.addEventListener('load', syncShift, { once: true });
+      });
     }
 
-    syncShift();
-    requestAnimationFrame(syncShift);
-    requestAnimationFrame(function () {
-      requestAnimationFrame(syncShift);
-    });
-
-    window.addEventListener('load', syncShift);
-    window.addEventListener('resize', function () {
-      clearTimeout(root._mmMarqueeDebounce);
-      root._mmMarqueeDebounce = setTimeout(syncShift, 100);
-    });
-
-    strip.querySelectorAll('img').forEach(function (img) {
-      if (!img.complete) img.addEventListener('load', syncShift, { once: true });
-    });
+    /* Defer init until the section is near the viewport — saves layout work
+       on the home where the marquee is mid-page. */
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries, obs) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { init(); obs.disconnect(); }
+        });
+      }, { root: null, rootMargin: '320px 0px', threshold: 0 });
+      io.observe(root);
+    } else {
+      init();
+    }
   })();
 </script>
 

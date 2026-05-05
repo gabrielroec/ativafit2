@@ -180,14 +180,20 @@
 
         <div class="ai-awards-item-{{ ai_gen_id }}">
           {% if logo != blank %}
-            <img
-              src="{{ logo | image_url: width: 800 }}"
-              alt="{{ logo.alt | escape }}"
-              loading="lazy"
-              width="{{ logo.width }}"
-              height="{{ logo.height }}"
-              class="ai-awards-image-{{ ai_gen_id }}"
-            >
+            {{
+              logo
+              | image_url: width: 480
+              | image_tag:
+                loading: 'lazy',
+                decoding: 'async',
+                fetchpriority: 'low',
+                widths: '160, 240, 320, 480',
+                sizes: '(min-width: 768px) 25vw, 70vw',
+                alt: logo.alt,
+                class: 'ai-awards-image-' | append: ai_gen_id,
+                width: logo.width,
+                height: logo.height
+            }}
           {% else %}
             <div class="ai-awards-placeholder-{{ ai_gen_id }}">
               {{ 'image' | placeholder_svg_tag }}
