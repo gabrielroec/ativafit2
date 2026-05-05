@@ -20,12 +20,18 @@
   {% endif %}>
   {%- if use_bg_image -%}
     <div class="ativa-community-cta__bg" aria-hidden="true">
+      {%- comment -%}
+        Background CTA — última section antes do footer. Slot 100vw mas a
+        section é decorativa: ladder reduzido pra 480/750/1100/1500 (cortado
+        o 1920w, oversize pra 99% dos viewports). format:'webp' garante
+        compressão moderna mesmo se o admin trocar a imagem por JPG.
+      {%- endcomment -%}
       {{
         bg_image
-        | image_url: width: 1920
+        | image_url: width: 1500, format: 'webp'
         | image_tag:
           class: 'ativa-community-cta__bg-media',
-          widths: '550, 750, 1100, 1500, 1920',
+          widths: '480, 750, 1100, 1500',
           sizes: '100vw',
           loading: 'lazy',
           decoding: 'async',

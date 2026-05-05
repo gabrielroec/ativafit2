@@ -2,10 +2,12 @@
   Product Main Section — New PDP (Stitch reference, 2026-04-28)
   Reference design: stitch.withgoogle.com/projects/3661639363294894472
   Standalone section — does not depend on existing product-main-section assets.
-  Inline SVG icons (no external icon font dependency).
+  Trust bar under gallery reuses trust-bar-ativa.css / .js and the same SVGs as the Trust bar Ativa section.
 {% endcomment %}
 
 {{ 'product-main-new-pdp-28-apr.css' | asset_url | stylesheet_tag }}
+{{ 'trust-bar-ativa.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'trust-bar-ativa.js' | asset_url }}" defer></script>
 
 {%- liquid
   assign current_variant = product.selected_or_first_available_variant
@@ -14,7 +16,6 @@
     assign show_compare = true
   endif
 
-  assign bento_blocks = section.blocks | where: 'type', 'bento_item'
   assign accordion_blocks = section.blocks | where: 'type', 'accordion'
   assign pairs_block = section.blocks | where: 'type', 'pairs_well_with' | first
 -%}
@@ -115,46 +116,48 @@
           {%- endif -%}
         </div>
 
-        {%- comment -%} Bento "Why Choose This?" {%- endcomment -%}
-        {%- if bento_blocks.size > 0 -%}
-          <section class="np-pdp__bento">
-            <h2 class="np-pdp__bento-title">{{ section.settings.bento_title }}</h2>
-            <div class="np-pdp__bento-grid">
-              {%- for block in bento_blocks -%}
-                <article class="np-pdp__bento-card" {{ block.shopify_attributes }}>
-                  <span class="np-pdp__bento-icon" aria-hidden="true">
-                    {%- case block.settings.icon -%}
-                      {%- when 'shield' -%}
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                      {%- when 'bolt' -%}
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>
-                      {%- when 'grid' -%}
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-                      {%- when 'lock' -%}
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
-                      {%- when 'star' -%}
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12,2 15,9 22,9.5 17,14.5 18.5,22 12,18 5.5,22 7,14.5 2,9.5 9,9"/></svg>
-                      {%- when 'check' -%}
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
-                      {%- when 'truck' -%}
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 7h13v10H1z"/><path d="M14 10h5l3 3v4h-8z"/><circle cx="6" cy="19" r="2"/><circle cx="17" cy="19" r="2"/></svg>
-                      {%- when 'clock' -%}
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                      {%- when 'flame' -%}
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1 4 5 5 5 10a5 5 0 11-10 0c0-3 2-3 2-6 2 1 3 2 3 4z"/></svg>
-                      {%- when 'dumbbell' -%}
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8v8M3 10v4M18 8v8M21 10v4M6 12h12"/></svg>
-                      {%- else -%}
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
-                    {%- endcase -%}
+        {%- comment -%} Trust bar (same markup/copy/icons as trust-bar-ativa section) {%- endcomment -%}
+        <div class="np-pdp__trust-bar-wrap">
+          <section
+            class="trust-bar-ativa"
+            style="
+              background-color: #f3f3f3;
+              border-bottom-color: rgba(223, 192, 178, 0.1);
+              --trust-bar-icon: #eb701f;
+              --trust-bar-text: #574237;
+            "
+            data-trust-bar-ativa
+            aria-label="Benefits and guarantees">
+            <div class="trust-bar-ativa__inner">
+              <ul class="trust-bar-ativa__grid" role="list">
+                <li class="trust-bar-ativa__item" style="--trust-stagger: 0ms">
+                  <span class="trust-bar-ativa__icon" style="color: var(--trust-bar-icon);" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="trust-bar-ativa__icon-svg" aria-hidden="true" focusable="false"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm12.5-9l1.96 2.5H17V9.5h1.5zm-.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
                   </span>
-                  <h3 class="np-pdp__bento-card-title">{{ block.settings.title }}</h3>
-                  <p class="np-pdp__bento-card-text">{{ block.settings.text }}</p>
-                </article>
-              {%- endfor -%}
+                  <span class="trust-bar-ativa__text" style="color: var(--trust-bar-text);">Free Shipping within US</span>
+                </li>
+                <li class="trust-bar-ativa__item" style="--trust-stagger: 90ms">
+                  <span class="trust-bar-ativa__icon" style="color: var(--trust-bar-icon);" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="trust-bar-ativa__icon-svg" aria-hidden="true" focusable="false"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+                  </span>
+                  <span class="trust-bar-ativa__text" style="color: var(--trust-bar-text);">30-Day Returns</span>
+                </li>
+                <li class="trust-bar-ativa__item" style="--trust-stagger: 180ms">
+                  <span class="trust-bar-ativa__icon" style="color: var(--trust-bar-icon);" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="trust-bar-ativa__icon-svg" aria-hidden="true" focusable="false"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                  </span>
+                  <span class="trust-bar-ativa__text" style="color: var(--trust-bar-text);">4 interest-free installments</span>
+                </li>
+                <li class="trust-bar-ativa__item" style="--trust-stagger: 270ms">
+                  <span class="trust-bar-ativa__icon" style="color: var(--trust-bar-icon);" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="trust-bar-ativa__icon-svg" aria-hidden="true" focusable="false"><path d="M23 12l-2.44-2.79.34-3.69-3.61-.82-1.89-3.2L12 2.96 8.6 1.5 6.71 4.69 3.1 5.5l.34 3.7L1 12l2.44 2.79-.34 3.7 3.61.82L8.6 22.5 12 21.04l3.4 1.46 1.89-3.19 3.61-.82-.34-3.69L23 12zm-12.91 4.72-3.8-3.81 1.48-1.48 2.32 2.33 5.85-5.87 1.48 1.48-7.33 7.35z"/></svg>
+                  </span>
+                  <span class="trust-bar-ativa__text" style="color: var(--trust-bar-text);">1-Year Warranty</span>
+                </li>
+              </ul>
             </div>
           </section>
-        {%- endif -%}
+        </div>
       </div>
 
       {%- comment -%} ================ RIGHT COLUMN ================ {%- endcomment -%}
@@ -637,57 +640,10 @@
       "id": "description_fallback",
       "label": "Description fallback",
       "info": "Reads from metafield custom.product_description_mf first. This text is used only when the metafield is empty.",
-      "default": "<p>Premium quality equipment engineered for performance and durability. Designed to deliver consistent results, this product combines refined craftsmanship with everyday usability — built to support your goals, session after session.</p>"
-    },
-    {
-      "type": "header",
-      "content": "Bento — Why Choose This?"
-    },
-    {
-      "type": "text",
-      "id": "bento_title",
-      "label": "Bento section title",
-      "default": "Why Choose This?"
+      "default": "<p>Forged in Steel. Built for Life.</p><p>When you’re pressing 88 lbs over your chest, you need absolute trust in your gear. Unlike plastic-heavy alternatives, the Flare series features a robust pure steel core and a high-tensile locking mechanism. It feels solid in your hand and stays rock-steady on every rep. It’s a lifetime investment in your home gym—designed to take a beating and still look like a masterpiece.</p>"
     }
   ],
   "blocks": [
-    {
-      "type": "bento_item",
-      "name": "Bento card",
-      "limit": 8,
-      "settings": [
-        {
-          "type": "select",
-          "id": "icon",
-          "label": "Icon",
-          "default": "shield",
-          "options": [
-            { "value": "shield", "label": "Shield (durability)" },
-            { "value": "bolt", "label": "Bolt (speed)" },
-            { "value": "grid", "label": "Grid (space)" },
-            { "value": "lock", "label": "Lock (safety)" },
-            { "value": "star", "label": "Star (quality)" },
-            { "value": "check", "label": "Check (verified)" },
-            { "value": "truck", "label": "Truck (shipping)" },
-            { "value": "clock", "label": "Clock (time)" },
-            { "value": "flame", "label": "Flame (energy)" },
-            { "value": "dumbbell", "label": "Dumbbell" }
-          ]
-        },
-        {
-          "type": "text",
-          "id": "title",
-          "label": "Title",
-          "default": "Precision Build"
-        },
-        {
-          "type": "textarea",
-          "id": "text",
-          "label": "Description",
-          "default": "High-tensile steel for maximum durability."
-        }
-      ]
-    },
     {
       "type": "accordion",
       "name": "Accordion",
@@ -735,10 +691,6 @@
     {
       "name": "Product main (new PDP)",
       "blocks": [
-        { "type": "bento_item", "settings": { "icon": "shield", "title": "Precision Build", "text": "High-tensile steel for maximum durability." } },
-        { "type": "bento_item", "settings": { "icon": "bolt", "title": "Rapid Change", "text": "Switch weights in seconds via dial system." } },
-        { "type": "bento_item", "settings": { "icon": "grid", "title": "Space Efficient", "text": "Replaces 17 sets of dumbbells." } },
-        { "type": "bento_item", "settings": { "icon": "lock", "title": "Safety Lock", "text": "Secure plates with dial-locking system." } },
         { "type": "accordion", "settings": { "title": "Key Features", "body": "<ul><li>Patented rapid-adjustment dial mechanism</li><li>Premium non-slip textured grip</li><li>Durable high-tensile steel construction</li><li>Includes custom-molded storage trays</li></ul>" } },
         { "type": "accordion", "settings": { "title": "Use Tips and Manual", "body": "<p>Always ensure the dial is fully engaged before lifting the dumbbell from the tray.</p>" } },
         { "type": "accordion", "settings": { "title": "Tech Specs", "body": "<p><strong>Weight Range:</strong> 5 to 88 lbs per dumbbell<br><strong>Settings:</strong> 17 weight levels</p>" } }

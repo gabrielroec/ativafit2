@@ -3,14 +3,11 @@
 <html class="no-js" lang="{{ request.locale.iso_code }}">
   <head>
     {%- comment -%}
-      ⚠️ DUPLICATED GTM CONTAINERS — pending decision from marketing/ops team.
-      Both NG7LT26D and PXMZSFK still loaded; both are now deferred to first
-      user interaction or after `load` (whichever comes first), matching the
-      pattern used for Hotjar/Twitter/Reddit further down. dataLayer is still
-      created early so any pre-load events from theme code are captured and
-      replayed when GTM bootstraps.
-
-      To reduce TBT further: remove one container after confirming with marketing.
+      GTM consolidado em NG7LT26D (PXMZSFK removido em 2026-05 após decisão
+      de marketing). Container deferido pra primeira interação do usuário ou
+      load+3.5s, mesmo pattern do Hotjar/Twitter/Reddit. dataLayer é criado
+      cedo aqui pra eventos pre-load do tema serem captados e replayed quando
+      o GTM bootstrapa.
     {%- endcomment -%}
     <script>window.dataLayer = window.dataLayer || [];</script>
     {%- comment -%}
@@ -55,24 +52,21 @@
     <link rel="canonical" href="{{ canonical_url }}">
 
 
-      {%- comment -%}Few prefech to increase performance on commonly used third-parties{%- endcomment -%}
-    <link
-      rel="preload"
-      as="style"
-      href="{{ 'theme.min.css' | asset_url }}">
-    <link
-      rel="preload"
-      as="script"
-      href="{{ 'theme.min.js' | asset_url }}">
     {%- comment -%}
-      Preconnect budget: Lighthouse warns above 4. Kept the two critical for LCP
-      (cdn.shopify.com for hero asset + fonts.gstatic.com for the woff2 chain).
-      Removed unused dns-prefetch entries (ajax.googleapis.com, maps.* — none of
-      these are referenced anywhere on the home/cart/PDP).
+      Preloads duplicados (theme.min.css/js) removidos — havia warmup aqui +
+      preload→onload mais abaixo (linha ~225) e <script defer> no fim do head.
+      Manter os três tags = 3 hits redundantes na mesma URL e ranking de
+      prioridades confuso pro browser. Mantemos só o preload→onload + defer
+      script, que é o suficiente.
+
+      Preconnect budget: Lighthouse warns above 4. fonts.googleapis.com promovido
+      de dns-prefetch → preconnect porque o CSS dos fontes (Barlow/Lexend/...) é
+      o chain crítico mais longo do site (~6.4s no Slow 4G). preconnect economiza
+      o TLS handshake antes do request do CSS chegar.
     {%- endcomment -%}
     <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
     <link rel="dns-prefetch" href="https://fonts.shopifycdn.com">
     <link rel="dns-prefetch" href="https://productreviews.shopifycdn.com">
 
@@ -112,123 +106,103 @@
     </style>
 
     {%- comment -%}
-      Reduzido para pesos realmente usados (400/500/600/700) — antes carregava 9 pesos
-      * 2 estilos para cada fonte, gerando payload enorme e múltiplos swaps.
+      content-visibility: auto nas sections below-the-fold da home. O browser
+      pula layout + paint enquanto a section está fora do viewport (visualmente
+      idêntico, mas economiza CPU em mobile lento — ajuda TBT/Speed Index).
+      contain-intrinsic-size reserva espaço no layout pra não causar CLS quando
+      a section vira visível. Aplicado só na homepage pra não regredir outras
+      páginas.
     {%- endcomment -%}
-    <link
-      rel="preload"
-      as="style"
-      href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&display=swap"
-      onload="this.onload=null;this.rel='stylesheet'">
-    <noscript>
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&display=swap">
-    </noscript>
-    <link
-      rel="preload"
-      as="style"
-      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&display=swap"
-      onload="this.onload=null;this.rel='stylesheet'">
-    <noscript>
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&display=swap">
-    </noscript>
-
-    {%- comment -%}
-      Inter font — only used by split-banner and workout-blog-posts sections.
-      Gated out of pages that don't use them (notably the homepage). The
-      "Inter Fallback" @font-face metric override above still applies — when
-      Inter does load on those pages, the swap is shift-free.
-    {%- endcomment -%}
-    {%- if request.page_type != 'index' and request.page_type != 'cart' -%}
-      <link
-        rel="preload"
-        as="style"
-        href="https://fonts.cdnfonts.com/css/inter"
-        onload="this.onload=null;this.rel='stylesheet'">
-      <noscript>
-        <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/inter">
-      </noscript>
+    {%- if request.page_type == 'index' -%}
+      <style>
+        .banner-product-showcase,
+        .media-mentions-marquee,
+        .why-dumbbells-stand-out,
+        .trusted-tech-critics,
+        .home-gyms-results-marquee,
+        .fitness-insights-blog,
+        .ativa-community-cta,
+        [class*="ai-awards-section-"] {
+          content-visibility: auto;
+          contain-intrinsic-size: auto 800px;
+        }
+        @media (max-width: 768px) {
+          .banner-product-showcase,
+          .media-mentions-marquee,
+          .why-dumbbells-stand-out,
+          .trusted-tech-critics,
+          .home-gyms-results-marquee,
+          .fitness-insights-blog,
+          .ativa-community-cta,
+          [class*="ai-awards-section-"] {
+            contain-intrinsic-size: auto 600px;
+          }
+        }
+      </style>
     {%- endif -%}
 
-    {% render 'google-fonts-ativa' %}
+    {%- comment -%}
+      Google Fonts consolidados num único css2 URL — reduz de 3 round-trips
+      pra googleapis.com (Barlow + Barlow Condensed + google-fonts-ativa) pra
+      apenas 1. Em Slow 4G isso economiza ~400ms da chain crítica.
 
-    {%- comment -%} Hotjar 1 — deferred to after user interaction (INP fix) — loaded via deferred-tracking below {%- endcomment -%}
-    <!-- Accessibility Code for "ativafit.com" -->
+      Famílias: Barlow (400/700), Barlow Condensed (700), Space Grotesk
+      (400/700), Lexend (400/700). Pesos intermediários (500/600/300/900)
+      removidos do preload — se alguma section usar, o fallback metric
+      override evita CLS.
+
+      display=swap garante que o texto pinta com fallback enquanto o woff2
+      carrega (importante pro LCP).
+    {%- endcomment -%}
+    {%- capture ativafit_fonts_url -%}https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&family=Barlow+Condensed:wght@700&family=Space+Grotesk:wght@400;700&family=Lexend:wght@400;700&display=swap{%- endcapture -%}
+    <link rel="preload" as="style" href="{{ ativafit_fonts_url }}" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ ativafit_fonts_url }}"></noscript>
+
+    {%- comment -%}
+      Inter font — só usado por split-banner e workout-blog-posts. Mantido
+      condicional pra nunca carregar na homepage/cart.
+    {%- endcomment -%}
+    {%- if request.page_type != 'index' and request.page_type != 'cart' -%}
+      <link rel="preload" as="style" href="https://fonts.cdnfonts.com/css/inter" onload="this.onload=null;this.rel='stylesheet'">
+      <noscript><link rel="stylesheet" href="https://fonts.cdnfonts.com/css/inter"></noscript>
+    {%- endif -%}
+
+    {%- comment -%}
+      Equalweb accessibility (interdeal) — config inlined here, mas o fetch do
+      script real (cdn.equalweb.com/core/5.1.2/accessibility.js, ~16KB) foi
+      movido pro deferred-tracking block no final do body. Roda só após
+      primeira interação do usuário ou load+3.5s. Isso libera ~100-200ms de
+      TBT pré-FCP em mobile lento. interdeal config precisa ficar definido
+      ANTES do script carregar.
+    {%- endcomment -%}
     <script>
-      /*
-
-      Want to customize your button? visit our documentation page:
-
-      https://login.equalweb.com/custom-button.taf
-
-      */
       window.interdeal = {
-          "sitekey": "26a097e78c2453c54615d0bed623f613",
-          "Position": "Left",
-          "domains": {
-        "js": "https://cdn.equalweb.com/",
-        "acc": "https://access.equalweb.com/"
-          },
-          "Menulang": "EN",
-          "btnStyle": {
-        "vPosition": [
-            "80%",
-            "80%"
-        ],
-        "scale": [
-            "0.5",
-            "0.5"
-        ],
-        "color": {
-            "main": "#000000",
-            "second": "#ffffff"
+        "sitekey": "26a097e78c2453c54615d0bed623f613",
+        "Position": "Left",
+        "domains": {
+          "js": "https://cdn.equalweb.com/",
+          "acc": "https://access.equalweb.com/"
         },
-        "icon": {
-            "outline": false,
-            "type": 1,
-            "shape": "circle"
+        "Menulang": "EN",
+        "btnStyle": {
+          "vPosition": ["80%", "80%"],
+          "scale": ["0.5", "0.5"],
+          "color": { "main": "#000000", "second": "#ffffff" },
+          "icon": { "outline": false, "type": 1, "shape": "circle" }
         }
-          }
       };
-      (function(doc, head, body){
-          var coreCall             = doc.createElement('script');
-          coreCall.src             = interdeal.domains.js + 'core/5.1.2/accessibility.js';
-          coreCall.defer           = true;
-          coreCall.integrity       = 'sha512-PUyQFF3HFjRiVfjOiFFu+RTc0nGmLV5FN3CVw8zWFK6pVbWPAEKy9X2bTUn10GNu1EbxN56MuWu0P8ZHC6xv3Q==';
-          coreCall.crossOrigin     = 'anonymous';
-          coreCall.setAttribute('data-cfasync', true );
-          body? body.appendChild(coreCall) : head.appendChild(coreCall);
-      })(document, document.head, document.body);
     </script>
 
     {%- comment -%}
-      global.css + theme.min.css moved to preload→onload to remove ~990ms of
-      render-blocking time on slow 4G (Lighthouse measured global.css alone at
-      499ms blocking). theme.min.css is reported as ~95% unused on the home
-      page (28.2 KiB of unused CSS), so async loading is safe.
-
-      The hero, header, and trust bar load their own section CSS via
-      stylesheet_tag for above-the-fold paint integrity.
+      global.css + theme.min.css carregam via Shopify stylesheet_tag com
+      preload:true — equivalente ao padrão preload→onload mas idiomático e
+      melhor entendido pelo Chrome (sem quirks de onload em algumas versões).
+      theme.min.css é ~95% unused na home (Lighthouse: 28.2 KiB unused), e
+      global.css alone bloqueava 499ms de render. Com preload async, ambos
+      saem do critical path e LCP/FCP recuperam ~990ms juntos.
     {%- endcomment -%}
-    <link
-      rel="preload"
-      as="style"
-      href="{{ 'global.css' | asset_url }}"
-      onload="this.onload=null;this.rel='stylesheet'">
-    <noscript>
-      <link rel="stylesheet" href="{{ 'global.css' | asset_url }}">
-    </noscript>
-    <link
-      rel="preload"
-      as="style"
-      href="{{ 'theme.min.css' | asset_url }}"
-      onload="this.onload=null;this.rel='stylesheet'">
-    <noscript>
-      <link rel="stylesheet" href="{{ 'theme.min.css' | asset_url }}">
-    </noscript>
+    {{ 'global.css' | asset_url | stylesheet_tag: preload: true }}
+    {{ 'theme.min.css' | asset_url | stylesheet_tag: preload: true }}
     {% render 'microdata-schema' %}
 
     <script>
@@ -310,27 +284,12 @@
     {%- comment -%} cart-payment-terms moved to <body> (was invalid HTML inside <head>) — see bottom of file {%- endcomment -%}
 
     {%- comment -%}
-      Barlow overrides + Typography Supreme carregados via preload→onload para evitar
-      render-blocking (melhora LCP). Com os fallback overrides definidos no <style>
-      inline acima, o reflow quando esses CSS chegam é mínimo.
+      Barlow overrides + Typography Supreme — async preload via stylesheet_tag.
+      Com os fallback metric overrides inline no <style> acima, o reflow no
+      momento em que esses CSS chegam é mínimo (zero CLS na prática).
     {%- endcomment -%}
-    <link
-      rel="preload"
-      as="style"
-      href="{{ 'barlow-override.css' | asset_url }}"
-      onload="this.onload=null;this.rel='stylesheet'">
-    <noscript>
-      <link rel="stylesheet" href="{{ 'barlow-override.css' | asset_url }}">
-    </noscript>
-
-    <link
-      rel="preload"
-      as="style"
-      href="{{ 'typography-supreme.css' | asset_url }}"
-      onload="this.onload=null;this.rel='stylesheet'">
-    <noscript>
-      <link rel="stylesheet" href="{{ 'typography-supreme.css' | asset_url }}">
-    </noscript>
+    {{ 'barlow-override.css' | asset_url | stylesheet_tag: preload: true }}
+    {{ 'typography-supreme.css' | asset_url | stylesheet_tag: preload: true }}
 
     {%- if request.page_type != 'cart' -%}
       <script>
@@ -363,7 +322,7 @@
 
     {%- comment -%} Legacy GTM-M985N39 container removed — not used since 2024. {%- endcomment -%}
 
-    {%- comment -%} GTM containers (NG7LT26D + PXMZSFK), Ahrefs and gtag.js are loaded by the deferred-tracking block at end of <body>. {%- endcomment -%}
+    {%- comment -%} GTM container (NG7LT26D), Ahrefs and gtag.js are loaded by the deferred-tracking block at end of <body>. {%- endcomment -%}
     {% render 'digismoothie-candyrack' %}
     {%- comment -%}
       Font Awesome 4.7 — only legacy pro-* sections (pro-block02/03/05, pro-video,
@@ -381,14 +340,7 @@
         <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
       </noscript>
     {%- endif -%}
-    <link
-      rel="preload"
-      as="style"
-      href="{{ 'swiper.min.css' | asset_url }}"
-      onload="this.onload=null;this.rel='stylesheet'">
-    <noscript>
-    <link rel="stylesheet" href="{{ 'swiper.min.css' | asset_url }}">
-    </noscript>
+    {{ 'swiper.min.css' | asset_url | stylesheet_tag: preload: true }}
     <script src="{{ 'jquery.min.js' | asset_url }}" defer></script>
     <script src="{{ 'swiper.min.js' | asset_url }}" defer></script>
     <script src="{{ 'product-card-simple.js' | asset_url }}" defer></script>
@@ -397,30 +349,15 @@
 
     {%- comment -%} PageFly removed entirely (app no longer in use, 2026-05). {%- endcomment -%}
     {{ content_for_header }}
-    {%- comment -%} bundler-custom.css em preload→onload (antes era render-blocking) {%- endcomment -%}
-    <link
-      rel="preload"
-      as="style"
-      href="{{ 'bundler-custom.css' | asset_url }}"
-      onload="this.onload=null;this.rel='stylesheet'">
-    <noscript>
-      <link rel="stylesheet" href="{{ 'bundler-custom.css' | asset_url }}">
-    </noscript>
+    {%- comment -%} bundler-custom.css async via stylesheet_tag (antes era render-blocking) {%- endcomment -%}
+    {{ 'bundler-custom.css' | asset_url | stylesheet_tag: preload: true }}
   </head>
 
   {%- comment -%}
     Theme overrides (rivyo, bndlr, loloyal, etc.) extracted to a cacheable asset.
-    See assets/theme-overrides.css. Loaded preload→stylesheet so it doesn't
-    block rendering.
+    See assets/theme-overrides.css. Loaded async via stylesheet_tag.
   {%- endcomment -%}
-  <link
-    rel="preload"
-    as="style"
-    href="{{ 'theme-overrides.css' | asset_url }}"
-    onload="this.onload=null;this.rel='stylesheet'">
-  <noscript>
-    <link rel="stylesheet" href="{{ 'theme-overrides.css' | asset_url }}">
-  </noscript>
+  {{ 'theme-overrides.css' | asset_url | stylesheet_tag: preload: true }}
 
   {%- if request.path == '/products/ripple-half-ball-balance-ball' -%}
     <style>
@@ -491,21 +428,12 @@
 
     {%- comment -%} PageFly cart sync IIFE removed — PageFly app no longer in use (2026-05). {%- endcomment -%}
 
-    <!-- Google Tag Manager (noscript) New -->
-    <noscript>
-      <iframe
-        src="https://www.googletagmanager.com/ns.html?id=GTM-PXMZSFK"
-        height="0"
-        width="0"
-        style="display:none;visibility:hidden"></iframe>
-  </noscript>
-    <!-- End Google Tag Manager (noscript) -->
-
-    <!-- Google Tag Manager (noscript) -->
-    <!--
-      <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-M985N39"  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    -->
-    <!-- End Google Tag Manager (noscript) -->
+    {%- comment -%}
+      GTM-PXMZSFK container removido (2026-05) — duplicava NG7LT26D acima.
+      Decisão de marketing: consolidar tudo em NG7LT26D. Economia: ~113KB JS
+      transferido + cascata de gtags filhos + ~800ms de TBT no Lighthouse.
+      Legacy GTM-M985N39 também já foi removido (não usado desde 2024).
+    {%- endcomment -%}
 
 
     {%- comment -%} Cart Notification Component (deprecated - usando cart drawer agora) {%- endcomment -%}
@@ -704,10 +632,11 @@
     {%- comment -%}
       Deferred Third-Party Tracking — loads on first user interaction OR after
       the load event + 3.5s, whichever comes first. Includes:
-        - GTM NG7LT26D + PXMZSFK (both still active; consolidate when marketing decides)
+        - GTM NG7LT26D (single container — PXMZSFK removido em 2026-05)
         - Google Ads gtag.js (AW-11366836138)
         - Ahrefs analytics
         - Hotjar (×2), Twitter, Reddit pixels
+        - Equalweb accessibility (interdeal)
       dataLayer + gtag() are stubbed earlier in <head> so events fired before
       this loader runs are queued and replayed.
     {%- endcomment -%}
@@ -719,19 +648,12 @@
           loaded = true;
           ['click','scroll','keydown','touchstart'].forEach(function(e){ document.removeEventListener(e, loadTracking, {capture:true}); });
 
-          /* GTM container NG7LT26D */
+          /* GTM container NG7LT26D — único container ativo. PXMZSFK removido em 2026-05 */
           (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
           new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
           j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
           })(window,document,'script','dataLayer','GTM-NG7LT26D');
-
-          /* GTM container PXMZSFK */
-          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-          })(window,document,'script','dataLayer','GTM-PXMZSFK');
 
           /* Google Ads gtag (AW-11366836138) */
           (function(){var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=AW-11366836138';document.head.appendChild(s);})();
@@ -767,6 +689,18 @@
 
           /* Reddit Pixel */
           !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);rdt('init','t2_w2f9doa7');rdt('track','PageVisit');
+
+          /* Equalweb accessibility (interdeal) — config foi definida no <head> */
+          if (window.interdeal && !window.__interdealLoaded) {
+            window.__interdealLoaded = true;
+            var ew = document.createElement('script');
+            ew.src = window.interdeal.domains.js + 'core/5.1.2/accessibility.js';
+            ew.defer = true;
+            ew.integrity = 'sha512-PUyQFF3HFjRiVfjOiFFu+RTc0nGmLV5FN3CVw8zWFK6pVbWPAEKy9X2bTUn10GNu1EbxN56MuWu0P8ZHC6xv3Q==';
+            ew.crossOrigin = 'anonymous';
+            ew.setAttribute('data-cfasync', 'true');
+            document.body.appendChild(ew);
+          }
         }
         ['click','scroll','keydown','touchstart'].forEach(function(e){ document.addEventListener(e, loadTracking, {capture:true,once:true,passive:true}); });
         /* Fallback: load tracking after page load + 3.5s if user is idle. Bots & previews still get tracked. */

@@ -5,14 +5,7 @@
 .shop-gym-ativa__grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;list-style:none;margin:0;padding:0}
 @media(min-width:768px){.shop-gym-ativa__grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 </style>
-<link
-  rel="preload"
-  as="style"
-  href="{{ 'shop-gym-equipment-ativa.css' | asset_url }}"
-  onload="this.onload=null;this.rel='stylesheet'">
-<noscript>
-  <link rel="stylesheet" href="{{ 'shop-gym-equipment-ativa.css' | asset_url }}">
-</noscript>
+{{ 'shop-gym-equipment-ativa.css' | asset_url | stylesheet_tag: preload: true }}
 <script src="{{ 'shop-gym-equipment-ativa.js' | asset_url }}" defer></script>
 
 {%- liquid
@@ -52,13 +45,21 @@
                   style="--sg-reveal-delay: var(--sg-stagger, 0ms)"
                   href="{{ block.settings.link }}">
                   {%- if block.settings.image != blank -%}
+                    {%- comment -%}
+                      Lighthouse reportou os 4 cards (Strength/Cardio/Flex/Family)
+                      sendo servidos em 900w num slot de 350×466 — economia de
+                      ~370KB total. ladder reduzido pra 240/350/500 (desktop slot
+                      é 25vw ≈ 320px @ 1280px max-width); format:'webp' garante
+                      melhor compressão. As imagens já são .webp source mas
+                      o filter normaliza.
+                    {%- endcomment -%}
                     {{
                       block.settings.image
-                      | image_url: width: 600
+                      | image_url: width: 500, format: 'webp'
                       | image_tag:
                         class: 'shop-gym-ativa__img',
-                        widths: '300, 400, 500, 600',
-                        sizes: '(min-width: 990px) 25vw, (min-width: 768px) 50vw, 100vw',
+                        widths: '240, 350, 500',
+                        sizes: '(min-width: 990px) 25vw, (min-width: 768px) 50vw, 50vw',
                         loading: 'lazy',
                         decoding: 'async',
                         fetchpriority: 'low',
@@ -89,11 +90,11 @@
                   {%- if block.settings.image != blank -%}
                     {{
                       block.settings.image
-                      | image_url: width: 600
+                      | image_url: width: 500, format: 'webp'
                       | image_tag:
                         class: 'shop-gym-ativa__img',
-                        widths: '300, 400, 500, 600',
-                        sizes: '(min-width: 990px) 25vw, (min-width: 768px) 50vw, 100vw',
+                        widths: '240, 350, 500',
+                        sizes: '(min-width: 990px) 25vw, (min-width: 768px) 50vw, 50vw',
                         loading: 'lazy',
                         decoding: 'async',
                         fetchpriority: 'low',

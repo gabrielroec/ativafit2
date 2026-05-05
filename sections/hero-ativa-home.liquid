@@ -16,14 +16,7 @@
 .hero-ativa-home__bg-media,.hero-ativa-home__bg-media--cover{width:100%;height:100%;object-fit:cover;object-position:center;display:block}
 .hero-ativa-home__visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 </style>
-<link
-  rel="preload"
-  as="style"
-  href="{{ 'hero-ativa-home.css' | asset_url }}"
-  onload="this.onload=null;this.rel='stylesheet'">
-<noscript>
-  <link rel="stylesheet" href="{{ 'hero-ativa-home.css' | asset_url }}">
-</noscript>
+{{ 'hero-ativa-home.css' | asset_url | stylesheet_tag: preload: true }}
 <script src="{{ 'hero-ativa-home.js' | asset_url }}" defer></script>
 
 {%- comment -%}
@@ -230,11 +223,21 @@
                 {%- if img_d != blank or img_m != blank -%}
                   <picture class="hero-ativa-home__picture-full">
                     {%- comment -%}
-                      First slide = LCP. Right-sized srcset (1200/1600/2000 desktop,
-                      600/900/1200 mobile). Non-first slides ship a single ~1200w
-                      candidate to skip a srcset entirely (saves bytes — they are
-                      lazy and most users never reach them).
+                      First slide = LCP. Right-sized srcset (1000/1200/1600
+                      desktop, 480/640/800 mobile) e <source> + <img> reais.
+
+                      Non-first slides usam pattern data-src/data-srcset com placeholder
+                      SVG transparente 1×1 como src real. Isso impede o browser de
+                      baixar a imagem antes da hora — sem isso, mesmo com loading=lazy,
+                      o flex-row scroller faz o browser considerar todos os slides "no
+                      viewport" e baixa as 3 imagens above-the-fold, gastando ~136KB
+                      de banda que competem com o LCP.
+
+                      A swap data-src → src acontece em hero-ativa-home.js quando o
+                      slide entra no viewport via IntersectionObserver, ou quando o
+                      autoplay rotaciona pra ele.
                     {%- endcomment -%}
+                    {%- assign hero_blank_src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1 1%22%3E%3C/svg%3E' -%}
                     {%- if img_m != blank -%}
                       {%- if forloop.first -%}
                         <source
@@ -244,16 +247,20 @@
                       {%- else -%}
                         <source
                           media="(max-width: 768px)"
-                          srcset="{{ img_m | image_url: width: 800 }}">
+                          data-srcset="{{ img_m | image_url: width: 800 }}">
                       {%- endif -%}
                     {%- endif -%}
                     {%- if img_d != blank -%}
                       <img
                         class="hero-ativa-home__bg-media hero-ativa-home__bg-media--cover"
-                        src="{{ img_d | image_url: width: 1200 }}"
                         {% if forloop.first %}
+                          src="{{ img_d | image_url: width: 1200 }}"
                           srcset="{{ img_d | image_url: width: 1000 }} 1000w, {{ img_d | image_url: width: 1200 }} 1200w, {{ img_d | image_url: width: 1600 }} 1600w"
                           sizes="100vw"
+                        {% else %}
+                          src="{{ hero_blank_src }}"
+                          data-src="{{ img_d | image_url: width: 1200 }}"
+                          data-hero-deferred="1"
                         {% endif %}
                         width="{{ img_d.width | default: 1920 }}"
                         height="{{ img_d.height | default: 1080 }}"
@@ -264,7 +271,13 @@
                     {%- elsif img_m != blank -%}
                       <img
                         class="hero-ativa-home__bg-media hero-ativa-home__bg-media--cover"
-                        src="{{ img_m | image_url: width: 1200 }}"
+                        {% if forloop.first %}
+                          src="{{ img_m | image_url: width: 1200 }}"
+                        {% else %}
+                          src="{{ hero_blank_src }}"
+                          data-src="{{ img_m | image_url: width: 1200 }}"
+                          data-hero-deferred="1"
+                        {% endif %}
                         width="{{ img_m.width | default: 1200 }}"
                         height="{{ img_m.height | default: 800 }}"
                         loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
@@ -325,7 +338,8 @@
               -%}
               <div class="hero-ativa-home__bg" aria-hidden="true">
                 {%- if bg_d != blank or bg_m != blank -%}
-                  {%- comment -%} picture mobile-first: img base + source min-width 769px para desktop {%- endcomment -%}
+                  {%- comment -%} mesmo pattern data-src do image_only layout — só primeiro slide carrega eager. {%- endcomment -%}
+                  {%- assign hero_blank_src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1 1%22%3E%3C/svg%3E' -%}
                   <picture class="hero-ativa-home__picture-full">
                     {%- if bg_d != blank -%}
                       {%- if forloop.first -%}
@@ -336,16 +350,20 @@
                       {%- else -%}
                         <source
                           media="(min-width: 769px)"
-                          srcset="{{ bg_d | image_url: width: 1200 }}">
+                          data-srcset="{{ bg_d | image_url: width: 1200 }}">
                       {%- endif -%}
                     {%- endif -%}
                     {%- if bg_m != blank -%}
                       <img
                         class="hero-ativa-home__bg-media hero-ativa-home__bg-media--cover"
-                        src="{{ bg_m | image_url: width: 800 }}"
                         {% if forloop.first %}
+                          src="{{ bg_m | image_url: width: 800 }}"
                           srcset="{{ bg_m | image_url: width: 480 }} 480w, {{ bg_m | image_url: width: 640 }} 640w, {{ bg_m | image_url: width: 800 }} 800w"
                           sizes="100vw"
+                        {% else %}
+                          src="{{ hero_blank_src }}"
+                          data-src="{{ bg_m | image_url: width: 800 }}"
+                          data-hero-deferred="1"
                         {% endif %}
                         width="{{ bg_m.width | default: 1200 }}"
                         height="{{ bg_m.height | default: 800 }}"

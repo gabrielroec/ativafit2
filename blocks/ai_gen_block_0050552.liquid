@@ -180,14 +180,21 @@
 
         <div class="ai-awards-item-{{ ai_gen_id }}">
           {% if logo != blank %}
+            {%- comment -%}
+              format: 'webp' força conversão dos PNGs (ISPO/Muse/French Design)
+              pra WebP no CDN do Shopify. Lighthouse reportou ~58 KiB de
+              "Increasing the image compression factor" só no muse_design_award.
+              widths reduzido de '160,240,320' pra '120,180,240' — o slot é
+              213px no desktop e 120px no mobile, então 320 era oversize.
+            {%- endcomment -%}
             {{
               logo
-              | image_url: width: 320
+              | image_url: width: 240, format: 'webp'
               | image_tag:
                 loading: 'lazy',
                 decoding: 'async',
                 fetchpriority: 'low',
-                widths: '160, 240, 320',
+                widths: '120, 180, 240',
                 sizes: '(min-width: 768px) 220px, 70vw',
                 alt: logo.alt,
                 class: 'ai-awards-image-' | append: ai_gen_id,

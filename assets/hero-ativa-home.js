@@ -227,11 +227,66 @@
     };
   }
 
+  /**
+   * Hydrate deferred slide media (slides 2+ shipped with placeholder src +
+   * data-src/data-srcset). We don't fire the swap until *after* the LCP slide
+   * has had its full chance to paint, otherwise we'd contend for bandwidth
+   * with the very image we're trying to optimize.
+   *
+   * Trigger order (whichever comes first):
+   *   1) First user interaction on the carousel (scroll/touch/keydown/click)
+   *   2) window.load + 600ms
+   *   3) Carousel autoplay tick that brings a deferred slide into view
+   */
+  function hydrateDeferredMedia(root) {
+    if (!root || root.dataset.heroDeferredHydrated === '1') return;
+    root.dataset.heroDeferredHydrated = '1';
+
+    var imgs = root.querySelectorAll('img[data-hero-deferred="1"]');
+    var sources = root.querySelectorAll('source[data-srcset]');
+
+    sources.forEach(function (s) {
+      var v = s.getAttribute('data-srcset');
+      if (v) s.setAttribute('srcset', v);
+      s.removeAttribute('data-srcset');
+    });
+
+    imgs.forEach(function (img) {
+      var src = img.getAttribute('data-src');
+      if (src) img.setAttribute('src', src);
+      img.removeAttribute('data-src');
+      img.removeAttribute('data-hero-deferred');
+    });
+  }
+
+  function scheduleHydrate(root) {
+    var fired = false;
+    function go() {
+      if (fired) return;
+      fired = true;
+      hydrateDeferredMedia(root);
+    }
+
+    var scroller = root.querySelector('[data-hero-scroller]');
+    if (scroller) {
+      ['scroll', 'touchstart', 'pointerdown', 'keydown'].forEach(function (e) {
+        scroller.addEventListener(e, go, { once: true, passive: true, capture: true });
+      });
+    }
+
+    if (document.readyState === 'complete') {
+      setTimeout(go, 600);
+    } else {
+      window.addEventListener('load', function () { setTimeout(go, 600); }, { once: true });
+    }
+  }
+
   function init(root) {
     if (!root || root.dataset.heroAtivaHomeReady === '1') return;
     root.dataset.heroAtivaHomeReady = '1';
     var destroyCarousel = initCarousel(root);
     root._heroAtivaDestroy = destroyCarousel;
+    scheduleHydrate(root);
   }
 
   function resetForReinit(root) {

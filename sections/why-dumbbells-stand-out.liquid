@@ -32,12 +32,20 @@
                   -%}
                   {%- if block.settings.icon_image != blank -%}
                     <span class="why-dumbbells-stand-out__icon why-dumbbells-stand-out__icon--custom" aria-hidden="true">
+                      {%- comment -%}
+                        Os 4 ícones (12-in-1, quick-weight-changes, build-to-last,
+                        secure-stable) são PNGs com transparência. format: 'webp'
+                        usa lossy WebP com alpha channel — economiza ~60-70% vs PNG
+                        sem perda visual em ícones desse tamanho.
+                        fetchpriority: 'low' libera banda pro LCP.
+                      {%- endcomment -%}
                       {{
                         block.settings.icon_image
-                        | image_url: width: 128
+                        | image_url: width: 128, format: 'webp'
                         | image_tag:
                           loading: 'lazy',
                           decoding: 'async',
+                          fetchpriority: 'low',
                           widths: '48, 64, 96, 128',
                           sizes: '40px',
                           class: 'why-dumbbells-stand-out__icon-img',
@@ -89,18 +97,24 @@
           <div class="why-dumbbells-stand-out__video-poster-bg"></div>
           {%- if section.settings.video_poster != blank -%}
             <div class="why-dumbbells-stand-out__video-poster-img">
+              {%- comment -%}
+                Lighthouse reportou o poster sendo servido em 1100px num slot
+                de 364px (desktop) — reduzido o ladder pra 400/600/900/1200.
+                width:1200 base é mais que suficiente pra retina; format:webp
+                garante a melhor compressão.
+              {%- endcomment -%}
               {{
                 section.settings.video_poster
-                | image_url: width: 2200
-                | image_tag: loading: 'lazy', widths: '550, 1100, 1650, 2200', sizes: '(min-width: 768px) 80rem, 100vw', alt: ''
+                | image_url: width: 1200, format: 'webp'
+                | image_tag: loading: 'lazy', decoding: 'async', fetchpriority: 'low', widths: '400, 600, 900, 1200', sizes: '(min-width: 768px) 80rem, 100vw', alt: ''
               }}
             </div>
           {%- elsif wds_has_demo_video and wds_demo_video.preview_image -%}
             <div class="why-dumbbells-stand-out__video-poster-img">
               {{
                 wds_demo_video.preview_image
-                | image_url: width: 2200
-                | image_tag: loading: 'lazy', widths: '550, 1100, 1650, 2200', sizes: '(min-width: 768px) 80rem, 100vw', alt: ''
+                | image_url: width: 1200, format: 'webp'
+                | image_tag: loading: 'lazy', decoding: 'async', fetchpriority: 'low', widths: '400, 600, 900, 1200', sizes: '(min-width: 768px) 80rem, 100vw', alt: ''
               }}
             </div>
           {%- endif -%}
