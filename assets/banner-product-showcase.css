@@ -29,11 +29,32 @@
 }
 
 .banner-product-showcase__header {
+  position: relative;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
   margin-bottom: 24px;
+}
 
+/* Título sempre no centro visual da secção; “Shop all” à direita */
+.banner-product-showcase__header:has(.banner-product-showcase__button) {
+  justify-content: flex-end;
+}
+
+.banner-product-showcase__header:has(.banner-product-showcase__button) .banner-product-showcase__title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: min(100%, calc(100% - 160px));
+  margin: 0 !important;
+  z-index: 0;
+}
+
+.banner-product-showcase__header:has(.banner-product-showcase__button) .banner-product-showcase__button {
+  position: relative;
+  z-index: 1;
 }
 
 .banner-product-showcase__title {
@@ -45,8 +66,7 @@
   text-transform: uppercase !important;
   text-align: center !important;
   color: var(--sg-heading-color, #1a1c1c);
-  margin: 0 0 20px 0!important;
-
+  margin: 0 0 20px 0 !important;
 }
 
 .banner-product-showcase__button {
@@ -370,6 +390,25 @@
   }
   .banner-product-showcase__title {
     font-size: var(--bps-title-fs-mobile, 36px) !important;
+  }
+
+  /* Evita título e link a competirem no mesmo eixo em ecrãs estreitos */
+  .banner-product-showcase__header:has(.banner-product-showcase__button) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    min-height: 0;
+  }
+  .banner-product-showcase__header:has(.banner-product-showcase__button) .banner-product-showcase__title {
+    position: static;
+    transform: none;
+    width: auto;
+    max-width: none;
+    order: -1;
+    text-align: center !important;
+  }
+  .banner-product-showcase__header:has(.banner-product-showcase__button) .banner-product-showcase__button {
+    align-self: flex-end;
   }
 }
 
