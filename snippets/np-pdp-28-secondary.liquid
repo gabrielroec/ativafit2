@@ -1,0 +1,53 @@
+        {%- if section.settings.description_title != blank or description_html != blank -%}
+          <section class="np-pdp__description">
+            {%- if section.settings.description_title != blank -%}
+              <h2 class="np-pdp__description-title">{{ section.settings.description_title }}</h2>
+            {%- endif -%}
+            {%- if description_html != blank -%}
+              <div class="np-pdp__description-body rte">{{ description_html }}</div>
+            {%- endif -%}
+          </section>
+        {%- endif -%}
+
+        {%- if accordion_blocks.size > 0 -%}
+          <section class="np-pdp__accordions">
+            {%- for block in accordion_blocks -%}
+              <details class="np-pdp__accordion" {{ block.shopify_attributes }}>
+                <summary class="np-pdp__accordion-summary">
+                  <h3 class="np-pdp__accordion-title">{{ block.settings.title }}</h3>
+                  <span class="np-pdp__accordion-icon" aria-hidden="true">{{ icon_chevron }}</span>
+                </summary>
+                <div class="np-pdp__accordion-body rte">{{ block.settings.body }}</div>
+              </details>
+            {%- endfor -%}
+          </section>
+        {%- endif -%}
+
+        {%- if pairs_block and pairs_block.settings.product != blank -%}
+          {%- assign p = all_products[pairs_block.settings.product] -%}
+          {%- if p != blank -%}
+            <section class="np-pdp__pairs" {{ pairs_block.shopify_attributes }}>
+              <header class="np-pdp__pairs-header">
+                <h2 class="np-pdp__pairs-title">{{ pairs_block.settings.heading }}</h2>
+                {%- if pairs_block.settings.view_all_url != blank -%}
+                  <a class="np-pdp__pairs-view-all" href="{{ pairs_block.settings.view_all_url }}">
+                    View all
+                    {{ icon_arrow_right }}
+                  </a>
+                {%- endif -%}
+              </header>
+              <a class="np-pdp__pairs-card" href="{{ p.url }}">
+                <div class="np-pdp__pairs-image">
+                  {%- if p.featured_image -%}
+                    <img src="{{ p.featured_image | image_url: width: 300 }}" alt="{{ p.title | escape }}" loading="lazy" width="200" height="200">
+                  {%- endif -%}
+                </div>
+                <div class="np-pdp__pairs-info">
+                  <h3 class="np-pdp__pairs-name">{{ p.title }}</h3>
+                  <p class="np-pdp__pairs-price">{{ p.price | money }}</p>
+                  <span class="np-pdp__pairs-cta">Add to cart</span>
+                </div>
+              </a>
+            </section>
+          {%- endif -%}
+        {%- endif -%}

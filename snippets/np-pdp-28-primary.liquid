@@ -1,0 +1,105 @@
+        {%- if section.settings.show_best_seller_badge and section.settings.best_seller_text != blank -%}
+          <div class="np-pdp__badge-wrap">
+            <span class="np-pdp__badge">{{ section.settings.best_seller_text }}</span>
+          </div>
+        {%- endif -%}
+
+        <h1 class="np-pdp__title">{{ product.title }}</h1>
+
+        {%- comment -%} Judge.me-synced rating pill (clickable → reviews) {%- endcomment -%}
+        <a
+          href="#judgeme_product_reviews"
+          class="np-pdp__rating-pill"
+          data-judgeme-pill
+          hidden>
+          <span class="np-pdp__rating-stars" aria-hidden="true"></span>
+          <span class="np-pdp__rating-value"></span>
+          <span class="np-pdp__rating-sep" aria-hidden="true">·</span>
+          <span class="np-pdp__rating-count"></span>
+        </a>
+
+        <product-form class="np-pdp__form" data-np-form>
+          {%- form 'product', product, id: 'np-pdp-form', class: 'np-pdp__form-inner', novalidate: 'novalidate' -%}
+            <input type="hidden" name="id" value="{{ current_variant.id }}" data-np-variant-id>
+
+            <div class="np-pdp__price-block">
+              <p class="np-pdp__price">
+                <span data-np-price>{{ current_variant.price | money }}</span>
+                {%- if show_compare -%}
+                  <span class="np-pdp__price-compare" data-np-price-compare>{{ current_variant.compare_at_price | money }}</span>
+                {%- endif -%}
+              </p>
+              {%- if section.settings.show_payment_terms -%}
+                <div class="np-pdp__payment-terms">
+                  {{ form | payment_terms }}
+                </div>
+              {%- endif -%}
+            </div>
+
+            {%- if product.has_only_default_variant == false -%}
+              <div class="np-pdp__variants" data-np-variants>
+                {%- for option in product.options_with_values -%}
+                  {%- assign option_index = forloop.index0 -%}
+                  <fieldset class="np-pdp__variant-group" data-np-option-index="{{ option_index }}">
+                    <legend class="np-pdp__variant-label">{{ option.name }}</legend>
+                    <div class="np-pdp__variant-buttons">
+                      {%- for value in option.values -%}
+                        {%- assign input_id = 'np-pdp-opt-' | append: section.id | append: '-' | append: option_index | append: '-' | append: forloop.index -%}
+                        <input
+                          type="radio"
+                          class="np-pdp__variant-input"
+                          name="np-option-{{ option_index }}"
+                          id="{{ input_id }}"
+                          value="{{ value | escape }}"
+                          {% if option.selected_value == value %}checked{% endif %}>
+                        <label
+                          for="{{ input_id }}"
+                          class="np-pdp__variant-button"
+                          data-np-option-value="{{ value | escape }}">
+                          {{ value }}
+                        </label>
+                      {%- endfor -%}
+                    </div>
+                  </fieldset>
+                {%- endfor -%}
+              </div>
+            {%- endif -%}
+
+            <div class="np-pdp__quantity">
+              <label class="np-pdp__variant-label" for="np-pdp-qty-{{ section.id }}">Quantity</label>
+              <div class="np-pdp__quantity-control">
+                <button type="button" class="np-pdp__quantity-btn" data-np-qty-step="-1" aria-label="Decrease quantity">{{ icon_minus }}</button>
+                <input
+                  id="np-pdp-qty-{{ section.id }}"
+                  class="np-pdp__quantity-input"
+                  type="number"
+                  name="quantity"
+                  value="1"
+                  min="1"
+                  data-np-qty>
+                <button type="button" class="np-pdp__quantity-btn" data-np-qty-step="1" aria-label="Increase quantity">{{ icon_plus }}</button>
+              </div>
+            </div>
+
+            <div class="np-pdp__actions">
+              <button
+                type="submit"
+                name="add"
+                class="np-pdp__cta np-pdp__cta--primary"
+                data-np-add-to-cart>
+                {{ icon_bag }}
+                <span data-np-add-to-cart-label>{{ section.settings.add_to_cart_text | default: 'Add to cart' }}</span>
+              </button>
+              <button
+                type="button"
+                class="np-pdp__cta np-pdp__cta--secondary"
+                data-np-checkout-now>
+                <span data-np-checkout-label>{{ section.settings.checkout_now_text | default: 'Checkout now' }}</span>
+              </button>
+            </div>
+          {%- endform -%}
+        </product-form>
+
+        {%- if section.settings.trust_line != blank -%}
+          <p class="np-pdp__trust">{{ section.settings.trust_line }}</p>
+        {%- endif -%}

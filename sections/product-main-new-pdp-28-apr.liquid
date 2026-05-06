@@ -17,6 +17,14 @@
   assign bento_blocks = section.blocks | where: 'type', 'bento_item'
   assign accordion_blocks = section.blocks | where: 'type', 'accordion'
   assign pairs_block = section.blocks | where: 'type', 'pairs_well_with' | first
+
+  assign mf_desc = product.metafields.custom.product_description_mf
+  assign description_html = blank
+  if mf_desc != blank and mf_desc.value != blank
+    assign description_html = mf_desc.value
+  elsif section.settings.description_fallback != blank
+    assign description_html = section.settings.description_fallback
+  endif
 -%}
 
 {%- capture icon_chevron -%}<svg class="np-pdp__icon" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg>{%- endcapture -%}
@@ -47,7 +55,7 @@
       </nav>
     {%- endif -%}
 
-    <div class="np-pdp__grid">
+    <div class="np-pdp__grid{% if bento_blocks.size > 0 %} np-pdp__grid--has-bento{% endif %}">
 
       {%- comment -%} ================ LEFT COLUMN (sticky) ================ {%- endcomment -%}
       <div class="np-pdp__left">
@@ -114,228 +122,102 @@
             <div class="np-pdp__gallery-placeholder">{{ 'product-1' | placeholder_svg_tag }}</div>
           {%- endif -%}
         </div>
-
-        {%- comment -%} Bento "Why Choose This?" {%- endcomment -%}
-        {%- if bento_blocks.size > 0 -%}
-          <section class="np-pdp__bento">
-            <h2 class="np-pdp__bento-title">{{ section.settings.bento_title }}</h2>
-            <div class="np-pdp__bento-grid">
-              {%- for block in bento_blocks -%}
-                <article class="np-pdp__bento-card" {{ block.shopify_attributes }}>
-                  <span class="np-pdp__bento-icon" aria-hidden="true">
-                    {%- case block.settings.icon -%}
-                      {%- when 'trust_shipping' -%}
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm12.5-9l1.96 2.5H17V9.5h1.5zm-.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
-                      {%- when 'trust_returns' -%}
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
-                      {%- when 'trust_installments' -%}
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                      {%- when 'trust_warranty' -%}
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M23 12l-2.44-2.79.34-3.69-3.61-.82-1.89-3.2L12 2.96 8.6 1.5 6.71 4.69 3.1 5.5l.34 3.7L1 12l2.44 2.79-.34 3.7 3.61.82L8.6 22.5 12 21.04l3.4 1.46 1.89-3.19 3.61-.82-.34-3.69L23 12zm-12.91 4.72-3.8-3.81 1.48-1.48 2.32 2.33 5.85-5.87 1.48 1.48-7.33 7.35z"/></svg>
-                      {%- when 'shield' -%}
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                      {%- when 'bolt' -%}
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>
-                      {%- when 'grid' -%}
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-                      {%- when 'lock' -%}
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
-                      {%- when 'star' -%}
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12,2 15,9 22,9.5 17,14.5 18.5,22 12,18 5.5,22 7,14.5 2,9.5 9,9"/></svg>
-                      {%- when 'check' -%}
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
-                      {%- when 'truck' -%}
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 7h13v10H1z"/><path d="M14 10h5l3 3v4h-8z"/><circle cx="6" cy="19" r="2"/><circle cx="17" cy="19" r="2"/></svg>
-                      {%- when 'clock' -%}
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                      {%- when 'flame' -%}
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1 4 5 5 5 10a5 5 0 11-10 0c0-3 2-3 2-6 2 1 3 2 3 4z"/></svg>
-                      {%- when 'dumbbell' -%}
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8v8M3 10v4M18 8v8M21 10v4M6 12h12"/></svg>
-                      {%- else -%}
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
-                    {%- endcase -%}
-                  </span>
-                  <h3 class="np-pdp__bento-card-title">{{ block.settings.title }}</h3>
-                </article>
-              {%- endfor -%}
-            </div>
-          </section>
-        {%- endif -%}
       </div>
 
       {%- comment -%} ================ RIGHT COLUMN ================ {%- endcomment -%}
-      <div class="np-pdp__right">
+      {%- if bento_blocks.size > 0 -%}
+        <div class="np-pdp__right-top">
+          {% render 'np-pdp-28-primary',
+            section: section,
+            product: product,
+            current_variant: current_variant,
+            show_compare: show_compare,
+            icon_minus: icon_minus,
+            icon_plus: icon_plus,
+            icon_bag: icon_bag
+          %}
+        </div>
 
-        {%- if section.settings.show_best_seller_badge and section.settings.best_seller_text != blank -%}
-          <div class="np-pdp__badge-wrap">
-            <span class="np-pdp__badge">{{ section.settings.best_seller_text }}</span>
-          </div>
-        {%- endif -%}
-
-        <h1 class="np-pdp__title">{{ product.title }}</h1>
-
-        {%- comment -%} Judge.me-synced rating pill (clickable → reviews) {%- endcomment -%}
-        <a
-          href="#judgeme_product_reviews"
-          class="np-pdp__rating-pill"
-          data-judgeme-pill
-          hidden>
-          <span class="np-pdp__rating-stars" aria-hidden="true"></span>
-          <span class="np-pdp__rating-value"></span>
-          <span class="np-pdp__rating-sep" aria-hidden="true">·</span>
-          <span class="np-pdp__rating-count"></span>
-        </a>
-
-        <product-form class="np-pdp__form" data-np-form>
-          {%- form 'product', product, id: 'np-pdp-form', class: 'np-pdp__form-inner', novalidate: 'novalidate' -%}
-            <input type="hidden" name="id" value="{{ current_variant.id }}" data-np-variant-id>
-
-            <div class="np-pdp__price-block">
-              <p class="np-pdp__price">
-                <span data-np-price>{{ current_variant.price | money }}</span>
-                {%- if show_compare -%}
-                  <span class="np-pdp__price-compare" data-np-price-compare>{{ current_variant.compare_at_price | money }}</span>
-                {%- endif -%}
-              </p>
-              {%- if section.settings.show_payment_terms -%}
-                <div class="np-pdp__payment-terms">
-                  {{ form | payment_terms }}
-                </div>
-              {%- endif -%}
-            </div>
-
-            {%- if product.has_only_default_variant == false -%}
-              <div class="np-pdp__variants" data-np-variants>
-                {%- for option in product.options_with_values -%}
-                  {%- assign option_index = forloop.index0 -%}
-                  <fieldset class="np-pdp__variant-group" data-np-option-index="{{ option_index }}">
-                    <legend class="np-pdp__variant-label">{{ option.name }}</legend>
-                    <div class="np-pdp__variant-buttons">
-                      {%- for value in option.values -%}
-                        {%- assign input_id = 'np-pdp-opt-' | append: section.id | append: '-' | append: option_index | append: '-' | append: forloop.index -%}
-                        <input
-                          type="radio"
-                          class="np-pdp__variant-input"
-                          name="np-option-{{ option_index }}"
-                          id="{{ input_id }}"
-                          value="{{ value | escape }}"
-                          {% if option.selected_value == value %}checked{% endif %}>
-                        <label
-                          for="{{ input_id }}"
-                          class="np-pdp__variant-button"
-                          data-np-option-value="{{ value | escape }}">
-                          {{ value }}
-                        </label>
-                      {%- endfor -%}
-                    </div>
-                  </fieldset>
-                {%- endfor -%}
-              </div>
-            {%- endif -%}
-
-            <div class="np-pdp__quantity">
-              <label class="np-pdp__variant-label" for="np-pdp-qty-{{ section.id }}">Quantity</label>
-              <div class="np-pdp__quantity-control">
-                <button type="button" class="np-pdp__quantity-btn" data-np-qty-step="-1" aria-label="Decrease quantity">{{ icon_minus }}</button>
-                <input
-                  id="np-pdp-qty-{{ section.id }}"
-                  class="np-pdp__quantity-input"
-                  type="number"
-                  name="quantity"
-                  value="1"
-                  min="1"
-                  data-np-qty>
-                <button type="button" class="np-pdp__quantity-btn" data-np-qty-step="1" aria-label="Increase quantity">{{ icon_plus }}</button>
-              </div>
-            </div>
-
-            <div class="np-pdp__actions">
-              <button
-                type="submit"
-                name="add"
-                class="np-pdp__cta np-pdp__cta--primary"
-                data-np-add-to-cart>
-                {{ icon_bag }}
-                <span data-np-add-to-cart-label>{{ section.settings.add_to_cart_text | default: 'Add to cart' }}</span>
-              </button>
-              <button
-                type="button"
-                class="np-pdp__cta np-pdp__cta--secondary"
-                data-np-checkout-now>
-                <span data-np-checkout-label>{{ section.settings.checkout_now_text | default: 'Checkout now' }}</span>
-              </button>
-            </div>
-          {%- endform -%}
-        </product-form>
-
-        {%- if section.settings.trust_line != blank -%}
-          <p class="np-pdp__trust">{{ section.settings.trust_line }}</p>
-        {%- endif -%}
-
-        {%- liquid
-          assign mf_desc = product.metafields.custom.product_description_mf
-          assign description_html = blank
-          if mf_desc != blank and mf_desc.value != blank
-            assign description_html = mf_desc.value
-          elsif section.settings.description_fallback != blank
-            assign description_html = section.settings.description_fallback
-          endif
-        -%}
-        {%- if section.settings.description_title != blank or description_html != blank -%}
-          <section class="np-pdp__description">
-            {%- if section.settings.description_title != blank -%}
-              <h2 class="np-pdp__description-title">{{ section.settings.description_title }}</h2>
-            {%- endif -%}
-            {%- if description_html != blank -%}
-              <div class="np-pdp__description-body rte">{{ description_html }}</div>
-            {%- endif -%}
-          </section>
-        {%- endif -%}
-
-        {%- if accordion_blocks.size > 0 -%}
-          <section class="np-pdp__accordions">
-            {%- for block in accordion_blocks -%}
-              <details class="np-pdp__accordion" {{ block.shopify_attributes }}>
-                <summary class="np-pdp__accordion-summary">
-                  <h3 class="np-pdp__accordion-title">{{ block.settings.title }}</h3>
-                  <span class="np-pdp__accordion-icon" aria-hidden="true">{{ icon_chevron }}</span>
-                </summary>
-                <div class="np-pdp__accordion-body rte">{{ block.settings.body }}</div>
-              </details>
+        {%- comment -%} Bento: no mobile fica entre trust e descrição; no desktop, coluna esquerda (linha 2 do grid). {%- endcomment -%}
+        <section class="np-pdp__bento">
+          <h2 class="np-pdp__bento-title">{{ section.settings.bento_title }}</h2>
+          <div class="np-pdp__bento-grid">
+            {%- for block in bento_blocks -%}
+              <article class="np-pdp__bento-card" {{ block.shopify_attributes }}>
+                <span class="np-pdp__bento-icon" aria-hidden="true">
+                  {%- case block.settings.icon -%}
+                    {%- when 'trust_shipping' -%}
+                      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm12.5-9l1.96 2.5H17V9.5h1.5zm-.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+                    {%- when 'trust_returns' -%}
+                      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+                    {%- when 'trust_installments' -%}
+                      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    {%- when 'trust_warranty' -%}
+                      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M23 12l-2.44-2.79.34-3.69-3.61-.82-1.89-3.2L12 2.96 8.6 1.5 6.71 4.69 3.1 5.5l.34 3.7L1 12l2.44 2.79-.34 3.7 3.61.82L8.6 22.5 12 21.04l3.4 1.46 1.89-3.19 3.61-.82-.34-3.69L23 12zm-12.91 4.72-3.8-3.81 1.48-1.48 2.32 2.33 5.85-5.87 1.48 1.48-7.33 7.35z"/></svg>
+                    {%- when 'shield' -%}
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    {%- when 'bolt' -%}
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+                    {%- when 'grid' -%}
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                    {%- when 'lock' -%}
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+                    {%- when 'star' -%}
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12,2 15,9 22,9.5 17,14.5 18.5,22 12,18 5.5,22 7,14.5 2,9.5 9,9"/></svg>
+                    {%- when 'check' -%}
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
+                    {%- when 'truck' -%}
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 7h13v10H1z"/><path d="M14 10h5l3 3v4h-8z"/><circle cx="6" cy="19" r="2"/><circle cx="17" cy="19" r="2"/></svg>
+                    {%- when 'clock' -%}
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                    {%- when 'flame' -%}
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1 4 5 5 5 10a5 5 0 11-10 0c0-3 2-3 2-6 2 1 3 2 3 4z"/></svg>
+                    {%- when 'dumbbell' -%}
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8v8M3 10v4M18 8v8M21 10v4M6 12h12"/></svg>
+                    {%- else -%}
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
+                  {%- endcase -%}
+                </span>
+                <h3 class="np-pdp__bento-card-title">{{ block.settings.title }}</h3>
+              </article>
             {%- endfor -%}
-          </section>
-        {%- endif -%}
+          </div>
+        </section>
 
-        {%- if pairs_block and pairs_block.settings.product != blank -%}
-          {%- assign p = all_products[pairs_block.settings.product] -%}
-          {%- if p != blank -%}
-            <section class="np-pdp__pairs" {{ pairs_block.shopify_attributes }}>
-              <header class="np-pdp__pairs-header">
-                <h2 class="np-pdp__pairs-title">{{ pairs_block.settings.heading }}</h2>
-                {%- if pairs_block.settings.view_all_url != blank -%}
-                  <a class="np-pdp__pairs-view-all" href="{{ pairs_block.settings.view_all_url }}">
-                    View all
-                    {{ icon_arrow_right }}
-                  </a>
-                {%- endif -%}
-              </header>
-              <a class="np-pdp__pairs-card" href="{{ p.url }}">
-                <div class="np-pdp__pairs-image">
-                  {%- if p.featured_image -%}
-                    <img src="{{ p.featured_image | image_url: width: 300 }}" alt="{{ p.title | escape }}" loading="lazy" width="200" height="200">
-                  {%- endif -%}
-                </div>
-                <div class="np-pdp__pairs-info">
-                  <h3 class="np-pdp__pairs-name">{{ p.title }}</h3>
-                  <p class="np-pdp__pairs-price">{{ p.price | money }}</p>
-                  <span class="np-pdp__pairs-cta">Add to cart</span>
-                </div>
-              </a>
-            </section>
-          {%- endif -%}
-        {%- endif -%}
-      </div>
+        <div class="np-pdp__right-bottom">
+          {% render 'np-pdp-28-secondary',
+            section: section,
+            product: product,
+            description_html: description_html,
+            accordion_blocks: accordion_blocks,
+            pairs_block: pairs_block,
+            icon_chevron: icon_chevron,
+            icon_arrow_right: icon_arrow_right
+          %}
+        </div>
+      {%- else -%}
+        <div class="np-pdp__right">
+          {% render 'np-pdp-28-primary',
+            section: section,
+            product: product,
+            current_variant: current_variant,
+            show_compare: show_compare,
+            icon_minus: icon_minus,
+            icon_plus: icon_plus,
+            icon_bag: icon_bag
+          %}
+          {% render 'np-pdp-28-secondary',
+            section: section,
+            product: product,
+            description_html: description_html,
+            accordion_blocks: accordion_blocks,
+            pairs_block: pairs_block,
+            icon_chevron: icon_chevron,
+            icon_arrow_right: icon_arrow_right
+          %}
+        </div>
+      {%- endif -%}
+
     </div>
   </div>
 
