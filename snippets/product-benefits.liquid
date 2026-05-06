@@ -3,10 +3,11 @@
   Substitui o carrossel Embla de "Benefit" blocks.
   Blocos: `pdp_trust_badge` (máx. 2). Sem blocos: usa arquivos em Admin → Conteúdo → Arquivos.
   Requer: section com `show_benefits` (mesmo interruptor da seção Product Main).
-  Uso: {% render 'product-benefits', section: section %}
+  Uso: {% render 'product-benefits', section: section, product: product %}
 {% endcomment %}
 
 {%- if section.settings.show_benefits -%}
+  {%- unless product != blank and product.handle == 'dumbbell-stand-accessories' -%}
   {%- liquid
     assign trust_blocks = section.blocks | where: 'type', 'pdp_trust_badge'
     assign warranty_file = 'high-quality-_-durable-performance.png' | file_url
@@ -74,4 +75,5 @@
       </div>
     {%- endif -%}
   </div>
+  {%- endunless -%}
 {%- endif -%}
