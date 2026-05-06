@@ -46,11 +46,15 @@
   }
 
   .ai-awards-title-{{ ai_gen_id }} {
-    text-align: center;
-    font-size: {{ block.settings.title_font_size }}px;
-    color: {{ block.settings.text_color }};
-    margin: 0 0 {{ block.settings.title_spacing }}px 0;
-    font-weight: 600;
+    margin: 0 0 48px !important;
+    font-family: Barlow, Barlow Fallback, sans-serif !important;
+    font-weight: 900 !important;
+    font-size: clamp(1.75rem, 4.5vw, 2.25rem) !important;
+    line-height: 1.1 !important;
+    letter-spacing: -.04em !important;
+    text-transform: uppercase !important;
+    text-align: center !important;
+    color: var(--sg-heading-color, #1a1c1c);
   }
 
   .ai-awards-grid-{{ ai_gen_id }} {
@@ -176,6 +180,7 @@
         {% liquid
           assign logo_key = 'logo_' | append: i
           assign logo = block.settings[logo_key]
+          assign logo_img_class = 'ai-awards-image-' | append: ai_gen_id
         %}
 
         <div class="ai-awards-item-{{ ai_gen_id }}">
@@ -197,7 +202,7 @@
                 widths: '120, 180, 240',
                 sizes: '(min-width: 768px) 220px, 70vw',
                 alt: logo.alt,
-                class: 'ai-awards-image-' | append: ai_gen_id,
+                class: logo_img_class,
                 width: logo.width,
                 height: logo.height
             }}
