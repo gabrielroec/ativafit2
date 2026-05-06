@@ -7,7 +7,14 @@
 {% endcomment %}
 
 {%- if section.settings.show_benefits -%}
-  {%- unless product != blank and product.handle == 'dumbbell-stand-accessories' -%}
+  {%- liquid
+    assign hide_trust_badges_on_handles = 'dumbbell-stand-accessories,f8-foldable-exercise-bike-accessories,r8-foldable-exercise-bike-accessories,36-foldable-trampoline-rebounder-accessories' | split: ','
+    assign hide_trust_badges_row = false
+    if product != blank and hide_trust_badges_on_handles contains product.handle
+      assign hide_trust_badges_row = true
+    endif
+  -%}
+  {%- unless hide_trust_badges_row -%}
   {%- liquid
     assign trust_blocks = section.blocks | where: 'type', 'pdp_trust_badge'
     assign warranty_file = 'high-quality-_-durable-performance.png' | file_url
