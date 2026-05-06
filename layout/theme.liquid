@@ -63,12 +63,21 @@
       de dns-prefetch → preconnect porque o CSS dos fontes (Barlow/Lexend/...) é
       o chain crítico mais longo do site (~6.4s no Slow 4G). preconnect economiza
       o TLS handshake antes do request do CSS chegar.
+
+      cdn.shopify.com: Shopify já adiciona preconnect via header HTTP `Link` —
+      duplicar aqui custou +1 slot no orçamento de 4 preconnects e o Lighthouse
+      marcou como "Unused preconnect" porque os recursos críticos do tema vêm
+      de www.ativafit.com (1st-party). Removido daqui.
+
+      productreviews.shopifycdn.com / fonts.shopifycdn.com: dns-prefetch só
+      ajuda em pages que pedem reviews/fonts daí. Mantido só onde aplicável
+      (product pages); na home só rouba conexão.
     {%- endcomment -%}
-    <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="dns-prefetch" href="https://fonts.shopifycdn.com">
-    <link rel="dns-prefetch" href="https://productreviews.shopifycdn.com">
+    {%- if request.page_type == 'product' -%}
+      <link rel="dns-prefetch" href="https://productreviews.shopifycdn.com">
+    {%- endif -%}
 
 
     {% render 'css-variables' %}
@@ -142,21 +151,37 @@
     {%- endif -%}
 
     {%- comment -%}
-      Google Fonts consolidados num único css2 URL — reduz de 3 round-trips
-      pra googleapis.com (Barlow + Barlow Condensed + google-fonts-ativa) pra
-      apenas 1. Em Slow 4G isso economiza ~400ms da chain crítica.
+      Google Fonts split em duas requisições:
 
-      Famílias: Barlow (400/700), Barlow Condensed (700), Space Grotesk
-      (400/700), Lexend (400/700). Pesos intermediários (500/600/300/900)
-      removidos do preload — se alguma section usar, o fallback metric
-      override evita CLS.
+      1. Crítico (preload+onload): Barlow 400/700 e Barlow Condensed 700.
+         Barlow é a fonte global (typography-supreme.css aplica em todo elemento)
+         e Barlow Condensed é usada por headers/CTAs. Lighthouse mostrou que o
+         chain crítico estava em 21,9s pelo bloating do css2.
+
+      2. Diferido (chamado após `load`): Space Grotesk 400/700 e Lexend 400/700.
+         Usadas por sections de hero com texto/botões; em layouts image_only
+         (caso atual da home) elas não aparecem. Carregar depois libera banda
+         pro LCP image. Font-metric overrides no <style> acima evitam qualquer
+         CLS quando elas chegam.
 
       display=swap garante que o texto pinta com fallback enquanto o woff2
-      carrega (importante pro LCP).
+      carrega.
     {%- endcomment -%}
-    {%- capture ativafit_fonts_url -%}https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&family=Barlow+Condensed:wght@700&family=Space+Grotesk:wght@400;700&family=Lexend:wght@400;700&display=swap{%- endcapture -%}
+    {%- capture ativafit_fonts_url -%}https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&family=Barlow+Condensed:wght@700&display=swap{%- endcapture -%}
+    {%- capture ativafit_fonts_deferred_url -%}https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Lexend:wght@400;700&display=swap{%- endcapture -%}
     <link rel="preload" as="style" href="{{ ativafit_fonts_url }}" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="{{ ativafit_fonts_url }}"></noscript>
+    <script>
+      window.addEventListener('load', function () {
+        var l = document.createElement('link');
+        l.rel = 'stylesheet';
+        l.href = {{ ativafit_fonts_deferred_url | json }};
+        l.media = 'print';
+        l.onload = function () { this.media = 'all'; };
+        document.head.appendChild(l);
+      });
+    </script>
+    <noscript><link rel="stylesheet" href="{{ ativafit_fonts_deferred_url }}"></noscript>
 
     {%- comment -%}
       Inter font — só usado por split-banner e workout-blog-posts. Mantido
@@ -254,9 +279,39 @@
       <script src="{{ 'customer_area.js' | shopify_asset_url }}" defer></script>
     {%- endif -%}
 
-    <script src="{{ 'theme.min.js' | asset_url }}" defer></script>
-    <script src="{{ 'custom.min.js' | asset_url }}" defer>
-  </script>
+    {%- comment -%}
+      theme.min.js (~237KB) — base do tema (modais, dropdowns, popups, etc).
+      Na home, o header tem JS próprio inline, cart-drawer tem cart-drawer-new.js
+      e as sections da home usam scripts próprios. Ninguém precisa do theme.min.js
+      antes do paint, então em /index ele é carregado *após* o load event com
+      `requestIdleCallback`. Isso libera ~100-300ms de TBT no Lighthouse Slow 4G.
+      Em outros templates (product, collection, account) onde modais/popups são
+      mais críticos, mantemos o defer normal.
+    {%- endcomment -%}
+    {%- if request.page_type == 'index' -%}
+      <script>
+        (function () {
+          var src = {{ 'theme.min.js' | asset_url | json }};
+          function inject() {
+            var s = document.createElement('script');
+            s.src = src; s.defer = true; document.body.appendChild(s);
+          }
+          function schedule() {
+            var ric = window.requestIdleCallback || function (cb) { return setTimeout(cb, 200); };
+            ric(inject, { timeout: 2000 });
+          }
+          if (document.readyState === 'complete') schedule();
+          else window.addEventListener('load', schedule, { once: true });
+        })();
+      </script>
+    {%- else -%}
+      <script src="{{ 'theme.min.js' | asset_url }}" defer></script>
+    {%- endif -%}
+    {%- comment -%}
+      custom.min.js — arquivo vazio (0 bytes). Mantido como noop placeholder
+      no repo, mas removido do <head> pra economizar 1 round-trip por página.
+      Restaurar se algum dia voltarem a popular o arquivo.
+    {%- endcomment -%}
     {%- comment -%} Cart Drawer - Novo (Shopify 2.0) {%- endcomment -%}
     {%- comment -%} CSS e JS são carregados pela própria section cart-drawer.liquid {%- endcomment -%}
     <script>
@@ -344,10 +399,33 @@
         <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
       </noscript>
     {%- endif -%}
-    <link rel="preload" as="style" href="{{ 'swiper.min.css' | asset_url }}" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ 'swiper.min.css' | asset_url }}"></noscript>
-    <script src="{{ 'jquery.min.js' | asset_url }}" defer></script>
-    <script src="{{ 'swiper.min.js' | asset_url }}" defer></script>
+    {%- comment -%}
+      Swiper CSS/JS — só pré-carregamos no theme nas páginas que usam o
+      carrossel imediatamente (product, collection). Na homepage o
+      banner-product-showcase carrega Swiper sob demanda quando entra no
+      viewport (IntersectionObserver). Economia mobile: ~140KB JS + 18KB CSS
+      pré-FCP, melhora TBT e Speed Index.
+
+      jQuery (~95KB) é legado — apenas pro-block04 / pro-block04-rebounder
+      verificam `typeof jQuery !== 'undefined'` com fallback gracioso. Não é
+      necessário em home/cart/account, então gateado para reduzir o JS pré-FCP.
+    {%- endcomment -%}
+    {%- assign needs_swiper = false -%}
+    {%- if request.page_type == 'product' or request.page_type == 'collection' or request.page_type == 'cart' or template.suffix == 'bundle-page' or template.suffix == 'landing' -%}
+      {%- assign needs_swiper = true -%}
+    {%- endif -%}
+    {%- if needs_swiper -%}
+      <link rel="preload" as="style" href="{{ 'swiper.min.css' | asset_url }}" onload="this.onload=null;this.rel='stylesheet'">
+      <noscript><link rel="stylesheet" href="{{ 'swiper.min.css' | asset_url }}"></noscript>
+      <script src="{{ 'swiper.min.js' | asset_url }}" defer></script>
+    {%- endif -%}
+    {%- assign needs_jquery = false -%}
+    {%- if request.page_type == 'product' or request.page_type == 'collection' or template.suffix == 'bundle-page' or template.suffix == 'landing' -%}
+      {%- assign needs_jquery = true -%}
+    {%- endif -%}
+    {%- if needs_jquery -%}
+      <script src="{{ 'jquery.min.js' | asset_url }}" defer></script>
+    {%- endif -%}
     <script src="{{ 'product-card-simple.js' | asset_url }}" defer></script>
 
     <meta name="google-site-verification" content="MMiNaiXOwNEI9BAzMcFWKtn93PFIXJS6nFRcAl-4Pwo" />
@@ -710,6 +788,14 @@
         }
       })();
     </script>
-  <script src="{{ 'bundler-carousel.js' | asset_url }}" defer></script>
+  {%- comment -%}
+    bundler-carousel.js (~6KB) — early-exits se `.bndlr-mnm-available-products`
+    não existe, então é seguro skipar inteiramente fora dos templates que
+    montam bundles (product/collection/bundle/landing). Economia: 1 request
+    + 6KB transfer + parse cost na home.
+  {%- endcomment -%}
+  {%- if request.page_type == 'product' or request.page_type == 'collection' or template.suffix == 'bundle-page' or template.suffix == 'landing' -%}
+    <script src="{{ 'bundler-carousel.js' | asset_url }}" defer></script>
+  {%- endif -%}
   </body>
 </html>

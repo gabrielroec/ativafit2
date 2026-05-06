@@ -1,6 +1,13 @@
 {%- comment -%} Async CSS — banner is mid-page, no need to block render. {%- endcomment -%}
 <link rel="preload" as="style" href="{{ 'banner-product-showcase.css' | asset_url }}" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="{{ 'banner-product-showcase.css' | asset_url }}"></noscript>
+{%- comment -%}
+  Swiper CSS/JS — carregado on-demand pela section quando entra no viewport
+  (ver IntersectionObserver no <script> abaixo). Evita 158KB pré-FCP na home.
+{%- endcomment -%}
+<link rel="prefetch" as="script" href="{{ 'swiper.min.js' | asset_url }}">
+<link rel="prefetch" as="style" href="{{ 'swiper.min.css' | asset_url }}">
+<noscript><link rel="stylesheet" href="{{ 'swiper.min.css' | asset_url }}"></noscript>
 {%- liquid
   assign mobile_layout = section.settings.mobile_layout | default: 'carousel'
   assign desktop_layout = section.settings.desktop_layout | default: 'carousel'
@@ -139,8 +146,37 @@
       });
     }
 
+    /* Swiper é carregado on-demand: na home o theme.liquid não inclui o
+       script global, e o prefetch do <link> acima aquece o cache. Quando a
+       section chega perto do viewport, injetamos o <script>/<link> e só aí
+       inicializamos o carrossel. */
+    var swiperLoading = false;
+    function ensureSwiperLoaded(cb) {
+      if (typeof Swiper !== 'undefined') { cb(); return; }
+      if (swiperLoading) {
+        var iv = setInterval(function(){
+          if (typeof Swiper !== 'undefined') { clearInterval(iv); cb(); }
+        }, 50);
+        setTimeout(function(){ clearInterval(iv); }, 8000);
+        return;
+      }
+      swiperLoading = true;
+      if (!document.querySelector('link[data-swiper-css]')) {
+        var l = document.createElement('link');
+        l.rel = 'stylesheet';
+        l.href = {{ 'swiper.min.css' | asset_url | json }};
+        l.setAttribute('data-swiper-css','1');
+        document.head.appendChild(l);
+      }
+      var s = document.createElement('script');
+      s.src = {{ 'swiper.min.js' | asset_url | json }};
+      s.defer = true;
+      s.onload = cb;
+      document.head.appendChild(s);
+    }
+
     function onReady() {
-      initSwiper();
+      ensureSwiperLoaded(initSwiper);
     }
 
     /* Defer init until the carousel is near the viewport. Saves the Swiper
@@ -167,12 +203,12 @@
       scheduleInit();
     }
 
-    mq.addEventListener('change', initSwiper);
+    mq.addEventListener('change', function () { ensureSwiperLoaded(initSwiper); });
 
     document.addEventListener('shopify:section:load', function (event) {
       if (!root || !event.target.contains(root)) return;
       destroySwiper();
-      setTimeout(initSwiper, 0);
+      setTimeout(function () { ensureSwiperLoaded(initSwiper); }, 0);
     });
   })();
 </script>
