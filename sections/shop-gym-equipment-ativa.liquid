@@ -40,6 +40,21 @@
               class="shop-gym-ativa__item"
               style="--sg-stagger: {{ forloop.index0 | plus: 1 | times: stagger }}ms"
               {{ block.shopify_attributes }}>
+              {%- comment -%}
+                Em mobile (carousel layout), o 1º card desta section pode estar
+                acima da dobra (logo após o hero 1:1). Lighthouse Mobile
+                identificou esse card como LCP em algumas runs porque tinha
+                loading=lazy + fetchpriority=low → +3.9s resource discovery.
+                Solução: 1º card ATL = eager + high priority. Demais = lazy.
+              {%- endcomment -%}
+              {%- assign sg_is_first = forloop.first -%}
+              {%- if sg_is_first -%}
+                {%- assign sg_loading = 'eager' -%}
+                {%- assign sg_priority = 'high' -%}
+              {%- else -%}
+                {%- assign sg_loading = 'lazy' -%}
+                {%- assign sg_priority = 'low' -%}
+              {%- endif -%}
               {%- if block.settings.link != blank -%}
                 <a
                   class="shop-gym-ativa__card shop-gym-ativa__reveal"
@@ -61,9 +76,9 @@
                         class: 'shop-gym-ativa__img',
                         widths: '240, 350, 500',
                         sizes: '(min-width: 990px) 25vw, (min-width: 768px) 50vw, 50vw',
-                        loading: 'lazy',
+                        loading: sg_loading,
                         decoding: 'async',
-                        fetchpriority: 'low',
+                        fetchpriority: sg_priority,
                         alt: block.settings.image.alt | default: block.settings.title | escape
                     }}
                   {%- else -%}
@@ -96,9 +111,9 @@
                         class: 'shop-gym-ativa__img',
                         widths: '240, 350, 500',
                         sizes: '(min-width: 990px) 25vw, (min-width: 768px) 50vw, 50vw',
-                        loading: 'lazy',
+                        loading: sg_loading,
                         decoding: 'async',
-                        fetchpriority: 'low',
+                        fetchpriority: sg_priority,
                         alt: block.settings.image.alt | default: block.settings.title | escape
                     }}
                   {%- else -%}

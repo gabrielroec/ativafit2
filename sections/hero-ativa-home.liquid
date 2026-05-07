@@ -13,28 +13,29 @@
 .hero-ativa-home__slide{position:relative;flex:0 0 100%;width:100%;min-height:100%;scroll-snap-align:start;overflow:hidden}
 .hero-ativa-home__slide-media,.hero-ativa-home__bg{position:absolute;inset:0;z-index:0}
 .hero-ativa-home__picture-full{display:block;width:100%;height:100%;margin:0}
-.hero-ativa-home__bg-media,.hero-ativa-home__bg-media--cover{width:100%;height:100%;object-fit:cover;object-position:center;display:block}
+.hero-ativa-home__bg-media,.hero-ativa-home__bg-media--cover{width:100%;height:100%;object-fit:cover;object-position:center;display:block;opacity:1}
 .hero-ativa-home__visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+/* Fallback no-JS / JS-late: força textos/botões/media visíveis se .hero-ativa-home--visible nunca for adicionado.
+   O hero-ativa-home.css overrride o reveal anim quando o JS roda; este fallback garante LCP estável. */
+.hero-ativa-home__entrance{opacity:1!important;transform:none!important}
 </style>
 <link rel="preload" as="style" href="{{ 'hero-ativa-home.css' | asset_url }}" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="{{ 'hero-ativa-home.css' | asset_url }}"></noscript>
 {%- comment -%}
-  hero-ativa-home.js controla autoplay/dots/arrows/reveal animation. O
-  scroll-snap nativo do CSS faz o slide horizontal funcionar sem JS, então
-  carregamos depois do load + idle pra não competir com o LCP image.
-  Tradeoff: nos primeiros ~500ms-1s não há autoplay nem dots clicáveis,
-  mas o 1º slide (LCP) pinta sem JS e a a11y do scroller continua via
-  scroll nativo.
+  hero-ativa-home.js — REVERTIDO PARA `defer` simples (2026-05).
+
+  Tentativa anterior (load+idle) regrediu o LCP de 6s pra 18.9s no
+  Lighthouse Mobile. Causa provável: o JS adiciona `.hero-ativa-home--visible`
+  que destrava `opacity:0 → 1` em `__entrance` (textos/botões/CTAs). Sem o JS
+  rodando cedo, a parte alta da viewport ficava com opacidade zero e o
+  Lighthouse "perdia" o hero como LCP candidate, caindo na próxima imagem
+  ATL (Strength.webp) que tem loading=lazy → 18.9s LCP.
+
+  Defer normal mantém o JS fora do path de bloqueio do parser HTML mas
+  ainda executa antes do DOMContentLoaded — rápido o suficiente pra não
+  atrasar o reveal/autoplay e estabilizar o LCP.
 {%- endcomment -%}
-<script>
-  (function () {
-    var src = {{ 'hero-ativa-home.js' | asset_url | json }};
-    function inject() { var s = document.createElement('script'); s.src = src; s.defer = true; document.head.appendChild(s); }
-    function schedule() { (window.requestIdleCallback || function (cb) { return setTimeout(cb, 200); })(inject, { timeout: 2000 }); }
-    if (document.readyState === 'complete') schedule();
-    else window.addEventListener('load', schedule, { once: true });
-  })();
-</script>
+<script src="{{ 'hero-ativa-home.js' | asset_url }}" defer></script>
 
 {%- comment -%}
   LCP preload — emits a <link rel="preload" as="image"> for the first slide's
