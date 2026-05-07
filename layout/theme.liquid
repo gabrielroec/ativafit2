@@ -8,42 +8,8 @@
       load+3.5s, mesmo pattern do Hotjar/Twitter/Reddit. dataLayer é criado
       cedo aqui pra eventos pre-load do tema serem captados e replayed quando
       o GTM bootstrapa.
-
-      Consent Mode v2 (Google) — `gtag('consent', 'default', …)` é chamado
-      ANTES de qualquer gtag('config') ou GTM container carregar. Em regiões
-      EU/UK/EEA, defaults = denied (compliance GDPR), com `wait_for_update`
-      curto pra dar tempo de um cookie banner futuro chamar update. Fora
-      EU/UK, defaults = granted (mantém tracking atual). `region:` ativa
-      o filtro pelo Google. Quando você adicionar um cookie banner (ex:
-      Cookiebot/Iubenda/OneTrust), ele só precisa chamar:
-
-        gtag('consent', 'update', { ad_storage: 'granted', ... });
-
-      e os tags do GTM disparam retroativamente.
     {%- endcomment -%}
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){ dataLayer.push(arguments); }
-      gtag('consent', 'default', {
-        ad_storage: 'denied',
-        ad_user_data: 'denied',
-        ad_personalization: 'denied',
-        analytics_storage: 'denied',
-        functionality_storage: 'granted',
-        security_storage: 'granted',
-        wait_for_update: 500,
-        region: ['AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE','IS','LI','NO','GB','CH']
-      });
-      gtag('consent', 'default', {
-        ad_storage: 'granted',
-        ad_user_data: 'granted',
-        ad_personalization: 'granted',
-        analytics_storage: 'granted',
-        functionality_storage: 'granted',
-        security_storage: 'granted'
-      });
-      window.gtag = gtag;
-    </script>
+    <script>window.dataLayer = window.dataLayer || [];</script>
     {%- comment -%}
       Visually.io (LOOMI) SDK removido em 2026-04 — stack de testes consolidada
       no Intelligems. Ganho esperado: ~3 scripts third-party a menos, economia
@@ -400,21 +366,16 @@
     {%- endif -%}
 
     {%- comment -%}
-      Google Ads gtag (AW-11366836138) — TEMPORARIAMENTE DESATIVADO (2026-05).
-      Teste de baseline: queremos medir o impacto real do tema sem nenhum
-      gtag/GTM disparando. Restaurar removendo o {% raw %} abaixo se o teste
-      mostrar que precisamos voltar.
-
-      gtag() helper + dataLayer + Consent Mode default continuam definidos no
-      <script> bem no topo do <head> — então `dataLayer.push(...)` ainda
-      funciona; só não há gtag.js externo carregando.
+      Google Ads gtag (AW-11366836138) — moved to deferred-tracking block.
+      gtag() helper + dataLayer are still defined early so any pre-load events
+      are queued and replayed when gtag.js eventually loads on first interaction.
     {%- endcomment -%}
-    {% comment %}
     <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = window.gtag || function(){window.dataLayer.push(arguments);};
       gtag('js', new Date());
       gtag('config', 'AW-11366836138');
     </script>
-    {% endcomment %}
 
     {%- comment -%} Twitter Pixel — deferred to after user interaction (INP fix) — loaded via deferred-tracking below {%- endcomment -%}
 
@@ -465,21 +426,7 @@
     {%- if needs_jquery -%}
       <script src="{{ 'jquery.min.js' | asset_url }}" defer></script>
     {%- endif -%}
-    {%- comment -%}
-      product-card-simple.js — só dispara em `click` no variant switcher de
-      product cards. Usuário não clica antes do LCP, então carrego depois do
-      load + idle pra não competir com a pintura inicial. Mesma técnica do
-      theme.min.js na home.
-    {%- endcomment -%}
-    <script>
-      (function () {
-        var src = {{ 'product-card-simple.js' | asset_url | json }};
-        function inject() { var s = document.createElement('script'); s.src = src; s.defer = true; document.head.appendChild(s); }
-        function schedule() { (window.requestIdleCallback || function (cb) { return setTimeout(cb, 200); })(inject, { timeout: 2000 }); }
-        if (document.readyState === 'complete') schedule();
-        else window.addEventListener('load', schedule, { once: true });
-      })();
-    </script>
+    <script src="{{ 'product-card-simple.js' | asset_url }}" defer></script>
 
     <meta name="google-site-verification" content="MMiNaiXOwNEI9BAzMcFWKtn93PFIXJS6nFRcAl-4Pwo" />
 
@@ -506,20 +453,15 @@
   {%- endif -%}
 
   <body class="Ativafit--v4 {% if settings.animation_image_zoom %}features--animate-zoom{% endif%} template-{{ request.page_type | handle }} {% if request.page_type contains '/' %}template-{{ request.page_type | split: '/' | last | handle }}{% endif %}{% if request.page_type == 'page' and template.suffix == 'bundle-page' %} bundle-page-layout{% endif %}" data-instant-intensity="viewport">
-    {%- comment -%}
-      Google Tag Manager (noscript) iframe — TEMPORARIAMENTE DESATIVADO
-      (2026-05) junto com o GTM container do <head>. Restaurar removendo
-      o {% raw %} comment block abaixo se voltarmos com GTM.
-    {%- endcomment -%}
-    {% comment %}
+    <!-- Google Tag Manager (noscript) -->
     <noscript>
       <iframe
         src="https://www.googletagmanager.com/ns.html?id=GTM-NG7LT26D"
         height="0"
         width="0"
         style="display:none;visibility:hidden"></iframe>
-    </noscript>
-    {% endcomment %}
+  </noscript>
+    <!-- End Google Tag Manager (noscript) -->
     {% section 'tom-custom-fonts' %}
     {%- comment -%}Common SVG definitions that we are re-using in several places{%- endcomment -%}
     <svg class="visually-hidden">
@@ -582,26 +524,10 @@
     {%- comment -%} Cart Notification Component (deprecated - usando cart drawer agora) {%- endcomment -%}
     {% render 'cart-notification' %}
 
-    {%- comment -%}
-      Klaviyo Popup Cleaner — limpa <h1> vazio em popups Klaviyo. Klaviyo só
-      carrega depois (deferred-tracking), então este cleaner também pode
-      esperar load + idle sem perder a janela.
-    {%- endcomment -%}
-    <script>
-      (function () {
-        var src = {{ 'klaviyo-popup-cleaner.js' | asset_url | json }};
-        function inject() { var s = document.createElement('script'); s.src = src; s.defer = true; document.body.appendChild(s); }
-        function schedule() { (window.requestIdleCallback || function (cb) { return setTimeout(cb, 200); })(inject, { timeout: 3000 }); }
-        if (document.readyState === 'complete') schedule();
-        else window.addEventListener('load', schedule, { once: true });
-      })();
-    </script>
+    {%- comment -%} Klaviyo Popup Cleaner Script {%- endcomment -%}
+    <script src="{{ 'klaviyo-popup-cleaner.js' | asset_url }}" defer></script>
 
-    {%- comment -%}
-      Error Handler — fica com `defer` simples (não load+idle). Error handlers
-      precisam estar ativos cedo pra capturar erros de scripts que carregam
-      antes; mover pra load+idle perderia erros pre-load.
-    {%- endcomment -%}
+    {%- comment -%} Error Handler Script {%- endcomment -%}
     <script src="{{ 'error-handler.js' | asset_url }}" defer></script>
 
     {%- comment -%}
@@ -791,51 +717,46 @@
     {%- comment -%}
       Deferred Third-Party Tracking — loads on first user interaction OR after
       the load event + 3.5s, whichever comes first. Includes:
-        - GTM NG7LT26D (único container ativo — PXMZSFK removido em 2026-05)
+        - GTM NG7LT26D (single container — PXMZSFK removido em 2026-05)
         - Google Ads gtag.js (AW-11366836138)
         - Ahrefs analytics
+        - Hotjar (6368517 — segundo container 3882714 removido em 2026-05)
         - Twitter, Reddit pixels
         - Equalweb accessibility (interdeal)
-      dataLayer + gtag() + Consent Mode default are stubbed earlier in <head>.
-
-      Hotjar (hjid 6368517) REMOVIDO em 2026-05 — heatmap stack consolidada
-      no Microsoft Clarity (que já está rodando via Shopify app injection).
-      Economia: ~63KB transfer + ~275ms main thread CPU.
-
-      Server-side GTM (ssGTM): se a variável `settings.gtm_server_url` estiver
-      preenchida com um endpoint server-side (ex: https://gtm.ativafit.com),
-      usamos essa URL em vez de googletagmanager.com. Move a maior parte do
-      processamento de tags para o servidor — reduz o JS no browser, melhora
-      TBT/Speed Index. Ver doc: https://developers.google.com/tag-platform/tag-manager/server-side
-      Default = string vazia → fallback pro endpoint público do Google.
+      dataLayer + gtag() are stubbed earlier in <head> so events fired before
+      this loader runs are queued and replayed.
     {%- endcomment -%}
     <script>
       (function() {
         var loaded = false;
-        var GTM_SERVER = {{ settings.gtm_server_url | default: '' | json }};
-        var GTM_HOST = GTM_SERVER && GTM_SERVER.length ? GTM_SERVER : 'https://www.googletagmanager.com';
-
         function loadTracking() {
           if (loaded) return;
           loaded = true;
           ['click','scroll','keydown','touchstart'].forEach(function(e){ document.removeEventListener(e, loadTracking, {capture:true}); });
 
-          /* GTM container NG7LT26D + Google Ads gtag (AW-11366836138)
-             TEMPORARIAMENTE DESATIVADOS (2026-05) — teste de baseline pra
-             medir score Lighthouse sem nenhum gtag/GTM disparando do tema.
-             Restaurar descomentando o bloco abaixo. */
-          /*
-          (function(w,d,s,l,i,h){w[l]=w[l]||[];w[l].push({'gtm.start':
+          /* GTM container NG7LT26D — único container ativo. PXMZSFK removido em 2026-05 */
+          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
           new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
           j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-          h+'/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-          })(window,document,'script','dataLayer','GTM-NG7LT26D',GTM_HOST);
+          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+          })(window,document,'script','dataLayer','GTM-NG7LT26D');
 
-          (function(h){var s=document.createElement('script');s.async=true;s.src=h+'/gtag/js?id=AW-11366836138';document.head.appendChild(s);})(GTM_HOST);
-          */
+          /* Google Ads gtag (AW-11366836138) */
+          (function(){var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=AW-11366836138';document.head.appendChild(s);})();
 
           /* Ahrefs analytics */
           (function(){var s=document.createElement('script');s.async=true;s.src='https://analytics.ahrefs.com/analytics.js';s.setAttribute('data-key','lqzucNIXjItSH4hJMLxs4w');document.head.appendChild(s);})();
+
+          /* Hotjar (hjid: 6368517) — único container ativo. Hotjar 2 (3882714)
+             removido em 2026-05; era duplicata de uma migração antiga. */
+          (function(h,o,t,j,a,r){
+            h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+            h._hjSettings={hjid:6368517,hjsv:6};
+            a=o.getElementsByTagName('head')[0];
+            r=o.createElement('script');r.async=1;
+            r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+            a.appendChild(r);
+          })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
 
           /* Twitter Pixel */
           !function(e,t,n,s,u,a){e.twq||(s=e.twq=function(){s.exe?s.exe.apply(s,arguments):s.queue.push(arguments);
