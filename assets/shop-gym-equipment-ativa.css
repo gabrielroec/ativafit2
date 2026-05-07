@@ -35,17 +35,23 @@
 }
 
 .shop-gym-ativa__reveal {
+  /* Fade-in only — translateY removido (2026-05-07) pra eliminar 0.040 do CLS.
+     Lighthouse media o movimento vertical dos cards quando o JS adiciona
+     `.shop-gym-ativa--visible` como layout shift. Mantemos só o fade pra
+     entrada visualmente quase idêntica e CLS neutro. */
   opacity: 0;
-  transform: translate3d(0, 1.75rem, 0);
-  transition:
-    opacity var(--sg-reveal-duration) var(--sg-ease-out),
-    transform var(--sg-reveal-duration) var(--sg-ease-out);
+  transition: opacity var(--sg-reveal-duration) var(--sg-ease-out);
   transition-delay: var(--sg-reveal-delay, 0ms);
 }
 
 .shop-gym-ativa--visible .shop-gym-ativa__reveal {
   opacity: 1;
-  transform: translate3d(0, 0, 0);
+}
+
+/* Fallback: se o JS não rodar, garante que cards apareçam (sem flicker). */
+.no-js .shop-gym-ativa__reveal,
+.shop-gym-ativa:not(.shop-gym-ativa--visible) .shop-gym-ativa__reveal:not(:defined) {
+  opacity: 1;
 }
 
 .shop-gym-ativa__grid {

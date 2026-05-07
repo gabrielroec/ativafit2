@@ -9,16 +9,47 @@
 
 {% liquid
   assign active_slides = 0
-  
+
   for i in (1..5)
     assign slide_enabled_key = 'slide_' | append: i | append: '_enabled'
     assign slide_enabled = section.settings[slide_enabled_key]
-    
+
     if slide_enabled
       assign active_slides = active_slides | plus: 1
     endif
   endfor
+
+  comment
+    LCP preload — acelera a descoberta da primeira imagem do slider (que vira
+    o LCP element em telas mobile/desktop). Ladders right-sized: mobile usa
+    390/500/723w (square) e desktop usa 1024/1366/1920w (16:9). Sem isso, o
+    browser só descobre a imagem após parsear todo o <head> + chegar no <img>.
+    Em Slow 4G isso valia ~300-500ms no LCP no hero anterior.
+  endcomment
+  assign hero_lcp_mobile = section.settings.slide_1_mobile_image
+  assign hero_lcp_desktop = section.settings.slide_1_desktop_image
 %}
+
+{%- if hero_lcp_mobile != blank -%}
+  <link
+    rel="preload"
+    as="image"
+    fetchpriority="high"
+    href="{{ hero_lcp_mobile | image_url: width: 500, format: 'webp' }}&quality=75"
+    imagesrcset="{{ hero_lcp_mobile | image_url: width: 390, format: 'webp' }}&quality=75 390w, {{ hero_lcp_mobile | image_url: width: 500, format: 'webp' }}&quality=75 500w, {{ hero_lcp_mobile | image_url: width: 723, format: 'webp' }}&quality=75 723w"
+    imagesizes="100vw"
+    media="(max-width: 749px)">
+{%- endif -%}
+{%- if hero_lcp_desktop != blank -%}
+  <link
+    rel="preload"
+    as="image"
+    fetchpriority="high"
+    href="{{ hero_lcp_desktop | image_url: width: 1366, format: 'webp' }}&quality=75"
+    imagesrcset="{{ hero_lcp_desktop | image_url: width: 1024, format: 'webp' }}&quality=75 1024w, {{ hero_lcp_desktop | image_url: width: 1366, format: 'webp' }}&quality=75 1366w, {{ hero_lcp_desktop | image_url: width: 1920, format: 'webp' }}&quality=75 1920w"
+    imagesizes="100vw"
+    media="(min-width: 750px)">
+{%- endif -%}
 
 {% style %}
   .ai-hero-slider-{{ ai_gen_id }} {
@@ -245,11 +276,17 @@
     .ai-hero-mobile-media-{{ ai_gen_id }} {
       display: block !important;
     }
+    /* Mobile image fills the slot using the container's aspect-ratio.
+       Antes era `width:auto;height:auto;object-fit:contain` — isso anulava
+       os atributos width/height e fazia o Lighthouse marcar "Unsized image"
+       + CLS quando a imagem carregava. Agora usa width/height 100% +
+       object-fit:cover (consistente com desktop) e o aspect-ratio do
+       container reserva o espaço correto antes do paint. */
     img.ai-hero-mobile-media-{{ ai_gen_id }} {
-      width: auto !important;
-      height: auto !important;
+      width: 100% !important;
+      height: 100% !important;
       max-width: 100%;
-      object-fit: contain !important;
+      object-fit: cover !important;
     }
   }
   @media screen and (min-width: 750px) {
@@ -346,6 +383,12 @@
                       <source src="{{ desktop_video }}" type="video/mp4">
                     </video>
                   {% elsif has_desktop_image %}
+                    {%- comment -%}
+                      Slide 1 = LCP candidate em desktop. eager + high priority
+                      faz o browser baixar a imagem assim que parsear a tag.
+                      Slides 2-5 = lazy + low (só baixam quando o carousel
+                      avança ou IntersectionObserver detecta).
+                    {%- endcomment -%}
                     <img
                       class="ai-hero-desktop-media-{{ ai_gen_id }}"
                       src="{{ desktop_image | image_url: width: 1920, format: 'webp' }}&quality=75"
@@ -356,7 +399,9 @@
                               {{ desktop_image | image_url: width: 2560, format: 'webp' }}&quality=75 2560w"
                       sizes="100vw"
                       alt="{{ desktop_image.alt | escape }}"
-                      loading="lazy"
+                      loading="{% if i == 1 %}eager{% else %}lazy{% endif %}"
+                      fetchpriority="{% if i == 1 %}high{% else %}low{% endif %}"
+                      decoding="{% if i == 1 %}sync{% else %}async{% endif %}"
                       width="{{ desktop_image.width }}"
                       height="{{ desktop_image.height }}"
                     >
@@ -375,6 +420,12 @@
                       <source src="{{ mobile_video }}" type="video/mp4">
                     </video>
                   {% elsif has_mobile_image %}
+                    {%- comment -%}
+                      Slide 1 mobile = LCP candidate. eager + high. Slides 2-5
+                      lazy + low — antes TODOS estavam eager+high, o que fazia
+                      o browser baixar 3-5 imagens mobile no first paint e
+                      competia banda com o LCP da slide 1.
+                    {%- endcomment -%}
                     <img
                       class="ai-hero-mobile-media-{{ ai_gen_id }}"
                       src="{{ mobile_image | image_url: width: 723, height: 721, crop: 'center', format: 'webp' }}&quality=75"
@@ -383,8 +434,9 @@
                               {{ mobile_image | image_url: width: 723, height: 721, crop: 'center', format: 'webp' }}&quality=75 723w"
                       sizes="100vw"
                       alt="{{ mobile_image.alt | escape }}"
-                      fetchpriority="high"
-                      loading="eager"
+                      loading="{% if i == 1 %}eager{% else %}lazy{% endif %}"
+                      fetchpriority="{% if i == 1 %}high{% else %}low{% endif %}"
+                      decoding="{% if i == 1 %}sync{% else %}async{% endif %}"
                       width="723"
                       height="721">
                   {% endif %}
