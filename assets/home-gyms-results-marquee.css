@@ -1,0 +1,316 @@
+/* Home Gyms Results Marquee — extracted from sections/home-gyms-results-marquee.liquid.
+   All Liquid-driven values are passed via CSS custom properties on the section root. */
+
+.home-gyms-marquee .home-gyms-marquee__inner {
+  background-color: var(--hgm-bg);
+  padding-top: var(--hgm-pad-top, 96px);
+  padding-bottom: var(--hgm-pad-bottom, 96px);
+  overflow: hidden;
+}
+
+.home-gyms-marquee .home-gyms-marquee__intro {
+  max-width: 80rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 24px;
+  padding-right: 24px;
+  margin-bottom: var(--hgm-intro-mb, 64px);
+}
+
+.home-gyms-marquee .home-gyms-marquee__title {
+  margin: 0 0 0px !important;
+  font-family: Barlow, Barlow Fallback, sans-serif !important;
+  font-weight: 900 !important;
+  font-size: clamp(1.75rem, 4.5vw, 2.25rem) !important;
+  line-height: 1.1 !important;
+  letter-spacing: -.04em !important;
+  text-transform: uppercase !important;
+  text-align: center !important;
+  color: var(--sg-heading-color, #1a1c1c);
+}
+
+.home-gyms-marquee .home-gyms-marquee__subtitle {
+  font-family: var(--text-font-family) !important;
+  font-size: var(--hgm-subtitle-size, 16px) !important;
+  line-height: 1.5 !important;
+  font-weight: var(--text-font-weight) !important;
+  color: var(--hgm-subtitle-color) !important;
+  margin: 0 !important;
+  text-align: center !important;
+}
+
+.home-gyms-marquee .home-gyms-marquee__viewport {
+  overflow: hidden;
+  width: 100%;
+  contain: layout style;
+}
+
+.home-gyms-marquee .home-gyms-marquee__track {
+  display: flex;
+  width: max-content;
+  flex-wrap: nowrap;
+  animation: none;
+}
+
+.home-gyms-marquee .home-gyms-marquee__track.home-gyms-marquee__track--ready {
+  will-change: transform;
+  animation: hgm-marquee var(--hg-duration, 45s) linear infinite;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Pause on hover or when a link is focused (easier clicking) */
+.home-gyms-marquee .home-gyms-marquee__viewport:hover .home-gyms-marquee__track.home-gyms-marquee__track--ready,
+.home-gyms-marquee .home-gyms-marquee__viewport:focus-within .home-gyms-marquee__track.home-gyms-marquee__track--ready {
+  animation-play-state: paused;
+}
+
+@keyframes hgm-marquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(var(--hg-shift, 0px), 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-gyms-marquee .home-gyms-marquee__track {
+    animation: none !important;
+    transform: translate3d(0, 0, 0) !important;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 80rem;
+    margin: 0 auto;
+    justify-content: center;
+    gap: var(--hgm-card-gap, 32px);
+    padding-left: 24px;
+    padding-right: 24px;
+    box-sizing: border-box;
+  }
+
+  .home-gyms-marquee .home-gyms-marquee__strip {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    gap: var(--hgm-card-gap, 32px) !important;
+  }
+
+  .home-gyms-marquee .home-gyms-marquee__strip[aria-hidden='true'] {
+    display: none !important;
+  }
+}
+
+.home-gyms-marquee .home-gyms-marquee__strip {
+  display: flex;
+  flex-shrink: 0;
+  align-items: stretch;
+  gap: var(--hgm-card-gap, 32px);
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+.home-gyms-marquee .home-gyms-marquee__cell {
+  flex-shrink: 0;
+}
+
+.home-gyms-marquee .home-gyms-marquee__card {
+  display: block;
+  position: relative;
+  text-decoration: none;
+  color: inherit;
+}
+
+.home-gyms-marquee .home-gyms-marquee__card--gif {
+  border-radius: var(--hgm-card-radius, 8px);
+  overflow: hidden;
+}
+
+.home-gyms-marquee .home-gyms-marquee__card-hit {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: var(--hgm-card-radius, 8px);
+}
+
+.home-gyms-marquee .home-gyms-marquee__card-hit:focus-visible {
+  outline: 2px solid var(--hgm-title-color);
+  outline-offset: 4px;
+  z-index: 3;
+}
+
+.home-gyms-marquee .home-gyms-marquee__gif {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  isolation: isolate;
+}
+
+.home-gyms-marquee .home-gyms-marquee__gif-poster:not(.home-gyms-marquee__gif-poster--empty) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.home-gyms-marquee .home-gyms-marquee__gif-poster--empty {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(145deg, #ececec, #d4d4d4);
+}
+
+.home-gyms-marquee .home-gyms-marquee__gif-anim {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.home-gyms-marquee .home-gyms-marquee__gif-play {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 3;
+  width: 3.75rem;
+  height: 3.75rem;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(0 0 0 / 0.48);
+  color: #fff;
+  transform: translate(-50%, -50%);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.home-gyms-marquee .home-gyms-marquee__gif-play:hover {
+  background: rgb(0 0 0 / 0.62);
+  transform: translate(-50%, -50%) scale(1.06);
+}
+
+.home-gyms-marquee .home-gyms-marquee__gif-play:focus-visible {
+  outline: 2px solid var(--hgm-title-color);
+  outline-offset: 3px;
+}
+
+.home-gyms-marquee .home-gyms-marquee__gif-play-icon {
+  display: flex;
+  margin-left: 2px;
+}
+
+.home-gyms-marquee .home-gyms-marquee__gif--playing .home-gyms-marquee__gif-play {
+  display: none !important;
+}
+
+.home-gyms-marquee .home-gyms-marquee__card:hover .home-gyms-marquee__gif:not(.home-gyms-marquee__gif--playing) .home-gyms-marquee__gif-poster,
+.home-gyms-marquee .home-gyms-marquee__card:hover .home-gyms-marquee__gif--playing .home-gyms-marquee__gif-anim {
+  transform: scale(1.1);
+}
+
+.home-gyms-marquee .home-gyms-marquee__card:hover .home-gyms-marquee__gif:not(.home-gyms-marquee__gif--playing) .home-gyms-marquee__gif-poster--empty {
+  transform: none;
+}
+
+.home-gyms-marquee .home-gyms-marquee__card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  border-radius: var(--hgm-card-radius, 8px);
+}
+
+.home-gyms-marquee .home-gyms-marquee__card-link:focus-visible {
+  outline: 2px solid var(--hgm-title-color);
+  outline-offset: 4px;
+}
+
+.home-gyms-marquee .home-gyms-marquee__card-frame {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  overflow: hidden;
+  border-radius: var(--hgm-card-radius, 8px);
+  background: #e8e8e8;
+  pointer-events: none;
+}
+
+/* Frame deixa passar cliques para o link por baixo; só play e GIF animado capturam */
+.home-gyms-marquee .home-gyms-marquee__card-frame .home-gyms-marquee__gif {
+  pointer-events: none;
+}
+
+.home-gyms-marquee .home-gyms-marquee__card-frame .home-gyms-marquee__gif-play,
+.home-gyms-marquee .home-gyms-marquee__card-frame .home-gyms-marquee__gif-anim {
+  pointer-events: auto;
+}
+
+.home-gyms-marquee .home-gyms-marquee__card-frame .home-gyms-marquee__gif-poster {
+  pointer-events: none;
+}
+
+.home-gyms-marquee .home-gyms-marquee__card-frame .home-gyms-marquee__card-img,
+.home-gyms-marquee .home-gyms-marquee__card-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.home-gyms-marquee .home-gyms-marquee__card:hover .home-gyms-marquee__card-frame .home-gyms-marquee__card-img,
+.home-gyms-marquee .home-gyms-marquee__card:hover .home-gyms-marquee__card-frame img:not(.home-gyms-marquee__gif-poster),
+.home-gyms-marquee .home-gyms-marquee__card-link:hover .home-gyms-marquee__card-frame .home-gyms-marquee__card-img,
+.home-gyms-marquee .home-gyms-marquee__card-link:hover .home-gyms-marquee__card-frame img:not(.home-gyms-marquee__gif-poster),
+.home-gyms-marquee .home-gyms-marquee__card-link:focus-visible .home-gyms-marquee__card-frame .home-gyms-marquee__card-img,
+.home-gyms-marquee .home-gyms-marquee__card-link:focus-visible .home-gyms-marquee__card-frame img:not(.home-gyms-marquee__gif-poster) {
+  transform: scale(1.1);
+}
+
+.home-gyms-marquee .home-gyms-marquee__ph {
+  width: 100%;
+  height: 100%;
+  min-height: 120px;
+  background: linear-gradient(145deg, #ececec, #d4d4d4);
+  border: 1px dashed rgba(0, 0, 0, 0.12);
+  box-sizing: border-box;
+}
+
+.home-gyms-marquee .home-gyms-marquee__tag-wrap {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  right: 24px;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.home-gyms-marquee .home-gyms-marquee__tag {
+  display: inline-block;
+  font-family: var(--heading-font-family) !important;
+  font-size: 12px !important;
+  line-height: 1.2 !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  color: var(--hgm-tag-color) !important;
+  background: rgba(255, 255, 255, 0.9);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  padding: 8px 16px;
+  border-radius: 999px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}

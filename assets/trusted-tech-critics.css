@@ -1,0 +1,174 @@
+/* Trusted by Tech Critics — extracted from sections/trusted-tech-critics.liquid.
+   Reuses shop-gym-equipment-ativa CSS/JS for the mobile carousel + dots.
+   Liquid-driven values are passed via CSS custom properties on the section root. */
+
+.trusted-tech-critics {
+  background-color: var(--ttc-bg, #f3f3f3) !important;
+  padding-top: var(--ttc-pad-top, 96px);
+  padding-bottom: var(--ttc-pad-bottom, 96px);
+}
+
+.trusted-tech-critics .trusted-tech-critics__inner {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.trusted-tech-critics .trusted-tech-critics__header {
+  text-align: center;
+  margin-bottom: var(--ttc-header-mb, 64px);
+}
+
+.trusted-tech-critics .trusted-tech-critics__title {
+  margin: 0 0 0px !important;
+  font-family: Barlow, Barlow Fallback, sans-serif !important;
+  font-weight: 900 !important;
+  font-size: clamp(1.75rem, 4.5vw, 2.25rem) !important;
+  line-height: 1.1 !important;
+  letter-spacing: -.04em !important;
+  text-transform: uppercase !important;
+  text-align: center !important;
+  color: var(--sg-heading-color, #1a1c1c);
+}
+
+.trusted-tech-critics .trusted-tech-critics__subtitle {
+  font-family: var(--text-font-family) !important;
+  font-size: var(--ttc-subtitle-size, 16px) !important;
+  line-height: 1.5 !important;
+  color: var(--ttc-subtitle-color) !important;
+  margin: 0 !important;
+}
+
+/* Mobile carousel + dots: shop-gym-equipment-ativa.css (same as Shop Home Gym). Desktop: 3 columns. */
+.trusted-tech-critics .trusted-tech-critics__shop-carousel {
+  width: 100%;
+  /* Landscape video frame — same ratio on every breakpoint */
+  --ttc-card-aspect-w: 16;
+  --ttc-card-aspect-h: 9;
+}
+
+.trusted-tech-critics .shop-gym-ativa__item {
+  list-style: none;
+}
+
+/* Mobile carousel: wider slide fits 16:9 cards better than old portrait min-width */
+@media screen and (max-width: 767px) {
+  .trusted-tech-critics .shop-gym-ativa__grid--mobile-carousel .shop-gym-ativa__item {
+    flex: 0 0 min(400px, calc(100% - 2.5rem));
+  }
+}
+
+@media screen and (min-width: 768px) {
+  .trusted-tech-critics .shop-gym-ativa__grid--mobile-carousel {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--ttc-grid-gap, 32px);
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .trusted-tech-critics .shop-gym-ativa__grid--mobile-carousel {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.trusted-tech-critics .trusted-tech-critics__card {
+  display: block;
+  width: 100%;
+}
+
+.trusted-tech-critics .trusted-tech-critics__media-shell {
+  position: relative;
+  border-radius: var(--ttc-card-radius, 12px);
+  overflow: hidden;
+  background: #dfdfdf;
+  aspect-ratio: var(--ttc-card-aspect-w) / var(--ttc-card-aspect-h);
+  width: 100%;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.trusted-tech-critics .trusted-tech-critics__preview {
+  position: absolute;
+  inset: 0;
+}
+
+.trusted-tech-critics .trusted-tech-critics__preview[hidden] {
+  display: none !important;
+}
+
+.trusted-tech-critics .trusted-tech-critics__preview-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+/* Fills .media-shell when preview is hidden (was in-flow → 0 height before) */
+.trusted-tech-critics .trusted-tech-critics__player {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: #000;
+}
+
+.trusted-tech-critics .trusted-tech-critics__player .trusted-tech-critics__video-el,
+.trusted-tech-critics .trusted-tech-critics__player iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  border: 0;
+  object-fit: cover;
+}
+
+.trusted-tech-critics .trusted-tech-critics__player[hidden] {
+  display: none !important;
+}
+
+.trusted-tech-critics .trusted-tech-critics__placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, #ececec, #dedede);
+}
+
+.trusted-tech-critics .trusted-tech-critics__placeholder-svg {
+  width: 54px;
+  height: 54px;
+  opacity: 0.35;
+}
+
+.trusted-tech-critics .trusted-tech-critics__play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+.trusted-tech-critics .trusted-tech-critics__play:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.trusted-tech-critics .trusted-tech-critics__play-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+.trusted-tech-critics .trusted-tech-critics__play-icon svg {
+  width: 56px;
+  height: 56px;
+  display: block;
+}
+
+.trusted-tech-critics .trusted-tech-critics__play:disabled {
+  cursor: not-allowed;
+  opacity: 0.9;
+}

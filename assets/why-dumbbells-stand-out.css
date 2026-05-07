@@ -1,0 +1,400 @@
+/* Why Dumbbells Stand Out — extracted from sections/why-dumbbells-stand-out.liquid.
+   All Liquid-driven values are passed via CSS custom properties on the section root. */
+
+.why-dumbbells-stand-out {
+  background-color: var(--wds-section-bg);
+  padding-top: var(--wds-pad-top, 48px);
+  padding-bottom: var(--wds-pad-bottom, 48px);
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__inner {
+  max-width: 80rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__title {
+  margin: 0 0 48px !important;
+  font-family: Barlow, Barlow Fallback, sans-serif !important;
+  font-weight: 900 !important;
+  font-size: clamp(1.75rem, 4.5vw, 2.25rem) !important;
+  line-height: 1.1 !important;
+  letter-spacing: -.04em !important;
+  text-transform: uppercase !important;
+  text-align: center !important;
+  color: var(--sg-heading-color, #1a1c1c);
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__grid {
+  --wds-grid-gap: 20px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--wds-grid-gap);
+  margin-bottom: var(--wds-grid-margin-bottom, 48px);
+}
+
+/* Mobile: carousel — mesmo padrão que shop-gym-ativa (scroll-padding = gutter, snap center) */
+@media screen and (max-width: 767px) {
+  .why-dumbbells-stand-out .why-dumbbells-stand-out__grid {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: var(--wds-grid-gap);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 24px;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    margin-left: -24px;
+    margin-right: -24px;
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-bottom: 0.25rem;
+    margin-bottom: 0.25rem;
+  }
+  .why-dumbbells-stand-out__carousel {
+    margin-bottom: 2rem !important;
+  }
+  .why-dumbbells-stand-out .why-dumbbells-stand-out__grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .why-dumbbells-stand-out .why-dumbbells-stand-out__grid > .why-dumbbells-stand-out__card {
+    flex: 0 0 calc((100% - var(--wds-grid-gap)) / 2 + 14px);
+    min-width: 0;
+    scroll-snap-align: center;
+  }
+
+  /* Mobile: icon above title for narrow cards */
+  .why-dumbbells-stand-out .why-dumbbells-stand-out__card-inner {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .why-dumbbells-stand-out .why-dumbbells-stand-out__card-text {
+    width: 100%;
+    text-align: center;
+  }
+
+  .why-dumbbells-stand-out .why-dumbbells-stand-out__icon--inline {
+    width: 36px;
+    height: 36px;
+  }
+
+  .why-dumbbells-stand-out .why-dumbbells-stand-out__icon--custom .why-dumbbells-stand-out__icon-img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .why-dumbbells-stand-out .why-dumbbells-stand-out__carousel-ui {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+
+  .why-dumbbells-stand-out .why-dumbbells-stand-out__carousel-ui[hidden] {
+    display: none !important;
+  }
+
+  .why-dumbbells-stand-out .why-dumbbells-stand-out__dots {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .why-dumbbells-stand-out .why-dumbbells-stand-out__dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    padding: 0;
+    border: none;
+    border-radius: 999px;
+    background: rgb(26 28 28 / 0.2);
+    cursor: pointer;
+    transition: background 0.25s ease, transform 0.2s ease;
+  }
+
+  .why-dumbbells-stand-out .why-dumbbells-stand-out__dot:hover {
+    background: rgb(26 28 28 / 0.35);
+  }
+
+  .why-dumbbells-stand-out .why-dumbbells-stand-out__dot[aria-current='true'] {
+    background: var(--wds-icon-color);
+    transform: scale(1.15);
+  }
+
+  .why-dumbbells-stand-out .why-dumbbells-stand-out__dot:focus-visible {
+    outline: 2px solid var(--wds-icon-color);
+    outline-offset: 2px;
+  }
+}
+
+@media screen and (min-width: 768px) {
+  .why-dumbbells-stand-out .why-dumbbells-stand-out__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow-x: visible;
+    overflow-y: visible;
+    scroll-snap-type: none;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+  }
+
+  .why-dumbbells-stand-out .why-dumbbells-stand-out__grid > .why-dumbbells-stand-out__card {
+    flex: unset;
+    scroll-snap-align: unset;
+  }
+
+  .why-dumbbells-stand-out .why-dumbbells-stand-out__carousel-ui {
+    display: none !important;
+  }
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__card {
+  background-color: var(--wds-card-bg);
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__card-inner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Same pattern as trust-bar-ativa: icon = Material Symbols ligature, no card font inheritance */
+.why-dumbbells-stand-out .why-dumbbells-stand-out__icon--custom {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__icon--custom .why-dumbbells-stand-out__icon-img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__icon--inline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  color: var(--wds-icon-color);
+}
+.why-dumbbells-stand-out .why-dumbbells-stand-out__icon--inline svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__card-title {
+  font-family: "Barlow", "Barlow Fallback", sans-serif !important;
+  font-size: var(--wds-card-title-size, 17px) !important;
+  line-height: 1.35 !important;
+  font-weight: 600 !important;
+  color: var(--wds-heading-color) !important;
+  margin: 0 0 8px !important;
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__card-desc {
+  font-family: var(--text-font-family) !important;
+  font-size: var(--wds-card-text-size, 14px) !important;
+  line-height: 1.625 !important;
+  font-weight: var(--text-font-weight) !important;
+  color: var(--wds-body-color) !important;
+  margin: 0 !important;
+}
+
+/* Video demo (MP4 Shopify) */
+.why-dumbbells-stand-out .why-dumbbells-stand-out__video {
+  margin-top: var(--wds-video-margin-top, 0px);
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__video-shell {
+  position: relative;
+  width: 100%;
+  max-width: min(var(--wds-video-shell-max-width, 820px), 100%);
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #d5d5d5;
+  aspect-ratio: 16 / 9;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__video-poster {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__video-poster--static {
+  cursor: default;
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__video-poster-center {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__video-poster-center .why-dumbbells-stand-out__video-play {
+  pointer-events: auto;
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__video-placeholder-caption {
+  font-family: var(--text-font-family) !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+  color: #666666 !important;
+  text-align: center !important;
+  margin: 0 !important;
+  max-width: 22rem;
+  padding: 0 12px;
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__video-shell--placeholder .why-dumbbells-stand-out__video-play:disabled .why-dumbbells-stand-out__video-play-inner {
+  opacity: 0.88;
+  filter: grayscale(0.15);
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__video-poster[hidden] {
+  display: none !important;
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__video-poster-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, #eaeaea 0%, #cfcfcf 100%);
+  opacity: 0.95;
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__video-poster-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__video-poster-img {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__video-poster-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__video-poster:has(.why-dumbbells-stand-out__video-poster-img) .why-dumbbells-stand-out__video-poster-bg {
+  opacity: 0.5;
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__video-deco--inline {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: clamp(4rem, 18vw, 8rem);
+  height: clamp(4rem, 18vw, 8rem);
+  color: rgba(120, 120, 120, 0.35);
+  pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.why-dumbbells-stand-out .why-dumbbells-stand-out__video-deco--inline svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__video-poster:has(.why-dumbbells-stand-out__video-poster-img) .why-dumbbells-stand-out__video-deco--inline {
+  opacity: 0.5;
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__video-play {
+  position: relative;
+  z-index: 3;
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__video-play:focus-visible {
+  outline: 2px solid var(--wds-icon-color);
+  outline-offset: 4px;
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__video-play-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 999px;
+  background-color: var(--wds-icon-color);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__video-play:hover:not(:disabled) .why-dumbbells-stand-out__video-play-inner {
+  transform: scale(1.06);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__video-play:disabled {
+  cursor: not-allowed;
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__video-el {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+
+.why-dumbbells-stand-out .why-dumbbells-stand-out__video-el[hidden] {
+  display: none !important;
+}

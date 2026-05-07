@@ -1,0 +1,151 @@
+/* Media Mentions Marquee — extracted from sections/media-mentions-marquee.liquid.
+   All Liquid-driven values are passed via CSS custom properties on the section root. */
+
+.media-mentions-marquee .media-mentions-marquee__inner {
+  background-color: var(--mm-bg, #fff);
+  padding-top: var(--mm-pad-top, 56px);
+  padding-bottom: var(--mm-pad-bottom, 56px);
+}
+
+.media-mentions-marquee .media-mentions-marquee__title {
+  margin: 0 0 48px !important;
+  font-family: Barlow, Barlow Fallback, sans-serif !important;
+  font-weight: 900 !important;
+  font-size: clamp(1.75rem, 4.5vw, 2.25rem) !important;
+  line-height: 1.1 !important;
+  letter-spacing: -.04em !important;
+  text-transform: uppercase !important;
+  text-align: center !important;
+  color: var(--sg-heading-color, #1a1c1c);
+}
+
+.media-mentions-marquee .media-mentions-marquee__viewport {
+  overflow: hidden;
+  width: 100%;
+}
+
+.media-mentions-marquee .media-mentions-marquee__viewport--fade {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 7%,
+    #000 93%,
+    transparent
+  );
+  mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+}
+
+.media-mentions-marquee .media-mentions-marquee__track {
+  display: flex;
+  width: max-content;
+  flex-wrap: nowrap;
+  will-change: transform;
+  animation: none;
+}
+
+.media-mentions-marquee .media-mentions-marquee__track.media-mentions-marquee__track--ready {
+  animation: mm-marquee var(--mm-duration, 35s) linear infinite;
+}
+
+@keyframes mm-marquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(var(--mm-shift, 0px), 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .media-mentions-marquee .media-mentions-marquee__track {
+    animation: none !important;
+    transform: translate3d(0, 0, 0) !important;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 80rem;
+    margin: 0 auto;
+    justify-content: center;
+    row-gap: 1.5rem;
+  }
+
+  .media-mentions-marquee .media-mentions-marquee__strip {
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100% !important;
+    padding-right: 0 !important;
+  }
+
+  .media-mentions-marquee .media-mentions-marquee__strip[aria-hidden='true'] {
+    display: none !important;
+  }
+}
+
+.media-mentions-marquee .media-mentions-marquee__strip {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--mm-logo-gap, 48px);
+  padding-right: var(--mm-logo-gap, 48px);
+}
+
+.media-mentions-marquee .media-mentions-marquee__item {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--mm-logo-min-width, 140px);
+}
+
+.media-mentions-marquee .media-mentions-marquee__link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  text-decoration: none;
+}
+
+/* height (not only max-height) scales small assets up; object-fit keeps aspect ratio */
+.media-mentions-marquee .media-mentions-marquee__img {
+  height: var(--mm-logo-max-height, 56px);
+  width: auto;
+  max-width: min(45vw, var(--mm-logo-max-width, 392px));
+  max-height: var(--mm-logo-max-height, 56px);
+  object-fit: contain;
+  object-position: center;
+  display: block;
+  filter: grayscale(1);
+  opacity: 0.85;
+  transition:
+    opacity 0.2s ease,
+    filter 0.2s ease;
+}
+
+.media-mentions-marquee .media-mentions-marquee__link:hover .media-mentions-marquee__img,
+.media-mentions-marquee .media-mentions-marquee__link:focus-visible .media-mentions-marquee__img {
+  filter: grayscale(0);
+  opacity: 1;
+}
+
+.media-mentions-marquee .media-mentions-marquee__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--mm-logo-min-width, 140px);
+  min-height: var(--mm-logo-max-height, 56px);
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px dashed rgba(0, 0, 0, 0.18);
+  background: rgba(0, 0, 0, 0.03);
+  box-sizing: border-box;
+}
+
+.media-mentions-marquee .media-mentions-marquee__placeholder-label {
+  font-family: var(--text-font-family) !important;
+  font-size: 11px !important;
+  line-height: 1.2 !important;
+  font-weight: 500 !important;
+  color: rgba(0, 0, 0, 0.35) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  text-align: center !important;
+}

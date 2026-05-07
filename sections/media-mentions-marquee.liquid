@@ -1,6 +1,5 @@
 {%- liquid
   assign mm_id = 'media-mentions-' | append: section.id
-  assign mm_kf = section.id | split: '__' | last | handleize | default: 'marquee'
   assign mm_blocks_count = section.blocks.size
   assign mm_duration = section.settings.marquee_seconds | default: 35
   if mm_duration < 8
@@ -13,12 +12,27 @@
   if mm_strip_cycles > 12
     assign mm_strip_cycles = 12
   endif
+  assign mm_logo_max_width = section.settings.logo_min_width | times: 28 | divided_by: 10
 -%}
+
+<link rel="preload" as="style" href="{{ 'media-mentions-marquee.css' | asset_url }}" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="{{ 'media-mentions-marquee.css' | asset_url }}"></noscript>
+<script src="{{ 'media-mentions-marquee.js' | asset_url }}" defer></script>
 
 <section
   id="{{ mm_id }}"
   class="media-mentions-marquee"
-  data-section-type="media-mentions-marquee">
+  data-section-type="media-mentions-marquee"
+  data-media-mentions-marquee
+  style="
+    --mm-bg: {{ section.settings.background_color | default: '#fff' }};
+    --mm-pad-top: {{ section.settings.padding_top }}px;
+    --mm-pad-bottom: {{ section.settings.padding_bottom }}px;
+    --mm-logo-gap: {{ section.settings.logo_gap }}px;
+    --mm-logo-min-width: {{ section.settings.logo_min_width }}px;
+    --mm-logo-max-height: {{ section.settings.logo_max_height }}px;
+    --mm-logo-max-width: {{ mm_logo_max_width }}px;
+  ">
   <div class="media-mentions-marquee__inner">
     {%- if section.settings.title != blank -%}
       <h2 class="media-mentions-marquee__title">{{ section.settings.title | escape }}</h2>
@@ -184,219 +198,6 @@
     </div>
   </div>
 </section>
-
-<script>
-  (function () {
-    var root = document.getElementById('{{ mm_id }}');
-    if (!root) return;
-    var track = root.querySelector('[data-media-mentions-track]');
-    var strip = root.querySelector('[data-media-mentions-strip]');
-    if (!track || !strip) return;
-    var initialized = false;
-
-    function motionReduced() {
-      return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    }
-
-    function syncShift() {
-      if (motionReduced()) {
-        track.classList.remove('media-mentions-marquee__track--ready');
-        root.style.removeProperty('--mm-shift');
-        return;
-      }
-      var w = strip.getBoundingClientRect().width;
-      if (!w) return;
-      root.style.setProperty('--mm-shift', (-w).toFixed(2) + 'px');
-      track.classList.add('media-mentions-marquee__track--ready');
-    }
-
-    function init() {
-      if (initialized) return;
-      initialized = true;
-
-      if (typeof ResizeObserver !== 'undefined') {
-        new ResizeObserver(syncShift).observe(strip);
-      }
-      syncShift();
-      requestAnimationFrame(syncShift);
-      requestAnimationFrame(function () { requestAnimationFrame(syncShift); });
-
-      window.addEventListener('load', syncShift);
-      window.addEventListener('resize', function () {
-        clearTimeout(root._mmMarqueeDebounce);
-        root._mmMarqueeDebounce = setTimeout(syncShift, 100);
-      });
-
-      strip.querySelectorAll('img').forEach(function (img) {
-        if (!img.complete) img.addEventListener('load', syncShift, { once: true });
-      });
-    }
-
-    /* Defer init until the section is near the viewport — saves layout work
-       on the home where the marquee is mid-page. */
-    if ('IntersectionObserver' in window) {
-      var io = new IntersectionObserver(function (entries, obs) {
-        entries.forEach(function (e) {
-          if (e.isIntersecting) { init(); obs.disconnect(); }
-        });
-      }, { root: null, rootMargin: '320px 0px', threshold: 0 });
-      io.observe(root);
-    } else {
-      init();
-    }
-  })();
-</script>
-
-<style>
-  #{{ mm_id }} .media-mentions-marquee__inner {
-    background-color: #fff;
-    padding-top: {{ section.settings.padding_top }}px;
-    padding-bottom: {{ section.settings.padding_bottom }}px;
-  }
-
-  #{{ mm_id }} .media-mentions-marquee__title {
-    margin: 0 0 48px !important;
-    font-family: Barlow, Barlow Fallback, sans-serif !important;
-    font-weight: 900 !important;
-    font-size: clamp(1.75rem, 4.5vw, 2.25rem) !important;
-    line-height: 1.1 !important;
-    letter-spacing: -.04em !important;
-    text-transform: uppercase !important;
-    text-align: center !important;
-    color: var(--sg-heading-color, #1a1c1c);
-  }
-
-  #{{ mm_id }} .media-mentions-marquee__viewport {
-    overflow: hidden;
-    width: 100%;
-  }
-
-  #{{ mm_id }} .media-mentions-marquee__viewport--fade {
-    -webkit-mask-image: linear-gradient(
-      to right,
-      transparent,
-      #000 7%,
-      #000 93%,
-      transparent
-    );
-    mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
-  }
-
-  #{{ mm_id }} .media-mentions-marquee__track {
-    display: flex;
-    width: max-content;
-    flex-wrap: nowrap;
-    will-change: transform;
-    animation: none;
-  }
-
-  #{{ mm_id }} .media-mentions-marquee__track.media-mentions-marquee__track--ready {
-    animation: mm-marquee-{{ mm_kf }} var(--mm-duration, 35s) linear infinite;
-  }
-
-  @keyframes mm-marquee-{{ mm_kf }} {
-    0% {
-      transform: translate3d(0, 0, 0);
-    }
-    100% {
-      transform: translate3d(var(--mm-shift, 0px), 0, 0);
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    #{{ mm_id }} .media-mentions-marquee__track {
-      animation: none !important;
-      transform: translate3d(0, 0, 0) !important;
-      flex-wrap: wrap;
-      width: 100%;
-      max-width: 80rem;
-      margin: 0 auto;
-      justify-content: center;
-      row-gap: 1.5rem;
-    }
-
-    #{{ mm_id }} .media-mentions-marquee__strip {
-      flex-wrap: wrap;
-      justify-content: center;
-      width: 100% !important;
-      padding-right: 0 !important;
-    }
-
-    #{{ mm_id }} .media-mentions-marquee__strip[aria-hidden='true'] {
-      display: none !important;
-    }
-  }
-
-  #{{ mm_id }} .media-mentions-marquee__strip {
-    display: flex;
-    flex-shrink: 0;
-    align-items: center;
-    gap: {{ section.settings.logo_gap }}px;
-    padding-right: {{ section.settings.logo_gap }}px;
-  }
-
-  #{{ mm_id }} .media-mentions-marquee__item {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: {{ section.settings.logo_min_width }}px;
-  }
-
-  #{{ mm_id }} .media-mentions-marquee__link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 0;
-    text-decoration: none;
-  }
-
-  /* height (not only max-height) scales small assets up; object-fit keeps aspect ratio */
-  #{{ mm_id }} .media-mentions-marquee__img {
-    height: {{ section.settings.logo_max_height }}px;
-    width: auto;
-    max-width: min(45vw, {{ section.settings.logo_min_width | times: 28 | divided_by: 10 }}px);
-    max-height: {{ section.settings.logo_max_height }}px;
-    object-fit: contain;
-    object-position: center;
-    display: block;
-    filter: grayscale(1);
-    opacity: 0.85;
-    transition:
-      opacity 0.2s ease,
-      filter 0.2s ease;
-  }
-
-  #{{ mm_id }} .media-mentions-marquee__link:hover .media-mentions-marquee__img,
-  #{{ mm_id }} .media-mentions-marquee__link:focus-visible .media-mentions-marquee__img {
-    filter: grayscale(0);
-    opacity: 1;
-  }
-
-  #{{ mm_id }} .media-mentions-marquee__placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: {{ section.settings.logo_min_width }}px;
-    min-height: {{ section.settings.logo_max_height }}px;
-    padding: 8px 14px;
-    border-radius: 6px;
-    border: 1px dashed rgba(0, 0, 0, 0.18);
-    background: rgba(0, 0, 0, 0.03);
-    box-sizing: border-box;
-  }
-
-  #{{ mm_id }} .media-mentions-marquee__placeholder-label {
-    font-family: var(--text-font-family) !important;
-    font-size: 11px !important;
-    line-height: 1.2 !important;
-    font-weight: 500 !important;
-    color: rgba(0, 0, 0, 0.35) !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.06em !important;
-    text-align: center !important;
-  }
-</style>
 
 {% schema %}
 {
