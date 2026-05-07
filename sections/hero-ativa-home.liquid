@@ -18,7 +18,23 @@
 </style>
 <link rel="preload" as="style" href="{{ 'hero-ativa-home.css' | asset_url }}" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="{{ 'hero-ativa-home.css' | asset_url }}"></noscript>
-<script src="{{ 'hero-ativa-home.js' | asset_url }}" defer></script>
+{%- comment -%}
+  hero-ativa-home.js controla autoplay/dots/arrows/reveal animation. O
+  scroll-snap nativo do CSS faz o slide horizontal funcionar sem JS, então
+  carregamos depois do load + idle pra não competir com o LCP image.
+  Tradeoff: nos primeiros ~500ms-1s não há autoplay nem dots clicáveis,
+  mas o 1º slide (LCP) pinta sem JS e a a11y do scroller continua via
+  scroll nativo.
+{%- endcomment -%}
+<script>
+  (function () {
+    var src = {{ 'hero-ativa-home.js' | asset_url | json }};
+    function inject() { var s = document.createElement('script'); s.src = src; s.defer = true; document.head.appendChild(s); }
+    function schedule() { (window.requestIdleCallback || function (cb) { return setTimeout(cb, 200); })(inject, { timeout: 2000 }); }
+    if (document.readyState === 'complete') schedule();
+    else window.addEventListener('load', schedule, { once: true });
+  })();
+</script>
 
 {%- comment -%}
   LCP preload — emits a <link rel="preload" as="image"> for the first slide's

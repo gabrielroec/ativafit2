@@ -268,7 +268,22 @@
   </div>
 </cart-drawer>
 
-<script src="{{ 'cart-drawer-new.js' | asset_url }}" defer="defer"></script>
+{%- comment -%}
+  cart-drawer-new.js — só dispara em `click` no botão do carrinho ou em
+  `cart:open` event. Usuário não abre o cart antes do LCP, então pode
+  esperar load + idle. Mesma técnica do theme.min.js / product-card-simple.
+  Tradeoff: se o user clicar no carrinho nos primeiros ~500ms (raro), ele
+  precisa esperar o JS carregar. Aceitável.
+{%- endcomment -%}
+<script>
+  (function () {
+    var src = {{ 'cart-drawer-new.js' | asset_url | json }};
+    function inject() { var s = document.createElement('script'); s.src = src; s.defer = true; document.body.appendChild(s); }
+    function schedule() { (window.requestIdleCallback || function (cb) { return setTimeout(cb, 200); })(inject, { timeout: 2500 }); }
+    if (document.readyState === 'complete') schedule();
+    else window.addEventListener('load', schedule, { once: true });
+  })();
+</script>
 
 {% schema %}
   {
