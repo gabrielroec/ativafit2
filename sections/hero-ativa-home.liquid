@@ -251,6 +251,26 @@
                           data-srcset="{{ img_m | image_url: width: 800 }}">
                       {%- endif -%}
                     {%- endif -%}
+                    {%- comment -%}
+                      width/height precisam refletir a imagem que o browser
+                      *vai exibir*. Em mobile, o LCP será a img_m (square ~1:1)
+                      via <source media="(max-width: 768px)">; usar as
+                      dimensões do desktop (16:9, 1920x1080) reserva slot errado
+                      e o browser repinta quando o asset chega — somando ms ao
+                      LCP "Element render delay".
+
+                      Solução: usa as dimensões da img_m (mobile) no <img>
+                      principal, já que o Lighthouse Mobile mede o LCP no
+                      mobile. CSS já força object-fit:cover, então o desktop
+                      stretch fica visualmente correto.
+                    {%- endcomment -%}
+                    {%- if forloop.first -%}
+                      {%- assign hero_img_w = img_m.width | default: img_d.width | default: 1200 -%}
+                      {%- assign hero_img_h = img_m.height | default: img_d.height | default: 1200 -%}
+                    {%- else -%}
+                      {%- assign hero_img_w = img_d.width | default: 1920 -%}
+                      {%- assign hero_img_h = img_d.height | default: 1080 -%}
+                    {%- endif -%}
                     {%- if img_d != blank -%}
                       <img
                         class="hero-ativa-home__bg-media hero-ativa-home__bg-media--cover"
@@ -263,8 +283,8 @@
                           data-src="{{ img_d | image_url: width: 1200 }}"
                           data-hero-deferred="1"
                         {% endif %}
-                        width="{{ img_d.width | default: 1920 }}"
-                        height="{{ img_d.height | default: 1080 }}"
+                        width="{{ hero_img_w }}"
+                        height="{{ hero_img_h }}"
                         loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
                         fetchpriority="{% if forloop.first %}high{% else %}low{% endif %}"
                         decoding="{% if forloop.first %}sync{% else %}async{% endif %}"
@@ -273,15 +293,18 @@
                       <img
                         class="hero-ativa-home__bg-media hero-ativa-home__bg-media--cover"
                         {% if forloop.first %}
-                          src="{{ img_m | image_url: width: 1200 }}"
+                          src="{{ img_m | image_url: width: 800 }}"
+                          srcset="{{ img_m | image_url: width: 480 }} 480w, {{ img_m | image_url: width: 640 }} 640w, {{ img_m | image_url: width: 800 }} 800w"
+                          sizes="100vw"
                         {% else %}
                           src="{{ hero_blank_src }}"
-                          data-src="{{ img_m | image_url: width: 1200 }}"
+                          data-src="{{ img_m | image_url: width: 800 }}"
                           data-hero-deferred="1"
                         {% endif %}
                         width="{{ img_m.width | default: 1200 }}"
                         height="{{ img_m.height | default: 800 }}"
                         loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+                        fetchpriority="{% if forloop.first %}high{% else %}low{% endif %}"
                         decoding="{% if forloop.first %}sync{% else %}async{% endif %}"
                         alt="{{ alt_img }}">
                     {%- endif -%}
