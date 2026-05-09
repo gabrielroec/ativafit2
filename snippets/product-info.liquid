@@ -63,14 +63,20 @@
     assign ativapeople_display_cents = 0
   endif
 
-  # Não mostrar member line no PDP /products/pro-adjustable-weight-bench
+  # Não mostrar member line nestes PDPs
   assign show_member_price_line = true
   assign _req_path = request.path | default: '' | strip
   if _req_path contains 'products/pro-adjustable-weight-bench'
     assign show_member_price_line = false
   endif
+  if _req_path contains 'products/25-lbs-adjustable-weight-dumbbell'
+    assign show_member_price_line = false
+  endif
   assign _member_line_handle = product.handle | default: '' | strip | downcase
   if _member_line_handle == 'pro-adjustable-weight-bench'
+    assign show_member_price_line = false
+  endif
+  if _member_line_handle == '25-lbs-adjustable-weight-dumbbell'
     assign show_member_price_line = false
   endif
 -%}
