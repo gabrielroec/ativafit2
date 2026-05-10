@@ -1,0 +1,1598 @@
+{%- if section.settings.show_ativapeople_badge -%}
+<script type="application/json" data-ativapeople-variant-cents>
+{
+  {%- for v in product.variants -%}
+    "{{ v.id }}": {% render 'ativapeople-cents-for-variant', variant: v, product: product %}{% unless forloop.last %},{% endunless %}
+  {%- endfor -%}
+}
+</script>
+{%- endif -%}
+
+<script>
+  // ====================================================================
+  // PRODUCT MAIN SECTION JAVASCRIPT
+  // ====================================================================
+  
+  (function() {
+    'use strict';
+    
+    const ProductGallery = {
+      currentIndex: 0,
+      thumbnailsOffset: 0,
+      thumbnailWidth: 88,
+      isDragging: false,
+      startX: 0,
+      startOffset: 0,
+      dragThreshold: 10,
+      hasMoved: false,
+      isSwiping: false,
+      swipeStartX: 0,
+      swipeStartY: 0,
+      swipeThreshold: 50,
+      fullscreenCurrentIndex: 0,
+      mediaData: {{ product.media | json }},
+      
+      // Change main media (image or video)
+      changeMainMedia(mediaIndex, clickedThumb, force = false) {
+        if (!force && (this.isDragging || this.hasMoved)) return;
+        
+        const media = this.mediaData[mediaIndex];
+        if (!media) return;
+        
+        const mainImage = document.getElementById('mainImage_new');
+        const mainVideo = document.getElementById('mainVideo_new');
+        const mainVideoContainer = document.getElementById('mainVideoContainer_new');
+        
+        // Update current index
+        this.currentIndex = mediaIndex;
+        
+        // Update active thumbnails
+        document.querySelectorAll('.thumbnail-container_new').forEach(container => 
+          container.classList.remove('active_new')
+        );
+        
+        if (clickedThumb) {
+          clickedThumb.classList.add('active_new');
+        } else {
+          // If no thumbnail provided, find and activate the correct one
+          const thumbnailContainers = document.querySelectorAll('.thumbnail-container_new');
+          if (thumbnailContainers[mediaIndex]) {
+            thumbnailContainers[mediaIndex].classList.add('active_new');
+          }
+        }
+        
+        if (media.media_type === 'video') {
+          if (mainImage) mainImage.style.display = 'none';
+          if (mainVideoContainer) {
+            mainVideoContainer.style.display = 'flex';
+            if (mainVideo) {
+              mainVideo.src = media.sources[0].url;
+              mainVideo.load();
+              
+              // Video event listeners
+              mainVideo.addEventListener('play', () => mainVideoContainer.classList.add('video-playing_new'));
+              mainVideo.addEventListener('pause', () => mainVideoContainer.classList.remove('video-playing_new'));
+              mainVideo.addEventListener('ended', () => mainVideoContainer.classList.remove('video-playing_new'));
+              mainVideo.addEventListener('loadeddata', () => {
+                mainVideo.play().catch(err => console.log('Auto-play blocked:', err));
+              });
+            }
+          }
+        } else {
+          if (mainVideoContainer) mainVideoContainer.style.display = 'none';
+          if (mainImage) {
+            mainImage.style.display = 'block';
+            mainImage.src = media.preview_image ? 
+              media.preview_image.src.replace('150', '800') : 
+              media.src.replace('150', '800');
+          }
+        }
+        
+        this.updateMainNavButtons();
+      },
+      
+      // Navigate through images
+      changeImage(direction) {
+        if (this.mediaData.length === 0) return;
+        
+        this.currentIndex += direction;
+        if (this.currentIndex >= this.mediaData.length) this.currentIndex = 0;
+        if (this.currentIndex < 0) this.currentIndex = this.mediaData.length - 1;
+        
+        const thumbnailContainers = document.querySelectorAll('.thumbnail-container_new');
+        const targetThumb = thumbnailContainers[this.currentIndex];
+        
+        if (targetThumb) {
+          this.changeMainMedia(this.currentIndex, targetThumb);
+          this.scrollToActiveThumbnail();
+        }
+      },
+      
+      // Update navigation button states
+      updateMainNavButtons() {
+        const prevBtn = document.querySelector('.main-prev_new');
+        const nextBtn = document.querySelector('.main-next_new');
+        
+        if (!prevBtn || !nextBtn || !this.mediaData) return;
+        
+        prevBtn.disabled = this.currentIndex <= 0;
+        nextBtn.disabled = this.currentIndex >= this.mediaData.length - 1;
+      },
+      
+      // Scroll to active thumbnail
+      scrollToActiveThumbnail() {
+        const thumbnailContainers = document.querySelectorAll('.thumbnail-container_new');
+        const thumbnailsScroll = document.querySelector('.thumbnails-scroll_new');
+        
+        if (thumbnailContainers.length <= 5 || !thumbnailsScroll) return;
+        
+        const scrollWidth = thumbnailsScroll.offsetWidth;
+        const totalWidth = thumbnailContainers.length * this.thumbnailWidth;
+        
+        let idealOffset = this.currentIndex * this.thumbnailWidth - (scrollWidth / 2) + (this.thumbnailWidth / 2);
+        idealOffset = Math.max(0, Math.min(totalWidth - scrollWidth, idealOffset));
+        
+        this.thumbnailsOffset = idealOffset;
+        
+        const thumbnailsContainer = document.querySelector('.thumbnails_new');
+        if (thumbnailsContainer) {
+          thumbnailsContainer.style.transform = `translateX(-${this.thumbnailsOffset}px)`;
+        }
+      },
+      
+      // Initialize main media
+      initializeMainMedia() {
+        const featuredMedia = {{ product.featured_media | json }};
+        if (!featuredMedia || this.mediaData.length === 0) return;
+        
+        const featuredIndex = this.mediaData.findIndex(media => media.id === featuredMedia.id);
+        if (featuredIndex !== -1) {
+          this.currentIndex = featuredIndex;
+          
+          if (featuredMedia.media_type === 'video') {
+            const mainVideoContainer = document.getElementById('mainVideoContainer_new');
+            const mainVideo = document.getElementById('mainVideo_new');
+            const mainImage = document.getElementById('mainImage_new');
+            
+            if (mainVideoContainer && mainVideo && mainImage) {
+              mainImage.style.display = 'none';
+              mainVideoContainer.style.display = 'flex';
+              mainVideo.src = featuredMedia.sources[0].url;
+              mainVideo.load();
+              
+              mainVideo.addEventListener('play', () => mainVideoContainer.classList.add('video-playing_new'));
+              mainVideo.addEventListener('pause', () => mainVideoContainer.classList.remove('video-playing_new'));
+              mainVideo.addEventListener('ended', () => mainVideoContainer.classList.remove('video-playing_new'));
+              mainVideo.addEventListener('loadeddata', () => {
+                mainVideo.play().catch(err => console.log('Auto-play blocked:', err));
+              });
+            }
+          }
+          
+          // Update active thumbnails
+          document.querySelectorAll('.thumbnail-container_new').forEach((container, index) => {
+            container.classList.remove('active_new');
+            if (index === featuredIndex) container.classList.add('active_new');
+          });
+        }
+      },
+      
+      // Setup event listeners
+      setupEventListeners() {
+        // Main image container click/swipe events
+        const mainImageContainer = document.getElementById('mainImageContainer_new');
+        const mainImage = document.getElementById('mainImage_new');
+        
+        if (mainImageContainer) {
+          // Prevent native image drag
+          if (mainImage) {
+            mainImage.setAttribute('draggable', 'false');
+            mainImage.addEventListener('dragstart', (e) => {
+              e.preventDefault();
+              return false;
+            });
+            mainImage.addEventListener('selectstart', (e) => {
+              e.preventDefault();
+              return false;
+            });
+          }
+          
+          // Prevent drag on container
+          mainImageContainer.addEventListener('dragstart', (e) => {
+            e.preventDefault();
+            return false;
+          });
+          
+          mainImageContainer.addEventListener('selectstart', (e) => {
+            if (this.isSwiping) {
+              e.preventDefault();
+              return false;
+            }
+          });
+          
+          // Mouse events for desktop swipe
+          let mouseDown = false;
+          let mouseStartX = 0;
+          let mouseStartY = 0;
+          
+          mainImageContainer.addEventListener('mousedown', (e) => {
+            if (e.target.closest('.main-nav_new')) return;
+            mouseDown = true;
+            mouseStartX = e.clientX;
+            mouseStartY = e.clientY;
+            this.startSwipe(e);
+            mainImageContainer.style.cursor = 'grabbing';
+            
+            const handleMouseMove = (moveEvent) => {
+              if (!mouseDown) return;
+              this.onSwipe(moveEvent);
+            };
+            
+            const handleMouseUp = (upEvent) => {
+              if (!mouseDown) return;
+              mouseDown = false;
+              mainImageContainer.style.cursor = 'grab';
+              this.stopSwipe(upEvent);
+              document.removeEventListener('mousemove', handleMouseMove);
+              document.removeEventListener('mouseup', handleMouseUp);
+            };
+            
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+          });
+          
+          // Reset cursor if mouse leaves container
+          mainImageContainer.addEventListener('mouseleave', () => {
+            if (mouseDown) {
+              mouseDown = false;
+              mainImageContainer.style.cursor = 'grab';
+            }
+          });
+          
+          // Click event (only if not swiping)
+          mainImageContainer.addEventListener('click', (e) => {
+            if (e.target.closest('.main-nav_new')) return;
+            // Only open fullscreen if it wasn't a swipe
+            if (!this.isSwiping) {
+              this.openFullscreen();
+            }
+          });
+          
+          // Touch events for mobile swipe
+          mainImageContainer.addEventListener('touchstart', this.startSwipe.bind(this), { passive: true });
+          mainImageContainer.addEventListener('touchmove', this.onSwipe.bind(this), { passive: false });
+          mainImageContainer.addEventListener('touchend', this.stopSwipe.bind(this), { passive: true });
+        }
+        
+        // Thumbnails drag events
+        const thumbnailsContainer = document.querySelector('.thumbnails_new');
+        if (thumbnailsContainer) {
+          thumbnailsContainer.addEventListener('mousedown', (e) => {
+            // Only start drag if not clicking on a thumbnail
+            if (!e.target.closest('.thumbnail-container_new')) {
+              this.startDrag(e);
+            }
+          });
+          thumbnailsContainer.addEventListener('touchstart', (e) => {
+            // Only start drag if not touching a thumbnail
+            if (!e.target.closest('.thumbnail-container_new')) {
+              this.startDrag(e);
+            }
+          }, { passive: false });
+          thumbnailsContainer.addEventListener('selectstart', (e) => {
+            if (this.isDragging) e.preventDefault();
+          });
+        }
+        
+        // Fullscreen modal events
+        const fullscreenModal = document.getElementById('fullscreenModal_new');
+        if (fullscreenModal) {
+          document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && fullscreenModal.classList.contains('active_new')) {
+              this.closeFullscreen();
+            }
+          });
+          
+          fullscreenModal.addEventListener('click', (e) => {
+            if (e.target === fullscreenModal) this.closeFullscreen();
+          });
+          
+          const closeBtn = fullscreenModal.querySelector('.fullscreen-close_new');
+          if (closeBtn) {
+            closeBtn.addEventListener('click', (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              this.closeFullscreen();
+            });
+          }
+        }
+        
+        // Hide swipe indicator after 3 seconds
+        setTimeout(() => {
+          const swipeIndicator = document.getElementById('swipeIndicator_new');
+          if (swipeIndicator) swipeIndicator.classList.add('hidden_new');
+        }, 3000);
+        
+        // Window resize
+        window.addEventListener('resize', () => {
+          this.thumbnailsOffset = 0;
+          const container = document.querySelector('.thumbnails_new');
+          if (container) container.style.transform = 'translateX(0px)';
+          this.updateMainNavButtons();
+        });
+      },
+      
+      // Swipe functions
+      startSwipe(e) {
+        this.isSwiping = false;
+        this.swipeStartX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
+        this.swipeStartY = e.type === 'mousedown' ? e.clientY : e.touches[0].clientY;
+      },
+      
+      onSwipe(e) {
+        if (!this.isSwiping) {
+          const currentX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
+          const currentY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
+          const deltaX = Math.abs(this.swipeStartX - currentX);
+          const deltaY = Math.abs(this.swipeStartY - currentY);
+          
+          if (deltaX > 10 && deltaX > deltaY) {
+            this.isSwiping = true;
+            e.preventDefault();
+          }
+        }
+        
+        if (this.isSwiping) e.preventDefault();
+      },
+      
+      stopSwipe(e) {
+        if (this.isSwiping) {
+          const currentX = e.type === 'mouseup' ? e.clientX : e.changedTouches[0].clientX;
+          const deltaX = Math.abs(this.swipeStartX - currentX);
+          
+          if (deltaX > this.swipeThreshold) {
+            if (this.swipeStartX > currentX) {
+              this.changeImage(1);
+            } else {
+              this.changeImage(-1);
+            }
+          }
+        }
+        
+        // Reset isSwiping after a small delay to allow click detection
+        setTimeout(() => {
+          this.isSwiping = false;
+        }, 100);
+      },
+      
+      // Drag functions
+      startDrag(e) {
+        // Check if click was on a thumbnail - if so, don't start drag
+        const clickedThumbnail = e.target.closest('.thumbnail-container_new');
+        if (clickedThumbnail) {
+          // Allow the thumbnail click to work normally
+          return;
+        }
+        
+        this.isDragging = false;
+        this.hasMoved = false;
+        this.startX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
+        this.startOffset = this.thumbnailsOffset;
+        
+        if (e.type === 'mousedown') {
+          document.addEventListener('mousemove', this.onDrag.bind(this));
+          document.addEventListener('mouseup', this.stopDrag.bind(this));
+        } else {
+          document.addEventListener('touchmove', this.onDrag.bind(this));
+          document.addEventListener('touchend', this.stopDrag.bind(this));
+        }
+      },
+      
+      onDrag(e) {
+        const currentX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
+        const deltaX = Math.abs(this.startX - currentX);
+        
+        if (!this.hasMoved && deltaX > this.dragThreshold) {
+          this.isDragging = true;
+          this.hasMoved = true;
+          document.body.style.cursor = 'grabbing';
+          document.body.style.userSelect = 'none';
+        }
+        
+        if (!this.isDragging) return;
+        
+        e.preventDefault();
+        const newOffset = this.startOffset + (this.startX - currentX);
+        const thumbnailContainers = document.querySelectorAll('.thumbnail-container_new');
+        const thumbnailsScroll = document.querySelector('.thumbnails-scroll_new');
+        
+        if (thumbnailsScroll && thumbnailContainers.length > 5) {
+          const scrollWidth = thumbnailsScroll.offsetWidth;
+          const totalWidth = thumbnailContainers.length * this.thumbnailWidth;
+          const maxOffset = totalWidth - scrollWidth;
+          
+          this.thumbnailsOffset = Math.max(0, Math.min(maxOffset, newOffset));
+          
+          const thumbnailsContainer = document.querySelector('.thumbnails_new');
+          if (thumbnailsContainer) {
+            thumbnailsContainer.style.transform = `translateX(-${this.thumbnailsOffset}px)`;
+          }
+        }
+      },
+      
+      stopDrag(e) {
+        // If it was a click (not a drag), don't do anything
+        if (!this.isDragging && !this.hasMoved) {
+          this.cleanupDrag();
+          return;
+        }
+        
+        this.isDragging = false;
+        this.cleanupDrag();
+      },
+      
+      cleanupDrag() {
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        
+        document.removeEventListener('mousemove', this.onDrag);
+        document.removeEventListener('mouseup', this.stopDrag);
+        document.removeEventListener('touchmove', this.onDrag);
+        document.removeEventListener('touchend', this.stopDrag);
+        
+        setTimeout(() => { this.hasMoved = false; }, 50);
+      },
+      
+      // Fullscreen functions
+      openFullscreen() {
+        const modal = document.getElementById('fullscreenModal_new');
+        const fullscreenImage = document.getElementById('fullscreenImage_new');
+        const fullscreenVideo = document.getElementById('fullscreenVideo_new');
+        const mainImage = document.getElementById('mainImage_new');
+        
+        if (modal && fullscreenImage && fullscreenVideo) {
+          // Garantir que o modal está no body
+          if (modal.parentNode !== document.body) {
+            document.body.appendChild(modal);
+          }
+          
+          const currentMedia = this.mediaData[this.currentIndex];
+          this.fullscreenCurrentIndex = this.currentIndex;
+          
+          if (currentMedia && currentMedia.media_type === 'video') {
+            fullscreenImage.style.display = 'none';
+            fullscreenVideo.style.display = 'block';
+            fullscreenVideo.src = currentMedia.sources[0].url;
+            fullscreenVideo.load();
+            fullscreenVideo.addEventListener('loadeddata', () => {
+              fullscreenVideo.play().catch(err => console.log('Auto-play blocked:', err));
+            });
+          } else {
+            fullscreenVideo.style.display = 'none';
+            fullscreenImage.style.display = 'block';
+            if (mainImage) {
+              fullscreenImage.src = mainImage.src.replace('800', '1200');
+              fullscreenImage.alt = mainImage.alt;
+            }
+          }
+          
+          this.updateFullscreenThumbnails();
+          modal.style.display = 'flex';
+          modal.classList.add('active_new');
+          document.body.classList.add('modal-open_new');
+        }
+      },
+      
+      closeFullscreen() {
+        const modal = document.getElementById('fullscreenModal_new');
+        if (modal) {
+          modal.classList.remove('active_new');
+          modal.style.display = 'none';
+          document.body.classList.remove('modal-open_new');
+        }
+      },
+      
+      changeFullscreenImage(direction) {
+        if (this.mediaData.length === 0) return;
+        
+        this.fullscreenCurrentIndex += direction;
+        if (this.fullscreenCurrentIndex >= this.mediaData.length) this.fullscreenCurrentIndex = 0;
+        if (this.fullscreenCurrentIndex < 0) this.fullscreenCurrentIndex = this.mediaData.length - 1;
+        
+        const currentMedia = this.mediaData[this.fullscreenCurrentIndex];
+        const fullscreenImage = document.getElementById('fullscreenImage_new');
+        const fullscreenVideo = document.getElementById('fullscreenVideo_new');
+        
+        if (currentMedia && fullscreenImage && fullscreenVideo) {
+          if (currentMedia.media_type === 'video') {
+            fullscreenImage.style.display = 'none';
+            fullscreenVideo.style.display = 'block';
+            fullscreenVideo.src = currentMedia.sources[0].url;
+            fullscreenVideo.load();
+            fullscreenVideo.addEventListener('loadeddata', () => {
+              fullscreenVideo.play().catch(err => console.log('Auto-play blocked:', err));
+            });
+          } else {
+            fullscreenVideo.style.display = 'none';
+            fullscreenImage.style.display = 'block';
+            fullscreenImage.src = currentMedia.preview_image ? 
+              currentMedia.preview_image.src.replace('150', '1200') : 
+              currentMedia.src.replace('150', '1200');
+            fullscreenImage.alt = currentMedia.alt || '';
+          }
+          
+          this.updateFullscreenThumbnails();
+        }
+      },
+      
+      changeFullscreenMediaByIndex(index) {
+        if (index < 0 || index >= this.mediaData.length) return;
+        this.fullscreenCurrentIndex = index;
+        this.changeFullscreenImage(0);
+      },
+      
+      updateFullscreenThumbnails() {
+        const containers = document.querySelectorAll('.fullscreen-thumb-container_new');
+        const thumbnailsContainer = document.getElementById('fullscreenThumbnailsContainer_new');
+        
+        containers.forEach((container, index) => {
+          container.classList.remove('active_new');
+          if (index === this.fullscreenCurrentIndex) {
+            container.classList.add('active_new');
+            
+            // Scroll suave para centralizar a thumbnail ativa
+            if (thumbnailsContainer && container) {
+              const containerRect = container.getBoundingClientRect();
+              const scrollContainerRect = thumbnailsContainer.getBoundingClientRect();
+              const scrollLeft = thumbnailsContainer.scrollLeft;
+              const containerLeft = containerRect.left - scrollContainerRect.left + scrollLeft;
+              const containerWidth = containerRect.width;
+              const scrollContainerWidth = scrollContainerRect.width;
+              const targetScroll = containerLeft - (scrollContainerWidth / 2) + (containerWidth / 2);
+              
+              thumbnailsContainer.scrollTo({
+                left: targetScroll,
+                behavior: 'smooth'
+              });
+            }
+          }
+        });
+      },
+      
+      // Initialize gallery
+      init() {
+        // Mover modal para o body para garantir z-index máximo
+        const modal = document.getElementById('fullscreenModal_new');
+        if (modal && modal.parentNode !== document.body) {
+          document.body.appendChild(modal);
+        }
+        
+        this.initializeMainMedia();
+        this.updateMainNavButtons();
+        this.setupEventListeners();
+      }
+    };
+    
+    // Make gallery functions global for onclick handlers
+    window.changeMainMedia = (index, thumb) => ProductGallery.changeMainMedia(index, thumb);
+    window.changeImage = (direction) => ProductGallery.changeImage(direction);
+    window.openFullscreen = () => ProductGallery.openFullscreen();
+    window.closeFullscreen = () => ProductGallery.closeFullscreen();
+    window.changeFullscreenImage = (direction) => ProductGallery.changeFullscreenImage(direction);
+    window.changeFullscreenMediaByIndex = (index) => ProductGallery.changeFullscreenMediaByIndex(index);
+    
+    // ====================================================================
+    // VARIANT & CART FUNCTIONS
+    // ====================================================================
+    
+    const ProductVariants = {
+      variants: {{ product.variants | json }},
+      currentSelector: null,
+      
+      updateVariant(sourceSelector = null) {
+        let selectedVariant = null;
+        // Check both desktop and mobile selectors
+        const variantSelectorDesktop = document.getElementById('variant-selector_new');
+        const variantSelectorMobile = document.getElementById('variant-selector-mobile_new');
+        
+        // Determine which selector to use
+        let variantSelector = sourceSelector;
+        if (!variantSelector) {
+          // Check which one is visible or recently interacted with
+          if (variantSelectorMobile && window.getComputedStyle(variantSelectorMobile).display !== 'none') {
+            variantSelector = variantSelectorMobile;
+          } else if (variantSelectorDesktop) {
+            variantSelector = variantSelectorDesktop;
+          }
+        }
+        
+        if (variantSelector) {
+          const selectedVariantId = parseInt(variantSelector.value);
+          selectedVariant = this.variants.find(v => v.id === selectedVariantId);
+          
+          // Sync both selectors
+          if (variantSelectorDesktop && variantSelectorMobile) {
+            variantSelectorDesktop.value = selectedVariantId;
+            variantSelectorMobile.value = selectedVariantId;
+          }
+        }
+        
+        if (selectedVariant) {
+          this.updatePrice(selectedVariant);
+          this.updateMainImageForVariant(selectedVariant);
+          this.updateProductForm(selectedVariant);
+          this.updateDynamicCheckout(selectedVariant);
+          this.updateButtonsForVariant(selectedVariant);
+        }
+      },
+      
+      updateButtonsForVariant(variant) {
+        // Check if waitlist should be shown for this variant
+        const waitlistVariants = '{{ section.settings.waitlist_variant_ids | escape }}';
+        const showWaitlistGlobal = {{ section.settings.show_waitlist_button | json }};
+        
+        let shouldShowWaitlist = false;
+        
+        if (showWaitlistGlobal) {
+          if (!waitlistVariants || waitlistVariants.trim() === '') {
+            // No variants specified, show for all variants
+            shouldShowWaitlist = true;
+          } else {
+            // Check if current variant ID or name (title) is in the list
+            const variantList = waitlistVariants.split(',').map(item => item.trim().toLowerCase());
+            const variantIdString = variant.id.toString();
+            const variantTitle = variant.title ? variant.title.trim().toLowerCase() : '';
+            
+            // Check by ID (case-sensitive) or by name (case-insensitive)
+            const variantIdInList = variantList.some(item => item === variantIdString);
+            const variantNameInList = variantList.some(item => item === variantTitle);
+            
+            shouldShowWaitlist = variantIdInList || variantNameInList;
+            
+            // Debug log
+            console.log('Waitlist check:', {
+              variantId: variantIdString,
+              variantTitle: variant.title,
+              waitlistVariants: variantList,
+              shouldShow: shouldShowWaitlist
+            });
+          }
+        }
+        
+        // Get buttons - use more specific selectors
+        const addToCartBtn = document.querySelector('button[name="add"].add-to-cart-btn_new:not(.waitlist-btn_new)');
+        const waitlistBtn = document.querySelector('.waitlist-btn_new.klaviyo_waitlist_trigger');
+        const buyItNowBtn = document.querySelector('.buy-it-now-btn_new');
+        
+        console.log('Buttons found:', {
+          addToCartBtn: !!addToCartBtn,
+          waitlistBtn: !!waitlistBtn,
+          buyItNowBtn: !!buyItNowBtn,
+          shouldShowWaitlist: shouldShowWaitlist
+        });
+        
+        // Check if variant is available
+        const isVariantAvailable = variant.available || false;
+        
+        if (shouldShowWaitlist) {
+          // Show waitlist button, hide add to cart and buy it now (even if variant is sold out)
+          if (addToCartBtn) {
+            addToCartBtn.style.display = 'none';
+          }
+          if (waitlistBtn) {
+            waitlistBtn.style.display = '';
+            waitlistBtn.setAttribute('data-variant-id', variant.id);
+            // Update Klaviyo form ID if needed
+            const formId = waitlistBtn.getAttribute('data-klaviyo-form-id');
+            if (!formId || formId.trim() === '') {
+              console.warn('Klaviyo Form ID is missing from waitlist button');
+            }
+          } else {
+            console.warn('Waitlist button not found in DOM');
+          }
+          if (buyItNowBtn) {
+            buyItNowBtn.style.display = 'none';
+          }
+        } else {
+          // Show add to cart and buy it now only if variant is available, hide waitlist
+          if (addToCartBtn) {
+            // Only show add to cart if variant is available
+            addToCartBtn.style.display = isVariantAvailable ? '' : 'none';
+            addToCartBtn.setAttribute('data-variant-id', variant.id);
+          }
+          if (waitlistBtn) {
+            waitlistBtn.style.display = 'none';
+          }
+          // Only show buy it now if variant is available
+          if (buyItNowBtn && {{ section.settings.show_buy_it_now | json }} && isVariantAvailable) {
+            buyItNowBtn.style.display = '';
+          } else           if (buyItNowBtn) {
+            buyItNowBtn.style.display = 'none';
+          }
+        }
+
+        const stickyAtc = document.querySelector('#sticky-add-to-cart .sticky-add-to-cart-button');
+        if (stickyAtc) {
+          const inStockLabel = stickyAtc.getAttribute('data-in-stock-label') || 'Add to Cart';
+          if (isVariantAvailable) {
+            stickyAtc.disabled = false;
+            stickyAtc.textContent = inStockLabel;
+          } else {
+            stickyAtc.disabled = true;
+            stickyAtc.textContent = 'Sold Out';
+          }
+        }
+      },
+      
+      updateProductForm(variant) {
+        // Update hidden input in the main product form
+        const productForm = document.querySelector('.product-form_new');
+        if (productForm && variant) {
+          const variantInput = productForm.querySelector('input[name="id"]');
+          if (variantInput) {
+            variantInput.value = variant.id;
+          }
+          
+          // Update hidden variant input with section ID
+          const variantInputWithId = document.getElementById('product-variant-id-{{ section.id }}');
+          if (variantInputWithId) {
+            variantInputWithId.value = variant.id;
+          }
+          
+          // Update select[name="id"] if it exists
+          const variantSelect = productForm.querySelector('select[name="id"]');
+          if (variantSelect) {
+            variantSelect.value = variant.id;
+          }
+          
+          // Update variant selectors if they exist (both desktop and mobile)
+          const variantSelectorDesktop = document.getElementById('variant-selector_new');
+          const variantSelectorMobile = document.getElementById('variant-selector-mobile_new');
+          if (variantSelectorDesktop) {
+            variantSelectorDesktop.value = variant.id;
+          }
+          if (variantSelectorMobile) {
+            variantSelectorMobile.value = variant.id;
+          }
+          
+          // Update shopify-payment-terms component if it exists
+          const paymentTerms = productForm.querySelector('shopify-payment-terms');
+          if (paymentTerms) {
+            paymentTerms.setAttribute('variant-id', variant.id);
+          }
+        }
+      },
+      
+      updateDynamicCheckout(variant) {
+        // Dynamic checkout buttons are automatically updated by Shopify
+        // But we can trigger a refresh if needed
+        const dynamicCheckout = document.querySelector('[id^="dynamic-checkout"]');
+        if (dynamicCheckout && variant) {
+          // Shopify handles this automatically, but we ensure the form is updated
+          const productForm = document.querySelector('.product-form_new');
+          if (productForm) {
+            // Trigger form change event to update Shopify's dynamic checkout
+            const event = new Event('change', { bubbles: true });
+            const variantInput = productForm.querySelector('input[name="id"]');
+            if (variantInput) {
+              variantInput.dispatchEvent(event);
+            }
+          }
+        }
+      },
+      
+      updatePrice(variant) {
+        if (!variant) return;
+        
+        // Helper function to format money with fallback
+        const formatMoney = (cents) => {
+          if (window.Shopify && typeof window.Shopify.formatMoney === 'function') {
+            const moneyFormat = window.theme?.moneyFormat || window.Shopify?.money_format || '${{amount}}';
+            return window.Shopify.formatMoney(cents, moneyFormat);
+          }
+          // Fallback: format as USD currency
+          return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD'
+          }).format((cents || 0) / 100);
+        };
+        
+        // Update main price
+        const priceElements = document.querySelectorAll('.product-price_new');
+        priceElements.forEach(el => {
+          if (el) {
+            el.textContent = formatMoney(variant.price);
+          }
+        });
+        
+        // Update compare at price (original price)
+        const comparePriceElements = document.querySelectorAll('.product-price-original_new');
+        comparePriceElements.forEach(el => {
+          if (el) {
+            if (variant.compare_at_price && variant.compare_at_price > variant.price) {
+              el.textContent = formatMoney(variant.compare_at_price);
+              el.style.display = 'block';
+            } else {
+              el.style.display = 'none';
+            }
+          }
+        });
+        
+        // AtivaPeople: variante → produto; mostrar/ocultar badge conforme mapa por variante
+        const ativapeopleBadge = document.querySelector('.ativapeople-badge_new');
+        const ativapeoplePriceEl = document.querySelector('.ativapeople-price');
+        const ativapeopleCentsJson = document.querySelector('script[data-ativapeople-variant-cents]');
+        if (ativapeopleBadge && ativapeoplePriceEl && ativapeopleCentsJson && variant.id) {
+          let variantCents = {};
+          try {
+            variantCents = JSON.parse(ativapeopleCentsJson.textContent || '{}');
+          } catch (e) {}
+          const cents = variantCents[variant.id];
+          if (cents != null && cents > 0) {
+            ativapeopleBadge.setAttribute('data-ativapeople-fixed-cents', String(cents));
+            ativapeopleBadge.style.display = '';
+            ativapeoplePriceEl.textContent = formatMoney(cents);
+          } else {
+            ativapeopleBadge.setAttribute('data-ativapeople-fixed-cents', '0');
+            ativapeopleBadge.style.display = 'none';
+          }
+        }
+
+        // Also update payment terms component if it exists
+        const paymentTerms = document.querySelector('shopify-payment-terms');
+        if (paymentTerms && variant.id) {
+          paymentTerms.setAttribute('variant-id', variant.id);
+        }
+
+        // Sticky add-to-cart bar (outra section): mesmo preço da variante que o PDP
+        const stickyCurrent = document.querySelector('#sticky-add-to-cart .sticky-bar-price-current');
+        const stickyCompareWrap = document.querySelector('#sticky-add-to-cart .sticky-bar-price-compare-wrap');
+        const stickyCompare = document.querySelector('#sticky-add-to-cart .sticky-bar-price-compare');
+        if (stickyCurrent) {
+          stickyCurrent.textContent = formatMoney(variant.price);
+        }
+        if (stickyCompare && stickyCompareWrap) {
+          if (variant.compare_at_price && variant.compare_at_price > variant.price) {
+            stickyCompare.textContent = formatMoney(variant.compare_at_price);
+            stickyCompareWrap.style.display = '';
+          } else {
+            stickyCompareWrap.style.display = 'none';
+          }
+        }
+      },
+      
+      updateMainImageForVariant(variant) {
+        if (!variant || !variant.featured_image) return;
+        
+        // Find the media index that matches the variant's featured image
+        const variantImageId = variant.featured_image.id;
+        const variantImageSrc = variant.featured_image.src;
+        
+        const mediaIndex = ProductGallery.mediaData.findIndex(media => {
+          // Check if this media matches the variant's featured image by ID
+          if (media.media_type === 'image' && media.id === variantImageId) {
+            return true;
+          }
+          // Check by image source URL (normalize for comparison)
+          if (media.media_type === 'image' && media.src) {
+            const mediaSrcNormalized = media.src.split('?')[0]; // Remove query params
+            const variantSrcNormalized = variantImageSrc.split('?')[0];
+            if (mediaSrcNormalized === variantSrcNormalized || 
+                mediaSrcNormalized.includes(variantSrcNormalized) ||
+                variantSrcNormalized.includes(mediaSrcNormalized)) {
+              return true;
+            }
+          }
+          // Also check preview_image for videos (in case variant image is a video thumbnail)
+          if (media.preview_image) {
+            if (media.preview_image.id === variantImageId) {
+              return true;
+            }
+            if (media.preview_image.src) {
+              const previewSrcNormalized = media.preview_image.src.split('?')[0];
+              const variantSrcNormalized = variantImageSrc.split('?')[0];
+              if (previewSrcNormalized === variantSrcNormalized ||
+                  previewSrcNormalized.includes(variantSrcNormalized) ||
+                  variantSrcNormalized.includes(previewSrcNormalized)) {
+                return true;
+              }
+            }
+          }
+          return false;
+        });
+        
+        // If we found a matching media, switch to it
+        if (mediaIndex !== -1) {
+          // Update current index
+          ProductGallery.currentIndex = mediaIndex;
+          
+          // Get the thumbnail container for this media
+          const thumbnailContainers = document.querySelectorAll('.thumbnail-container_new');
+          const targetThumb = thumbnailContainers[mediaIndex];
+          
+          if (targetThumb) {
+            // Use the existing changeMainMedia function to properly switch
+            // Force the change to bypass drag checks
+            ProductGallery.changeMainMedia(mediaIndex, targetThumb, true);
+            ProductGallery.scrollToActiveThumbnail();
+            ProductGallery.updateMainNavButtons();
+          }
+        } else {
+          // Fallback: if we can't find the media, just update the image directly
+          const mainImage = document.getElementById('mainImage_new');
+          const mainVideoContainer = document.getElementById('mainVideoContainer_new');
+          
+          if (mainImage) {
+            // Hide video, show image
+            if (mainVideoContainer) {
+              mainVideoContainer.style.display = 'none';
+            }
+            mainImage.style.display = 'block';
+            mainImage.src = variant.featured_image.src.replace('150', '800');
+            mainImage.alt = variant.featured_image.alt || variant.title;
+          }
+        }
+      }
+    };
+    
+    window.updateVariant = () => ProductVariants.updateVariant();
+    
+    // ====================================================================
+    // ADD TO CART FUNCTION
+    // ====================================================================
+    
+    window.addToCart = async function() {
+      // Get variant ID from form or selector
+      const variantInput = document.getElementById('product-variant-id-{{ section.id }}');
+      const variantSelector = document.getElementById('variant-selector_new');
+      let variantId = null;
+      
+      if (variantInput) {
+        variantId = parseInt(variantInput.value);
+      } else if (variantSelector) {
+        variantId = parseInt(variantSelector.value);
+      } else {
+        variantId = ProductVariants.variants[0]?.id || {{ product.selected_or_first_available_variant.id }};
+      }
+      
+      const quantity = parseInt(document.getElementById('quantity_new')?.value || 1);
+      const btn = document.querySelector('.add-to-cart-btn_new');
+      
+      if (!variantId) {
+        alert('Please select a product variant');
+        return;
+      }
+      
+      // Prevent multiple submissions
+      if (btn.dataset.processing === 'true') {
+        return;
+      }
+      
+      const originalText = btn.textContent;
+      btn.textContent = 'ADDING...';
+      btn.disabled = true;
+      btn.style.opacity = '0.7';
+      btn.dataset.processing = 'true';
+      
+      // ====================================================================
+      // CAPTURE DISCOUNT INFORMATION FROM PDP BEFORE ADDING TO CART
+      // ====================================================================
+      let discountInfo = null;
+      
+      // Try to find price elements on the page using ALL possible selectors
+      const oldPriceElement = document.querySelector(
+        '.product-price-original_new, .product-info__price--compare, .compare-price, .old-price, [data-compare-price]'
+      );
+      const currentPriceElement = document.querySelector(
+        '.product-price_new, .product-info__price--current, .price, .current-price, [data-price]'
+      );
+      
+      console.log("[product-main-section.liquid] Looking for price elements:", {
+        oldPriceElement: !!oldPriceElement,
+        oldPriceText: oldPriceElement?.textContent,
+        currentPriceElement: !!currentPriceElement,
+        currentPriceText: currentPriceElement?.textContent,
+      });
+      
+      if (oldPriceElement && currentPriceElement) {
+        const oldPriceText = oldPriceElement.textContent.trim().replace(/[^0-9.]/g, "");
+        const currentPriceText = currentPriceElement.textContent.trim().replace(/[^0-9.]/g, "");
+        
+        if (oldPriceText && currentPriceText) {
+          const oldPrice = parseFloat(oldPriceText) * 100; // Convert to cents
+          const currentPrice = parseFloat(currentPriceText) * 100; // Convert to cents
+          
+          console.log("[product-main-section.liquid] Extracted prices:", {
+            oldPrice,
+            currentPrice,
+            difference: oldPrice - currentPrice,
+          });
+          
+          if (oldPrice > currentPrice) {
+            discountInfo = {
+              originalPrice: oldPrice,
+              currentPrice: currentPrice,
+              savings: oldPrice - currentPrice,
+              percentage: Math.round(((oldPrice - currentPrice) / oldPrice) * 100),
+            };
+            
+            console.log("[product-main-section.liquid] ✅ Captured discount info:", discountInfo);
+          }
+        }
+      } else {
+        console.log("[product-main-section.liquid] ⚠️ Could not find price elements on page");
+      }
+      
+      // If no discount found from page HTML, try to fetch variant data from Shopify API
+      if (!discountInfo) {
+        console.log("[product-main-section.liquid] Trying to fetch variant data from Shopify API for variant:", variantId);
+        try {
+          const variantResponse = await fetch(`/variants/${variantId}.js`);
+          if (variantResponse.ok) {
+            const variantData = await variantResponse.json();
+            console.log("[product-main-section.liquid] Variant data from Shopify:", {
+              price: variantData.price,
+              compare_at_price: variantData.compare_at_price,
+            });
+            
+            if (variantData.compare_at_price && variantData.compare_at_price > variantData.price) {
+              discountInfo = {
+                originalPrice: variantData.compare_at_price,
+                currentPrice: variantData.price,
+                savings: variantData.compare_at_price - variantData.price,
+                percentage: Math.round(((variantData.compare_at_price - variantData.price) / variantData.compare_at_price) * 100),
+              };
+              console.log("[product-main-section.liquid] ✅ Captured discount from Shopify API:", discountInfo);
+            }
+          }
+        } catch (apiError) {
+          console.log("[product-main-section.liquid] Could not fetch variant data from API:", apiError);
+        }
+      }
+      // ====================================================================
+      
+      try {
+        const response = await fetch('/cart/add.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            items: [{ id: variantId, quantity: quantity }]
+          })
+        });
+        
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Error adding to cart');
+        }
+        
+        const data = await response.json();
+        
+        // ====================================================================
+        // STORE DISCOUNT INFO FOR THIS VARIANT
+        // ====================================================================
+        if (discountInfo && data.items && data.items.length > 0) {
+          if (!window.cartDiscountData) {
+            window.cartDiscountData = new Map();
+          }
+          
+          // Get the variant ID from the response (first item)
+          const addedItem = data.items[0];
+          const addedVariantId = addedItem.variant_id || addedItem.id;
+          
+          window.cartDiscountData.set(addedVariantId.toString(), discountInfo);
+          console.log("[product-main-section.liquid] ✅ Stored discount data for variant:", addedVariantId, discountInfo);
+        } else {
+          console.log("[product-main-section.liquid] ⚠️ No discount info to store or no items in response");
+        }
+        // ====================================================================
+        
+        // Update cart counter
+        const cartData = await fetch('/cart.js').then(res => res.json());
+        const cartCountElement = document.querySelector('.header__cart-count');
+        if (cartCountElement) {
+          cartCountElement.textContent = cartData.item_count;
+        }
+        
+        // Update cart drawer if available
+        if (window.cartDrawer) {
+          await window.cartDrawer.loadCartData();
+          window.cartDrawer.updateCartCount();
+          await window.cartDrawer.updateRecommendedSection();
+          
+          // Force multiple reloads to ensure discount is detected (same as cart-drawer.js)
+          setTimeout(async () => {
+            console.log("[product-main-section.liquid] Second reload at 300ms...");
+            await window.cartDrawer.loadCartData();
+            await window.cartDrawer.updateRecommendedSection();
+          }, 300);
+          
+          setTimeout(async () => {
+            console.log("[product-main-section.liquid] Third reload at 600ms...");
+            await window.cartDrawer.loadCartData();
+            await window.cartDrawer.updateRecommendedSection();
+          }, 600);
+        } else if (window.updateCartCount) {
+          window.updateCartCount();
+        }
+        
+        // Show success notification FIRST
+        if (window.CartNotification) {
+          const productTitle = document.querySelector('.product-name_new')?.textContent || 'Product';
+          window.CartNotification.success({
+            title: "Product Added!",
+            message: 'Join <a href="https://www.ativafit.com/pages/ativapeople-rewards-program" target="_blank" style="color: #eb701f; text-decoration: underline; font-weight: bold;">AtivaPeople</a> & get 10% off your first order.',
+            type: "success"
+          });
+        }
+        
+        // Wait for notification to appear, then open cart drawer
+        setTimeout(() => {
+          if (window.cartDrawer) {
+            window.cartDrawer.open();
+          } else if (window.theme && window.theme.miniCart) {
+            window.theme.miniCart.open();
+          }
+        }, 300);
+        
+        btn.textContent = 'ADDED ✓';
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.disabled = false;
+          btn.style.opacity = '1';
+          delete btn.dataset.processing;
+        }, 2000);
+        
+      } catch (error) {
+        console.error('Add to cart error:', error);
+        
+        // Show error notification
+        if (window.CartNotification) {
+          window.CartNotification.error('Unable to add product to cart. Please try again.', 'Error adding product');
+        } else {
+          alert('Error adding product to cart. Please try again.');
+        }
+        
+        btn.textContent = originalText;
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        delete btn.dataset.processing;
+      }
+    };
+    
+    // ====================================================================
+    // BUY IT NOW FUNCTION - Goes directly to checkout
+    // ====================================================================
+    
+    window.buyItNow = async function() {
+      // Get variant ID from form or selector
+      const variantInput = document.getElementById('product-variant-id-{{ section.id }}');
+      const variantSelector = document.getElementById('variant-selector_new');
+      let variantId = null;
+      
+      if (variantInput) {
+        variantId = parseInt(variantInput.value);
+      } else if (variantSelector) {
+        variantId = parseInt(variantSelector.value);
+      } else {
+        variantId = ProductVariants.variants[0]?.id || {{ product.selected_or_first_available_variant.id }};
+      }
+      
+      const quantity = parseInt(document.getElementById('quantity_new')?.value || 1);
+      const btn = document.querySelector('.buy-it-now-btn_new');
+      
+      if (!variantId) {
+        alert('Please select a product variant');
+        return;
+      }
+      
+      const originalText = btn.textContent;
+      btn.textContent = 'PROCESSING...';
+      btn.disabled = true;
+      btn.style.opacity = '0.7';
+      
+      try {
+        const response = await fetch('/cart/add.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            items: [{ id: variantId, quantity: quantity }]
+          })
+        });
+        
+        if (!response.ok) throw new Error('Error adding to cart');
+        
+        // Redirect to checkout immediately
+        window.location.href = '/checkout';
+        
+      } catch (error) {
+        console.error('Buy It Now error:', error);
+        alert('Error processing your order. Please try again.');
+        btn.textContent = originalText;
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }
+    };
+    
+    // ====================================================================
+    // ACCORDION FUNCTION
+    // ====================================================================
+    
+    window.toggleAccordion = function(header) {
+      const content = header.nextElementSibling;
+      const icon = header.querySelector('.accordion-icon_new');
+      const isActive = content.classList.contains('active_new');
+      
+      // Remove active from all
+      document.querySelectorAll('.accordion-header_new').forEach(item => item.classList.remove('active_new'));
+      document.querySelectorAll('.accordion-content_new').forEach(item => item.classList.remove('active_new'));
+      document.querySelectorAll('.accordion-icon_new').forEach(item => item.textContent = '+');
+      
+      // Toggle current
+      if (!isActive) {
+        header.classList.add('active_new');
+        content.classList.add('active_new');
+        icon.textContent = '-';
+      }
+    };
+    
+    // ====================================================================
+    // BENEFIT POPUPS
+    // ====================================================================
+    
+    const BenefitPopups = {
+      init() {
+        const benefitLinks = document.querySelectorAll('.benefit-learn-more_new');
+        
+        benefitLinks.forEach((link) => {
+          link.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const benefitId = link.getAttribute('data-benefit-popup');
+            
+            if (benefitId) {
+              const popupId = 'benefit-popup-' + benefitId;
+              const popup = document.getElementById(popupId);
+              
+              if (popup) {
+                popup.classList.add('is-show');
+                document.body.style.overflow = 'hidden';
+              } else {
+                console.warn('Popup não encontrado para benefit:', popupId);
+              }
+            }
+          });
+        });
+        
+        // Close buttons
+        document.querySelectorAll('[data-close-benefit]').forEach(button => {
+          button.addEventListener('click', () => {
+            const benefitId = button.getAttribute('data-close-benefit');
+            const popup = document.getElementById('benefit-popup-' + benefitId);
+            
+            if (popup) {
+              popup.classList.remove('is-show');
+              document.body.style.overflow = '';
+            }
+          });
+        });
+        
+        // Close on backdrop click
+        document.querySelectorAll('.halo-popup').forEach(popup => {
+          popup.addEventListener('click', (e) => {
+            if (e.target === popup) {
+              popup.classList.remove('is-show');
+              document.body.style.overflow = '';
+            }
+          });
+        });
+        
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            document.querySelectorAll('.halo-popup.is-show').forEach(popup => {
+              popup.classList.remove('is-show');
+              document.body.style.overflow = '';
+            });
+          }
+        });
+      }
+    };
+    
+    // ====================================================================
+    // BENEFITS CAROUSEL (Embla)
+    // ====================================================================
+    function initBenefitsCarousel() {
+      var section = document.querySelector('[data-section-type="product-main"]');
+      if (!section) return;
+      var wrap = section.querySelector('[data-benefits-carousel]');
+      if (!wrap) return;
+      var viewport = wrap.querySelector('[data-embla-viewport]');
+      var prevBtn = wrap.querySelector('[data-embla-prev]');
+      var nextBtn = wrap.querySelector('[data-embla-next]');
+      if (!viewport) return;
+  
+      function run() {
+        if (typeof EmblaCarousel === 'undefined') {
+          window.addEventListener('load', run);
+          return;
+        }
+        var embla = EmblaCarousel(viewport, {
+          align: 'start',
+          containScroll: 'trimSnaps',
+          dragFree: false,
+          loop: false
+        });
+        function updateNav() {
+          if (prevBtn) prevBtn.disabled = !embla.canScrollPrev();
+          if (nextBtn) nextBtn.disabled = !embla.canScrollNext();
+        }
+        embla.on('init', updateNav);
+        embla.on('select', updateNav);
+        if (prevBtn) prevBtn.addEventListener('click', function () { embla.scrollPrev(); });
+        if (nextBtn) nextBtn.addEventListener('click', function () { embla.scrollNext(); });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', run);
+      } else {
+        run();
+      }
+    }
+    
+    // ====================================================================
+    // MEDIA MENTIONS CAROUSEL (scroll nativo: CSS Scroll Snap + setas em JS, zero lib)
+    // ====================================================================
+    function initMediaMentionsCarousel() {
+      var wrap = document.querySelector('[data-media-mentions-carousel]');
+      if (!wrap) return;
+      var viewport = wrap.querySelector('[data-media-mentions-viewport]');
+      var prevBtn = wrap.querySelector('[data-media-mentions-prev]');
+      var nextBtn = wrap.querySelector('[data-media-mentions-next]');
+      if (!viewport || !prevBtn || !nextBtn) return;
+  
+      var track = viewport.querySelector('.product-media-mentions-track');
+      var slides = track ? track.querySelectorAll('.product-media-mentions-slide') : [];
+      var gap = 16;
+      var slideWidth = 0;
+  
+      function getScrollStep() {
+        if (slideWidth) return slideWidth + gap;
+        var first = slides[0];
+        if (!first) return viewport.offsetWidth;
+        slideWidth = first.offsetWidth;
+        return slideWidth + gap;
+      }
+  
+      function updateButtons() {
+        var left = viewport.scrollLeft;
+        var maxScroll = viewport.scrollWidth - viewport.clientWidth;
+        prevBtn.disabled = left <= 1;
+        nextBtn.disabled = maxScroll <= 1 || left >= maxScroll - 1;
+      }
+  
+      prevBtn.addEventListener('click', function () {
+        viewport.scrollBy({ left: -getScrollStep(), behavior: 'smooth' });
+      });
+      nextBtn.addEventListener('click', function () {
+        viewport.scrollBy({ left: getScrollStep(), behavior: 'smooth' });
+      });
+      viewport.addEventListener('scroll', updateButtons);
+      window.addEventListener('resize', updateButtons);
+      if (typeof ResizeObserver !== 'undefined') {
+        var ro = new ResizeObserver(updateButtons);
+        ro.observe(viewport);
+      }
+      updateButtons();
+    }
+    
+    // ====================================================================
+    // INITIALIZATION
+    // ====================================================================
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      // v2: gallery + benefit popups belong to the legacy PDP layout —
+      // skip them gracefully when the DOM doesn't include those nodes.
+      try { ProductGallery.init(); } catch (e) { /* legacy gallery not present in v2 layout */ }
+      try { BenefitPopups.init(); } catch (e) { /* benefit popups not rendered in v2 layout */ }
+      initBenefitsCarousel();
+      initMediaMentionsCarousel();
+      
+      // Initialize variant selector event listeners (both desktop and mobile)
+      const variantSelectorDesktop = document.getElementById('variant-selector_new');
+      const variantSelectorMobile = document.getElementById('variant-selector-mobile_new');
+      
+      // Function to sync both selectors
+      const syncVariantSelectors = (sourceSelector, targetSelector) => {
+        if (targetSelector && sourceSelector) {
+          targetSelector.value = sourceSelector.value;
+        }
+      };
+      
+      // Initialize desktop selector
+      if (variantSelectorDesktop) {
+        variantSelectorDesktop.addEventListener('change', (e) => {
+          e.preventDefault();
+          ProductVariants.updateVariant(variantSelectorDesktop);
+        });
+        
+        // Initialize price with current selected variant
+        const currentVariantId = parseInt(variantSelectorDesktop.value);
+        const currentVariant = ProductVariants.variants.find(v => v.id === currentVariantId);
+        if (currentVariant) {
+          ProductVariants.updatePrice(currentVariant);
+          ProductVariants.updateButtonsForVariant(currentVariant);
+        }
+      }
+      
+      // Initialize mobile selector
+      if (variantSelectorMobile) {
+        variantSelectorMobile.addEventListener('change', (e) => {
+          e.preventDefault();
+          ProductVariants.updateVariant(variantSelectorMobile);
+        });
+        
+        // Sync initial value from desktop if mobile exists
+        if (variantSelectorDesktop) {
+          variantSelectorMobile.value = variantSelectorDesktop.value;
+        }
+      }
+      
+      // If no desktop selector, initialize buttons (e preço sticky) com primeira variante disponível
+      if (!variantSelectorDesktop && ProductVariants.variants.length > 0) {
+        const firstVariant = ProductVariants.variants.find(v => v.available) || ProductVariants.variants[0];
+        if (firstVariant) {
+          ProductVariants.updatePrice(firstVariant);
+          ProductVariants.updateButtonsForVariant(firstVariant);
+        }
+      }
+      
+      // ====================================================================
+      // KLAVIYO WAITLIST BUTTON TRIGGER (Must be before form submit handler)
+      // ====================================================================
+      // Following Klaviyo documentation: https://help.klaviyo.com/hc/en-us/articles/4418052317339
+      const waitlistButtons = document.querySelectorAll('.klaviyo_waitlist_trigger');
+      
+      if (waitlistButtons.length > 0) {
+        waitlistButtons.forEach(function(waitlistButton) {
+          let formId = waitlistButton.getAttribute('data-klaviyo-form-id');
+          
+          if (formId && formId.trim() !== '') {
+            // Extract Form ID if user accidentally pasted the full JavaScript code
+            // Look for pattern like ['openForm', 'Sr3xAi'] or "Sr3xAi" or 'Sr3xAi'
+            const formIdMatch = formId.match(/['"]([A-Za-z0-9]{6})['"]/);
+            if (formIdMatch) {
+              formId = formIdMatch[1];
+              console.log('Extracted Form ID from code:', formId);
+            }
+            
+            // Clean up: remove any JavaScript code, keep only the ID
+            formId = formId.trim();
+            
+            // Final validation: Form ID should be 6 alphanumeric characters
+            if (formId.length === 6 && /^[A-Za-z0-9]+$/.test(formId)) {
+              waitlistButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                
+                console.log('Klaviyo Waitlist Button clicked, Form ID:', formId);
+                
+                // Initialize Klaviyo onsite array if it doesn't exist
+                window._klOnsite = window._klOnsite || [];
+                
+                // Push the openForm command
+                window._klOnsite.push(['openForm', formId]);
+                
+                console.log('Klaviyo command pushed:', ['openForm', formId]);
+                
+                return false;
+              }, true); // Use capture phase to ensure it runs first
+            } else {
+              console.error('Invalid Klaviyo Form ID. Expected 6 alphanumeric characters (e.g., Sr3xAi). Got:', formId);
+              console.warn('Please enter only the Form ID (6 characters) in the "Klaviyo Form ID" field, not the JavaScript code.');
+            }
+          } else {
+            console.warn('Klaviyo Form ID is not configured for waitlist button.');
+          }
+        });
+      } else {
+        console.log('No Klaviyo waitlist buttons found on page');
+      }
+      
+      // Intercept form submission to prevent redirect to /cart
+      const productForm = document.querySelector('.product-form_new');
+      if (productForm) {
+        productForm.addEventListener('submit', async function(e) {
+          // Don't prevent if it's a waitlist button click
+          const clickedButton = e.target.querySelector('.klaviyo_waitlist_trigger:active, .klaviyo_waitlist_trigger:focus');
+          if (clickedButton) {
+            return; // Let the waitlist handler deal with it
+          }
+          
+          e.preventDefault();
+          
+          // Prevent multiple submissions
+          if (productForm.dataset.processing === 'true') {
+            return;
+          }
+          
+          productForm.dataset.processing = 'true';
+          
+          // Call addToCart function
+          await window.addToCart();
+          
+          // Remove processing flag after a delay
+          setTimeout(() => {
+            delete productForm.dataset.processing;
+          }, 2000);
+        });
+      }
+      
+      // Ensure shopify-payment-terms component is displayed in product form
+      const ensurePaymentTermsVisible = () => {
+        const paymentTerms = document.querySelector('.payment-options-form shopify-payment-terms, .product-form_new shopify-payment-terms');
+        if (paymentTerms) {
+          // Force component to be visible
+          paymentTerms.style.display = 'block';
+          paymentTerms.style.visibility = 'visible';
+          paymentTerms.style.opacity = '1';
+        }
+      };
+      
+      ensurePaymentTermsVisible();
+      // Also check after a delay in case Shopify scripts load later
+      setTimeout(ensurePaymentTermsVisible, 1000);
+      
+      // Hide Shop Pay button if option is enabled
+      const hideShopPayButton = () => {
+        const hideShopPayContainer = document.querySelector('.hide-shop-pay_new');
+        if (hideShopPayContainer) {
+          // Hide Shop Pay button using various selectors
+          const shopPayButtons = hideShopPayContainer.querySelectorAll(
+            '[data-testid="shopify-pay-button"], ' +
+            '[aria-label*="Shop Pay"], ' +
+            'iframe[src*="shop-pay"], ' +
+            '.shopify-cleanslate [aria-label*="Shop Pay"], ' +
+            '.shopify-cleanslate button[data-testid="shopify-pay-button"]'
+          );
+          
+          shopPayButtons.forEach(btn => {
+            btn.style.display = 'none';
+            btn.style.visibility = 'hidden';
+          });
+          
+          // Also hide parent containers if they only contain Shop Pay
+          const shopPayIframes = hideShopPayContainer.querySelectorAll('iframe[src*="shop-pay"]');
+          shopPayIframes.forEach(iframe => {
+            const parent = iframe.closest('div');
+            if (parent && parent.querySelectorAll('iframe').length === 1) {
+              parent.style.display = 'none';
+            }
+            iframe.style.display = 'none';
+            iframe.style.visibility = 'hidden';
+          });
+        }
+      };
+      
+      // Run immediately and after delays to catch dynamically loaded buttons
+      hideShopPayButton();
+      setTimeout(hideShopPayButton, 500);
+      setTimeout(hideShopPayButton, 1500);
+      setTimeout(hideShopPayButton, 3000);
+      
+      // Also observe for dynamically added elements
+      const observer = new MutationObserver(() => {
+        hideShopPayButton();
+      });
+      
+      const dynamicCheckout = document.querySelector('.hide-shop-pay_new');
+      if (dynamicCheckout) {
+        observer.observe(dynamicCheckout, {
+          childList: true,
+          subtree: true
+        });
+      }
+      
+    });
+    
+  })();
+</script>
