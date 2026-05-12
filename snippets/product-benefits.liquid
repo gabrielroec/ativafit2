@@ -41,6 +41,10 @@
               assign tb_label = 'Worry-Free Purchase'
             endif
           endif
+          assign tb_sublabel = block.settings.sublabel | default: ''
+          if tb_sublabel == blank and forloop.index == 1
+            assign tb_sublabel = '2-Year as members for Dumbbells'
+          endif
         -%}
         <div class="pdp-trust-badge" {{ block.shopify_attributes }}>
           <div class="pdp-trust-badge__icon">
@@ -52,7 +56,12 @@
               loading="lazy"
               decoding="async">
           </div>
-          <span class="pdp-trust-badge__text">{{ tb_label | escape }}</span>
+          <div class="pdp-trust-badge__body">
+            <span class="pdp-trust-badge__text">{{ tb_label | escape }}</span>
+            {%- if tb_sublabel != blank -%}
+              <span class="pdp-trust-badge__sublabel">{{ tb_sublabel | escape }}</span>
+            {%- endif -%}
+          </div>
         </div>
       {%- endfor -%}
     {%- else -%}
@@ -66,7 +75,10 @@
             loading="lazy"
             decoding="async">
         </div>
-        <span class="pdp-trust-badge__text">1-Year Warranty Included</span>
+        <div class="pdp-trust-badge__body">
+          <span class="pdp-trust-badge__text">1-Year Warranty Included</span>
+          <span class="pdp-trust-badge__sublabel">2-Year as members for Dumbbells</span>
+        </div>
       </div>
       <div class="pdp-trust-badge">
         <div class="pdp-trust-badge__icon">
@@ -78,7 +90,9 @@
             loading="lazy"
             decoding="async">
         </div>
-        <span class="pdp-trust-badge__text">Worry-Free Purchase</span>
+        <div class="pdp-trust-badge__body">
+          <span class="pdp-trust-badge__text">Worry-Free Purchase</span>
+        </div>
       </div>
     {%- endif -%}
   </div>

@@ -24,6 +24,18 @@
   .np-pdp--v2 .product-info-wrapper_new {
     width: 100% !important;
   }
+
+  /* v2-only: Buy It Now uses the dark variant. `global.css` ships a low-contrast
+     transparent style (border #ddd, color #aaa) that hurts conversion on this
+     template — override with black bg + white text. !important defeats the
+     existing !important declarations in global.css. */
+  .np-pdp--v2 .buy-it-now-btn_new,
+  .np-pdp--v2 .buy-it-now-btn_new:hover,
+  .np-pdp--v2 .buy-it-now-btn_new:focus {
+    background-color: #000 !important;
+    color: #fff !important;
+    border-color: #000 !important;
+  }
 </style>
 
 {%- liquid
@@ -216,6 +228,7 @@
         {{ pairs_stack }}
       </div>
     </div>
+  </div>
   </div>
 
   <script type="application/json" data-np-variants-data>
@@ -580,6 +593,12 @@
           "id": "body",
           "label": "Body",
           "default": "<ul><li>Patented rapid-adjustment dial mechanism</li><li>Premium non-slip textured grip</li><li>Durable high-tensile steel construction</li><li>Includes custom-molded storage trays</li></ul>"
+        },
+        {
+          "type": "checkbox",
+          "id": "open_by_default",
+          "label": "Expanded by default",
+          "default": false
         }
       ]
     },

@@ -75,7 +75,6 @@
 
 .np-pdp__left {
   position: sticky;
-  top: 96px;
   display: flex;
   flex-direction: column;
   gap: 48px;
@@ -92,8 +91,10 @@
 
 /* Bento variants: render on the left column on desktop, swap to the right
    column on mobile. The same blocks are emitted twice in the markup; only
-   one variant is visible at any breakpoint. */
-.np-pdp__bento--right { display: none; }
+   one variant is visible at any breakpoint. Selectors chain both classes
+   (specificity 0,2,0) so they win over the base `.np-pdp__bento` rule
+   (0,1,0) regardless of source order. */
+.np-pdp__bento.np-pdp__bento--right { display: none; }
 
 .np-pdp__form { display: block; }
 
@@ -159,9 +160,8 @@
 
 .np-pdp__gallery-main {
   position: relative;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 4 / 3;
   background: #f3f3f3;
-  border: 1px solid #dfc0b2;
   overflow: hidden;
 }
 .np-pdp__gallery-slide {
@@ -184,9 +184,8 @@
 }
 
 .np-pdp__gallery-placeholder {
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 4 / 3;
   background: #f3f3f3;
-  border: 1px solid #dfc0b2;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -216,7 +215,7 @@
   position: relative;
   flex: 0 0 auto;
   width: 88px;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 4 / 3;
   background: #eeeeee;
   border: 2px solid transparent;
   padding: 0;
@@ -725,7 +724,6 @@
   gap: 24px;
   padding: 10px;
   background: #ffffff;
-  border: 1px solid #dfc0b2;
   text-decoration: none;
   color: inherit;
   transition: background 0.2s ease;
@@ -791,9 +789,9 @@
     position: static;
     top: auto;
   }
-  /* Swap bento sides on mobile */
-  .np-pdp__bento--left { display: none; }
-  .np-pdp__bento--right { display: flex; }
+  /* Swap bento sides on mobile (chained classes for specificity 0,2,0) */
+  .np-pdp__bento.np-pdp__bento--left { display: none; }
+  .np-pdp__bento.np-pdp__bento--right { display: flex; }
   .np-pdp__title { font-size: 28px; }
 }
 
