@@ -352,10 +352,17 @@
         var starsClone = starsSrc.cloneNode(true);
         var avgInClone = starsClone.querySelector('.jdgm-rev-widg__summary-average');
         if (avgInClone) avgInClone.remove();
-        starsEl.innerHTML = starsClone.innerHTML;
 
-        valueEl.textContent = avg.toFixed(2) + ' / 5';
-        countEl.textContent = count + (count === 1 ? ' review' : ' reviews');
+        // Each pill child is optional — the markup above comments out
+        // `.product-info-rating-pill__value` for example, so this script
+        // must not assume every node exists. Without the guards, the
+        // missing node throws a TypeError inside the MutationObserver
+        // callback and (because the throw is uncaught there) the observer
+        // keeps firing on every body mutation until the 15s timeout —
+        // pegging the CPU on pages with active 3rd-party scripts.
+        if (starsEl) starsEl.innerHTML = starsClone.innerHTML;
+        if (valueEl) valueEl.textContent = avg.toFixed(2) + ' / 5';
+        if (countEl) countEl.textContent = count + (count === 1 ? ' review' : ' reviews');
         pill.setAttribute('aria-label', 'Rating ' + avg.toFixed(2) + ' out of 5, ' + count + ' reviews');
         pill.removeAttribute('hidden');
         return true;
