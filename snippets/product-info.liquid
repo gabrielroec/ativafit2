@@ -13,35 +13,16 @@
 {%- liquid
   assign ativapeople_display_cents = 0
   assign ap_mf_fixed = false
-  # Flexible-text mode: when the metafield value contains a "$NN.NN" token,
-  # store the full user-typed text and the price token so we can render the
-  # member-price line with the merchant's wording (e.g. "Member price $289.99"
-  # or "Only $289.99 for members") while still styling the price portion.
-  # When there is no "$" token, fall back to the legacy numeric-only parsing.
-  assign ap_flex_text = ''
-  assign ap_flex_price_token = ''
   assign current_variant = product.selected_or_first_available_variant
-  # Source of truth chain:
-  #   1. variant decimal (custom.price_discount_ativapeople)  ← legacy numeric
-  #   2. product decimal (custom.price_discount_ativapeople)  ← legacy numeric
-  #   3. variant text    (custom.price_text_discount_ativapeople) ← flexible copy
-  #   4. product text    (custom.price_text_discount_ativapeople) ← flexible copy
-  # Legacy decimal wins so existing products don't change behaviour when the
-  # new text metafield is left empty.
-  assign mf_v_num = current_variant.metafields.custom.price_discount_ativapeople
-  assign mf_p_num = product.metafields.custom.price_discount_ativapeople
-  assign mf_v_txt = current_variant.metafields.custom.price_text_discount_ativapeople
-  assign mf_p_txt = product.metafields.custom.price_text_discount_ativapeople
-  assign mf_use = blank
-  if mf_v_num != blank and mf_v_num.value != blank
-    assign mf_use = mf_v_num
-  elsif mf_p_num != blank and mf_p_num.value != blank
-    assign mf_use = mf_p_num
-  elsif mf_v_txt != blank and mf_v_txt.value != blank
-    assign mf_use = mf_v_txt
-  elsif mf_p_txt != blank and mf_p_txt.value != blank
-    assign mf_use = mf_p_txt
-  endif
+  assign mf_v = current_variant.metafields.custom.price_discount_ativapeople
+  assign mf_p = product.metafields.custom.price_discount_ativapeople
+  assign mf_use = mf_v
+  unless mf_v != blank and mf_v.value != blank
+    assign mf_use = mf_p
+    unless mf_p != blank and mf_p.value != blank
+      assign mf_use = blank
+    endunless
+  endunless
   if mf_use != blank and mf_use.value != blank
     assign ap_mf_fixed = true
     assign _raw = ''
@@ -49,22 +30,6 @@
       assign _raw = mf_use.value.amount | append: '' | strip
     else
       assign _raw = mf_use.value | append: '' | strip
-    endif
-    # If the merchant typed free text with a "$NN.NN" token (e.g. "Member
-    # price $289.99"), capture the full text and isolate the price token —
-    # the rest of the parsing runs against the token alone so we still
-    # produce ativapeople_display_cents for the badge.
-    if _raw contains '$'
-      assign ap_flex_text = _raw
-      assign _words = _raw | split: ' '
-      for _w in _words
-        if _w contains '$' and ap_flex_price_token == ''
-          assign ap_flex_price_token = _w
-        endif
-      endfor
-      if ap_flex_price_token != ''
-        assign _raw = ap_flex_price_token | replace: '$', ''
-      endif
     endif
     assign _raw = _raw | replace: ' ', '' | replace: ' ', '' | replace: "'", ''
     if _raw contains ','
@@ -104,8 +69,14 @@
   if _req_path contains 'products/pro-adjustable-weight-bench'
     assign show_member_price_line = false
   endif
+  if _req_path contains 'products/25-lbs-adjustable-weight-dumbbell'
+    assign show_member_price_line = false
+  endif
   assign _member_line_handle = product.handle | default: '' | strip | downcase
   if _member_line_handle == 'pro-adjustable-weight-bench'
+    assign show_member_price_line = false
+  endif
+  if _member_line_handle == '25-lbs-adjustable-weight-dumbbell'
     assign show_member_price_line = false
   endif
 -%}
@@ -247,9 +218,9 @@
     </div>
   {%- endif -%}
   <!-- Product Subtitle -->
-  {% comment %} {%- if section.settings.product_subtitle != blank -%}
+  {%- if section.settings.product_subtitle != blank -%}
     <p class="product-subtitle_new">{{ section.settings.product_subtitle }}</p>
-  {%- endif -%} {% endcomment %}
+  {%- endif -%}
 
   <!-- Desktop Price -->
   <div class="product-price-section_new">
@@ -374,19 +345,8 @@
   
   {%- if ap_mf_fixed and ativapeople_display_cents > 0 and show_member_price_line -%}
     <p class="product-info-member-line_new">
-      {%- if ap_flex_text != '' and ap_flex_price_token != '' -%}
-        {%- comment -%}
-          Flexible mode: render the merchant's full text and wrap the price
-          token in the styled span so the colour/underline stays consistent
-          regardless of where the price appears in the sentence.
-        {%- endcomment -%}
-        {%- assign _flex_price_html = '<span class="product-info-member-line__price">' | append: ap_flex_price_token | append: '</span>' -%}
-        <span class="product-info-member-line__muted">{{ ap_flex_text | replace: ap_flex_price_token, _flex_price_html }}</span>
-      {%- else -%}
-        {%- comment -%} Legacy mode (metafield holds just the numeric value). {%- endcomment -%}
-        <span class="product-info-member-line__muted">Member price </span>
-        <span class="product-info-member-line__price">{{ ativapeople_display_cents | money }}</span>
-      {%- endif -%}
+      <span class="product-info-member-line__muted">Member price </span>
+      <span class="product-info-member-line__price">{{ ativapeople_display_cents | money }}</span>
       <span class="product-info-member-line__muted" aria-hidden="true"> · </span>
       <a href="/pages/membership" class="product-info-member-line__link">Join AtivaPeople</a>
     </p>
