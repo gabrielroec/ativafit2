@@ -1,8 +1,8 @@
 <!-- Simple Banner Only Image Section -->
 <section id="sb-{{ section.id }}" class="simple-banner-only-image">
   {%- liquid
-    assign desktop_image = section.settings.desktop_image
-    assign mobile_image = section.settings.mobile_image
+    assign desktop_image = product.metafields.custom.banner_desktop_image.value | default: section.settings.desktop_image
+    assign mobile_image = product.metafields.custom.banner_mobile_image.value | default: section.settings.mobile_image
     assign alt_text = section.settings.alt_text | default: ''
     assign link_url = section.settings.link_url
     assign preload_image = section.settings.preload_image
@@ -133,6 +133,10 @@
       {
         "type": "header",
         "content": "Images"
+      },
+      {
+        "type": "paragraph",
+        "content": "Used as fallback. Product metafields custom.banner_desktop_image and custom.banner_mobile_image take priority when filled."
       },
       {
         "type": "image_picker",

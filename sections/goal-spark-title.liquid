@@ -4,25 +4,57 @@
   data-section-type="goal-spark-title"
   style="padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px;">
   <div class="container">
-    {%- if section.settings.main_title_part1 != blank or section.settings.spark_text != blank -%}
+    {%- liquid
+      assign title_raw = product.metafields.custom.goal_section_title.value | default: section.settings.section_title
+      assign title_normalized = title_raw | replace: '</hight>', '<high>' | replace: '</high>', '<high>' | replace: '<hight>', '<high>'
+      assign title_parts = title_normalized | split: '<high>'
+
+      assign card_items = product.metafields.custom.goal_strength_cards.value
+      assign use_metaobject = false
+      if card_items != blank and card_items.size > 0
+        assign use_metaobject = true
+      else
+        assign card_items = section.blocks
+      endif
+    -%}
+
+    {%- if title_raw != blank -%}
       <h2 class="goal-spark-title__heading">
-        {{ section.settings.main_title_part1 }}
-        <span class="spark-highlight">{{ section.settings.spark_text }}</span>
-        {{ section.settings.main_title_part2 }}
+        {%- for part in title_parts -%}
+          {%- assign idx_mod = forloop.index0 | modulo: 2 -%}
+          {%- if idx_mod == 1 -%}
+            <span class="spark-highlight">{{ part }}</span>
+          {%- else -%}
+            {{ part }}
+          {%- endif -%}
+        {%- endfor -%}
       </h2>
     {%- endif -%}
 
-    {%- if section.blocks.size > 0 -%}
+    {%- if card_items.size > 0 -%}
       <!-- Desktop/Tablet Grid -->
       <div class="strength-cards-desktop">
         <div class="strength-cards-grid">
-          {%- for block in section.blocks -%}
-            <div class="strength-card" {{ block.shopify_attributes }}>
+          {%- for item in card_items -%}
+            {%- liquid
+              if use_metaobject
+                assign card_image = item.card_image
+                assign card_title = item.card_title
+                assign card_quote = item.card_quote
+                assign shopify_attrs = ''
+              else
+                assign card_image = item.settings.card_image
+                assign card_title = item.settings.card_title
+                assign card_quote = item.settings.card_quote
+                assign shopify_attrs = item.shopify_attributes
+              endif
+            -%}
+            <div class="strength-card" {{ shopify_attrs }}>
               <div class="strength-card__image">
-                {%- if block.settings.card_image != blank -%}
+                {%- if card_image != blank -%}
                   <img
-                    src="{{ block.settings.card_image | image_url: width: 400 }}"
-                    alt="{{ block.settings.card_image.alt | default: block.settings.card_title }}"
+                    src="{{ card_image | image_url: width: 400 }}"
+                    alt="{{ card_image.alt | default: card_title }}"
                     width="400"
                     height="450"
                     loading="lazy">
@@ -31,20 +63,12 @@
                 {%- endif -%}
               </div>
               <div class="strength-card__content">
-                {%- if block.settings.card_title != blank -%}
-                  <h3 class="strength-card__title">{{ block.settings.card_title | escape }}</h3>
+                {%- if card_title != blank -%}
+                  <h3 class="strength-card__title">{{ card_title | escape }}</h3>
                 {%- endif -%}
 
-                {%- if block.settings.card_simple_text != blank -%}
-                  <p class="strength-card__simple-text">{{ block.settings.card_simple_text }}</p>
-                {%- elsif block.settings.card_quote_part1 != blank -%}
-                  <p class="strength-card__quote">
-                    "{{ block.settings.card_quote_part1 }}
-                    {%- if block.settings.card_spark_text != blank -%}
-                      <span class="spark-text">{{ block.settings.card_spark_text }}</span>
-                    {%- endif -%}
-                    {{ block.settings.card_quote_part2 }}"
-                  </p>
+                {%- if card_quote != blank -%}
+                  <p class="strength-card__quote">"{{ card_quote }}"</p>
                 {%- endif -%}
               </div>
             </div>
@@ -56,16 +80,29 @@
       <div class="strength-cards-mobile" id="mobile-slider-{{ section.id }}">
         <div class="mobile-slider-container">
           <div class="mobile-slide active" data-slide="0">
-            {%- for block in section.blocks -%}
+            {%- for item in card_items -%}
+              {%- liquid
+                if use_metaobject
+                  assign card_image = item.card_image
+                  assign card_title = item.card_title
+                  assign card_quote = item.card_quote
+                  assign shopify_attrs = ''
+                else
+                  assign card_image = item.settings.card_image
+                  assign card_title = item.settings.card_title
+                  assign card_quote = item.settings.card_quote
+                  assign shopify_attrs = item.shopify_attributes
+                endif
+              -%}
               <div
                 class="mobile-card{% unless forloop.first %} hidden{% endunless %}"
                 data-card="{{ forloop.index0 }}"
-                {{ block.shopify_attributes }}>
+                {{ shopify_attrs }}>
                 <div class="mobile-card__image">
-                  {%- if block.settings.card_image != blank -%}
+                  {%- if card_image != blank -%}
                     <img
-                      src="{{ block.settings.card_image | image_url: width: 400 }}"
-                      alt="{{ block.settings.card_image.alt | default: block.settings.card_title }}"
+                      src="{{ card_image | image_url: width: 400 }}"
+                      alt="{{ card_image.alt | default: card_title }}"
                       width="400"
                       height="450"
                       loading="lazy">
@@ -74,32 +111,22 @@
                   {%- endif -%}
                 </div>
                 <div class="mobile-card__content">
-                  {%- if block.settings.card_title != blank -%}
-                    <h3 class="mobile-card__title">{{ block.settings.card_title | escape }}</h3>
+                  {%- if card_title != blank -%}
+                    <h3 class="mobile-card__title">{{ card_title | escape }}</h3>
                   {%- endif -%}
 
-                  {%- if block.settings.card_simple_text != blank -%}
-                    <p class="mobile-card__simple-text">{{ block.settings.card_simple_text }}</p>
-                  {%- elsif block.settings.card_quote_part1 != blank -%}
-                    <p class="mobile-card__quote">
-                      "{{ block.settings.card_quote_part1 }}
-                      {%- if block.settings.card_spark_text != blank -%}
-                        <span class="spark-text">{{ block.settings.card_spark_text }}</span>
-                      {%- endif -%}
-                      {{ block.settings.card_quote_part2 }}"
-                    </p>
+                  {%- if card_quote != blank -%}
+                    <p class="mobile-card__quote">"{{ card_quote }}"</p>
                   {%- endif -%}
-
-
                 </div>
               </div>
             {%- endfor -%}
           </div>
         </div>
 
-        {%- if section.blocks.size > 1 -%}
+        {%- if card_items.size > 1 -%}
           <div class="mobile-dots" id="mobile-dots-{{ section.id }}">
-            {%- for block in section.blocks -%}
+            {%- for item in card_items -%}
               <button class="mobile-dot{% if forloop.first %} active{% endif %}" data-slide="{{ forloop.index0 }}"></button>
             {%- endfor -%}
           </div>
@@ -768,28 +795,23 @@
     "settings": [
       {
         "type": "header",
-        "content": "Main Title Settings"
+        "content": "Section Title (fallback)"
+      },
+      {
+        "type": "paragraph",
+        "content": "Used when the product has no value in custom.goal_section_title. Wrap the highlighted word with <high>...</high>. Example: Your <high>Strength,</high> Forged in Fire"
       },
       {
         "type": "text",
-        "id": "main_title_part1",
-        "label": "Title Part 1",
-        "default": "For Every Goal, A New"
+        "id": "section_title",
+        "label": "Section Title",
+        "default": "For Every Goal, A New <high>Spark</high>"
       },
       {
-        "type": "text",
-        "id": "spark_text",
-        "label": "Spark Text (highlighted)",
-        "default": "Spark"
-      },
-      {
-        "type": "text",
-        "id": "main_title_part2",
-        "label": "Title Part 2 (optional)"
-      }, {
         "type": "header",
         "content": "Spacing Settings"
-      }, {
+      },
+      {
         "type": "range",
         "id": "padding_top",
         "min": 0,
@@ -798,7 +820,8 @@
         "unit": "px",
         "label": "Padding top",
         "default": 40
-      }, {
+      },
+      {
         "type": "range",
         "id": "padding_bottom",
         "min": 0,
@@ -812,8 +835,12 @@
     "blocks": [
       {
         "type": "strength_card",
-        "name": "Strength Card",
+        "name": "Strength Card (fallback)",
         "settings": [
+          {
+            "type": "paragraph",
+            "content": "Fallback block. Used when the product has no entries in custom.goal_strength_cards."
+          },
           {
             "type": "image_picker",
             "id": "card_image",
@@ -826,26 +853,10 @@
             "default": "New to Strength Training"
           },
           {
-            "type": "text",
-            "id": "card_quote_part1",
-            "label": "Quote Part 1",
-            "default": "I always wanted to start but felt intimidated."
-          },
-          {
-            "type": "text",
-            "id": "card_spark_text",
-            "label": "Spark Text in Quote",
-            "default": "Spark"
-          }, {
-            "type": "text",
-            "id": "card_quote_part2",
-            "label": "Quote Part 2",
-            "default": "was the perfect first step."
-          }, {
             "type": "textarea",
-            "id": "card_simple_text",
-            "label": "Simple Text (replaces quote)",
-            "info": "If filled, this will replace the quote with normal black text"
+            "id": "card_quote",
+            "label": "Card Quote",
+            "default": "I always wanted to start but felt intimidated. Spark was the perfect first step."
           }
         ]
       }
@@ -855,17 +866,14 @@
         "category": "Text",
         "name": "Goal Spark Title",
         "settings": {
-          "main_title_part1": "For Every Goal, A New",
-          "spark_text": "Spark"
+          "section_title": "For Every Goal, A New <high>Spark</high>"
         },
         "blocks": [
           {
             "type": "strength_card",
             "settings": {
               "card_title": "New to Strength Training",
-              "card_quote_part1": "I always wanted to start but felt intimidated.",
-              "card_spark_text": "Spark",
-              "card_quote_part2": "was the perfect first step."
+              "card_quote": "I always wanted to start but felt intimidated. Spark was the perfect first step."
             }
           }
         ]

@@ -3,33 +3,65 @@
   data-section-type="video-reviews"
   style="padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px;">
   <div class="video-reviews-container">
+    {%- liquid
+      assign heading_raw = product.metafields.custom.video_reviews_heading.value | default: section.settings.heading_text
+      assign heading_normalized = heading_raw | replace: '</hight>', '<high>' | replace: '</high>', '<high>' | replace: '<hight>', '<high>'
+      assign heading_parts = heading_normalized | split: '<high>'
 
-    {%- if section.settings.heading_part1 != blank or section.settings.highlight_text1 != blank -%}
+      assign card_items = product.metafields.custom.video_reviews.value
+      assign use_metafield = false
+      if card_items != blank and card_items.size > 0
+        assign use_metafield = true
+      else
+        assign card_items = section.blocks
+      endif
+    -%}
+
+    {%- if heading_raw != blank -%}
       <h2 class="video-reviews-heading">
-        {{ section.settings.heading_part1 }}
-        {%- if section.settings.highlight_text1 != blank -%}
-          <span class="highlight-text">{{ section.settings.highlight_text1 }}</span>
-        {%- endif -%}
-        {{ section.settings.heading_part2 }}
-        {%- if section.settings.highlight_text2 != blank -%}
-          <span class="highlight-text">{{ section.settings.highlight_text2 }}</span>
-        {%- endif -%}
+        {%- for part in heading_parts -%}
+          {%- assign idx_mod = forloop.index0 | modulo: 2 -%}
+          {%- if idx_mod == 1 -%}
+            <span class="highlight-text">{{ part | newline_to_br }}</span>
+          {%- else -%}
+            {{ part | newline_to_br }}
+          {%- endif -%}
+        {%- endfor -%}
       </h2>
     {%- endif -%}
 
-    {%- if section.blocks.size > 0 -%}
+    {%- if card_items.size > 0 -%}
       <!-- Desktop Grid -->
       <div class="video-reviews-desktop">
         <div class="video-grid">
-          {%- for block in section.blocks -%}
-            <div class="video-item" {{ block.shopify_attributes }}>
-              {%- if block.settings.content_type == 'youtube' -%}
+          {%- for item in card_items -%}
+            {%- capture item_url -%}{{ item.url | default: item }}{%- endcapture -%}
+            {%- liquid
+              if use_metafield
+                assign content_type = 'youtube'
+                assign youtube_id_raw = item_url
+                assign video_title = 'Customer Review Video'
+                assign review_image = blank
+                assign image_title = ''
+                assign link_url = ''
+                assign shopify_attrs = ''
+              else
+                assign content_type = item.settings.content_type | default: 'youtube'
+                assign youtube_id_raw = item.settings.youtube_id
+                assign video_title = item.settings.video_title
+                assign review_image = item.settings.review_image
+                assign image_title = item.settings.image_title
+                assign link_url = item.settings.link_url
+                assign shopify_attrs = item.shopify_attributes
+              endif
+            -%}
+            <div class="video-item" {{ shopify_attrs }}>
+              {%- if content_type == 'youtube' -%}
                 <!-- YouTube Video -->
                 <div class="video-wrapper">
-                  {%- if block.settings.youtube_id != blank -%}
-                    {%- assign video_id = block.settings.youtube_id -%}
-                      {%- if video_id contains 'youtube.com' or video_id contains 'youtu.be' -%}
-                      {%- comment -%} Extract ID from URL {%- endcomment -%}
+                  {%- if youtube_id_raw != blank -%}
+                    {%- assign video_id = youtube_id_raw -%}
+                    {%- if video_id contains 'youtube.com' or video_id contains 'youtu.be' -%}
                       {%- if video_id contains 'watch?v=' -%}
                         {%- assign video_id = video_id | split: 'watch?v=' | last | split: '&' | first -%}
                       {%- elsif video_id contains 'youtu.be/' -%}
@@ -41,7 +73,7 @@
                     <div class="youtube-thumbnail" data-video-id="{{ video_id }}">
                       <img
                         src="https://img.youtube.com/vi/{{ video_id }}/maxresdefault.jpg"
-                        alt="{{ block.settings.video_title | default: 'YouTube video' }}"
+                        alt="{{ video_title | default: 'YouTube video' }}"
                         width="1280"
                         height="720"
                         loading="lazy"
@@ -76,11 +108,11 @@
               {%- else -%}
                 <!-- Image with Link -->
                 <div class="image-wrapper">
-                  {%- if block.settings.link_url != blank -%}<a href="{{ block.settings.link_url }}" target="_blank">{%- endif -%}
-                  {%- if block.settings.review_image != blank -%}
+                  {%- if link_url != blank -%}<a href="{{ link_url }}" target="_blank">{%- endif -%}
+                  {%- if review_image != blank -%}
                     <img
-                      src="{{ block.settings.review_image | img_url: '600x400' }}"
-                      alt="{{ block.settings.review_image.alt | default: block.settings.image_title }}"
+                      src="{{ review_image | image_url: width: 600 }}"
+                      alt="{{ review_image.alt | default: image_title }}"
                       width="600"
                       height="400"
                       loading="lazy">
@@ -89,7 +121,7 @@
                       {{ 'image' | placeholder_svg_tag: 'placeholder-image' }}
                     </div>
                   {%- endif -%}
-                  {%- if block.settings.link_url != blank -%}</a>{%- endif -%}
+                  {%- if link_url != blank -%}</a>{%- endif -%}
                 </div>
               {%- endif -%}
             </div>
@@ -100,18 +132,37 @@
       <!-- Mobile Slider -->
       <div class="video-reviews-mobile" id="mobile-video-slider-{{ section.id }}">
         <div class="mobile-video-container">
-          {%- for block in section.blocks -%}
+          {%- for item in card_items -%}
+            {%- capture item_url -%}{{ item.url | default: item }}{%- endcapture -%}
+            {%- liquid
+              if use_metafield
+                assign content_type = 'youtube'
+                assign youtube_id_raw = item_url
+                assign video_title = 'Customer Review Video'
+                assign review_image = blank
+                assign image_title = ''
+                assign link_url = ''
+                assign shopify_attrs = ''
+              else
+                assign content_type = item.settings.content_type | default: 'youtube'
+                assign youtube_id_raw = item.settings.youtube_id
+                assign video_title = item.settings.video_title
+                assign review_image = item.settings.review_image
+                assign image_title = item.settings.image_title
+                assign link_url = item.settings.link_url
+                assign shopify_attrs = item.shopify_attributes
+              endif
+            -%}
             <div
               class="mobile-video-item{% unless forloop.first %} hidden{% endunless %}"
               data-slide="{{ forloop.index0 }}"
-              {{ block.shopify_attributes }}>
-              {%- if block.settings.content_type == 'youtube' -%}
+              {{ shopify_attrs }}>
+              {%- if content_type == 'youtube' -%}
                 <!-- YouTube Video -->
                 <div class="video-wrapper">
-                  {%- if block.settings.youtube_id != blank -%}
-                    {%- assign video_id = block.settings.youtube_id -%}
-                      {%- if video_id contains 'youtube.com' or video_id contains 'youtu.be' -%}
-                      {%- comment -%} Extract ID from URL {%- endcomment -%}
+                  {%- if youtube_id_raw != blank -%}
+                    {%- assign video_id = youtube_id_raw -%}
+                    {%- if video_id contains 'youtube.com' or video_id contains 'youtu.be' -%}
                       {%- if video_id contains 'watch?v=' -%}
                         {%- assign video_id = video_id | split: 'watch?v=' | last | split: '&' | first -%}
                       {%- elsif video_id contains 'youtu.be/' -%}
@@ -123,7 +174,7 @@
                     <div class="youtube-thumbnail" data-video-id="{{ video_id }}">
                       <img
                         src="https://img.youtube.com/vi/{{ video_id }}/maxresdefault.jpg"
-                        alt="{{ block.settings.video_title | default: 'YouTube video' }}"
+                        alt="{{ video_title | default: 'YouTube video' }}"
                         width="1280"
                         height="720"
                         loading="lazy"
@@ -158,11 +209,11 @@
               {%- else -%}
                 <!-- Image with Link -->
                 <div class="image-wrapper">
-                  {%- if block.settings.link_url != blank -%}<a href="{{ block.settings.link_url }}" target="_blank">{%- endif -%}
-                  {%- if block.settings.review_image != blank -%}
+                  {%- if link_url != blank -%}<a href="{{ link_url }}" target="_blank">{%- endif -%}
+                  {%- if review_image != blank -%}
                     <img
-                      src="{{ block.settings.review_image | img_url: '600x400' }}"
-                      alt="{{ block.settings.review_image.alt | default: block.settings.image_title }}"
+                      src="{{ review_image | image_url: width: 600 }}"
+                      alt="{{ review_image.alt | default: image_title }}"
                       width="600"
                       height="400"
                       loading="lazy">
@@ -171,25 +222,25 @@
                       {{ 'image' | placeholder_svg_tag: 'placeholder-image' }}
                     </div>
                   {%- endif -%}
-                  {%- if block.settings.link_url != blank -%}</a>{%- endif -%}
+                  {%- if link_url != blank -%}</a>{%- endif -%}
                 </div>
               {%- endif -%}
             </div>
           {%- endfor -%}
         </div>
 
-        {%- if section.blocks.size > 1 -%}
+        {%- if card_items.size > 1 -%}
           <div class="mobile-video-dots" id="mobile-video-dots-{{ section.id }}">
-            {%- for block in section.blocks -%}
+            {%- for item in card_items -%}
               <button class="mobile-video-dot{% if forloop.first %} active{% endif %}" data-slide="{{ forloop.index0 }}"></button>
             {%- endfor -%}
           </div>
         {%- endif -%}
       </div>
 
-      {%- if section.blocks.size > 3 -%}
+      {%- if card_items.size > 3 -%}
         <div class="desktop-dots" id="desktop-dots-{{ section.id }}">
-          {%- assign total_pages = section.blocks.size | divided_by: 3.0 | ceil -%}
+          {%- assign total_pages = card_items.size | divided_by: 3.0 | ceil -%}
           {%- for i in (1..total_pages) -%}
             <button class="desktop-dot{% if forloop.first %} active{% endif %}" data-page="{{ forloop.index0 }}"></button>
           {%- endfor -%}
@@ -736,31 +787,19 @@
     "settings": [
       {
         "type": "header",
-        "content": "Heading Settings"
+        "content": "Heading (fallback)"
       },
       {
-        "type": "text",
-        "id": "heading_part1",
-        "label": "Heading Part 1",
-        "default": "Hear the"
+        "type": "paragraph",
+        "content": "Used when product has no value in custom.video_reviews_heading. Wrap highlighted words with <high>...</high>. Line breaks (Enter) are preserved."
       },
       {
-        "type": "text",
-        "id": "highlight_text1",
-        "label": "Highlight Text 1 (orange)",
-        "default": "Buzz."
+        "type": "textarea",
+        "id": "heading_text",
+        "label": "Heading Text",
+        "default": "Hear the <high>Buzz.</high> See the <high>Results.</high>"
       },
       {
-        "type": "text",
-        "id": "heading_part2",
-        "label": "Heading Part 2",
-        "default": " See the"
-      }, {
-        "type": "text",
-        "id": "highlight_text2",
-        "label": "Highlight Text 2 (orange)",
-        "default": "Results."
-      }, {
         "type": "header",
         "content": "Spacing Settings"
       }, {
@@ -786,8 +825,12 @@
     "blocks": [
       {
         "type": "video_review",
-        "name": "Video/Review Item",
+        "name": "Video Item (fallback)",
         "settings": [
+          {
+            "type": "paragraph",
+            "content": "Fallback block. Used when product has no entries in custom.video_reviews."
+          },
           {
             "type": "select",
             "id": "content_type",
@@ -845,10 +888,7 @@
         "category": "Reviews",
         "name": "Video Reviews",
         "settings": {
-          "heading_part1": "Hear the",
-          "highlight_text1": "Buzz.",
-          "heading_part2": " See the",
-          "highlight_text2": "Results."
+          "heading_text": "Hear the <high>Buzz.</high> See the <high>Results.</high>"
         },
         "blocks": [
           {

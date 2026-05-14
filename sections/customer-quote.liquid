@@ -50,6 +50,10 @@
     position: relative;
     z-index: 2;
   }
+
+  .customer-quote__highlight {
+    color: #EB701F;
+  }
   @media (max-width: 1024px) {
 
     .customer-quote__quotation-marks--top {
@@ -81,10 +85,25 @@
 
 <section class="customer-quote" id="customer-quote-{{ section.id }}">
   <div class="customer-quote__container">
-    {%- if section.settings.quote_text != blank -%}
+    {%- liquid
+      assign quote_raw = product.metafields.custom.customer_quote.value | default: section.settings.quote_text
+      assign quote_normalized = quote_raw | replace: '</hight>', '<high>' | replace: '</high>', '<high>' | replace: '<hight>', '<high>'
+      assign quote_parts = quote_normalized | split: '<high>'
+    -%}
+
+    {%- if quote_raw != blank -%}
       <blockquote class="customer-quote__text">
         <span class="customer-quote__quotation-marks customer-quote__quotation-marks--top">"</span>
-        <span class="customer-quote__content">{{ section.settings.quote_text }}</span>
+        <span class="customer-quote__content">
+          {%- for part in quote_parts -%}
+            {%- assign idx_mod = forloop.index0 | modulo: 2 -%}
+            {%- if idx_mod == 1 -%}
+              <span class="customer-quote__highlight">{{ part | newline_to_br }}</span>
+            {%- else -%}
+              {{ part | newline_to_br }}
+            {%- endif -%}
+          {%- endfor -%}
+        </span>
         <span class="customer-quote__quotation-marks customer-quote__quotation-marks--bottom">"</span>
       </blockquote>
     {%- endif -%}
@@ -97,7 +116,11 @@
     "settings": [
       {
         "type": "header",
-        "content": "Quote Content"
+        "content": "Quote Content (fallback)"
+      },
+      {
+        "type": "paragraph",
+        "content": "Used when product has no value in custom.customer_quote. Wrap highlighted words with <high>...</high> for orange color."
       },
       {
         "type": "textarea",
