@@ -1,0 +1,44 @@
+{%- comment -%}
+  Renders a list of strings as <ul><li>, but items that contain a URL (http/https)
+  are pulled out and rendered as a separate <p> with the link text
+  "View & Download User Manual" pointing to the extracted URL.
+
+  Accepts:
+    items: array of strings
+{%- endcomment -%}
+
+{%- liquid
+  assign has_bullets = false
+  for item in items
+    unless item contains 'http'
+      assign has_bullets = true
+      break
+    endunless
+  endfor
+-%}
+
+{%- if has_bullets -%}
+  <ul>
+    {%- for item in items -%}
+      {%- unless item contains 'http' -%}
+        <li>{{ item }}</li>
+      {%- endunless -%}
+    {%- endfor -%}
+  </ul>
+{%- endif -%}
+
+{%- for item in items -%}
+  {%- if item contains 'http' -%}
+    {%- liquid
+      assign url_parts = item | split: 'http'
+      assign url_tail = url_parts | last
+      assign url_full = 'http' | append: url_tail
+      assign url_full = url_full | split: ' ' | first
+      assign url_full = url_full | split: '<' | first
+      assign url_full = url_full | strip
+    -%}
+    <p class="np-pdp__manual-link">
+      <a href="{{ url_full }}" class="np-pdp__inline-link" target="_blank" rel="noopener noreferrer">View &amp; Download User Manual</a>
+    </p>
+  {%- endif -%}
+{%- endfor -%}
