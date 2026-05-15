@@ -1,7 +1,8 @@
-        {%- if section.settings.description_title != blank or description_html != blank -%}
+        {%- assign desc_title_final = description_title | default: section.settings.description_title -%}
+        {%- if desc_title_final != blank or description_html != blank -%}
           <section class="np-pdp__description">
-            {%- if section.settings.description_title != blank -%}
-              <h2 class="np-pdp__description-title">{{ section.settings.description_title }}</h2>
+            {%- if desc_title_final != blank -%}
+              <h2 class="np-pdp__description-title">{{ desc_title_final }}</h2>
             {%- endif -%}
             {%- if description_html != blank -%}
               <div class="np-pdp__description-body rte">{{ description_html }}</div>
@@ -9,18 +10,169 @@
           </section>
         {%- endif -%}
 
-        {%- if accordion_blocks.size > 0 -%}
+        {%- if key_features_items.size > 0 or use_tips_items.size > 0 or tech_specs_items.size > 0 or accordion_blocks.size > 0 -%}
           <section class="np-pdp__accordions">
-            {%- for block in accordion_blocks -%}
-              <details class="np-pdp__accordion" {% if block.settings.open_by_default %}open{% endif %} {{ block.shopify_attributes }}>
+            {%- if key_features_items.size > 0 -%}
+              <details class="np-pdp__accordion" open>
                 <summary class="np-pdp__accordion-summary">
-                  <h3 class="np-pdp__accordion-title">{{ block.settings.title }}</h3>
+                  <h3 class="np-pdp__accordion-title">Key Features</h3>
                   <span class="np-pdp__accordion-icon" aria-hidden="true">{{ icon_chevron }}</span>
                 </summary>
-                <div class="np-pdp__accordion-body rte">{{ block.settings.body }}</div>
+                <div class="np-pdp__accordion-body rte">
+                  <ul>
+                    {%- for item in key_features_items -%}
+                      <li>{{ item }}</li>
+                    {%- endfor -%}
+                  </ul>
+                </div>
               </details>
+            {%- endif -%}
+
+            {%- if use_tips_items.size > 0 -%}
+              <details class="np-pdp__accordion">
+                <summary class="np-pdp__accordion-summary">
+                  <h3 class="np-pdp__accordion-title">Use Tips and Manual</h3>
+                  <span class="np-pdp__accordion-icon" aria-hidden="true">{{ icon_chevron }}</span>
+                </summary>
+                <div class="np-pdp__accordion-body rte">
+                  <ul>
+                    {%- for item in use_tips_items -%}
+                      <li>{{ item }}</li>
+                    {%- endfor -%}
+                  </ul>
+                </div>
+              </details>
+            {%- endif -%}
+
+            {%- if tech_specs_items.size > 0 -%}
+              <details class="np-pdp__accordion">
+                <summary class="np-pdp__accordion-summary">
+                  <h3 class="np-pdp__accordion-title">Tech Specs</h3>
+                  <span class="np-pdp__accordion-icon" aria-hidden="true">{{ icon_chevron }}</span>
+                </summary>
+                <div class="np-pdp__accordion-body rte">
+                  <ul>
+                    {%- for item in tech_specs_items -%}
+                      <li>{{ item }}</li>
+                    {%- endfor -%}
+                  </ul>
+                </div>
+              </details>
+            {%- endif -%}
+
+            {%- for block in accordion_blocks -%}
+              {%- liquid
+                assign skip_block = false
+                if key_features_items.size > 0 and block.settings.title contains 'Key Features'
+                  assign skip_block = true
+                endif
+                if use_tips_items.size > 0 and block.settings.title contains 'Use Tips'
+                  assign skip_block = true
+                endif
+                if tech_specs_items.size > 0 and block.settings.title contains 'Tech Specs'
+                  assign skip_block = true
+                endif
+              -%}
+              {%- unless skip_block -%}
+                <details class="np-pdp__accordion" {% if block.settings.open_by_default %}open{% endif %} {{ block.shopify_attributes }}>
+                  <summary class="np-pdp__accordion-summary">
+                    <h3 class="np-pdp__accordion-title">{{ block.settings.title }}</h3>
+                    <span class="np-pdp__accordion-icon" aria-hidden="true">{{ icon_chevron }}</span>
+                  </summary>
+                  <div class="np-pdp__accordion-body rte">{{ block.settings.body }}</div>
+                </details>
+              {%- endunless -%}
             {%- endfor -%}
           </section>
+
+          <style>
+            .np-pdp__accordion-body a.np-pdp__inline-link,
+            .np-pdp__accordion-body .np-pdp__inline-link {
+              color: #EB701F;
+              font-weight: 600;
+              text-decoration: underline;
+            }
+            .np-pdp__accordion-body p {
+              margin: 0 0 0.85em;
+            }
+            .np-pdp__accordion-body p:last-child {
+              margin-bottom: 0;
+            }
+            .np-pdp__accordion-body br {
+              display: block;
+              content: "";
+              margin-bottom: 0.4em;
+            }
+            .np-pdp__accordion-body ul,
+            .np-pdp__accordion-body ol {
+              margin: 0 0 0.85em;
+              padding-left: 1.25em;
+            }
+            .np-pdp__accordion-body li {
+              margin-bottom: 0.25em;
+            }
+          </style>
+
+          <script>
+            (function () {
+              function autoLinkAccordionBodies() {
+                var bodies = document.querySelectorAll('.np-pdp__accordion-body');
+                if (!bodies.length) return;
+
+                bodies.forEach(function (body) {
+                  // 1) Existing anchors whose visible text is just the URL → swap to "click here"
+                  body.querySelectorAll('a').forEach(function (a) {
+                    var txt = (a.textContent || '').trim();
+                    if (/^https?:\/\//.test(txt)) {
+                      a.textContent = 'click here';
+                      a.classList.add('np-pdp__inline-link');
+                      a.target = '_blank';
+                      a.rel = 'noopener noreferrer';
+                    }
+                  });
+
+                  // 2) Raw URLs sitting in plain text (no anchor) → wrap
+                  var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, null);
+                  var nodes = [];
+                  while (walker.nextNode()) nodes.push(walker.currentNode);
+
+                  nodes.forEach(function (node) {
+                    if (node.parentElement && node.parentElement.closest('a')) return;
+                    var text = node.nodeValue;
+                    var re = /(https?:\/\/[^\s<>"']+)/g;
+                    if (!re.test(text)) return;
+                    re.lastIndex = 0;
+                    var frag = document.createDocumentFragment();
+                    var last = 0;
+                    var m;
+                    while ((m = re.exec(text)) !== null) {
+                      if (m.index > last) {
+                        frag.appendChild(document.createTextNode(text.substring(last, m.index)));
+                      }
+                      var a = document.createElement('a');
+                      a.href = m[1];
+                      a.target = '_blank';
+                      a.rel = 'noopener noreferrer';
+                      a.className = 'np-pdp__inline-link';
+                      a.textContent = 'click here';
+                      frag.appendChild(a);
+                      last = re.lastIndex;
+                    }
+                    if (last < text.length) {
+                      frag.appendChild(document.createTextNode(text.substring(last)));
+                    }
+                    node.parentNode.replaceChild(frag, node);
+                  });
+                });
+              }
+
+              if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', autoLinkAccordionBodies);
+              } else {
+                autoLinkAccordionBodies();
+              }
+            })();
+          </script>
         {%- endif -%}
 
         {%- if pairs_block and pairs_block.settings.product != blank -%}

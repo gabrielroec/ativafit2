@@ -45,13 +45,27 @@
   assign accordion_blocks = section.blocks | where: 'type', 'accordion'
   assign pairs_block = section.blocks | where: 'type', 'pairs_well_with' | first
 
-  assign mf_desc = product.metafields.custom.product_description_mf
+  assign mf_desc = product.metafields.custom.pdp_description_body
   assign description_html = blank
   if mf_desc != blank and mf_desc.value != blank
     assign description_html = mf_desc.value
   elsif section.settings.description_fallback != blank
     assign description_html = section.settings.description_fallback
   endif
+
+  assign description_title = product.metafields.custom.pdp_description_title.value | default: section.settings.description_title
+
+  assign benefit_items = product.metafields.custom.product_benefits.value
+  assign use_benefits_metaobject = false
+  if benefit_items != blank and benefit_items.size > 0
+    assign use_benefits_metaobject = true
+  else
+    assign benefit_items = bento_blocks
+  endif
+
+  assign key_features_items = product.metafields.custom.pdp_key_features.value
+  assign use_tips_items = product.metafields.custom.pdp_use_tips.value
+  assign tech_specs_items = product.metafields.custom.pdp_tech_specs.value
 -%}
 
 {%- capture icon_chevron -%}<svg class="np-pdp__icon" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg>{%- endcapture -%}
@@ -117,7 +131,7 @@
       </nav>
     {%- endif -%}
 
-    <div class="np-pdp__grid{% if bento_blocks.size > 0 %} np-pdp__grid--has-bento{% endif %}">
+    <div class="np-pdp__grid{% if benefit_items.size > 0 %} np-pdp__grid--has-bento{% endif %}">
 
       {%- comment -%} ================ LEFT COLUMN ================ {%- endcomment -%}
       <div class="np-pdp__col np-pdp__col--left">
@@ -187,9 +201,10 @@
         </div>
       </div>
 
-      {%- comment -%} Left bento — visible on desktop, hidden on mobile (CSS-controlled) {%- endcomment -%}
+      {%- comment -%} Left benefits — visible on desktop, hidden on mobile (CSS-controlled) {%- endcomment -%}
       {% render 'np-pdp-bento',
-        bento_blocks: bento_blocks,
+        bento_blocks: benefit_items,
+        use_metaobject: use_benefits_metaobject,
         bento_title: section.settings.bento_title,
         variant_class: 'np-pdp__bento--left'
       %}
@@ -208,9 +223,10 @@
         </div>
       </div>
 
-      {%- comment -%} Right bento — hidden on desktop, visible on mobile (CSS-controlled) {%- endcomment -%}
+      {%- comment -%} Right benefits — hidden on desktop, visible on mobile (CSS-controlled) {%- endcomment -%}
       {% render 'np-pdp-bento',
-        bento_blocks: bento_blocks,
+        bento_blocks: benefit_items,
+        use_metaobject: use_benefits_metaobject,
         bento_title: section.settings.bento_title,
         variant_class: 'np-pdp__bento--right'
       %}
@@ -220,7 +236,11 @@
           section: section,
           product: product,
           description_html: description_html,
+          description_title: description_title,
           accordion_blocks: accordion_blocks,
+          key_features_items: key_features_items,
+          use_tips_items: use_tips_items,
+          tech_specs_items: tech_specs_items,
           pairs_block: pairs_block,
           icon_chevron: icon_chevron,
           icon_arrow_right: icon_arrow_right
@@ -506,19 +526,24 @@
     {
       "type": "text",
       "id": "description_title",
-      "label": "Description title",
+      "label": "Description title (fallback)",
+      "info": "Used when product has no value in custom.pdp_description_title.",
       "default": "Performance Redefined."
     },
     {
       "type": "richtext",
       "id": "description_fallback",
-      "label": "Description fallback",
-      "info": "Reads from metafield custom.product_description_mf first. This text is used only when the metafield is empty.",
+      "label": "Description body (fallback)",
+      "info": "Used when product has no value in custom.pdp_description_body.",
       "default": "<p>Forged in Steel. Built for Life.</p>"
     },
     {
       "type": "header",
       "content": "Bento — Why Choose This?"
+    },
+    {
+      "type": "paragraph",
+      "content": "Blocks below are fallback. Product metafield custom.product_benefits (list of product_benefit metaobjects) takes priority when filled."
     },
     {
       "type": "text",
@@ -583,10 +608,14 @@
       "limit": 8,
       "settings": [
         {
+          "type": "paragraph",
+          "content": "Fallback for accordions. \"Key Features\", \"Use Tips and Manual\", and \"Tech Specs\" are auto-rendered as bullet lists from product metafields (custom.pdp_key_features, custom.pdp_use_tips, custom.pdp_tech_specs — all list of single line text) when filled."
+        },
+        {
           "type": "text",
           "id": "title",
           "label": "Title",
-          "default": "Key Features"
+          "default": "Use Tips and Manual"
         },
         {
           "type": "richtext",

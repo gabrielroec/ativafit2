@@ -8,7 +8,9 @@
   in the theme editor edits the same source block.
 
   Accepts:
-  - bento_blocks: {Array} blocks of type `bento_item`
+  - bento_blocks: {Array} blocks of type `bento_item` OR metaobject entries (pdp_bento_item)
+  - use_metaobject: {Boolean} if true, items are metaobjects and accessed as block.field;
+    if false/nil (default), items are section blocks accessed as block.settings.field
   - bento_title: {String} section heading
   - variant_class: {String} extra class on the `<section>` (e.g. `np-pdp__bento--left`)
 {%- endcomment -%}
@@ -18,11 +20,26 @@
     <h2 class="np-pdp__bento-title">{{ bento_title }}</h2>
     <div class="np-pdp__bento-grid">
       {%- for block in bento_blocks -%}
-        <article class="np-pdp__bento-card" {{ block.shopify_attributes }}>
-          <span class="np-pdp__bento-icon{% if block.settings.icon_image != blank %} np-pdp__bento-icon--img{% endif %}" aria-hidden="true">
-            {%- if block.settings.icon_image != blank -%}
+        {%- liquid
+          if use_metaobject
+            assign icon_image = block.icon_image
+            assign icon_key = ''
+            assign card_title = block.title
+            assign card_desc = block.description
+            assign shopify_attrs = ''
+          else
+            assign icon_image = block.settings.icon_image
+            assign icon_key = block.settings.icon
+            assign card_title = block.settings.title
+            assign card_desc = block.settings.description
+            assign shopify_attrs = block.shopify_attributes
+          endif
+        -%}
+        <article class="np-pdp__bento-card" {{ shopify_attrs }}>
+          <span class="np-pdp__bento-icon{% if icon_image != blank %} np-pdp__bento-icon--img{% endif %}" aria-hidden="true">
+            {%- if icon_image != blank -%}
               <img
-                src="{{ block.settings.icon_image | image_url: width: 96 }}"
+                src="{{ icon_image | image_url: width: 96 }}"
                 alt=""
                 width="48"
                 height="48"
@@ -30,7 +47,7 @@
                 decoding="async"
                 class="np-pdp__bento-icon-img">
             {%- else -%}
-              {%- case block.settings.icon -%}
+              {%- case icon_key -%}
                 {%- when 'trust_shipping' -%}
                   <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm12.5-9l1.96 2.5H17V9.5h1.5zm-.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
                 {%- when 'trust_returns' -%}
@@ -65,9 +82,9 @@
             {%- endif -%}
           </span>
           <div class="np-pdp__bento-card-body">
-            <h3 class="np-pdp__bento-card-title">{{ block.settings.title | newline_to_br }}</h3>
-            {%- if block.settings.description != blank -%}
-              <p class="np-pdp__bento-card-desc">{{ block.settings.description | newline_to_br }}</p>
+            <h3 class="np-pdp__bento-card-title">{{ card_title | newline_to_br }}</h3>
+            {%- if card_desc != blank -%}
+              <p class="np-pdp__bento-card-desc">{{ card_desc | newline_to_br }}</p>
             {%- endif -%}
           </div>
         </article>
