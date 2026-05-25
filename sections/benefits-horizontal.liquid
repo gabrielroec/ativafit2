@@ -26,19 +26,31 @@
           {%- assign benefit_title = block.settings.title -%}
           {%- assign benefit_desc = block.settings.description -%}
           {%- if benefit_title != blank -%}
+            {%- assign icon_w = block.settings.icon_width | default: 45 -%}
+            {%- assign icon_h = block.settings.icon_height | default: 45 -%}
             <div class="benefits-horizontal__item" {{ block.shopify_attributes }}>
-              <div class="benefits-horizontal__icon">
+              <div class="benefits-horizontal__icon" style="width:{{ icon_w }}px;height:{{ icon_h }}px;">
                 {%- if block.settings.svg_icon != blank -%}
-                  <span class="benefits-horizontal__icon-svg">{{ block.settings.svg_icon }}</span>
+                  <span class="benefits-horizontal__icon-svg" style="width:{{ icon_w }}px;height:{{ icon_h }}px;">{{ block.settings.svg_icon }}</span>
                 {%- elsif block.settings.icon_image != blank -%}
                   <img
-                    src="{{ block.settings.icon_image | image_url: width: 90, format: 'webp' }}"
+                    src="{{ block.settings.icon_image | image_url: width: 180, format: 'webp' }}"
                     alt="{{ benefit_title | escape }}"
-                    width="45"
-                    height="45"
+                    width="{{ icon_w }}"
+                    height="{{ icon_h }}"
                     loading="lazy">
                 {%- else -%}
-                  <span class="benefits-horizontal__icon-placeholder" aria-hidden="true"></span>
+                  {%- assign title_lower = benefit_title | downcase -%}
+                  {%- if title_lower contains 'shop pay' -%}
+                    <img
+                      src="{{ 'shop-pay-icon.png' | asset_url }}"
+                      alt="{{ benefit_title | escape }}"
+                      width="{{ icon_w }}"
+                      height="{{ icon_h }}"
+                      loading="lazy">
+                  {%- else -%}
+                    <span class="benefits-horizontal__icon-placeholder" style="width:{{ icon_w }}px;height:{{ icon_h }}px;" aria-hidden="true"></span>
+                  {%- endif -%}
                 {%- endif -%}
               </div>
               <h4 class="benefits-horizontal__title">{{ benefit_title }}</h4>
@@ -230,6 +242,30 @@
           "type": "url",
           "id": "link_url",
           "label": "Link URL"
+        },
+        {
+          "type": "header",
+          "content": "Icon Size"
+        },
+        {
+          "type": "range",
+          "id": "icon_width",
+          "label": "Icon Width (px)",
+          "min": 20,
+          "max": 120,
+          "step": 5,
+          "default": 45,
+          "unit": "px"
+        },
+        {
+          "type": "range",
+          "id": "icon_height",
+          "label": "Icon Height (px)",
+          "min": 20,
+          "max": 120,
+          "step": 5,
+          "default": 45,
+          "unit": "px"
         }
       ]
     }
