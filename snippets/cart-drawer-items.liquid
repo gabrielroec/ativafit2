@@ -4,148 +4,159 @@
 {% endcomment %}
 
 {% if cart.item_count == 0 %}
+  {%- assign empty_shop_url = shop_url | default: routes.all_products_collection_url -%}
   <div class="cart-drawer__empty">
-    <div class="cart-drawer__empty-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="9" cy="21" r="1"></circle>
-        <circle cx="20" cy="21" r="1"></circle>
-        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-      </svg>
+
+    {%- comment -%} Empty message + CTA (loyalty banner lives at the section level so empty + filled share it) {%- endcomment -%}
+    <div class="cart-drawer__empty-message">
+      <h3 class="cart-drawer__empty-heading">Your cart is empty</h3>
+      <p class="cart-drawer__empty-text">
+        Looks like you have not added anything yet.<br>
+        Pick a customer favorite to get started.
+      </p>
+      <a href="{{ empty_shop_url }}" class="cart-drawer__empty-cta">
+        SHOP BEST SELLERS
+      </a>
     </div>
-    <p class="cart-drawer__empty-text">Your cart is empty</p>
-    <a href="{{ routes.all_products_collection_url }}" class="button button--secondary">
-      Continue Shopping
-    </a>
+
+    {%- comment -%} Recommended products (reuses existing snippet in inline layout) {%- endcomment -%}
+    <div class="cart-drawer__empty-recommendations">
+      {% render 'cart-drawer-recommendations', layout: 'inline' %}
+    </div>
+
   </div>
 {% else %}
   <div class="cart-drawer__items-list">
     {% for item in cart.items %}
+      {%- comment -%} Savings calc (compare_at preferred, line-level fallback) {%- endcomment -%}
+      {%- assign has_discount = false -%}
+      {%- assign savings = 0 -%}
+      {%- assign old_line_price = 0 -%}
+      {%- assign final_line_price = item.final_line_price -%}
+
+      {%- if item.variant.compare_at_price and item.variant.compare_at_price > item.price -%}
+        {%- assign has_discount = true -%}
+        {%- assign old_line_price = item.variant.compare_at_price | times: item.quantity -%}
+        {%- assign savings = old_line_price | minus: final_line_price -%}
+      {%- endif -%}
+
+      {%- if has_discount == false and item.original_line_price > final_line_price -%}
+        {%- assign has_discount = true -%}
+        {%- assign old_line_price = item.original_line_price -%}
+        {%- assign savings = old_line_price | minus: final_line_price -%}
+      {%- endif -%}
+
+      {%- assign show_variant = false -%}
+      {%- unless item.product.has_only_default_variant -%}
+        {%- if item.variant.title != 'Default Title' and item.variant.title != blank -%}
+          {%- assign show_variant = true -%}
+        {%- endif -%}
+      {%- endunless -%}
+
       <div class="cart-item" id="CartDrawer-Item-{{ item.index | plus: 1 }}" data-index="{{ item.index | plus: 1 }}">
-        
-        {%- comment -%} Item Image {%- endcomment -%}
-        <div class="cart-item__image">
-          {% if item.image %}
-            <img 
-              src="{{ item.image | image_url: width: 150 }}"
-              alt="{{ item.image.alt | escape }}"
-              width="150"
-              height="{{ 150 | divided_by: item.image.aspect_ratio | ceil }}"
-              loading="lazy"
-            >
-          {% endif %}
+
+        {%- comment -%} Image with absolute saving badge {%- endcomment -%}
+        <div class="cart-item__media">
+          {%- if has_discount and savings > 0 -%}
+            <span class="cart-item__savings-badge" aria-label="Saving {{ savings | money }}">
+              Saving {{ savings | money }}
+            </span>
+          {%- endif -%}
+          <a href="{{ item.url }}" class="cart-item__image" tabindex="-1" aria-hidden="true">
+            {% if item.image %}
+              <img
+                src="{{ item.image | image_url: width: 220 }}"
+                alt="{{ item.image.alt | escape }}"
+                width="220"
+                height="{{ 220 | divided_by: item.image.aspect_ratio | ceil }}"
+                loading="lazy">
+            {% endif %}
+          </a>
         </div>
 
-        {%- comment -%} Item Details {%- endcomment -%}
+        {%- comment -%} Details column {%- endcomment -%}
         <div class="cart-item__details">
-          
+
+          {%- comment -%} Remove button (trash icon, top-right) — keeps existing <cart-remove-button> component {%- endcomment -%}
+          <cart-remove-button
+            id="CartDrawer-Remove-{{ item.index | plus: 1 }}"
+            data-line="{{ item.index | plus: 1 }}"
+            class="cart-item__remove-wrap">
+            <button
+              type="button"
+              class="cart-item__remove cart-item__remove--icon"
+              aria-label="Remove {{ item.title | escape }}">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                <path d="M10 11v6"></path>
+                <path d="M14 11v6"></path>
+                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+              </svg>
+            </button>
+          </cart-remove-button>
+
           {%- comment -%} Title {%- endcomment -%}
           <a href="{{ item.url }}" class="cart-item__title">
             {{ item.product.title | escape }}
           </a>
 
-          {%- comment -%} Variant {%- endcomment -%}
-          {% unless item.product.has_only_default_variant %}
-            <div class="cart-item__variant">
-              {{ item.variant.title }}
-            </div>
-          {% endunless %}
+          {%- comment -%} Variant (hidden when default) {%- endcomment -%}
+          {%- if show_variant -%}
+            <div class="cart-item__variant">{{ item.variant.title }}</div>
+          {%- endif -%}
 
-          {%- comment -%} Properties {%- endcomment -%}
-          {% unless item.properties == empty %}
+          {%- comment -%} Selling plan name (subscriptions) {%- endcomment -%}
+          {%- if item.selling_plan_allocation -%}
+            <div class="cart-item__selling-plan">{{ item.selling_plan_allocation.selling_plan.name }}</div>
+          {%- endif -%}
+
+          {%- comment -%} Line-item properties (preorder, custom uploads, etc.) {%- endcomment -%}
+          {%- unless item.properties == empty -%}
             <div class="cart-item__properties">
-              {% for property in item.properties %}
-                {% assign property_first_char = property.first | slice: 0 %}
-                {% unless property.last == blank or property_first_char == '_' %}
+              {%- for property in item.properties -%}
+                {%- assign property_first_char = property.first | slice: 0 -%}
+                {%- unless property.last == blank or property_first_char == '_' -%}
                   <div class="cart-item__property">
                     <span>{{ property.first }}: </span>
                     <span>
-                      {% if property.last contains '/uploads/' %}
+                      {%- if property.last contains '/uploads/' -%}
                         <a href="{{ property.last }}">{{ property.last | split: '/' | last }}</a>
-                      {% else %}
+                      {%- else -%}
                         {{ property.last }}
-                      {% endif %}
+                      {%- endif -%}
                     </span>
                   </div>
-                {% endunless %}
-              {% endfor %}
+                {%- endunless -%}
+              {%- endfor -%}
             </div>
-          {% endunless %}
+          {%- endunless -%}
 
-          {%- comment -%} Price with Discount Info {%- endcomment -%}
-          <div class="cart-item__price">
-            {%- assign has_discount = false -%}
-            {%- assign savings = 0 -%}
-            {%- assign old_line_price = 0 -%}
-            {%- assign final_line_price = item.final_line_price -%}
-
-            {%- comment -%} Prefer compare_at for the strikethrough price when available {%- endcomment -%}
-            {%- if item.variant.compare_at_price and item.variant.compare_at_price > item.price -%}
-              {%- assign has_discount = true -%}
-              {%- assign old_line_price = item.variant.compare_at_price | times: item.quantity -%}
-              {%- assign savings = old_line_price | minus: final_line_price -%}
-            {%- endif -%}
-
-            {%- comment -%} Fallback to line-level discount comparison {%- endcomment -%}
-            {%- if has_discount == false and item.original_line_price > final_line_price -%}
-              {%- assign has_discount = true -%}
-              {%- assign old_line_price = item.original_line_price -%}
-              {%- assign savings = old_line_price | minus: final_line_price -%}
-            {%- endif -%}
-
+          {%- comment -%} Price + quantity row {%- endcomment -%}
+          <div class="cart-item__row">
             <div class="cart-item__price-wrapper">
-              <span class="cart-item__final-price">
-                {{ final_line_price | money }}
-              </span>
-
+              <span class="cart-item__final-price">{{ final_line_price | money }}</span>
               {%- if has_discount and old_line_price > final_line_price -%}
-                <span class="cart-item__old-price">
-                  {{ old_line_price | money }}
-                </span>
+                <span class="cart-item__old-price">{{ old_line_price | money }}</span>
               {%- endif -%}
             </div>
 
-            {%- comment -%} Savings Badge {%- endcomment -%}
-            {%- if has_discount and savings > 0 -%}
-              <div class="cart-item__savings-badge">
-                You save {{ savings | money }}
-              </div>
-            {%- endif -%}
-
-            {%- comment -%} Line Level Discounts (automatic discounts or discount codes) {%- endcomment -%}
-            {%- if item.line_level_discount_allocations.size > 0 -%}
-              <div class="cart-item__discounts">
-                {%- for discount_allocation in item.line_level_discount_allocations -%}
-                  <div class="cart-item__discount-badge">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
-                      <path d="M7 0L8.5 5L13 5L9.25 8L10.75 13L7 10L3.25 13L4.75 8L1 5L5.5 5L7 0Z" fill="currentColor"/>
-                    </svg>
-                    <span class="cart-item__discount-title">{{ discount_allocation.discount_application.title }}</span>
-                    <span class="cart-item__discount-amount">-{{ discount_allocation.amount | money }}</span>
-                  </div>
-                {%- endfor -%}
-              </div>
-            {%- endif -%}
-          </div>
-
-          {%- comment -%} Quantity Selector {%- endcomment -%}
-          <div class="cart-item__quantity">
             <label class="visually-hidden" for="Drawer-quantity-{{ item.index | plus: 1 }}">
               Quantity
             </label>
             <quantity-input class="quantity" data-line="{{ item.index | plus: 1 }}">
-              <button 
-                class="quantity__button" 
-                name="minus" 
+              <button
+                class="quantity__button"
+                name="minus"
                 type="button"
                 data-line="{{ item.index | plus: 1 }}"
                 data-quantity="{{ item.quantity | minus: 1 }}"
-                {% if item.quantity <= 1 %}disabled{% endif %}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="2" viewBox="0 0 12 2" fill="none">
+                {% if item.quantity <= 1 %}disabled{% endif %}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="2" viewBox="0 0 12 2" fill="none" aria-hidden="true">
                   <path d="M11 1H1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                 </svg>
               </button>
-              <input 
+              <input
                 class="quantity__input"
                 type="number"
                 name="updates[]"
@@ -153,34 +164,34 @@
                 min="1"
                 aria-label="Quantity for {{ item.product.title | escape }}"
                 id="Drawer-quantity-{{ item.index | plus: 1 }}"
-                data-line="{{ item.index | plus: 1 }}"
-              >
-              <button 
-                class="quantity__button" 
-                name="plus" 
+                data-line="{{ item.index | plus: 1 }}">
+              <button
+                class="quantity__button"
+                name="plus"
                 type="button"
                 data-line="{{ item.index | plus: 1 }}"
-                data-quantity="{{ item.quantity | plus: 1 }}"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                data-quantity="{{ item.quantity | plus: 1 }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                   <path d="M11 6H1M6 11V1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                 </svg>
               </button>
             </quantity-input>
-
-            <cart-remove-button 
-              id="CartDrawer-Remove-{{ item.index | plus: 1 }}" 
-              data-line="{{ item.index | plus: 1 }}"
-            >
-              <button
-                type="button"
-                class="cart-item__remove"
-                aria-label="Remove {{ item.title | escape }}"
-              >
-                Remove
-              </button>
-            </cart-remove-button>
           </div>
+
+          {%- comment -%} Line-level discount badges (automatic discounts or codes) {%- endcomment -%}
+          {%- if item.line_level_discount_allocations.size > 0 -%}
+            <div class="cart-item__discounts">
+              {%- for discount_allocation in item.line_level_discount_allocations -%}
+                <div class="cart-item__discount-badge">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                    <path d="M7 0L8.5 5L13 5L9.25 8L10.75 13L7 10L3.25 13L4.75 8L1 5L5.5 5L7 0Z" fill="currentColor"/>
+                  </svg>
+                  <span class="cart-item__discount-title">{{ discount_allocation.discount_application.title }}</span>
+                  <span class="cart-item__discount-amount">-{{ discount_allocation.amount | money }}</span>
+                </div>
+              {%- endfor -%}
+            </div>
+          {%- endif -%}
 
         </div>
       </div>

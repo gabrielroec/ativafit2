@@ -66,41 +66,11 @@ function getCartApi() {
 }
 
 /**
- * Detecta país do visitante por IP (API externa) e mostra a barra de free shipping só para US.
- * Resultado em sessionStorage para não chamar a API a cada navegação.
+ * Free shipping is now offered site-wide, so the bar is rendered visible by
+ * Liquid for every visitor. This function is kept as a no-op to preserve the
+ * call site without re-introducing the legacy US-only IP detection.
  */
-function detectCountryAndToggleFreeShippingBar() {
-  const wrap = document.getElementById("cart-drawer-free-shipping-wrap");
-  if (!wrap) return;
-
-  function showBar() {
-    wrap.style.display = "";
-  }
-  function hideBar() {
-    wrap.style.display = "none";
-  }
-
-  try {
-    const cached = sessionStorage.getItem(FREE_SHIPPING_STORAGE_KEY);
-    if (cached !== null) {
-      if (cached === "US") showBar();
-      else hideBar();
-      return;
-    }
-  } catch (_) {}
-
-  fetch("https://ipapi.co/json/", { credentials: "omit" })
-    .then((res) => res.json())
-    .then((data) => {
-      const code = (data.country_code || "").toUpperCase();
-      try {
-        sessionStorage.setItem(FREE_SHIPPING_STORAGE_KEY, code);
-      } catch (_) {}
-      if (code === "US") showBar();
-      else hideBar();
-    })
-    .catch(() => hideBar());
-}
+function detectCountryAndToggleFreeShippingBar() {}
 
 if (!customElements.get("cart-drawer")) {
   customElements.define(
@@ -122,18 +92,18 @@ if (!customElements.get("cart-drawer")) {
       }
 
       setupLoyaltyButton() {
-        const loyaltyBtn = this.querySelector("[data-open-loyalty]");
-        if (!loyaltyBtn) return;
+        // Delegated so both the header button and the empty-state banner
+        // button (re-rendered with the items snippet) trigger BON Loyalty.
+        this.addEventListener("click", (event) => {
+          const btn = event.target.closest("[data-open-loyalty]");
+          if (!btn || !this.contains(btn)) return;
 
-        loyaltyBtn.addEventListener("click", () => {
-          // Tenta encontrar o botão original do BON Loyalty
           const originalBtn =
             document.getElementById("bon-loyalty-btn") ||
             document.querySelector('[id*="bon-loyalty"]') ||
             document.querySelector('button[aria-label="BON-Loyalty-btn"]');
 
           if (originalBtn) {
-            // Clica no botão original para abrir o iframe
             originalBtn.click();
           }
         });
@@ -732,5 +702,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const isExpanded = button.getAttribute("aria-expanded") === "true";
     button.setAttribute("aria-expanded", String(!isExpanded));
+  });
+
+  // ========== Shop Pay "View sample plans" bridge ==========
+  // Our custom link triggers the official <shopify-payment-terms> CTA living
+  // in the hidden host so the official modal opens. Works after AJAX re-renders
+  // because the listener is delegated on document.
+  document.addEventListener("click", (e) => {
+    const link = e.target.closest("[data-shoppay-sample-plans]");
+    if (!link) return;
+    e.preventDefault();
+
+    const host = document.querySelector(".cart-drawer__payment-terms-host shopify-payment-terms");
+    if (!host) return;
+
+    const openOfficialCta = () => {
+      const root = host.shadowRoot;
+      if (!root) return false;
+      const cta = root.getElementById("shopify-installments-cta") || root.querySelector("[data-testid='shopify-installments-cta']");
+      if (cta) {
+        cta.click();
+        return true;
+      }
+      return false;
+    };
+
+    if (openOfficialCta()) return;
+
+    // Shadow root not ready yet (custom-element upgrade pending). Retry briefly.
+    let attempts = 0;
+    const interval = setInterval(() => {
+      attempts += 1;
+      if (openOfficialCta() || attempts >= 10) clearInterval(interval);
+    }, 50);
   });
 });

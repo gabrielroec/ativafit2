@@ -34,76 +34,86 @@
     aria-label="Shopping Cart"
     tabindex="-1">
 
+    {%- comment -%} Close button — absolute, top-right of the drawer container {%- endcomment -%}
+    <button
+      class="cart-drawer__close"
+      type="button"
+      aria-label="Close cart"
+      data-close-drawer>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+
     {%- comment -%} Drawer Content {%- endcomment -%}
     <div class="cart-drawer__content">
 
-      {%- comment -%} Header {%- endcomment -%}
-      <div class="cart-drawer__header">
-        <div class="cart-drawer__header-left">
-          <h2 class="cart-drawer__title">{{ section.settings.heading | default: 'Your Cart' }}</h2>
-          <button 
-            class="cart-drawer__loyalty-btn" 
-            aria-label="Member Discount"
-            type="button"
-            data-open-loyalty>
-            <svg width="20" height="20" viewBox="0 0 37 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M33.5561 9.01065H27.7105C27.8733 8.87444 28.0156 8.74502 28.1445 8.61561C30.0229 6.71532 30.0229 3.62309 28.1445 1.7228C27.2698 0.837358 26.022 0.333344 24.7199 0.333344C23.418 0.333344 22.1702 0.837358 21.2954 1.7228C20.7801 2.24044 19.8985 3.49368 19.2068 4.88995C18.8405 5.63235 18.5557 6.3339 18.3659 6.99457C18.1761 6.3339 17.8913 5.63235 17.525 4.88995C16.8333 3.49368 15.945 2.24044 15.4364 1.7228C14.5616 0.837358 13.3138 0.333344 12.0118 0.333344C10.7098 0.333344 9.46208 0.837358 8.5873 1.7228C6.70887 3.62309 6.70887 6.71532 8.5873 8.61561C8.70935 8.73822 8.85854 8.87444 9.02129 9.01065H3.17582C1.79244 9.01065 0.666748 10.1413 0.666748 11.5308V16.9796C0.666748 17.7697 1.30419 18.41 2.09082 18.41H2.83675V31.1466C2.83675 32.5361 3.96245 33.6667 5.34583 33.6667H31.386C32.7693 33.6667 33.895 32.5361 33.895 31.1466V18.41H34.641C35.4276 18.41 36.0651 17.7697 36.0651 16.9796V11.5308C36.0651 10.1413 34.9394 9.01065 33.5561 9.01065ZM31.0469 18.41V30.8061H19.7899V18.41H31.0469ZM24.7199 3.17356C25.2557 3.17356 25.7643 3.37789 26.1237 3.73888C26.9035 4.52897 26.9035 5.80945 26.1237 6.59954C25.2286 7.50541 22.4889 9.01065 21.0649 9.01065C20.9902 9.01065 20.936 9.00385 20.902 9.00385C20.8749 8.79951 20.9495 8.10478 21.4447 6.87879C21.9736 5.57787 22.6855 4.37912 23.3162 3.7457C23.6689 3.37789 24.1842 3.17356 24.7199 3.17356ZM33.217 11.8713V15.5492H19.7899V11.8713H33.217ZM16.9419 18.41V30.8061H5.6849V18.41H16.9419ZM10.6081 3.73888C10.9811 3.35747 11.4829 3.15313 12.0118 3.15313C12.5408 3.15313 13.0358 3.36427 13.4156 3.73888C14.0462 4.37231 14.7583 5.57106 15.2872 6.87197C15.7823 8.09796 15.8569 8.7927 15.8298 8.99704C15.7958 9.00385 15.7416 9.00385 15.6669 9.00385C14.2429 9.00385 11.51 7.4986 10.6081 6.59273C9.82826 5.80945 9.82826 4.52897 10.6081 3.73888ZM16.9419 11.8713V15.5492H3.51488V11.8713H16.9419Z" fill="#ffffff"></path>
-            </svg>
-            <span>Member's Discount</span>
-          </button>
-        </div>
-        <button
-          class="cart-drawer__close"
-          type="button"
-          aria-label="Close cart"
-          data-close-drawer>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round">
-            <line
-              x1="18"
-              y1="6"
-              x2="6"
-              y2="18"></line>
-            <line
-              x1="6"
-              y1="6"
-              x2="18"
-              y2="18"></line>
-          </svg>
-        </button>
-      </div>
-
-      {%- comment -%} Área rolável: free shipping + itens (free shipping segue o scroll, não fica fixo) {%- endcomment -%}
+      {%- comment -%} Área rolável: banner + título + free shipping + itens + recomendações {%- endcomment -%}
       <div class="cart-drawer__scroll">
-        {%- comment -%} Free Shipping Bar (US only) - Shown only when JS detects US by IP; hidden by default to avoid flash for non-US {%- endcomment -%}
-        {%- if section.settings.show_free_shipping_bar -%}
-          <div id="cart-drawer-free-shipping-wrap" class="cart-drawer__free-shipping-wrap" data-free-shipping-bar style="display: none;">
-            <div class="cart-drawer__free-shipping" role="status" aria-live="polite">
-              <div class="cart-drawer__free-shipping-text">
-                <span class="cart-drawer__free-shipping-emoji" aria-hidden="true">🚚</span>
-                {{ section.settings.free_shipping_unlocked_text }}
-              </div>
-              <div class="cart-drawer__free-shipping-bar" aria-hidden="true">
-                <span class="cart-drawer__free-shipping-fill" style="width: 100%;"></span>
+
+        {%- if cart.item_count > 0 -%}
+          {%- comment -%} Cart title + member button on one row (filled only) {%- endcomment -%}
+          <div class="cart-drawer__title-row">
+            <h2 class="cart-drawer__title cart-drawer__title--filled">{{ section.settings.heading | default: 'Your cart' }}</h2>
+            <button
+              class="cart-drawer__loyalty-btn"
+              aria-label="Member Discount"
+              type="button"
+              data-open-loyalty>
+              <svg width="20" height="20" viewBox="0 0 37 34" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M33.5561 9.01065H27.7105C27.8733 8.87444 28.0156 8.74502 28.1445 8.61561C30.0229 6.71532 30.0229 3.62309 28.1445 1.7228C27.2698 0.837358 26.022 0.333344 24.7199 0.333344C23.418 0.333344 22.1702 0.837358 21.2954 1.7228C20.7801 2.24044 19.8985 3.49368 19.2068 4.88995C18.8405 5.63235 18.5557 6.3339 18.3659 6.99457C18.1761 6.3339 17.8913 5.63235 17.525 4.88995C16.8333 3.49368 15.945 2.24044 15.4364 1.7228C14.5616 0.837358 13.3138 0.333344 12.0118 0.333344C10.7098 0.333344 9.46208 0.837358 8.5873 1.7228C6.70887 3.62309 6.70887 6.71532 8.5873 8.61561C8.70935 8.73822 8.85854 8.87444 9.02129 9.01065H3.17582C1.79244 9.01065 0.666748 10.1413 0.666748 11.5308V16.9796C0.666748 17.7697 1.30419 18.41 2.09082 18.41H2.83675V31.1466C2.83675 32.5361 3.96245 33.6667 5.34583 33.6667H31.386C32.7693 33.6667 33.895 32.5361 33.895 31.1466V18.41H34.641C35.4276 18.41 36.0651 17.7697 36.0651 16.9796V11.5308C36.0651 10.1413 34.9394 9.01065 33.5561 9.01065ZM31.0469 18.41V30.8061H19.7899V18.41H31.0469ZM24.7199 3.17356C25.2557 3.17356 25.7643 3.37789 26.1237 3.73888C26.9035 4.52897 26.9035 5.80945 26.1237 6.59954C25.2286 7.50541 22.4889 9.01065 21.0649 9.01065C20.9902 9.01065 20.936 9.00385 20.902 9.00385C20.8749 8.79951 20.9495 8.10478 21.4447 6.87879C21.9736 5.57787 22.6855 4.37912 23.3162 3.7457C23.6689 3.37789 24.1842 3.17356 24.7199 3.17356ZM33.217 11.8713V15.5492H19.7899V11.8713H33.217ZM16.9419 18.41V30.8061H5.6849V18.41H16.9419ZM10.6081 3.73888C10.9811 3.35747 11.4829 3.15313 12.0118 3.15313C12.5408 3.15313 13.0358 3.36427 13.4156 3.73888C14.0462 4.37231 14.7583 5.57106 15.2872 6.87197C15.7823 8.09796 15.8569 8.7927 15.8298 8.99704C15.7958 9.00385 15.7416 9.00385 15.6669 9.00385C14.2429 9.00385 11.51 7.4986 10.6081 6.59273C9.82826 5.80945 9.82826 4.52897 10.6081 3.73888ZM16.9419 11.8713V15.5492H3.51488V11.8713H16.9419Z" fill="#ffffff"/>
+              </svg>
+              <span>Member</span>
+            </button>
+          </div>
+
+          {%- comment -%} Free Shipping Bar — always shown completed (free shipping is site-wide) {%- endcomment -%}
+          {%- if section.settings.show_free_shipping_bar -%}
+            <div class="cart-drawer__free-shipping-wrap">
+              <div class="cart-drawer__free-shipping cart-drawer__free-shipping--unlocked" role="status" aria-live="polite">
+                <div class="cart-drawer__free-shipping-text">
+                  {{ section.settings.free_shipping_unlocked_text }}
+                </div>
+                <div class="cart-drawer__free-shipping-bar" aria-hidden="true">
+                  <span class="cart-drawer__free-shipping-fill" style="width: 100%;"></span>
+                  <span class="cart-drawer__free-shipping-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <rect x="1" y="3" width="15" height="13"></rect>
+                      <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                      <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                      <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                    </svg>
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
+          {%- endif -%}
         {%- endif -%}
 
         {%- comment -%} Cart Items {%- endcomment -%}
+        {%- assign empty_shop_url = section.settings.shop_best_sellers_url | default: routes.all_products_collection_url -%}
         <div
           class="cart-drawer__items"
           id="CartDrawer-Items"
           data-id="{{ section.id }}">
-          {% render 'cart-drawer-items' %}
+          {% render 'cart-drawer-items', shop_url: empty_shop_url %}
+        </div>
+
+        {%- comment -%} Recommended Products (filled cart, non-collapsible, inside scroll) {%- endcomment -%}
+        <div class="cart-drawer__recommendations" id="CartDrawer-Recommendations">
+          {%- if section.settings.show_recommendations and cart.item_count > 0 -%}
+            {% render 'cart-drawer-recommendations' %}
+          {%- endif -%}
         </div>
       </div>
 
@@ -113,13 +123,6 @@
           , cart
           , id: 'CartDrawer-Form'
           , class: 'cart-drawer__form' %}
-
-          {%- comment -%} Recommended Products {%- endcomment -%}
-          {%- if section.settings.show_recommendations and cart.item_count > 0 -%}
-            <div class="cart-drawer__recommendations" id="CartDrawer-Recommendations">
-              {% render 'cart-drawer-recommendations' %}
-            </div>
-        {%- endif -%}
 
           {%- comment -%} Subtotal with Discount Info {%- endcomment -%}
           {%- assign total_savings = 0 -%}
@@ -151,29 +154,12 @@
 
           <div class="cart-drawer__subtotal">
             <span class="cart-drawer__subtotal-label">{{ section.settings.subtotal_label | default: 'Subtotal' }}</span>
-            {%- if has_total_discount and total_savings > 0 -%}
-              <div class="cart-drawer__subtotal-savings-badge">
-                You save {{ total_savings | money }}
-              </div>
-            {%- endif -%}
             <span class="cart-drawer__subtotal-price" data-cart-subtotal>
-              {{ cart.total_price | money_with_currency }}
+              {{ cart.total_price | money }}
             </span>
-            {%- if has_total_discount and original_total > cart.total_price -%}
-              <span class="cart-drawer__subtotal-original-price">
-                {{ original_total | money_with_currency }}
-              </span>
-            {%- endif -%}
           </div>
 
-          {%- comment -%} Shop Pay Installments - Official {%- endcomment -%}
-          {% if section.settings.show_payment_terms %}
-            <div class="cart-drawer__payment-terms">
-              {{ form | payment_terms }}
-            </div>
-          {% endif %}
-
-          {%- comment -%} Shipping Notice {%- endcomment -%}
+          {%- comment -%} Shipping Notice (optional) {%- endcomment -%}
           {% if section.settings.shipping_notice != blank %}
             <div class="cart-drawer__notice">
               {{ section.settings.shipping_notice }}
@@ -186,80 +172,52 @@
               type="submit"
               class="cart-drawer__checkout button button--primary"
               name="checkout">
-              {{ section.settings.checkout_button_label | default: 'Checkout' }}
+              {{ section.settings.checkout_button_label | default: 'CHECKOUT NOW' }}
             </button>
 
-            {%- comment -%} Payment Badges {%- endcomment -%}
-            {% if section.settings.show_payment_badges %}
-              <div class="cart-drawer__payment-badges">
-                <img
-                  src="https://download.logo.wine/logo/Mastercard/Mastercard-Logo.wine.png"
-                  alt="Mastercard"
-                  class="payment-badge"
-                  loading="lazy"
-                  width="40"
-                  height="24">
-                <img
-                  src="https://upload.wikimedia.org/wikipedia/commons/9/93/PayPal_Logo2014.png"
-                  alt="PayPal"
-                  class="payment-badge"
-                  loading="lazy"
-                  width="40"
-                  height="24">
-                <img
-                  src="https://cdn.shopify.com/shopifycloud/help-center/manual/shop-pay-installments/shop-pay-logo-color.png"
-                  alt="Shop Pay"
-                  class="payment-badge"
-                  loading="lazy"
-                  width="40"
-                  height="24">
-                <img
-                  src="https://upload.wikimedia.org/wikipedia/commons/d/de/Amazon_icon.png"
-                  alt="Amazon Pay"
-                  class="payment-badge"
-                  loading="lazy"
-                  width="40"
-                  height="24">
-                <img
-                  src="https://cdn-icons-png.freepik.com/256/5968/5968245.png?semt=ais_white_label"
-                  alt="American Express"
-                  class="payment-badge"
-                  loading="lazy"
-                  width="40"
-                  height="24">
-                <img
-                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfp_3jN-zgVDJzWjr1I4lKWWRothBbWHb8hQ&s"
-                  alt="Apple Pay"
-                  class="payment-badge"
-                  loading="lazy"
-                  width="40"
-                  height="24">
-                <img
-                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSECDKIpkdSUbFaBLjhaAxj0qMcSdLRFvvtvQ&s"
-                  alt="Diners Club"
-                  class="payment-badge"
-                  loading="lazy"
-                  width="40"
-                  height="24">
-                <img
-                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Google_Pay_Logo.svg/1280px-Google_Pay_Logo.svg.png"
-                  alt="Google Pay"
-                  class="payment-badge"
-                  loading="lazy"
-                  width="40"
-                  height="24">
-              </div>
-            {% endif %}
-          </div>
+            {%- comment -%}
+              Shop Pay Installments — short dynamic line (replaces the official
+              `{{ form | payment_terms }}` shadow-DOM component so we can control the wording).
+              Gated by Shop Pay's published min/max ($50 – $30,000 for the 4-installment plan).
+            {%- endcomment -%}
+            {% if section.settings.show_payment_terms %}
+              {%- assign sp_min = 5000 -%}
+              {%- assign sp_max = 3000000 -%}
+              {%- if cart.total_price >= sp_min and cart.total_price <= sp_max -%}
+                {%- assign sp_count = 4 -%}
+                {%- assign sp_installment = cart.total_price | divided_by: sp_count -%}
+                <div class="cart-drawer__payment-terms">
+                  <span class="cart-drawer__payment-terms-text">
+                    {{ sp_count }} payments of {{ sp_installment | money }}/mo with
+                  </span>
+                  <span class="cart-drawer__payment-terms-shoppay" aria-label="Shop Pay">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 99 25" role="img" aria-hidden="true">
+                      <path fill="currentColor" d="M70.842 7.915h2.25c1.561 0 2.328.642 2.328 1.715 0 1.074-.739 1.715-2.259 1.715h-2.32v-3.43ZM80.525 16.142c-.879 0-1.227-.474-1.227-.948 0-.642.725-.935 2.147-1.102l1.115-.125c-.07 1.227-.892 2.175-2.035 2.175Z"/>
+                      <path fill="currentColor" fill-rule="evenodd" d="M65.645.5a3.64 3.64 0 0 0-3.64 3.64V20.7a3.64 3.64 0 0 0 3.64 3.64h29.668a3.64 3.64 0 0 0 3.64-3.64V4.14A3.64 3.64 0 0 0 95.314.5H65.645Zm5.197 16.674v-4.197h2.64c2.412 0 3.695-1.353 3.695-3.402 0-2.05-1.283-3.277-3.695-3.277h-4.341v10.876h1.7Zm9.334.223c1.297 0 2.147-.572 2.538-1.548.112 1.088.767 1.645 2.189 1.269l.014-1.157c-.572.055-.683-.154-.683-.753v-2.845c0-1.673-1.102-2.663-3.138-2.663-2.008 0-3.165 1.004-3.165 2.705h1.562c0-.809.572-1.297 1.576-1.297 1.06 0 1.547.46 1.534 1.255v.363l-1.8.195c-2.021.223-3.137.99-3.137 2.329 0 1.101.781 2.147 2.51 2.147Zm9.906.32c-.711 1.73-1.855 2.245-3.64 2.245h-.766V18.54h.822c.977 0 1.45-.307 1.966-1.185L85.3 9.923h1.757l2.259 5.424 2.008-5.424h1.715l-2.956 7.795Z" clip-rule="evenodd"/>
+                      <path fill="currentColor" d="M6.992 11.055c-2.359-.509-3.41-.708-3.41-1.612 0-.85.711-1.274 2.134-1.274 1.25 0 2.165.544 2.839 1.61.05.081.155.11.241.066l2.655-1.335a.186.186 0 0 0 .076-.259c-1.102-1.9-3.137-2.94-5.818-2.94C2.188 5.311 0 7.037 0 9.781c0 2.915 2.664 3.651 5.027 4.16 2.362.51 3.417.709 3.417 1.613s-.769 1.33-2.303 1.33c-1.416 0-2.467-.644-3.102-1.896a.186.186 0 0 0-.251-.082L.14 16.21a.188.188 0 0 0-.083.253c1.051 2.102 3.207 3.285 6.087 3.285 3.668 0 5.885-1.698 5.885-4.527 0-2.83-2.677-3.651-5.037-4.16v-.007ZM21.218 5.311c-1.505 0-2.835.531-3.791 1.477-.06.057-.159.015-.159-.067V.687A.185.185 0 0 0 17.081.5h-3.322a.185.185 0 0 0-.187.187v18.73c0 .104.083.186.187.186h3.322a.185.185 0 0 0 .187-.186V11.2c0-1.587 1.223-2.804 2.87-2.804 1.649 0 2.843 1.191 2.843 2.804v8.216c0 .104.082.186.187.186h3.322a.185.185 0 0 0 .187-.186V11.2c0-3.452-2.274-5.89-5.459-5.89ZM33.415 4.774c-1.803 0-3.493.55-4.706 1.343a.186.186 0 0 0-.06.25l1.464 2.488c.054.089.168.12.257.066a5.853 5.853 0 0 1 3.052-.834c2.899 0 5.03 2.036 5.03 4.726 0 2.292-1.706 3.99-3.868 3.99-1.762 0-2.985-1.022-2.985-2.463 0-.825.352-1.502 1.27-1.98a.183.183 0 0 0 .073-.258l-1.381-2.327a.187.187 0 0 0-.226-.079c-1.85.683-3.15 2.327-3.15 4.533 0 3.338 2.67 5.83 6.396 5.83 4.35 0 7.478-3 7.478-7.303 0-4.612-3.64-7.982-8.644-7.982ZM51.776 5.283c-1.68 0-3.182.62-4.277 1.707a.093.093 0 0 1-.16-.066v-1.31a.185.185 0 0 0-.187-.186h-3.235a.185.185 0 0 0-.188.187v18.702c0 .104.083.186.188.186h3.32a.185.185 0 0 0 .188-.186v-6.133c0-.082.099-.123.16-.07 1.091 1.012 2.536 1.603 4.19 1.603 3.897 0 6.936-3.139 6.936-7.217 0-4.078-3.042-7.217-6.935-7.217Zm-.63 11.266c-2.215 0-3.895-1.754-3.895-4.074S48.928 8.4 51.147 8.4c2.22 0 3.893 1.726 3.893 4.075 0 2.348-1.651 4.074-3.896 4.074h.003Z"/>
+                    </svg>
+                  </span>
+                  <button
+                    type="button"
+                    class="cart-drawer__payment-terms-link"
+                    data-shoppay-sample-plans
+                    aria-haspopup="dialog">
+                    View sample plans
+                  </button>
+                </div>
 
-          {%- comment -%} Additional Checkout Buttons (Apple Pay, Google Pay, etc) {%- endcomment -%}
-          {%- comment -%}
-          {% if additional_checkout_buttons and section.settings.show_dynamic_checkout %}
-            <div class="cart-drawer__dynamic-checkout">
-              {{ content_for_additional_checkout_buttons }}
-            </div>
-          {% endif %}
-          {%- endcomment -%}
+                {%- comment -%}
+                  Official Shopify <shopify-payment-terms> stays in the DOM (visually
+                  hidden) so the Shop Pay sample-plans modal keeps working. Our
+                  custom link above bridges the click into the component's shadow root.
+                {%- endcomment -%}
+                <div class="cart-drawer__payment-terms-host" aria-hidden="true">
+                  {{ form | payment_terms }}
+                </div>
+              {%- endif -%}
+            {% endif %}
+
+          </div>
 
         {% endform %}
       </div>
@@ -284,7 +242,7 @@
         "type": "text",
         "id": "heading",
         "label": "Heading",
-        "default": "Your Cart"
+        "default": "Your cart"
       },
       {
         "type": "text",
@@ -296,7 +254,13 @@
         "type": "text",
         "id": "checkout_button_label",
         "label": "Checkout Button Label",
-        "default": "Checkout"
+        "default": "CHECKOUT NOW"
+      },
+      {
+        "type": "url",
+        "id": "shop_best_sellers_url",
+        "label": "Empty Cart CTA URL",
+        "info": "Destination for the SHOP BEST SELLERS button shown in the empty cart drawer. Falls back to the all products collection."
       },
       {
         "type": "checkbox",
@@ -322,8 +286,9 @@
       {
         "type": "checkbox",
         "id": "show_free_shipping_bar",
-        "label": "Show Free Shipping Bar (US only)",
-        "default": true
+        "label": "Show Free Shipping Bar",
+        "default": true,
+        "info": "Always shown as completed (free shipping is site-wide)"
       },
       {
         "type": "number",
@@ -341,7 +306,7 @@
         "type": "text",
         "id": "free_shipping_unlocked_text",
         "label": "Unlocked Text",
-        "default": "You unlocked free shipping"
+        "default": "Congratulations, you got a free shipping!"
       },
       {
         "type": "richtext",

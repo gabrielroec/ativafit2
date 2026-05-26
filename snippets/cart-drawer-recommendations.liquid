@@ -17,7 +17,7 @@
 {%- assign cart_product_ids = cart.items | map: 'product_id' -%}
 
 {%- comment -%} Define specific recommended products {%- endcomment -%}
-{%- assign dumbbell_stand = all_products['home-workout-dumbbell-stand'] -%}{%- assign weight_bench = all_products['adjustable-home-workout-bench'] -%}
+{%- assign dumbbell_stand = all_products['home-workout-dumbbell-stand'] -%}{%- assign weight_bench = all_products['pro-adjustable-weight-bench'] -%}
 
 {%- comment -%} Check if any product is NOT in cart {%- endcomment -%}
 {%- assign show_dumbbell_stand = false -%}
@@ -36,31 +36,14 @@
 
 {%- comment -%} Show recommended products {%- endcomment -%}
 {%- if has_recommendations -%}
-  <div class="cart-drawer__recommendations-wrapper">
-    <button
-      type="button"
-      class="cart-drawer__recommendations-header"
-      aria-expanded="false"
-      aria-controls="cart-recommendations-content"
-      data-recommendations-toggle>
-      <h3 class="cart-drawer__recommendations-title">Recommended for you</h3>
-      <svg
-        class="cart-drawer__recommendations-icon"
-        width="20"
-        height="20"
-        viewBox="0 0 20 20"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-hidden="true">
-        <path
-          d="M5 7.5L10 12.5L15 7.5"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round" />
-      </svg>
-    </button>
-    <div class="cart-drawer__recommendations-content" id="cart-recommendations-content">
+  {%- if layout == 'inline' -%}
+    {%- assign rec_mod = 'inline' -%}
+  {%- else -%}
+    {%- assign rec_mod = 'filled' -%}
+  {%- endif -%}
+  <div class="cart-drawer__recommendations-wrapper cart-drawer__recommendations-wrapper--{{ rec_mod }}">
+    <h3 class="cart-drawer__recommendations-title cart-drawer__recommendations-title--{{ rec_mod }}">Recommended for you</h3>
+    <div class="cart-drawer__recommendations-content cart-drawer__recommendations-content--{{ rec_mod }}">
       <div class="cart-drawer__recommendations-grid">
 
         {%- comment -%} Dumbbell Stand {%- endcomment -%}
