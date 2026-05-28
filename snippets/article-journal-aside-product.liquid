@@ -7,7 +7,21 @@
     <a href="{{ product.url }}" class="article-journal-aside-card__link">
       <div class="article-journal-aside-card__image">
         {%- if img -%}
-          {{ img | image_url: width: 400 | image_tag: loading: 'lazy', widths: '96,144,192', sizes: '96px', alt: img_alt, class: 'article-journal-aside-card__img' }}
+          <picture>
+            <source type="image/webp"
+              srcset="{{ img | image_url: width: 96, format: 'webp' }} 96w, {{ img | image_url: width: 144, format: 'webp' }} 144w, {{ img | image_url: width: 192, format: 'webp' }} 192w"
+              sizes="96px">
+            <img
+              src="{{ img | image_url: width: 192 }}"
+              srcset="{{ img | image_url: width: 96 }} 96w, {{ img | image_url: width: 144 }} 144w, {{ img | image_url: width: 192 }} 192w"
+              sizes="96px"
+              alt="{{ img_alt }}"
+              width="96"
+              height="96"
+              loading="lazy"
+              decoding="async"
+              class="article-journal-aside-card__img">
+          </picture>
         {%- else -%}
           {{ 'product-1' | placeholder_svg_tag: 'article-journal-aside-card__placeholder' }}
         {%- endif -%}

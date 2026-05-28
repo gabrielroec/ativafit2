@@ -6,7 +6,23 @@
   <header class="article-journal__header">
     <div class="article-journal__banner">
       {%- if article.image -%}
-        {{ article.image | image_url: width: 1920 | image_tag: loading: 'eager', widths: '600,900,1200,1920', sizes: '100vw', class: 'article-journal__banner-image', alt: article.image.alt | default: article.title | escape }}
+        {%- assign banner_alt = article.image.alt | default: article.title | escape -%}
+        <picture>
+          <source type="image/webp"
+            srcset="{{ article.image | image_url: width: 600, format: 'webp' }} 600w, {{ article.image | image_url: width: 900, format: 'webp' }} 900w, {{ article.image | image_url: width: 1200, format: 'webp' }} 1200w, {{ article.image | image_url: width: 1920, format: 'webp' }} 1920w"
+            sizes="100vw">
+          <img
+            src="{{ article.image | image_url: width: 1920 }}"
+            srcset="{{ article.image | image_url: width: 600 }} 600w, {{ article.image | image_url: width: 900 }} 900w, {{ article.image | image_url: width: 1200 }} 1200w, {{ article.image | image_url: width: 1920 }} 1920w"
+            sizes="100vw"
+            alt="{{ banner_alt }}"
+            width="{{ article.image.width }}"
+            height="{{ article.image.height }}"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+            class="article-journal__banner-image">
+        </picture>
       {%- else -%}
         <div class="article-journal__banner-placeholder" aria-hidden="true"></div>
       {%- endif -%}
@@ -169,8 +185,41 @@
     window.addEventListener('resize', syncFromViewport, { passive: true });
     syncFromViewport();
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initToc);
-  else initToc();
+  function upgradeRteImages() {
+    var content = document.getElementById('article-journal-content');
+    if (!content) return;
+    var imgs = content.querySelectorAll('img[src*="cdn.shopify.com"]');
+    imgs.forEach(function(img) {
+      if (img.closest('picture')) return;
+      var src = img.getAttribute('src') || '';
+      var clean = src.replace(/_\d+x(\.[a-z]+)/i, '$1');
+      var sep = clean.indexOf('?') !== -1 ? '&' : '?';
+      var widths = [400, 600, 800, 1200, 1600];
+      var sizes = '(max-width: 749px) calc(100vw - 32px), min(100%, 720px)';
+      var fallbackSrcset = widths.map(function(w) { return clean + sep + 'width=' + w + ' ' + w + 'w'; }).join(', ');
+      var webpSrcset = widths.map(function(w) { return clean + sep + 'width=' + w + '&format=webp ' + w + 'w'; }).join(', ');
+      var picture = document.createElement('picture');
+      var source = document.createElement('source');
+      source.type = 'image/webp';
+      source.srcset = webpSrcset;
+      source.sizes = sizes;
+      img.srcset = fallbackSrcset;
+      img.sizes = sizes;
+      img.src = clean + sep + 'width=1200';
+      if (!img.hasAttribute('loading')) img.loading = 'lazy';
+      if (!img.hasAttribute('decoding')) img.decoding = 'async';
+      img.parentNode.insertBefore(picture, img);
+      picture.appendChild(source);
+      picture.appendChild(img);
+    });
+  }
+
+  function init() {
+    initToc();
+    upgradeRteImages();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 })();
 </script>
 
@@ -179,6 +228,7 @@
 .article-journal { padding-bottom: 4rem; }
 .article-journal__header { position: relative; margin-bottom: 3rem; }
 .article-journal__banner { position: relative; aspect-ratio: 21/9; overflow: hidden; background: var(--aj-muted,#1a1a1a); }
+.article-journal__banner picture { position: absolute; inset: 0; width: 100%; height: 100%; }
 .article-journal__banner-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; aspect-ratio: auto !important; }
 .article-journal__banner-placeholder { position: absolute; inset: 0; background: linear-gradient(135deg,#2c2c2c 0%,#1a1a1a 100%); }
 .article-journal__banner-overlay { position: absolute; inset: 0; background: linear-gradient(to top,rgba(0,0,0,.85) 0%,rgba(0,0,0,.4) 40%,transparent 70%); pointer-events: none; }
@@ -200,7 +250,8 @@
 .article-journal__content a:not(.button) { color: var(--aj-accent); text-decoration: underline; text-underline-offset: 2px; }
 .article-journal__content blockquote { margin: 2rem 0; padding-left: 1.5rem; border-left: 4px solid var(--aj-accent); font-size: 1.1em; color: var(--aj-muted,#555); font-style: italic; }
 .article-journal__content ul,.article-journal__content ol { margin: 1.25em 0; padding-left: 1.5em; }
-.article-journal__content img { width: 100%; max-width: 100%; height: auto; border-radius: 16px; aspect-ratio: auto !important; }
+.article-journal__content picture { display: block; margin: 1.25em 0; }
+.article-journal__content picture img,.article-journal__content img { width: 100%; max-width: 100%; height: auto; border-radius: 16px; aspect-ratio: auto !important; }
 .article-journal__tags { max-width: var(--aj-body-width,720px); margin: 0 auto 2rem; padding-top: 1.5rem; border-top: 1px solid var(--aj-border,#e5e5e5); font-size: .9rem; color: var(--aj-muted,#555); }
 .article-journal__tags-label { font-weight: 600; margin-right: .25rem; }
 .article-journal__tag { color: var(--aj-accent); text-decoration: none; }
@@ -266,6 +317,7 @@
 .article-journal-aside-card__link { display: flex !important; align-items: center !important; gap: 12px !important; padding: 10px 12px !important; text-decoration: none !important; color: inherit !important; transition: background .2s !important; }
 .article-journal-aside-card__link:hover { background: #fafafa !important; }
 .article-journal-aside-card__image { flex-shrink: 0 !important; width: 96px !important; height: 96px !important; border-radius: 6px !important; overflow: hidden !important; background: #eee !important; }
+.article-journal-aside-card__image picture { display: block !important; width: 100% !important; height: 100% !important; }
 .article-journal-aside-card__img { width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important; }
 .article-journal-aside-card__placeholder { width: 100% !important; height: 100% !important; }
 .article-journal-aside-card__info { flex: 1 !important; min-width: 0 !important; }
@@ -489,6 +541,7 @@
   overflow: hidden !important;
   background: #f2f2f2 !important;
 }
+.article-inline-card--product .article-inline-card__product-image picture { display: block !important; width: 100% !important; }
 .article-inline-card--product .article-inline-card__product-img { width: 100% !important; height: auto !important; display: block !important; }
 .article-inline-card--product .article-inline-card__product-info { flex: 1 !important; min-width: 0 !important; }
 .article-inline-card--product .article-inline-card__product-title {
@@ -577,6 +630,7 @@
     aspect-ratio: 4 / 3 !important;
     border-radius: 8px !important;
   }
+  .article-inline-card--product .article-inline-card__product-image picture { height: 100% !important; }
   .article-inline-card--product .article-inline-card__product-img {
     height: 100% !important;
     object-fit: cover !important;

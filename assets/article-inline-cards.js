@@ -49,6 +49,23 @@
     return "$" + (cents / 100).toFixed(2);
   }
 
+  function shopifyImageUrl(src, width, format) {
+    if (!src) return "";
+    var clean = src.replace(/_\d+x(\.[a-z]+)/i, "$1");
+    var sep = clean.indexOf("?") !== -1 ? "&" : "?";
+    var url = clean + sep + "width=" + width;
+    if (format) url += "&format=" + format;
+    return url;
+  }
+
+  function buildSrcset(src, widths, format) {
+    return widths
+      .map(function (w) {
+        return shopifyImageUrl(src, w, format) + " " + w + "w";
+      })
+      .join(", ");
+  }
+
   function shopifyRoot() {
     if (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) {
       var r = window.Shopify.routes.root;
@@ -143,13 +160,22 @@
 
   function buildProductCard(product, promoText, descOverride, ctaOverride) {
     var v = product.variants[0];
-    var img = v.featured_image ? v.featured_image.src : product.featured_image;
-    var imgTag = img
-      ? '<img src="' +
-        img.replace(/\.([a-z]+)(\?|$)/, "_400x.$1$2") +
-        '" alt="' + product.title.replace(/"/g, "&quot;") +
-        '" class="article-inline-card__product-img" loading="lazy" decoding="async"' +
-        ' width="400" height="400">'
+    var imgSrc = v.featured_image ? v.featured_image.src : product.featured_image;
+    var imgWidths = [140, 280, 400, 560, 750];
+    var imgSizes = "(max-width: 749px) calc(100vw - 48px), 140px";
+    var imgW = (v.featured_image && v.featured_image.width) || 400;
+    var imgH = (v.featured_image && v.featured_image.height) || 400;
+    var imgTag = imgSrc
+      ? '<picture>' +
+        '<source type="image/webp" srcset="' + buildSrcset(imgSrc, imgWidths, "webp") + '" sizes="' + imgSizes + '">' +
+        '<img src="' + shopifyImageUrl(imgSrc, 400) + '"' +
+        ' srcset="' + buildSrcset(imgSrc, imgWidths) + '"' +
+        ' sizes="' + imgSizes + '"' +
+        ' alt="' + escapeHtml(product.title) + '"' +
+        ' width="' + imgW + '" height="' + imgH + '"' +
+        ' loading="lazy" decoding="async"' +
+        ' class="article-inline-card__product-img">' +
+        '</picture>'
       : "";
 
     var priceHTML = '<span class="article-inline-card__price-current">' + formatMoney(v.price) + "</span>";
