@@ -1,6 +1,522 @@
+{% doc %}
+  @prompt
+    该 Section 用于在首页核心区域通过动感视频展示产品。采用满宽卡片式设计，视频作为背景循环播放，文字、按钮等内容居中悬浮在视频上方。
+    
+    【核心灵活性要求】
+    
+    媒体源配置： 后台必须支持上传/嵌入视频（支持 MP4 格式或 Shopify Files 链接），同时必须支持上传一张静态图片作为 Backup/Poster（封面图），用于在视频未加载出来或网络较差时占位。
+    
+    文案与链接可配置： 主标题、副标题、按钮文字、按钮链接、下方免责声明微标（Disclaimer）均需在 Shopify 后台可动态编辑。
+    
+    遮罩层可调（Overlay）： 视频上方需要覆盖一层半透明遮罩，后台最好能微调遮罩的透明度（如 0.3 到 0.6），以保证文字可读性。
+    
+    一、 整体布局与尺寸规范 (Layout & Sizing)
+    容器最大宽度 (Max-Width): 1140px - 1200px（保持与首页现有通栏/Container一致），带有大圆角（border-radius: 12px）。
+    
+    安全高度 (Height): * 桌面端: 固定高度控制在 450px - 550px 之间（或根据图片比例自适应）。
+    
+    移动端: 自动顺应内容，或固定在 400px 左右，确保移动端体验不会过长。
+    
+    对齐方式: 容器内所有文本和按钮组件必须在水平和垂直方向上绝对居中 (flex / justify-content: center; align-items: center;)。
+    
+    二、 视觉与技术细节 (UI & Technical Specs)
+    1. 背景视频组件 (Background Video)
+    播放行为: 视频必须默认设置为：静音、自动循环播放、不显示任何原生控制条、禁止用户点击暂停 (autoplay, loop, muted, playsinline, pointer-events: none)。
+    
+    填充模式: 视频使用 object-fit: cover;，确保在任何屏幕尺寸下都能铺满容器且不变形。
+    
+    暗色遮罩 (Mask/Overlay): 视频上方必须叠一层 CSS 遮罩，防止视频背景过亮导致白色文字不可读。
+    
+    background: rgba(0, 0, 0, 0.4); (暂定 40% 透明度黑色)。
+    
+    2. 悬浮内容层级 (Floating Content Typography)
+    主标题 (Main Heading): Experience the Cross Training Bike
+    
+    样式: 白色（#FFFFFF）、加粗、字号桌面端约 32px - 36px，带有轻微的文本阴影（可选，增强可读性）。
+    
+    副标题 (Sub-heading): Your essential partner for a well-rounded routine...
+    
+    样式: 白色或浅浅灰（#E0E0E0），字号 16px，与主标题保持适当间距。
+    
+    底部微标/免责声明 (Disclaimer Text): As low as $1,695... / Peloton All-Access...
+    
+    样式: 底部小字，字号 12px，颜色半透明白（rgba(255,255,255,0.7)），位于区域最下方。
+    
+    3. 行动导向按钮 (CTA Button)
+    按钮文本: Shop Bike
+    
+    样式: * 背景色: 高饱和度亮红色/运动红（如 #E11A2B）。
+    
+    形状: 胶囊形全圆角（border-radius: 50px）。
+    
+    内边距: 上下左右保留充足 Padding（如 12px 30px），确保整体精致饱满。
+    
+    三、 响应式适配 (Mobile Layout)
+    移动端排版: 保持居中对齐。如果移动端视频字太小，字号需等比例降级（标题降至 24px，副标题降至 14px）。
+    
+    性能优化: 移动端若因网络问题加载视频过慢，需完美无缝切换为后台配置的静态 Poster 图片。
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-video-hero-{{ ai_gen_id }} {
+    display: block;
+    width: 100%;
+    max-width: {{ block.settings.max_width }}px;
+    margin: 0 auto;
+    position: relative;
+    height: {{ block.settings.desktop_height }}px;
+    border-radius: {{ block.settings.border_radius }}px;
+    overflow: hidden;
+  }
+
+  .ai-video-hero-background-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+
+  .ai-video-hero-video-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+  }
+
+  .ai-video-hero-poster-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-video-hero-overlay-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, {{ block.settings.overlay_opacity }});
+    z-index: 2;
+  }
+
+  .ai-video-hero-content-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 3;
+    padding: 40px 20px;
+    text-align: center;
+  }
+
+  .ai-video-hero-heading-{{ ai_gen_id }} {
+    color: {{ block.settings.heading_color }};
+    font-size: {{ block.settings.heading_size }}px;
+    font-weight: 700;
+    margin: 0 0 16px 0;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    max-width: 800px;
+  }
+
+  .ai-video-hero-subheading-{{ ai_gen_id }} {
+    color: {{ block.settings.subheading_color }};
+    font-size: {{ block.settings.subheading_size }}px;
+    margin: 0 0 32px 0;
+    max-width: 700px;
+    line-height: 1.5;
+  }
+
+  .ai-video-hero-button-{{ ai_gen_id }} {
+    display: inline-block;
+    padding: {{ block.settings.button_padding_vertical }}px {{ block.settings.button_padding_horizontal }}px;
+    background-color: {{ block.settings.button_background }};
+    color: {{ block.settings.button_text_color }};
+    text-decoration: none;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    font-size: {{ block.settings.button_font_size }}px;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-bottom: 24px;
+  }
+
+  .ai-video-hero-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.button_hover_background }};
+    transform: translateY(-2px);
+  }
+
+  .ai-video-hero-disclaimer-{{ ai_gen_id }} {
+    color: {{ block.settings.disclaimer_color }};
+    font-size: {{ block.settings.disclaimer_size }}px;
+    margin: 0;
+    max-width: 600px;
+    line-height: 1.4;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-video-hero-{{ ai_gen_id }} {
+      height: {{ block.settings.mobile_height }}px;
+      border-radius: {{ block.settings.border_radius | times: 0.6 }}px;
+    }
+
+    .ai-video-hero-heading-{{ ai_gen_id }} {
+      font-size: {{ block.settings.heading_size | times: 0.7 }}px;
+      margin-bottom: 12px;
+    }
+
+    .ai-video-hero-subheading-{{ ai_gen_id }} {
+      font-size: {{ block.settings.subheading_size | times: 0.9 }}px;
+      margin-bottom: 24px;
+    }
+
+    .ai-video-hero-button-{{ ai_gen_id }} {
+      font-size: {{ block.settings.button_font_size | times: 0.9 }}px;
+      padding: {{ block.settings.button_padding_vertical | times: 0.9 }}px {{ block.settings.button_padding_horizontal | times: 0.9 }}px;
+      margin-bottom: 16px;
+    }
+
+    .ai-video-hero-disclaimer-{{ ai_gen_id }} {
+      font-size: {{ block.settings.disclaimer_size | times: 0.9 }}px;
+    }
+
+    .ai-video-hero-content-{{ ai_gen_id }} {
+      padding: 30px 16px;
+    }
+  }
+{% endstyle %}
+
+<ai-video-hero-{{ ai_gen_id }} class="ai-video-hero-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-video-hero-background-{{ ai_gen_id }}">
+    {% if block.settings.video_url != blank %}
+      <video
+        class="ai-video-hero-video-{{ ai_gen_id }}"
+        autoplay
+        loop
+        muted
+        playsinline
+        {% if block.settings.poster_image %}
+          poster="{{ block.settings.poster_image | image_url: width: 2000 }}"
+        {% endif %}
+      >
+        <source src="{{ block.settings.video_url }}" type="video/mp4">
+      </video>
+    {% elsif block.settings.poster_image %}
+      <img
+        src="{{ block.settings.poster_image | image_url: width: 2000 }}"
+        alt="{{ block.settings.poster_image.alt | escape }}"
+        class="ai-video-hero-poster-{{ ai_gen_id }}"
+        loading="lazy"
+        width="{{ block.settings.poster_image.width }}"
+        height="{{ block.settings.poster_image.height }}"
+      >
+    {% else %}
+      <div class="ai-video-hero-poster-{{ ai_gen_id }}" style="background-color: #f4f4f4; display: flex; align-items: center; justify-content: center;">
+        {{ 'hero-apparel-1' | placeholder_svg_tag }}
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="ai-video-hero-overlay-{{ ai_gen_id }}"></div>
+
+  <div class="ai-video-hero-content-{{ ai_gen_id }}">
+    {% if block.settings.heading != blank %}
+      <h2 class="ai-video-hero-heading-{{ ai_gen_id }}">{{ block.settings.heading }}</h2>
+    {% endif %}
+
+    {% if block.settings.subheading != blank %}
+      <p class="ai-video-hero-subheading-{{ ai_gen_id }}">{{ block.settings.subheading }}</p>
+    {% endif %}
+
+    {% if block.settings.button_text != blank %}
+      <a
+        href="{{ block.settings.button_link }}"
+        class="ai-video-hero-button-{{ ai_gen_id }}"
+      >
+        {{ block.settings.button_text }}
+      </a>
+    {% endif %}
+
+    {% if block.settings.disclaimer != blank %}
+      <p class="ai-video-hero-disclaimer-{{ ai_gen_id }}">{{ block.settings.disclaimer }}</p>
+    {% endif %}
+  </div>
+</ai-video-hero-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class AiVideoHero{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.video = this.querySelector('.ai-video-hero-video-{{ ai_gen_id }}');
+      }
+
+      connectedCallback() {
+        if (this.video) {
+          this.ensureVideoPlays();
+          this.handleVideoErrors();
+        }
+      }
+
+      ensureVideoPlays() {
+        const playPromise = this.video.play();
+        
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            this.video.muted = true;
+            this.video.play();
+          });
+        }
+      }
+
+      handleVideoErrors() {
+        this.video.addEventListener('error', () => {
+          this.video.style.display = 'none';
+        });
+      }
+    }
+
+    customElements.define('ai-video-hero-{{ ai_gen_id }}', AiVideoHero{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "视频背景展示区",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "媒体设置"
+    },
+    {
+      "type": "text",
+      "id": "video_url",
+      "label": "视频 URL",
+      "info": "输入 MP4 视频文件的完整 URL（支持 Shopify Files 或外部链接）"
+    },
+    {
+      "type": "image_picker",
+      "id": "poster_image",
+      "label": "封面图片/备用图片",
+      "info": "视频未加载时显示的图片，也作为移动端备用方案"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "遮罩透明度",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "default": 0.4,
+      "info": "调整视频上方黑色遮罩的透明度，确保文字可读性"
+    },
+    {
+      "type": "header",
+      "content": "布局设置"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "最大宽度",
+      "min": 1000,
+      "max": 1400,
+      "step": 20,
+      "unit": "px",
+      "default": 1200
+    },
+    {
+      "type": "range",
+      "id": "desktop_height",
+      "label": "桌面端高度",
+      "min": 400,
+      "max": 700,
+      "step": 10,
+      "unit": "px",
+      "default": 500
+    },
+    {
+      "type": "range",
+      "id": "mobile_height",
+      "label": "移动端高度",
+      "min": 300,
+      "max": 600,
+      "step": 10,
+      "unit": "px",
+      "default": 400
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "圆角大小",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "主标题"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "主标题文字",
+      "default": "Experience the Cross Training Bike"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "字体大小",
+      "min": 20,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "文字颜色",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "header",
+      "content": "副标题"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "副标题文字",
+      "default": "Your essential partner for a well-rounded routine"
+    },
+    {
+      "type": "range",
+      "id": "subheading_size",
+      "label": "字体大小",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "label": "文字颜色",
+      "default": "#E0E0E0"
+    },
+    {
+      "type": "header",
+      "content": "按钮设置"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "按钮文字",
+      "default": "Shop Bike"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "按钮链接"
+    },
+    {
+      "type": "range",
+      "id": "button_font_size",
+      "label": "字体大小",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "button_padding_vertical",
+      "label": "上下内边距",
+      "min": 8,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "button_padding_horizontal",
+      "label": "左右内边距",
+      "min": 16,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "label": "圆角大小",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "color",
+      "id": "button_background",
+      "label": "背景颜色",
+      "default": "#E11A2B"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_background",
+      "label": "悬停背景颜色",
+      "default": "#C01020"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "文字颜色",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "header",
+      "content": "底部免责声明"
+    },
+    {
+      "type": "textarea",
+      "id": "disclaimer",
+      "label": "免责声明文字",
+      "default": "As low as $1,695. Peloton All-Access Membership separate."
+    },
+    {
+      "type": "range",
+      "id": "disclaimer_size",
+      "label": "字体大小",
+      "min": 10,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "color",
+      "id": "disclaimer_color",
+      "label": "文字颜色",
+      "default": "#FFFFFF"
+    }
+  ],
+  "presets": [
+    {
+      "name": "视频背景展示区"
+    }
+  ]
+}
 {% endschema %}
