@@ -1,0 +1,146 @@
+{%- comment -%}
+  Custom Product rich result JSON-LD.
+  Single source of truth for PDP structured data; legacy review snippets should
+  not emit additional Product JSON-LD to avoid conflicting entities.
+{%- endcomment -%}
+
+{%- if request.page_type == 'product' and product != blank -%}
+  {%- liquid
+    assign selected_variant = product.selected_or_first_available_variant
+    assign product_url = shop.url | append: product.url
+    assign product_id = canonical_url | append: '#product'
+    assign product_description = page_description | default: product.description | strip_html | strip
+    assign product_brand = product.vendor | default: shop.name | default: 'Ativafit'
+
+    assign rivyo_schema = product.metafields.product_schema
+    assign rivyo_rating_value = rivyo_schema['th_ratingValue']
+    assign rivyo_rating_count = rivyo_schema['th_ratingCount'] | default: 0 | plus: 0
+
+    assign standard_rating = product.metafields.reviews.rating.value.rating | default: product.metafields.reviews.rating.value
+    assign standard_rating_count = product.metafields.reviews.rating_count.value | default: 0 | plus: 0
+    assign standard_worst_rating = product.metafields.reviews.rating.value.scale_min | default: 1
+    assign standard_best_rating = product.metafields.reviews.rating.value.scale_max | default: 5
+
+    assign rating_value = blank
+    assign rating_count = 0
+    assign worst_rating = 1
+    assign best_rating = 5
+
+    if rivyo_rating_value != blank and rivyo_rating_count > 0
+      assign rating_value = rivyo_rating_value
+      assign rating_count = rivyo_rating_count
+    elsif standard_rating != blank and standard_rating_count > 0
+      assign rating_value = standard_rating
+      assign rating_count = standard_rating_count
+      assign worst_rating = standard_worst_rating
+      assign best_rating = standard_best_rating
+    endif
+  -%}
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "@id": {{ product_id | json }},
+      "productID": {{ product.id | json }},
+      "name": {{ product.title | strip_html | strip | json }},
+      "description": {{ product_description | json }},
+      "url": {{ product_url | json }},
+      "brand": {
+        "@type": "Brand",
+        "name": {{ product_brand | strip | json }}
+      }{% if product.type != blank %},
+      "category": {{ product.type | json }}{% endif %}{% if selected_variant.sku != blank %},
+      "sku": {{ selected_variant.sku | json }}{% endif %}{% if product.images.size > 0 %},
+      "image": [
+        {%- for image in product.images limit: 8 -%}
+          {{ image | image_url: width: 1200 | prepend: 'https:' | json }}{% unless forloop.last %},{% endunless %}
+        {%- endfor -%}
+      ]{% endif %}{% if rating_value != blank and rating_count > 0 %},
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": {{ rating_value | json }},
+        "reviewCount": {{ rating_count | json }},
+        "worstRating": {{ worst_rating | json }},
+        "bestRating": {{ best_rating | json }}
+      },
+      "review": {
+        "@type": "Review",
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "5",
+          "bestRating": "5"
+        },
+        "author": {
+          "@type": "Organization",
+          "name": {{ shop.name | json }}
+        }
+      }{% endif %},
+      "offers": [
+        {%- for variant in product.variants -%}
+          {%- liquid
+            assign variant_url = shop.url | append: product.url | append: '?variant=' | append: variant.id
+            assign barcode = variant.barcode | strip
+            assign barcode_size = barcode | size
+            assign gtin_key = blank
+            if barcode_size == 8 or barcode_size == 12 or barcode_size == 13 or barcode_size == 14
+              assign gtin_key = 'gtin' | append: barcode_size
+            endif
+          -%}
+          {
+            "@type": "Offer",
+            "name": {{ variant.title | json }},
+            "url": {{ variant_url | json }},
+            "price": {{ variant.price | divided_by: 100.0 | json }},
+            "priceCurrency": {{ cart.currency.iso_code | json }},
+            "availability": "{% if variant.available %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
+            "itemCondition": "https://schema.org/NewCondition"{% if variant.sku != blank %},
+            "sku": {{ variant.sku | json }}{% endif %}{% if gtin_key != blank %},
+            "{{ gtin_key }}": {{ barcode | json }}{% elsif barcode != blank %},
+            "mpn": {{ barcode | json }}{% endif %},
+            "seller": {
+              "@type": "Organization",
+              "name": {{ shop.name | json }}
+            },
+            "shippingDetails": {
+              "@type": "OfferShippingDetails",
+              "shippingRate": {
+                "@type": "MonetaryAmount",
+                "value": 0,
+                "currency": {{ cart.currency.iso_code | json }}
+              },
+              "shippingDestination": {
+                "@type": "DefinedRegion",
+                "addressCountry": "US"
+              },
+              "deliveryTime": {
+                "@type": "ShippingDeliveryTime",
+                "handlingTime": {
+                  "@type": "QuantitativeValue",
+                  "minValue": 0,
+                  "maxValue": 1,
+                  "unitCode": "DAY"
+                },
+                "transitTime": {
+                  "@type": "QuantitativeValue",
+                  "minValue": 3,
+                  "maxValue": 7,
+                  "unitCode": "DAY"
+                }
+              }
+            },
+            "hasMerchantReturnPolicy": {
+              "@type": "MerchantReturnPolicy",
+              "applicableCountry": "US",
+              "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+              "merchantReturnDays": 30,
+              "returnMethod": "https://schema.org/ReturnByMail",
+              "returnFees": "https://schema.org/ReturnFeesCustomerResponsibility",
+              "merchantReturnLink": {{ shop.url | append: '/policies/refund-policy' | json }}
+            }
+          }{% unless forloop.last %},{% endunless %}
+        {%- endfor -%}
+      ]
+    }
+  </script>
+{%- endif -%}
