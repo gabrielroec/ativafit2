@@ -48,9 +48,9 @@
       return Array.prototype.slice.call(sec.querySelectorAll('.bundle-option-card__input:checked'));
     }
 
-    function getRecoveryCard() {
-      if (!step3Section) return null;
-      return step3Section.querySelector('[data-bundle-recovery-card]');
+    function getRecoveryCards() {
+      if (!step3Section) return [];
+      return Array.prototype.slice.call(step3Section.querySelectorAll('[data-bundle-recovery-card]'));
     }
 
     function ensureFallbackLine() {
@@ -160,9 +160,8 @@
       // ── Step 3: locked until Step 1 OR Step 2 has ≥1 selection ──
       var step3Locked = (step1Count + step2Count) === 0;
       if (step3El) {
-        if (step3Locked) {
-          var recoveryCard = step3El.querySelector('[data-bundle-recovery-card]');
-          if (recoveryCard && recoveryCard.classList.contains('is-included')) {
+        step3El.querySelectorAll('[data-bundle-recovery-card]').forEach(function (recoveryCard) {
+          if (step3Locked && recoveryCard.classList.contains('is-included')) {
             recoveryCard.classList.remove('is-included');
             var recovBtn = recoveryCard.querySelector('[data-bundle-recovery-toggle]');
             if (recovBtn) {
@@ -170,9 +169,9 @@
               recovBtn.classList.remove('bundle-steps__recovery-include--active');
             }
           }
-        }
-        var recoveryToggle = step3El.querySelector('[data-bundle-recovery-toggle]');
-        if (recoveryToggle) recoveryToggle.disabled = step3Locked;
+          var recoveryToggle = recoveryCard.querySelector('[data-bundle-recovery-toggle]');
+          if (recoveryToggle) recoveryToggle.disabled = step3Locked;
+        });
         step3El.classList.toggle('is-locked', step3Locked);
       }
 
@@ -203,8 +202,8 @@
         });
       });
 
-      var card = getRecoveryCard();
-      if (card && card.classList.contains('is-included')) {
+      getRecoveryCards().forEach(function (card) {
+        if (!card.classList.contains('is-included')) return;
         var price = parseInt(card.getAttribute('data-bundle-price-cents') || '0', 10) || 0;
         var discount = parseInt(card.getAttribute('data-bundle-discount-cents') || '0', 10) || 0;
         subtotal += price;
@@ -215,7 +214,7 @@
           priceCents: price,
           discountCents: discount,
         });
-      }
+      });
 
       renderLines(summaryLines);
       updateTotals(subtotal, savings);
@@ -231,7 +230,7 @@
     document.addEventListener('click', function (e) {
       var toggle = e.target.closest && e.target.closest('[data-bundle-recovery-toggle]');
       if (!toggle) return;
-      var card = getRecoveryCard();
+      var card = toggle.closest('[data-bundle-recovery-card]');
       if (!card) return;
       e.preventDefault();
       var on = !card.classList.contains('is-included');
@@ -273,7 +272,6 @@
       checkoutBtn.addEventListener('click', function () {
         var step1 = getCheckedInStep('bundle-step-dumbbell-base');
         var step2 = getCheckedInStep('bundle-step-support-storage');
-        var card = getRecoveryCard();
         if (!step1.length && !step2.length) {
           window.alert(checkoutBtn.getAttribute('data-alert-incomplete') || 'Please complete all steps.');
           return;
@@ -284,13 +282,14 @@
           if (!Number.isFinite(id)) return;
           qtyByVariantId[id] = (qtyByVariantId[id] || 0) + 1;
         });
-        if (card && card.classList.contains('is-included')) {
+        getRecoveryCards().forEach(function (card) {
+          if (!card.classList.contains('is-included')) return;
           var vid = card.getAttribute('data-bundle-variant-id');
           var addOnId = parseInt(vid, 10);
           if (Number.isFinite(addOnId)) {
             qtyByVariantId[addOnId] = (qtyByVariantId[addOnId] || 0) + 1;
           }
-        }
+        });
         var items = Object.keys(qtyByVariantId).map(function (id) {
           return { id: parseInt(id, 10), quantity: qtyByVariantId[id] };
         });

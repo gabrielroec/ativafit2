@@ -3,34 +3,16 @@
   assign step1_name = 'bundle-dumbbell-base-' | append: section.id
   assign step2_name = 'bundle-support-storage-' | append: section.id
 
-  assign s3_product = section.settings.step3_product
-  assign s3_variant = nil
-  if s3_product != blank
-    assign s3_variant = s3_product.selected_or_first_available_variant
-  endif
-  assign s3_save_cents = 0
-  assign s3_show_auto_save = false
-  if s3_variant != blank
-    assign s3_compare = s3_variant.compare_at_price
-    assign s3_price = s3_variant.price
-    if s3_compare != blank and s3_compare > s3_price and s3_compare > 0
-      assign s3_save_cents = s3_compare | minus: s3_price
-      assign s3_show_auto_save = true
-    endif
-  endif
-  assign s3_save_label = section.settings.step3_save_badge_text | strip
-  if s3_save_label == blank and s3_show_auto_save
-    assign s3_save_money = s3_save_cents | money
-    assign s3_save_label = 'SAVE ' | append: s3_save_money
-  endif
-  assign s3_display_title = section.settings.step3_card_title | strip
-  if s3_display_title == blank and s3_product != blank
-    assign s3_display_title = s3_product.title
-  endif
-
   assign s1_discount_cents = section.settings.step1_item_discount | times: 100
   assign s2_discount_cents = section.settings.step2_item_discount | times: 100
   assign s3_discount_cents = section.settings.step3_item_discount | times: 100
+
+  assign s3_count = 0
+  for block in section.blocks
+    if block.type == 'step3_option' and block.settings.product != blank
+      assign s3_count = s3_count | plus: 1
+    endif
+  endfor
 -%}
 
 <section id="{{ bs_id }}" class="bundle-steps" data-section-type="bundle-steps" {{ section.shopify_attributes }}>
@@ -123,54 +105,78 @@
         <svg class="bundle-steps__lock-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="7" width="10" height="8" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M5 7V5a3 3 0 0 1 6 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
         <span>Select at least 1 product in Step {{ section.settings.step1_number | escape }} or Step {{ section.settings.step2_number | escape }} to unlock this step.</span>
       </div>
-      {%- if s3_product != blank and s3_variant != blank -%}
-        {%- assign s3_on = section.settings.step3_included_default -%}
-        <div
-        class="bundle-steps__recovery-card{% if s3_on %} is-included{% endif %}"
-          data-bundle-recovery-card
-          data-bundle-variant-id="{{ s3_variant.id }}"
-          data-bundle-line-title="{{ s3_display_title | escape }}"
-          data-bundle-line-category="{{ section.settings.step3_sidebar_category | escape }}"
-          data-bundle-compare-price-cents="{{ s3_variant.compare_at_price | default: 0 }}"
-          data-bundle-price-cents="{{ s3_variant.price }}"
-          data-bundle-discount-cents="{{ s3_discount_cents }}">
-          {%- if section.settings.step3_lab_ribbon_text != blank -%}
-            <div class="bundle-steps__recovery-ribbon">{{ section.settings.step3_lab_ribbon_text | escape }}</div>
-          {%- endif -%}
-          <div class="bundle-steps__recovery-layout">
-            <div class="bundle-steps__recovery-media">
-              {%- assign img = s3_variant.image | default: s3_product.featured_image -%}
-              {%- if img -%}
-                {{ img | image_url: width: 800 | image_tag: loading: 'lazy', class: 'bundle-steps__recovery-img', widths: '200, 300, 400, 600, 800', sizes: '(min-width: 750px) 320px, 100vw', alt: img.alt | default: s3_display_title | escape }}
-              {%- else -%}
-                {{ 'product-1' | placeholder_svg_tag: 'bundle-steps__recovery-img-ph' }}
-              {%- endif -%}
-            </div>
-            <div class="bundle-steps__recovery-content">
-              <div class="bundle-steps__recovery-title-row">
-                <h3 class="bundle-steps__recovery-title">{{ s3_display_title | escape }}</h3>
-                {%- if s3_save_label != blank -%}
-                  <span class="bundle-steps__recovery-save">{{ s3_save_label | escape }}</span>
+      {%- if s3_count > 0 -%}
+        <div class="bundle-steps__recovery-grid{% if s3_count > 1 %} bundle-steps__recovery-grid--multi{% else %} bundle-steps__recovery-grid--single{% endif %}">
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'step3_option' -%}
+              {%- assign s3_product = block.settings.product -%}
+              {%- if s3_product != blank -%}
+                {%- assign s3_variant = s3_product.selected_or_first_available_variant -%}
+                {%- if s3_variant != blank -%}
+                  {%- liquid
+                    assign s3_compare = s3_variant.compare_at_price
+                    assign s3_price = s3_variant.price
+                    assign s3_save_label = block.settings.save_badge_text | strip
+                    if s3_save_label == blank and s3_compare != blank and s3_compare > s3_price and s3_compare > 0
+                      assign s3_save_money = s3_compare | minus: s3_price | money
+                      assign s3_save_label = 'SAVE ' | append: s3_save_money
+                    endif
+                    assign s3_display_title = block.settings.card_title | strip
+                    if s3_display_title == blank
+                      assign s3_display_title = s3_product.title
+                    endif
+                    assign s3_on = block.settings.included_default
+                  -%}
+                  <div
+                    class="bundle-steps__recovery-card{% if s3_on %} is-included{% endif %}"
+                    data-bundle-recovery-card
+                    data-bundle-variant-id="{{ s3_variant.id }}"
+                    data-bundle-line-title="{{ s3_display_title | escape }}"
+                    data-bundle-line-category="{{ block.settings.sidebar_category | escape }}"
+                    data-bundle-compare-price-cents="{{ s3_variant.compare_at_price | default: 0 }}"
+                    data-bundle-price-cents="{{ s3_variant.price }}"
+                    data-bundle-discount-cents="{{ s3_discount_cents }}"
+                    {{ block.shopify_attributes }}>
+                    {%- if block.settings.ribbon_text != blank -%}
+                      <div class="bundle-steps__recovery-ribbon">{{ block.settings.ribbon_text | escape }}</div>
+                    {%- endif -%}
+                    <div class="bundle-steps__recovery-layout">
+                      <div class="bundle-steps__recovery-media">
+                        {%- assign img = s3_variant.image | default: s3_product.featured_image -%}
+                        {%- if img -%}
+                          {{ img | image_url: width: 800 | image_tag: loading: 'lazy', class: 'bundle-steps__recovery-img', widths: '200, 300, 400, 600, 800', sizes: '(min-width: 750px) 320px, 100vw', alt: img.alt | default: s3_display_title | escape }}
+                        {%- else -%}
+                          {{ 'product-1' | placeholder_svg_tag: 'bundle-steps__recovery-img-ph' }}
+                        {%- endif -%}
+                      </div>
+                      <div class="bundle-steps__recovery-content">
+                        <div class="bundle-steps__recovery-title-row">
+                          <h3 class="bundle-steps__recovery-title">{{ s3_display_title | escape }}</h3>
+                          {%- if s3_save_label != blank -%}
+                            <span class="bundle-steps__recovery-save">{{ s3_save_label | escape }}</span>
+                          {%- endif -%}
+                        </div>
+                        {%- if block.settings.description != blank -%}
+                          <div class="bundle-steps__recovery-description rte">{{ block.settings.description }}</div>
+                        {%- endif -%}
+                        <div class="bundle-steps__recovery-footer">
+                          <div class="bundle-steps__recovery-prices">
+                            {%- if s3_compare != blank and s3_compare > s3_price and s3_compare > 0 -%}
+                              <span class="bundle-steps__recovery-compare">{{ s3_compare | money }}</span>
+                            {%- endif -%}
+                            <span class="bundle-steps__recovery-price">{{ s3_price | money }}</span>
+                          </div>
+                          <button type="button" class="bundle-steps__recovery-include{% if s3_on %} bundle-steps__recovery-include--active{% endif %}" data-bundle-recovery-toggle aria-pressed="{% if s3_on %}true{% else %}false{% endif %}">
+                            {{ section.settings.step3_included_label | escape }}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 {%- endif -%}
-              </div>
-              {%- if section.settings.step3_description != blank -%}
-                <div class="bundle-steps__recovery-description rte">{{ section.settings.step3_description }}</div>
               {%- endif -%}
-              <div class="bundle-steps__recovery-footer">
-                <div class="bundle-steps__recovery-prices">
-                  {%- assign compare = s3_variant.compare_at_price -%}
-                  {%- assign price = s3_variant.price -%}
-                  {%- if compare != blank and compare > price and compare > 0 -%}
-                    <span class="bundle-steps__recovery-compare">{{ compare | money }}</span>
-                  {%- endif -%}
-                  <span class="bundle-steps__recovery-price">{{ price | money }}</span>
-                </div>
-                <button type="button" class="bundle-steps__recovery-include{% if s3_on %} bundle-steps__recovery-include--active{% endif %}" data-bundle-recovery-toggle aria-pressed="{% if s3_on %}true{% else %}false{% endif %}">
-                  {{ section.settings.step3_included_label | escape }}
-                </button>
-              </div>
-            </div>
-          </div>
+            {%- endif -%}
+          {%- endfor -%}
         </div>
       {%- else -%}
         <div class="bundle-steps__placeholder"><span>{{ section.settings.empty_state_text | escape }}</span></div>
@@ -213,6 +219,15 @@
   #{{ bs_id }} .bundle-option-card__price { font-family: var(--heading-font-family) !important; font-size: 18px !important; font-weight: 700 !important; color: {{ section.settings.selection_border_color }} !important; line-height: 1 !important; }
   #{{ bs_id }} .bundle-option-card__compare { font-size: 14px !important; color: #555 !important; text-decoration: line-through !important; }
   #{{ bs_id }} .bundle-steps__placeholder { border: 2px dashed #e0e0e0; border-radius: 10px; min-height: 220px; display: flex; align-items: center; justify-content: center; padding: 24px; text-align: center; background: #fafafa; color: #888; }
+  #{{ bs_id }} .bundle-steps__recovery-grid { display: grid; grid-template-columns: 1fr; gap: {{ section.settings.grid_gap }}px; align-items: stretch; }
+  @media screen and (min-width: 750px) {
+    #{{ bs_id }} .bundle-steps__recovery-grid--multi { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    /* Two-up cards switch to a vertical layout so they fit side by side */
+    #{{ bs_id }} .bundle-steps__recovery-grid--multi .bundle-steps__recovery-layout { flex-direction: column; align-items: stretch; min-height: 0; }
+    #{{ bs_id }} .bundle-steps__recovery-grid--multi .bundle-steps__recovery-media { width: 100%; align-self: auto; aspect-ratio: 1 / 1; max-height: 300px; }
+    #{{ bs_id }} .bundle-steps__recovery-grid--multi .bundle-steps__recovery-footer { flex-direction: column; align-items: flex-start; }
+    #{{ bs_id }} .bundle-steps__recovery-grid--multi .bundle-steps__recovery-include { width: 100%; }
+  }
   #{{ bs_id }} .bundle-steps__recovery-card { position: relative; background: #fff; border: 1px solid #e5e5e5; border-radius: {{ section.settings.step3_card_radius }}px; overflow: hidden; transition: border-color .2s ease, box-shadow .2s ease; }
   #{{ bs_id }} .bundle-steps__recovery-card.is-included { border-width: 3px; border-color: {{ section.settings.selection_border_color }}; box-shadow: 0 0 0 1px {{ section.settings.selection_border_color }}; }
   #{{ bs_id }} .bundle-steps__recovery-ribbon { position: absolute; top: 0; right: 0; z-index: 2; font-family: var(--heading-font-family) !important; font-size: 10px !important; font-weight: 700 !important; letter-spacing: .12em !important; text-transform: uppercase !important; color: #fff !important; background: {{ section.settings.selection_border_color }} !important; padding: 10px 16px 10px 22px !important; border-radius: 0 0 0 12px !important; max-width: 55%; text-align: right; line-height: 1.2 !important; }
@@ -309,7 +324,7 @@
   "name": "Bundle steps",
   "tag": "section",
   "class": "section-bundle-steps",
-  "max_blocks": 6,
+  "max_blocks": 8,
   "settings": [
     { "type": "text", "id": "step1_number", "label": "Step 1 number", "default": "01" },
     { "type": "text", "id": "step1_title", "label": "Step 1 title", "default": "BUILD YOUR STRENGTH BASE" },
@@ -317,16 +332,10 @@
     { "type": "text", "id": "step2_number", "label": "Step 2 number", "default": "02" },
     { "type": "text", "id": "step2_title", "label": "Step 2 title", "default": "COMPLETE YOUR SETUP" },
     { "type": "text", "id": "step2_legend", "label": "Step 2 legend (a11y)", "default": "Choose support and storage" },
+    { "type": "header", "content": "Step 3 (add products as Step 3 option blocks below — up to 2)" },
     { "type": "text", "id": "step3_number", "label": "Step 3 number", "default": "03" },
     { "type": "text", "id": "step3_title", "label": "Step 3 title", "default": "BOOST RECOVERY" },
-    { "type": "product", "id": "step3_product", "label": "Step 3 product" },
-    { "type": "text", "id": "step3_card_title", "label": "Step 3 card title", "default": "Forge Recovery Gun" },
-    { "type": "richtext", "id": "step3_description", "label": "Step 3 description", "default": "<p>Optimize downtime with deep-tissue percussion therapy. A staple for elite bundle configurations.</p>" },
-    { "type": "text", "id": "step3_lab_ribbon_text", "label": "Step 3 ribbon", "default": "BUNDLE EXCLUSIVE" },
-    { "type": "text", "id": "step3_save_badge_text", "label": "Step 3 save badge", "default": "SAVE $30" },
     { "type": "text", "id": "step3_included_label", "label": "Step 3 button label", "default": "INCLUDED IN BUNDLE" },
-    { "type": "checkbox", "id": "step3_included_default", "label": "Step 3 included by default", "default": false },
-    { "type": "text", "id": "step3_sidebar_category", "label": "Step 3 sidebar category", "default": "RECOVERY" },
     { "type": "header", "content": "Bundle discounts" },
     { "type": "range", "id": "step1_item_discount", "min": 0, "max": 100, "step": 1, "unit": "$", "label": "Discount per item (Step 1)", "default": 10 },
     { "type": "range", "id": "step2_item_discount", "min": 0, "max": 100, "step": 1, "unit": "$", "label": "Discount per item (Step 2)", "default": 10 },
@@ -372,6 +381,20 @@
         { "type": "text", "id": "badge_label", "label": "Badge" },
         { "type": "text", "id": "sidebar_category", "label": "Sidebar category", "default": "BENCH & STAND" }
       ]
+    },
+    {
+      "type": "step3_option",
+      "name": "Step 3 option",
+      "limit": 2,
+      "settings": [
+        { "type": "product", "id": "product", "label": "Product" },
+        { "type": "text", "id": "card_title", "label": "Card title" },
+        { "type": "richtext", "id": "description", "label": "Description" },
+        { "type": "text", "id": "ribbon_text", "label": "Ribbon text", "default": "BUNDLE EXCLUSIVE" },
+        { "type": "text", "id": "save_badge_text", "label": "Save badge (leave blank to auto-calculate)" },
+        { "type": "checkbox", "id": "included_default", "label": "Included by default", "default": false },
+        { "type": "text", "id": "sidebar_category", "label": "Sidebar category", "default": "RECOVERY" }
+      ]
     }
   ],
   "presets": [
@@ -384,7 +407,8 @@
         { "type": "step1_option", "settings": { "product": "88lbs", "card_title": "88 lb Max Set", "card_description": "Elite performance capacity.", "sidebar_category": "ADJUSTABLE DUMBBELLS" } },
         { "type": "step2_option", "settings": { "product": "adjustable-home-workout-bench", "card_title": "M2 Bench", "card_description": "Space-optimized folding design for home studios.", "sidebar_category": "FOLDING BENCH" } },
         { "type": "step2_option", "settings": { "product": "pro-adjustable-weight-bench", "card_title": "M3 Pro Bench", "card_description": "Commercial-grade 7-position adjustability.", "sidebar_category": "PRO BENCH" } },
-        { "type": "step2_option", "settings": { "product": "home-workout-dumbbell-stand", "card_title": "Power Stand", "card_description": "Vertical storage for maximum space efficiency.", "sidebar_category": "VERTICAL STORAGE" } }
+        { "type": "step2_option", "settings": { "product": "home-workout-dumbbell-stand", "card_title": "Power Stand", "card_description": "Vertical storage for maximum space efficiency.", "sidebar_category": "VERTICAL STORAGE" } },
+        { "type": "step3_option", "settings": { "card_title": "Recovery Gun", "ribbon_text": "BUNDLE EXCLUSIVE", "save_badge_text": "SAVE $30", "sidebar_category": "RECOVERY" } }
       ]
     }
   ]
