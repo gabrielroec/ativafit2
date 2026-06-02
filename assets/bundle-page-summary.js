@@ -147,26 +147,18 @@
       var step2El = document.querySelector('[data-section-type="bundle-step-support-storage"]');
       var step3El = document.querySelector('[data-section-type="bundle-step-recovery-protocol"]');
 
-      // ── Step 2: locked until step 1 has ≥1 selection ──
-      var step2Locked = step1Count === 0;
+      // ── Step 2: always selectable (no gating on Step 1) ──
       if (step2El) {
-        if (step2Locked) {
-          step2El.querySelectorAll('.bundle-option-card__input').forEach(function (inp) {
-            inp.checked = false;
-            inp.disabled = true;
-          });
-        } else {
-          step2El.querySelectorAll('.bundle-option-card__input').forEach(function (inp) {
-            inp.disabled = false;
-          });
-        }
-        step2El.classList.toggle('is-locked', step2Locked);
+        step2El.querySelectorAll('.bundle-option-card__input').forEach(function (inp) {
+          inp.disabled = false;
+        });
+        step2El.classList.remove('is-locked');
       }
 
-      var step2Count = step2Locked ? 0 : getCheckedInStep('bundle-step-support-storage').length;
+      var step2Count = getCheckedInStep('bundle-step-support-storage').length;
 
-      // ── Step 3: locked until step 2 has ≥1 selection ──
-      var step3Locked = step2Locked || step2Count === 0;
+      // ── Step 3: locked until Step 1 OR Step 2 has ≥1 selection ──
+      var step3Locked = (step1Count + step2Count) === 0;
       if (step3El) {
         if (step3Locked) {
           var recoveryCard = step3El.querySelector('[data-bundle-recovery-card]');
@@ -184,9 +176,9 @@
         step3El.classList.toggle('is-locked', step3Locked);
       }
 
-      // ── Checkout button: incomplete state ──
+      // ── Checkout button: incomplete until ≥1 item in Step 1 or Step 2 ──
       if (checkoutBtn) {
-        checkoutBtn.classList.toggle('is-incomplete', step1Count === 0 || step2Count === 0);
+        checkoutBtn.classList.toggle('is-incomplete', (step1Count + step2Count) === 0);
       }
     }
 
@@ -282,7 +274,7 @@
         var step1 = getCheckedInStep('bundle-step-dumbbell-base');
         var step2 = getCheckedInStep('bundle-step-support-storage');
         var card = getRecoveryCard();
-        if (!step1.length || !step2.length) {
+        if (!step1.length && !step2.length) {
           window.alert(checkoutBtn.getAttribute('data-alert-incomplete') || 'Please complete all steps.');
           return;
         }
