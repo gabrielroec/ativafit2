@@ -35,13 +35,9 @@
 }
 
 .shop-gym-ativa__reveal {
-  /* Fade-in only — translateY removido (2026-05-07) pra eliminar 0.040 do CLS.
-     Lighthouse media o movimento vertical dos cards quando o JS adiciona
-     `.shop-gym-ativa--visible` como layout shift. Mantemos só o fade pra
-     entrada visualmente quase idêntica e CLS neutro. */
-  opacity: 0;
-  transition: opacity var(--sg-reveal-duration) var(--sg-ease-out);
-  transition-delay: var(--sg-reveal-delay, 0ms);
+  /* Animação de abertura desativada (2026-06-03) — esta section aparece
+     normalmente, sem fade/slide de entrada. */
+  opacity: 1;
 }
 
 .shop-gym-ativa--visible .shop-gym-ativa__reveal {
@@ -148,13 +144,11 @@
 }
 
 .shop-gym-ativa__card.shop-gym-ativa__reveal {
-  opacity: 0;
-  transform: translate3d(0, 2.25rem, 0);
-  transition:
-    opacity var(--sg-reveal-duration) var(--sg-ease-out),
-    transform var(--sg-reveal-duration) var(--sg-ease-out),
-    box-shadow 0.38s var(--sg-ease-out);
-  transition-delay: var(--sg-reveal-delay, 0ms);
+  /* Sem animação de abertura — card já em estado final. Mantém só a
+     transição de box-shadow pro hover. */
+  opacity: 1;
+  transform: none;
+  transition: box-shadow 0.38s var(--sg-ease-out);
 }
 
 .shop-gym-ativa--visible .shop-gym-ativa__card.shop-gym-ativa__reveal {
