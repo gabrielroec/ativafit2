@@ -1,6 +1,647 @@
+{% doc %}
+  @prompt
+    one final section to add to this development cycle: the "Clearance Deals" block. This section will feature a 3-product card layout using the exact same responsive product card specifications we established earlier.
+    
+    Here are the details for this implementation:
+    
+    📋 1. Section Copy & Content
+    Section ID/Anchor: Clearance Deals
+    
+    Main Title (Centered by default, Barlow Font): Last Chance Deals
+    
+    Subtitle (Centered by default, Barlow Font): Limited Inventory. While Supplies Last.
+    
+    Layout Structure: A Product Carousel Slider containing the designated clearance items.
+    
+    🎨 2. Product Card Specifications (Inherited Framework)
+    Please reuse the identical layout and responsive architecture we built for the previous section. Specifically:
+    
+    Desktop View:
+    
+    Display the 3 product cards neatly side-by-side in a responsive grid/carousel layout.
+    
+    Mobile View (max-width: 768px):
+    
+    Must transition into a 1.5 cards peek view (partial card visible on the right edge) to encourage swiping.
+    
+    Mobile Title Font Size: Set to 12px with a line-height: 1.4; and handled via -webkit-line-clamp: 2; to display up to two lines cleanly.
+    
+    Image Geometry: Maintain an aspect ratio of exactly 80% (aspect-ratio: 4 / 5;) for the product image wrappers.
+    
+    Discount Badge Feature: Ensure the xx% OFF discount badge is dynamically calculated and displayed in the top-left corner of each card if the product has a valid comparison price.
+    
+    Progress Bar Indicator Line: Just like the previous carousel, include a horizontal progress track directly underneath the mobile carousel to show users that there are remaining products to view.
+    
+    Button & Layout Alignment: Ensure cards use fluid heights (height: auto;) and Flexbox (flex-direction: column;) so that the "Add to Cart" buttons perfectly align at the bottom across all cards.
+    
+    💻 Header Customization Configuration
+    Just like the Mix & Match section, please ensure that the Main Title and Subtitle text content, font size, and text alignment remain completely customizable through the theme backend/editor settings, defaulting to centered alignment., Displays exactly 2 product cards.Please structure the card layout so that the product image wrapper takes up exactly 50% of the entire card's area/height.Use object-fit: contain; inside a height: 50%; container to ensure the image stays perfectly centered and does not get cropped.
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-clearance-deals-{{ ai_gen_id }} {
+    width: {{ block.settings.desktop_width_percent }}%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 40px 20px;
+    background-color: {{ block.settings.background_color }};
+  }
+
+  .ai-clearance-deals__header-{{ ai_gen_id }} {
+    text-align: {{ block.settings.text_alignment }};
+    margin-bottom: 30px;
+  }
+
+  .ai-clearance-deals__title-{{ ai_gen_id }} {
+    font-family: {{ block.settings.title_font.family }}, {{ block.settings.title_font.fallback_families }};
+    font-weight: {{ block.settings.title_font.weight }};
+    font-size: {{ block.settings.title_font_size }}px;
+    color: {{ block.settings.title_color }};
+    margin: 0 0 10px 0;
+    line-height: 1.2;
+  }
+
+  .ai-clearance-deals__subtitle-{{ ai_gen_id }} {
+    font-family: {{ block.settings.subtitle_font.family }}, {{ block.settings.subtitle_font.fallback_families }};
+    font-weight: {{ block.settings.subtitle_font.weight }};
+    font-size: {{ block.settings.subtitle_font_size }}px;
+    color: {{ block.settings.subtitle_color }};
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  .ai-clearance-deals__carousel-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ai-clearance-deals__carousel-{{ ai_gen_id }} {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .ai-clearance-deals__carousel-{{ ai_gen_id }}::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ai-clearance-deals__product-card-{{ ai_gen_id }} {
+    flex: 0 0 calc(50% - 10px);
+    min-width: calc(50% - 10px);
+    background-color: {{ block.settings.card_background_color }};
+    border-radius: {{ block.settings.card_border_radius }}px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .ai-clearance-deals__product-card-{{ ai_gen_id }}:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  .ai-clearance-deals__image-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    height: 50%;
+    min-height: 250px;
+    overflow: hidden;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-clearance-deals__image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .ai-clearance-deals__image-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-clearance-deals__image-placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .ai-clearance-deals__badge-{{ ai_gen_id }} {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: {{ block.settings.badge_background_color }};
+    color: {{ block.settings.badge_text_color }};
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 700;
+    z-index: 2;
+  }
+
+  .ai-clearance-deals__content-{{ ai_gen_id }} {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    height: 50%;
+    justify-content: space-between;
+  }
+
+  .ai-clearance-deals__product-title-{{ ai_gen_id }} {
+    font-size: 16px;
+    font-weight: 600;
+    color: {{ block.settings.product_title_color }};
+    margin: 0 0 8px 0;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .ai-clearance-deals__price-wrapper-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .ai-clearance-deals__price-{{ ai_gen_id }} {
+    font-size: 18px;
+    font-weight: 700;
+    color: {{ block.settings.price_color }};
+  }
+
+  .ai-clearance-deals__compare-price-{{ ai_gen_id }} {
+    font-size: 14px;
+    color: {{ block.settings.compare_price_color }};
+    text-decoration: line-through;
+  }
+
+  .ai-clearance-deals__button-{{ ai_gen_id }} {
+    margin-top: auto;
+    width: 100%;
+    padding: 12px 20px;
+    background-color: {{ block.settings.button_background_color }};
+    color: {{ block.settings.button_text_color }};
+    border: none;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+  }
+
+  .ai-clearance-deals__button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.button_hover_background_color }};
+  }
+
+  .ai-clearance-deals__progress-track-{{ ai_gen_id }} {
+    display: none;
+    width: 100%;
+    height: 4px;
+    background-color: #e0e0e0;
+    margin-top: 20px;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .ai-clearance-deals__progress-bar-{{ ai_gen_id }} {
+    height: 100%;
+    background-color: {{ block.settings.progress_bar_color }};
+    width: 50%;
+    transition: width 0.3s ease;
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-clearance-deals-{{ ai_gen_id }} {
+      padding: 30px 16px;
+    }
+
+    .ai-clearance-deals__carousel-{{ ai_gen_id }} {
+      gap: 12px;
+      padding-right: 16px;
+    }
+
+    .ai-clearance-deals__product-card-{{ ai_gen_id }} {
+      flex: 0 0 calc(66.666% - 8px);
+      min-width: calc(66.666% - 8px);
+    }
+
+    .ai-clearance-deals__image-wrapper-{{ ai_gen_id }} {
+      min-height: 200px;
+    }
+
+    .ai-clearance-deals__product-title-{{ ai_gen_id }} {
+      font-size: 12px;
+      line-height: 1.4;
+      -webkit-line-clamp: 2;
+    }
+
+    .ai-clearance-deals__progress-track-{{ ai_gen_id }} {
+      display: block;
+    }
+  }
+{% endstyle %}
+
+<clearance-deals-{{ ai_gen_id }}
+  class="ai-clearance-deals-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-clearance-deals__header-{{ ai_gen_id }}">
+    {% if block.settings.title != blank %}
+      <h2 class="ai-clearance-deals__title-{{ ai_gen_id }}">{{ block.settings.title }}</h2>
+    {% endif %}
+    {% if block.settings.subtitle != blank %}
+      <p class="ai-clearance-deals__subtitle-{{ ai_gen_id }}">{{ block.settings.subtitle }}</p>
+    {% endif %}
+  </div>
+
+  <div class="ai-clearance-deals__carousel-wrapper-{{ ai_gen_id }}">
+    <div
+      class="ai-clearance-deals__carousel-{{ ai_gen_id }}"
+      data-carousel
+    >
+      {% if block.settings.products != blank %}
+        {% for product in block.settings.products limit: 2 %}
+          <div class="ai-clearance-deals__product-card-{{ ai_gen_id }}">
+            <div class="ai-clearance-deals__image-wrapper-{{ ai_gen_id }}">
+              {% if product.featured_image %}
+                <img
+                  src="{{ product.featured_image | image_url: width: 600 }}"
+                  alt="{{ product.featured_image.alt | escape }}"
+                  class="ai-clearance-deals__image-{{ ai_gen_id }}"
+                  loading="lazy"
+                  width="600"
+                  height="600"
+                >
+              {% else %}
+                <div class="ai-clearance-deals__image-placeholder-{{ ai_gen_id }}">
+                  {{ 'product-1' | placeholder_svg_tag }}
+                </div>
+              {% endif %}
+
+              {% if product.compare_at_price > product.price %}
+                {% assign discount_percentage = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price %}
+                <div class="ai-clearance-deals__badge-{{ ai_gen_id }}">
+                  {{ discount_percentage }}% OFF
+                </div>
+              {% endif %}
+            </div>
+
+            <div class="ai-clearance-deals__content-{{ ai_gen_id }}">
+              <div>
+                <h3 class="ai-clearance-deals__product-title-{{ ai_gen_id }}">
+                  {{ product.title }}
+                </h3>
+
+                <div class="ai-clearance-deals__price-wrapper-{{ ai_gen_id }}">
+                  <span class="ai-clearance-deals__price-{{ ai_gen_id }}">
+                    {{ product.price | money }}
+                  </span>
+                  {% if product.compare_at_price > product.price %}
+                    <span class="ai-clearance-deals__compare-price-{{ ai_gen_id }}">
+                      {{ product.compare_at_price | money }}
+                    </span>
+                  {% endif %}
+                </div>
+              </div>
+
+              <a
+                href="{{ product.url }}"
+                class="ai-clearance-deals__button-{{ ai_gen_id }}"
+              >
+                {{ block.settings.button_text }}
+              </a>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        {% for i in (1..2) %}
+          <div class="ai-clearance-deals__product-card-{{ ai_gen_id }}">
+            <div class="ai-clearance-deals__image-wrapper-{{ ai_gen_id }}">
+              <div class="ai-clearance-deals__image-placeholder-{{ ai_gen_id }}">
+                {{ 'product-1' | placeholder_svg_tag }}
+              </div>
+              <div class="ai-clearance-deals__badge-{{ ai_gen_id }}">25% OFF</div>
+            </div>
+
+            <div class="ai-clearance-deals__content-{{ ai_gen_id }}">
+              <div>
+                <h3 class="ai-clearance-deals__product-title-{{ ai_gen_id }}">
+                  Sample Product {{ i }}
+                </h3>
+
+                <div class="ai-clearance-deals__price-wrapper-{{ ai_gen_id }}">
+                  <span class="ai-clearance-deals__price-{{ ai_gen_id }}">$29.99</span>
+                  <span class="ai-clearance-deals__compare-price-{{ ai_gen_id }}">$39.99</span>
+                </div>
+              </div>
+
+              <a
+                href="#"
+                class="ai-clearance-deals__button-{{ ai_gen_id }}"
+              >
+                {{ block.settings.button_text }}
+              </a>
+            </div>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+
+    <div class="ai-clearance-deals__progress-track-{{ ai_gen_id }}">
+      <div
+        class="ai-clearance-deals__progress-bar-{{ ai_gen_id }}"
+        data-progress-bar
+      ></div>
+    </div>
+  </div>
+</clearance-deals-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class ClearanceDeals{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.carousel = null;
+        this.progressBar = null;
+      }
+
+      connectedCallback() {
+        this.carousel = this.querySelector('[data-carousel]');
+        this.progressBar = this.querySelector('[data-progress-bar]');
+
+        if (this.carousel) {
+          this.setupCarousel();
+        }
+      }
+
+      setupCarousel() {
+        this.carousel.addEventListener('scroll', () => {
+          this.updateProgressBar();
+        });
+
+        this.updateProgressBar();
+      }
+
+      updateProgressBar() {
+        if (!this.progressBar || !this.carousel) return;
+
+        const scrollLeft = this.carousel.scrollLeft;
+        const scrollWidth = this.carousel.scrollWidth - this.carousel.clientWidth;
+        const scrollPercentage = scrollWidth > 0 ? (scrollLeft / scrollWidth) * 100 : 0;
+
+        this.progressBar.style.width = scrollPercentage + '%';
+      }
+    }
+
+    customElements.define('clearance-deals-{{ ai_gen_id }}', ClearanceDeals{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Clearance deals",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Last Chance Deals"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Limited Inventory. While Supplies Last."
+    },
+    {
+      "type": "product_list",
+      "id": "products",
+      "label": "Products",
+      "limit": 2
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "Add to Cart"
+    },
+    {
+      "type": "header",
+      "content": "Title style"
+    },
+    {
+      "type": "font_picker",
+      "id": "title_font",
+      "label": "Title font",
+      "default": "assistant_n4"
+    },
+    {
+      "type": "range",
+      "id": "title_font_size",
+      "label": "Title font size",
+      "min": 16,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title color",
+      "default": "#333333"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "Subtitle style"
+    },
+    {
+      "type": "font_picker",
+      "id": "subtitle_font",
+      "label": "Subtitle font",
+      "default": "assistant_n4"
+    },
+    {
+      "type": "range",
+      "id": "subtitle_font_size",
+      "label": "Subtitle font size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "subtitle_color",
+      "label": "Subtitle color",
+      "default": "#666666"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Desktop width",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Product card style"
+    },
+    {
+      "type": "color",
+      "id": "card_background_color",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "card_border_radius",
+      "label": "Card border radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "color",
+      "id": "product_title_color",
+      "label": "Product title color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "price_color",
+      "label": "Price color",
+      "default": "#eb7122"
+    },
+    {
+      "type": "color",
+      "id": "compare_price_color",
+      "label": "Compare price color",
+      "default": "#999999"
+    },
+    {
+      "type": "header",
+      "content": "Discount badge"
+    },
+    {
+      "type": "color",
+      "id": "badge_background_color",
+      "label": "Badge background",
+      "default": "#cf0e0e"
+    },
+    {
+      "type": "color",
+      "id": "badge_text_color",
+      "label": "Badge text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Button style"
+    },
+    {
+      "type": "color",
+      "id": "button_background_color",
+      "label": "Background",
+      "default": "#eb7122"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_background_color",
+      "label": "Hover background",
+      "default": "#d66420"
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "Progress bar"
+    },
+    {
+      "type": "color",
+      "id": "progress_bar_color",
+      "label": "Progress bar color",
+      "default": "#eb7122"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Clearance deals"
+    }
+  ]
+}
 {% endschema %}
