@@ -73,12 +73,31 @@
       ajuda em pages que pedem reviews/fonts daí. Mantido só onde aplicável
       (product pages); na home só rouba conexão.
     {%- endcomment -%}
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.intelligems.io" crossorigin>
     {%- if request.page_type == 'product' -%}
       <link rel="dns-prefetch" href="https://productreviews.shopifycdn.com">
     {%- endif -%}
 
+    {%- comment -%}
+      LCP preload for homepage hero — must be in <head> for early discovery on slow 3G/4G.
+      Uses image_url filter on shopify:// references so URLs byte-match the <img src>
+      rendered by sections/hero-banner-slider.liquid (browser reuses the response, no double download).
+      Gated to homepage only — zero overhead on other pages.
+    {%- endcomment -%}
+    {%- if request.page_type == 'index' -%}
+      {%- assign hero_mobile = 'shopify://shop_images/mobile_dumbbell_banner.webp' -%}
+      {%- assign hero_desktop = 'shopify://shop_images/desktop_dumbbell_banner.webp' -%}
+      <link rel="preload" as="image" fetchpriority="high"
+        href="{{ hero_mobile | image_url: width: 723, format: 'webp' }}"
+        imagesrcset="{{ hero_mobile | image_url: width: 390, format: 'webp' }} 390w, {{ hero_mobile | image_url: width: 500, format: 'webp' }} 500w, {{ hero_mobile | image_url: width: 723, format: 'webp' }} 723w"
+        imagesizes="100vw"
+        media="(max-width: 749px)">
+      <link rel="preload" as="image" fetchpriority="high"
+        href="{{ hero_desktop | image_url: width: 1920, format: 'webp' }}"
+        imagesrcset="{{ hero_desktop | image_url: width: 1024, format: 'webp' }} 1024w, {{ hero_desktop | image_url: width: 1366, format: 'webp' }} 1366w, {{ hero_desktop | image_url: width: 1920, format: 'webp' }} 1920w"
+        imagesizes="100vw"
+        media="(min-width: 750px)">
+    {%- endif -%}
 
     {% render 'css-variables' %}
 
@@ -148,48 +167,6 @@
           }
         }
       </style>
-    {%- endif -%}
-
-    {%- comment -%}
-      Google Fonts split em duas requisições:
-
-      1. Crítico (preload+onload): Barlow 400/700 e Barlow Condensed 700.
-         Barlow é a fonte global (typography-supreme.css aplica em todo elemento)
-         e Barlow Condensed é usada por headers/CTAs. Lighthouse mostrou que o
-         chain crítico estava em 21,9s pelo bloating do css2.
-
-      2. Diferido (chamado após `load`): Space Grotesk 400/700 e Lexend 400/700.
-         Usadas por sections de hero com texto/botões; em layouts image_only
-         (caso atual da home) elas não aparecem. Carregar depois libera banda
-         pro LCP image. Font-metric overrides no <style> acima evitam qualquer
-         CLS quando elas chegam.
-
-      display=swap garante que o texto pinta com fallback enquanto o woff2
-      carrega.
-    {%- endcomment -%}
-    {%- capture ativafit_fonts_url -%}https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&family=Barlow+Condensed:wght@700&display=swap{%- endcapture -%}
-    {%- capture ativafit_fonts_deferred_url -%}https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Lexend:wght@400;700&display=swap{%- endcapture -%}
-    <link rel="preload" as="style" href="{{ ativafit_fonts_url }}" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ ativafit_fonts_url }}"></noscript>
-    <script>
-      window.addEventListener('load', function () {
-        var l = document.createElement('link');
-        l.rel = 'stylesheet';
-        l.href = {{ ativafit_fonts_deferred_url | json }};
-        l.media = 'print';
-        l.onload = function () { this.media = 'all'; };
-        document.head.appendChild(l);
-      });
-    </script>
-    <noscript><link rel="stylesheet" href="{{ ativafit_fonts_deferred_url }}"></noscript>
-
-    {%- comment -%}
-      Inter font — só usado por split-banner e workout-blog-posts. Mantido
-      condicional pra nunca carregar na homepage/cart.
-    {%- endcomment -%}
-    {%- if request.page_type != 'index' and request.page_type != 'cart' -%}
-      <link rel="preload" as="style" href="https://fonts.cdnfonts.com/css/inter" onload="this.onload=null;this.rel='stylesheet'">
-      <noscript><link rel="stylesheet" href="https://fonts.cdnfonts.com/css/inter"></noscript>
     {%- endif -%}
 
     {%- comment -%}
@@ -384,7 +361,9 @@
     {%- comment -%} Legacy GTM-M985N39 container removed — not used since 2024. {%- endcomment -%}
 
     {%- comment -%} GTM container (NG7LT26D), Ahrefs and gtag.js are loaded by the deferred-tracking block at end of <body>. {%- endcomment -%}
-    {% render 'digismoothie-candyrack' %}
+    {%- if request.page_type != 'index' -%}
+      {% render 'digismoothie-candyrack' %}
+    {%- endif -%}
     {%- comment -%}
       Font Awesome 4.7 — only legacy pro-* sections (pro-block02/03/05, pro-video,
       pro-social, main-product-shane) use .fa-* classes. Gated out of pages that
@@ -428,23 +407,71 @@
     {%- if needs_jquery -%}
       <script src="{{ 'jquery.min.js' | asset_url }}" defer></script>
     {%- endif -%}
-    <script src="{{ 'product-card-simple.js' | asset_url }}" defer></script>
+    {%- if request.page_type != 'index' and request.page_type != 'cart' -%}
+      <script src="{{ 'product-card-simple.js' | asset_url }}" defer></script>
+    {%- endif -%}
 
     <meta name="google-site-verification" content="MMiNaiXOwNEI9BAzMcFWKtn93PFIXJS6nFRcAl-4Pwo" />
 
-    {%- comment -%} PageFly removed entirely (app no longer in use, 2026-05). {%- endcomment -%}
     {{ content_for_header }}
-    {%- comment -%} bundler-custom.css async manual (preload+onload) {%- endcomment -%}
-    <link rel="preload" as="style" href="{{ 'bundler-custom.css' | asset_url }}" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ 'bundler-custom.css' | asset_url }}"></noscript>
+    {%- if request.page_type != 'index' -%}
+      <link rel="preload" as="style" href="{{ 'bundler-custom.css' | asset_url }}" onload="this.onload=null;this.rel='stylesheet'">
+      <noscript><link rel="stylesheet" href="{{ 'bundler-custom.css' | asset_url }}"></noscript>
+    {%- endif -%}
+
+    {%- comment -%}
+      Intelligems — manually embedded WITHOUT blocking="render".
+      The app embed uses blocking="render" which adds ~4.5s render delay.
+      Without it, the script loads async (non-render-blocking) and the
+      browser can paint immediately. Trade-off: possible brief flicker
+      if an A/B test changes visible content.
+    {%- endcomment -%}
+    <script>
+      window.Shopify = window.Shopify || {theme: {id: {{ theme.id }}, role: '{{ theme.role }}' } };
+      window._template = {
+        directory: "{{ template.directory }}",
+        name: "{{ template.name }}",
+        suffix: "{{ template.suffix }}"
+      };
+      window.__productIdFromTemplate = {{ product.id | json }};
+      window.__plpCollectionIdFromTemplate = {{ collection.id | json }};
+      window.igProductData = (function() {
+        var data = {};
+        {%- if template.name == 'collection' -%}
+          {%- for product in collection.products -%}
+            data["{{ product.id }}"] = {
+              productId: {{ product.id | json }},
+              handle: {{ product.handle | json }},
+              tags: {{ product.tags | json }},
+              collectionIds: [{% for col in product.collections %}{{ col.id }}{% unless forloop.last %},{% endunless %}{% endfor %}],
+              inventory: {% assign total = 0 %}{% for v in product.variants %}{% assign total = total | plus: v.inventory_quantity %}{% endfor %}{{ total }},
+              lowestVariantPrice: {{ product.price_min }}
+            };
+          {%- endfor -%}
+        {%- elsif template.name == 'product' -%}
+          data["{{ product.id }}"] = {
+            productId: {{ product.id | json }},
+            handle: {{ product.handle | json }},
+            tags: {{ product.tags | json }},
+            collectionIds: [{% for col in product.collections %}{{ col.id }}{% unless forloop.last %},{% endunless %}{% endfor %}],
+            inventory: {% assign total = 0 %}{% for v in product.variants %}{% assign total = total | plus: v.inventory_quantity %}{% endfor %}{{ total }},
+            lowestVariantPrice: {{ product.price_min }}
+          };
+        {%- endif -%}
+        return data;
+      })();
+    </script>
+    <script type="module" src="https://cdn.intelligems.io/esm/4a15c92682df/bundle.js" async></script>
   </head>
 
   {%- comment -%}
     Theme overrides (rivyo, bndlr, loloyal, etc.) extracted to a cacheable asset.
     Async manual (preload+onload).
   {%- endcomment -%}
-  <link rel="preload" as="style" href="{{ 'theme-overrides.css' | asset_url }}" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="{{ 'theme-overrides.css' | asset_url }}"></noscript>
+  {%- if request.page_type != 'index' -%}
+    <link rel="preload" as="style" href="{{ 'theme-overrides.css' | asset_url }}" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ 'theme-overrides.css' | asset_url }}"></noscript>
+  {%- endif -%}
 
   {%- if request.path == '/products/ripple-half-ball-balance-ball' -%}
     <style>
@@ -526,11 +553,10 @@
     {%- comment -%} Cart Notification Component (deprecated - usando cart drawer agora) {%- endcomment -%}
     {% render 'cart-notification' %}
 
-    {%- comment -%} Klaviyo Popup Cleaner Script {%- endcomment -%}
-    <script src="{{ 'klaviyo-popup-cleaner.js' | asset_url }}" defer></script>
-
-    {%- comment -%} Error Handler Script {%- endcomment -%}
-    <script src="{{ 'error-handler.js' | asset_url }}" defer></script>
+    {%- if request.page_type != 'index' -%}
+      <script src="{{ 'klaviyo-popup-cleaner.js' | asset_url }}" defer></script>
+      <script src="{{ 'error-handler.js' | asset_url }}" defer></script>
+    {%- endif -%}
 
     {%- comment -%}
       Bundle Builder Title Converter — only loads on pages that may host the
@@ -749,16 +775,7 @@
           /* Ahrefs analytics */
           (function(){var s=document.createElement('script');s.async=true;s.src='https://analytics.ahrefs.com/analytics.js';s.setAttribute('data-key','lqzucNIXjItSH4hJMLxs4w');document.head.appendChild(s);})();
 
-          /* Hotjar (hjid: 6368517) — único container ativo. Hotjar 2 (3882714)
-             removido em 2026-05; era duplicata de uma migração antiga. */
-          (function(h,o,t,j,a,r){
-            h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
-            h._hjSettings={hjid:6368517,hjsv:6};
-            a=o.getElementsByTagName('head')[0];
-            r=o.createElement('script');r.async=1;
-            r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
-            a.appendChild(r);
-          })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+          /* Hotjar removido em 2026-05 — Clarity (app embed) cobre a mesma funcionalidade */
 
           /* Twitter Pixel */
           !function(e,t,n,s,u,a){e.twq||(s=e.twq=function(){s.exe?s.exe.apply(s,arguments):s.queue.push(arguments);
@@ -782,11 +799,11 @@
           }
         }
         ['click','scroll','keydown','touchstart'].forEach(function(e){ document.addEventListener(e, loadTracking, {capture:true,once:true,passive:true}); });
-        /* Fallback: load tracking after page load + 3.5s if user is idle. Bots & previews still get tracked. */
+        /* Fallback: load tracking after page load + 7s if user is idle. */
         if (document.readyState === 'complete') {
-          setTimeout(loadTracking, 3500);
+          setTimeout(loadTracking, 7000);
         } else {
-          window.addEventListener('load', function(){ setTimeout(loadTracking, 3500); }, { once: true });
+          window.addEventListener('load', function(){ setTimeout(loadTracking, 7000); }, { once: true });
         }
       })();
     </script>

@@ -1,718 +1,390 @@
-{% comment %}
-  Hero Banner Slider Section
-  Fully responsive slider with support for videos and images
-  Supports up to 5 slides with individual enable/disable toggle
-  Separate images/videos for desktop and mobile
-{% endcomment %}
-
-{% assign ai_gen_id = section.id | replace: '_', '' | downcase %}
-
-{% liquid
-  assign active_slides = 0
-
+{%- liquid
+  assign sid = section.id
+  assign sc = section.settings
+  assign slides_count = 0
   for i in (1..5)
-    assign slide_enabled_key = 'slide_' | append: i | append: '_enabled'
-    assign slide_enabled = section.settings[slide_enabled_key]
-
-    if slide_enabled
-      assign active_slides = active_slides | plus: 1
+    assign key = 'slide_' | append: i | append: '_enabled'
+    if sc[key]
+      assign slides_count = slides_count | plus: 1
     endif
   endfor
+-%}
 
-  comment
-    LCP preload — acelera a descoberta da primeira imagem do slider (que vira
-    o LCP element em telas mobile/desktop). Ladders right-sized: mobile usa
-    390/500/723w (square) e desktop usa 1024/1366/1920w (16:9). Sem isso, o
-    browser só descobre a imagem após parsear todo o <head> + chegar no <img>.
-    Em Slow 4G isso valia ~300-500ms no LCP no hero anterior.
-  endcomment
-  assign hero_lcp_mobile = section.settings.slide_1_mobile_image
-  assign hero_lcp_desktop = section.settings.slide_1_desktop_image
-%}
+{%- comment -%}
+  LCP preload moved to layout/theme.liquid <head> for earlier discovery.
+  Browser preload scanner finds it ~1.5s sooner on Slow 4G.
+{%- endcomment -%}
 
-{%- if hero_lcp_mobile != blank -%}
-  <link
-    rel="preload"
-    as="image"
-    fetchpriority="high"
-    href="{{ hero_lcp_mobile | image_url: width: 500, format: 'webp' }}&quality=75"
-    imagesrcset="{{ hero_lcp_mobile | image_url: width: 390, format: 'webp' }}&quality=75 390w, {{ hero_lcp_mobile | image_url: width: 500, format: 'webp' }}&quality=75 500w, {{ hero_lcp_mobile | image_url: width: 723, format: 'webp' }}&quality=75 723w"
-    imagesizes="100vw"
-    media="(max-width: 749px)">
-{%- endif -%}
-{%- if hero_lcp_desktop != blank -%}
-  <link
-    rel="preload"
-    as="image"
-    fetchpriority="high"
-    href="{{ hero_lcp_desktop | image_url: width: 1366, format: 'webp' }}&quality=75"
-    imagesrcset="{{ hero_lcp_desktop | image_url: width: 1024, format: 'webp' }}&quality=75 1024w, {{ hero_lcp_desktop | image_url: width: 1366, format: 'webp' }}&quality=75 1366w, {{ hero_lcp_desktop | image_url: width: 1920, format: 'webp' }}&quality=75 1920w"
-    imagesizes="100vw"
-    media="(min-width: 750px)">
-{%- endif -%}
+<script src="{{ 'hero-banner-slider.js' | asset_url }}" defer></script>
 
 {% style %}
-  .ai-hero-slider-{{ ai_gen_id }} {
+  .hero-slider-{{ sid }} {
     position: relative;
     width: 100%;
     overflow: hidden;
-    background-color: {{ section.settings.background_color }};
+    background: {{ sc.background_color }};
   }
-  .ai-hero-slider-wrapper-{{ ai_gen_id }} {
-    position: relative;
-    width: 100%;
-  }
-  .ai-hero-slider-track-{{ ai_gen_id }} {
+
+  .hero-slider-{{ sid }} [data-slider-track] {
     display: flex;
-    transition: transform 0.5s ease-in-out;
+    transition: transform 0.4s ease;
   }
-  .ai-hero-slide-{{ ai_gen_id }} {
-    min-width: 100%;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .ai-hero-slide-link-{{ ai_gen_id }} {
-    display: block;
-    width: 100%;
+
+  .hero-slider-{{ sid }} [data-slider-slide] {
+    flex: 0 0 100%;
+    min-width: 0;
     position: relative;
     text-decoration: none;
+    color: inherit;
+    display: block;
   }
-  .ai-hero-slide-media-{{ ai_gen_id }} {
+
+  .hero-slider-{{ sid }} .hero-slider__media {
     position: relative;
     width: 100%;
+    aspect-ratio: {{ sc.mobile_aspect_ratio_width }} / {{ sc.mobile_aspect_ratio_height }};
     overflow: hidden;
   }
-  .ai-hero-slide-media-{{ ai_gen_id }} img,
-  .ai-hero-slide-media-{{ ai_gen_id }} video {
+
+  .hero-slider-{{ sid }} .hero-slider__media img,
+  .hero-slider-{{ sid }} .hero-slider__media video {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
   }
-  .ai-hero-slide-overlay-{{ ai_gen_id }} {
+
+  .hero-slider-{{ sid }} .hero-slider__overlay {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, {{ section.settings.overlay_opacity }});
+    inset: 0;
+    background: rgba(0, 0, 0, {{ sc.overlay_opacity }});
     pointer-events: none;
   }
-  .ai-hero-slide-content-{{ ai_gen_id }} {
+
+  .hero-slider-{{ sid }} .hero-slider__content {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     display: flex;
     flex-direction: column;
+    align-items: center;
     justify-content: center;
-    padding: 40px 20px;
-    z-index: 2;
+    padding: 20px;
+    text-align: center;
+    color: {{ sc.text_color }};
     pointer-events: none;
-    align-items: flex-start;
   }
-  .ai-hero-slide-content-{{ ai_gen_id }}.align-left {
+
+  .hero-slider-{{ sid }} .hero-slider__content--left {
     align-items: flex-start;
     text-align: left;
   }
-  .ai-hero-slide-content-{{ ai_gen_id }}.align-center {
-    align-items: center;
-    text-align: center;
-    justify-content: flex-start;
-  }
-  .ai-hero-slide-content-{{ ai_gen_id }}.align-right {
+
+  .hero-slider-{{ sid }} .hero-slider__content--right {
     align-items: flex-end;
     text-align: right;
   }
-  .ai-hero-slide-title-{{ ai_gen_id }} {
-    font-size: {{ section.settings.title_size }}px;
-    color: {{ section.settings.text_color }};
-    margin: 0 0 16px;
-    max-width: 800px;
+
+  .hero-slider-{{ sid }} .hero-slider__title {
+    font-size: {{ sc.title_size | times: 0.65 | round }}px;
     font-weight: 700;
+    margin: 0;
     line-height: 1.2;
   }
-  .ai-hero-slide-subtitle-{{ ai_gen_id }} {
-    font-size: {{ section.settings.subtitle_size }}px;
-    color: {{ section.settings.text_color }};
-    margin: 0 0 24px;
-    max-width: 100%!important;
+
+  .hero-slider-{{ sid }} .hero-slider__subtitle {
+    font-size: {{ sc.subtitle_size | times: 0.85 | round }}px;
+    margin: 12px 0 0;
     line-height: 1.5;
   }
-  .ai-hero-slide-button-{{ ai_gen_id }} {
+
+  .hero-slider-{{ sid }} .hero-slider__btn {
     display: inline-block;
-    padding: 14px 32px;
-    background-color: {{ section.settings.button_bg_color }};
-    color: {{ section.settings.button_text_color }};
-    text-decoration: none;
-    border-radius: {{ section.settings.button_border_radius }}px;
-    font-size: {{ section.settings.button_font_size }}px;
+    margin-top: 20px;
+    padding: 12px 28px;
+    font-size: {{ sc.button_font_size }}px;
     font-weight: 600;
-    transition: all 0.3s ease;
+    text-decoration: none;
+    border-radius: {{ sc.button_border_radius }}px;
+    background: {{ sc.button_bg_color }};
+    color: {{ sc.button_text_color }};
     pointer-events: auto;
-    border: none;
-    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
   }
-  .ai-hero-slide-button-{{ ai_gen_id }}:hover {
-    background-color: {{ section.settings.button_hover_bg_color }};
-    color: {{ section.settings.button_hover_text_color }};
-    transform: translateY(-2px);
+
+  .hero-slider-{{ sid }} .hero-slider__btn:hover {
+    background: {{ sc.button_hover_bg_color }};
+    color: {{ sc.button_hover_text_color }};
   }
-  .ai-hero-slider-nav-{{ ai_gen_id }} {
+
+  .hero-slider-{{ sid }} .hero-slider__nav {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    z-index: 10;
-    background-color: {{ section.settings.nav_bg_color }};
-    color: {{ section.settings.nav_icon_color }};
-    border: none;
     width: 48px;
     height: 48px;
+    border: 0;
     border-radius: 50%;
+    background: {{ sc.nav_bg_color }};
+    color: {{ sc.nav_icon_color }};
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s ease;
-    opacity: 0.9;
+    z-index: 2;
+    opacity: 0.85;
   }
-  .ai-hero-slider-nav-{{ ai_gen_id }}:hover {
+
+  .hero-slider-{{ sid }} .hero-slider__nav:hover {
     opacity: 1;
-    transform: translateY(-50%) scale(1.1);
   }
-  .ai-hero-slider-nav-{{ ai_gen_id }}.prev {
-    left: 20px;
-  }
-  .ai-hero-slider-nav-{{ ai_gen_id }}.next {
-    right: 20px;
-  }
-  .ai-hero-slider-dots-{{ ai_gen_id }} {
+
+  .hero-slider-{{ sid }} .hero-slider__nav--prev { left: 16px; }
+  .hero-slider-{{ sid }} .hero-slider__nav--next { right: 16px; }
+
+  .hero-slider-{{ sid }} .hero-slider__dots {
     position: absolute;
-    bottom: 24px;
+    bottom: 16px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 12px;
-    z-index: 10;
+    gap: 8px;
+    z-index: 2;
   }
-  .ai-hero-slider-dot-{{ ai_gen_id }} {
-    width: 12px;
-    height: 12px;
+
+  .hero-slider-{{ sid }} .hero-slider__dot {
+    width: 10px;
+    height: 10px;
+    border: 0;
     border-radius: 50%;
-    background-color: {{ section.settings.dot_color }};
+    background: {{ sc.dot_color }};
     opacity: 0.5;
     cursor: pointer;
-    transition: all 0.3s ease;
-    border: none;
     padding: 0;
+    transition: opacity 0.2s;
   }
-  .ai-hero-slider-dot-{{ ai_gen_id }}.active {
+
+  .hero-slider-{{ sid }} .hero-slider__dot.active {
     opacity: 1;
-    transform: scale(1.2);
   }
-  .ai-hero-slide-placeholder-{{ ai_gen_id }} {
-    width: 100%;
-    height: 100%;
-    background-color: #f4f4f4;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
+
+  .hero-slider-{{ sid }} .hero-slider__vid-d { display: none; }
+
+  @media (min-width: 750px) {
+    .hero-slider-{{ sid }} .hero-slider__media {
+      aspect-ratio: {{ sc.desktop_aspect_ratio_width }} / {{ sc.desktop_aspect_ratio_height }};
+    }
+    .hero-slider-{{ sid }} .hero-slider__title {
+      font-size: {{ sc.title_size }}px;
+    }
+    .hero-slider-{{ sid }} .hero-slider__subtitle {
+      font-size: {{ sc.subtitle_size }}px;
+    }
+    .hero-slider-{{ sid }} .hero-slider__vid-d { display: block; }
+    .hero-slider-{{ sid }} .hero-slider__vid-m { display: none; }
   }
-  .ai-hero-slide-placeholder-{{ ai_gen_id }} svg {
-    width: 100%;
-    height: 100%;
-    max-width: 500px;
-    max-height: 500px;
-  }
-  .ai-hero-empty-state-{{ ai_gen_id }} {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 12px 20px;
-    font-size: 14px;
-    color: #666;
-    text-align: center;
-    pointer-events: none;
-  }
-  @media screen and (max-width: 749px) {
-    .ai-hero-slider-wrapper-{{ ai_gen_id }},
-    .ai-hero-slider-track-{{ ai_gen_id }},
-    .ai-hero-slide-{{ ai_gen_id }},
-    .ai-hero-slide-link-{{ ai_gen_id }},
-    .ai-hero-slide-media-{{ ai_gen_id }} {
-      aspect-ratio: {{ section.settings.mobile_aspect_ratio_width }} / {{ section.settings.mobile_aspect_ratio_height }};
+
+  @media (max-width: 749px) {
+    .hero-slider-{{ sid }} .hero-slider__nav {
+      width: 36px;
+      height: 36px;
     }
-    .ai-hero-slide-title-{{ ai_gen_id }} {
-      font-size: calc({{ section.settings.title_size }}px * 0.6);
-    }
-    .ai-hero-slide-subtitle-{{ ai_gen_id }} {
-      font-size: calc({{ section.settings.subtitle_size }}px * 0.8);
-    }
-    .ai-hero-slide-button-{{ ai_gen_id }} {
-      font-size: calc({{ section.settings.button_font_size }}px * 0.9);
-      padding: 12px 24px;
-    }
-    .ai-hero-slider-nav-{{ ai_gen_id }} {
-      width: 40px;
-      height: 40px;
-    }
-    .ai-hero-slider-nav-{{ ai_gen_id }}.prev {
-      left: 10px;
-    }
-    .ai-hero-slider-nav-{{ ai_gen_id }}.next {
-      right: 10px;
-    }
-    .ai-hero-slide-content-{{ ai_gen_id }} {
-      padding: 20px 15px;
-    }
-    .ai-hero-desktop-media-{{ ai_gen_id }} {
-      display: none !important;
-    }
-    .ai-hero-mobile-media-{{ ai_gen_id }} {
-      display: block !important;
-    }
-    /* Mobile image fills the slot using the container's aspect-ratio.
-       Antes era `width:auto;height:auto;object-fit:contain` — isso anulava
-       os atributos width/height e fazia o Lighthouse marcar "Unsized image"
-       + CLS quando a imagem carregava. Agora usa width/height 100% +
-       object-fit:cover (consistente com desktop) e o aspect-ratio do
-       container reserva o espaço correto antes do paint. */
-    img.ai-hero-mobile-media-{{ ai_gen_id }} {
-      width: 100% !important;
-      height: 100% !important;
-      max-width: 100%;
-      object-fit: cover !important;
-    }
-  }
-  @media screen and (min-width: 750px) {
-    .ai-hero-slider-wrapper-{{ ai_gen_id }},
-    .ai-hero-slider-track-{{ ai_gen_id }},
-    .ai-hero-slide-{{ ai_gen_id }},
-    .ai-hero-slide-link-{{ ai_gen_id }},
-    .ai-hero-slide-media-{{ ai_gen_id }} {
-      aspect-ratio: {{ section.settings.desktop_aspect_ratio_width }} / {{ section.settings.desktop_aspect_ratio_height }};
-    }
-    .ai-hero-desktop-media-{{ ai_gen_id }} {
-      display: block !important;
-    }
-    .ai-hero-mobile-media-{{ ai_gen_id }} {
-      display: none !important;
-    }
+    .hero-slider-{{ sid }} .hero-slider__nav--prev { left: 8px; }
+    .hero-slider-{{ sid }} .hero-slider__nav--next { right: 8px; }
   }
 {% endstyle %}
 
-<div
-  class="ai-hero-slider-{{ ai_gen_id }} hero-slider-container"
-  data-autoplay="{{ section.settings.enable_autoplay }}"
-  data-autoplay-speed="{{ section.settings.autoplay_speed }}"
-  data-slider-id="{{ ai_gen_id }}"
+<section
+  class="hero-slider-{{ sid }}"
+  data-hero-slider
+  data-autoplay="{{ sc.enable_autoplay }}"
+  data-autoplay-speed="{{ sc.autoplay_speed }}"
+  aria-label="Hero banner"
   {{ section.shopify_attributes }}
 >
-  <div class="ai-hero-slider-wrapper-{{ ai_gen_id }}">
-    <div class="ai-hero-slider-track-{{ ai_gen_id }}">
-      {% for i in (1..5) %}
-        {% liquid
-          assign slide_enabled_key = 'slide_' | append: i | append: '_enabled'
-          assign desktop_image_key = 'slide_' | append: i | append: '_desktop_image'
-          assign desktop_video_key = 'slide_' | append: i | append: '_desktop_video'
-          assign mobile_image_key = 'slide_' | append: i | append: '_mobile_image'
-          assign mobile_video_key = 'slide_' | append: i | append: '_mobile_video'
-          assign title_key = 'slide_' | append: i | append: '_title'
-          assign subtitle_key = 'slide_' | append: i | append: '_subtitle'
-          assign text_alignment_key = 'slide_' | append: i | append: '_text_alignment'
-          assign button_label_key = 'slide_' | append: i | append: '_button_label'
-          assign button_link_key = 'slide_' | append: i | append: '_button_link'
-          assign slide_link_key = 'slide_' | append: i | append: '_slide_link'
-          assign slide_enabled = section.settings[slide_enabled_key]
-          assign desktop_image = section.settings[desktop_image_key]
-          assign desktop_video = section.settings[desktop_video_key]
-          assign mobile_image = section.settings[mobile_image_key]
-          assign mobile_video = section.settings[mobile_video_key]
-          assign title = section.settings[title_key]
-          assign subtitle = section.settings[subtitle_key]
-          assign text_alignment = section.settings[text_alignment_key]
-          assign button_label = section.settings[button_label_key]
-          assign button_link = section.settings[button_link_key]
-          assign slide_link = section.settings[slide_link_key]
-          assign has_desktop_image = false
-          assign has_desktop_video = false
-          assign has_mobile_image = false
-          assign has_mobile_video = false
-          if desktop_image != blank
-            assign has_desktop_image = true
-          endif
-          if desktop_video != blank
-            assign has_desktop_video = true
-          endif
-          if mobile_image != blank
-            assign has_mobile_image = true
-          endif
-          if mobile_video != blank
-            assign has_mobile_video = true
-          endif
-          assign has_content = false
-          if title != blank or subtitle != blank or button_label != blank
-            assign has_content = true
-          endif
-        %}
-        {% if slide_enabled %}
-          <div class="ai-hero-slide-{{ ai_gen_id }}" data-slide-index="{{ forloop.index0 }}">
-            {% if slide_link != blank %}
-              <a href="{{ slide_link }}" class="ai-hero-slide-link-{{ ai_gen_id }}">
-            {% else %}
-              <div class="ai-hero-slide-link-{{ ai_gen_id }}">
-            {% endif %}
-              <div class="ai-hero-slide-media-{{ ai_gen_id }}">
-                {% if has_desktop_video or has_desktop_image or has_mobile_video or has_mobile_image %}
-                  {% if has_desktop_video %}
-                    <video
-                      class="ai-hero-desktop-media-{{ ai_gen_id }}"
-                      autoplay
-                      muted
-                      loop
-                      playsinline
-                      {% if desktop_image %}
-                        poster="{{ desktop_image | image_url: width: 2000 }}"
-                      {% endif %}
-                    >
-                      <source src="{{ desktop_video }}" type="video/mp4">
-                    </video>
-                  {% elsif has_desktop_image %}
-                    {%- comment -%}
-                      Slide 1 = LCP candidate em desktop. eager + high priority
-                      faz o browser baixar a imagem assim que parsear a tag.
-                      Slides 2-5 = lazy + low (só baixam quando o carousel
-                      avança ou IntersectionObserver detecta).
-                    {%- endcomment -%}
-                    <img
-                      class="ai-hero-desktop-media-{{ ai_gen_id }}"
-                      src="{{ desktop_image | image_url: width: 1920, format: 'webp' }}&quality=75"
-                      srcset="{{ desktop_image | image_url: width: 768, format: 'webp' }}&quality=75 768w,
-                              {{ desktop_image | image_url: width: 1024, format: 'webp' }}&quality=75 1024w,
-                              {{ desktop_image | image_url: width: 1366, format: 'webp' }}&quality=75 1366w,
-                              {{ desktop_image | image_url: width: 1920, format: 'webp' }}&quality=75 1920w,
-                              {{ desktop_image | image_url: width: 2560, format: 'webp' }}&quality=75 2560w"
-                      sizes="100vw"
-                      alt="{{ desktop_image.alt | escape }}"
-                      loading="{% if i == 1 %}eager{% else %}lazy{% endif %}"
-                      fetchpriority="{% if i == 1 %}high{% else %}low{% endif %}"
-                      decoding="{% if i == 1 %}sync{% else %}async{% endif %}"
-                      width="{{ desktop_image.width }}"
-                      height="{{ desktop_image.height }}"
-                    >
-                  {% endif %}
-                  {% if has_mobile_video %}
-                    <video
-                      class="ai-hero-mobile-media-{{ ai_gen_id }}"
-                      autoplay
-                      muted
-                      loop
-                      playsinline
-                      {% if mobile_image %}
-                        poster="{{ mobile_image | image_url: width: 1000 }}"
-                      {% endif %}
-                    >
-                      <source src="{{ mobile_video }}" type="video/mp4">
-                    </video>
-                  {% elsif has_mobile_image %}
-                    {%- comment -%}
-                      Slide 1 mobile = LCP candidate. eager + high. Slides 2-5
-                      lazy + low — antes TODOS estavam eager+high, o que fazia
-                      o browser baixar 3-5 imagens mobile no first paint e
-                      competia banda com o LCP da slide 1.
-                    {%- endcomment -%}
-                    <img
-                      class="ai-hero-mobile-media-{{ ai_gen_id }}"
-                      src="{{ mobile_image | image_url: width: 723, height: 721, crop: 'center', format: 'webp' }}&quality=75"
-                      srcset="{{ mobile_image | image_url: width: 390, height: 390, crop: 'center', format: 'webp' }}&quality=75 390w,
-                              {{ mobile_image | image_url: width: 500, height: 498, crop: 'center', format: 'webp' }}&quality=75 500w,
-                              {{ mobile_image | image_url: width: 723, height: 721, crop: 'center', format: 'webp' }}&quality=75 723w"
-                      sizes="100vw"
-                      alt="{{ mobile_image.alt | escape }}"
-                      loading="{% if i == 1 %}eager{% else %}lazy{% endif %}"
-                      fetchpriority="{% if i == 1 %}high{% else %}low{% endif %}"
-                      decoding="{% if i == 1 %}sync{% else %}async{% endif %}"
-                      width="723"
-                      height="721">
-                  {% endif %}
-                {% else %}
-                  <div class="ai-hero-slide-placeholder-{{ ai_gen_id }}">
-                    {{ 'hero-apparel-1' | placeholder_svg_tag }}
-                    <div class="ai-hero-empty-state-{{ ai_gen_id }}">
-                      Add an image or video for slide {{ i }}
-                    </div>
-                  </div>
-                {% endif %}
-                <div class="ai-hero-slide-overlay-{{ ai_gen_id }}"></div>
-              </div>
-              {% if has_content %}
-                <div class="ai-hero-slide-content-{{ ai_gen_id }} align-{{ text_alignment }}">
-                  {% if title != blank %}
-                    <h1 class="ai-hero-slide-title-{{ ai_gen_id }}">{{ title }}</h1>
-                  {% endif %}
-                  {% if subtitle != blank %}
-                    <p class="ai-hero-slide-subtitle-{{ ai_gen_id }}">{{ subtitle }}</p>
-                  {% endif %}
-                  {% if button_label != blank and button_link != blank %}
-                    <a href="{{ button_link }}" class="ai-hero-slide-button-{{ ai_gen_id }}">
-                      {{ button_label }}
-                    </a>
-                  {% endif %}
-                </div>
-              {% endif %}
-            {% if slide_link != blank %}
-              </a>
-            {% else %}
-              </div>
-            {% endif %}
-          </div>
-        {% endif %}
-      {% endfor %}
-    </div>
-    {% if active_slides > 1 %}
-      {% if section.settings.show_arrows %}
-        <button class="ai-hero-slider-nav-{{ ai_gen_id }} prev" aria-label="Previous slide">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="15 18 9 12 15 6"></polyline>
-          </svg>
-        </button>
-        <button class="ai-hero-slider-nav-{{ ai_gen_id }} next" aria-label="Next slide">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="9 18 15 12 9 6"></polyline>
-          </svg>
-        </button>
-      {% endif %}
-      {% if section.settings.show_dots %}
-        <div class="ai-hero-slider-dots-{{ ai_gen_id }}">
-          {% assign dot_index = 0 %}
-          {% for i in (1..5) %}
-            {% liquid
-              assign slide_enabled_key = 'slide_' | append: i | append: '_enabled'
-              assign slide_enabled = section.settings[slide_enabled_key]
-            %}
-            {% if slide_enabled %}
-              <button
-                class="ai-hero-slider-dot-{{ ai_gen_id }} {% if dot_index == 0 %}active{% endif %}"
-                data-slide="{{ dot_index }}"
-                aria-label="Go to slide {{ dot_index | plus: 1 }}"
-              ></button>
-              {% assign dot_index = dot_index | plus: 1 %}
-            {% endif %}
-          {% endfor %}
-        </div>
-      {% endif %}
-    {% endif %}
-  </div>
-</div>
+  <div data-slider-track>
+    {%- for i in (1..5) -%}
+      {%- liquid
+        assign ek = 'slide_' | append: i | append: '_enabled'
+        unless sc[ek]
+          continue
+        endunless
 
-<script>
-  (function() {
-    const sliderId = '{{ ai_gen_id }}';
-    
-    function initHeroSlider(container) {
-      const slider = {
-        currentSlide: 0,
-        totalSlides: 0,
-        autoplayInterval: null,
-        touchStartX: 0,
-        touchEndX: 0,
-        sliderId: sliderId,
-        container: container,
-        track: null,
-        slides: null,
-        prevBtn: null,
-        nextBtn: null,
-        dots: null
-      };
-      
-      slider.track = container.querySelector('.ai-hero-slider-track-' + slider.sliderId);
-      slider.slides = container.querySelectorAll('.ai-hero-slide-' + slider.sliderId);
-      slider.prevBtn = container.querySelector('.ai-hero-slider-nav-' + slider.sliderId + '.prev');
-      slider.nextBtn = container.querySelector('.ai-hero-slider-nav-' + slider.sliderId + '.next');
-      slider.dots = container.querySelectorAll('.ai-hero-slider-dot-' + slider.sliderId);
-      slider.totalSlides = slider.slides.length;
-      
-      if (!slider.track || slider.totalSlides <= 1) {
-        return;
-      }
-      
-      slider.setupEventListeners = function() {
-        if (this.prevBtn) {
-          this.prevBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            this.prevSlide();
-          });
-        }
-        if (this.nextBtn) {
-          this.nextBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            this.nextSlide();
-          });
-        }
-        this.dots.forEach((dot, index) => {
-          dot.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            this.goToSlide(index);
-          });
-        });
-        this.container.addEventListener('touchstart', (e) => {
-          this.touchStartX = e.changedTouches[0].screenX;
-        });
-        this.container.addEventListener('touchend', (e) => {
-          this.touchEndX = e.changedTouches[0].screenX;
-          this.handleSwipe();
-        });
-        window.addEventListener('resize', () => this.handleResize());
-      };
-      
-      slider.setupResponsiveMedia = function() {
-        const updateMediaVisibility = () => {
-          const isMobile = window.innerWidth < 750;
-          
-          this.container.querySelectorAll('.ai-hero-desktop-media-' + this.sliderId).forEach((el) => {
-            el.style.display = isMobile ? 'none' : 'block';
-          });
-          this.container.querySelectorAll('.ai-hero-mobile-media-' + this.sliderId).forEach((el) => {
-            el.style.display = isMobile ? 'block' : 'none';
-          });
-        };
-        updateMediaVisibility();
-        window.addEventListener('resize', updateMediaVisibility);
-      };
-      
-      slider.handleResize = function() {
-        if (this.track) {
-          this.goToSlide(this.currentSlide, false);
-        }
-      };
-      
-      slider.handleSwipe = function() {
-        const swipeThreshold = 50;
-        const diff = this.touchStartX - this.touchEndX;
-        if (Math.abs(diff) > swipeThreshold) {
-          if (diff > 0) {
-            this.nextSlide();
-          } else {
-            this.prevSlide();
-          }
-        }
-      };
-      
-      slider.setupAutoplay = function() {
-        const autoplay = this.container.dataset.autoplay === 'true';
-        const speed = parseInt(this.container.dataset.autoplaySpeed) || 5000;
-        if (autoplay && this.totalSlides > 1) {
-          this.autoplayInterval = setInterval(() => {
-            this.nextSlide();
-          }, speed);
-          this.container.addEventListener('mouseenter', () => {
-            if (this.autoplayInterval) {
-              clearInterval(this.autoplayInterval);
-              this.autoplayInterval = null;
-            }
-          });
-          this.container.addEventListener('mouseleave', () => {
-            if (this.autoplayInterval) {
-              clearInterval(this.autoplayInterval);
-            }
-            this.autoplayInterval = setInterval(() => {
-              this.nextSlide();
-            }, speed);
-          });
-        }
-      };
-      
-      slider.goToSlide = function(index, animate = true) {
-        if (!this.track || this.totalSlides === 0) return;
-        
-        if (index < 0) {
-          this.currentSlide = this.totalSlides - 1;
-        } else if (index >= this.totalSlides) {
-          this.currentSlide = 0;
-        } else {
-          this.currentSlide = index;
-        }
-        
-        const offset = -this.currentSlide * 100;
-        
-        if (!animate) {
-          this.track.style.transition = 'none';
-        } else {
-          this.track.style.transition = 'transform 0.5s ease-in-out';
-        }
-        
-        this.track.style.transform = `translateX(${offset}%)`;
-        
-        if (!animate) {
-          setTimeout(() => {
-            this.track.style.transition = 'transform 0.5s ease-in-out';
-          }, 50);
-        }
-        
-        this.updateDots();
-      };
-      
-      slider.updateDots = function() {
-        this.dots.forEach((dot, index) => {
-          if (index === this.currentSlide) {
-            dot.classList.add('active');
-          } else {
-            dot.classList.remove('active');
-          }
-        });
-      };
-      
-      slider.nextSlide = function() {
-        this.goToSlide(this.currentSlide + 1);
-      };
-      
-      slider.prevSlide = function() {
-        this.goToSlide(this.currentSlide - 1);
-      };
-      
-      slider.setupEventListeners();
-      slider.setupResponsiveMedia();
-      slider.setupAutoplay();
-      slider.goToSlide(0, false);
-      
-      return slider;
-    }
-    
-    // Inicializar quando o DOM estiver pronto
-    function initSliders() {
-      const containers = document.querySelectorAll('.hero-slider-container[data-slider-id="' + sliderId + '"]');
-      containers.forEach(container => {
-        if (!container.dataset.initialized) {
-          container.dataset.initialized = 'true';
-          initHeroSlider(container);
-        }
-      });
-    }
-    
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initSliders);
-    } else {
-      initSliders();
-    }
-    
-    // Para o Shopify Theme Editor
-    if (typeof Shopify !== 'undefined' && Shopify.designMode) {
-      document.addEventListener('shopify:section:load', initSliders);
-    }
-  })();
-</script>
+        assign dk = 'slide_' | append: i | append: '_desktop_image'
+        assign mk = 'slide_' | append: i | append: '_mobile_image'
+        assign dvk = 'slide_' | append: i | append: '_desktop_video'
+        assign mvk = 'slide_' | append: i | append: '_mobile_video'
+        assign tk = 'slide_' | append: i | append: '_title'
+        assign sk = 'slide_' | append: i | append: '_subtitle'
+        assign ak = 'slide_' | append: i | append: '_text_alignment'
+        assign blk = 'slide_' | append: i | append: '_button_label'
+        assign buk = 'slide_' | append: i | append: '_button_link'
+        assign slk = 'slide_' | append: i | append: '_slide_link'
+
+        assign d_img = sc[dk]
+        assign m_img = sc[mk]
+        assign d_vid = sc[dvk]
+        assign m_vid = sc[mvk]
+        assign s_title = sc[tk]
+        assign s_subtitle = sc[sk]
+        assign s_align = sc[ak]
+        assign s_btn_label = sc[blk]
+        assign s_btn_link = sc[buk]
+        assign s_link = sc[slk]
+
+        assign is_first = false
+        if i == 1
+          assign is_first = true
+        endif
+
+        assign has_video = false
+        if d_vid != blank or m_vid != blank
+          assign has_video = true
+        endif
+
+        assign has_text = false
+        if s_title != blank or s_subtitle != blank or s_btn_label != blank
+          assign has_text = true
+        endif
+
+        assign wrap_link = false
+        if s_link != blank and s_btn_label == blank
+          assign wrap_link = true
+        endif
+      -%}
+
+      {%- if wrap_link -%}
+        <a href="{{ s_link }}" data-slider-slide aria-label="Banner {{ forloop.index }}">
+      {%- else -%}
+        <div data-slider-slide>
+      {%- endif -%}
+
+        <div class="hero-slider__media">
+          {%- if has_video -%}
+            {%- if d_vid != blank -%}
+              <video class="hero-slider__vid-d" autoplay muted loop playsinline
+                {%- if d_img != blank %} poster="{{ d_img | image_url: width: 1920, format: 'webp' }}"{% endif %}>
+                <source src="{{ d_vid }}" type="video/mp4">
+              </video>
+            {%- elsif d_img != blank -%}
+              <img class="hero-slider__vid-d"
+                src="{{ d_img | image_url: width: 1920, format: 'webp' }}"
+                srcset="{{ d_img | image_url: width: 1024, format: 'webp' }} 1024w, {{ d_img | image_url: width: 1366, format: 'webp' }} 1366w, {{ d_img | image_url: width: 1920, format: 'webp' }} 1920w"
+                sizes="100vw"
+                alt="{{ d_img.alt | escape }}"
+                loading="{%- if is_first -%}eager{%- else -%}lazy{%- endif -%}"
+                fetchpriority="{%- if is_first -%}high{%- else -%}low{%- endif -%}"
+                width="{{ d_img.width }}" height="{{ d_img.height }}">
+            {%- endif -%}
+            {%- if m_vid != blank -%}
+              <video class="hero-slider__vid-m" autoplay muted loop playsinline
+                {%- if m_img != blank %} poster="{{ m_img | image_url: width: 723, format: 'webp' }}"{% endif %}>
+                <source src="{{ m_vid }}" type="video/mp4">
+              </video>
+            {%- elsif m_img != blank -%}
+              <img class="hero-slider__vid-m"
+                src="{{ m_img | image_url: width: 723, format: 'webp' }}"
+                srcset="{{ m_img | image_url: width: 390, format: 'webp' }} 390w, {{ m_img | image_url: width: 500, format: 'webp' }} 500w, {{ m_img | image_url: width: 723, format: 'webp' }} 723w"
+                sizes="100vw"
+                alt="{{ m_img.alt | escape }}"
+                loading="{%- if is_first -%}eager{%- else -%}lazy{%- endif -%}"
+                fetchpriority="{%- if is_first -%}high{%- else -%}low{%- endif -%}"
+                width="{{ m_img.width | default: 723 }}" height="{{ m_img.height | default: 721 }}">
+            {%- endif -%}
+          {%- else -%}
+            {%- if d_img != blank and m_img != blank -%}
+              <picture>
+                <source
+                  media="(min-width: 750px)"
+                  srcset="{{ d_img | image_url: width: 1024, format: 'webp' }} 1024w, {{ d_img | image_url: width: 1366, format: 'webp' }} 1366w, {{ d_img | image_url: width: 1920, format: 'webp' }} 1920w"
+                  sizes="100vw">
+                <img
+                  src="{{ m_img | image_url: width: 723, format: 'webp' }}"
+                  srcset="{{ m_img | image_url: width: 390, format: 'webp' }} 390w, {{ m_img | image_url: width: 500, format: 'webp' }} 500w, {{ m_img | image_url: width: 723, format: 'webp' }} 723w"
+                  sizes="100vw"
+                  alt="{{ m_img.alt | default: d_img.alt | escape }}"
+                  loading="{%- if is_first -%}eager{%- else -%}lazy{%- endif -%}"
+                  fetchpriority="{%- if is_first -%}high{%- else -%}low{%- endif -%}"
+                  decoding="async"
+                  width="{{ m_img.width | default: 723 }}"
+                  height="{{ m_img.height | default: 721 }}">
+              </picture>
+            {%- elsif d_img != blank -%}
+              <img
+                src="{{ d_img | image_url: width: 1920, format: 'webp' }}"
+                srcset="{{ d_img | image_url: width: 768, format: 'webp' }} 768w, {{ d_img | image_url: width: 1024, format: 'webp' }} 1024w, {{ d_img | image_url: width: 1366, format: 'webp' }} 1366w, {{ d_img | image_url: width: 1920, format: 'webp' }} 1920w"
+                sizes="100vw"
+                alt="{{ d_img.alt | escape }}"
+                loading="{%- if is_first -%}eager{%- else -%}lazy{%- endif -%}"
+                fetchpriority="{%- if is_first -%}high{%- else -%}low{%- endif -%}"
+                decoding="async"
+                width="{{ d_img.width }}" height="{{ d_img.height }}">
+            {%- elsif m_img != blank -%}
+              <img
+                src="{{ m_img | image_url: width: 723, format: 'webp' }}"
+                srcset="{{ m_img | image_url: width: 390, format: 'webp' }} 390w, {{ m_img | image_url: width: 500, format: 'webp' }} 500w, {{ m_img | image_url: width: 723, format: 'webp' }} 723w"
+                sizes="100vw"
+                alt="{{ m_img.alt | escape }}"
+                loading="{%- if is_first -%}eager{%- else -%}lazy{%- endif -%}"
+                fetchpriority="{%- if is_first -%}high{%- else -%}low{%- endif -%}"
+                decoding="async"
+                width="{{ m_img.width | default: 723 }}" height="{{ m_img.height | default: 721 }}">
+            {%- endif -%}
+          {%- endif -%}
+
+          {%- if sc.overlay_opacity > 0 -%}
+            <div class="hero-slider__overlay" aria-hidden="true"></div>
+          {%- endif -%}
+        </div>
+
+        {%- if has_text -%}
+          <div class="hero-slider__content{%- if s_align != 'center' %} hero-slider__content--{{ s_align }}{%- endif -%}">
+            {%- if s_title != blank -%}
+              <h2 class="hero-slider__title">{{ s_title }}</h2>
+            {%- endif -%}
+            {%- if s_subtitle != blank -%}
+              <p class="hero-slider__subtitle">{{ s_subtitle }}</p>
+            {%- endif -%}
+            {%- if s_btn_label != blank and s_btn_link != blank -%}
+              <a href="{{ s_btn_link }}" class="hero-slider__btn">{{ s_btn_label }}</a>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+
+      {%- if wrap_link -%}
+        </a>
+      {%- else -%}
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+
+  {%- if slides_count > 1 -%}
+    {%- if sc.show_arrows -%}
+      <button class="hero-slider__nav hero-slider__nav--prev" data-slider-prev aria-label="Previous slide" type="button">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button class="hero-slider__nav hero-slider__nav--next" data-slider-next aria-label="Next slide" type="button">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    {%- endif -%}
+    {%- if sc.show_dots -%}
+      <nav class="hero-slider__dots" aria-label="Slide navigation">
+        {%- assign dot_i = 0 -%}
+        {%- for i in (1..5) -%}
+          {%- assign ek = 'slide_' | append: i | append: '_enabled' -%}
+          {%- if sc[ek] -%}
+            <button class="hero-slider__dot{%- if dot_i == 0 %} active{%- endif -%}" data-slider-dot="{{ dot_i }}" aria-label="Go to slide {{ dot_i | plus: 1 }}" type="button"></button>
+            {%- assign dot_i = dot_i | plus: 1 -%}
+          {%- endif -%}
+        {%- endfor -%}
+      </nav>
+    {%- endif -%}
+  {%- endif -%}
+</section>
 
 {% schema %}
 {
-  "name": "eve ",
+  "name": "Hero Banner Slider",
   "settings": [
     {
       "type": "header",
@@ -756,9 +428,8 @@
       "min": 1,
       "max": 21,
       "step": 1,
-      "label": "Desktop aspect ratio - Width",
-      "default": 16,
-      "info": "Proporção largura:altura. 16:9 é padrão para banners desktop"
+      "label": "Desktop aspect ratio — Width",
+      "default": 16
     },
     {
       "type": "range",
@@ -766,9 +437,8 @@
       "min": 1,
       "max": 21,
       "step": 1,
-      "label": "Desktop aspect ratio - Height",
-      "default": 9,
-      "info": "Proporção largura:altura. 16:9 é padrão para banners desktop"
+      "label": "Desktop aspect ratio — Height",
+      "default": 9
     },
     {
       "type": "range",
@@ -776,9 +446,8 @@
       "min": 1,
       "max": 21,
       "step": 1,
-      "label": "Mobile aspect ratio - Width",
-      "default": 9,
-      "info": "Proporção largura:altura. 9:16 é padrão para banners mobile"
+      "label": "Mobile aspect ratio — Width",
+      "default": 9
     },
     {
       "type": "range",
@@ -786,35 +455,8 @@
       "min": 1,
       "max": 21,
       "step": 1,
-      "label": "Mobile aspect ratio - Height",
-      "default": 9,
-      "info": "Proporção largura:altura. 9:9 é padrão para banners mobile (quadrado)"
-    },
-    {
-      "type": "header",
-      "content": "Height (Legacy - não usado com aspect ratio)"
-    },
-    {
-      "type": "range",
-      "id": "desktop_height",
-      "min": 30,
-      "max": 100,
-      "step": 5,
-      "unit": "vh",
-      "label": "Desktop height",
-      "default": 50,
-      "info": "Este campo é mantido para compatibilidade, mas o aspect ratio tem prioridade"
-    },
-    {
-      "type": "range",
-      "id": "mobile_height",
-      "min": 30,
-      "max": 100,
-      "step": 5,
-      "unit": "vh",
-      "label": "Mobile height",
-      "default": 60,
-      "info": "Este campo é mantido para compatibilidade, mas o aspect ratio tem prioridade"
+      "label": "Mobile aspect ratio — Height",
+      "default": 9
     },
     {
       "type": "header",
@@ -968,40 +610,28 @@
     {
       "type": "text",
       "id": "slide_1_title",
-      "label": "Title",
-      "default": "Feel the Power of Nature"
+      "label": "Title"
     },
     {
       "type": "textarea",
       "id": "slide_1_subtitle",
-      "label": "Subtitle",
-      "default": "Introducing our new plant-based formula"
+      "label": "Subtitle"
     },
     {
       "type": "select",
       "id": "slide_1_text_alignment",
       "label": "Text alignment",
       "options": [
-        {
-          "value": "left",
-          "label": "Left"
-        },
-        {
-          "value": "center",
-          "label": "Center"
-        },
-        {
-          "value": "right",
-          "label": "Right"
-        }
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
       ],
       "default": "center"
     },
     {
       "type": "text",
       "id": "slide_1_button_label",
-      "label": "Button label",
-      "default": "Shop Now"
+      "label": "Button label"
     },
     {
       "type": "url",
@@ -1058,18 +688,9 @@
       "id": "slide_2_text_alignment",
       "label": "Text alignment",
       "options": [
-        {
-          "value": "left",
-          "label": "Left"
-        },
-        {
-          "value": "center",
-          "label": "Center"
-        },
-        {
-          "value": "right",
-          "label": "Right"
-        }
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
       ],
       "default": "center"
     },
@@ -1133,18 +754,9 @@
       "id": "slide_3_text_alignment",
       "label": "Text alignment",
       "options": [
-        {
-          "value": "left",
-          "label": "Left"
-        },
-        {
-          "value": "center",
-          "label": "Center"
-        },
-        {
-          "value": "right",
-          "label": "Right"
-        }
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
       ],
       "default": "center"
     },
@@ -1208,18 +820,9 @@
       "id": "slide_4_text_alignment",
       "label": "Text alignment",
       "options": [
-        {
-          "value": "left",
-          "label": "Left"
-        },
-        {
-          "value": "center",
-          "label": "Center"
-        },
-        {
-          "value": "right",
-          "label": "Right"
-        }
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
       ],
       "default": "center"
     },
@@ -1283,18 +886,9 @@
       "id": "slide_5_text_alignment",
       "label": "Text alignment",
       "options": [
-        {
-          "value": "left",
-          "label": "Left"
-        },
-        {
-          "value": "center",
-          "label": "Center"
-        },
-        {
-          "value": "right",
-          "label": "Right"
-        }
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
       ],
       "default": "center"
     },
@@ -1316,10 +910,8 @@
   ],
   "presets": [
     {
-      "name": "Hero banner slider"
+      "name": "Hero Banner Slider"
     }
   ]
 }
 {% endschema %}
-
-
