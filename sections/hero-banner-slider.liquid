@@ -28,6 +28,22 @@
   endcomment
   assign hero_lcp_mobile = section.settings.slide_1_mobile_image
   assign hero_lcp_desktop = section.settings.slide_1_desktop_image
+
+  comment
+    Right-sizing do banner desktop: o crop segue o aspect ratio configurado na
+    section (14:5 = 2240x800 na home, 16:9 nas collections). Assim o CDN entrega
+    a imagem já na forma exibida em vez de mandar pixels a mais pro object-fit
+    cover descartar. Largura máxima 2240w (cobre retina em slot full-width) e os
+    heights derivados do ratio garantem width/height corretos no <img> => zero
+    CLS e dimensões reais pra SEO. Trocar o ratio no template muda tudo junto.
+  endcomment
+  assign desktop_ar_w = section.settings.desktop_aspect_ratio_width
+  assign desktop_ar_h = section.settings.desktop_aspect_ratio_height
+  assign dt_h_768 = 768 | times: desktop_ar_h | divided_by: desktop_ar_w
+  assign dt_h_1024 = 1024 | times: desktop_ar_h | divided_by: desktop_ar_w
+  assign dt_h_1366 = 1366 | times: desktop_ar_h | divided_by: desktop_ar_w
+  assign dt_h_1920 = 1920 | times: desktop_ar_h | divided_by: desktop_ar_w
+  assign dt_h_2240 = 2240 | times: desktop_ar_h | divided_by: desktop_ar_w
 %}
 
 {%- if hero_lcp_mobile != blank -%}
@@ -45,8 +61,8 @@
     rel="preload"
     as="image"
     fetchpriority="high"
-    href="{{ hero_lcp_desktop | image_url: width: 1366, format: 'webp' }}&quality=75"
-    imagesrcset="{{ hero_lcp_desktop | image_url: width: 1024, format: 'webp' }}&quality=75 1024w, {{ hero_lcp_desktop | image_url: width: 1366, format: 'webp' }}&quality=75 1366w, {{ hero_lcp_desktop | image_url: width: 1920, format: 'webp' }}&quality=75 1920w"
+    href="{{ hero_lcp_desktop | image_url: width: 1366, height: dt_h_1366, crop: 'center', format: 'webp' }}&quality=75"
+    imagesrcset="{{ hero_lcp_desktop | image_url: width: 1024, height: dt_h_1024, crop: 'center', format: 'webp' }}&quality=75 1024w, {{ hero_lcp_desktop | image_url: width: 1366, height: dt_h_1366, crop: 'center', format: 'webp' }}&quality=75 1366w, {{ hero_lcp_desktop | image_url: width: 1920, height: dt_h_1920, crop: 'center', format: 'webp' }}&quality=75 1920w, {{ hero_lcp_desktop | image_url: width: 2240, height: dt_h_2240, crop: 'center', format: 'webp' }}&quality=75 2240w"
     imagesizes="100vw"
     media="(min-width: 750px)">
 {%- endif -%}
@@ -391,19 +407,19 @@
                     {%- endcomment -%}
                     <img
                       class="ai-hero-desktop-media-{{ ai_gen_id }}"
-                      src="{{ desktop_image | image_url: width: 1920, format: 'webp' }}&quality=75"
-                      srcset="{{ desktop_image | image_url: width: 768, format: 'webp' }}&quality=75 768w,
-                              {{ desktop_image | image_url: width: 1024, format: 'webp' }}&quality=75 1024w,
-                              {{ desktop_image | image_url: width: 1366, format: 'webp' }}&quality=75 1366w,
-                              {{ desktop_image | image_url: width: 1920, format: 'webp' }}&quality=75 1920w,
-                              {{ desktop_image | image_url: width: 2560, format: 'webp' }}&quality=75 2560w"
+                      src="{{ desktop_image | image_url: width: 1920, height: dt_h_1920, crop: 'center', format: 'webp' }}&quality=75"
+                      srcset="{{ desktop_image | image_url: width: 768, height: dt_h_768, crop: 'center', format: 'webp' }}&quality=75 768w,
+                              {{ desktop_image | image_url: width: 1024, height: dt_h_1024, crop: 'center', format: 'webp' }}&quality=75 1024w,
+                              {{ desktop_image | image_url: width: 1366, height: dt_h_1366, crop: 'center', format: 'webp' }}&quality=75 1366w,
+                              {{ desktop_image | image_url: width: 1920, height: dt_h_1920, crop: 'center', format: 'webp' }}&quality=75 1920w,
+                              {{ desktop_image | image_url: width: 2240, height: dt_h_2240, crop: 'center', format: 'webp' }}&quality=75 2240w"
                       sizes="100vw"
                       alt="{{ desktop_image.alt | escape }}"
                       loading="{% if i == 1 %}eager{% else %}lazy{% endif %}"
                       fetchpriority="{% if i == 1 %}high{% else %}low{% endif %}"
                       decoding="{% if i == 1 %}sync{% else %}async{% endif %}"
-                      width="{{ desktop_image.width }}"
-                      height="{{ desktop_image.height }}"
+                      width="2240"
+                      height="{{ dt_h_2240 }}"
                     >
                   {% endif %}
                   {% if has_mobile_video %}
