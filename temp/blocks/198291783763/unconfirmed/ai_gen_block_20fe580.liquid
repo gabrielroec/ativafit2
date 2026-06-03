@@ -1,6 +1,1620 @@
+{% doc %}
+  @prompt
+    Please create a fully responsive product section with the following requirements:
+    
+    Global Typography Settings (Important)
+    
+    All text styles must use Barlow font family.
+    
+    The following properties must be configurable in the theme editor or section settings:
+    
+    Title (H2)
+    Font family: Barlow
+    Font size: adjustable (desktop + mobile separately)
+    Font weight: adjustable (default 600 or 700)
+    Line height: adjustable
+    Text content: editable in CMS
+    Subtitle
+    Font family: Barlow
+    Font size: adjustable (desktop + mobile separately)
+    Font weight: adjustable (default 400 or 500)
+    Line height: adjustable
+    Text content: editable in CMS
+    Section 1: Featured Adjustable Dumbbells
+    
+    Title: Featured Adjustable Dumbbells
+    Subtitle: Find the perfect weight for your training goals.
+    
+    Product Carousel
+    25LB Adjustable Dumbbell
+    55LB Adjustable Dumbbell
+    66LB Adjustable Dumbbell
+    88LB Adjustable Dumbbell
+    Layout Rules
+    Desktop: max 4 products visible at once, horizontal scroll enabled
+    Mobile: max 3 products visible at once, swipe enabled
+    Section 2: Build Your Home Gym
+    
+    Title: Build Your Home Gym
+    Subtitle: Everything you need for strength, cardio, and family fitness.
+    
+    Tab Component
+    
+    Tabs:
+    
+    Strength Training
+    Cardio Training
+    Kids Fun
+    Tab Content (Carousel inside each tab)
+    Strength Training
+    Adjustable Weight Bench
+    Dumbbell Stand
+    Adjustable Kettlebell
+    Cardio Training
+    Foldable Exercise Bike
+    Folding Exercise Bike with Resistance Bands
+    Recumbent Exercise Bike
+    Weighted Vest
+    Battle Rope
+    Kids Fun
+    Fitness Trampoline
+    Kids Trampoline
+    Responsive Requirements
+    Desktop
+    Show up to 4 products per row
+    Horizontal scroll when overflow
+    Mobile
+    Show up to 3 products per row
+    Swipe to scroll horizontally
+    UI Behavior Requirements
+    Tabs switch instantly without page reload
+    Each tab maintains its own carousel state if possible
+    Active tab highlight required
+    Consistent product card design across all categories
+    Fully responsive (mobile / tablet / desktop)
+    Goal
+    
+    This is a promotional campaign section designed to improve product discovery and cross-category purchasing across strength, cardio, and family fitness products., Each product card must include:
+    
+    Product image (primary focus)
+    Product title (max 1–2 lines)
+    Price
+    quick add button
+    Mobile Layout (Priority for Conversion)
+    Display 2 full product cards + partial 3rd card visible
+    Each product card width should be approximately 45%–48% of screen width
+    This creates a visual cue that more content is available via swipe
+    Mobile rules:
+    Max visible fully: 2 items
+    Third item should be partially visible (do not force 3 full cards)
+    Horizontal swipe enabled
+    Card height should remain compact and consistent (approx. 260–340px total height including image, title, and price)
+    , 1. 产品卡片上手机端的font size改为10px 2. 如果有滑动折叠的产品，产品卡片下面要加一个展示滑动进度条。手机端展示2.5个产品卡片 3. cta 按钮的大小减小，文字改为add to card, /* 手机端移动端样式微调 */
+    @media screen and (max-width: 768px) {
+      /* 1. 修复卡片容器高度和对齐 */
+      .product-card {
+        height: auto !important; /* 强制移除固定高度 */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 12px 12px 16px 12px; /* 留出底部 16px 安全间距 */
+        box-sizing: border-box;
+      }
+    
+      /* 2. 优化标题展示 - 已更新为 12px */
+      .product-card__title {
+        font-size: 12px !important; /* 根据反馈调整为 12px */
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2; /* 允许在手机端显示两行 */
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        margin-bottom: 8px;
+        color: #333;
+      }
+    
+      /* 3. 价格区域高度占位，防止单双行错位 */
+      .product-card__price-wrapper {
+        min-height: 36px; 
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px;
+        margin-bottom: 12px;
+      }
+    
+      .product-card__sale-price {
+        font-size: 15px !important;
+      }
+      
+      .product-card__regular-price {
+        font-size: 12px !important;
+      }
+    
+      /* 4. 按钮大小微调 */
+      .product-card__add-to-cart-btn {
+        font-size: 13px !important;
+        padding: 10px 0;
+        margin-top: auto; /* 确保始终在 Flex 容器最底部 */
+      }
+    
+      /* 5. 轮播组件整体下边距，规避底部悬浮 Widget */
+      .home-product-slider {
+        margin-bottom: 48px !important;
+      }
+    }
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-product-promo-{{ ai_gen_id }} {
+    width: 100%;
+    padding: {{ block.settings.section_padding_top }}px 0 {{ block.settings.section_padding_bottom }}px;
+    background-color: {{ block.settings.background_color }};
+    display: block;
+  }
+
+  .ai-product-promo-container-{{ ai_gen_id }} {
+    max-width: {{ block.settings.container_max_width }}px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .ai-product-promo-section-{{ ai_gen_id }} {
+    margin-bottom: {{ block.settings.section_spacing }}px;
+  }
+
+  .ai-product-promo-section-{{ ai_gen_id }}:last-child {
+    margin-bottom: 0;
+  }
+
+  .ai-product-promo-header-{{ ai_gen_id }} {
+    text-align: {{ block.settings.text_alignment }};
+    margin-bottom: {{ block.settings.header_spacing }}px;
+  }
+
+  .ai-product-promo-title-{{ ai_gen_id }} {
+    font-family: 'Barlow', sans-serif;
+    font-size: {{ block.settings.title_font_size_desktop }}px;
+    font-weight: {{ block.settings.title_font_weight }};
+    line-height: {{ block.settings.title_line_height }};
+    color: {{ block.settings.title_color }};
+    margin: 0 0 {{ block.settings.title_margin_bottom }}px;
+  }
+
+  .ai-product-promo-subtitle-{{ ai_gen_id }} {
+    font-family: 'Barlow', sans-serif;
+    font-size: {{ block.settings.subtitle_font_size_desktop }}px;
+    font-weight: {{ block.settings.subtitle_font_weight }};
+    line-height: {{ block.settings.subtitle_line_height }};
+    color: {{ block.settings.subtitle_color }};
+    margin: 0;
+  }
+
+  .ai-product-promo-tabs-{{ ai_gen_id }} {
+    display: flex;
+    gap: {{ block.settings.tab_gap }}px;
+    margin-bottom: {{ block.settings.tabs_margin_bottom }}px;
+    border-bottom: {{ block.settings.tab_border_width }}px solid {{ block.settings.tab_border_color }};
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ai-product-promo-tab-{{ ai_gen_id }} {
+    font-family: 'Barlow', sans-serif;
+    font-size: {{ block.settings.tab_font_size }}px;
+    font-weight: {{ block.settings.tab_font_weight }};
+    padding: {{ block.settings.tab_padding_vertical }}px {{ block.settings.tab_padding_horizontal }}px;
+    background: none;
+    border: none;
+    border-bottom: {{ block.settings.tab_active_border_width }}px solid transparent;
+    color: {{ block.settings.tab_color }};
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    position: relative;
+    bottom: -{{ block.settings.tab_border_width }}px;
+  }
+
+  .ai-product-promo-tab-{{ ai_gen_id }}:hover {
+    color: {{ block.settings.tab_hover_color }};
+  }
+
+  .ai-product-promo-tab-{{ ai_gen_id }}.active {
+    color: {{ block.settings.tab_active_color }};
+    border-bottom-color: {{ block.settings.tab_active_border_color }};
+    font-weight: {{ block.settings.tab_active_font_weight }};
+  }
+
+  .ai-product-promo-tab-content-{{ ai_gen_id }} {
+    display: none;
+  }
+
+  .ai-product-promo-tab-content-{{ ai_gen_id }}.active {
+    display: block;
+  }
+
+  .ai-product-promo-carousel-wrapper-{{ ai_gen_id }} {
+    position: relative;
+  }
+
+  .ai-product-promo-carousel-{{ ai_gen_id }} {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ai-product-promo-carousel-track-{{ ai_gen_id }} {
+    display: flex;
+    gap: {{ block.settings.product_gap }}px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .ai-product-promo-carousel-track-{{ ai_gen_id }}::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ai-product-promo-progress-bar-{{ ai_gen_id }} {
+    display: none;
+    width: 100%;
+    height: 4px;
+    background-color: {{ block.settings.progress_bar_background }};
+    border-radius: 2px;
+    margin-top: {{ block.settings.progress_bar_margin_top }}px;
+    overflow: hidden;
+  }
+
+  .ai-product-promo-progress-fill-{{ ai_gen_id }} {
+    height: 100%;
+    background-color: {{ block.settings.progress_bar_color }};
+    border-radius: 2px;
+    transition: width 0.1s ease;
+    width: 0%;
+  }
+
+  .ai-product-promo-product-card-{{ ai_gen_id }} {
+    flex: 0 0 calc((100% - ({{ block.settings.products_per_row_desktop | minus: 1 }} * {{ block.settings.product_gap }}px)) / {{ block.settings.products_per_row_desktop }});
+    min-width: calc((100% - ({{ block.settings.products_per_row_desktop | minus: 1 }} * {{ block.settings.product_gap }}px)) / {{ block.settings.products_per_row_desktop }});
+    background-color: {{ block.settings.card_background }};
+    border-radius: {{ block.settings.card_border_radius }}px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: {{ block.settings.card_border_width }}px solid {{ block.settings.card_border_color }};
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ai-product-promo-product-card-{{ ai_gen_id }}:hover {
+    transform: translateY(-{{ block.settings.card_hover_lift }}px);
+    box-shadow: 0 {{ block.settings.card_hover_shadow_y }}px {{ block.settings.card_hover_shadow_blur }}px rgba(0, 0, 0, {{ block.settings.card_hover_shadow_opacity }});
+  }
+
+  .ai-product-promo-product-image-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%;
+    overflow: hidden;
+    background-color: {{ block.settings.image_background }};
+    display: block;
+  }
+
+  .ai-product-promo-product-image-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-product-promo-product-image-placeholder-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: {{ block.settings.image_background }};
+  }
+
+  .ai-product-promo-product-image-placeholder-{{ ai_gen_id }} svg {
+    width: 60%;
+    height: 60%;
+    opacity: 0.3;
+  }
+
+  .ai-product-promo-product-info-{{ ai_gen_id }} {
+    padding: {{ block.settings.card_padding }}px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  .ai-product-promo-product-title-{{ ai_gen_id }} {
+    font-family: 'Barlow', sans-serif;
+    font-size: {{ block.settings.product_title_font_size }}px;
+    font-weight: {{ block.settings.product_title_font_weight }};
+    line-height: {{ block.settings.product_title_line_height }};
+    color: {{ block.settings.product_title_color }};
+    margin: 0 0 {{ block.settings.product_title_margin_bottom }}px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-decoration: none;
+  }
+
+  .ai-product-promo-product-title-link-{{ ai_gen_id }} {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .ai-product-promo-product-price-{{ ai_gen_id }} {
+    font-family: 'Barlow', sans-serif;
+    font-size: {{ block.settings.product_price_font_size }}px;
+    font-weight: {{ block.settings.product_price_font_weight }};
+    color: {{ block.settings.product_price_color }};
+    margin-bottom: {{ block.settings.product_price_margin_bottom }}px;
+  }
+
+  .ai-product-promo-product-price-compare-{{ ai_gen_id }} {
+    text-decoration: line-through;
+    opacity: 0.6;
+    margin-left: 8px;
+    font-size: {{ block.settings.product_price_font_size | times: 0.9 }}px;
+  }
+
+  .ai-product-promo-product-button-{{ ai_gen_id }} {
+    font-family: 'Barlow', sans-serif;
+    width: 100%;
+    padding: {{ block.settings.button_padding_vertical }}px {{ block.settings.button_padding_horizontal }}px;
+    background-color: {{ block.settings.button_background }};
+    color: {{ block.settings.button_text_color }};
+    border: none;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    font-size: {{ block.settings.button_font_size }}px;
+    font-weight: {{ block.settings.button_font_weight }};
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+    margin-top: auto;
+  }
+
+  .ai-product-promo-product-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.button_hover_background }};
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-product-promo-{{ ai_gen_id }} {
+      margin-bottom: 48px;
+    }
+
+    .ai-product-promo-container-{{ ai_gen_id }} {
+      padding: 0 {{ block.settings.mobile_container_padding }}px;
+    }
+
+    .ai-product-promo-title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.title_font_size_mobile }}px;
+    }
+
+    .ai-product-promo-subtitle-{{ ai_gen_id }} {
+      font-size: {{ block.settings.subtitle_font_size_mobile }}px;
+    }
+
+    .ai-product-promo-product-card-{{ ai_gen_id }} {
+      flex: 0 0 {{ block.settings.mobile_card_width_percent }}%;
+      min-width: {{ block.settings.mobile_card_width_percent }}%;
+      height: auto;
+      justify-content: space-between;
+      box-sizing: border-box;
+    }
+
+    .ai-product-promo-product-image-wrapper-{{ ai_gen_id }} {
+      padding-bottom: {{ block.settings.mobile_image_aspect_ratio }}%;
+    }
+
+    .ai-product-promo-product-info-{{ ai_gen_id }} {
+      padding: 12px 12px 16px 12px;
+    }
+
+    .ai-product-promo-tabs-{{ ai_gen_id }} {
+      gap: {{ block.settings.tab_gap | times: 0.7 }}px;
+    }
+
+    .ai-product-promo-tab-{{ ai_gen_id }} {
+      font-size: {{ block.settings.tab_font_size | times: 0.9 }}px;
+      padding: {{ block.settings.tab_padding_vertical | times: 0.8 }}px {{ block.settings.tab_padding_horizontal | times: 0.8 }}px;
+    }
+
+    .ai-product-promo-product-title-{{ ai_gen_id }} {
+      font-size: 12px;
+      line-height: 1.4;
+      -webkit-line-clamp: 2;
+      margin-bottom: 8px;
+    }
+
+    .ai-product-promo-product-price-{{ ai_gen_id }} {
+      font-size: 15px;
+      min-height: 36px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+
+    .ai-product-promo-product-price-compare-{{ ai_gen_id }} {
+      font-size: 12px;
+    }
+
+    .ai-product-promo-product-button-{{ ai_gen_id }} {
+      font-size: 13px;
+      padding: 10px 0;
+    }
+
+    .ai-product-promo-progress-bar-{{ ai_gen_id }} {
+      display: block;
+    }
+  }
+{% endstyle %}
+
+<product-promo-{{ ai_gen_id }} class="ai-product-promo-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-product-promo-container-{{ ai_gen_id }}">
+    
+    {% if block.settings.section_1_enabled %}
+    <div class="ai-product-promo-section-{{ ai_gen_id }}">
+      <div class="ai-product-promo-header-{{ ai_gen_id }}">
+        {% if block.settings.section_1_title != blank %}
+          <h2 class="ai-product-promo-title-{{ ai_gen_id }}">{{ block.settings.section_1_title }}</h2>
+        {% endif %}
+        {% if block.settings.section_1_subtitle != blank %}
+          <p class="ai-product-promo-subtitle-{{ ai_gen_id }}">{{ block.settings.section_1_subtitle }}</p>
+        {% endif %}
+      </div>
+
+      <div class="ai-product-promo-carousel-wrapper-{{ ai_gen_id }}">
+        <div class="ai-product-promo-carousel-{{ ai_gen_id }}">
+          <div class="ai-product-promo-carousel-track-{{ ai_gen_id }}" data-carousel="section-1">
+            {% if block.settings.section_1_products != blank %}
+              {% for product in block.settings.section_1_products %}
+                <div class="ai-product-promo-product-card-{{ ai_gen_id }}">
+                  <a href="{{ product.url }}" class="ai-product-promo-product-image-wrapper-{{ ai_gen_id }}">
+                    {% if product.featured_image %}
+                      <img
+                        src="{{ product.featured_image | image_url: width: 600 }}"
+                        alt="{{ product.featured_image.alt | escape }}"
+                        class="ai-product-promo-product-image-{{ ai_gen_id }}"
+                        loading="lazy"
+                        width="600"
+                        height="600"
+                      >
+                    {% else %}
+                      <div class="ai-product-promo-product-image-placeholder-{{ ai_gen_id }}">
+                        {{ 'product-1' | placeholder_svg_tag }}
+                      </div>
+                    {% endif %}
+                  </a>
+                  <div class="ai-product-promo-product-info-{{ ai_gen_id }}">
+                    <h3 class="ai-product-promo-product-title-{{ ai_gen_id }}">
+                      <a href="{{ product.url }}" class="ai-product-promo-product-title-link-{{ ai_gen_id }}">
+                        {{ product.title }}
+                      </a>
+                    </h3>
+                    <div class="ai-product-promo-product-price-{{ ai_gen_id }}">
+                      {{ product.price | money }}
+                      {% if product.compare_at_price > product.price %}
+                        <span class="ai-product-promo-product-price-compare-{{ ai_gen_id }}">
+                          {{ product.compare_at_price | money }}
+                        </span>
+                      {% endif %}
+                    </div>
+                    <a href="{{ product.url }}" class="ai-product-promo-product-button-{{ ai_gen_id }}">
+                      Add to Cart
+                    </a>
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              {% for i in (1..4) %}
+                <div class="ai-product-promo-product-card-{{ ai_gen_id }}">
+                  <div class="ai-product-promo-product-image-wrapper-{{ ai_gen_id }}">
+                    <div class="ai-product-promo-product-image-placeholder-{{ ai_gen_id }}">
+                      {{ 'product-1' | placeholder_svg_tag }}
+                    </div>
+                  </div>
+                  <div class="ai-product-promo-product-info-{{ ai_gen_id }}">
+                    <h3 class="ai-product-promo-product-title-{{ ai_gen_id }}">
+                      Product {{ i }}
+                    </h3>
+                    <div class="ai-product-promo-product-price-{{ ai_gen_id }}">
+                      $0.00
+                    </div>
+                    <a href="#" class="ai-product-promo-product-button-{{ ai_gen_id }}">
+                      Add to Cart
+                    </a>
+                  </div>
+                </div>
+              {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+        <div class="ai-product-promo-progress-bar-{{ ai_gen_id }}">
+          <div class="ai-product-promo-progress-fill-{{ ai_gen_id }}" data-progress="section-1"></div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if block.settings.section_2_enabled %}
+    <div class="ai-product-promo-section-{{ ai_gen_id }}">
+      <div class="ai-product-promo-header-{{ ai_gen_id }}">
+        {% if block.settings.section_2_title != blank %}
+          <h2 class="ai-product-promo-title-{{ ai_gen_id }}">{{ block.settings.section_2_title }}</h2>
+        {% endif %}
+        {% if block.settings.section_2_subtitle != blank %}
+          <p class="ai-product-promo-subtitle-{{ ai_gen_id }}">{{ block.settings.section_2_subtitle }}</p>
+        {% endif %}
+      </div>
+
+      <div class="ai-product-promo-tabs-{{ ai_gen_id }}">
+        <button class="ai-product-promo-tab-{{ ai_gen_id }} active" data-tab="strength">
+          {{ block.settings.tab_1_label }}
+        </button>
+        <button class="ai-product-promo-tab-{{ ai_gen_id }}" data-tab="cardio">
+          {{ block.settings.tab_2_label }}
+        </button>
+        <button class="ai-product-promo-tab-{{ ai_gen_id }}" data-tab="kids">
+          {{ block.settings.tab_3_label }}
+        </button>
+      </div>
+
+      <div class="ai-product-promo-tab-content-{{ ai_gen_id }} active" data-content="strength">
+        <div class="ai-product-promo-carousel-wrapper-{{ ai_gen_id }}">
+          <div class="ai-product-promo-carousel-{{ ai_gen_id }}">
+            <div class="ai-product-promo-carousel-track-{{ ai_gen_id }}" data-carousel="strength">
+              {% if block.settings.tab_1_products != blank %}
+                {% for product in block.settings.tab_1_products %}
+                  <div class="ai-product-promo-product-card-{{ ai_gen_id }}">
+                    <a href="{{ product.url }}" class="ai-product-promo-product-image-wrapper-{{ ai_gen_id }}">
+                      {% if product.featured_image %}
+                        <img
+                          src="{{ product.featured_image | image_url: width: 600 }}"
+                          alt="{{ product.featured_image.alt | escape }}"
+                          class="ai-product-promo-product-image-{{ ai_gen_id }}"
+                          loading="lazy"
+                          width="600"
+                          height="600"
+                        >
+                      {% else %}
+                        <div class="ai-product-promo-product-image-placeholder-{{ ai_gen_id }}">
+                          {{ 'product-1' | placeholder_svg_tag }}
+                        </div>
+                      {% endif %}
+                    </a>
+                    <div class="ai-product-promo-product-info-{{ ai_gen_id }}">
+                      <h3 class="ai-product-promo-product-title-{{ ai_gen_id }}">
+                        <a href="{{ product.url }}" class="ai-product-promo-product-title-link-{{ ai_gen_id }}">
+                          {{ product.title }}
+                        </a>
+                      </h3>
+                      <div class="ai-product-promo-product-price-{{ ai_gen_id }}">
+                        {{ product.price | money }}
+                        {% if product.compare_at_price > product.price %}
+                          <span class="ai-product-promo-product-price-compare-{{ ai_gen_id }}">
+                            {{ product.compare_at_price | money }}
+                          </span>
+                        {% endif %}
+                      </div>
+                      <a href="{{ product.url }}" class="ai-product-promo-product-button-{{ ai_gen_id }}">
+                        Add to Cart
+                      </a>
+                    </div>
+                  </div>
+                {% endfor %}
+              {% else %}
+                {% for i in (1..4) %}
+                  <div class="ai-product-promo-product-card-{{ ai_gen_id }}">
+                    <div class="ai-product-promo-product-image-wrapper-{{ ai_gen_id }}">
+                      <div class="ai-product-promo-product-image-placeholder-{{ ai_gen_id }}">
+                        {{ 'product-1' | placeholder_svg_tag }}
+                      </div>
+                    </div>
+                    <div class="ai-product-promo-product-info-{{ ai_gen_id }}">
+                      <h3 class="ai-product-promo-product-title-{{ ai_gen_id }}">
+                        Strength Product {{ i }}
+                      </h3>
+                      <div class="ai-product-promo-product-price-{{ ai_gen_id }}">
+                        $0.00
+                      </div>
+                      <a href="#" class="ai-product-promo-product-button-{{ ai_gen_id }}">
+                        Add to Cart
+                      </a>
+                    </div>
+                  </div>
+                {% endfor %}
+              {% endif %}
+            </div>
+          </div>
+          <div class="ai-product-promo-progress-bar-{{ ai_gen_id }}">
+            <div class="ai-product-promo-progress-fill-{{ ai_gen_id }}" data-progress="strength"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ai-product-promo-tab-content-{{ ai_gen_id }}" data-content="cardio">
+        <div class="ai-product-promo-carousel-wrapper-{{ ai_gen_id }}">
+          <div class="ai-product-promo-carousel-{{ ai_gen_id }}">
+            <div class="ai-product-promo-carousel-track-{{ ai_gen_id }}" data-carousel="cardio">
+              {% if block.settings.tab_2_products != blank %}
+                {% for product in block.settings.tab_2_products %}
+                  <div class="ai-product-promo-product-card-{{ ai_gen_id }}">
+                    <a href="{{ product.url }}" class="ai-product-promo-product-image-wrapper-{{ ai_gen_id }}">
+                      {% if product.featured_image %}
+                        <img
+                          src="{{ product.featured_image | image_url: width: 600 }}"
+                          alt="{{ product.featured_image.alt | escape }}"
+                          class="ai-product-promo-product-image-{{ ai_gen_id }}"
+                          loading="lazy"
+                          width="600"
+                          height="600"
+                        >
+                      {% else %}
+                        <div class="ai-product-promo-product-image-placeholder-{{ ai_gen_id }}">
+                          {{ 'product-1' | placeholder_svg_tag }}
+                        </div>
+                      {% endif %}
+                    </a>
+                    <div class="ai-product-promo-product-info-{{ ai_gen_id }}">
+                      <h3 class="ai-product-promo-product-title-{{ ai_gen_id }}">
+                        <a href="{{ product.url }}" class="ai-product-promo-product-title-link-{{ ai_gen_id }}">
+                          {{ product.title }}
+                        </a>
+                      </h3>
+                      <div class="ai-product-promo-product-price-{{ ai_gen_id }}">
+                        {{ product.price | money }}
+                        {% if product.compare_at_price > product.price %}
+                          <span class="ai-product-promo-product-price-compare-{{ ai_gen_id }}">
+                            {{ product.compare_at_price | money }}
+                          </span>
+                        {% endif %}
+                      </div>
+                      <a href="{{ product.url }}" class="ai-product-promo-product-button-{{ ai_gen_id }}">
+                        Add to Cart
+                      </a>
+                    </div>
+                  </div>
+                {% endfor %}
+              {% else %}
+                {% for i in (1..4) %}
+                  <div class="ai-product-promo-product-card-{{ ai_gen_id }}">
+                    <div class="ai-product-promo-product-image-wrapper-{{ ai_gen_id }}">
+                      <div class="ai-product-promo-product-image-placeholder-{{ ai_gen_id }}">
+                        {{ 'product-1' | placeholder_svg_tag }}
+                      </div>
+                    </div>
+                    <div class="ai-product-promo-product-info-{{ ai_gen_id }}">
+                      <h3 class="ai-product-promo-product-title-{{ ai_gen_id }}">
+                        Cardio Product {{ i }}
+                      </h3>
+                      <div class="ai-product-promo-product-price-{{ ai_gen_id }}">
+                        $0.00
+                      </div>
+                      <a href="#" class="ai-product-promo-product-button-{{ ai_gen_id }}">
+                        Add to Cart
+                      </a>
+                    </div>
+                  </div>
+                {% endfor %}
+              {% endif %}
+            </div>
+          </div>
+          <div class="ai-product-promo-progress-bar-{{ ai_gen_id }}">
+            <div class="ai-product-promo-progress-fill-{{ ai_gen_id }}" data-progress="cardio"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ai-product-promo-tab-content-{{ ai_gen_id }}" data-content="kids">
+        <div class="ai-product-promo-carousel-wrapper-{{ ai_gen_id }}">
+          <div class="ai-product-promo-carousel-{{ ai_gen_id }}">
+            <div class="ai-product-promo-carousel-track-{{ ai_gen_id }}" data-carousel="kids">
+              {% if block.settings.tab_3_products != blank %}
+                {% for product in block.settings.tab_3_products %}
+                  <div class="ai-product-promo-product-card-{{ ai_gen_id }}">
+                    <a href="{{ product.url }}" class="ai-product-promo-product-image-wrapper-{{ ai_gen_id }}">
+                      {% if product.featured_image %}
+                        <img
+                          src="{{ product.featured_image | image_url: width: 600 }}"
+                          alt="{{ product.featured_image.alt | escape }}"
+                          class="ai-product-promo-product-image-{{ ai_gen_id }}"
+                          loading="lazy"
+                          width="600"
+                          height="600"
+                        >
+                      {% else %}
+                        <div class="ai-product-promo-product-image-placeholder-{{ ai_gen_id }}">
+                          {{ 'product-1' | placeholder_svg_tag }}
+                        </div>
+                      {% endif %}
+                    </a>
+                    <div class="ai-product-promo-product-info-{{ ai_gen_id }}">
+                      <h3 class="ai-product-promo-product-title-{{ ai_gen_id }}">
+                        <a href="{{ product.url }}" class="ai-product-promo-product-title-link-{{ ai_gen_id }}">
+                          {{ product.title }}
+                        </a>
+                      </h3>
+                      <div class="ai-product-promo-product-price-{{ ai_gen_id }}">
+                        {{ product.price | money }}
+                        {% if product.compare_at_price > product.price %}
+                          <span class="ai-product-promo-product-price-compare-{{ ai_gen_id }}">
+                            {{ product.compare_at_price | money }}
+                          </span>
+                        {% endif %}
+                      </div>
+                      <a href="{{ product.url }}" class="ai-product-promo-product-button-{{ ai_gen_id }}">
+                        Add to Cart
+                      </a>
+                    </div>
+                  </div>
+                {% endfor %}
+              {% else %}
+                {% for i in (1..4) %}
+                  <div class="ai-product-promo-product-card-{{ ai_gen_id }}">
+                    <div class="ai-product-promo-product-image-wrapper-{{ ai_gen_id }}">
+                      <div class="ai-product-promo-product-image-placeholder-{{ ai_gen_id }}">
+                        {{ 'product-1' | placeholder_svg_tag }}
+                      </div>
+                    </div>
+                    <div class="ai-product-promo-product-info-{{ ai_gen_id }}">
+                      <h3 class="ai-product-promo-product-title-{{ ai_gen_id }}">
+                        Kids Product {{ i }}
+                      </h3>
+                      <div class="ai-product-promo-product-price-{{ ai_gen_id }}">
+                        $0.00
+                      </div>
+                      <a href="#" class="ai-product-promo-product-button-{{ ai_gen_id }}">
+                        Add to Cart
+                      </a>
+                    </div>
+                  </div>
+                {% endfor %}
+              {% endif %}
+            </div>
+          </div>
+          <div class="ai-product-promo-progress-bar-{{ ai_gen_id }}">
+            <div class="ai-product-promo-progress-fill-{{ ai_gen_id }}" data-progress="kids"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</product-promo-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class ProductPromo{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.tabs = this.querySelectorAll('.ai-product-promo-tab-{{ ai_gen_id }}');
+        this.tabContents = this.querySelectorAll('.ai-product-promo-tab-content-{{ ai_gen_id }}');
+        this.carousels = this.querySelectorAll('.ai-product-promo-carousel-track-{{ ai_gen_id }}');
+      }
+
+      connectedCallback() {
+        this.setupTabs();
+        this.setupProgressBars();
+      }
+
+      setupTabs() {
+        this.tabs.forEach(tab => {
+          tab.addEventListener('click', () => {
+            const targetTab = tab.getAttribute('data-tab');
+            
+            this.tabs.forEach(t => t.classList.remove('active'));
+            this.tabContents.forEach(content => content.classList.remove('active'));
+            
+            tab.classList.add('active');
+            const targetContent = this.querySelector(`[data-content="${targetTab}"]`);
+            if (targetContent) {
+              targetContent.classList.add('active');
+            }
+          });
+        });
+      }
+
+      setupProgressBars() {
+        this.carousels.forEach(carousel => {
+          const carouselId = carousel.getAttribute('data-carousel');
+          const progressFill = this.querySelector(`[data-progress="${carouselId}"]`);
+          
+          if (progressFill) {
+            const updateProgress = () => {
+              const scrollLeft = carousel.scrollLeft;
+              const scrollWidth = carousel.scrollWidth;
+              const clientWidth = carousel.clientWidth;
+              const maxScroll = scrollWidth - clientWidth;
+              
+              if (maxScroll > 0) {
+                const progress = (scrollLeft / maxScroll) * 100;
+                progressFill.style.width = progress + '%';
+              } else {
+                progressFill.style.width = '100%';
+              }
+            };
+
+            carousel.addEventListener('scroll', updateProgress);
+            updateProgress();
+          }
+        });
+      }
+    }
+
+    customElements.define('product-promo-{{ ai_gen_id }}', ProductPromo{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Product promo carousel",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "container_max_width",
+      "label": "Container max width",
+      "min": 800,
+      "max": 1600,
+      "step": 50,
+      "unit": "px",
+      "default": 1200
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "section_spacing",
+      "label": "Section spacing",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 60
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "Typography - Title"
+    },
+    {
+      "type": "range",
+      "id": "title_font_size_desktop",
+      "label": "Font size (desktop)",
+      "min": 20,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "title_font_size_mobile",
+      "label": "Font size (mobile)",
+      "min": 16,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 28
+    },
+    {
+      "type": "select",
+      "id": "title_font_weight",
+      "label": "Font weight",
+      "options": [
+        { "value": "400", "label": "Normal (400)" },
+        { "value": "500", "label": "Medium (500)" },
+        { "value": "600", "label": "Semi-bold (600)" },
+        { "value": "700", "label": "Bold (700)" }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "range",
+      "id": "title_line_height",
+      "label": "Line height",
+      "min": 1,
+      "max": 2,
+      "step": 0.1,
+      "default": 1.2
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Color",
+      "default": "#333333"
+    },
+    {
+      "type": "range",
+      "id": "title_margin_bottom",
+      "label": "Margin bottom",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Typography - Subtitle"
+    },
+    {
+      "type": "range",
+      "id": "subtitle_font_size_desktop",
+      "label": "Font size (desktop)",
+      "min": 12,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "subtitle_font_size_mobile",
+      "label": "Font size (mobile)",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "subtitle_font_weight",
+      "label": "Font weight",
+      "options": [
+        { "value": "400", "label": "Normal (400)" },
+        { "value": "500", "label": "Medium (500)" },
+        { "value": "600", "label": "Semi-bold (600)" }
+      ],
+      "default": "400"
+    },
+    {
+      "type": "range",
+      "id": "subtitle_line_height",
+      "label": "Line height",
+      "min": 1,
+      "max": 2,
+      "step": 0.1,
+      "default": 1.5
+    },
+    {
+      "type": "color",
+      "id": "subtitle_color",
+      "label": "Color",
+      "default": "#666666"
+    },
+    {
+      "type": "range",
+      "id": "header_spacing",
+      "label": "Header spacing",
+      "min": 20,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Section 1 - Featured products"
+    },
+    {
+      "type": "checkbox",
+      "id": "section_1_enabled",
+      "label": "Enable section 1",
+      "default": true
+    },
+    {
+      "type": "inline_richtext",
+      "id": "section_1_title",
+      "label": "Title",
+      "default": "Featured Adjustable Dumbbells"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "section_1_subtitle",
+      "label": "Subtitle",
+      "default": "Find the perfect weight for your training goals."
+    },
+    {
+      "type": "product_list",
+      "id": "section_1_products",
+      "label": "Products",
+      "limit": 8
+    },
+    {
+      "type": "header",
+      "content": "Section 2 - Tabbed products"
+    },
+    {
+      "type": "checkbox",
+      "id": "section_2_enabled",
+      "label": "Enable section 2",
+      "default": true
+    },
+    {
+      "type": "inline_richtext",
+      "id": "section_2_title",
+      "label": "Title",
+      "default": "Build Your Home Gym"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "section_2_subtitle",
+      "label": "Subtitle",
+      "default": "Everything you need for strength, cardio, and family fitness."
+    },
+    {
+      "type": "header",
+      "content": "Tab 1 - Strength training"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "tab_1_label",
+      "label": "Tab label",
+      "default": "Strength Training"
+    },
+    {
+      "type": "product_list",
+      "id": "tab_1_products",
+      "label": "Products",
+      "limit": 8
+    },
+    {
+      "type": "header",
+      "content": "Tab 2 - Cardio training"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "tab_2_label",
+      "label": "Tab label",
+      "default": "Cardio Training"
+    },
+    {
+      "type": "product_list",
+      "id": "tab_2_products",
+      "label": "Products",
+      "limit": 8
+    },
+    {
+      "type": "header",
+      "content": "Tab 3 - Kids fun"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "tab_3_label",
+      "label": "Tab label",
+      "default": "Kids Fun"
+    },
+    {
+      "type": "product_list",
+      "id": "tab_3_products",
+      "label": "Products",
+      "limit": 8
+    },
+    {
+      "type": "header",
+      "content": "Tab style"
+    },
+    {
+      "type": "range",
+      "id": "tab_font_size",
+      "label": "Font size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "select",
+      "id": "tab_font_weight",
+      "label": "Font weight",
+      "options": [
+        { "value": "400", "label": "Normal (400)" },
+        { "value": "500", "label": "Medium (500)" },
+        { "value": "600", "label": "Semi-bold (600)" }
+      ],
+      "default": "500"
+    },
+    {
+      "type": "select",
+      "id": "tab_active_font_weight",
+      "label": "Active font weight",
+      "options": [
+        { "value": "500", "label": "Medium (500)" },
+        { "value": "600", "label": "Semi-bold (600)" },
+        { "value": "700", "label": "Bold (700)" }
+      ],
+      "default": "600"
+    },
+    {
+      "type": "range",
+      "id": "tab_padding_vertical",
+      "label": "Padding vertical",
+      "min": 5,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "tab_padding_horizontal",
+      "label": "Padding horizontal",
+      "min": 10,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "tab_gap",
+      "label": "Tab gap",
+      "min": 5,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "tabs_margin_bottom",
+      "label": "Tabs margin bottom",
+      "min": 10,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "default": 30
+    },
+    {
+      "type": "color",
+      "id": "tab_color",
+      "label": "Tab color",
+      "default": "#666666"
+    },
+    {
+      "type": "color",
+      "id": "tab_hover_color",
+      "label": "Tab hover color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "tab_active_color",
+      "label": "Active tab color",
+      "default": "#eb7122"
+    },
+    {
+      "type": "range",
+      "id": "tab_border_width",
+      "label": "Border width",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "unit": "px",
+      "default": 1
+    },
+    {
+      "type": "color",
+      "id": "tab_border_color",
+      "label": "Border color",
+      "default": "#e8e8e8"
+    },
+    {
+      "type": "range",
+      "id": "tab_active_border_width",
+      "label": "Active border width",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "unit": "px",
+      "default": 3
+    },
+    {
+      "type": "color",
+      "id": "tab_active_border_color",
+      "label": "Active border color",
+      "default": "#eb7122"
+    },
+    {
+      "type": "header",
+      "content": "Product grid"
+    },
+    {
+      "type": "range",
+      "id": "products_per_row_desktop",
+      "label": "Products per row (desktop)",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "product_gap",
+      "label": "Gap between products",
+      "min": 10,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Mobile layout"
+    },
+    {
+      "type": "range",
+      "id": "mobile_container_padding",
+      "label": "Container padding",
+      "min": 10,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "mobile_card_width_percent",
+      "label": "Card width",
+      "min": 35,
+      "max": 50,
+      "step": 1,
+      "unit": "%",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "mobile_image_aspect_ratio",
+      "label": "Image aspect ratio",
+      "min": 80,
+      "max": 120,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "header",
+      "content": "Progress bar"
+    },
+    {
+      "type": "color",
+      "id": "progress_bar_background",
+      "label": "Background",
+      "default": "#e8e8e8"
+    },
+    {
+      "type": "color",
+      "id": "progress_bar_color",
+      "label": "Fill color",
+      "default": "#eb7122"
+    },
+    {
+      "type": "range",
+      "id": "progress_bar_margin_top",
+      "label": "Margin top",
+      "min": 10,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Product card style"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "card_border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "card_border_width",
+      "label": "Border width",
+      "min": 0,
+      "max": 4,
+      "step": 1,
+      "unit": "px",
+      "default": 1
+    },
+    {
+      "type": "color",
+      "id": "card_border_color",
+      "label": "Border color",
+      "default": "#e8e8e8"
+    },
+    {
+      "type": "range",
+      "id": "card_padding",
+      "label": "Padding",
+      "min": 10,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "card_hover_lift",
+      "label": "Hover lift",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "card_hover_shadow_y",
+      "label": "Hover shadow Y",
+      "min": 5,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "card_hover_shadow_blur",
+      "label": "Hover shadow blur",
+      "min": 10,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "card_hover_shadow_opacity",
+      "label": "Hover shadow opacity",
+      "min": 0,
+      "max": 0.5,
+      "step": 0.1,
+      "default": 0.1
+    },
+    {
+      "type": "color",
+      "id": "image_background",
+      "label": "Image background",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "header",
+      "content": "Product title"
+    },
+    {
+      "type": "range",
+      "id": "product_title_font_size",
+      "label": "Font size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "select",
+      "id": "product_title_font_weight",
+      "label": "Font weight",
+      "options": [
+        { "value": "400", "label": "Normal (400)" },
+        { "value": "500", "label": "Medium (500)" },
+        { "value": "600", "label": "Semi-bold (600)" }
+      ],
+      "default": "500"
+    },
+    {
+      "type": "range",
+      "id": "product_title_line_height",
+      "label": "Line height",
+      "min": 1,
+      "max": 2,
+      "step": 0.1,
+      "default": 1.4
+    },
+    {
+      "type": "color",
+      "id": "product_title_color",
+      "label": "Color",
+      "default": "#333333"
+    },
+    {
+      "type": "range",
+      "id": "product_title_margin_bottom",
+      "label": "Margin bottom",
+      "min": 5,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Product price"
+    },
+    {
+      "type": "range",
+      "id": "product_price_font_size",
+      "label": "Font size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "select",
+      "id": "product_price_font_weight",
+      "label": "Font weight",
+      "options": [
+        { "value": "500", "label": "Medium (500)" },
+        { "value": "600", "label": "Semi-bold (600)" },
+        { "value": "700", "label": "Bold (700)" }
+      ],
+      "default": "600"
+    },
+    {
+      "type": "color",
+      "id": "product_price_color",
+      "label": "Color",
+      "default": "#eb7122"
+    },
+    {
+      "type": "range",
+      "id": "product_price_margin_bottom",
+      "label": "Margin bottom",
+      "min": 5,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Product button"
+    },
+    {
+      "type": "range",
+      "id": "button_font_size",
+      "label": "Font size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "button_font_weight",
+      "label": "Font weight",
+      "options": [
+        { "value": "500", "label": "Medium (500)" },
+        { "value": "600", "label": "Semi-bold (600)" },
+        { "value": "700", "label": "Bold (700)" }
+      ],
+      "default": "600"
+    },
+    {
+      "type": "range",
+      "id": "button_padding_vertical",
+      "label": "Padding vertical",
+      "min": 5,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "button_padding_horizontal",
+      "label": "Padding horizontal",
+      "min": 10,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "button_background",
+      "label": "Background",
+      "default": "#eb7122"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_background",
+      "label": "Hover background",
+      "default": "#d66420"
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 4
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product promo carousel"
+    }
+  ]
+}
 {% endschema %}
