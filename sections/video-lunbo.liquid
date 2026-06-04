@@ -1,11 +1,9 @@
 {% liquid
   assign desktop_columns = section.settings.columns_desktop | default: 4
-assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
+  assign mobile_columns = section.settings.columns_mobile | default: '2' | plus: 0
+
   assign desktop_gap_total = section.settings.gap_desktop | times: desktop_columns | minus: section.settings.gap_desktop
   assign mobile_gap_total = section.settings.gap_mobile | times: mobile_columns | minus: section.settings.gap_mobile
-
-  assign content_max_width = section.settings.content_max_width | default: 1280
-  assign card_max_width = section.settings.card_max_width | default: 310
 %}
 
 {% style %}
@@ -19,18 +17,18 @@ assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
   }
 
   #shopify-section-{{ section.id }} .tiktok-reels > .page-width {
-    max-width: {{ content_max_width }}px;
+    max-width: {{ section.settings.content_max_width }}px;
     margin-left: auto;
     margin-right: auto;
   }
 
   #shopify-section-{{ section.id }} .tiktok-reels__header {
     text-align: center;
-    margin-bottom: 36px;
+    margin-bottom: {{ section.settings.header_gap }}px;
   }
 
   #shopify-section-{{ section.id }} .tiktok-reels__title {
-    font-size: 36px;
+    font-size: {{ section.settings.title_size }}px;
     line-height: 1.2;
     margin: 0;
     color: {{ section.settings.title_color }};
@@ -59,24 +57,30 @@ assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
     border-radius: 999px;
   }
 
-  #shopify-section-{{ section.id }} .tiktok-reels__track-wrap::-webkit-scrollbar-thumb:hover {
-    background: rgba(17, 17, 17, 0.42);
-  }
-
   #shopify-section-{{ section.id }} .tiktok-reels__track {
     display: flex;
     gap: {{ section.settings.gap_desktop }}px;
     align-items: flex-start;
+    justify-content: center;
     min-width: 100%;
     scroll-snap-type: x proximity;
   }
 
   #shopify-section-{{ section.id }} .tiktok-reels__item {
     position: relative;
-    flex: 0 0 min({{ card_max_width }}px, calc((100% - {{ desktop_gap_total }}px) / {{ desktop_columns }}));
-    max-width: min({{ card_max_width }}px, calc((100% - {{ desktop_gap_total }}px) / {{ desktop_columns }}));
+    flex: 0 0 min({{ section.settings.card_width_desktop }}px, calc((100% - {{ desktop_gap_total }}px) / {{ desktop_columns }}));
+    max-width: min({{ section.settings.card_width_desktop }}px, calc((100% - {{ desktop_gap_total }}px) / {{ desktop_columns }}));
     min-width: 0;
     scroll-snap-align: start;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__item-title {
+    margin: 0 0 14px;
+    font-size: {{ section.settings.item_title_size }}px;
+    line-height: 1.25;
+    font-weight: 700;
+    color: {{ section.settings.item_title_color }};
+    text-align: center;
   }
 
   #shopify-section-{{ section.id }} .tiktok-reels__card {
@@ -90,8 +94,8 @@ assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
   #shopify-section-{{ section.id }} .tiktok-reels__media {
     position: relative;
     width: 100%;
+    height: {{ section.settings.card_height_desktop }}px;
     max-width: 100%;
-    aspect-ratio: 9 / 16;
     border-radius: {{ section.settings.radius }}px;
     overflow: hidden;
     background: #f3f3f3;
@@ -151,7 +155,7 @@ assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
     height: 44px;
     border: 1px solid rgba(255, 255, 255, 0.18);
     border-radius: 999px;
-    background: rgba(17, 17, 17, 0.36);
+    background: rgba(17, 17, 17, 0.42);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     display: inline-flex;
@@ -163,7 +167,7 @@ assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
   }
 
   #shopify-section-{{ section.id }} .tiktok-reels__control:hover {
-    background: rgba(17, 17, 17, 0.5);
+    background: rgba(17, 17, 17, 0.58);
   }
 
   #shopify-section-{{ section.id }} .tiktok-reels__control:active {
@@ -245,7 +249,7 @@ assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
   }
 
   #shopify-section-{{ section.id }} .tiktok-reels__scroll-ui {
-    margin-top: 4px;
+    margin-top: 12px;
     display: flex;
     justify-content: flex-end;
   }
@@ -254,7 +258,7 @@ assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
     font-size: 16px;
     line-height: 1.4;
     color: rgba(17, 17, 17, 0.58);
-    margin-bottom: 8px;
+    margin-bottom: 0;
     text-align: right;
   }
 
@@ -272,27 +276,7 @@ assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
     opacity: 1;
     pointer-events: auto;
   }
-  #shopify-section-{{ section.id }} .tiktok-reels__item-title {
-  margin: 0 0 12px;
-  font-size: 18px;
-  line-height: 1.25;
-  font-weight: 700;
-  color: #111;
-  text-align: center;
-  min-height: 45px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-}
 
-@media only screen and (max-width: 767px) {
-  #shopify-section-{{ section.id }} .tiktok-reels__item-title {
-    margin-bottom: 8px;
-    font-size: 14px;
-    line-height: 1.25;
-    min-height: 36px;
-  }
-}
   #shopify-section-{{ section.id }} .tiktok-reels__card.is-expanded {
     position: fixed;
     left: 50%;
@@ -305,6 +289,7 @@ assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
 
   #shopify-section-{{ section.id }} .tiktok-reels__card.is-expanded .tiktok-reels__media {
     width: 100%;
+    height: auto;
     aspect-ratio: 9 / 16;
     max-height: calc(100vh - 40px);
   }
@@ -313,9 +298,18 @@ assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
     overflow: hidden;
   }
 
-  @media only screen and (min-width: 768px) {
+  @media only screen and (max-width: 989px) {
     #shopify-section-{{ section.id }} .tiktok-reels__track {
-      justify-content: center;
+      justify-content: flex-start;
+    }
+
+    #shopify-section-{{ section.id }} .tiktok-reels__item {
+      flex: 0 0 {{ section.settings.card_width_tablet }}px;
+      max-width: {{ section.settings.card_width_tablet }}px;
+    }
+
+    #shopify-section-{{ section.id }} .tiktok-reels__media {
+      height: {{ section.settings.card_height_tablet }}px;
     }
   }
 
@@ -326,11 +320,11 @@ assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
     }
 
     #shopify-section-{{ section.id }} .tiktok-reels__header {
-      margin-bottom: 24px;
+      margin-bottom: {{ section.settings.header_gap_mobile }}px;
     }
 
     #shopify-section-{{ section.id }} .tiktok-reels__title {
-      font-size: 24px;
+      font-size: {{ section.settings.title_size_mobile }}px;
       line-height: 1.25;
     }
 
@@ -353,6 +347,16 @@ assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
       min-width: 0;
     }
 
+    #shopify-section-{{ section.id }} .tiktok-reels__item-title {
+      margin-bottom: 8px;
+      font-size: {{ section.settings.item_title_size_mobile }}px;
+      line-height: 1.25;
+    }
+
+    #shopify-section-{{ section.id }} .tiktok-reels__media {
+      height: {{ section.settings.card_height_mobile }}px;
+    }
+
     #shopify-section-{{ section.id }} .tiktok-reels__control {
       top: 10px;
       right: 10px;
@@ -368,6 +372,7 @@ assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
 
     #shopify-section-{{ section.id }} .tiktok-reels__scroll-ui {
       justify-content: flex-start;
+      margin-top: 8px;
     }
 
     #shopify-section-{{ section.id }} .tiktok-reels__scroll-hint {
@@ -378,6 +383,11 @@ assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
     #shopify-section-{{ section.id }} .tiktok-reels__card.is-expanded {
       width: calc(100vw - 24px);
       max-width: none;
+    }
+
+    #shopify-section-{{ section.id }} .tiktok-reels__card.is-expanded .tiktok-reels__media {
+      height: auto;
+      aspect-ratio: 9 / 16;
     }
   }
 {% endstyle %}
@@ -395,30 +405,28 @@ assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
         {% for block in section.blocks %}
           {% liquid
             assign has_video = false
+
             if block.settings.shopify_video != blank or block.settings.video_mp4 != blank
               assign has_video = true
             endif
 
             assign image_loading = 'lazy'
+
             if forloop.index <= 4
               assign image_loading = 'eager'
             endif
           %}
 
           <div class="tiktok-reels__item" {{ block.shopify_attributes }}>
-  <h3 class="tiktok-reels__item-title">
-    {% if block.settings.video_title != blank %}
-      {{ block.settings.video_title }}
-    {% else %}
-      &nbsp;
-    {% endif %}
-  </h3>
+            {% if block.settings.video_title != blank %}
+              <h3 class="tiktok-reels__item-title">{{ block.settings.video_title }}</h3>
+            {% endif %}
 
-  <div class="tiktok-reels__card{% if has_video %} has-video{% endif %}" data-reel-card>
+            <div class="tiktok-reels__card{% if has_video %} has-video{% endif %}" data-reel-card>
               <div
                 class="tiktok-reels__media"
                 {% if block.settings.poster_image != blank %}
-                  data-poster="{{ block.settings.poster_image | image_url: width: 900 }}"
+                  data-poster="{{ block.settings.poster_image | image_url: width: 1000 }}"
                 {% endif %}
               >
                 {% if block.settings.shopify_video != blank %}
@@ -441,18 +449,18 @@ assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
                     playsinline
                     preload="none"
                     {% if block.settings.poster_image != blank %}
-                      poster="{{ block.settings.poster_image | image_url: width: 900 }}"
+                      poster="{{ block.settings.poster_image | image_url: width: 1000 }}"
                     {% endif %}
                   >
                     <source src="{{ block.settings.video_mp4 }}" type="video/mp4">
                   </video>
                 {% elsif block.settings.poster_image != blank %}
                   <img
-                    src="{{ block.settings.poster_image | image_url: width: 900 }}"
+                    src="{{ block.settings.poster_image | image_url: width: 1000 }}"
                     alt=""
                     loading="{{ image_loading }}"
-                    width="900"
-                    height="1600"
+                    width="1000"
+                    height="1778"
                   >
                 {% else %}
                   <div class="tiktok-reels__placeholder">Add vertical video</div>
@@ -461,11 +469,11 @@ assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
                 {% if has_video and block.settings.poster_image != blank %}
                   <div class="tiktok-reels__cover">
                     <img
-                      src="{{ block.settings.poster_image | image_url: width: 900 }}"
+                      src="{{ block.settings.poster_image | image_url: width: 1000 }}"
                       alt=""
                       loading="{{ image_loading }}"
-                      width="900"
-                      height="1600"
+                      width="1000"
+                      height="1778"
                     >
                   </div>
                 {% endif %}
@@ -499,6 +507,11 @@ assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
       </div>
     </div>
 
+    {% if section.settings.show_scroll_hint %}
+      <div class="tiktok-reels__scroll-ui">
+        <div class="tiktok-reels__scroll-hint">{{ section.settings.scroll_text }}</div>
+      </div>
+    {% endif %}
   </div>
 
   <div class="tiktok-reels__overlay" data-reel-overlay></div>
@@ -523,6 +536,7 @@ assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
     const pauseAll = (exceptVideo = null) => {
       cards.forEach((card) => {
         const video = card.querySelector('video');
+
         if (!video || video === exceptVideo) return;
 
         video.pause();
@@ -634,27 +648,107 @@ assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
     {
       "type": "color",
       "id": "title_color",
-      "label": "Title color",
+      "label": "Section title color",
       "default": "#111111"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Section title size desktop",
+      "min": 24,
+      "max": 56,
+      "step": 2,
+      "default": 38,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "title_size_mobile",
+      "label": "Section title size mobile",
+      "min": 18,
+      "max": 36,
+      "step": 2,
+      "default": 26,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "header_gap",
+      "label": "Gap below section title desktop",
+      "min": 16,
+      "max": 80,
+      "step": 4,
+      "default": 40,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "header_gap_mobile",
+      "label": "Gap below section title mobile",
+      "min": 12,
+      "max": 60,
+      "step": 4,
+      "default": 28,
+      "unit": "px"
     },
     {
       "type": "range",
       "id": "content_max_width",
       "label": "Content max width",
-      "min": 1000,
-      "max": 1600,
+      "min": 1100,
+      "max": 1800,
       "step": 20,
-      "default": 1280,
+      "default": 1560,
       "unit": "px"
     },
     {
       "type": "range",
-      "id": "card_max_width",
-      "label": "Card max width desktop",
-      "min": 240,
-      "max": 380,
+      "id": "card_width_desktop",
+      "label": "Video width desktop",
+      "min": 280,
+      "max": 460,
       "step": 10,
-      "default": 310,
+      "default": 360,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "card_height_desktop",
+      "label": "Video height desktop",
+      "min": 460,
+      "max": 780,
+      "step": 10,
+      "default": 640,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "card_width_tablet",
+      "label": "Video width tablet",
+      "min": 240,
+      "max": 400,
+      "step": 10,
+      "default": 320,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "card_height_tablet",
+      "label": "Video height tablet",
+      "min": 420,
+      "max": 700,
+      "step": 10,
+      "default": 570,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "card_height_mobile",
+      "label": "Video height mobile",
+      "min": 240,
+      "max": 520,
+      "step": 10,
+      "default": 360,
       "unit": "px"
     },
     {
@@ -667,21 +761,21 @@ assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
       "default": 4
     },
     {
-  "type": "select",
-  "id": "columns_mobile",
-  "label": "Columns mobile",
-  "default": "2",
-  "options": [
-    {
-      "value": "1",
-      "label": "1 column"
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Columns mobile",
+      "default": "2",
+      "options": [
+        {
+          "value": "1",
+          "label": "1 column"
+        },
+        {
+          "value": "2",
+          "label": "2 columns"
+        }
+      ]
     },
-    {
-      "value": "2",
-      "label": "2 columns"
-    }
-  ]
-},
     {
       "type": "range",
       "id": "radius",
@@ -689,17 +783,17 @@ assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
       "min": 0,
       "max": 40,
       "step": 2,
-      "default": 14,
+      "default": 16,
       "unit": "px"
     },
     {
       "type": "range",
       "id": "gap_desktop",
       "label": "Gap desktop",
-      "min": 8,
-      "max": 40,
+      "min": 12,
+      "max": 48,
       "step": 2,
-      "default": 20,
+      "default": 24,
       "unit": "px"
     },
     {
@@ -714,12 +808,50 @@ assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
     },
     {
       "type": "range",
+      "id": "item_title_size",
+      "label": "Video title size desktop",
+      "min": 14,
+      "max": 30,
+      "step": 1,
+      "default": 20,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "item_title_size_mobile",
+      "label": "Video title size mobile",
+      "min": 12,
+      "max": 22,
+      "step": 1,
+      "default": 14,
+      "unit": "px"
+    },
+    {
+      "type": "color",
+      "id": "item_title_color",
+      "label": "Video title color",
+      "default": "#111111"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_scroll_hint",
+      "label": "Show scroll text",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "scroll_text",
+      "label": "Scroll text",
+      "default": "Scroll to explore"
+    },
+    {
+      "type": "range",
       "id": "padding_top",
       "label": "Padding top desktop",
       "min": 0,
-      "max": 120,
+      "max": 140,
       "step": 4,
-      "default": 44,
+      "default": 52,
       "unit": "px"
     },
     {
@@ -727,9 +859,9 @@ assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
       "id": "padding_bottom",
       "label": "Padding bottom desktop",
       "min": 0,
-      "max": 120,
+      "max": 140,
       "step": 4,
-      "default": 36,
+      "default": 44,
       "unit": "px"
     },
     {
@@ -737,9 +869,9 @@ assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
       "id": "padding_top_mobile",
       "label": "Padding top mobile",
       "min": 0,
-      "max": 80,
+      "max": 100,
       "step": 4,
-      "default": 28,
+      "default": 32,
       "unit": "px"
     },
     {
@@ -747,9 +879,9 @@ assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
       "id": "padding_bottom_mobile",
       "label": "Padding bottom mobile",
       "min": 0,
-      "max": 80,
+      "max": 100,
       "step": 4,
-      "default": 24,
+      "default": 28,
       "unit": "px"
     }
   ],
@@ -758,6 +890,12 @@ assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
       "type": "video_item",
       "name": "Video item",
       "settings": [
+        {
+          "type": "text",
+          "id": "video_title",
+          "label": "Video title",
+          "default": "Compact Setup, Full-Body Training"
+        },
         {
           "type": "video",
           "id": "shopify_video",
@@ -782,16 +920,28 @@ assign mobile_columns = section.settings.columns_mobile | default: 2 | plus: 0
       "name": "TikTok video reels",
       "blocks": [
         {
-          "type": "video_item"
+          "type": "video_item",
+          "settings": {
+            "video_title": "Compact Setup, Full-Body Training"
+          }
         },
         {
-          "type": "video_item"
+          "type": "video_item",
+          "settings": {
+            "video_title": "Train Strong With One Pair"
+          }
         },
         {
-          "type": "video_item"
+          "type": "video_item",
+          "settings": {
+            "video_title": "Adjust Weight in Seconds"
+          }
         },
         {
-          "type": "video_item"
+          "type": "video_item",
+          "settings": {
+            "video_title": "Real Workouts, Real Results"
+          }
         }
       ]
     }
