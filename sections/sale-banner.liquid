@@ -1,0 +1,373 @@
+{%- comment -%}
+  Sale Banner — fully theme-editor customizable promo banner.
+  Background color OR background image, custom text + colors, button with
+  custom colors. No JS: pure CSS for max performance. All Liquid-driven
+  values are passed via CSS custom properties on the section root.
+{%- endcomment -%}
+
+{%- liquid
+  assign sb_id = 'sale-banner-' | append: section.id
+  assign sb_bg = section.settings.background_color | default: '#0a0a0a'
+  assign bg_image = section.settings.background_image
+  assign use_bg_image = false
+  if bg_image != blank
+    assign use_bg_image = true
+  endif
+  assign overlay_opacity = section.settings.overlay_opacity | default: 0 | divided_by: 100.0
+  assign align = section.settings.content_alignment | default: 'center'
+-%}
+
+<link rel="preload" as="style" href="{{ 'sale-banner.css' | asset_url }}" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="{{ 'sale-banner.css' | asset_url }}"></noscript>
+
+<section
+  id="{{ sb_id }}"
+  class="sale-banner sale-banner--align-{{ align }}{% if use_bg_image %} sale-banner--bg-image{% endif %}"
+  data-section-type="sale-banner"
+  style="
+    --sb-bg: {{ sb_bg }};
+    --sb-heading-color: {{ section.settings.heading_color }};
+    --sb-subheading-color: {{ section.settings.subheading_color }};
+    --sb-btn-bg: {{ section.settings.button_bg_color }};
+    --sb-btn-text: {{ section.settings.button_text_color }};
+    --sb-btn-bg-hover: {{ section.settings.button_hover_bg_color }};
+    --sb-btn-text-hover: {{ section.settings.button_hover_text_color }};
+    --sb-pad-top: {{ section.settings.padding_top }}px;
+    --sb-pad-bottom: {{ section.settings.padding_bottom }}px;
+    --sb-content-max: {{ section.settings.content_max_width }}px;
+    --sb-title-size-mobile: {{ section.settings.title_size_mobile }}px;
+    --sb-title-size-desktop: {{ section.settings.title_size_desktop }}px;
+    --sb-title-mb: {{ section.settings.title_margin_bottom }}px;
+    --sb-sub-size-mobile: {{ section.settings.subtitle_size_mobile }}px;
+    --sb-sub-size-desktop: {{ section.settings.subtitle_size_desktop }}px;
+    --sb-text-mb: {{ section.settings.text_margin_bottom }}px;
+    --sb-btn-font-size: {{ section.settings.button_font_size }}px;
+    --sb-btn-pad-x: {{ section.settings.button_padding_x }}px;
+    --sb-btn-pad-y: {{ section.settings.button_padding_y }}px;
+    --sb-btn-radius: {{ section.settings.button_radius }}px;
+    {% if use_bg_image %}--sb-overlay-opacity: {{ overlay_opacity }};{% endif %}
+  "
+  {{ section.shopify_attributes }}>
+  {%- if use_bg_image -%}
+    <div class="sale-banner__bg" aria-hidden="true">
+      {%- comment -%}
+        Decorative background. Responsive ladder cut to common viewports;
+        format:'webp' keeps it light even if the admin uploads a JPG. Lazy +
+        low priority because this banner sits mid/lower page (never the LCP).
+      {%- endcomment -%}
+      {{
+        bg_image
+        | image_url: width: 1500, format: 'webp'
+        | image_tag:
+          class: 'sale-banner__bg-media',
+          widths: '480, 750, 1100, 1500',
+          sizes: '100vw',
+          loading: 'lazy',
+          decoding: 'async',
+          fetchpriority: 'low',
+          alt: ''
+      }}
+    </div>
+    {%- if overlay_opacity > 0 -%}
+      <div class="sale-banner__overlay" aria-hidden="true"></div>
+    {%- endif -%}
+  {%- endif -%}
+
+  <div class="sale-banner__inner">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="sale-banner__title">{{ section.settings.heading | escape }}</h2>
+    {%- endif -%}
+
+    {%- if section.settings.subheading != blank -%}
+      <p class="sale-banner__text">{{ section.settings.subheading | escape | newline_to_br }}</p>
+    {%- endif -%}
+
+    {%- if section.settings.button_label != blank -%}
+      {%- if section.settings.button_link != blank -%}
+        <a
+          class="sale-banner__button"
+          href="{{ section.settings.button_link }}"
+          {% if section.settings.button_new_tab %}
+            target="_blank"
+            rel="noopener noreferrer"
+          {% endif %}>
+          {{ section.settings.button_label | escape }}
+        </a>
+      {%- else -%}
+        <span class="sale-banner__button sale-banner__button--static" role="text">
+          {{ section.settings.button_label | escape }}
+        </span>
+      {%- endif -%}
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Sale Banner",
+  "tag": "section",
+  "class": "section-sale-banner",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Summer Kickoff Sale"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Save up to $700! Shop our limited-time sale prices."
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button text",
+      "default": "Shop Sale"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link",
+      "info": "If empty, the button shows without a link."
+    },
+    {
+      "type": "checkbox",
+      "id": "button_new_tab",
+      "label": "Open link in a new tab",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Background"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background image",
+      "info": "When set, replaces the background color (image takes priority). The color stays as a fallback behind the image."
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#0a0a0a"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 0,
+      "max": 90,
+      "step": 5,
+      "unit": "%",
+      "label": "Image overlay darkness",
+      "default": 0,
+      "info": "Only applies when a background image is set. Darkens the image for text readability."
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "label": "Subheading color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Button background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text",
+      "default": "#0a0a0a"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_bg_color",
+      "label": "Button background (hover)",
+      "default": "#eb701f"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_text_color",
+      "label": "Button text (hover)",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "content_alignment",
+      "label": "Content alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "content_max_width",
+      "min": 480,
+      "max": 1200,
+      "step": 20,
+      "unit": "px",
+      "label": "Content max width",
+      "default": 800
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "title_size_mobile",
+      "min": 24,
+      "max": 64,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading — mobile",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "title_size_desktop",
+      "min": 32,
+      "max": 96,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading — desktop",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "subtitle_size_mobile",
+      "min": 13,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Subheading — mobile",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "subtitle_size_desktop",
+      "min": 14,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "label": "Subheading — desktop",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "button_font_size",
+      "min": 12,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "label": "Button text size",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 24,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Vertical padding (top)",
+      "default": 96
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 24,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Vertical padding (bottom)",
+      "default": 96
+    },
+    {
+      "type": "range",
+      "id": "title_margin_bottom",
+      "min": 8,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "Space below heading",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "text_margin_bottom",
+      "min": 16,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "label": "Space below subheading (before button)",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "button_padding_x",
+      "min": 16,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "label": "Button — horizontal padding",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "button_padding_y",
+      "min": 8,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "label": "Button — vertical padding",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "button_radius",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "label": "Button corner radius",
+      "default": 4
+    }
+  ],
+  "presets": [
+    {
+      "name": "Sale Banner",
+      "category": "Promotional"
+    }
+  ]
+}
+{% endschema %}
