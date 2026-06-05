@@ -5,6 +5,11 @@
     {%- assign card_variant = product.selected_or_first_available_variant -%}
   {%- endif -%}
   <div class="product-card-simple__card" data-product-card-simple>
+      {%- if card_top_heading != blank -%}
+      <h3 class="product-card-simple__top-heading">
+        {{ card_top_heading }}
+      </h3>
+    {%- endif -%}
     <a
       class="product-card-simple__link"
       href="{{ product.url }}"
@@ -98,6 +103,22 @@
             <span class="product-card-simple__rating-count">({{ rating_count }})</span>
           </div>
         {%- endif -%}
+      {%- endif -%}
+
+      {%- if card_note_1 != blank or card_note_2 != blank -%}
+        <div class="product-card-simple__notes">
+          {%- if card_note_1 != blank -%}
+            <p class="product-card-simple__note product-card-simple__note--1">
+              {{ card_note_1 }}
+            </p>
+          {%- endif -%}
+
+          {%- if card_note_2 != blank -%}
+            <p class="product-card-simple__note product-card-simple__note--2">
+              {{ card_note_2 }}
+            </p>
+          {%- endif -%}
+        </div>
       {%- endif -%}
 
       {%- form 'product', product, class: 'product-card-simple__form' -%}
