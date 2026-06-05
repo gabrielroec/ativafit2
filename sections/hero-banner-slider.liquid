@@ -491,9 +491,14 @@
           if title != blank or subtitle != blank or button_label != blank
             assign has_content = true
           endif
+          assign slide_has_content = false
+
+if desktop_image != blank or desktop_video != blank or mobile_image != blank or mobile_video != blank or title != blank or subtitle != blank or button_label != blank
+  assign slide_has_content = true
+endif
         %}
-        {% if slide_enabled %}
-          <div class="ai-hero-slide-{{ ai_gen_id }}" data-slide-index="{{ forloop.index0 }}">
+{% if slide_enabled and slide_has_content %}
+            <div class="ai-hero-slide-{{ ai_gen_id }}" data-slide-index="{{ forloop.index0 }}">
             {% if slide_link != blank %}
               <a href="{{ slide_link }}" class="ai-hero-slide-link-{{ ai_gen_id }}">
             {% else %}
