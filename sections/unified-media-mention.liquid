@@ -1,3 +1,17 @@
+{%- liquid
+  assign desktop_visible_count = section.blocks.size
+
+  if desktop_visible_count > 3
+    assign desktop_visible_count = 3
+  endif
+
+  if desktop_visible_count < 1
+    assign desktop_visible_count = 1
+  endif
+
+  assign desktop_gap_count = desktop_visible_count | minus: 1
+-%}
+
 {%- style -%}
   .unified-media-mention {
     padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
@@ -20,8 +34,21 @@
     {%- endif -%}
 
     {%- if section.blocks.size > 0 -%}
-      <div class="unified-media-mention__carousel" data-carousel data-total-blocks="{{ section.blocks.size }}">
-        <button type="button" class="unified-media-mention__arrow unified-media-mention__arrow--prev" aria-label="Previous" data-prev>
+      <div
+        class="unified-media-mention__carousel"
+        data-carousel
+        data-total-blocks="{{ section.blocks.size }}"
+        style="
+          --mention-visible-desktop: {{ desktop_visible_count }};
+          --mention-gap-count-desktop: {{ desktop_gap_count }};
+        "
+      >
+        <button
+          type="button"
+          class="unified-media-mention__arrow unified-media-mention__arrow--prev"
+          aria-label="Previous"
+          data-prev
+        >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -29,81 +56,84 @@
 
         <div class="unified-media-mention__carousel-track">
           <div class="unified-media-mention__carousel-inner" data-carousel-inner>
-            <div class="unified-media-mention__carousel-group">
-              {%- for block in section.blocks -%}
-                <div class="unified-media-mention__carousel-pane">
-                  <div class="unified-media-mention__slide" {{ block.shopify_attributes }}>
-                    <div class="unified-media-mention__slide-text">
-                      {%- if block.settings.text != blank -%}
-                        {{ block.settings.text }}
-                      {%- else -%}
-                        <p>Media mention text goes here.</p>
-                      {%- endif -%}
-                    </div>
-
-                    {%- if block.settings.link != blank -%}
-                      <a href="{{ block.settings.link }}" class="unified-media-mention__learn-more" target="_blank" rel="noopener noreferrer">LEARN MORE</a>
+            {%- for block in section.blocks -%}
+              <div class="unified-media-mention__carousel-pane">
+                <div class="unified-media-mention__slide" {{ block.shopify_attributes }}>
+                  <div class="unified-media-mention__slide-text">
+                    {%- if block.settings.text != blank -%}
+                      {{ block.settings.text }}
+                    {%- else -%}
+                      <p>Media mention text goes here.</p>
                     {%- endif -%}
+                  </div>
 
-                    <div class="unified-media-mention__slide-logo">
-                      {%- if block.settings.logo != blank -%}
-                        {%- if block.settings.logo_bg -%}<span class="unified-media-mention__logo-bg">{%- endif -%}
-                          {{ block.settings.logo | image_url: width: 300 | image_tag: loading: 'lazy', alt: block.settings.logo.alt | default: 'Publisher' | escape }}
-                        {%- if block.settings.logo_bg -%}</span>{%- endif -%}
+                  {%- if block.settings.link != blank -%}
+                    <a
+                      href="{{ block.settings.link }}"
+                      class="unified-media-mention__learn-more"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      LEARN MORE
+                    </a>
+                  {%- endif -%}
 
-                      {%- elsif block.settings.logo_asset != blank -%}
-                        {%- if block.settings.logo_bg -%}<span class="unified-media-mention__logo-bg">{%- endif -%}
-                          <img src="{{ block.settings.logo_asset | asset_url }}" alt="" loading="lazy" width="150" height="50" style="max-width: 150px; max-height: 50px; object-fit: contain;">
-                        {%- if block.settings.logo_bg -%}</span>{%- endif -%}
-
-                      {%- else -%}
-                        <div class="unified-media-mention__logo-placeholder">{{ 'image' | placeholder_svg_tag }}</div>
+                  <div class="unified-media-mention__slide-logo">
+                    {%- if block.settings.logo != blank -%}
+                      {%- if block.settings.logo_bg -%}
+                        <span class="unified-media-mention__logo-bg">
                       {%- endif -%}
-                    </div>
+
+                      {{
+                        block.settings.logo
+                        | image_url: width: 300
+                        | image_tag:
+                          loading: 'lazy',
+                          alt: block.settings.logo.alt
+                          | default: 'Publisher'
+                          | escape
+                      }}
+
+                      {%- if block.settings.logo_bg -%}
+                        </span>
+                      {%- endif -%}
+
+                    {%- elsif block.settings.logo_asset != blank -%}
+                      {%- if block.settings.logo_bg -%}
+                        <span class="unified-media-mention__logo-bg">
+                      {%- endif -%}
+
+                      <img
+                        src="{{ block.settings.logo_asset | asset_url }}"
+                        alt=""
+                        loading="lazy"
+                        width="150"
+                        height="50"
+                        style="max-width: 150px; max-height: 50px; object-fit: contain;"
+                      >
+
+                      {%- if block.settings.logo_bg -%}
+                        </span>
+                      {%- endif -%}
+
+                    {%- else -%}
+                      <div class="unified-media-mention__logo-placeholder">
+                        {{ 'image' | placeholder_svg_tag }}
+                      </div>
+                    {%- endif -%}
                   </div>
                 </div>
-              {%- endfor -%}
-            </div>
-
-            <div class="unified-media-mention__carousel-group">
-              {%- for block in section.blocks -%}
-                <div class="unified-media-mention__carousel-pane">
-                  <div class="unified-media-mention__slide">
-                    <div class="unified-media-mention__slide-text">
-                      {%- if block.settings.text != blank -%}
-                        {{ block.settings.text }}
-                      {%- else -%}
-                        <p>Media mention text goes here.</p>
-                      {%- endif -%}
-                    </div>
-
-                    {%- if block.settings.link != blank -%}
-                      <a href="{{ block.settings.link }}" class="unified-media-mention__learn-more" target="_blank" rel="noopener noreferrer">LEARN MORE</a>
-                    {%- endif -%}
-
-                    <div class="unified-media-mention__slide-logo">
-                      {%- if block.settings.logo != blank -%}
-                        {%- if block.settings.logo_bg -%}<span class="unified-media-mention__logo-bg">{%- endif -%}
-                          {{ block.settings.logo | image_url: width: 300 | image_tag: loading: 'lazy', alt: block.settings.logo.alt | default: 'Publisher' | escape }}
-                        {%- if block.settings.logo_bg -%}</span>{%- endif -%}
-
-                      {%- elsif block.settings.logo_asset != blank -%}
-                        {%- if block.settings.logo_bg -%}<span class="unified-media-mention__logo-bg">{%- endif -%}
-                          <img src="{{ block.settings.logo_asset | asset_url }}" alt="" loading="lazy" width="150" height="50" style="max-width: 150px; max-height: 50px; object-fit: contain;">
-                        {%- if block.settings.logo_bg -%}</span>{%- endif -%}
-
-                      {%- else -%}
-                        <div class="unified-media-mention__logo-placeholder">{{ 'image' | placeholder_svg_tag }}</div>
-                      {%- endif -%}
-                    </div>
-                  </div>
-                </div>
-              {%- endfor -%}
-            </div>
+              </div>
+            {%- endfor -%}
           </div>
         </div>
 
-        <button type="button" class="unified-media-mention__arrow unified-media-mention__arrow--next" aria-label="Next" data-next>
+        <button
+          type="button"
+          class="unified-media-mention__arrow unified-media-mention__arrow--next"
+          aria-label="Next"
+          data-next
+        >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -131,6 +161,7 @@
   }
 
   .unified-media-mention__carousel {
+    --mention-gap: 16px;
     display: flex;
     align-items: center;
     gap: 16px;
@@ -146,17 +177,27 @@
     background: #fff;
     border-radius: 50%;
     cursor: pointer;
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     color: #222;
-    transition: background 0.2s, border-color 0.2s;
+    transition: background 0.2s, border-color 0.2s, color 0.2s, opacity 0.2s;
+  }
+
+  .unified-media-mention__carousel.is-scrollable .unified-media-mention__arrow {
+    display: flex;
   }
 
   .unified-media-mention__arrow:hover {
     background: #f5f5f5;
     border-color: #eb701f;
     color: #eb701f;
+  }
+
+  .unified-media-mention__arrow:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
   }
 
   .unified-media-mention__carousel-track {
@@ -167,21 +208,15 @@
 
   .unified-media-mention__carousel-inner {
     display: flex;
-    width: 200%;
+    gap: var(--mention-gap);
+    width: 100%;
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .unified-media-mention__carousel-group {
-    display: flex !important;
-    align-items: stretch !important;
-    flex: 0 0 50% !important;
-    width: 50% !important;
-    min-width: 0;
-    gap: 16px !important;
+    will-change: transform;
   }
 
   .unified-media-mention__carousel-pane {
-    flex: 1 1 0 !important;
+    flex: 0 0 calc((100% - var(--mention-gap) * var(--mention-gap-count-desktop)) / var(--mention-visible-desktop)) !important;
+    max-width: calc((100% - var(--mention-gap) * var(--mention-gap-count-desktop)) / var(--mention-visible-desktop)) !important;
     min-width: 0;
     display: flex !important;
     align-items: stretch !important;
@@ -189,7 +224,6 @@
 
   .unified-media-mention__carousel-pane .unified-media-mention__slide {
     width: 100% !important;
-    min-height: 0 !important;
   }
 
   .unified-media-mention__slide {
@@ -271,27 +305,29 @@
   }
 
   @media (max-width: 749px) {
+    .unified-media-mention__container {
+      padding: 0 16px;
+    }
+
+    .unified-media-mention__title {
+      margin-bottom: 24px;
+      font-size: 1.8rem;
+    }
+
     .unified-media-mention__carousel {
+      --mention-gap: 12px;
       gap: 0 !important;
     }
 
-    .unified-media-mention__arrow {
+    .unified-media-mention__arrow,
+    .unified-media-mention__carousel.is-scrollable .unified-media-mention__arrow {
       display: none !important;
     }
 
-    .unified-media-mention__carousel-inner {
-      width: 600% !important;
-    }
-
-    .unified-media-mention__carousel-group {
-      display: contents !important;
-    }
-
     .unified-media-mention__carousel-pane {
-      flex: 0 0 16.666% !important;
-      width: 16.666% !important;
-      min-width: 16.666% !important;
-      display: flex !important;
+      flex: 0 0 100% !important;
+      max-width: 100% !important;
+      width: 100% !important;
     }
 
     .unified-media-mention__slide {
@@ -307,29 +343,73 @@
 <script>
   (function() {
     const sectionSelector = '[data-unified-media-mention]';
-    const mq = window.matchMedia('(max-width: 749px)');
 
     const init = (section) => {
+      if (section.dataset.unifiedMediaMentionInitialized === 'true') return;
+      section.dataset.unifiedMediaMentionInitialized = 'true';
+
       const carousel = section.querySelector('[data-carousel]');
       const track = section.querySelector('.unified-media-mention__carousel-track');
       const inner = section.querySelector('[data-carousel-inner]');
       const prevBtn = section.querySelector('[data-prev]');
       const nextBtn = section.querySelector('[data-next]');
+      const panes = inner ? Array.from(inner.querySelectorAll('.unified-media-mention__carousel-pane')) : [];
 
-      if (!inner || !carousel) return;
+      if (!carousel || !track || !inner || !panes.length) return;
 
-      const totalBlocks = parseInt(carousel.getAttribute('data-total-blocks'), 10) || 3;
+      const mq = window.matchMedia('(max-width: 749px)');
+      const total = panes.length;
       let index = 0;
 
-      const getTotal = () => mq.matches ? totalBlocks * 2 : 2;
-      const getStep = () => mq.matches ? 100 / (totalBlocks * 2) : 100;
+      const getVisibleCount = () => {
+        return mq.matches ? 1 : Math.min(total, 3);
+      };
 
-      const apply = (noTransition) => {
-        const step = getStep();
+      const getMaxIndex = () => {
+        return Math.max(total - getVisibleCount(), 0);
+      };
 
-        if (noTransition) inner.style.transition = 'none';
+      const getGap = () => {
+        const styles = window.getComputedStyle(inner);
+        return parseFloat(styles.columnGap || styles.gap || 0) || 0;
+      };
 
-        inner.style.transform = 'translateX(' + (-index * step) + '%)';
+      const getStep = () => {
+        const firstPane = panes[0];
+
+        if (!firstPane) return 0;
+
+        return firstPane.getBoundingClientRect().width + getGap();
+      };
+
+      const updateState = () => {
+        const maxIndex = getMaxIndex();
+        const isScrollable = maxIndex > 0;
+
+        carousel.classList.toggle('is-scrollable', isScrollable);
+
+        if (prevBtn) {
+          prevBtn.disabled = !isScrollable;
+        }
+
+        if (nextBtn) {
+          nextBtn.disabled = !isScrollable;
+        }
+      };
+
+      const apply = (noTransition = false) => {
+        const maxIndex = getMaxIndex();
+
+        if (index > maxIndex) index = maxIndex;
+        if (index < 0) index = 0;
+
+        updateState();
+
+        if (noTransition) {
+          inner.style.transition = 'none';
+        }
+
+        inner.style.transform = 'translate3d(' + (-index * getStep()) + 'px, 0, 0)';
 
         if (noTransition) {
           inner.offsetHeight;
@@ -338,65 +418,70 @@
       };
 
       const goNext = () => {
-        const total = getTotal();
-        index++;
+        const maxIndex = getMaxIndex();
+
+        if (maxIndex <= 0) return;
+
+        index = index >= maxIndex ? 0 : index + 1;
         apply(false);
-
-        const onEnd = () => {
-          if (index >= total) {
-            index = 0;
-            apply(true);
-          }
-        };
-
-        inner.addEventListener('transitionend', onEnd, { once: true });
       };
 
       const goPrev = () => {
-        const total = getTotal();
+        const maxIndex = getMaxIndex();
 
-        if (index <= 0) {
-          index = total - 1;
-          apply(true);
+        if (maxIndex <= 0) return;
 
-          requestAnimationFrame(function() {
-            requestAnimationFrame(function() {
-              index = total - 2;
-              apply(false);
-            });
-          });
-        } else {
-          index--;
-          apply(false);
-        }
+        index = index <= 0 ? maxIndex : index - 1;
+        apply(false);
       };
 
-      if (prevBtn) prevBtn.addEventListener('click', goPrev);
-      if (nextBtn) nextBtn.addEventListener('click', goNext);
-
-      if (track) {
-        let startX = 0;
-
-        track.addEventListener('touchstart', function(e) {
-          startX = e.touches[0].clientX;
-        }, { passive: true });
-
-        track.addEventListener('touchend', function(e) {
-          if (!mq.matches) return;
-
-          const endX = e.changedTouches[0].clientX;
-          const delta = startX - endX;
-
-          if (Math.abs(delta) > 50) {
-            if (delta > 0) goNext();
-            else goPrev();
-          }
-        }, { passive: true });
+      if (prevBtn) {
+        prevBtn.addEventListener('click', goPrev);
       }
 
-      mq.addEventListener('change', function() {
-        index = Math.min(index, getTotal() - 1);
+      if (nextBtn) {
+        nextBtn.addEventListener('click', goNext);
+      }
+
+      let startX = 0;
+
+      track.addEventListener('touchstart', function(e) {
+        startX = e.touches[0].clientX;
+      }, { passive: true });
+
+      track.addEventListener('touchend', function(e) {
+        const endX = e.changedTouches[0].clientX;
+        const delta = startX - endX;
+
+        if (Math.abs(delta) > 50) {
+          if (delta > 0) {
+            goNext();
+          } else {
+            goPrev();
+          }
+        }
+      }, { passive: true });
+
+      window.addEventListener('resize', function() {
         apply(true);
+      });
+
+      if (mq.addEventListener) {
+        mq.addEventListener('change', function() {
+          apply(true);
+        });
+      } else if (mq.addListener) {
+        mq.addListener(function() {
+          apply(true);
+        });
+      }
+
+      section.querySelectorAll('img').forEach(function(img) {
+        if (img.complete) return;
+
+        img.addEventListener('load', function() {
+          apply(true);
+        }, { once: true });
       });
 
       apply(true);
@@ -404,9 +489,13 @@
 
     document.querySelectorAll(sectionSelector).forEach(init);
 
-    document.addEventListener('shopify:section:load', (e) => {
+    document.addEventListener('shopify:section:load', function(e) {
       const section = e.target.querySelector && e.target.querySelector(sectionSelector) || (e.target.matches && e.target.matches(sectionSelector) ? e.target : null);
-      if (section) init(section);
+
+      if (section) {
+        section.dataset.unifiedMediaMentionInitialized = '';
+        init(section);
+      }
     });
   })();
 </script>
@@ -476,11 +565,26 @@
           "id": "logo_asset",
           "label": "Theme logo (if no image above)",
           "options": [
-            { "value": "", "label": "None" },
-            { "value": "ggr-new-site-logo.png", "label": "Garage Gym Reviews" },
-            { "value": "barbend-logo.svg", "label": "BarBend" },
-            { "value": "verywell-fit-logo.png", "label": "Verywell Fit" },
-            { "value": "Indoor-Cycling-Love-FF-3-01.webp", "label": "Indoor Cycling Love" }
+            {
+              "value": "",
+              "label": "None"
+            },
+            {
+              "value": "ggr-new-site-logo.png",
+              "label": "Garage Gym Reviews"
+            },
+            {
+              "value": "barbend-logo.svg",
+              "label": "BarBend"
+            },
+            {
+              "value": "verywell-fit-logo.png",
+              "label": "Verywell Fit"
+            },
+            {
+              "value": "Indoor-Cycling-Love-FF-3-01.webp",
+              "label": "Indoor Cycling Love"
+            }
           ],
           "default": ""
         },
