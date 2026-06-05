@@ -12,9 +12,30 @@
 
   for i in (1..5)
     assign slide_enabled_key = 'slide_' | append: i | append: '_enabled'
-    assign slide_enabled = section.settings[slide_enabled_key]
+    assign desktop_image_key = 'slide_' | append: i | append: '_desktop_image'
+    assign desktop_video_key = 'slide_' | append: i | append: '_desktop_video'
+    assign mobile_image_key = 'slide_' | append: i | append: '_mobile_image'
+    assign mobile_video_key = 'slide_' | append: i | append: '_mobile_video'
+    assign title_key = 'slide_' | append: i | append: '_title'
+    assign subtitle_key = 'slide_' | append: i | append: '_subtitle'
+    assign button_label_key = 'slide_' | append: i | append: '_button_label'
 
-    if slide_enabled
+    assign slide_enabled = section.settings[slide_enabled_key]
+    assign desktop_image = section.settings[desktop_image_key]
+    assign desktop_video = section.settings[desktop_video_key]
+    assign mobile_image = section.settings[mobile_image_key]
+    assign mobile_video = section.settings[mobile_video_key]
+    assign title = section.settings[title_key]
+    assign subtitle = section.settings[subtitle_key]
+    assign button_label = section.settings[button_label_key]
+
+    assign slide_has_content = false
+
+    if desktop_image != blank or desktop_video != blank or mobile_image != blank or mobile_video != blank or title != blank or subtitle != blank or button_label != blank
+      assign slide_has_content = true
+    endif
+
+    if slide_enabled and slide_has_content
       assign active_slides = active_slides | plus: 1
     endif
   endfor
