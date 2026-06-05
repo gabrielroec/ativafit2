@@ -324,18 +324,37 @@
   }
 
 
+    .ai-hero-slider--adaptive-{{ ai_gen_id }} {
+      background-color: transparent !important;
+    }
+
+    .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slider-wrapper-{{ ai_gen_id }} {
+      height: auto;
+      transition: height 0.25s ease;
+      overflow: hidden;
+    }
+
+    .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slider-track-{{ ai_gen_id }} {
+      align-items: flex-start !important;
+    }
+
     .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slider-wrapper-{{ ai_gen_id }},
     .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slider-track-{{ ai_gen_id }},
     .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slide-{{ ai_gen_id }},
     .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slide-link-{{ ai_gen_id }},
     .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slide-media-{{ ai_gen_id }} {
       aspect-ratio: auto !important;
-      height: auto !important;
       min-height: 0 !important;
     }
 
-    .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slider-track-{{ ai_gen_id }} {
-      align-items: flex-start !important;
+    .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slide-{{ ai_gen_id }} {
+      height: auto !important;
+    }
+
+    .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slide-link-{{ ai_gen_id }},
+    .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slide-media-{{ ai_gen_id }} {
+      height: auto !important;
+      background-color: transparent !important;
     }
 
     .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slide-media-{{ ai_gen_id }} img,
@@ -344,8 +363,8 @@
       height: auto !important;
       object-fit: contain !important;
       object-position: center center !important;
+      background-color: transparent !important;
     }
-
 
     @media screen and (max-width: 749px) {
       .ai-hero-slider--adaptive-{{ ai_gen_id }} img.ai-hero-mobile-media-{{ ai_gen_id }} {
@@ -361,6 +380,7 @@
   data-autoplay="{{ section.settings.enable_autoplay }}"
   data-autoplay-speed="{{ section.settings.autoplay_speed }}"
   data-slider-id="{{ ai_gen_id }}"
+  data-adaptive="{{ section.settings.enable_image_adaptive }}"
   {{ section.shopify_attributes }}
 >
   <div class="ai-hero-slider-wrapper-{{ ai_gen_id }}">
@@ -613,13 +633,16 @@
         sliderId: sliderId,
         container: container,
         track: null,
+        wrapper: null,
         slides: null,
         prevBtn: null,
         nextBtn: null,
-        dots: null
+        dots: null,
+        isAdaptive: container.dataset.adaptive === 'true'
       };
       
       slider.track = container.querySelector('.ai-hero-slider-track-' + slider.sliderId);
+      slider.wrapper = container.querySelector('.ai-hero-slider-wrapper-' + slider.sliderId);
       slider.slides = container.querySelectorAll('.ai-hero-slide-' + slider.sliderId);
       slider.prevBtn = container.querySelector('.ai-hero-slider-nav-' + slider.sliderId + '.prev');
       slider.nextBtn = container.querySelector('.ai-hero-slider-nav-' + slider.sliderId + '.next');
@@ -680,9 +703,40 @@
       slider.handleResize = function() {
         if (this.track) {
           this.goToSlide(this.currentSlide, false);
+          setTimeout(() => {
+            this.updateAdaptiveHeight();
+          }, 120);
         }
       };
       
+
+      slider.updateAdaptiveHeight = function() {
+        if (!this.isAdaptive || !this.wrapper || !this.slides || !this.slides[this.currentSlide]) return;
+
+        const activeSlide = this.slides[this.currentSlide];
+        const activeMedia = activeSlide.querySelector('.ai-hero-slide-media-' + this.sliderId);
+        const activeImage = activeSlide.querySelector('img[style*="display: block"], img.ai-hero-desktop-media-' + this.sliderId + ', img.ai-hero-mobile-media-' + this.sliderId);
+        const activeVideo = activeSlide.querySelector('video[style*="display: block"], video.ai-hero-desktop-media-' + this.sliderId + ', video.ai-hero-mobile-media-' + this.sliderId);
+
+        let targetHeight = 0;
+
+        if (activeMedia) {
+          targetHeight = activeMedia.offsetHeight;
+        }
+
+        if (!targetHeight && activeImage) {
+          targetHeight = activeImage.offsetHeight;
+        }
+
+        if (!targetHeight && activeVideo) {
+          targetHeight = activeVideo.offsetHeight;
+        }
+
+        if (targetHeight > 0) {
+          this.wrapper.style.height = targetHeight + 'px';
+        }
+      };
+
       slider.handleSwipe = function() {
         const swipeThreshold = 50;
         const diff = this.touchStartX - this.touchEndX;
@@ -747,6 +801,10 @@
         }
         
         this.updateDots();
+
+        setTimeout(() => {
+          this.updateAdaptiveHeight();
+        }, 80);
       };
       
       slider.updateDots = function() {
@@ -771,6 +829,20 @@
       slider.setupResponsiveMedia();
       slider.setupAutoplay();
       slider.goToSlide(0, false);
+
+      setTimeout(() => {
+        slider.updateAdaptiveHeight();
+      }, 200);
+
+      container.querySelectorAll('img, video').forEach((media) => {
+        media.addEventListener('load', () => {
+          slider.updateAdaptiveHeight();
+        });
+
+        media.addEventListener('loadedmetadata', () => {
+          slider.updateAdaptiveHeight();
+        });
+      });
       
       return slider;
     }
