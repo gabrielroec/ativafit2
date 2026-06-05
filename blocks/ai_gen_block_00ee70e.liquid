@@ -482,9 +482,41 @@
     }
 
     .ai-product-promo-progress-bar-{{ ai_gen_id }} {
+          display: block;
+        }
+      }
+
+      .ai-product-promo-variant-title-{{ ai_gen_id }} {
       display: block;
+      margin-top: 3px;
+      font-size: 0.9em;
+      font-weight: 500;
+      color: #666666;
     }
-  }
+
+    .ai-product-promo-product-button-{{ ai_gen_id }} {
+      appearance: none;
+      -webkit-appearance: none;
+      line-height: normal;
+    }
+
+    .ai-product-promo-product-button-{{ ai_gen_id }}:disabled {
+      background-color: #cccccc;
+      color: #ffffff;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    .ai-product-promo-product-button-{{ ai_gen_id }}.is-loading {
+      pointer-events: none;
+      opacity: 0.75;
+    }
+
+    @media screen and (max-width: 768px) {
+      .ai-product-promo-variant-title-{{ ai_gen_id }} {
+        font-size: 11px;
+      }
+    }
 {% endstyle %}
 
 <product-promo-{{ ai_gen_id }} class="ai-product-promo-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
@@ -504,74 +536,93 @@
       <div class="ai-product-promo-carousel-wrapper-{{ ai_gen_id }}">
         <div class="ai-product-promo-carousel-{{ ai_gen_id }}">
           <div class="ai-product-promo-carousel-track-{{ ai_gen_id }}" data-carousel="section-1">
-            {% if block.settings.section_1_products != blank %}
-              {% for product in block.settings.section_1_products limit: 4 %}
-                <div class="ai-product-promo-product-card-{{ ai_gen_id }}">
-                  <a href="{{ product.url }}" class="ai-product-promo-product-image-wrapper-{{ ai_gen_id }}">
-                    {% if product.compare_at_price > product.price %}
-                      {% assign discount_amount = product.compare_at_price | minus: product.price %}
-                      {% assign discount_percent = discount_amount | times: 100.0 | divided_by: product.compare_at_price | round %}
-                      <div class="ai-product-promo-discount-badge-{{ ai_gen_id }}">
-                        {{ discount_percent }}% OFF
-                      </div>
-                    {% endif %}
-                    {% if product.featured_image %}
-                      <img
-                        src="{{ product.featured_image | image_url: width: 600 }}"
-                        alt="{{ product.featured_image.alt | escape }}"
-                        class="ai-product-promo-product-image-{{ ai_gen_id }}"
-                        loading="lazy"
-                        width="600"
-                        height="600"
-                      >
-                    {% else %}
-                      <div class="ai-product-promo-product-image-placeholder-{{ ai_gen_id }}">
-                        {{ 'product-1' | placeholder_svg_tag }}
-                      </div>
-                    {% endif %}
-                  </a>
-                  <div class="ai-product-promo-product-info-{{ ai_gen_id }}">
-                    <h3 class="ai-product-promo-product-title-{{ ai_gen_id }}">
-                      <a href="{{ product.url }}" class="ai-product-promo-product-title-link-{{ ai_gen_id }}">
-                        {{ product.title }}
-                      </a>
-                    </h3>
-                    <div class="ai-product-promo-product-price-{{ ai_gen_id }}">
-                      {{ product.price | money }}
-                      {% if product.compare_at_price > product.price %}
-                        <span class="ai-product-promo-product-price-compare-{{ ai_gen_id }}">
-                          {{ product.compare_at_price | money }}
-                        </span>
-                      {% endif %}
-                    </div>
-                    <a href="{{ product.url }}" class="ai-product-promo-product-button-{{ ai_gen_id }}">
-                      Add to Cart
-                    </a>
-                  </div>
-                </div>
-              {% endfor %}
-            {% else %}
+            {% assign product_prefix = 'section_1_product_' %}
+
               {% for i in (1..4) %}
-                <div class="ai-product-promo-product-card-{{ ai_gen_id }}">
-                  <div class="ai-product-promo-product-image-wrapper-{{ ai_gen_id }}">
-                    <div class="ai-product-promo-product-image-placeholder-{{ ai_gen_id }}">
-                      {{ 'product-1' | placeholder_svg_tag }}
-                    </div>
-                  </div>
-                  <div class="ai-product-promo-product-info-{{ ai_gen_id }}">
-                    <h3 class="ai-product-promo-product-title-{{ ai_gen_id }}">
-                      Product {{ i }}
-                    </h3>
-                    <div class="ai-product-promo-product-price-{{ ai_gen_id }}">
-                      $0.00
-                    </div>
-                    <a href="#" class="ai-product-promo-product-button-{{ ai_gen_id }}">
-                      Add to Cart
+                {% assign product_key = product_prefix | append: i %}
+                {% assign variant_id_key = product_prefix | append: i | append: '_variant_id' %}
+                {% assign product = block.settings[product_key] %}
+                {% assign selected_variant_id = block.settings[variant_id_key] | strip %}
+
+                {% if product != blank %}
+                  {% assign display_variant = product.selected_or_first_available_variant %}
+
+                  {% if selected_variant_id != blank %}
+                    {% assign selected_variant_id_number = selected_variant_id | times: 1 %}
+                    {% for variant in product.variants %}
+                      {% if variant.id == selected_variant_id_number %}
+                        {% assign display_variant = variant %}
+                        {% break %}
+                      {% endif %}
+                    {% endfor %}
+                  {% endif %}
+
+                  {% assign display_image = display_variant.featured_image | default: product.featured_image %}
+                  {% assign product_url = product.url | append: '?variant=' | append: display_variant.id %}
+
+                  <div class="ai-product-promo-product-card-{{ ai_gen_id }}">
+                    <a href="{{ product_url }}" class="ai-product-promo-product-image-wrapper-{{ ai_gen_id }}">
+                      {% if display_variant.compare_at_price > display_variant.price %}
+                        {% assign discount_amount = display_variant.compare_at_price | minus: display_variant.price %}
+                        {% assign discount_percent = discount_amount | times: 100.0 | divided_by: display_variant.compare_at_price | round %}
+                        <div class="ai-product-promo-discount-badge-{{ ai_gen_id }}">
+                          {{ discount_percent }}% OFF
+                        </div>
+                      {% endif %}
+
+                      {% if display_image %}
+                        <img
+                          src="{{ display_image | image_url: width: 600 }}"
+                          alt="{{ display_image.alt | default: product.title | escape }}"
+                          class="ai-product-promo-product-image-{{ ai_gen_id }}"
+                          loading="lazy"
+                          width="600"
+                          height="600"
+                        >
+                      {% else %}
+                        <div class="ai-product-promo-product-image-placeholder-{{ ai_gen_id }}">
+                          {{ 'product-1' | placeholder_svg_tag }}
+                        </div>
+                      {% endif %}
                     </a>
+
+                    <div class="ai-product-promo-product-info-{{ ai_gen_id }}">
+                      <h3 class="ai-product-promo-product-title-{{ ai_gen_id }}">
+                        <a href="{{ product_url }}" class="ai-product-promo-product-title-link-{{ ai_gen_id }}">
+                          {{ product.title }}
+                          {% unless display_variant.title == 'Default Title' %}
+                            <span class="ai-product-promo-variant-title-{{ ai_gen_id }}">
+                              {{ display_variant.title }}
+                            </span>
+                          {% endunless %}
+                        </a>
+                      </h3>
+
+                      <div class="ai-product-promo-product-price-{{ ai_gen_id }}">
+                        {{ display_variant.price | money }}
+                        {% if display_variant.compare_at_price > display_variant.price %}
+                          <span class="ai-product-promo-product-price-compare-{{ ai_gen_id }}">
+                            {{ display_variant.compare_at_price | money }}
+                          </span>
+                        {% endif %}
+                      </div>
+
+                      <button
+                        type="button"
+                        class="ai-product-promo-product-button-{{ ai_gen_id }}"
+                        data-variant-id="{{ display_variant.id }}"
+                        {% unless display_variant.available %}disabled{% endunless %}
+                      >
+                        {% if display_variant.available %}
+                          Add to Cart
+                        {% else %}
+                          Sold Out
+                        {% endif %}
+                      </button>
+                    </div>
                   </div>
-                </div>
+                {% endif %}
               {% endfor %}
-            {% endif %}
           </div>
         </div>
         <div class="ai-product-promo-progress-bar-{{ ai_gen_id }}">
@@ -1121,10 +1172,48 @@
       "default": "Find the perfect weight for your training goals."
     },
     {
-      "type": "product_list",
-      "id": "section_1_products",
-      "label": "Products",
-      "limit": 8
+      "type": "product",
+      "id": "section_1_product_1",
+      "label": "Section 1 Product 1"
+    },
+    {
+      "type": "text",
+      "id": "section_1_product_1_variant_id",
+      "label": "Section 1 Product 1 Variant ID",
+      "info": "Optional. Fill this to display and add a specific variant."
+    },
+    {
+      "type": "product",
+      "id": "section_1_product_2",
+      "label": "Section 1 Product 2"
+    },
+    {
+      "type": "text",
+      "id": "section_1_product_2_variant_id",
+      "label": "Section 1 Product 2 Variant ID",
+      "info": "Optional. Fill this to display and add a specific variant."
+    },
+    {
+      "type": "product",
+      "id": "section_1_product_3",
+      "label": "Section 1 Product 3"
+    },
+    {
+      "type": "text",
+      "id": "section_1_product_3_variant_id",
+      "label": "Section 1 Product 3 Variant ID",
+      "info": "Optional. Fill this to display and add a specific variant."
+    },
+    {
+      "type": "product",
+      "id": "section_1_product_4",
+      "label": "Section 1 Product 4"
+    },
+    {
+      "type": "text",
+      "id": "section_1_product_4_variant_id",
+      "label": "Section 1 Product 4 Variant ID",
+      "info": "Optional. Fill this to display and add a specific variant."
     },
     {
       "type": "header",
