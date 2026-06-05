@@ -322,10 +322,42 @@
       display: none !important;
     }
   }
+
+
+    .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slider-wrapper-{{ ai_gen_id }},
+    .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slider-track-{{ ai_gen_id }},
+    .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slide-{{ ai_gen_id }},
+    .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slide-link-{{ ai_gen_id }},
+    .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slide-media-{{ ai_gen_id }} {
+      aspect-ratio: auto !important;
+      height: auto !important;
+      min-height: 0 !important;
+    }
+
+    .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slider-track-{{ ai_gen_id }} {
+      align-items: flex-start !important;
+    }
+
+    .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slide-media-{{ ai_gen_id }} img,
+    .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slide-media-{{ ai_gen_id }} video {
+      width: 100% !important;
+      height: auto !important;
+      object-fit: contain !important;
+      object-position: center center !important;
+    }
+
+
+    @media screen and (max-width: 749px) {
+      .ai-hero-slider--adaptive-{{ ai_gen_id }} img.ai-hero-mobile-media-{{ ai_gen_id }} {
+        width: 100% !important;
+        height: auto !important;
+        object-fit: contain !important;
+      }
+    }
 {% endstyle %}
 
 <div
-  class="ai-hero-slider-{{ ai_gen_id }} hero-slider-container"
+  class="ai-hero-slider-{{ ai_gen_id }} hero-slider-container{% if section.settings.enable_image_adaptive %} ai-hero-slider--adaptive-{{ ai_gen_id }}{% endif %}"
   data-autoplay="{{ section.settings.enable_autoplay }}"
   data-autoplay-speed="{{ section.settings.autoplay_speed }}"
   data-slider-id="{{ ai_gen_id }}"
@@ -407,22 +439,41 @@
                       Slides 2-5 = lazy + low (só baixam quando o carousel
                       avança ou IntersectionObserver detecta).
                     {%- endcomment -%}
-                    <img
-                      class="ai-hero-desktop-media-{{ ai_gen_id }}"
-                      src="{{ desktop_image | image_url: width: 1920, height: dt_h_1920, crop: 'center', format: 'webp' }}&quality=75"
-                      srcset="{{ desktop_image | image_url: width: 768, height: dt_h_768, crop: 'center', format: 'webp' }}&quality=75 768w,
-                              {{ desktop_image | image_url: width: 1024, height: dt_h_1024, crop: 'center', format: 'webp' }}&quality=75 1024w,
-                              {{ desktop_image | image_url: width: 1366, height: dt_h_1366, crop: 'center', format: 'webp' }}&quality=75 1366w,
-                              {{ desktop_image | image_url: width: 1920, height: dt_h_1920, crop: 'center', format: 'webp' }}&quality=75 1920w,
-                              {{ desktop_image | image_url: width: 2240, height: dt_h_2240, crop: 'center', format: 'webp' }}&quality=75 2240w"
-                      sizes="100vw"
-                      alt="{{ desktop_image.alt | escape }}"
-                      loading="{% if i == 1 %}eager{% else %}lazy{% endif %}"
-                      fetchpriority="{% if i == 1 %}high{% else %}low{% endif %}"
-                      decoding="{% if i == 1 %}sync{% else %}async{% endif %}"
-                      width="2240"
-                      height="{{ dt_h_2240 }}"
-                    >
+                    {% if section.settings.enable_image_adaptive %}
+                      <img
+                        class="ai-hero-desktop-media-{{ ai_gen_id }}"
+                        src="{{ desktop_image | image_url: width: 1920, format: 'webp' }}&quality=75"
+                        srcset="{{ desktop_image | image_url: width: 768, format: 'webp' }}&quality=75 768w,
+                                {{ desktop_image | image_url: width: 1024, format: 'webp' }}&quality=75 1024w,
+                                {{ desktop_image | image_url: width: 1366, format: 'webp' }}&quality=75 1366w,
+                                {{ desktop_image | image_url: width: 1920, format: 'webp' }}&quality=75 1920w,
+                                {{ desktop_image | image_url: width: 2240, format: 'webp' }}&quality=75 2240w"
+                        sizes="100vw"
+                        alt="{{ desktop_image.alt | escape }}"
+                        loading="{% if i == 1 %}eager{% else %}lazy{% endif %}"
+                        fetchpriority="{% if i == 1 %}high{% else %}low{% endif %}"
+                        decoding="{% if i == 1 %}sync{% else %}async{% endif %}"
+                        width="{{ desktop_image.width }}"
+                        height="{{ desktop_image.height }}"
+                      >
+                    {% else %}
+                      <img
+                        class="ai-hero-desktop-media-{{ ai_gen_id }}"
+                        src="{{ desktop_image | image_url: width: 1920, height: dt_h_1920, crop: 'center', format: 'webp' }}&quality=75"
+                        srcset="{{ desktop_image | image_url: width: 768, height: dt_h_768, crop: 'center', format: 'webp' }}&quality=75 768w,
+                                {{ desktop_image | image_url: width: 1024, height: dt_h_1024, crop: 'center', format: 'webp' }}&quality=75 1024w,
+                                {{ desktop_image | image_url: width: 1366, height: dt_h_1366, crop: 'center', format: 'webp' }}&quality=75 1366w,
+                                {{ desktop_image | image_url: width: 1920, height: dt_h_1920, crop: 'center', format: 'webp' }}&quality=75 1920w,
+                                {{ desktop_image | image_url: width: 2240, height: dt_h_2240, crop: 'center', format: 'webp' }}&quality=75 2240w"
+                        sizes="100vw"
+                        alt="{{ desktop_image.alt | escape }}"
+                        loading="{% if i == 1 %}eager{% else %}lazy{% endif %}"
+                        fetchpriority="{% if i == 1 %}high{% else %}low{% endif %}"
+                        decoding="{% if i == 1 %}sync{% else %}async{% endif %}"
+                        width="2240"
+                        height="{{ dt_h_2240 }}"
+                      >
+                    {% endif %}
                   {% endif %}
                   {% if has_mobile_video %}
                     <video
@@ -444,19 +495,37 @@
                       o browser baixar 3-5 imagens mobile no first paint e
                       competia banda com o LCP da slide 1.
                     {%- endcomment -%}
-                    <img
-                      class="ai-hero-mobile-media-{{ ai_gen_id }}"
-                      src="{{ mobile_image | image_url: width: 723, height: 721, crop: 'center', format: 'webp' }}&quality=75"
-                      srcset="{{ mobile_image | image_url: width: 390, height: 390, crop: 'center', format: 'webp' }}&quality=75 390w,
-                              {{ mobile_image | image_url: width: 500, height: 498, crop: 'center', format: 'webp' }}&quality=75 500w,
-                              {{ mobile_image | image_url: width: 723, height: 721, crop: 'center', format: 'webp' }}&quality=75 723w"
-                      sizes="100vw"
-                      alt="{{ mobile_image.alt | escape }}"
-                      loading="{% if i == 1 %}eager{% else %}lazy{% endif %}"
-                      fetchpriority="{% if i == 1 %}high{% else %}low{% endif %}"
-                      decoding="{% if i == 1 %}sync{% else %}async{% endif %}"
-                      width="723"
-                      height="721">
+                    {% if section.settings.enable_image_adaptive %}
+                      <img
+                        class="ai-hero-mobile-media-{{ ai_gen_id }}"
+                        src="{{ mobile_image | image_url: width: 723, format: 'webp' }}&quality=75"
+                        srcset="{{ mobile_image | image_url: width: 390, format: 'webp' }}&quality=75 390w,
+                                {{ mobile_image | image_url: width: 500, format: 'webp' }}&quality=75 500w,
+                                {{ mobile_image | image_url: width: 723, format: 'webp' }}&quality=75 723w"
+                        sizes="100vw"
+                        alt="{{ mobile_image.alt | escape }}"
+                        loading="{% if i == 1 %}eager{% else %}lazy{% endif %}"
+                        fetchpriority="{% if i == 1 %}high{% else %}low{% endif %}"
+                        decoding="{% if i == 1 %}sync{% else %}async{% endif %}"
+                        width="{{ mobile_image.width }}"
+                        height="{{ mobile_image.height }}"
+                      >
+                    {% else %}
+                      <img
+                        class="ai-hero-mobile-media-{{ ai_gen_id }}"
+                        src="{{ mobile_image | image_url: width: 723, height: 721, crop: 'center', format: 'webp' }}&quality=75"
+                        srcset="{{ mobile_image | image_url: width: 390, height: 390, crop: 'center', format: 'webp' }}&quality=75 390w,
+                                {{ mobile_image | image_url: width: 500, height: 498, crop: 'center', format: 'webp' }}&quality=75 500w,
+                                {{ mobile_image | image_url: width: 723, height: 721, crop: 'center', format: 'webp' }}&quality=75 723w"
+                        sizes="100vw"
+                        alt="{{ mobile_image.alt | escape }}"
+                        loading="{% if i == 1 %}eager{% else %}lazy{% endif %}"
+                        fetchpriority="{% if i == 1 %}high{% else %}low{% endif %}"
+                        decoding="{% if i == 1 %}sync{% else %}async{% endif %}"
+                        width="723"
+                        height="721"
+                      >
+                    {% endif %}
                   {% endif %}
                 {% else %}
                   <div class="ai-hero-slide-placeholder-{{ ai_gen_id }}">
@@ -737,6 +806,12 @@
     {
       "type": "header",
       "content": "Slider settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_image_adaptive",
+      "label": "Enable image adaptive mode",
+      "default": false,
     },
     {
       "type": "checkbox",
