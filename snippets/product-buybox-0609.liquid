@@ -1,0 +1,243 @@
+{% comment %}
+  Product buy box for product-mian-section-0609.
+  Keeps the existing product gallery and cart JS, but renders the right column
+  as a compact PDP buy box.
+{% endcomment %}
+
+{%- liquid
+  assign selected_variant = product.selected_or_first_available_variant
+  assign product_form_id = 'product-form-' | append: section.id
+  assign payment_options_block = section.blocks | where: 'type', 'payment_options' | first
+  assign reviews_block = section.blocks | where: 'type', 'reviews' | first
+  assign color_option_index = 0
+  assign color_option_name = ''
+
+  for option in product.options_with_values
+    assign option_name_downcase = option.name | downcase
+    if option_name_downcase contains 'color' or option_name_downcase contains 'colour'
+      assign color_option_index = forloop.index0
+      assign color_option_name = option.name
+      break
+    endif
+  endfor
+
+  assign selected_color = selected_variant.options[color_option_index] | default: selected_variant.title
+  assign discount_percent = 0
+  if selected_variant.compare_at_price > selected_variant.price and selected_variant.compare_at_price > 0
+    assign discount_cents = selected_variant.compare_at_price | minus: selected_variant.price
+    assign discount_percent = discount_cents | times: 100 | divided_by: selected_variant.compare_at_price
+  endif
+  assign should_show_waitlist = false
+  if section.settings.show_waitlist_button
+    if section.settings.waitlist_variant_ids == blank
+      assign should_show_waitlist = true
+    else
+      assign selected_variant_id_string = selected_variant.id | append: ''
+      assign selected_variant_title = selected_variant.title | strip | downcase
+      assign variant_list = section.settings.waitlist_variant_ids | split: ','
+      for variant_item in variant_list
+        assign variant_item_trimmed = variant_item | strip
+        assign variant_item_lower = variant_item_trimmed | downcase
+        if variant_item_trimmed == selected_variant_id_string or variant_item_lower == selected_variant_title
+          assign should_show_waitlist = true
+          break
+        endif
+      endfor
+    endif
+  endif
+-%}
+
+<div class="product-buybox-0609">
+  {%- if reviews_block and reviews_block.settings.enabled -%}
+    <a href="#judgeme_product_reviews" class="product-review-0609">
+      <span class="product-review-0609__stars" aria-hidden="true">★★★★★</span>
+      <span class="product-review-0609__text">{{ reviews_block.settings.review_text | default: '4.95 (215 reviews)' }}</span>
+    </a>
+  {%- endif -%}
+
+  <h1 class="product-title-0609">
+    {%- if section.settings.product_title != blank -%}
+      {{ section.settings.product_title }}
+    {%- else -%}
+      {{ product.title }}
+    {%- endif -%}
+  </h1>
+
+  {%- if section.settings.product_subtitle != blank -%}
+    <p class="product-subtitle-0609">{{ section.settings.product_subtitle }}</p>
+  {%- endif -%}
+
+  <div class="product-price-row-0609">
+    <span class="product-price_new product-price-0609">{{ selected_variant.price | money }}</span>
+    {%- if selected_variant.compare_at_price > selected_variant.price -%}
+      <span class="product-price-original_new product-compare-0609">{{ selected_variant.compare_at_price | money }}</span>
+      <span class="product-save-badge-0609">{{ section.settings.discount_badge_prefix | default: 'Save' }} {{ discount_percent }}%</span>
+    {%- else -%}
+      <span class="product-price-original_new product-compare-0609" style="display: none;"></span>
+      <span class="product-save-badge-0609" style="display: none;"></span>
+    {%- endif -%}
+  </div>
+
+  {%- form 'product', product, id: product_form_id, class: 'product-form_new product-form-0609' -%}
+    <input
+      type="hidden"
+      name="id"
+      value="{{ selected_variant.id }}"
+      id="product-variant-id-{{ section.id }}">
+
+    {%- if payment_options_block and payment_options_block.settings.show_payment_terms -%}
+      <div class="payment-options-form payment-options-0609">
+        {{ form | payment_terms }}
+      </div>
+    {%- endif -%}
+
+    {%- if product.variants.size > 1 and section.settings.show_variant_selector -%}
+      <div class="variant-selector-wrapper-0609">
+        <label class="variant-label-0609">
+          {{ color_option_name | default: section.settings.variant_label | default: 'Color' | upcase }}:
+          <span data-selected-color-0609>{{ selected_color }}</span>
+        </label>
+
+        <select
+          id="variant-selector_new"
+          class="variant-selector-native-0609"
+          aria-label="{{ section.settings.variant_label | default: 'Select option' }}"
+          onchange="updateVariant()">
+          {%- for variant in product.variants -%}
+            <option
+              value="{{ variant.id }}"
+              {% if variant == selected_variant %}selected{% endif %}
+              {% unless variant.available %}disabled{% endunless %}>
+              {{ variant.title }}{% unless variant.available %} - Sold Out{% endunless %}
+            </option>
+          {%- endfor -%}
+        </select>
+
+        <div class="variant-swatches-0609" role="radiogroup" aria-label="{{ color_option_name | default: 'Color' }}">
+          {%- for variant in product.variants -%}
+            {%- liquid
+              assign swatch_label = variant.options[color_option_index] | default: variant.title
+              assign swatch_image = variant.image | default: product.featured_image
+            -%}
+            <button
+              type="button"
+              class="variant-swatch-0609{% if variant == selected_variant %} is-active{% endif %}"
+              data-variant-id-0609="{{ variant.id }}"
+              data-variant-label-0609="{{ swatch_label | escape }}"
+              aria-label="{{ swatch_label | escape }}"
+              aria-checked="{% if variant == selected_variant %}true{% else %}false{% endif %}"
+              role="radio"
+              {% unless variant.available %}disabled{% endunless %}>
+              {%- if swatch_image -%}
+                <span style="background-image: url({{ swatch_image | image_url: width: 96, format: 'webp' }});"></span>
+              {%- else -%}
+                <span class="variant-swatch-placeholder-0609"></span>
+              {%- endif -%}
+            </button>
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- if section.settings.show_quantity_selector -%}
+      <div class="quantity-wrapper-0609">
+        <label for="quantity_new" class="quantity-label-0609">{{ section.settings.quantity_label | default: 'Qty' | upcase }}:</label>
+        <div class="quantity-selector-0609">
+          <button type="button" class="quantity-btn-0609" data-qty-minus-0609 aria-label="Decrease quantity">−</button>
+          <input
+            type="number"
+            id="quantity_new"
+            name="quantity"
+            value="1"
+            min="1"
+            class="quantity-input-0609"
+            aria-label="Quantity">
+          <button type="button" class="quantity-btn-0609" data-qty-plus-0609 aria-label="Increase quantity">+</button>
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- if selected_variant.available or should_show_waitlist -%}
+      {%- if section.settings.show_waitlist_button -%}
+        <button
+          type="button"
+          class="add-to-cart-btn_new add-to-cart-btn-0609 waitlist-btn_new klaviyo_waitlist_trigger"
+          data-klaviyo-form-id="{{ section.settings.klaviyo_form_id | escape }}"
+          data-variant-id="{{ selected_variant.id }}"
+          style="{% unless should_show_waitlist %}display: none;{% endunless %}">
+          {{ section.settings.waitlist_button_text | default: 'Notify Me When Available' }}
+        </button>
+      {%- endif -%}
+
+      <button
+        type="submit"
+        name="add"
+        class="add-to-cart-btn_new add-to-cart-btn-0609"
+        data-variant-id="{{ selected_variant.id }}"
+        style="{% if section.settings.show_waitlist_button and should_show_waitlist or selected_variant.available == false %}display: none;{% endif %}">
+        {%- if section.settings.button_logo_image_0609 != blank -%}
+          <img
+            src="{{ section.settings.button_logo_image_0609 | image_url: width: 72 }}"
+            alt=""
+            loading="lazy"
+            class="product-button-logo-0609">
+        {%- else -%}
+          <svg aria-hidden="true" viewBox="0 0 24 24" class="product-button-icon-0609">
+            <path fill="currentColor" d="M7 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm10 0a2 2 0 1 0 .01 0H17ZM6.2 6l.75 8.25A2 2 0 0 0 8.94 16h7.88a2 2 0 0 0 1.92-1.44L21 7.5H7.1L6.85 5A2 2 0 0 0 4.86 3H3v2h1.86l.14 1H6.2Z"/>
+          </svg>
+        {%- endif -%}
+        <span>{{ section.settings.add_to_cart_text | default: 'Add To Cart' }}</span>
+      </button>
+
+      {%- if section.settings.show_buy_it_now and should_show_waitlist == false and selected_variant.available -%}
+        <button type="button" class="buy-it-now-btn_new buy-it-now-btn-0609" onclick="buyItNow()">
+          {%- if section.settings.button_logo_image_0609 != blank -%}
+            <img
+              src="{{ section.settings.button_logo_image_0609 | image_url: width: 72 }}"
+              alt=""
+              loading="lazy"
+              class="product-button-logo-0609">
+          {%- else -%}
+            <svg aria-hidden="true" viewBox="0 0 24 24" class="product-button-icon-0609">
+              <path fill="currentColor" d="M13.2 2 4 13.1h7.2L10.8 22 20 10.9h-7.2L13.2 2Z"/>
+            </svg>
+          {%- endif -%}
+          <span>{{ section.settings.buy_it_now_text | default: 'Buy It Now' }}</span>
+        </button>
+      {%- endif -%}
+
+      {%- if payment_options_block and payment_options_block.settings.show_dynamic_checkout and selected_variant.available -%}
+        <div
+          id="dynamic-checkout-{{ section.id }}"
+          class="dynamic-checkout-0609{% if section.settings.remove_shop_pay_button %} hide-shop-pay_new{% endif %}">
+          {{ form | payment_button }}
+        </div>
+      {%- endif -%}
+    {%- else -%}
+      <button type="button" class="add-to-cart-btn_new add-to-cart-btn-0609" disabled>Sold Out</button>
+    {%- endif -%}
+  {%- endform -%}
+
+  {%- if section.settings.show_benefits -%}
+    <div class="product-trust-row-0609" aria-label="Purchase benefits">
+      <div class="product-trust-item-0609">
+        <svg aria-hidden="true" viewBox="0 0 48 48">
+          <path d="M24 5 8 11v12c0 10.2 6.8 17.5 16 20 9.2-2.5 16-9.8 16-20V11L24 5Zm-7 20 5 5 10-12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>{{ section.settings.trust_item_1_text | default: '1-Year Warranty<br>(2-Year for Members)' }}</span>
+      </div>
+      <div class="product-trust-item-0609">
+        <svg aria-hidden="true" viewBox="0 0 48 48">
+          <path d="M13 17a14 14 0 1 1-1.5 15M13 17H6m7 0v7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>{{ section.settings.trust_item_2_text | default: '30-Day Returns<br>Hassle-Free' }}</span>
+      </div>
+      <div class="product-trust-item-0609">
+        <svg aria-hidden="true" viewBox="0 0 48 48">
+          <path d="M14 21v-6a10 10 0 0 1 20 0v6m-25 0h30v21H9V21Zm10 10 4 4 8-9" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>{{ section.settings.trust_item_3_text | default: 'Secure Checkout<br>100% Protected' }}</span>
+      </div>
+    </div>
+  {%- endif -%}
+</div>
