@@ -16,6 +16,58 @@
       padding-bottom: {{ section.settings.padding_bottom }}px;
     }
   }
+
+  @media screen and (max-width: 1039px) {
+    .benefits-horizontal__grid {
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x proximity;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: 12px;
+    }
+
+    .benefits-horizontal__grid::-webkit-scrollbar {
+      display: none;
+    }
+
+    .benefits-horizontal__item {
+      scroll-snap-align: start;
+    }
+
+    .benefits-horizontal__scrollbar {
+      position: relative;
+      display: block;
+      width: calc(100% - 32px);
+      height: 4px;
+      margin: 8px auto 0;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.12);
+      overflow: hidden;
+      opacity: 1;
+      transition: opacity 0.25s ease;
+    }
+
+
+
+    .benefits-horizontal__scrollbar-thumb {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      min-width: 36px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.38);
+      transform: translateX(0);
+      transition: transform 0.08s linear;
+    }
+  }
+
+  @media screen and (min-width: 1040px) {
+    .benefits-horizontal__scrollbar {
+      display: none;
+    }
+  }
 {%- endstyle -%}
 
 <div class="benefits-horizontal section-{{ section.id }}-padding" data-benefits-horizontal>
@@ -72,8 +124,14 @@
         {%- endif -%}
       {%- endfor -%}
     </div>
+
+    <div class="benefits-horizontal__scrollbar" aria-hidden="true">
+      <span class="benefits-horizontal__scrollbar-thumb"></span>
+    </div>
   </div>
 </div>
+
+
 
 {%- render 'product-benefit-popups', section: section -%}
 
@@ -86,6 +144,117 @@
     var grid = section.querySelector('[data-benefits-swipe]');
     if (grid) {
       var isDown = false, isDragging = false, startX, scrollLeft;
+      var scrollbar = section.querySelector('.benefits-horizontal__scrollbar');
+      var scrollbarThumb = section.querySelector('.benefits-horizontal__scrollbar-thumb');
+      var scrollTimer = null;
+
+      function hasHorizontalOverflow() {
+        return grid.scrollWidth > grid.clientWidth + 2;
+      }
+
+      function updateScrollbar() {
+        if (!scrollbar || !scrollbarThumb) return;
+
+        if (window.innerWidth >= 1040 || !hasHorizontalOverflow()) {
+          scrollbar.style.display = 'none';
+          return;
+        }
+
+        scrollbar.style.display = 'block';
+
+        var trackWidth = scrollbar.clientWidth;
+        var thumbWidth = Math.max((grid.clientWidth / grid.scrollWidth) * trackWidth, 36);
+        var maxScroll = grid.scrollWidth - grid.clientWidth;
+        var maxThumbMove = trackWidth - thumbWidth;
+        var thumbLeft = maxScroll > 0 ? (grid.scrollLeft / maxScroll) * maxThumbMove : 0;
+
+        scrollbarThumb.style.width = thumbWidth + 'px';
+        scrollbarThumb.style.transform = 'translateX(' + thumbLeft + 'px)';
+      }
+
+      function showScrollbar() {
+        updateScrollbar();
+
+        if (!hasHorizontalOverflow() || window.innerWidth >= 1040) return;
+
+        section.classList.add('is-scrolling');
+
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(function() {
+          section.classList.remove('is-scrolling');
+        }, 900);
+      }
+
+      function onMouseMove(e) {
+        if (!isDown) return;
+        e.preventDefault();
+
+        var x = e.pageX - grid.offsetLeft;
+        var walk = (x - startX) * 2;
+
+        if (Math.abs(walk) > 10) {
+          isDragging = true;
+          grid.classList.add('is-dragging');
+        }
+
+        grid.scrollLeft = scrollLeft - walk;
+        showScrollbar();
+      }
+
+      function onMouseUp() {
+        isDown = false;
+        grid.classList.remove('is-down', 'is-dragging');
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+      }
+
+      grid.addEventListener('mousedown', function(e) {
+        if (e.target.closest('a')) return;
+        e.preventDefault();
+
+        isDown = true;
+        isDragging = false;
+        grid.classList.add('is-down');
+
+        startX = e.pageX - grid.offsetLeft;
+        scrollLeft = grid.scrollLeft;
+
+        showScrollbar();
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+      });
+
+      grid.addEventListener('mouseleave', function() {
+        if (!isDown) return;
+        onMouseUp();
+      });
+
+      grid.addEventListener('click', function(e) {
+        if (isDragging) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }, true);
+
+      grid.addEventListener('scroll', function() {
+        showScrollbar();
+      }, { passive: true });
+
+      grid.addEventListener('touchstart', function() {
+        showScrollbar();
+      }, { passive: true });
+
+      grid.addEventListener('touchmove', function() {
+        showScrollbar();
+      }, { passive: true });
+
+      window.addEventListener('resize', function() {
+        updateScrollbar();
+      });
+
+      updateScrollbar();
+    }
 
       function onMouseMove(e) {
         if (!isDown) return;
