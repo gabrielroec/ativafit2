@@ -135,17 +135,21 @@
 
 {%- render 'product-benefit-popups', section: section -%}
 
-<script>
-  (function() {
-    var section = document.querySelector('[data-benefits-horizontal]');
-    if (!section) return;
+  <script>
+    (function() {
+      var section = document.querySelector('[data-benefits-horizontal]');
+      if (!section) return;
 
-    /* Swipe/drag to scroll (igual media-coverage, ativo em viewport < 1040px) */
-    var grid = section.querySelector('[data-benefits-swipe]');
-    if (grid) {
-      var isDown = false, isDragging = false, startX, scrollLeft;
+      var grid = section.querySelector('[data-benefits-swipe]');
       var scrollbar = section.querySelector('.benefits-horizontal__scrollbar');
       var scrollbarThumb = section.querySelector('.benefits-horizontal__scrollbar-thumb');
+
+      if (!grid) return;
+
+      var isDown = false;
+      var isDragging = false;
+      var startX = 0;
+      var scrollLeft = 0;
       var scrollTimer = null;
 
       function hasHorizontalOverflow() {
@@ -162,14 +166,17 @@
 
         scrollbar.style.display = 'block';
 
-        var trackWidth = scrollbar.clientWidth;
-        var thumbWidth = Math.max((grid.clientWidth / grid.scrollWidth) * trackWidth, 36);
+        var trackWidth = scrollbar.offsetWidth;
+        var visibleRatio = grid.clientWidth / grid.scrollWidth;
+        var thumbWidth = Math.max(trackWidth * visibleRatio, 36);
+
         var maxScroll = grid.scrollWidth - grid.clientWidth;
         var maxThumbMove = trackWidth - thumbWidth;
-        var thumbLeft = maxScroll > 0 ? (grid.scrollLeft / maxScroll) * maxThumbMove : 0;
+        var scrollRatio = maxScroll > 0 ? grid.scrollLeft / maxScroll : 0;
+        var thumbLeft = maxThumbMove * scrollRatio;
 
         scrollbarThumb.style.width = thumbWidth + 'px';
-        scrollbarThumb.style.transform = 'translateX(' + thumbLeft + 'px)';
+        scrollbarThumb.style.transform = 'translate3d(' + thumbLeft + 'px, 0, 0)';
       }
 
       function showScrollbar() {
@@ -187,6 +194,7 @@
 
       function onMouseMove(e) {
         if (!isDown) return;
+
         e.preventDefault();
 
         var x = e.pageX - grid.offsetLeft;
@@ -198,22 +206,27 @@
         }
 
         grid.scrollLeft = scrollLeft - walk;
-        showScrollbar();
+        updateScrollbar();
       }
 
       function onMouseUp() {
         isDown = false;
         grid.classList.remove('is-down', 'is-dragging');
+
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
+
+        showScrollbar();
       }
 
       grid.addEventListener('mousedown', function(e) {
         if (e.target.closest('a')) return;
+
         e.preventDefault();
 
         isDown = true;
         isDragging = false;
+
         grid.classList.add('is-down');
 
         startX = e.pageX - grid.offsetLeft;
@@ -246,6 +259,7 @@
       }, { passive: true });
 
       grid.addEventListener('touchmove', function() {
+        updateScrollbar();
         showScrollbar();
       }, { passive: true });
 
@@ -253,75 +267,48 @@
         updateScrollbar();
       });
 
+      window.addEventListener('load', function() {
+        updateScrollbar();
+      });
+
       updateScrollbar();
-    }
 
-      function onMouseMove(e) {
-        if (!isDown) return;
-        e.preventDefault();
-        var x = e.pageX - grid.offsetLeft;
-        var walk = (x - startX) * 2;
-        if (Math.abs(walk) > 10) {
-          isDragging = true;
-          grid.classList.add('is-dragging');
-        }
-        grid.scrollLeft = scrollLeft - walk;
-      }
-
-      function onMouseUp() {
-        isDown = false;
-        grid.classList.remove('is-down', 'is-dragging');
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
-      }
-
-      grid.addEventListener('mousedown', function(e) {
-        if (e.target.closest('a')) return;
-        e.preventDefault();
-        isDown = true;
-        isDragging = false;
-        grid.classList.add('is-down');
-        startX = e.pageX - grid.offsetLeft;
-        scrollLeft = grid.scrollLeft;
-        document.addEventListener('mousemove', onMouseMove);
-        document.addEventListener('mouseup', onMouseUp);
-      });
-      grid.addEventListener('mouseleave', function() {
-        if (!isDown) return;
-        onMouseUp();
-      });
-      grid.addEventListener('click', function(e) {
-        if (isDragging) {
+      section.querySelectorAll('[data-benefit-popup]').forEach(function(link) {
+        link.addEventListener('click', function(e) {
           e.preventDefault();
-          e.stopPropagation();
-        }
-      }, true);
-    }
 
-    section.querySelectorAll('[data-benefit-popup]').forEach(function(link) {
-      link.addEventListener('click', function(e) {
-        e.preventDefault();
-        var id = link.getAttribute('data-benefit-popup');
-        var popup = document.getElementById('benefit-popup-' + id);
-        if (popup) popup.classList.add('is-show');
-      });
-    });
+          var id = link.getAttribute('data-benefit-popup');
+          var popup = document.getElementById('benefit-popup-' + id);
 
-    document.querySelectorAll('[data-close-benefit]').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        var id = btn.getAttribute('data-close-benefit');
-        var popup = document.getElementById('benefit-popup-' + id);
-        if (popup) popup.classList.remove('is-show');
+          if (popup) {
+            popup.classList.add('is-show');
+            document.body.style.overflow = 'hidden';
+          }
+        });
       });
-    });
 
-    document.querySelectorAll('.halo-popup').forEach(function(popup) {
-      popup.addEventListener('click', function(e) {
-        if (e.target === popup) popup.classList.remove('is-show');
+      document.querySelectorAll('[data-close-benefit]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var id = btn.getAttribute('data-close-benefit');
+          var popup = document.getElementById('benefit-popup-' + id);
+
+          if (popup) {
+            popup.classList.remove('is-show');
+            document.body.style.overflow = '';
+          }
+        });
       });
-    });
-  })();
-</script>
+
+      document.querySelectorAll('.halo-popup').forEach(function(popup) {
+        popup.addEventListener('click', function(e) {
+          if (e.target === popup) {
+            popup.classList.remove('is-show');
+            document.body.style.overflow = '';
+          }
+        });
+      });
+    })();
+  </script>
 
 {% schema %}
 {
