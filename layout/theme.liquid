@@ -193,32 +193,6 @@
     {%- endif -%}
 
     {%- comment -%}
-      Equalweb accessibility (interdeal) — config inlined here, mas o fetch do
-      script real (cdn.equalweb.com/core/5.1.2/accessibility.js, ~16KB) foi
-      movido pro deferred-tracking block no final do body. Roda só após
-      primeira interação do usuário ou load+3.5s. Isso libera ~100-200ms de
-      TBT pré-FCP em mobile lento. interdeal config precisa ficar definido
-      ANTES do script carregar.
-    {%- endcomment -%}
-    <script>
-      window.interdeal = {
-        "sitekey": "26a097e78c2453c54615d0bed623f613",
-        "Position": "Left",
-        "domains": {
-          "js": "https://cdn.equalweb.com/",
-          "acc": "https://access.equalweb.com/"
-        },
-        "Menulang": "EN",
-        "btnStyle": {
-          "vPosition": ["80%", "80%"],
-          "scale": ["0.5", "0.5"],
-          "color": { "main": "#000000", "second": "#ffffff" },
-          "icon": { "outline": false, "type": 1, "shape": "circle" }
-        }
-      };
-    </script>
-
-    {%- comment -%}
       global.css + theme.min.css em preload→onload manual (NÃO usar
       stylesheet_tag: preload:true — esse filtro do Shopify emite o link
       preload + um <link rel="stylesheet"> síncrono, mantendo render-blocking.
@@ -724,7 +698,6 @@
         - Ahrefs analytics
         - Hotjar (6368517 — segundo container 3882714 removido em 2026-05)
         - Twitter, Reddit pixels
-        - Equalweb accessibility (interdeal)
       dataLayer + gtag() are stubbed earlier in <head> so events fired before
       this loader runs are queued and replayed.
     {%- endcomment -%}
@@ -769,17 +742,6 @@
           /* Reddit Pixel */
           !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);rdt('init','t2_w2f9doa7');rdt('track','PageVisit');
 
-          /* Equalweb accessibility (interdeal) — config foi definida no <head> */
-          if (window.interdeal && !window.__interdealLoaded) {
-            window.__interdealLoaded = true;
-            var ew = document.createElement('script');
-            ew.src = window.interdeal.domains.js + 'core/5.1.2/accessibility.js';
-            ew.defer = true;
-            ew.integrity = 'sha512-PUyQFF3HFjRiVfjOiFFu+RTc0nGmLV5FN3CVw8zWFK6pVbWPAEKy9X2bTUn10GNu1EbxN56MuWu0P8ZHC6xv3Q==';
-            ew.crossOrigin = 'anonymous';
-            ew.setAttribute('data-cfasync', 'true');
-            document.body.appendChild(ew);
-          }
         }
         ['click','scroll','keydown','touchstart'].forEach(function(e){ document.addEventListener(e, loadTracking, {capture:true,once:true,passive:true}); });
         /* Fallback: load tracking after page load + 3.5s if user is idle. Bots & previews still get tracked. */
