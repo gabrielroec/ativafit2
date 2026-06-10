@@ -12,9 +12,30 @@
 
   for i in (1..5)
     assign slide_enabled_key = 'slide_' | append: i | append: '_enabled'
-    assign slide_enabled = section.settings[slide_enabled_key]
+    assign desktop_image_key = 'slide_' | append: i | append: '_desktop_image'
+    assign desktop_video_key = 'slide_' | append: i | append: '_desktop_video'
+    assign mobile_image_key = 'slide_' | append: i | append: '_mobile_image'
+    assign mobile_video_key = 'slide_' | append: i | append: '_mobile_video'
+    assign title_key = 'slide_' | append: i | append: '_title'
+    assign subtitle_key = 'slide_' | append: i | append: '_subtitle'
+    assign button_label_key = 'slide_' | append: i | append: '_button_label'
 
-    if slide_enabled
+    assign slide_enabled = section.settings[slide_enabled_key]
+    assign desktop_image = section.settings[desktop_image_key]
+    assign desktop_video = section.settings[desktop_video_key]
+    assign mobile_image = section.settings[mobile_image_key]
+    assign mobile_video = section.settings[mobile_video_key]
+    assign title = section.settings[title_key]
+    assign subtitle = section.settings[subtitle_key]
+    assign button_label = section.settings[button_label_key]
+
+    assign slide_has_content = false
+
+    if desktop_image != blank or desktop_video != blank or mobile_image != blank or mobile_video != blank or title != blank or subtitle != blank or button_label != blank
+      assign slide_has_content = true
+    endif
+
+    if slide_enabled and slide_has_content
       assign active_slides = active_slides | plus: 1
     endif
   endfor
@@ -125,10 +146,27 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 40px 20px;
+    padding: {{ section.settings.content_padding_y_desktop }}px {{ section.settings.content_padding_x_desktop }}px;
+    box-sizing: border-box;
     z-index: 2;
     pointer-events: none;
     align-items: flex-start;
+  }
+
+  @media screen and (min-width: 750px) {
+    .ai-hero-slide-content-{{ ai_gen_id }} {
+      padding: {{ section.settings.content_padding_y_desktop }}px {{ section.settings.content_padding_x_desktop }}px !important;
+    }
+
+    .ai-hero-slide-title-{{ ai_gen_id }} {
+      margin-bottom: {{ section.settings.title_subtitle_gap }}px !important;
+      max-width: {{ section.settings.title_max_width }}px !important;
+    }
+
+    .ai-hero-slide-subtitle-{{ ai_gen_id }} {
+      margin-bottom: {{ section.settings.subtitle_button_gap }}px !important;
+      max-width: {{ section.settings.subtitle_max_width }}px !important;
+    }
   }
   .ai-hero-slide-content-{{ ai_gen_id }}.align-left {
     align-items: flex-start;
@@ -143,35 +181,38 @@
     align-items: flex-end;
     text-align: right;
   }
-  .ai-hero-slide-title-{{ ai_gen_id }} {
-    font-size: {{ section.settings.title_size }}px;
-    color: {{ section.settings.text_color }};
-    margin: 0 0 16px;
-    max-width: 800px;
-    font-weight: 700;
-    line-height: 1.2;
-  }
-  .ai-hero-slide-subtitle-{{ ai_gen_id }} {
-    font-size: {{ section.settings.subtitle_size }}px;
-    color: {{ section.settings.text_color }};
-    margin: 0 0 24px;
-    max-width: 100%!important;
-    line-height: 1.5;
-  }
-  .ai-hero-slide-button-{{ ai_gen_id }} {
-    display: inline-block;
-    padding: 14px 32px;
-    background-color: {{ section.settings.button_bg_color }};
-    color: {{ section.settings.button_text_color }};
-    text-decoration: none;
-    border-radius: {{ section.settings.button_border_radius }}px;
-    font-size: {{ section.settings.button_font_size }}px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    pointer-events: auto;
-    border: none;
-    cursor: pointer;
-  }
+.ai-hero-slide-title-{{ ai_gen_id }} {
+  font-size: {{ section.settings.title_size }}px !important;
+  color: {{ section.settings.text_color }} !important;
+  margin: 0 0 {{ section.settings.title_subtitle_gap }}px !important;
+  max-width: {{ section.settings.title_max_width }}px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  white-space: normal !important;
+}
+
+.ai-hero-slide-subtitle-{{ ai_gen_id }} {
+  font-size: {{ section.settings.subtitle_size }}px !important;
+  color: {{ section.settings.text_color }} !important;
+  margin: 0 0 {{ section.settings.subtitle_button_gap }}px !important;
+  max-width: {{ section.settings.subtitle_max_width }}px !important;
+  line-height: 1.35 !important;
+}
+
+.ai-hero-slide-button-{{ ai_gen_id }} {
+  display: inline-block !important;
+  padding: 14px 32px !important;
+  background-color: {{ section.settings.button_bg_color }} !important;
+  color: {{ section.settings.button_text_color }} !important;
+  text-decoration: none !important;
+  border-radius: {{ section.settings.button_border_radius }}px !important;
+  font-size: {{ section.settings.button_font_size }}px !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease;
+  pointer-events: auto;
+  border: none !important;
+  cursor: pointer;
+}
   .ai-hero-slide-button-{{ ai_gen_id }}:hover {
     background-color: {{ section.settings.button_hover_bg_color }};
     color: {{ section.settings.button_hover_text_color }};
@@ -263,15 +304,24 @@
     .ai-hero-slide-media-{{ ai_gen_id }} {
       aspect-ratio: {{ section.settings.mobile_aspect_ratio_width }} / {{ section.settings.mobile_aspect_ratio_height }};
     }
+
     .ai-hero-slide-title-{{ ai_gen_id }} {
-      font-size: calc({{ section.settings.title_size }}px * 0.6);
+      font-size: {{ section.settings.mobile_title_size }}px !important;
+      line-height: 1.08 !important;
+      margin-bottom: 10px !important;
+      max-width: 92% !important;
     }
+
     .ai-hero-slide-subtitle-{{ ai_gen_id }} {
-      font-size: calc({{ section.settings.subtitle_size }}px * 0.8);
+      font-size: {{ section.settings.mobile_subtitle_size }}px !important;
+      line-height: 1.35 !important;
+      margin-bottom: 16px !important;
+      max-width: 92% !important;
     }
+
     .ai-hero-slide-button-{{ ai_gen_id }} {
-      font-size: calc({{ section.settings.button_font_size }}px * 0.9);
-      padding: 12px 24px;
+      font-size: {{ section.settings.mobile_button_font_size }}px !important;
+      padding: 8px 16px !important;
     }
     .ai-hero-slider-nav-{{ ai_gen_id }} {
       width: 40px;
@@ -284,7 +334,27 @@
       right: 10px;
     }
     .ai-hero-slide-content-{{ ai_gen_id }} {
-      padding: 20px 15px;
+      top: {{ section.settings.mobile_text_vertical_position }}% !important;
+      height: auto !important;
+      min-height: 0 !important;
+      transform: translateY(-50%) !important;
+      justify-content: flex-start !important;
+      padding: 0 {{ section.settings.mobile_text_padding_x }}px !important;
+    }
+
+    .ai-hero-slide-content-{{ ai_gen_id }}.align-left {
+      align-items: flex-start !important;
+      text-align: left !important;
+    }
+
+    .ai-hero-slide-content-{{ ai_gen_id }}.align-center {
+      align-items: center !important;
+      text-align: center !important;
+    }
+
+    .ai-hero-slide-content-{{ ai_gen_id }}.align-right {
+      align-items: flex-end !important;
+      text-align: right !important;
     }
     .ai-hero-desktop-media-{{ ai_gen_id }} {
       display: none !important;
@@ -320,13 +390,79 @@
       display: none !important;
     }
   }
+
+      .ai-hero-slide-content-{{ ai_gen_id }}.align-left {
+      left: {{ section.settings.pc_text_left_percent }}% !important;
+      width: calc(100% - {{ section.settings.pc_text_left_percent }}%) !important;
+      padding-left: 0 !important;
+      padding-right: 40px !important;
+    }
+
+
+    .ai-hero-slider--adaptive-{{ ai_gen_id }} {
+      background-color: transparent !important;
+    }
+
+    .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slider-wrapper-{{ ai_gen_id }} {
+      height: auto;
+      transition: height 0.25s ease;
+      overflow: hidden;
+    }
+
+    .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slider-track-{{ ai_gen_id }} {
+      align-items: flex-start !important;
+    }
+
+    .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slider-wrapper-{{ ai_gen_id }},
+    .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slider-track-{{ ai_gen_id }},
+    .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slide-{{ ai_gen_id }},
+    .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slide-link-{{ ai_gen_id }},
+    .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slide-media-{{ ai_gen_id }} {
+      aspect-ratio: auto !important;
+      min-height: 0 !important;
+    }
+
+    .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slide-{{ ai_gen_id }} {
+      height: auto !important;
+    }
+
+    .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slide-link-{{ ai_gen_id }},
+    .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slide-media-{{ ai_gen_id }} {
+      height: auto !important;
+      background-color: transparent !important;
+    }
+
+    .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slide-media-{{ ai_gen_id }} img,
+    .ai-hero-slider--adaptive-{{ ai_gen_id }} .ai-hero-slide-media-{{ ai_gen_id }} video {
+      width: 100% !important;
+      height: auto !important;
+      object-fit: contain !important;
+      object-position: center center !important;
+      background-color: transparent !important;
+    }
+
+    @media screen and (max-width: 749px) {
+      .ai-hero-slider--adaptive-{{ ai_gen_id }} img.ai-hero-mobile-media-{{ ai_gen_id }} {
+        width: 100% !important;
+        height: auto !important;
+        object-fit: contain !important;
+      }
+        .ai-hero-slider-nav-{{ ai_gen_id }} {
+      display: none !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
+    }
+
+
 {% endstyle %}
 
 <div
-  class="ai-hero-slider-{{ ai_gen_id }} hero-slider-container"
+  class="ai-hero-slider-{{ ai_gen_id }} hero-slider-container{% if section.settings.enable_image_adaptive %} ai-hero-slider--adaptive-{{ ai_gen_id }}{% endif %}"
   data-autoplay="{{ section.settings.enable_autoplay }}"
   data-autoplay-speed="{{ section.settings.autoplay_speed }}"
   data-slider-id="{{ ai_gen_id }}"
+  data-adaptive="{{ section.settings.enable_image_adaptive }}"
   {{ section.shopify_attributes }}
 >
   <div class="ai-hero-slider-wrapper-{{ ai_gen_id }}">
@@ -375,9 +511,14 @@
           if title != blank or subtitle != blank or button_label != blank
             assign has_content = true
           endif
+          assign slide_has_content = false
+
+if desktop_image != blank or desktop_video != blank or mobile_image != blank or mobile_video != blank or title != blank or subtitle != blank or button_label != blank
+  assign slide_has_content = true
+endif
         %}
-        {% if slide_enabled %}
-          <div class="ai-hero-slide-{{ ai_gen_id }}" data-slide-index="{{ forloop.index0 }}">
+{% if slide_enabled and slide_has_content %}
+            <div class="ai-hero-slide-{{ ai_gen_id }}" data-slide-index="{{ forloop.index0 }}">
             {% if slide_link != blank %}
               <a href="{{ slide_link }}" class="ai-hero-slide-link-{{ ai_gen_id }}">
             {% else %}
@@ -405,22 +546,41 @@
                       Slides 2-5 = lazy + low (só baixam quando o carousel
                       avança ou IntersectionObserver detecta).
                     {%- endcomment -%}
-                    <img
-                      class="ai-hero-desktop-media-{{ ai_gen_id }}"
-                      src="{{ desktop_image | image_url: width: 1920, height: dt_h_1920, crop: 'center', format: 'webp' }}&quality=75"
-                      srcset="{{ desktop_image | image_url: width: 768, height: dt_h_768, crop: 'center', format: 'webp' }}&quality=75 768w,
-                              {{ desktop_image | image_url: width: 1024, height: dt_h_1024, crop: 'center', format: 'webp' }}&quality=75 1024w,
-                              {{ desktop_image | image_url: width: 1366, height: dt_h_1366, crop: 'center', format: 'webp' }}&quality=75 1366w,
-                              {{ desktop_image | image_url: width: 1920, height: dt_h_1920, crop: 'center', format: 'webp' }}&quality=75 1920w,
-                              {{ desktop_image | image_url: width: 2240, height: dt_h_2240, crop: 'center', format: 'webp' }}&quality=75 2240w"
-                      sizes="100vw"
-                      alt="{{ desktop_image.alt | escape }}"
-                      loading="{% if i == 1 %}eager{% else %}lazy{% endif %}"
-                      fetchpriority="{% if i == 1 %}high{% else %}low{% endif %}"
-                      decoding="{% if i == 1 %}sync{% else %}async{% endif %}"
-                      width="2240"
-                      height="{{ dt_h_2240 }}"
-                    >
+                    {% if section.settings.enable_image_adaptive %}
+                      <img
+                        class="ai-hero-desktop-media-{{ ai_gen_id }}"
+                        src="{{ desktop_image | image_url: width: 1920, format: 'webp' }}&quality=75"
+                        srcset="{{ desktop_image | image_url: width: 768, format: 'webp' }}&quality=75 768w,
+                                {{ desktop_image | image_url: width: 1024, format: 'webp' }}&quality=75 1024w,
+                                {{ desktop_image | image_url: width: 1366, format: 'webp' }}&quality=75 1366w,
+                                {{ desktop_image | image_url: width: 1920, format: 'webp' }}&quality=75 1920w,
+                                {{ desktop_image | image_url: width: 2240, format: 'webp' }}&quality=75 2240w"
+                        sizes="100vw"
+                        alt="{{ desktop_image.alt | escape }}"
+                        loading="{% if i == 1 %}eager{% else %}lazy{% endif %}"
+                        fetchpriority="{% if i == 1 %}high{% else %}low{% endif %}"
+                        decoding="{% if i == 1 %}sync{% else %}async{% endif %}"
+                        width="{{ desktop_image.width }}"
+                        height="{{ desktop_image.height }}"
+                      >
+                    {% else %}
+                      <img
+                        class="ai-hero-desktop-media-{{ ai_gen_id }}"
+                        src="{{ desktop_image | image_url: width: 1920, height: dt_h_1920, crop: 'center', format: 'webp' }}&quality=75"
+                        srcset="{{ desktop_image | image_url: width: 768, height: dt_h_768, crop: 'center', format: 'webp' }}&quality=75 768w,
+                                {{ desktop_image | image_url: width: 1024, height: dt_h_1024, crop: 'center', format: 'webp' }}&quality=75 1024w,
+                                {{ desktop_image | image_url: width: 1366, height: dt_h_1366, crop: 'center', format: 'webp' }}&quality=75 1366w,
+                                {{ desktop_image | image_url: width: 1920, height: dt_h_1920, crop: 'center', format: 'webp' }}&quality=75 1920w,
+                                {{ desktop_image | image_url: width: 2240, height: dt_h_2240, crop: 'center', format: 'webp' }}&quality=75 2240w"
+                        sizes="100vw"
+                        alt="{{ desktop_image.alt | escape }}"
+                        loading="{% if i == 1 %}eager{% else %}lazy{% endif %}"
+                        fetchpriority="{% if i == 1 %}high{% else %}low{% endif %}"
+                        decoding="{% if i == 1 %}sync{% else %}async{% endif %}"
+                        width="2240"
+                        height="{{ dt_h_2240 }}"
+                      >
+                    {% endif %}
                   {% endif %}
                   {% if has_mobile_video %}
                     <video
@@ -442,19 +602,37 @@
                       o browser baixar 3-5 imagens mobile no first paint e
                       competia banda com o LCP da slide 1.
                     {%- endcomment -%}
-                    <img
-                      class="ai-hero-mobile-media-{{ ai_gen_id }}"
-                      src="{{ mobile_image | image_url: width: 723, height: 721, crop: 'center', format: 'webp' }}&quality=75"
-                      srcset="{{ mobile_image | image_url: width: 390, height: 390, crop: 'center', format: 'webp' }}&quality=75 390w,
-                              {{ mobile_image | image_url: width: 500, height: 498, crop: 'center', format: 'webp' }}&quality=75 500w,
-                              {{ mobile_image | image_url: width: 723, height: 721, crop: 'center', format: 'webp' }}&quality=75 723w"
-                      sizes="100vw"
-                      alt="{{ mobile_image.alt | escape }}"
-                      loading="{% if i == 1 %}eager{% else %}lazy{% endif %}"
-                      fetchpriority="{% if i == 1 %}high{% else %}low{% endif %}"
-                      decoding="{% if i == 1 %}sync{% else %}async{% endif %}"
-                      width="723"
-                      height="721">
+                    {% if section.settings.enable_image_adaptive %}
+                      <img
+                        class="ai-hero-mobile-media-{{ ai_gen_id }}"
+                        src="{{ mobile_image | image_url: width: 723, format: 'webp' }}&quality=75"
+                        srcset="{{ mobile_image | image_url: width: 390, format: 'webp' }}&quality=75 390w,
+                                {{ mobile_image | image_url: width: 500, format: 'webp' }}&quality=75 500w,
+                                {{ mobile_image | image_url: width: 723, format: 'webp' }}&quality=75 723w"
+                        sizes="100vw"
+                        alt="{{ mobile_image.alt | escape }}"
+                        loading="{% if i == 1 %}eager{% else %}lazy{% endif %}"
+                        fetchpriority="{% if i == 1 %}high{% else %}low{% endif %}"
+                        decoding="{% if i == 1 %}sync{% else %}async{% endif %}"
+                        width="{{ mobile_image.width }}"
+                        height="{{ mobile_image.height }}"
+                      >
+                    {% else %}
+                      <img
+                        class="ai-hero-mobile-media-{{ ai_gen_id }}"
+                        src="{{ mobile_image | image_url: width: 723, height: 721, crop: 'center', format: 'webp' }}&quality=75"
+                        srcset="{{ mobile_image | image_url: width: 390, height: 390, crop: 'center', format: 'webp' }}&quality=75 390w,
+                                {{ mobile_image | image_url: width: 500, height: 498, crop: 'center', format: 'webp' }}&quality=75 500w,
+                                {{ mobile_image | image_url: width: 723, height: 721, crop: 'center', format: 'webp' }}&quality=75 723w"
+                        sizes="100vw"
+                        alt="{{ mobile_image.alt | escape }}"
+                        loading="{% if i == 1 %}eager{% else %}lazy{% endif %}"
+                        fetchpriority="{% if i == 1 %}high{% else %}low{% endif %}"
+                        decoding="{% if i == 1 %}sync{% else %}async{% endif %}"
+                        width="723"
+                        height="721"
+                      >
+                    {% endif %}
                   {% endif %}
                 {% else %}
                   <div class="ai-hero-slide-placeholder-{{ ai_gen_id }}">
@@ -469,10 +647,14 @@
               {% if has_content %}
                 <div class="ai-hero-slide-content-{{ ai_gen_id }} align-{{ text_alignment }}">
                   {% if title != blank %}
-                    <h1 class="ai-hero-slide-title-{{ ai_gen_id }}">{{ title }}</h1>
+                    <h1 class="ai-hero-slide-title-{{ ai_gen_id }}">
+                      {{ title | newline_to_br }}
+                    </h1>
                   {% endif %}
                   {% if subtitle != blank %}
-                    <p class="ai-hero-slide-subtitle-{{ ai_gen_id }}">{{ subtitle }}</p>
+                    <p class="ai-hero-slide-subtitle-{{ ai_gen_id }}">
+                        {{ subtitle | newline_to_br }}
+                    </p>
                   {% endif %}
                   {% if button_label != blank and button_link != blank %}
                     <a href="{{ button_link }}" class="ai-hero-slide-button-{{ ai_gen_id }}">
@@ -540,13 +722,16 @@
         sliderId: sliderId,
         container: container,
         track: null,
+        wrapper: null,
         slides: null,
         prevBtn: null,
         nextBtn: null,
-        dots: null
+        dots: null,
+        isAdaptive: container.dataset.adaptive === 'true'
       };
       
       slider.track = container.querySelector('.ai-hero-slider-track-' + slider.sliderId);
+      slider.wrapper = container.querySelector('.ai-hero-slider-wrapper-' + slider.sliderId);
       slider.slides = container.querySelectorAll('.ai-hero-slide-' + slider.sliderId);
       slider.prevBtn = container.querySelector('.ai-hero-slider-nav-' + slider.sliderId + '.prev');
       slider.nextBtn = container.querySelector('.ai-hero-slider-nav-' + slider.sliderId + '.next');
@@ -607,9 +792,40 @@
       slider.handleResize = function() {
         if (this.track) {
           this.goToSlide(this.currentSlide, false);
+          setTimeout(() => {
+            this.updateAdaptiveHeight();
+          }, 120);
         }
       };
       
+
+      slider.updateAdaptiveHeight = function() {
+        if (!this.isAdaptive || !this.wrapper || !this.slides || !this.slides[this.currentSlide]) return;
+
+        const activeSlide = this.slides[this.currentSlide];
+        const activeMedia = activeSlide.querySelector('.ai-hero-slide-media-' + this.sliderId);
+        const activeImage = activeSlide.querySelector('img[style*="display: block"], img.ai-hero-desktop-media-' + this.sliderId + ', img.ai-hero-mobile-media-' + this.sliderId);
+        const activeVideo = activeSlide.querySelector('video[style*="display: block"], video.ai-hero-desktop-media-' + this.sliderId + ', video.ai-hero-mobile-media-' + this.sliderId);
+
+        let targetHeight = 0;
+
+        if (activeMedia) {
+          targetHeight = activeMedia.offsetHeight;
+        }
+
+        if (!targetHeight && activeImage) {
+          targetHeight = activeImage.offsetHeight;
+        }
+
+        if (!targetHeight && activeVideo) {
+          targetHeight = activeVideo.offsetHeight;
+        }
+
+        if (targetHeight > 0) {
+          this.wrapper.style.height = targetHeight + 'px';
+        }
+      };
+
       slider.handleSwipe = function() {
         const swipeThreshold = 50;
         const diff = this.touchStartX - this.touchEndX;
@@ -674,6 +890,10 @@
         }
         
         this.updateDots();
+
+        setTimeout(() => {
+          this.updateAdaptiveHeight();
+        }, 80);
       };
       
       slider.updateDots = function() {
@@ -698,6 +918,20 @@
       slider.setupResponsiveMedia();
       slider.setupAutoplay();
       slider.goToSlide(0, false);
+
+      setTimeout(() => {
+        slider.updateAdaptiveHeight();
+      }, 200);
+
+      container.querySelectorAll('img, video').forEach((media) => {
+        media.addEventListener('load', () => {
+          slider.updateAdaptiveHeight();
+        });
+
+        media.addEventListener('loadedmetadata', () => {
+          slider.updateAdaptiveHeight();
+        });
+      });
       
       return slider;
     }
@@ -733,6 +967,12 @@
     {
       "type": "header",
       "content": "Slider settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_image_adaptive",
+      "label": "Enable image adaptive mode",
+      "default": false,
     },
     {
       "type": "checkbox",
@@ -849,6 +1089,135 @@
       "type": "header",
       "content": "Text style"
     },
+
+    {
+        "type": "header",
+        "content": "Desktop text spacing"
+      },
+      {
+        "type": "range",
+        "id": "content_padding_y_desktop",
+        "min": 0,
+        "max": 120,
+        "step": 5,
+        "unit": "px",
+        "label": "PC content vertical padding",
+        "default": 40
+      },
+      {
+        "type": "range",
+        "id": "content_padding_x_desktop",
+        "min": 0,
+        "max": 200,
+        "step": 5,
+        "unit": "px",
+        "label": "PC content horizontal padding",
+        "default": 40
+      },
+      {
+        "type": "range",
+        "id": "title_subtitle_gap",
+        "min": 0,
+        "max": 80,
+        "step": 2,
+        "unit": "px",
+        "label": "PC title to subtitle spacing",
+        "default": 16
+      },
+      {
+        "type": "range",
+        "id": "subtitle_button_gap",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "PC subtitle to button spacing",
+        "default": 24
+      },
+      {
+        "type": "range",
+        "id": "title_max_width",
+        "min": 300,
+        "max": 1200,
+        "step": 50,
+        "unit": "px",
+        "label": "PC title max width",
+        "default": 800
+      },
+      {
+        "type": "range",
+        "id": "subtitle_max_width",
+        "min": 300,
+        "max": 1200,
+        "step": 50,
+        "unit": "px",
+        "label": "PC subtitle max width",
+        "default": 600
+      },
+
+       {
+        "type": "range",
+        "id": "mobile_title_size",
+        "min": 20,
+        "max": 56,
+        "step": 2,
+        "unit": "px",
+        "label": "Mobile title size",
+        "default": 36
+      },
+      {
+        "type": "range",
+        "id": "mobile_subtitle_size",
+        "min": 12,
+        "max": 28,
+        "step": 1,
+        "unit": "px",
+        "label": "Mobile subtitle size",
+        "default": 18
+      },
+      {
+        "type": "range",
+        "id": "mobile_button_font_size",
+        "min": 12,
+        "max": 22,
+        "step": 1,
+        "unit": "px",
+        "label": "Mobile button font size",
+        "default": 15
+      },
+
+      {
+        "type": "range",
+        "id": "mobile_text_vertical_position",
+        "min": 10,
+        "max": 90,
+        "step": 1,
+        "unit": "%",
+        "label": "Mobile text vertical position",
+        "default": 50,
+        "info": "50% is centered. Smaller values move text up, larger values move text down."
+      },
+      {
+        "type": "range",
+        "id": "mobile_text_padding_x",
+        "min": 10,
+        "max": 60,
+        "step": 2,
+        "unit": "px",
+        "label": "Mobile text horizontal padding",
+        "default": 20
+      },
+    {
+      "type": "range",
+      "id": "pc_text_left_percent",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "%",
+      "label": "PC text left offset",
+      "default": 5,
+      "info": "Only applies to desktop when slide text alignment is Left."
+    },
     {
       "type": "color",
       "id": "text_color",
@@ -859,7 +1228,7 @@
       "type": "range",
       "id": "title_size",
       "min": 20,
-      "max": 80,
+      "max": 100,
       "step": 2,
       "unit": "px",
       "label": "Title size",
@@ -982,7 +1351,7 @@
       "label": "Mobile video URL"
     },
     {
-      "type": "text",
+      "type": "textarea",
       "id": "slide_1_title",
       "label": "Title",
       "default": "Feel the Power of Nature"

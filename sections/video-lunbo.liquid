@@ -1,0 +1,956 @@
+{% liquid
+  assign desktop_columns = section.settings.columns_desktop | default: 4
+  assign mobile_columns = section.settings.columns_mobile | default: '2' | plus: 0
+
+  assign desktop_gap_total = section.settings.gap_desktop | times: desktop_columns | minus: section.settings.gap_desktop
+  assign mobile_gap_total = section.settings.gap_mobile | times: mobile_columns | minus: section.settings.gap_mobile
+%}
+
+{% style %}
+  #shopify-section-{{ section.id }} {
+    background: {{ section.settings.bg_color }};
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels {
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels > .page-width {
+    max-width: {{ section.settings.content_max_width }}px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__header {
+    text-align: center;
+    margin-bottom: {{ section.settings.header_gap }}px;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__title {
+    font-size: {{ section.settings.title_size }}px;
+    line-height: 1.2;
+    margin: 0;
+    color: {{ section.settings.title_color }};
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__track-wrap {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 12px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(17, 17, 17, 0.28) transparent;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__track-wrap::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__track-wrap::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 999px;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__track-wrap::-webkit-scrollbar-thumb {
+    background: rgba(17, 17, 17, 0.28);
+    border-radius: 999px;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__track {
+    display: flex;
+    gap: {{ section.settings.gap_desktop }}px;
+    align-items: flex-start;
+    justify-content: center;
+    min-width: 100%;
+    scroll-snap-type: x proximity;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__item {
+    position: relative;
+    flex: 0 0 min({{ section.settings.card_width_desktop }}px, calc((100% - {{ desktop_gap_total }}px) / {{ desktop_columns }}));
+    max-width: min({{ section.settings.card_width_desktop }}px, calc((100% - {{ desktop_gap_total }}px) / {{ desktop_columns }}));
+    min-width: 0;
+    scroll-snap-align: start;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__item-title {
+    margin: 0 0 14px;
+    font-size: {{ section.settings.item_title_size }}px;
+    line-height: 1.25;
+    font-weight: 700;
+    color: {{ section.settings.item_title_color }};
+    text-align: center;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__card {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    overflow: visible;
+    cursor: pointer;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__media {
+    position: relative;
+    width: 100%;
+    height: {{ section.settings.card_height_desktop }}px;
+    max-width: 100%;
+    border-radius: {{ section.settings.radius }}px;
+    overflow: hidden;
+    background: #f3f3f3;
+    line-height: 0;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__media video,
+  #shopify-section-{{ section.id }} .tiktok-reels__media iframe,
+  #shopify-section-{{ section.id }} .tiktok-reels__media img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    background: #000;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__cover {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    transition: opacity 0.22s ease;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__cover img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__card.is-playing .tiktok-reels__cover {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__placeholder {
+    width: 100%;
+    height: 100%;
+    background: #efefef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+    font-size: 14px;
+    text-align: center;
+    padding: 20px;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__control {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 5;
+    width: 44px;
+    height: 44px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+    background: rgba(17, 17, 17, 0.42);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__control:hover {
+    background: rgba(17, 17, 17, 0.58);
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__control:active {
+    transform: scale(0.96);
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__control--expand {
+    top: auto;
+    right: 14px;
+    bottom: 14px;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__icon {
+    position: relative;
+    width: 16px;
+    height: 16px;
+    display: block;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__icon--play {
+    width: 0;
+    height: 0;
+    border-left: 12px solid #fff;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    margin-left: 2px;
+    display: block;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__icon--pause {
+    display: none;
+    width: 14px;
+    height: 14px;
+    position: relative;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__icon--pause::before,
+  #shopify-section-{{ section.id }} .tiktok-reels__icon--pause::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    border-radius: 2px;
+    background: #fff;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__icon--pause::before {
+    left: 1px;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__icon--pause::after {
+    right: 1px;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__card.is-playing .tiktok-reels__icon--play {
+    display: none;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__card.is-playing .tiktok-reels__icon--pause {
+    display: block;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__expand-icon {
+    width: 16px;
+    height: 16px;
+    box-sizing: border-box;
+    border: 2px solid #fff;
+    border-radius: 2px;
+    display: block;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__card:not(.has-video) {
+    cursor: default;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__card:not(.has-video) .tiktok-reels__control {
+    display: none;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__scroll-ui {
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__scroll-hint {
+    font-size: 16px;
+    line-height: 1.4;
+    color: rgba(17, 17, 17, 0.58);
+    margin-bottom: 0;
+    text-align: right;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.72);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease;
+    z-index: 9998;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__overlay.is-active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__card.is-expanded {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(420px, calc(100vw - 32px));
+    max-width: 420px;
+    z-index: 9999;
+  }
+
+  #shopify-section-{{ section.id }} .tiktok-reels__card.is-expanded .tiktok-reels__media {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 9 / 16;
+    max-height: calc(100vh - 40px);
+  }
+
+  body.tiktok-reels-lock {
+    overflow: hidden;
+  }
+
+  @media only screen and (max-width: 989px) {
+    #shopify-section-{{ section.id }} .tiktok-reels__track {
+      justify-content: flex-start;
+    }
+
+    #shopify-section-{{ section.id }} .tiktok-reels__item {
+      flex: 0 0 {{ section.settings.card_width_tablet }}px;
+      max-width: {{ section.settings.card_width_tablet }}px;
+    }
+
+    #shopify-section-{{ section.id }} .tiktok-reels__media {
+      height: {{ section.settings.card_height_tablet }}px;
+    }
+  }
+
+  @media only screen and (max-width: 767px) {
+
+    #shopify-section-{{ section.id }} .tiktok-reels > .page-width {
+      padding-left: 32px;
+      padding-right: 32px;
+      box-sizing: border-box;
+    }
+    #shopify-section-{{ section.id }} .tiktok-reels {
+      padding-top: {{ section.settings.padding_top_mobile }}px;
+      padding-bottom: {{ section.settings.padding_bottom_mobile }}px;
+    }
+
+    #shopify-section-{{ section.id }} .tiktok-reels__header {
+      margin-bottom: {{ section.settings.header_gap_mobile }}px;
+    }
+
+    #shopify-section-{{ section.id }} .tiktok-reels__title {
+      font-size: {{ section.settings.title_size_mobile }}px;
+      line-height: 1.25;
+    }
+
+    #shopify-section-{{ section.id }} .tiktok-reels__track-wrap {
+      padding-bottom: 10px;
+    }
+
+    #shopify-section-{{ section.id }} .tiktok-reels__track-wrap::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    #shopify-section-{{ section.id }} .tiktok-reels__track {
+      gap: {{ section.settings.gap_mobile }}px;
+      justify-content: flex-start;
+    }
+
+    #shopify-section-{{ section.id }} .tiktok-reels__item {
+      flex: 0 0 calc((100% - {{ mobile_gap_total }}px) / {{ mobile_columns }});
+      max-width: calc((100% - {{ mobile_gap_total }}px) / {{ mobile_columns }});
+      min-width: 0;
+    }
+
+    #shopify-section-{{ section.id }} .tiktok-reels__item-title {
+      margin-bottom: 8px;
+      font-size: {{ section.settings.item_title_size_mobile }}px;
+      line-height: 1.25;
+    }
+
+    #shopify-section-{{ section.id }} .tiktok-reels__media {
+      height: {{ section.settings.card_height_mobile }}px;
+    }
+
+    #shopify-section-{{ section.id }} .tiktok-reels__control {
+      top: 10px;
+      right: 10px;
+      width: 36px;
+      height: 36px;
+    }
+
+    #shopify-section-{{ section.id }} .tiktok-reels__control--expand {
+      right: 10px;
+      bottom: 10px;
+      top: auto;
+    }
+
+    #shopify-section-{{ section.id }} .tiktok-reels__scroll-ui {
+      justify-content: flex-start;
+      margin-top: 8px;
+    }
+
+    #shopify-section-{{ section.id }} .tiktok-reels__scroll-hint {
+      font-size: 14px;
+      text-align: left;
+    }
+
+    #shopify-section-{{ section.id }} .tiktok-reels__card.is-expanded {
+      width: calc(100vw - 24px);
+      max-width: none;
+    }
+
+    #shopify-section-{{ section.id }} .tiktok-reels__card.is-expanded .tiktok-reels__media {
+      height: auto;
+      aspect-ratio: 9 / 16;
+    }
+  }
+{% endstyle %}
+
+<section class="tiktok-reels">
+  <div class="page-width">
+    {% if section.settings.title != blank %}
+      <div class="tiktok-reels__header">
+        <h2 class="tiktok-reels__title">{{ section.settings.title }}</h2>
+      </div>
+    {% endif %}
+
+    <div class="tiktok-reels__track-wrap" data-reel-scroller>
+      <div class="tiktok-reels__track">
+        {% for block in section.blocks %}
+          {% liquid
+            assign has_video = false
+
+            if block.settings.shopify_video != blank or block.settings.video_mp4 != blank
+              assign has_video = true
+            endif
+
+            assign image_loading = 'lazy'
+
+            if forloop.index <= 4
+              assign image_loading = 'eager'
+            endif
+          %}
+
+          <div class="tiktok-reels__item" {{ block.shopify_attributes }}>
+            {% if block.settings.video_title != blank %}
+              <h3 class="tiktok-reels__item-title">{{ block.settings.video_title }}</h3>
+            {% endif %}
+
+            <div class="tiktok-reels__card{% if has_video %} has-video{% endif %}" data-reel-card>
+              <div
+                class="tiktok-reels__media"
+                {% if block.settings.poster_image != blank %}
+                  data-poster="{{ block.settings.poster_image | image_url: width: 1000 }}"
+                {% endif %}
+              >
+                {% if block.settings.shopify_video != blank %}
+                  {{
+                    block.settings.shopify_video
+                    | video_tag:
+                      autoplay: false,
+                      loop: true,
+                      muted: true,
+                      controls: false,
+                      playsinline: true,
+                      preload: 'none',
+                      class: 'tiktok-reels__video'
+                  }}
+                {% elsif block.settings.video_mp4 != blank %}
+                  <video
+                    class="tiktok-reels__video"
+                    muted
+                    loop
+                    playsinline
+                    preload="none"
+                    {% if block.settings.poster_image != blank %}
+                      poster="{{ block.settings.poster_image | image_url: width: 1000 }}"
+                    {% endif %}
+                  >
+                    <source src="{{ block.settings.video_mp4 }}" type="video/mp4">
+                  </video>
+                {% elsif block.settings.poster_image != blank %}
+                  <img
+                    src="{{ block.settings.poster_image | image_url: width: 1000 }}"
+                    alt=""
+                    loading="{{ image_loading }}"
+                    width="1000"
+                    height="1778"
+                  >
+                {% else %}
+                  <div class="tiktok-reels__placeholder">Add vertical video</div>
+                {% endif %}
+
+                {% if has_video and block.settings.poster_image != blank %}
+                  <div class="tiktok-reels__cover">
+                    <img
+                      src="{{ block.settings.poster_image | image_url: width: 1000 }}"
+                      alt=""
+                      loading="{{ image_loading }}"
+                      width="1000"
+                      height="1778"
+                    >
+                  </div>
+                {% endif %}
+              </div>
+
+              {% if has_video %}
+                <button
+                  type="button"
+                  class="tiktok-reels__control"
+                  aria-label="Play or pause video"
+                  data-reel-toggle
+                >
+                  <span class="tiktok-reels__icon">
+                    <span class="tiktok-reels__icon--play"></span>
+                    <span class="tiktok-reels__icon--pause"></span>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  class="tiktok-reels__control tiktok-reels__control--expand"
+                  aria-label="Expand video"
+                  data-reel-expand
+                >
+                  <span class="tiktok-reels__expand-icon"></span>
+                </button>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% if section.settings.show_scroll_hint %}
+      <div class="tiktok-reels__scroll-ui">
+        <div class="tiktok-reels__scroll-hint">{{ section.settings.scroll_text }}</div>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="tiktok-reels__overlay" data-reel-overlay></div>
+</section>
+
+<script>
+  (() => {
+    const section = document.getElementById('shopify-section-{{ section.id }}');
+    if (!section) return;
+
+    const cards = Array.from(section.querySelectorAll('[data-reel-card]'));
+    const overlay = section.querySelector('[data-reel-overlay]');
+
+    if (!cards.length) return;
+
+    const closeAllExpanded = () => {
+      cards.forEach((card) => card.classList.remove('is-expanded'));
+      if (overlay) overlay.classList.remove('is-active');
+      document.body.classList.remove('tiktok-reels-lock');
+    };
+
+    const pauseAll = (exceptVideo = null) => {
+      cards.forEach((card) => {
+        const video = card.querySelector('video');
+
+        if (!video || video === exceptVideo) return;
+
+        video.pause();
+        card.classList.remove('is-playing');
+      });
+    };
+
+    cards.forEach((card) => {
+      const video = card.querySelector('video');
+      const toggleBtn = card.querySelector('[data-reel-toggle]');
+      const expandBtn = card.querySelector('[data-reel-expand]');
+      const media = card.querySelector('.tiktok-reels__media');
+      const poster = media ? media.dataset.poster : '';
+
+      if (!video) return;
+
+      if (poster) {
+        video.setAttribute('poster', poster);
+        video.load();
+      }
+
+      video.pause();
+      card.classList.remove('is-playing');
+
+      const togglePlay = () => {
+        if (video.paused) {
+          pauseAll(video);
+
+          video.play().then(() => {
+            card.classList.add('is-playing');
+          }).catch(() => {});
+        } else {
+          video.pause();
+          card.classList.remove('is-playing');
+        }
+      };
+
+      const toggleExpand = () => {
+        const isExpanded = card.classList.contains('is-expanded');
+
+        closeAllExpanded();
+
+        if (!isExpanded) {
+          card.classList.add('is-expanded');
+          if (overlay) overlay.classList.add('is-active');
+          document.body.classList.add('tiktok-reels-lock');
+        }
+      };
+
+      card.addEventListener('click', (event) => {
+        if (event.target.closest('[data-reel-toggle]')) return;
+        if (event.target.closest('[data-reel-expand]')) return;
+
+        togglePlay();
+      });
+
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          togglePlay();
+        });
+      }
+
+      if (expandBtn) {
+        expandBtn.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          toggleExpand();
+        });
+      }
+
+      video.addEventListener('pause', () => {
+        card.classList.remove('is-playing');
+      });
+
+      video.addEventListener('play', () => {
+        card.classList.add('is-playing');
+      });
+    });
+
+    if (overlay) {
+      overlay.addEventListener('click', closeAllExpanded);
+    }
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeAllExpanded();
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "TikTok video reels",
+  "class": "index-section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Section title",
+      "default": "Scenes From Everyday Living"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background",
+      "default": "#f5f7fb"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Section title color",
+      "default": "#111111"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Section title size desktop",
+      "min": 24,
+      "max": 56,
+      "step": 2,
+      "default": 38,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "title_size_mobile",
+      "label": "Section title size mobile",
+      "min": 18,
+      "max": 36,
+      "step": 2,
+      "default": 26,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "header_gap",
+      "label": "Gap below section title desktop",
+      "min": 16,
+      "max": 80,
+      "step": 4,
+      "default": 40,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "header_gap_mobile",
+      "label": "Gap below section title mobile",
+      "min": 12,
+      "max": 60,
+      "step": 4,
+      "default": 28,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "content_max_width",
+      "label": "Content max width",
+      "min": 1100,
+      "max": 1800,
+      "step": 20,
+      "default": 1560,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "card_width_desktop",
+      "label": "Video width desktop",
+      "min": 280,
+      "max": 460,
+      "step": 10,
+      "default": 460,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "card_height_desktop",
+      "label": "Video height desktop",
+      "min": 460,
+      "max": 780,
+      "step": 10,
+      "default": 640,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "card_width_tablet",
+      "label": "Video width tablet",
+      "min": 240,
+      "max": 400,
+      "step": 10,
+      "default": 320,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "card_height_tablet",
+      "label": "Video height tablet",
+      "min": 420,
+      "max": 700,
+      "step": 10,
+      "default": 570,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "card_height_mobile",
+      "label": "Video height mobile",
+      "min": 240,
+      "max": 520,
+      "step": 10,
+      "default": 360,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Columns desktop",
+      "min": 3,
+      "max": 5,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Columns mobile",
+      "default": "2",
+      "options": [
+        {
+          "value": "1",
+          "label": "1 column"
+        },
+        {
+          "value": "2",
+          "label": "2 columns"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "radius",
+      "label": "Corner radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "default": 16,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "gap_desktop",
+      "label": "Gap desktop",
+      "min": 12,
+      "max": 48,
+      "step": 2,
+      "default": 24,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "gap_mobile",
+      "label": "Gap mobile",
+      "min": 6,
+      "max": 24,
+      "step": 2,
+      "default": 12,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "item_title_size",
+      "label": "Video title size desktop",
+      "min": 14,
+      "max": 30,
+      "step": 1,
+      "default": 20,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "item_title_size_mobile",
+      "label": "Video title size mobile",
+      "min": 12,
+      "max": 22,
+      "step": 1,
+      "default": 14,
+      "unit": "px"
+    },
+    {
+      "type": "color",
+      "id": "item_title_color",
+      "label": "Video title color",
+      "default": "#111111"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_scroll_hint",
+      "label": "Show scroll text",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "scroll_text",
+      "label": "Scroll text",
+      "default": "Scroll to explore"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top desktop",
+      "min": 0,
+      "max": 140,
+      "step": 4,
+      "default": 52,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom desktop",
+      "min": 0,
+      "max": 140,
+      "step": 4,
+      "default": 44,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Padding top mobile",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 32,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Padding bottom mobile",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 28,
+      "unit": "px"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "video_item",
+      "name": "Video item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "video_title",
+          "label": "Video title",
+          "default": "Compact Setup, Full-Body Training"
+        },
+        {
+          "type": "video",
+          "id": "shopify_video",
+          "label": "Shopify video"
+        },
+        {
+          "type": "text",
+          "id": "video_mp4",
+          "label": "MP4 URL",
+          "info": "Use Shopify Files or any direct .mp4 link"
+        },
+        {
+          "type": "image_picker",
+          "id": "poster_image",
+          "label": "Poster image"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "TikTok video reels",
+      "blocks": [
+        {
+          "type": "video_item",
+          "settings": {
+            "video_title": "Compact Setup, Full-Body Training"
+          }
+        },
+        {
+          "type": "video_item",
+          "settings": {
+            "video_title": "Train Strong With One Pair"
+          }
+        },
+        {
+          "type": "video_item",
+          "settings": {
+            "video_title": "Adjust Weight in Seconds"
+          }
+        },
+        {
+          "type": "video_item",
+          "settings": {
+            "video_title": "Real Workouts, Real Results"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

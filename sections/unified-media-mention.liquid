@@ -1,9 +1,24 @@
+{%- liquid
+  assign desktop_visible_count = section.blocks.size
+
+  if desktop_visible_count > 3
+    assign desktop_visible_count = 3
+  endif
+
+  if desktop_visible_count < 1
+    assign desktop_visible_count = 1
+  endif
+
+  assign desktop_gap_count = desktop_visible_count | minus: 1
+-%}
+
 {%- style -%}
   .unified-media-mention {
     padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
     padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
     background-color: {{ section.settings.bg_color }};
   }
+
   @media screen and (min-width: 750px) {
     .unified-media-mention {
       padding-top: {{ section.settings.padding_top }}px;
@@ -18,85 +33,110 @@
       <h2 class="unified-media-mention__title">{{ section.settings.title | escape }}</h2>
     {%- endif -%}
 
-    {%- assign product = section.settings.product -%}
-    {%- assign variant = product.selected_or_first_available_variant -%}
-
-    <div class="unified-media-mention__product">
-      {%- if product != blank -%}
-        <div class="unified-media-mention__product-image">
-          {%- if product.featured_image -%}
-            <a href="{{ product.url }}">
-              {{ product.featured_image | image_url: width: 400 | image_tag: loading: 'lazy', alt: product.title | escape }}
-            </a>
-          {%- else -%}
-            <a href="{{ product.url }}">{{ 'product-1' | placeholder_svg_tag }}</a>
-          {%- endif -%}
-        </div>
-        <div class="unified-media-mention__product-info">
-          <h3 class="unified-media-mention__product-name">{{ product.title | escape }}</h3>
-          <div class="unified-media-mention__product-price">
-            <span class="unified-media-mention__price">{{ variant.price | money }}</span>
-            {%- if variant.compare_at_price > variant.price -%}
-              <s class="unified-media-mention__compare-price">{{ variant.compare_at_price | money }}</s>
-            {%- endif -%}
-          </div>
-          <a href="{{ product.url }}?variant={{ variant.id }}" class="unified-media-mention__view-btn">VIEW PRODUCT</a>
-        </div>
-      {%- else -%}
-        <div class="unified-media-mention__product-image">
-          <div class="unified-media-mention__placeholder">{{ 'product-1' | placeholder_svg_tag }}</div>
-        </div>
-        <div class="unified-media-mention__product-info">
-          <h3 class="unified-media-mention__product-name">Product name</h3>
-          <div class="unified-media-mention__product-price"><span class="unified-media-mention__price">$0.00</span></div>
-          <a href="#" class="unified-media-mention__view-btn">VIEW PRODUCT</a>
-        </div>
-      {%- endif -%}
-    </div>
-
     {%- if section.blocks.size > 0 -%}
-      <div class="unified-media-mention__carousel" data-carousel data-total-blocks="{{ section.blocks.size }}">
-        <button type="button" class="unified-media-mention__arrow unified-media-mention__arrow--prev" aria-label="Previous" data-prev>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div
+        class="unified-media-mention__carousel"
+        data-carousel
+        data-total-blocks="{{ section.blocks.size }}"
+        style="
+          --mention-visible-desktop: {{ desktop_visible_count }};
+          --mention-gap-count-desktop: {{ desktop_gap_count }};
+        "
+      >
+        <button
+          type="button"
+          class="unified-media-mention__arrow unified-media-mention__arrow--prev"
+          aria-label="Previous"
+          data-prev
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </button>
+
         <div class="unified-media-mention__carousel-track">
           <div class="unified-media-mention__carousel-inner" data-carousel-inner>
-            {%- comment -%} Grupo 1: desktop = slide com 3 cards; mobile = 3 panes (1 card cada) {%- endcomment -%}
-            <div class="unified-media-mention__carousel-group">
-              {%- for block in section.blocks -%}
-                <div class="unified-media-mention__carousel-pane">
-                  <div class="unified-media-mention__slide" {{ block.shopify_attributes }}>
-                    <div class="unified-media-mention__slide-text">{%- if block.settings.text != blank -%}{{ block.settings.text }}{%- else -%}<p>Media mention text goes here.</p>{%- endif -%}</div>
-                    {%- if block.settings.link != blank -%}<a href="{{ block.settings.link }}" class="unified-media-mention__learn-more" target="_blank" rel="noopener noreferrer">LEARN MORE</a>{%- endif -%}
-                    <div class="unified-media-mention__slide-logo">
-                      {%- if block.settings.logo != blank -%}{%- if block.settings.logo_bg -%}<span class="unified-media-mention__logo-bg">{%- endif -%}{{ block.settings.logo | image_url: width: 300 | image_tag: loading: 'lazy', alt: block.settings.logo.alt | default: 'Publisher' | escape }}{%- if block.settings.logo_bg -%}</span>{%- endif -%}
-                      {%- elsif block.settings.logo_asset != blank -%}{%- if block.settings.logo_bg -%}<span class="unified-media-mention__logo-bg">{%- endif -%}<img src="{{ block.settings.logo_asset | asset_url }}" alt="" loading="lazy" width="150" height="50" style="max-width: 150px; max-height: 50px; object-fit: contain;">{%- if block.settings.logo_bg -%}</span>{%- endif -%}
-                      {%- else -%}<div class="unified-media-mention__logo-placeholder">{{ 'image' | placeholder_svg_tag }}</div>{%- endif -%}
-                    </div>
+            {%- for block in section.blocks -%}
+              <div class="unified-media-mention__carousel-pane">
+                <div class="unified-media-mention__slide" {{ block.shopify_attributes }}>
+                  <div class="unified-media-mention__slide-text">
+                    {%- if block.settings.text != blank -%}
+                      {{ block.settings.text }}
+                    {%- else -%}
+                      <p>Media mention text goes here.</p>
+                    {%- endif -%}
+                  </div>
+
+                  {%- if block.settings.link != blank -%}
+                    <a
+                      href="{{ block.settings.link }}"
+                      class="unified-media-mention__learn-more"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      LEARN MORE
+                    </a>
+                  {%- endif -%}
+
+                  <div class="unified-media-mention__slide-logo">
+                    {%- if block.settings.logo != blank -%}
+                      {%- if block.settings.logo_bg -%}
+                        <span class="unified-media-mention__logo-bg">
+                      {%- endif -%}
+
+                      {{
+                        block.settings.logo
+                        | image_url: width: 300
+                        | image_tag:
+                          loading: 'lazy',
+                          alt: block.settings.logo.alt
+                          | default: 'Publisher'
+                          | escape
+                      }}
+
+                      {%- if block.settings.logo_bg -%}
+                        </span>
+                      {%- endif -%}
+
+                    {%- elsif block.settings.logo_asset != blank -%}
+                      {%- if block.settings.logo_bg -%}
+                        <span class="unified-media-mention__logo-bg">
+                      {%- endif -%}
+
+                      <img
+                        src="{{ block.settings.logo_asset | asset_url }}"
+                        alt=""
+                        loading="lazy"
+                        width="150"
+                        height="50"
+                        style="max-width: 150px; max-height: 50px; object-fit: contain;"
+                      >
+
+                      {%- if block.settings.logo_bg -%}
+                        </span>
+                      {%- endif -%}
+
+                    {%- else -%}
+                      <div class="unified-media-mention__logo-placeholder">
+                        {{ 'image' | placeholder_svg_tag }}
+                      </div>
+                    {%- endif -%}
                   </div>
                 </div>
-              {%- endfor -%}
-            </div>
-            {%- comment -%} Grupo 2 (clone para loop infinito) {%- endcomment -%}
-            <div class="unified-media-mention__carousel-group">
-              {%- for block in section.blocks -%}
-                <div class="unified-media-mention__carousel-pane">
-                  <div class="unified-media-mention__slide">
-                    <div class="unified-media-mention__slide-text">{%- if block.settings.text != blank -%}{{ block.settings.text }}{%- else -%}<p>Media mention text goes here.</p>{%- endif -%}</div>
-                    {%- if block.settings.link != blank -%}<a href="{{ block.settings.link }}" class="unified-media-mention__learn-more" target="_blank" rel="noopener noreferrer">LEARN MORE</a>{%- endif -%}
-                    <div class="unified-media-mention__slide-logo">
-                      {%- if block.settings.logo != blank -%}{%- if block.settings.logo_bg -%}<span class="unified-media-mention__logo-bg">{%- endif -%}{{ block.settings.logo | image_url: width: 300 | image_tag: loading: 'lazy', alt: block.settings.logo.alt | default: 'Publisher' | escape }}{%- if block.settings.logo_bg -%}</span>{%- endif -%}
-                      {%- elsif block.settings.logo_asset != blank -%}{%- if block.settings.logo_bg -%}<span class="unified-media-mention__logo-bg">{%- endif -%}<img src="{{ block.settings.logo_asset | asset_url }}" alt="" loading="lazy" width="150" height="50" style="max-width: 150px; max-height: 50px; object-fit: contain;">{%- if block.settings.logo_bg -%}</span>{%- endif -%}
-                      {%- else -%}<div class="unified-media-mention__logo-placeholder">{{ 'image' | placeholder_svg_tag }}</div>{%- endif -%}
-                    </div>
-                  </div>
-                </div>
-              {%- endfor -%}
-            </div>
+              </div>
+            {%- endfor -%}
           </div>
         </div>
-        <button type="button" class="unified-media-mention__arrow unified-media-mention__arrow--next" aria-label="Next" data-next>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+
+        <button
+          type="button"
+          class="unified-media-mention__arrow unified-media-mention__arrow--next"
+          aria-label="Next"
+          data-next
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </button>
       </div>
     {%- endif -%}
@@ -109,6 +149,7 @@
     margin: 0 auto;
     padding: 0 32px;
   }
+
   .unified-media-mention__title {
     text-align: center;
     margin: 0 0 32px;
@@ -118,84 +159,16 @@
     letter-spacing: 1px;
     color: #222;
   }
-  .unified-media-mention__product {
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    gap: 24px;
-    margin-bottom: 20px !important;
-    text-align: left;
-  }
-  .unified-media-mention__product-image {
-    flex-shrink: 0 !important;
-    width: 220px !important;
-    max-width: 220px !important;
-  }
-  .unified-media-mention__product-image a,
-  .unified-media-mention__product-image img {
-    display: block !important;
-    width: 100% !important;
-    height: auto !important;
-    object-fit: contain !important;
-  }
-  .unified-media-mention__placeholder {
-    background: #f4f4f4 !important;
-    padding: 24px !important;
-  }
-  .unified-media-mention__product-info {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 8px !important;
-    min-width: 0;
-  }
-  .unified-media-mention__product-name {
-    font-size: 1.25rem !important;
-    font-weight: 600 !important;
-    margin: 0 !important;
-    color: #222 !important;
-    line-height: 1.3 !important;
-  }
-  .unified-media-mention__product-price {
-    margin: 0 !important;
-    display: flex !important;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-  .unified-media-mention__price {
-    font-weight: 700 !important;
-    color: #eb701f !important;
-    font-size: 1.125rem !important;
-  }
-  .unified-media-mention__compare-price {
-    color: #666 !important;
-    text-decoration: line-through !important;
-    font-size: 0.9375rem !important;
-  }
-  .unified-media-mention__view-btn {
-    display: inline-block !important;
-    align-self: flex-start !important;
-    padding: 10px 24px !important;
-    background: #eb701f !important;
-    color: #fff !important;
-    text-decoration: none !important;
-    font-size: 1rem !important;
-    font-weight: 700 !important;
-    text-transform: uppercase !important;
-    border-radius: 4px !important;
-    transition: background 0.2s ease;
-  }
-  .unified-media-mention__view-btn:hover {
-    background: #d65a0f !important;
-    color: #fff !important;
-  }
+
   .unified-media-mention__carousel {
+    --mention-gap: 16px;
     display: flex;
     align-items: center;
     gap: 16px;
     width: 100%;
     margin: 0 auto;
   }
+
   .unified-media-mention__arrow {
     flex-shrink: 0;
     width: 48px;
@@ -204,45 +177,55 @@
     background: #fff;
     border-radius: 50%;
     cursor: pointer;
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     color: #222;
-    transition: background 0.2s, border-color 0.2s;
+    transition: background 0.2s, border-color 0.2s, color 0.2s, opacity 0.2s;
   }
+
+  .unified-media-mention__carousel.is-scrollable .unified-media-mention__arrow {
+    display: flex;
+  }
+
   .unified-media-mention__arrow:hover {
     background: #f5f5f5;
     border-color: #eb701f;
     color: #eb701f;
   }
+
+  .unified-media-mention__arrow:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
   .unified-media-mention__carousel-track {
     flex: 1;
     overflow: hidden;
     min-width: 0;
   }
+
   .unified-media-mention__carousel-inner {
     display: flex;
-    width: 200%;
+    gap: var(--mention-gap);
+    width: 100%;
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
   }
-  .unified-media-mention__carousel-group {
-    display: flex !important;
-    align-items: stretch !important;
-    flex: 0 0 50% !important;
-    width: 50% !important;
-    min-width: 0;
-    gap: 16px !important;
-  }
+
   .unified-media-mention__carousel-pane {
-    flex: 1 1 0 !important;
+    flex: 0 0 calc((100% - var(--mention-gap) * var(--mention-gap-count-desktop)) / var(--mention-visible-desktop)) !important;
+    max-width: calc((100% - var(--mention-gap) * var(--mention-gap-count-desktop)) / var(--mention-visible-desktop)) !important;
     min-width: 0;
     display: flex !important;
     align-items: stretch !important;
   }
+
   .unified-media-mention__carousel-pane .unified-media-mention__slide {
     width: 100% !important;
-    min-height: 0 !important;
   }
+
   .unified-media-mention__slide {
     flex: 1 1 0 !important;
     min-width: 0;
@@ -257,27 +240,33 @@
     align-items: center !important;
     gap: 12px !important;
   }
+
   .unified-media-mention__slide-text {
     flex: 1 1 auto !important;
     font-size: 14px !important;
     line-height: 1.5 !important;
     color: #333 !important;
   }
+
   .unified-media-mention__slide-text p {
     margin: 0 0 0.5em !important;
   }
+
   .unified-media-mention__slide-text p:last-child {
     margin-bottom: 0 !important;
   }
+
   .unified-media-mention__learn-more {
     font-style: italic !important;
     font-weight: 700 !important;
     color: #111 !important;
     text-decoration: none !important;
   }
+
   .unified-media-mention__learn-more:hover {
     text-decoration: underline !important;
   }
+
   .unified-media-mention__slide-logo {
     min-height: 50px !important;
     display: flex !important;
@@ -285,63 +274,66 @@
     justify-content: center !important;
     margin-top: 0 !important;
   }
+
   .unified-media-mention__slide-logo img {
     max-width: 150px !important;
     max-height: 50px !important;
     object-fit: contain !important;
   }
+
   .unified-media-mention__logo-bg {
     background: #eb701f !important;
     padding: 8px !important;
     border-radius: 6px !important;
     display: inline-flex !important;
   }
+
   .unified-media-mention__logo-bg img {
     max-width: 134px !important;
     max-height: 34px !important;
   }
+
   .unified-media-mention__logo-placeholder {
     width: 100px !important;
     height: 50px !important;
   }
+
   .unified-media-mention__logo-placeholder svg {
     width: 100% !important;
     height: 100% !important;
     fill: #ccc !important;
   }
+
   @media (max-width: 749px) {
-    .unified-media-mention__product {
-      flex-direction: column !important;
-      align-items: center !important;
-      text-align: center !important;
+    .unified-media-mention__container {
+      padding: 0 16px;
     }
-    .unified-media-mention__product-info {
-      align-items: center !important;
+
+    .unified-media-mention__title {
+      margin-bottom: 24px;
+      font-size: 1.8rem;
     }
-    .unified-media-mention__view-btn {
-      align-self: center !important;
-    }
+
     .unified-media-mention__carousel {
+      --mention-gap: 12px;
       gap: 0 !important;
     }
-    .unified-media-mention__arrow {
+
+    .unified-media-mention__arrow,
+    .unified-media-mention__carousel.is-scrollable .unified-media-mention__arrow {
       display: none !important;
     }
-    .unified-media-mention__carousel-inner {
-      width: 600% !important;
-    }
-    .unified-media-mention__carousel-group {
-      display: contents !important;
-    }
+
     .unified-media-mention__carousel-pane {
-      flex: 0 0 16.666% !important;
-      width: 16.666% !important;
-      min-width: 16.666% !important;
-      display: flex !important;
+      flex: 0 0 100% !important;
+      max-width: 100% !important;
+      width: 100% !important;
     }
+
     .unified-media-mention__slide {
       padding: 16px !important;
     }
+
     .unified-media-mention__slide-text {
       font-size: 13px !important;
     }
@@ -351,82 +343,159 @@
 <script>
   (function() {
     const sectionSelector = '[data-unified-media-mention]';
-    const mq = window.matchMedia('(max-width: 749px)');
+
     const init = (section) => {
+      if (section.dataset.unifiedMediaMentionInitialized === 'true') return;
+      section.dataset.unifiedMediaMentionInitialized = 'true';
+
       const carousel = section.querySelector('[data-carousel]');
       const track = section.querySelector('.unified-media-mention__carousel-track');
       const inner = section.querySelector('[data-carousel-inner]');
       const prevBtn = section.querySelector('[data-prev]');
       const nextBtn = section.querySelector('[data-next]');
-      if (!inner || !carousel) return;
-      const totalBlocks = parseInt(carousel.getAttribute('data-total-blocks'), 10) || 3;
+      const panes = inner ? Array.from(inner.querySelectorAll('.unified-media-mention__carousel-pane')) : [];
+
+      if (!carousel || !track || !inner || !panes.length) return;
+
+      const mq = window.matchMedia('(max-width: 749px)');
+      const total = panes.length;
       let index = 0;
-      const getTotal = () => mq.matches ? totalBlocks * 2 : 2;
-      const getStep = () => mq.matches ? 100 / (totalBlocks * 2) : 100;
-      const apply = (noTransition) => {
-        const step = getStep();
-        if (noTransition) inner.style.transition = 'none';
-        inner.style.transform = 'translateX(' + (-index * step) + '%)';
+
+      const getVisibleCount = () => {
+        return mq.matches ? 1 : Math.min(total, 3);
+      };
+
+      const getMaxIndex = () => {
+        return Math.max(total - getVisibleCount(), 0);
+      };
+
+      const getGap = () => {
+        const styles = window.getComputedStyle(inner);
+        return parseFloat(styles.columnGap || styles.gap || 0) || 0;
+      };
+
+      const getStep = () => {
+        const firstPane = panes[0];
+
+        if (!firstPane) return 0;
+
+        return firstPane.getBoundingClientRect().width + getGap();
+      };
+
+      const updateState = () => {
+        const maxIndex = getMaxIndex();
+        const isScrollable = maxIndex > 0;
+
+        carousel.classList.toggle('is-scrollable', isScrollable);
+
+        if (prevBtn) {
+          prevBtn.disabled = !isScrollable;
+        }
+
+        if (nextBtn) {
+          nextBtn.disabled = !isScrollable;
+        }
+      };
+
+      const apply = (noTransition = false) => {
+        const maxIndex = getMaxIndex();
+
+        if (index > maxIndex) index = maxIndex;
+        if (index < 0) index = 0;
+
+        updateState();
+
+        if (noTransition) {
+          inner.style.transition = 'none';
+        }
+
+        inner.style.transform = 'translate3d(' + (-index * getStep()) + 'px, 0, 0)';
+
         if (noTransition) {
           inner.offsetHeight;
           inner.style.transition = '';
         }
       };
+
       const goNext = () => {
-        const total = getTotal();
-        index++;
+        const maxIndex = getMaxIndex();
+
+        if (maxIndex <= 0) return;
+
+        index = index >= maxIndex ? 0 : index + 1;
         apply(false);
-        const onEnd = () => {
-          if (index >= total) {
-            index = 0;
-            apply(true);
-          }
-        };
-        inner.addEventListener('transitionend', onEnd, { once: true });
       };
+
       const goPrev = () => {
-        const total = getTotal();
-        if (index <= 0) {
-          index = total - 1;
-          apply(true);
-          requestAnimationFrame(function() {
-            requestAnimationFrame(function() {
-              index = total - 2;
-              apply(false);
-            });
-          });
-        } else {
-          index--;
-          apply(false);
-        }
+        const maxIndex = getMaxIndex();
+
+        if (maxIndex <= 0) return;
+
+        index = index <= 0 ? maxIndex : index - 1;
+        apply(false);
       };
-      if (prevBtn) prevBtn.addEventListener('click', goPrev);
-      if (nextBtn) nextBtn.addEventListener('click', goNext);
-      if (track) {
-        let startX = 0;
-        track.addEventListener('touchstart', function(e) {
-          startX = e.touches[0].clientX;
-        }, { passive: true });
-        track.addEventListener('touchend', function(e) {
-          if (!mq.matches) return;
-          const endX = e.changedTouches[0].clientX;
-          const delta = startX - endX;
-          if (Math.abs(delta) > 50) {
-            if (delta > 0) goNext();
-            else goPrev();
-          }
-        }, { passive: true });
+
+      if (prevBtn) {
+        prevBtn.addEventListener('click', goPrev);
       }
-      mq.addEventListener('change', function() {
-        index = Math.min(index, getTotal() - 1);
+
+      if (nextBtn) {
+        nextBtn.addEventListener('click', goNext);
+      }
+
+      let startX = 0;
+
+      track.addEventListener('touchstart', function(e) {
+        startX = e.touches[0].clientX;
+      }, { passive: true });
+
+      track.addEventListener('touchend', function(e) {
+        const endX = e.changedTouches[0].clientX;
+        const delta = startX - endX;
+
+        if (Math.abs(delta) > 50) {
+          if (delta > 0) {
+            goNext();
+          } else {
+            goPrev();
+          }
+        }
+      }, { passive: true });
+
+      window.addEventListener('resize', function() {
         apply(true);
       });
+
+      if (mq.addEventListener) {
+        mq.addEventListener('change', function() {
+          apply(true);
+        });
+      } else if (mq.addListener) {
+        mq.addListener(function() {
+          apply(true);
+        });
+      }
+
+      section.querySelectorAll('img').forEach(function(img) {
+        if (img.complete) return;
+
+        img.addEventListener('load', function() {
+          apply(true);
+        }, { once: true });
+      });
+
       apply(true);
     };
+
     document.querySelectorAll(sectionSelector).forEach(init);
-    document.addEventListener('shopify:section:load', (e) => {
+
+    document.addEventListener('shopify:section:load', function(e) {
       const section = e.target.querySelector && e.target.querySelector(sectionSelector) || (e.target.matches && e.target.matches(sectionSelector) ? e.target : null);
-      if (section) init(section);
+
+      if (section) {
+        section.dataset.unifiedMediaMentionInitialized = '';
+        init(section);
+      }
     });
   })();
 </script>
@@ -437,11 +506,6 @@
   "tag": "section",
   "class": "section-unified-media-mention",
   "settings": [
-    {
-      "type": "product",
-      "id": "product",
-      "label": "Product"
-    },
     {
       "type": "text",
       "id": "title",
@@ -501,11 +565,26 @@
           "id": "logo_asset",
           "label": "Theme logo (if no image above)",
           "options": [
-            { "value": "", "label": "None" },
-            { "value": "ggr-new-site-logo.png", "label": "Garage Gym Reviews" },
-            { "value": "barbend-logo.svg", "label": "BarBend" },
-            { "value": "verywell-fit-logo.png", "label": "Verywell Fit" },
-            { "value": "Indoor-Cycling-Love-FF-3-01.webp", "label": "Indoor Cycling Love" }
+            {
+              "value": "",
+              "label": "None"
+            },
+            {
+              "value": "ggr-new-site-logo.png",
+              "label": "Garage Gym Reviews"
+            },
+            {
+              "value": "barbend-logo.svg",
+              "label": "BarBend"
+            },
+            {
+              "value": "verywell-fit-logo.png",
+              "label": "Verywell Fit"
+            },
+            {
+              "value": "Indoor-Cycling-Love-FF-3-01.webp",
+              "label": "Indoor Cycling Love"
+            }
           ],
           "default": ""
         },
