@@ -1,0 +1,224 @@
+{%- style -%}
+  .product-benefits-row-0609 {
+    background: {{ section.settings.background_color }};
+    padding: {{ section.settings.padding_top }}px 0 {{ section.settings.padding_bottom }}px;
+  }
+
+  .product-benefits-row-0609__inner {
+    max-width: 1750px;
+    margin: 0 auto;
+    padding: 0 var(--desktop-container-gutter, 40px);
+  }
+
+  .product-benefits-row-0609__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 32px;
+    align-items: stretch;
+  }
+
+  .product-benefits-row-0609__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+    padding: 20px 16px;
+    background: transparent;
+  }
+
+  .product-benefits-row-0609__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: {{ section.settings.icon_size }}px;
+    height: {{ section.settings.icon_size }}px;
+    margin-bottom: 16px;
+    color: {{ section.settings.icon_color }};
+  }
+
+  .product-benefits-row-0609__icon svg,
+  .product-benefits-row-0609__icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .product-benefits-row-0609__title {
+    margin: 0 0 8px;
+    color: #000;
+    font-family: "Barlow", "Barlow Fallback", sans-serif;
+    font-size: 18px;
+    line-height: 1;
+    font-weight: 700 !important;
+    letter-spacing: 0;
+  }
+
+  .product-benefits-row-0609__text {
+    max-width: 280px;
+    margin: 0;
+    color: #000;
+    font-family: "Barlow", "Barlow Fallback", sans-serif;
+    font-size: 15px;
+    line-height: 1.4;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  @media (max-width: 1039px) {
+    .product-benefits-row-0609__inner {
+      padding: 0 var(--mobile-container-gutter, 20px);
+    }
+
+    .product-benefits-row-0609__grid {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 20px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: 20px;
+    }
+
+    .product-benefits-row-0609__grid::-webkit-scrollbar {
+      display: none;
+    }
+
+    .product-benefits-row-0609__item {
+      flex: 0 0 85%;
+      max-width: 320px;
+      min-width: 260px;
+    }
+  }
+{%- endstyle -%}
+
+<section class="product-benefits-row-0609">
+  <div class="product-benefits-row-0609__inner">
+    <div class="product-benefits-row-0609__grid">
+      {%- for block in section.blocks -%}
+        <div class="product-benefits-row-0609__item" {{ block.shopify_attributes }}>
+          <div class="product-benefits-row-0609__icon" aria-hidden="true">
+            {%- if block.settings.icon_image != blank -%}
+              <img
+                src="{{ block.settings.icon_image | image_url: width: 160 }}"
+                alt=""
+                loading="lazy">
+            {%- else -%}
+              {%- render 'product-feature-icon-0609', icon: block.settings.fallback_icon -%}
+            {%- endif -%}
+          </div>
+
+          {%- if block.settings.title != blank -%}
+            <h3 class="product-benefits-row-0609__title">{{ block.settings.title }}</h3>
+          {%- endif -%}
+          {%- if block.settings.text != blank -%}
+            <p class="product-benefits-row-0609__text">{{ block.settings.text }}</p>
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Product Benefits Row 0609",
+  "max_blocks": 4,
+  "settings": [
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "icon_color",
+      "label": "Fallback icon color",
+      "default": "#eb701f"
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "label": "Icon size",
+      "min": 24,
+      "max": 90,
+      "step": 2,
+      "unit": "px",
+      "default": 46
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 40
+    }
+  ],
+  "blocks": [
+    {
+      "type": "benefit",
+      "name": "Benefit",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "icon_image",
+          "label": "Icon image"
+        },
+        {
+          "type": "select",
+          "id": "fallback_icon",
+          "label": "Fallback icon",
+          "default": "shipping",
+          "options": [
+            { "value": "shipping", "label": "Shipping truck" },
+            { "value": "dumbbell", "label": "Dumbbell" },
+            { "value": "home", "label": "Home gym" },
+            { "value": "beginner", "label": "Beginner" },
+            { "value": "change", "label": "Weight change" },
+            { "value": "secure", "label": "Secure checkout" }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Free Shipping"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Text",
+          "default": "Fast U.S. Delivery"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Benefits Row 0609",
+      "category": "Product",
+      "blocks": [
+        { "type": "benefit", "settings": { "fallback_icon": "shipping", "title": "Free Shipping", "text": "Fast U.S. Delivery" } },
+        { "type": "benefit", "settings": { "fallback_icon": "dumbbell", "title": "5-in-1 Adjustable Set", "text": "From 5 to 25 lbs" } },
+        { "type": "benefit", "settings": { "fallback_icon": "home", "title": "Compact Home Gym", "text": "Save Space Anywhere" } },
+        { "type": "benefit", "settings": { "fallback_icon": "beginner", "title": "Beginner Friendly", "text": "For Toning & Strength" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
