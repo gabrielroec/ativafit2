@@ -19,25 +19,27 @@
     <div class="pairs-well-with-slider_new">
       {%- assign product_count = 0 -%}
 
-      {%- comment -%} Count products from blocks {%- endcomment -%}
-      {%- for block in section.blocks -%}
-        {%- if block.type == 'pairs_well_with_product' and block.settings.product != blank -%}
-          {%- assign selected_product = all_products[block.settings.product] -%}
-          {%- if selected_product != blank -%}
-            {%- assign product_count = product_count | plus: 1 -%}
+      {%- if section.settings.pairs_well_with_products != blank -%}
+        {%- assign product_count = section.settings.pairs_well_with_products.count -%}
+      {%- else -%}
+        {%- comment -%} Count products from legacy blocks {%- endcomment -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'pairs_well_with_product' and block.settings.product != blank -%}
+            {%- assign selected_product = all_products[block.settings.product] -%}
+            {%- if selected_product != blank -%}
+              {%- assign product_count = product_count | plus: 1 -%}
+            {%- endif -%}
           {%- endif -%}
-        {%- endif -%}
-      {%- endfor -%}
+        {%- endfor -%}
+      {%- endif -%}
 
       {%- if product_count > 0 -%}
         <div class="pairs-well-with-container_new" tabindex="0">
           {%- assign slide_index = 0 -%}
           {%- assign is_first_product = true -%}
 
-          {%- comment -%} Render products from blocks {%- endcomment -%}
-          {%- for block in section.blocks -%}
-            {%- if block.type == 'pairs_well_with_product' and block.settings.product != blank -%}
-              {%- assign slide_product = all_products[block.settings.product] -%}
+          {%- if section.settings.pairs_well_with_products != blank -%}
+            {%- for slide_product in section.settings.pairs_well_with_products -%}
               {%- if slide_product != blank -%}
                 {%- render 'pairs-well-with-slide'
                   , product: slide_product
@@ -47,8 +49,24 @@
                 {%- assign slide_index = slide_index | plus: 1 -%}
                 {%- assign is_first_product = false -%}
               {%- endif -%}
-            {%- endif -%}
-          {%- endfor -%}
+            {%- endfor -%}
+          {%- else -%}
+            {%- comment -%} Render products from legacy blocks {%- endcomment -%}
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'pairs_well_with_product' and block.settings.product != blank -%}
+                {%- assign slide_product = all_products[block.settings.product] -%}
+                {%- if slide_product != blank -%}
+                  {%- render 'pairs-well-with-slide'
+                    , product: slide_product
+                    , section: section
+                    , slide_index: slide_index
+                    , is_first: is_first_product -%}
+                  {%- assign slide_index = slide_index | plus: 1 -%}
+                  {%- assign is_first_product = false -%}
+                {%- endif -%}
+              {%- endif -%}
+            {%- endfor -%}
+          {%- endif -%}
         </div>
 
         {%- comment -%} Navigation dots {%- endcomment -%}
