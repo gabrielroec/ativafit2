@@ -10,19 +10,41 @@
   assign payment_options_block = section.blocks | where: 'type', 'payment_options' | first
   assign reviews_block = section.blocks | where: 'type', 'reviews' | first
   assign trust_blocks = section.blocks | where: 'type', 'trust_item'
-  assign color_option_index = 0
-  assign color_option_name = ''
+  assign variant_option_index = 0
+  assign variant_option_name = ''
+  assign requested_variant_option_name = section.settings.variant_option_name | strip | downcase
 
-  for option in product.options_with_values
-    assign option_name_downcase = option.name | downcase
-    if option_name_downcase contains 'color' or option_name_downcase contains 'colour'
-      assign color_option_index = forloop.index0
-      assign color_option_name = option.name
+  if requested_variant_option_name != blank
+    for option in product.options_with_values
+      assign option_name_downcase = option.name | strip | downcase
+      if option_name_downcase == requested_variant_option_name
+        assign variant_option_index = forloop.index0
+        assign variant_option_name = option.name
+        break
+      endif
+    endfor
+  endif
+
+  if variant_option_name == blank
+    for option in product.options_with_values
+      assign option_name_downcase = option.name | downcase
+      if option_name_downcase contains 'color' or option_name_downcase contains 'colour'
+        assign variant_option_index = forloop.index0
+        assign variant_option_name = option.name
+        break
+      endif
+    endfor
+  endif
+
+  if variant_option_name == blank
+    for option in product.options_with_values
+      assign variant_option_index = forloop.index0
+      assign variant_option_name = option.name
       break
-    endif
-  endfor
+    endfor
+  endif
 
-  assign selected_color = selected_variant.options[color_option_index] | default: selected_variant.title
+  assign selected_option_value = selected_variant.options[variant_option_index] | default: selected_variant.title
   assign discount_percent = 0
   if selected_variant.compare_at_price > selected_variant.price and selected_variant.compare_at_price > 0
     assign discount_cents = selected_variant.compare_at_price | minus: selected_variant.price
@@ -95,8 +117,8 @@
     {%- if product.variants.size > 1 and section.settings.show_variant_selector -%}
       <div class="variant-selector-wrapper-0609">
         <label class="variant-label-0609">
-          {{ color_option_name | default: section.settings.variant_label | default: 'Color' | upcase }}:
-          <span data-selected-color-0609>{{ selected_color }}</span>
+          {{ section.settings.variant_label | default: variant_option_name | default: 'Select option' | upcase }}:
+          <span data-selected-option-0609>{{ selected_option_value }}</span>
         </label>
 
         <select
@@ -114,10 +136,10 @@
           {%- endfor -%}
         </select>
 
-        <div class="variant-swatches-0609" role="radiogroup" aria-label="{{ color_option_name | default: 'Color' }}">
+        <div class="variant-swatches-0609" role="radiogroup" aria-label="{{ section.settings.variant_label | default: variant_option_name | default: 'Select option' }}">
           {%- for variant in product.variants -%}
             {%- liquid
-              assign swatch_label = variant.options[color_option_index] | default: variant.title
+              assign swatch_label = variant.options[variant_option_index] | default: variant.title
               assign swatch_image = variant.image | default: product.featured_image
             -%}
             <button
