@@ -146,7 +146,6 @@
   });
 </script>
 
-{%- if product == blank or product.handle == '66lbs' -%}
 <section class="awards-section">
   <div class="awards-section__container">
     <div class="awards-section__content">
@@ -156,34 +155,50 @@
     </div>
 
     <div class="awards-section__images">
-      <div class="awards-section__image">
-        <img
-          src="{{ 'logo-1.webp' | asset_url }}"
-          width="180"
-          height="auto"
-          alt="Muse Design Gold Award"
-          loading="lazy">
-      </div>
-      <div class="awards-section__image">
-        <img
-          src="{{ 'logo-2.webp' | asset_url }}"
-          width="180"
-          height="auto"
-          alt="Muse Design Award"
-          loading="lazy">
-      </div>
-      <div class="awards-section__image">
-        <img
-          src="{{ 'logo-3.webp' | asset_url }}"
-          width="180"
-          height="auto"
-          alt="French Design Award"
-          loading="lazy">
-      </div>
+      {%- assign visible_awards = 0 -%}
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'award' and block.settings.award_image != blank -%}
+          {%- assign visible_awards = visible_awards | plus: 1 -%}
+          <div class="awards-section__image" {{ block.shopify_attributes }}>
+            <img
+              src="{{ block.settings.award_image | image_url: width: 360 }}"
+              width="180"
+              height="180"
+              alt="{{ block.settings.alt_text | default: 'Award Image' | escape }}"
+              loading="lazy">
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+
+      {%- if visible_awards == 0 -%}
+        <div class="awards-section__image">
+          <img
+            src="{{ 'logo-1.webp' | asset_url }}"
+            width="180"
+            height="180"
+            alt="Muse Design Gold Award"
+            loading="lazy">
+        </div>
+        <div class="awards-section__image">
+          <img
+            src="{{ 'logo-2.webp' | asset_url }}"
+            width="180"
+            height="180"
+            alt="Muse Design Award"
+            loading="lazy">
+        </div>
+        <div class="awards-section__image">
+          <img
+            src="{{ 'logo-3.webp' | asset_url }}"
+            width="180"
+            height="180"
+            alt="French Design Award"
+            loading="lazy">
+        </div>
+      {%- endif -%}
     </div>
   </div>
 </section>
-{%- endif -%}
 
 {% schema %}
   {
