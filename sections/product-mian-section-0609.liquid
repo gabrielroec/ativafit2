@@ -9,11 +9,7 @@
                                                                                                                                            
                                                                                                                                           Dependencies: 
                                                                                                                                           - product-gallery.liquid snippet 
-                                                                                                                                          - product-info.liquid snippet 
-                                                                                                                                          - product-benefits.liquid (faixa trust + badges; sem Embla)
-                                                                                                                                          - product-add-to-cart.liquid snippet 
                                                                                                                                           - product-accordions.liquid snippet 
-                                                                                                                                          - product-benefit-popups.liquid snippet 
                                                                                                                                           - product-main-section.css asset 
 {% endcomment %}
 
@@ -41,37 +37,11 @@
         <!-- Accordions -->
       {% render 'product-accordions'
         , section: section %}
-
-      <!-- Mobile Price (shown only on mobile) -->
-      {% comment %} {%- if section.settings.show_mobile_price -%}
-                                                                                                                                                                                                                                                                                                                                                          <div class="product-price-container_new mobile-only_new">
-                                                                                                                                                                                                                                                                                                                                                            <p class="product-price_new black">{{ product.selected_or_first_available_variant.price | money }}</p>
-                                                                                                                                                                                                                                                                                                                                                            {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
-                                                                                                                                                                                                                                                                                                                                                              <p class="product-price-original_new">{{ product.selected_or_first_available_variant.compare_at_price | money }}</p>
-                                                                                                                                                                                                                                                                                                                                                            {%- endif -%}
-                                                                                                                                                                                                                                                                                                                                                          </div>
-                                                                                                                                                                                                                                                                    {%- endif -%} {% endcomment %}
-
-
       </div>
 
     </div>
 
   </div></section>
-
-<!-- Benefit Popups -->
-{% render 'product-benefit-popups'
-  , section: section %}
-
-{%- if section.settings.show_ativapeople_badge -%}
-<script type="application/json" data-ativapeople-variant-cents>
-{
-  {%- for v in product.variants -%}
-    "{{ v.id }}": {% render 'ativapeople-cents-for-variant', variant: v, product: product %}{% unless forloop.last %},{% endunless %}
-  {%- endfor -%}
-}
-</script>
-{%- endif -%}
 
 <script>
   // ====================================================================
@@ -1317,163 +1287,11 @@
     };
     
     // ====================================================================
-    // BENEFIT POPUPS
-    // ====================================================================
-    
-    const BenefitPopups = {
-      init() {
-        const benefitLinks = document.querySelectorAll('.benefit-learn-more_new');
-        
-        benefitLinks.forEach((link) => {
-          link.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const benefitId = link.getAttribute('data-benefit-popup');
-            
-            if (benefitId) {
-              const popupId = 'benefit-popup-' + benefitId;
-              const popup = document.getElementById(popupId);
-              
-              if (popup) {
-                popup.classList.add('is-show');
-                document.body.style.overflow = 'hidden';
-              } else {
-                console.warn('Popup não encontrado para benefit:', popupId);
-              }
-            }
-          });
-        });
-        
-        // Close buttons
-        document.querySelectorAll('[data-close-benefit]').forEach(button => {
-          button.addEventListener('click', () => {
-            const benefitId = button.getAttribute('data-close-benefit');
-            const popup = document.getElementById('benefit-popup-' + benefitId);
-            
-            if (popup) {
-              popup.classList.remove('is-show');
-              document.body.style.overflow = '';
-            }
-          });
-        });
-        
-        // Close on backdrop click
-        document.querySelectorAll('.halo-popup').forEach(popup => {
-          popup.addEventListener('click', (e) => {
-            if (e.target === popup) {
-              popup.classList.remove('is-show');
-              document.body.style.overflow = '';
-            }
-          });
-        });
-        
-        // Close on Escape key
-        document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape') {
-            document.querySelectorAll('.halo-popup.is-show').forEach(popup => {
-              popup.classList.remove('is-show');
-              document.body.style.overflow = '';
-            });
-          }
-        });
-      }
-    };
-    
-    // ====================================================================
-    // BENEFITS CAROUSEL (Embla)
-    // ====================================================================
-    function initBenefitsCarousel() {
-      var section = document.querySelector('[data-section-type="product-main"]');
-      if (!section) return;
-      var wrap = section.querySelector('[data-benefits-carousel]');
-      if (!wrap) return;
-      var viewport = wrap.querySelector('[data-embla-viewport]');
-      var prevBtn = wrap.querySelector('[data-embla-prev]');
-      var nextBtn = wrap.querySelector('[data-embla-next]');
-      if (!viewport) return;
-  
-      function run() {
-        if (typeof EmblaCarousel === 'undefined') {
-          window.addEventListener('load', run);
-          return;
-        }
-        var embla = EmblaCarousel(viewport, {
-          align: 'start',
-          containScroll: 'trimSnaps',
-          dragFree: false,
-          loop: false
-        });
-        function updateNav() {
-          if (prevBtn) prevBtn.disabled = !embla.canScrollPrev();
-          if (nextBtn) nextBtn.disabled = !embla.canScrollNext();
-        }
-        embla.on('init', updateNav);
-        embla.on('select', updateNav);
-        if (prevBtn) prevBtn.addEventListener('click', function () { embla.scrollPrev(); });
-        if (nextBtn) nextBtn.addEventListener('click', function () { embla.scrollNext(); });
-      }
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', run);
-      } else {
-        run();
-      }
-    }
-    
-    // ====================================================================
-    // MEDIA MENTIONS CAROUSEL (scroll nativo: CSS Scroll Snap + setas em JS, zero lib)
-    // ====================================================================
-    function initMediaMentionsCarousel() {
-      var wrap = document.querySelector('[data-media-mentions-carousel]');
-      if (!wrap) return;
-      var viewport = wrap.querySelector('[data-media-mentions-viewport]');
-      var prevBtn = wrap.querySelector('[data-media-mentions-prev]');
-      var nextBtn = wrap.querySelector('[data-media-mentions-next]');
-      if (!viewport || !prevBtn || !nextBtn) return;
-  
-      var track = viewport.querySelector('.product-media-mentions-track');
-      var slides = track ? track.querySelectorAll('.product-media-mentions-slide') : [];
-      var gap = 16;
-      var slideWidth = 0;
-  
-      function getScrollStep() {
-        if (slideWidth) return slideWidth + gap;
-        var first = slides[0];
-        if (!first) return viewport.offsetWidth;
-        slideWidth = first.offsetWidth;
-        return slideWidth + gap;
-      }
-  
-      function updateButtons() {
-        var left = viewport.scrollLeft;
-        var maxScroll = viewport.scrollWidth - viewport.clientWidth;
-        prevBtn.disabled = left <= 1;
-        nextBtn.disabled = maxScroll <= 1 || left >= maxScroll - 1;
-      }
-  
-      prevBtn.addEventListener('click', function () {
-        viewport.scrollBy({ left: -getScrollStep(), behavior: 'smooth' });
-      });
-      nextBtn.addEventListener('click', function () {
-        viewport.scrollBy({ left: getScrollStep(), behavior: 'smooth' });
-      });
-      viewport.addEventListener('scroll', updateButtons);
-      window.addEventListener('resize', updateButtons);
-      if (typeof ResizeObserver !== 'undefined') {
-        var ro = new ResizeObserver(updateButtons);
-        ro.observe(viewport);
-      }
-      updateButtons();
-    }
-    
-    // ====================================================================
     // INITIALIZATION
     // ====================================================================
     
     document.addEventListener('DOMContentLoaded', () => {
       ProductGallery.init();
-      BenefitPopups.init();
-      initBenefitsCarousel();
-      initMediaMentionsCarousel();
       
       // Initialize variant selector event listeners (both desktop and mobile)
       const variantSelectorDesktop = document.getElementById('variant-selector_new');
@@ -1731,581 +1549,479 @@
 </script>
 
 {% schema %}
-  {
-    "name": "Product Main 0609",
-    "class": "product-main-section",
-    "enabled_on": {
-      "templates": ["product"]
-    },
-    "settings": [
-      {
-        "type": "header",
-        "content": "Product Information"
-      },
-      {
-        "type": "checkbox",
-        "id": "show_badges",
-        "label": "Show Product Badges",
-        "default": true,
-        "info": "Configure badges using Product Badge blocks"
-      },
-      {
-        "type": "text",
-        "id": "product_title",
-        "label": "Custom Product Title",
-        "info": "Leave blank to use product title"
-      },
-      {
-        "type": "textarea",
-        "id": "product_subtitle",
-        "label": "Product Subtitle",
-        "info": "Tagline or description below title"
-      }, {
-        "type": "header",
-        "content": "Pricing"
-      }, {
-        "type": "checkbox",
-        "id": "show_mobile_price",
-        "label": "Show Mobile Price",
-        "default": true,
-        "info": "Displays price below benefits on mobile"
-      }, {
-        "type": "text",
-        "id": "discount_badge_prefix",
-        "label": "Discount badge prefix",
-        "default": "Save",
-        "info": "Displays as prefix + discount percentage, for example: Save 29%."
-      }, {
-        "type": "checkbox",
-        "id": "show_ativapeople_badge",
-        "label": "Show AtivaPeople Badge",
-        "default": true
-      }, {
-        "type": "html",
-        "id": "ativapeople_badge_text",
-        "label": "AtivaPeople Badge Text",
-        "default": "Get an extra <strong>10% Off</strong> Join <a href=\"https://www.ativafit.com/pages/ativapeople-rewards-program\" target=\"_blank\">AtivaPeople</a>"
-      }, {
-        "type": "header",
-        "content": "Pairs Well With"
-      }, {
-        "type": "checkbox",
-        "id": "show_pairs_well_with",
-        "label": "Show Pairs Well With Section",
-        "default": true
-      }, {
-        "type": "text",
-        "id": "pairs_well_with_title",
-        "label": "Section Title",
-        "default": "PAIRS WELL WITH"
-      }, {
-        "type": "checkbox",
-        "id": "pairs_well_with_show_random",
-        "label": "Show Random Products if No Blocks",
-        "default": true,
-        "info": "If no products are selected in blocks, show random products from the collection"
-      }, {
-        "type": "collection",
-        "id": "pairs_well_with_collection",
-        "label": "Collection for Random Products",
-        "info": "Collection to pick random products from when no blocks are selected"
-      }, {
-        "type": "text",
-        "id": "pairs_well_with_add_to_cart_text",
-        "label": "Add to Cart Button Text",
-        "default": "ADD TO CART",
-        "info": "Used for the pairs well with section"
-      }, {
-        "type": "checkbox",
-        "id": "pairs_well_with_auto_play",
-        "label": "Auto Play Slider",
-        "default": false,
-        "info": "Automatically rotate through products"
-      }, {
-        "type": "range",
-        "id": "pairs_well_with_auto_play_interval",
-        "label": "Auto Play Interval (seconds)",
-        "min": 3,
-        "max": 10,
-        "step": 1,
-        "default": 5,
-        "info": "Time between automatic slides"
-      },       {
-        "type": "header",
-        "content": "PDP — frete grátis + trust badges"
-      }, {
-        "type": "checkbox",
-        "id": "show_benefits",
-        "label": "Show free-shipping strip + trust badges",
-        "default": true,
-        "info": "Above the title: orange free-shipping strip. Below ATC area: two trust badges. Use blocks \"PDP — Free shipping strip\" (optional) and \"PDP — Trust badge\" (up to 2). Legacy \"Benefit\" blocks are no longer rendered here (popups still work if configured)."
-      }, {
-        "type": "textarea",
-        "id": "trust_item_1_text",
-        "label": "Trust item 1 text",
-        "default": "1-Year Warranty<br>(2-Year for Members)"
-      }, {
-        "type": "textarea",
-        "id": "trust_item_2_text",
-        "label": "Trust item 2 text",
-        "default": "30-Day Returns<br>Hassle-Free"
-      }, {
-        "type": "textarea",
-        "id": "trust_item_3_text",
-        "label": "Trust item 3 text",
-        "default": "Secure Checkout<br>100% Protected"
-      }, {
-        "type": "header",
-        "content": "Media mentions (buy box)"
-      }, {
-        "type": "checkbox",
-        "id": "show_media_mentions_carousel",
-        "label": "Show media mentions carousel in buy box",
-        "default": false,
-        "info": "When enabled, the media mentions carousel appears below the price. Add blocks in the Media mention section below."
-      }, {
-        "type": "header",
-        "content": "Variant Selector"
-      }, {
-        "type": "checkbox",
-        "id": "show_variant_selector",
-        "label": "Show Variant Selector",
-        "default": true
-      }, {
-        "type": "text",
-        "id": "variant_label",
-        "label": "Variant Label",
-        "default": "Select Option"
-      }, {
-        "type": "header",
-        "content": "Quantity Selector"
-      }, {
-        "type": "checkbox",
-        "id": "show_quantity_selector",
-        "label": "Show Quantity Selector",
-        "default": true
-      }, {
-        "type": "text",
-        "id": "quantity_label",
-        "label": "Quantity Label",
-        "default": "Quantity"
-      }, {
-        "type": "header",
-        "content": "Buttons"
-      }, {
-        "type": "image_picker",
-        "id": "button_logo_image_0609",
-        "label": "Button logo image",
-        "info": "Shown to the left of Add To Cart and Buy It Now. If empty, Add To Cart uses the default cart icon."
-      }, {
-        "type": "text",
-        "id": "add_to_cart_text",
-        "label": "Add to Cart Button Text",
-        "default": "Add to Cart",
-        "info": "Used for main add to cart button (pairs well with section has its own setting)"
-      }, {
-        "type": "checkbox",
-        "id": "show_buy_it_now",
-        "label": "Show Buy It Now Button",
-        "default": false,
-        "info": "Adds a button that goes directly to checkout"
-      }, {
-        "type": "text",
-        "id": "buy_it_now_text",
-        "label": "Buy It Now Button Text",
-        "default": "Buy It Now"
-      }, {
-        "type": "checkbox",
-        "id": "remove_shop_pay_button",
-        "label": "Remove Shop Pay Button",
-        "default": false,
-        "info": "Removes Shop Pay button from dynamic checkout buttons"
-      }, {
-        "type": "checkbox",
-        "id": "show_ativapeople_cta",
-        "label": "Show AtivaPeople CTA",
-        "default": false
-      }, {
-        "type": "html",
-        "id": "ativapeople_cta_text",
-        "label": "AtivaPeople CTA Text",
-        "default": "Join <a href=\"#\">AtivaPeople</a> for exclusive rewards"
-      }, {
-        "type": "header",
-        "content": "Waitlist Button (Klaviyo)"
-      }, {
-        "type": "checkbox",
-        "id": "show_waitlist_button",
-        "label": "Show Join the Waitlist Button",
-        "default": false,
-        "info": "When enabled, replaces Add to Cart button with Waitlist button"
-      }, {
-        "type": "text",
-        "id": "waitlist_button_text",
-        "label": "Waitlist Button Text",
-        "default": "Join the Waitlist"
-      }, {
-        "type": "text",
-        "id": "klaviyo_form_id",
-        "label": "Klaviyo Form ID",
-        "info": "Enter the 6-digit Klaviyo form ID (e.g., Sr3xAi). Find this in your Klaviyo form editor URL."
-      }, {
-        "type": "text",
-        "id": "waitlist_variant_ids",
-        "label": "Waitlist Variants (Optional)",
-        "info": "Comma-separated list of variant IDs or names that should show the waitlist button. Leave empty to show for all variants. Examples: 123456789,987654321 or Sunrise,Midnight"
-      }
-    ],
-    "blocks": [
-      {
-        "type": "pairs_well_with_product",
-        "name": "Pairs Well With Product",
-        "settings": [
-          {
-            "type": "product",
-            "id": "product",
-            "label": "Product"
-          }
-        ]
-      },
-      {
-        "type": "accordion_item",
-        "name": "Accordion Item",
-        "settings": [
-          {
-            "type": "text",
-            "id": "title",
-            "label": "Title",
-            "default": "Accordion Title"
-          },
-          {
-            "type": "select",
-            "id": "content_type",
-            "label": "Content Type",
-            "options": [
-              {
-                "value": "text",
-                "label": "Rich Text"
-              }, {
-                "value": "list",
-                "label": "List Items"
-              }
-            ],
-            "default": "text"
-          },
-          {
-            "type": "richtext",
-            "id": "text_content",
-            "label": "Content",
-            "info": "Used when Content Type is 'Rich Text'"
-          },
-          {
-            "type": "html",
-            "id": "item_1",
-            "label": "List Item 1",
-            "info": "Supports HTML. Used when Content Type is 'List Items'"
-          }, {
-            "type": "html",
-            "id": "item_2",
-            "label": "List Item 2"
-          }, {
-            "type": "html",
-            "id": "item_3",
-            "label": "List Item 3"
-          }, {
-            "type": "html",
-            "id": "item_4",
-            "label": "List Item 4"
-          }, {
-            "type": "html",
-            "id": "item_5",
-            "label": "List Item 5"
-          }, {
-            "type": "header",
-            "content": "Optional Link"
-          }, {
-            "type": "checkbox",
-            "id": "show_link",
-            "label": "Show Link",
-            "default": false
-          }, {
-            "type": "text",
-            "id": "link_text",
-            "label": "Link Text",
-            "default": "Learn more"
-          }, {
-            "type": "url",
-            "id": "link_url",
-            "label": "Link URL"
-          }
-        ]
-      },
-      {
-        "type": "pdp_free_shipping_banner",
-        "name": "PDP — Free shipping strip",
-        "limit": 1,
-        "settings": [
-          {
-            "type": "checkbox",
-            "id": "enabled",
-            "label": "Show strip",
-            "default": true
-          },
-          {
-            "type": "text",
-            "id": "text",
-            "label": "Text",
-            "default": "Free Shipping"
-          },
-          {
-            "type": "color",
-            "id": "background",
-            "label": "Background",
-            "default": "#F97316"
-          },
-          {
-            "type": "color",
-            "id": "text_color",
-            "label": "Text color",
-            "default": "#FFFFFF"
-          }
-        ]
-      },
-      {
-        "type": "pdp_trust_badge",
-        "name": "PDP — Trust badge",
-        "limit": 2,
-        "settings": [
-          {
-            "type": "image_picker",
-            "id": "image",
-            "label": "Icon",
-            "info": "Recommended ~45px wide. If empty, slot 1 uses warranty file, slot 2 uses support file from Shopify Files."
-          },
-          {
-            "type": "text",
-            "id": "label",
-            "label": "Label",
-            "default": "1-Year Warranty Included",
-            "info": "No 2º badge, use por exemplo: Worry-Free Purchase."
-          }
-        ]
-      },
-      {
-        "type": "benefit",
-        "name": "Benefit (legacy)",
-        "settings": [
-          {
-            "type": "paragraph",
-            "content": "Este tipo não é mais exibido no buy box (substituído por PDP — Trust badge). Mantido para não quebrar JSON antigo; popups com título + conteúdo ainda funcionam."
-          },
-          {
-            "type": "text",
-            "id": "title",
-            "label": "Benefit Title",
-            "default": "Free Shipping within the U.S."
-          },
-          {
-            "type": "textarea",
-            "id": "description",
-            "label": "Benefit Description",
-            "default": "Standard shipping in 3–7 days."
-          },
-          {
-            "type": "html",
-            "id": "svg_icon",
-            "label": "SVG Icon",
-            "info": "Paste the complete SVG code"
-          },
-          {
-            "type": "image_picker",
-            "id": "icon_image",
-            "label": "Icon Image (Legacy)",
-            "info": "Old setting - Use SVG icon instead"
-          }, {
-            "type": "header",
-            "content": "Popup Modal (Optional)"
-          }, {
-            "type": "text",
-            "id": "popup_title",
-            "label": "Popup Title",
-            "info": "If filled, a 'Learn more' link will appear that opens a popup with this title"
-          }, {
-            "type": "richtext",
-            "id": "popup_content",
-            "label": "Popup Content",
-            "info": "Content displayed in the popup modal. Supports HTML formatting."
-          }, {
-            "type": "header",
-            "content": "External Link (Alternative to Popup)"
-          }, {
-            "type": "checkbox",
-            "id": "show_learn_more",
-            "label": "Show Learn More Link",
-            "default": false,
-            "info": "Only shows if popup_title is empty. Use popup_title for modal instead."
-          }, {
-            "type": "text",
-            "id": "link_text",
-            "label": "Link Text",
-            "default": "Learn more"
-          }, {
-            "type": "url",
-            "id": "link_url",
-            "label": "Link URL"
-          }
-        ]
-      },
-      {
-        "type": "mini_media_mention",
-        "name": "Mini Media Mention",
-        "settings": [
-          {
-            "type": "image_picker",
-            "id": "logo",
-            "label": "Logo"
-          }, {
-            "type": "select",
-            "id": "logo_asset",
-            "label": "Theme Default Logo",
-            "options": [
-              {
-                "value": "",
-                "label": "None"
-              },
-              {
-                "value": "ggr-new-site-logo.png",
-                "label": "Garage Gym Reviews"
-              },
-              {
-                "value": "barbend-logo.svg",
-                "label": "BarBend"
-              },
-              {
-                "value": "verywell-fit-logo.png",
-                "label": "Verywell Fit"
-              }, {
-                "value": "Indoor-Cycling-Love-FF-3-01.webp",
-                "label": "Indoor Cycling Love"
-              }
-            ],
-            "default": ""
-          }, {
-            "type": "text",
-            "id": "text",
-            "label": "Quote",
-            "default": "\"Amazing product!\""
-          }, {
-            "type": "url",
-            "id": "link",
-            "label": "Link"
-          }
-        ]
-      }, {
-        "type": "payment_options",
-        "name": "Payment Options",
-        "settings": [
-          {
-            "type": "checkbox",
-            "id": "show_dynamic_checkout",
-            "label": "Show Dynamic Checkout Buttons",
-            "info": "Displays Shop Pay, Apple Pay, Google Pay buttons",
-            "default": true
-          },
-          {
-            "type": "checkbox",
-            "id": "show_payment_terms",
-            "label": "Show Payment Terms",
-            "info": "Displays Shop Pay Installments banner",
-            "default": true
-          },
-          {
-            "type": "html",
-            "id": "payment_text",
-            "label": "Payment Text",
-            "default": "Pay your way. We accept a wide range of payment options for your convenience and security. Choose from express checkouts like Shop Pay, Apple Pay, Google Pay, and PayPal, or enjoy flexible payments with Klarna. We also proudly accept HSA/FSA accounts and Amazon Buy with Prime."
-          },
-          {
-            "type": "checkbox",
-            "id": "show_shop_pay_logo",
-            "label": "Show Shop Pay Logo",
-            "default": true
-          }, {
-            "type": "text",
-            "id": "learn_more_text",
-            "label": "Learn More Text",
-            "default": "Learn more"
-          }, {
-            "type": "url",
-            "id": "learn_more_url",
-            "label": "Learn More URL"
-          }, {
-            "type": "checkbox",
-            "id": "show_payment_icons",
-            "label": "Show Payment Icons",
-            "info": "Displays accepted payment method icons (Visa, Mastercard, etc.)",
-            "default": true
-          }, {
-            "type": "text",
-            "id": "payment_types_filter",
-            "label": "Payment Types Filter",
-            "info": "Comma-separated list of payment types to show (e.g., visa,master,american_express,paypal,shop_pay). Leave blank to show all enabled payment types."
-          }
-        ]
-      }, {
-        "type": "reviews",
-        "name": "Reviews",
-        "settings": [
-          {
-            "type": "checkbox",
-            "id": "enabled",
-            "label": "Show Reviews",
-            "default": true
-          }, {
-            "type": "text",
-            "id": "review_text",
-            "label": "Review Text",
-            "default": "4.7 (47 Reviews)"
-          }
-        ]
-      }, {
-        "type": "product_badge",
-        "name": "Product Badge",
-        "settings": [
-          {
-            "type": "text",
-            "id": "badge_text",
-            "label": "Badge Text",
-            "default": "Built for Progress"
-          }
-        ]
-      }
-    ],
-    "presets": [
-      {
-        "name": "Product Main 0609",
-        "blocks": [
-          {
-            "type": "accordion_item",
-            "settings": {
-              "title": "Key Features",
-              "content_type": "text"
-            }
-          }, {
-            "type": "accordion_item",
-            "settings": {
-              "title": "Shipping & Returns",
-              "content_type": "text"
-            }
-          }, {
-            "type": "accordion_item",
-            "settings": {
-              "title": "Warranty & Support",
-              "content_type": "text"
-            }
-          }
-        ]
-      }
+{
+  "name": "Product Main 0609",
+  "class": "product-main-section",
+  "enabled_on": {
+    "templates": [
+      "product"
     ]
-  }
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Product Information"
+    },
+    {
+      "type": "text",
+      "id": "product_title",
+      "label": "Custom Product Title",
+      "info": "Leave blank to use product title"
+    },
+    {
+      "type": "textarea",
+      "id": "product_subtitle",
+      "label": "Product Subtitle",
+      "info": "Tagline or description below title"
+    },
+    {
+      "type": "header",
+      "content": "Pricing"
+    },
+    {
+      "type": "text",
+      "id": "discount_badge_prefix",
+      "label": "Discount badge prefix",
+      "default": "Save",
+      "info": "Displays as prefix + discount percentage, for example: Save 29%."
+    },
+    {
+      "type": "header",
+      "content": "Pairs Well With"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_pairs_well_with",
+      "label": "Show Pairs Well With Section",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "pairs_well_with_title",
+      "label": "Section Title",
+      "default": "PAIRS WELL WITH"
+    },
+    {
+      "type": "checkbox",
+      "id": "pairs_well_with_show_random",
+      "label": "Show Random Products if No Blocks",
+      "default": true,
+      "info": "If no products are selected in blocks, show random products from the collection"
+    },
+    {
+      "type": "collection",
+      "id": "pairs_well_with_collection",
+      "label": "Collection for Random Products",
+      "info": "Collection to pick random products from when no blocks are selected"
+    },
+    {
+      "type": "text",
+      "id": "pairs_well_with_add_to_cart_text",
+      "label": "Add to Cart Button Text",
+      "default": "ADD TO CART",
+      "info": "Used for the pairs well with section"
+    },
+    {
+      "type": "checkbox",
+      "id": "pairs_well_with_auto_play",
+      "label": "Auto Play Slider",
+      "default": false,
+      "info": "Automatically rotate through products"
+    },
+    {
+      "type": "range",
+      "id": "pairs_well_with_auto_play_interval",
+      "label": "Auto Play Interval (seconds)",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "default": 5,
+      "info": "Time between automatic slides"
+    },
+    {
+      "type": "header",
+      "content": "Variant Selector"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_variant_selector",
+      "label": "Show Variant Selector",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "variant_label",
+      "label": "Variant Label",
+      "default": "Select Option"
+    },
+    {
+      "type": "header",
+      "content": "Quantity Selector"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_quantity_selector",
+      "label": "Show Quantity Selector",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "quantity_label",
+      "label": "Quantity Label",
+      "default": "Quantity"
+    },
+    {
+      "type": "header",
+      "content": "Buttons"
+    },
+    {
+      "type": "text",
+      "id": "add_to_cart_text",
+      "label": "Add to Cart Button Text",
+      "default": "Add to Cart",
+      "info": "Used for main add to cart button (pairs well with section has its own setting)"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_buy_it_now",
+      "label": "Show Buy It Now Button",
+      "default": false,
+      "info": "Adds a button that goes directly to checkout"
+    },
+    {
+      "type": "text",
+      "id": "buy_it_now_text",
+      "label": "Buy It Now Button Text",
+      "default": "Buy It Now"
+    },
+    {
+      "type": "checkbox",
+      "id": "remove_shop_pay_button",
+      "label": "Remove Shop Pay Button",
+      "default": false,
+      "info": "Removes Shop Pay button from dynamic checkout buttons"
+    },
+    {
+      "type": "header",
+      "content": "Purchase trust items"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_trust_items",
+      "label": "Show purchase trust items",
+      "default": true,
+      "info": "Add, edit, reorder, or delete Purchase trust item blocks below."
+    },
+    {
+      "type": "header",
+      "content": "Waitlist Button (Klaviyo)"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_waitlist_button",
+      "label": "Show Join the Waitlist Button",
+      "default": false,
+      "info": "When enabled, replaces Add to Cart button with Waitlist button"
+    },
+    {
+      "type": "text",
+      "id": "waitlist_button_text",
+      "label": "Waitlist Button Text",
+      "default": "Join the Waitlist"
+    },
+    {
+      "type": "text",
+      "id": "klaviyo_form_id",
+      "label": "Klaviyo Form ID",
+      "info": "Enter the 6-digit Klaviyo form ID (e.g., Sr3xAi). Find this in your Klaviyo form editor URL."
+    },
+    {
+      "type": "text",
+      "id": "waitlist_variant_ids",
+      "label": "Waitlist Variants (Optional)",
+      "info": "Comma-separated list of variant IDs or names that should show the waitlist button. Leave empty to show for all variants. Examples: 123456789,987654321 or Sunrise,Midnight"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "pairs_well_with_product",
+      "name": "Pairs Well With Product",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        }
+      ]
+    },
+    {
+      "type": "accordion_item",
+      "name": "Accordion Item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Accordion Title"
+        },
+        {
+          "type": "select",
+          "id": "content_type",
+          "label": "Content Type",
+          "options": [
+            {
+              "value": "text",
+              "label": "Rich Text"
+            },
+            {
+              "value": "list",
+              "label": "List Items"
+            }
+          ],
+          "default": "text"
+        },
+        {
+          "type": "richtext",
+          "id": "text_content",
+          "label": "Content",
+          "info": "Used when Content Type is 'Rich Text'"
+        },
+        {
+          "type": "html",
+          "id": "item_1",
+          "label": "List Item 1",
+          "info": "Supports HTML. Used when Content Type is 'List Items'"
+        },
+        {
+          "type": "html",
+          "id": "item_2",
+          "label": "List Item 2"
+        },
+        {
+          "type": "html",
+          "id": "item_3",
+          "label": "List Item 3"
+        },
+        {
+          "type": "html",
+          "id": "item_4",
+          "label": "List Item 4"
+        },
+        {
+          "type": "html",
+          "id": "item_5",
+          "label": "List Item 5"
+        },
+        {
+          "type": "header",
+          "content": "Optional Link"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_link",
+          "label": "Show Link",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "link_text",
+          "label": "Link Text",
+          "default": "Learn more"
+        },
+        {
+          "type": "url",
+          "id": "link_url",
+          "label": "Link URL"
+        }
+      ]
+    },
+    {
+      "type": "payment_options",
+      "name": "Payment Options",
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_dynamic_checkout",
+          "label": "Show Dynamic Checkout Buttons",
+          "info": "Displays Shop Pay, Apple Pay, Google Pay buttons",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_payment_terms",
+          "label": "Show Payment Terms",
+          "info": "Displays Shop Pay Installments banner",
+          "default": true
+        },
+        {
+          "type": "html",
+          "id": "payment_text",
+          "label": "Payment Text",
+          "default": "Pay your way. We accept a wide range of payment options for your convenience and security. Choose from express checkouts like Shop Pay, Apple Pay, Google Pay, and PayPal, or enjoy flexible payments with Klarna. We also proudly accept HSA/FSA accounts and Amazon Buy with Prime."
+        },
+        {
+          "type": "checkbox",
+          "id": "show_shop_pay_logo",
+          "label": "Show Shop Pay Logo",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "learn_more_text",
+          "label": "Learn More Text",
+          "default": "Learn more"
+        },
+        {
+          "type": "url",
+          "id": "learn_more_url",
+          "label": "Learn More URL"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_payment_icons",
+          "label": "Show Payment Icons",
+          "info": "Displays accepted payment method icons (Visa, Mastercard, etc.)",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "payment_types_filter",
+          "label": "Payment Types Filter",
+          "info": "Comma-separated list of payment types to show (e.g., visa,master,american_express,paypal,shop_pay). Leave blank to show all enabled payment types."
+        }
+      ]
+    },
+    {
+      "type": "trust_item",
+      "name": "Purchase trust item",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "enabled",
+          "label": "Show this item",
+          "default": true
+        },
+        {
+          "type": "image_picker",
+          "id": "icon_image",
+          "label": "Custom icon image",
+          "info": "Optional. If empty, the selected default icon is used."
+        },
+        {
+          "type": "select",
+          "id": "icon_style",
+          "label": "Default icon",
+          "options": [
+            {
+              "value": "shield",
+              "label": "Shield check"
+            },
+            {
+              "value": "return",
+              "label": "Returns"
+            },
+            {
+              "value": "lock",
+              "label": "Secure checkout"
+            },
+            {
+              "value": "shipping",
+              "label": "Shipping"
+            },
+            {
+              "value": "support",
+              "label": "Support"
+            },
+            {
+              "value": "shop_pay",
+              "label": "Shop Pay"
+            }
+          ],
+          "default": "shield"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Text",
+          "default": "1-Year Warranty<br>(2-Year for Members)",
+          "info": "Supports simple HTML such as <br>."
+        }
+      ]
+    },
+    {
+      "type": "reviews",
+      "name": "Reviews",
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "enabled",
+          "label": "Show Reviews",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "review_text",
+          "label": "Review Text",
+          "default": "4.7 (47 Reviews)"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Main 0609",
+      "blocks": [
+        {
+          "type": "reviews"
+        },
+        {
+          "type": "payment_options"
+        },
+        {
+          "type": "trust_item",
+          "settings": {
+            "icon_style": "shield",
+            "text": "1-Year Warranty<br>(2-Year for Members)"
+          }
+        },
+        {
+          "type": "trust_item",
+          "settings": {
+            "icon_style": "return",
+            "text": "30-Day Returns<br>Hassle-Free"
+          }
+        },
+        {
+          "type": "trust_item",
+          "settings": {
+            "icon_style": "lock",
+            "text": "Secure Checkout<br>100% Protected"
+          }
+        },
+        {
+          "type": "accordion_item",
+          "settings": {
+            "title": "Key Features",
+            "content_type": "text"
+          }
+        },
+        {
+          "type": "accordion_item",
+          "settings": {
+            "title": "Shipping & Returns",
+            "content_type": "text"
+          }
+        },
+        {
+          "type": "accordion_item",
+          "settings": {
+            "title": "Warranty & Support",
+            "content_type": "text"
+          }
+        }
+      ]
+    }
+  ]
+}
 {% endschema %}
