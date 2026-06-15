@@ -3,7 +3,12 @@
   assign first_block_id = section.blocks.first.id
 -%}
 
-<section id="{{ section_id }}" class="image-tabs">
+<section
+  id="{{ section_id }}"
+  class="image-tabs"
+  data-read-more="{{ 'blog.article.read_more' | t | escape }}"
+  data-read-less="{{ 'collection.general.view_less' | t | escape }}"
+>
   <div class="image-tabs__container">
     <div class="image-tabs__grid">
       <div class="image-tabs__media">
@@ -227,7 +232,34 @@
     font-size: 14px;
     color: #333333;
   }
- 
+  #{{ section_id }} .image-tabs__read-more {
+    appearance: none;
+    border: none;
+    background: none;
+    padding: 0;
+    margin-top: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #eb701f;
+    cursor: pointer;
+    text-align: left;
+  }
+  #{{ section_id }} .image-tabs__read-more:hover {
+    text-decoration: underline;
+  }
+  #{{ section_id }} .image-tabs__panel-text-more[hidden] {
+    display: none;
+  }
+
+  @media (min-width: 750px) {
+    #{{ section_id }} .image-tabs__read-more {
+      display: none;
+    }
+    #{{ section_id }} .image-tabs__panel-text-more[hidden] {
+      display: block;
+    }
+  }
+
   @media (max-width: 749px) {
     #{{ section_id }} .image-tabs__grid {
       grid-template-columns: minmax(0, 1fr);
@@ -311,8 +343,60 @@
     if (nextBtn) nextBtn.addEventListener('click', function () { embla.scrollNext(); });
   }
 
+  function initReadMore() {
+    var readMoreLabel = section.getAttribute('data-read-more') || 'Read more';
+    var readLessLabel = section.getAttribute('data-read-less') || 'View less';
+
+    section.querySelectorAll('.image-tabs__panel-text').forEach(function (panelText) {
+      if (panelText.dataset.readMoreInit) return;
+      panelText.dataset.readMoreInit = 'true';
+
+      var firstP = panelText.querySelector('p');
+      if (!firstP) return;
+
+      var siblings = [];
+      var node = firstP.nextElementSibling;
+      while (node) {
+        siblings.push(node);
+        node = node.nextElementSibling;
+      }
+      if (!siblings.length) return;
+
+      var moreWrap = document.createElement('div');
+      moreWrap.className = 'image-tabs__panel-text-more';
+      moreWrap.setAttribute('hidden', '');
+      moreWrap.id = 'image-tabs-more-' + Math.random().toString(36).slice(2, 9);
+      siblings.forEach(function (sibling) {
+        moreWrap.appendChild(sibling);
+      });
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'image-tabs__read-more';
+      btn.textContent = readMoreLabel;
+      btn.setAttribute('aria-expanded', 'false');
+      btn.setAttribute('aria-controls', moreWrap.id);
+      firstP.insertAdjacentElement('afterend', btn);
+      btn.insertAdjacentElement('afterend', moreWrap);
+
+      btn.addEventListener('click', function () {
+        var expanded = btn.getAttribute('aria-expanded') === 'true';
+        if (expanded) {
+          moreWrap.setAttribute('hidden', '');
+          btn.setAttribute('aria-expanded', 'false');
+          btn.textContent = readMoreLabel;
+        } else {
+          moreWrap.removeAttribute('hidden');
+          btn.setAttribute('aria-expanded', 'true');
+          btn.textContent = readLessLabel;
+        }
+      });
+    });
+  }
+
   function run() {
     initSlider();
+    initReadMore();
     if (typeof EmblaCarousel === 'undefined') window.addEventListener('load', initSlider);
   }
   if (document.readyState === 'loading') {
@@ -320,6 +404,12 @@
   } else {
     run();
   }
+
+  document.addEventListener('shopify:section:load', function (event) {
+    if (event.target.contains(section) || event.target === section) {
+      initReadMore();
+    }
+  });
 })();
 </script>
 
