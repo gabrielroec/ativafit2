@@ -31,6 +31,7 @@
   var state = {
     enabled: false,
     pending: false,
+    bound: false,
     added: false,
     shown: false,
     timer: null,
@@ -165,13 +166,26 @@
     if (e.key === "Escape" || e.code === "Escape") close();
   }
 
-  function show() {
-    if (!state.root || state.added || state.shown || isDismissed()) return;
+  // Exibe o popup SEM checar regras — autossuficiente (lê config e liga a UI se
+  // ainda não estiverem prontas). É o gatilho manual de QA: window.AFFreeShipPopup.show().
+  function present() {
+    if (!state.root) readConfig();
+    if (!state.root) return;
+    if (!state.bound) {
+      bindUi();
+      state.bound = true;
+    }
     state.shown = true;
     clearTimer();
     state.root.classList.add("is-visible");
     state.root.setAttribute("aria-hidden", "false");
     document.addEventListener("keydown", onKeydown, true);
+  }
+
+  // Caminho do timer: respeita as regras (já no carrinho / fechado / já exibido).
+  function showIfEligible() {
+    if (!state.root || state.added || state.shown || isDismissed()) return;
+    present();
   }
 
   function hide() {
@@ -273,7 +287,10 @@
     if (!state.root) return; // não é PDP / markup ausente
     if (isDismissed()) return; // já fechou nesta sessão
 
-    bindUi();
+    if (!state.bound) {
+      bindUi();
+      state.bound = true;
+    }
     watchAddToCart();
 
     alreadyInCart().then(function (inCart) {
@@ -282,14 +299,14 @@
         return;
       }
       clearTimer();
-      state.timer = setTimeout(show, state.delay);
+      state.timer = setTimeout(showIfEligible, state.delay);
     });
   }
 
   // API pública
   window.AFFreeShipPopup = window.AFFreeShipPopup || {};
   window.AFFreeShipPopup.enable = enable;
-  window.AFFreeShipPopup.show = show; // gatilho manual p/ QA
+  window.AFFreeShipPopup.show = present; // gatilho manual p/ QA (força a exibição)
   window.AFFreeShipPopup.close = close;
 
   function maybeAutoEnable() {
