@@ -1,0 +1,188 @@
+{%- comment -%}
+  Popup 1 — PDP / Free Shipping (A/B test via Intelligems)
+  ----------------------------------------------------------------------------
+  Renderizado em TODAS as PDPs (versão A e B). O markup nasce oculto e inerte.
+  A lógica (timer de 1-2 min, add to cart, etc.) está em assets/af-freeship-popup.js
+  e SÓ ativa quando habilitada pela variante B do teste.
+
+  Versão B (injetor JS do Intelligems):
+      window.AF_FREESHIP_POPUP_ENABLED = true;
+      window.AFFreeShipPopup && window.AFFreeShipPopup.enable();
+
+  Ajustar o tempo de espera: altere af_fsp_delay abaixo (em milissegundos).
+{%- endcomment -%}
+
+{%- assign af_fsp_delay = 90000 -%}
+
+<style>
+  .af-fsp-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999990;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(17, 17, 17, 0.55);
+    font-family: Arial, Helvetica, sans-serif;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+  }
+
+  .af-fsp-overlay.is-visible {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .af-fsp-overlay .af-pdp-popup {
+    position: relative;
+    width: 100%;
+    max-width: 380px;
+    background: #ffffff;
+    border: 1px solid #e8e8e8;
+    border-radius: 22px;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.18);
+    padding: 30px 24px 24px;
+    text-align: center;
+    transform: translateY(12px) scale(0.98);
+    transition: transform 0.28s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .af-fsp-overlay.is-visible .af-pdp-popup {
+    transform: translateY(0) scale(1);
+  }
+
+  .af-fsp-close {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #9a9a9a;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .af-fsp-close:hover {
+    color: #111111;
+  }
+
+  .af-fsp-overlay .af-pdp-popup__badge {
+    display: inline-flex;
+    margin-bottom: 14px;
+    padding: 8px 13px;
+    border-radius: 999px;
+    background: #fff2e8;
+    color: #f36b16;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .af-fsp-overlay .af-pdp-popup__title {
+    margin: 0;
+    color: #111111;
+    font-size: 30px;
+    line-height: 0.95;
+    font-weight: 950;
+    letter-spacing: -0.05em;
+    text-transform: uppercase;
+  }
+
+  .af-fsp-overlay .af-pdp-popup__title span {
+    color: #f36b16;
+  }
+
+  .af-fsp-overlay .af-pdp-popup__text {
+    max-width: 300px;
+    margin: 14px auto 0;
+    color: #4a4a4a;
+    font-size: 15px;
+    line-height: 1.45;
+  }
+
+  .af-fsp-overlay .af-pdp-popup__cta {
+    width: 100%;
+    margin-top: 20px;
+    border: 0;
+    border-radius: 999px;
+    background: #111111;
+    color: #ffffff;
+    padding: 16px 18px;
+    font-size: 14px;
+    font-weight: 950;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .af-fsp-overlay .af-pdp-popup__cta span {
+    color: #f36b16;
+  }
+
+  .af-fsp-overlay .af-pdp-popup__secondary {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #777777;
+    font-size: 13px;
+    text-decoration: underline;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  @media (max-width: 480px) {
+    .af-fsp-overlay .af-pdp-popup {
+      max-width: 100%;
+    }
+
+    .af-fsp-overlay .af-pdp-popup__title {
+      font-size: 27px;
+    }
+  }
+</style>
+
+<div
+  class="af-fsp-overlay"
+  data-af-fsp
+  data-af-fsp-delay="{{ af_fsp_delay }}"
+  data-af-fsp-product-id="{{ product.id }}"
+  data-af-fsp-variant="{{ product.selected_or_first_available_variant.id }}"
+  role="dialog"
+  aria-modal="true"
+  aria-hidden="true"
+  aria-label="Free shipping reminder">
+  <div class="af-pdp-popup" role="document">
+    <button class="af-fsp-close" type="button" data-af-fsp-dismiss aria-label="Close">&times;</button>
+
+    <div class="af-pdp-popup__badge">Free Shipping Active</div>
+
+    <h3 class="af-pdp-popup__title">
+      Keep your<br>
+      <span>free shipping</span>
+    </h3>
+
+    <p class="af-pdp-popup__text">
+      Add this item to cart now to keep this benefit available.
+    </p>
+
+    <button class="af-pdp-popup__cta" type="button" data-af-fsp-cta>
+      Add to Cart &amp; <span>Keep It</span>
+    </button>
+
+    <button class="af-pdp-popup__secondary" type="button" data-af-fsp-dismiss>
+      Continue browsing
+    </button>
+  </div>
+</div>
+
+<script src="{{ 'af-freeship-popup.js' | asset_url }}" defer></script>
