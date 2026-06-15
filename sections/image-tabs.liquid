@@ -6,8 +6,8 @@
 <section
   id="{{ section_id }}"
   class="image-tabs"
-  data-read-more="{{ 'blog.article.read_more' | t | escape }}"
-  data-read-less="{{ 'collection.general.view_less' | t | escape }}"
+  data-read-more="Read more"
+  data-read-less="View less"
 >
   <div class="image-tabs__container">
     <div class="image-tabs__grid">
@@ -247,20 +247,18 @@
   #{{ section_id }} .image-tabs__read-more:hover {
     text-decoration: underline;
   }
-  #{{ section_id }} .image-tabs__panel-text-more[hidden] {
-    display: none;
-  }
 
   @media (min-width: 750px) {
     #{{ section_id }} .image-tabs__read-more {
       display: none;
     }
-    #{{ section_id }} .image-tabs__panel-text-more[hidden] {
-      display: block;
-    }
   }
 
   @media (max-width: 749px) {
+    #{{ section_id }} .image-tabs__panel-text-more.is-collapsed {
+      display: none;
+    }
+
     #{{ section_id }} .image-tabs__grid {
       grid-template-columns: minmax(0, 1fr);
       gap: 20px;
@@ -346,6 +344,7 @@
   function initReadMore() {
     var readMoreLabel = section.getAttribute('data-read-more') || 'Read more';
     var readLessLabel = section.getAttribute('data-read-less') || 'View less';
+    var mobileQuery = window.matchMedia('(max-width: 749px)');
 
     section.querySelectorAll('.image-tabs__panel-text').forEach(function (panelText) {
       if (panelText.dataset.readMoreInit) return;
@@ -363,8 +362,7 @@
       if (!siblings.length) return;
 
       var moreWrap = document.createElement('div');
-      moreWrap.className = 'image-tabs__panel-text-more';
-      moreWrap.setAttribute('hidden', '');
+      moreWrap.className = 'image-tabs__panel-text-more is-collapsed';
       moreWrap.id = 'image-tabs-more-' + Math.random().toString(36).slice(2, 9);
       siblings.forEach(function (sibling) {
         moreWrap.appendChild(sibling);
@@ -379,18 +377,38 @@
       firstP.insertAdjacentElement('afterend', btn);
       btn.insertAdjacentElement('afterend', moreWrap);
 
+      function syncReadMoreState() {
+        if (mobileQuery.matches) {
+          btn.hidden = false;
+          if (btn.getAttribute('aria-expanded') === 'true') {
+            moreWrap.classList.remove('is-collapsed');
+          } else {
+            moreWrap.classList.add('is-collapsed');
+          }
+        } else {
+          btn.hidden = true;
+          moreWrap.classList.remove('is-collapsed');
+          btn.setAttribute('aria-expanded', 'false');
+          btn.textContent = readMoreLabel;
+        }
+      }
+
       btn.addEventListener('click', function () {
+        if (!mobileQuery.matches) return;
         var expanded = btn.getAttribute('aria-expanded') === 'true';
         if (expanded) {
-          moreWrap.setAttribute('hidden', '');
+          moreWrap.classList.add('is-collapsed');
           btn.setAttribute('aria-expanded', 'false');
           btn.textContent = readMoreLabel;
         } else {
-          moreWrap.removeAttribute('hidden');
+          moreWrap.classList.remove('is-collapsed');
           btn.setAttribute('aria-expanded', 'true');
           btn.textContent = readLessLabel;
         }
       });
+
+      syncReadMoreState();
+      mobileQuery.addEventListener('change', syncReadMoreState);
     });
   }
 
