@@ -97,11 +97,22 @@
   <div class="product-benefits-row-0609__inner">
     <div class="product-benefits-row-0609__grid">
       {%- for block in section.blocks -%}
+        {%- assign block_icon_size = block.settings.icon_size_override | default: 0 -%}
+        {%- if block_icon_size > 0 -%}
+          {%- assign icon_size = block_icon_size -%}
+        {%- else -%}
+          {%- assign icon_size = section.settings.icon_size -%}
+        {%- endif -%}
+        {%- assign icon_image_width = icon_size | times: 3 -%}
+
         <div class="product-benefits-row-0609__item" {{ block.shopify_attributes }}>
-          <div class="product-benefits-row-0609__icon" aria-hidden="true">
+          <div
+            class="product-benefits-row-0609__icon"
+            style="width: {{ icon_size }}px; height: {{ icon_size }}px;"
+            aria-hidden="true">
             {%- if block.settings.icon_image != blank -%}
               <img
-                src="{{ block.settings.icon_image | image_url: width: 160 }}"
+                src="{{ block.settings.icon_image | image_url: width: icon_image_width }}"
                 alt=""
                 loading="lazy">
             {%- else -%}
@@ -178,6 +189,17 @@
           "type": "image_picker",
           "id": "icon_image",
           "label": "Icon image"
+        },
+        {
+          "type": "range",
+          "id": "icon_size_override",
+          "label": "Icon size override",
+          "min": 0,
+          "max": 90,
+          "step": 2,
+          "unit": "px",
+          "default": 0,
+          "info": "Set to 0 to use the section Icon size. Use this when one icon looks visually larger or smaller than the others."
         },
         {
           "type": "select",
