@@ -1,200 +1,162 @@
 {%- liquid
-  assign mm_id = 'media-mentions-' | append: section.id
-  assign mm_blocks_count = section.blocks.size
-  assign mm_duration = section.settings.marquee_seconds | default: 35
-  if mm_duration < 8
-    assign mm_duration = 8
+  assign sid = section.id
+  assign duration = section.settings.marquee_seconds | default: 35
+  if duration < 8
+    assign duration = 8
   endif
-  assign mm_strip_cycles = section.settings.strip_cycles | default: 3
-  if mm_strip_cycles < 1
-    assign mm_strip_cycles = 1
-  endif
-  if mm_strip_cycles > 12
-    assign mm_strip_cycles = 12
-  endif
-  assign mm_logo_max_width = section.settings.logo_min_width | times: 28 | divided_by: 10
 -%}
 
-<link rel="preload" as="style" href="{{ 'media-mentions-marquee.css' | asset_url }}" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="{{ 'media-mentions-marquee.css' | asset_url }}"></noscript>
-<script src="{{ 'media-mentions-marquee.js' | asset_url }}" defer></script>
+{% style %}
+  .mm-{{ sid }} {
+    background: {{ section.settings.background_color }};
+    padding: {{ section.settings.padding_top }}px 0 {{ section.settings.padding_bottom }}px;
+  }
+  .mm-{{ sid }} .mm__title {
+    margin: 0 0 14px;
+    font-family: "Barlow", "Barlow Fallback", sans-serif;
+    font-weight: 900;
+    font-size: 30px;
+    line-height: 1.3;
+    letter-spacing: -1px;
+    text-transform: uppercase;
+    text-align: center;
+    color: {{ section.settings.title_color }};
+  }
+  .mm-{{ sid }} .mm__viewport {
+    width: 100%;
+    overflow: hidden;
+  }
+  {%- if section.settings.edge_fade -%}
+  .mm-{{ sid }} .mm__viewport {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+  }
+  {%- endif -%}
+  .mm-{{ sid }} .mm__track {
+    display: flex;
+    width: max-content;
+    animation: mm-scroll-{{ sid }} {{ duration }}s linear infinite;
+  }
+  .mm-{{ sid }} .mm__strip {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: {{ section.settings.logo_gap }}px;
+    padding-right: {{ section.settings.logo_gap }}px;
+  }
+  .mm-{{ sid }} .mm__item {
+    flex: 0 0 {{ section.settings.logo_min_width }}px;
+    height: {{ section.settings.logo_max_height }}px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mm-{{ sid }} .mm__img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    filter: grayscale(1);
+    opacity: 0.85;
+  }
+  .mm-{{ sid }} .mm__link {
+    display: flex;
+    align-items: center;
+    line-height: 0;
+    text-decoration: none;
+  }
+  .mm-{{ sid }} .mm__link:hover .mm__img {
+    filter: grayscale(0);
+    opacity: 1;
+  }
+  .mm-{{ sid }} .mm__viewport:hover .mm__track {
+    animation-play-state: paused;
+  }
 
-<section
-  id="{{ mm_id }}"
-  class="media-mentions-marquee"
-  data-section-type="media-mentions-marquee"
-  data-media-mentions-marquee
-  style="
-    --mm-bg: {{ section.settings.background_color | default: '#fff' }};
-    --mm-pad-top: {{ section.settings.padding_top }}px;
-    --mm-pad-bottom: {{ section.settings.padding_bottom }}px;
-    --mm-logo-gap: {{ section.settings.logo_gap }}px;
-    --mm-logo-min-width: {{ section.settings.logo_min_width }}px;
-    --mm-logo-max-height: {{ section.settings.logo_max_height }}px;
-    --mm-logo-max-width: {{ mm_logo_max_width }}px;
-  ">
-  <div class="media-mentions-marquee__inner">
-    {%- if section.settings.title != blank -%}
-      <h2 class="media-mentions-marquee__title">{{ section.settings.title | escape }}</h2>
-    {%- endif -%}
+  @keyframes mm-scroll-{{ sid }} {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-50%, 0, 0); }
+  }
 
-    <div
-      class="media-mentions-marquee__viewport{% if section.settings.edge_fade %} media-mentions-marquee__viewport--fade{% endif %}"
-      {% unless mm_blocks_count > 0 %}
-        data-media-mentions-empty="true"
-      {% endunless %}>
-      <div
-        class="media-mentions-marquee__track"
-        data-media-mentions-track
-        style="--mm-duration: {{ mm_duration }}s;">
-        <div class="media-mentions-marquee__strip" data-media-mentions-strip>
-          {%- if mm_blocks_count > 0 -%}
-            {%- for mm_rep in (1..mm_strip_cycles) -%}
-              {%- for block in section.blocks -%}
-                {%- if block.type == 'logo' -%}
-                  {%- assign mm_logo_alt = block.settings.alt | default: 'Logo' -%}
-                  {%- liquid
-                    assign mm_logo_img = block.settings.logo
-                    assign mm_logo_src_low = mm_logo_img.src | default: '' | downcase
-                    assign mm_logo_is_svg = false
-                    if mm_logo_src_low contains '.svg'
-                      assign mm_logo_is_svg = true
-                    endif
-                  -%}
-                  <div
-                    class="media-mentions-marquee__item"
-                    {% if mm_rep == 1 %}
-                      {{ block.shopify_attributes }}
-                    {% endif %}>
-                    {%- if mm_logo_img != blank -%}
-                      {%- if block.settings.link != blank -%}
-                        <a href="{{ block.settings.link }}" class="media-mentions-marquee__link" rel="noopener noreferrer" target="_blank">
-                      {%- endif -%}
-                      {%- comment -%}
-                        Logos are below the fold and the marquee animation only
-                        starts when the section is in viewport (IntersectionObserver
-                        in script below). loading="lazy" + decoding="async" lets
-                        browsers skip 30+ logo bytes on initial pageload.
-                      {%- endcomment -%}
-                      {%- if mm_logo_is_svg -%}
-                        <img
-                          class="media-mentions-marquee__img"
-                          src="{{ mm_logo_img | image_url }}"
-                          alt="{{ mm_logo_alt | escape }}"
-                          width="{{ mm_logo_img.width | default: 240 }}"
-                          height="{{ mm_logo_img.height | default: 80 }}"
-                          loading="lazy"
-                          decoding="async">
-                      {%- else -%}
-                        {{
-                          mm_logo_img
-                          | image_url: width: 320, format: 'webp'
-                          | image_tag:
-                            loading: 'lazy',
-                            decoding: 'async',
-                            fetchpriority: 'low',
-                            class: 'media-mentions-marquee__img',
-                            widths: '120, 180, 240, 320',
-                            sizes: '(min-width: 990px) 200px, min(40vw, 240px)',
-                            alt: mm_logo_alt
-                        }}
-                      {%- endif -%}
-                      {%- if block.settings.link != blank -%}
-                        </a>
-                      {%- endif -%}
-                    {%- else -%}
-                      <div class="media-mentions-marquee__placeholder">
-                        <span class="media-mentions-marquee__placeholder-label">
-                          {{- block.settings.alt | default: 'Logo' | escape -}}
-                        </span>
-                      </div>
+  @media (prefers-reduced-motion: reduce) {
+    .mm-{{ sid }} .mm__viewport {
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+    .mm-{{ sid }} .mm__track {
+      animation: none;
+      flex-wrap: wrap;
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      justify-content: center;
+      row-gap: 24px;
+    }
+    .mm-{{ sid }} .mm__strip {
+      flex-wrap: wrap;
+      justify-content: center;
+      padding-right: 0;
+    }
+    .mm-{{ sid }} .mm__strip[aria-hidden="true"] {
+      display: none;
+    }
+  }
+{% endstyle %}
+
+<section class="mm-{{ sid }}" {{ section.shopify_attributes }}>
+  {%- if section.settings.title != blank -%}
+    <h2 class="mm__title">{{ section.settings.title | escape }}</h2>
+  {%- endif -%}
+
+  <div class="mm__viewport">
+    <div class="mm__track">
+      {%- for strip_index in (1..2) -%}
+        <div class="mm__strip"{% if strip_index == 2 %} aria-hidden="true"{% endif %}>
+          {%- if section.blocks.size > 0 -%}
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'logo' -%}
+                {%- liquid
+                  assign logo_img = block.settings.logo
+                  assign logo_alt = block.settings.alt | default: 'Logo'
+                  assign is_svg = false
+                  if logo_img.src contains '.svg'
+                    assign is_svg = true
+                  endif
+                -%}
+                <div class="mm__item"{% if strip_index == 1 %} {{ block.shopify_attributes }}{% endif %}>
+                  {%- if logo_img != blank -%}
+                    {%- if block.settings.link != blank and strip_index == 1 -%}
+                      <a href="{{ block.settings.link }}" class="mm__link" rel="noopener noreferrer" target="_blank">
                     {%- endif -%}
-                  </div>
-                {%- endif -%}
-              {%- endfor -%}
-            {%- endfor -%}
-          {%- else -%}
-            {%- for mm_rep in (1..mm_strip_cycles) -%}
-              {%- for i in (1..7) -%}
-                <div class="media-mentions-marquee__item">
-                  <div class="media-mentions-marquee__placeholder">
-                    <span class="media-mentions-marquee__placeholder-label">{{ 'Logo' | escape }}</span>
-                  </div>
+                    {%- if is_svg -%}
+                      <img class="mm__img"
+                        src="{{ logo_img | image_url }}"
+                        alt="{% if strip_index == 1 %}{{ logo_alt | escape }}{% endif %}"
+                        width="{{ section.settings.logo_min_width }}"
+                        height="{{ section.settings.logo_max_height }}"
+                        loading="lazy"
+                        decoding="async"{% if strip_index == 2 %} aria-hidden="true"{% endif %}>
+                    {%- else -%}
+                      <img class="mm__img"
+                        src="{{ logo_img | image_url: width: 240, format: 'webp' }}"
+                        srcset="{{ logo_img | image_url: width: 120, format: 'webp' }} 120w, {{ logo_img | image_url: width: 180, format: 'webp' }} 180w, {{ logo_img | image_url: width: 240, format: 'webp' }} 240w"
+                        sizes="240px"
+                        alt="{% if strip_index == 1 %}{{ logo_alt | escape }}{% endif %}"
+                        width="{{ section.settings.logo_min_width }}" height="{{ section.settings.logo_max_height }}"
+                        loading="lazy"
+                        decoding="async"
+                        fetchpriority="low"{% if strip_index == 2 %} aria-hidden="true"{% endif %}>
+                    {%- endif -%}
+                    {%- if block.settings.link != blank and strip_index == 1 -%}
+                      </a>
+                    {%- endif -%}
+                  {%- endif -%}
                 </div>
-              {%- endfor -%}
+              {%- endif -%}
             {%- endfor -%}
           {%- endif -%}
         </div>
-        <div class="media-mentions-marquee__strip" aria-hidden="true">
-          {%- if mm_blocks_count > 0 -%}
-            {%- for mm_rep in (1..mm_strip_cycles) -%}
-              {%- for block in section.blocks -%}
-                {%- if block.type == 'logo' -%}
-                  {%- liquid
-                    assign mm_logo_img_dup = block.settings.logo
-                    assign mm_logo_src_low_dup = mm_logo_img_dup.src | default: '' | downcase
-                    assign mm_logo_is_svg_dup = false
-                    if mm_logo_src_low_dup contains '.svg'
-                      assign mm_logo_is_svg_dup = true
-                    endif
-                  -%}
-                  <div class="media-mentions-marquee__item">
-                    {%- if mm_logo_img_dup != blank -%}
-                      {%- if block.settings.link != blank -%}
-                        <a href="{{ block.settings.link }}" class="media-mentions-marquee__link" rel="noopener noreferrer" target="_blank" tabindex="-1">
-                      {%- endif -%}
-                      {%- if mm_logo_is_svg_dup -%}
-                        <img
-                          class="media-mentions-marquee__img"
-                          src="{{ mm_logo_img_dup | image_url }}"
-                          alt=""
-                          width="{{ mm_logo_img_dup.width | default: 240 }}"
-                          height="{{ mm_logo_img_dup.height | default: 80 }}"
-                          loading="lazy"
-                          decoding="async"
-                          fetchpriority="low"
-                          aria-hidden="true">
-                      {%- else -%}
-                        {{
-                          mm_logo_img_dup
-                          | image_url: width: 320, format: 'webp'
-                          | image_tag:
-                            loading: 'lazy',
-                            decoding: 'async',
-                            fetchpriority: 'low',
-                            class: 'media-mentions-marquee__img',
-                            widths: '120, 180, 240, 320',
-                            sizes: '(min-width: 990px) 200px, min(40vw, 240px)',
-                            alt: ''
-                        }}
-                      {%- endif -%}
-                      {%- if block.settings.link != blank -%}
-                        </a>
-                      {%- endif -%}
-                    {%- else -%}
-                      <div class="media-mentions-marquee__placeholder">
-                        <span class="media-mentions-marquee__placeholder-label">
-                          {{- block.settings.alt | default: 'Logo' | escape -}}
-                        </span>
-                      </div>
-                    {%- endif -%}
-                  </div>
-                {%- endif -%}
-              {%- endfor -%}
-            {%- endfor -%}
-          {%- else -%}
-            {%- for mm_rep in (1..mm_strip_cycles) -%}
-              {%- for i in (1..7) -%}
-                <div class="media-mentions-marquee__item">
-                  <div class="media-mentions-marquee__placeholder">
-                    <span class="media-mentions-marquee__placeholder-label">{{ 'Logo' | escape }}</span>
-                  </div>
-                </div>
-              {%- endfor -%}
-            {%- endfor -%}
-          {%- endif -%}
-        </div>
-      </div>
+      {%- endfor -%}
     </div>
   </div>
 </section>
@@ -203,7 +165,6 @@
 {
   "name": "Media mentions (marquee)",
   "tag": "section",
-  "class": "section-media-mentions-marquee",
   "max_blocks": 24,
   "settings": [
     {
@@ -236,7 +197,7 @@
       "type": "color",
       "id": "background_color",
       "label": "Section background",
-      "default": "#fff"
+      "default": "#ffffff"
     },
     {
       "type": "color",
@@ -252,8 +213,7 @@
       "step": 2,
       "unit": "px",
       "label": "Logo display height",
-      "default": 56,
-      "info": "Fixed row height; logos scale to fit (small files grow to match)."
+      "default": 56
     },
     {
       "type": "range",
@@ -263,8 +223,7 @@
       "step": 4,
       "unit": "px",
       "label": "Min width per item",
-      "default": 140,
-      "info": "Horizontal slot per logo; also caps max logo width (×2.8)."
+      "default": 140
     },
     {
       "type": "range",
@@ -285,17 +244,7 @@
       "unit": "s",
       "label": "Full pass duration",
       "default": 35,
-      "info": "Higher = slower motion. Animation uses the real strip width (seamless loop)."
-    },
-    {
-      "type": "range",
-      "id": "strip_cycles",
-      "min": 1,
-      "max": 8,
-      "step": 1,
-      "label": "Logo list repeats per strip",
-      "default": 3,
-      "info": "Increase if you still see empty space — each duplicated strip gets longer."
+      "info": "Higher = slower motion. Animation pauses on hover."
     },
     {
       "type": "checkbox",
@@ -329,24 +278,9 @@
       "type": "logo",
       "name": "Logo",
       "settings": [
-        {
-          "type": "image_picker",
-          "id": "logo",
-          "label": "Image (SVG or PNG recommended)"
-        },
-        {
-          "type": "text",
-          "id": "alt",
-          "label": "Alt text / placeholder label",
-          "default": "Logo",
-          "info": "Used on the image and placeholder box when no file is set."
-        },
-        {
-          "type": "url",
-          "id": "link",
-          "label": "Link (optional)",
-          "info": "Opens in a new tab."
-        }
+        { "type": "image_picker", "id": "logo", "label": "Image (SVG or PNG recommended)" },
+        { "type": "text", "id": "alt", "label": "Alt text", "default": "Logo" },
+        { "type": "url", "id": "link", "label": "Link (optional)" }
       ]
     }
   ],
@@ -357,11 +291,9 @@
       "blocks": [
         { "type": "logo", "settings": { "alt": "Vogue" } },
         { "type": "logo", "settings": { "alt": "GQ" } },
-        { "type": "logo", "settings": { "alt": "Men’s Health" } },
+        { "type": "logo", "settings": { "alt": "Men's Health" } },
         { "type": "logo", "settings": { "alt": "Wired" } },
-        { "type": "logo", "settings": { "alt": "Forbes" } },
-        { "type": "logo", "settings": { "alt": "Logo" } },
-        { "type": "logo", "settings": { "alt": "Logo" } }
+        { "type": "logo", "settings": { "alt": "Forbes" } }
       ]
     }
   ]
