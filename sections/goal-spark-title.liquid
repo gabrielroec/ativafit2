@@ -69,6 +69,7 @@
 
                 {%- if card_quote != blank -%}
                   <p class="strength-card__quote">"{{ card_quote }}"</p>
+                  <button type="button" class="strength-card__read-more" data-strength-card-read-more>Read more</button>
                 {%- endif -%}
               </div>
             </div>
@@ -117,6 +118,7 @@
 
                   {%- if card_quote != blank -%}
                     <p class="mobile-card__quote">"{{ card_quote }}"</p>
+                    <button type="button" class="strength-card__read-more" data-strength-card-read-more>Read more</button>
                   {%- endif -%}
                 </div>
               </div>
@@ -322,6 +324,37 @@
     margin: 0;
     width: 100%;
     max-width: 350px;
+  }
+
+  .strength-card__quote,
+  .mobile-card__quote {
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .strength-card__quote.is-expanded,
+  .mobile-card__quote.is-expanded {
+    display: block;
+    -webkit-line-clamp: unset;
+    overflow: visible;
+  }
+
+  .strength-card__read-more {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #EB701F;
+    font-family: 'Barlow', sans-serif !important;
+    font-size: 15px;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-decoration: underline;
+    cursor: pointer;
   }
 
   .spark-text {
@@ -544,9 +577,34 @@
   (function() {
     const sectionId = '{{ section.id }}';
     
-    function initializeSection() {
-      const section = document.querySelector('[data-section-id="' + sectionId + '"]');
-      if (!section) return;
+      function initializeSection() {
+        const section = document.querySelector('[data-section-id="' + sectionId + '"]');
+        if (!section) return;
+
+        section.addEventListener('click', (event) => {
+          const button = event.target.closest('[data-strength-card-read-more]');
+          if (!button || !section.contains(button)) return;
+
+          const quote = button.previousElementSibling;
+          if (!quote) return;
+
+          const isExpanded = quote.classList.toggle('is-expanded');
+          button.textContent = isExpanded ? 'Read less' : 'Read more';
+        });
+
+        function updateReadMoreButtons() {
+          section.querySelectorAll('[data-strength-card-read-more]').forEach((button) => {
+            const quote = button.previousElementSibling;
+            if (!quote) return;
+
+            const wasExpanded = quote.classList.contains('is-expanded');
+            if (wasExpanded) quote.classList.remove('is-expanded');
+
+            button.hidden = quote.scrollHeight <= quote.clientHeight + 1;
+
+            if (wasExpanded) quote.classList.add('is-expanded');
+          });
+        }
       
       // Responsividade Desktop/Mobile - Remoção completa do DOM
       let desktopContainer = section.querySelector('.strength-cards-desktop');
@@ -584,6 +642,7 @@
               desktopContainer = newDesktop;
               // Re-inicializar layout desktop após restaurar
               setTimeout(initializeDesktopLayout, 100);
+              setTimeout(updateReadMoreButtons, 120);
             }
           } else if (desktopContainer) {
             // Re-inicializar layout desktop se já existe
@@ -614,6 +673,7 @@
               mobileContainer = newMobile;
               // Re-inicializar o slider mobile após restaurar
               setTimeout(initializeMobileSlider, 100);
+              setTimeout(updateReadMoreButtons, 120);
             }
           } else if (mobileContainer) {
             // Se mobile já existe mas não está inicializado, inicializar
@@ -765,12 +825,16 @@
       
       // Set initial state
       handleResize();
+      setTimeout(updateReadMoreButtons, 100);
       
       // Listen for resize
       let resizeTimeout;
       window.addEventListener('resize', () => {
         clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(handleResize, 100);
+        resizeTimeout = setTimeout(() => {
+          handleResize();
+          updateReadMoreButtons();
+        }, 100);
       });
       
       // Inicializar slider mobile se estiver visível
