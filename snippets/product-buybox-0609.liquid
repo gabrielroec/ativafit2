@@ -71,21 +71,34 @@
     else
       assign member_price_source_text = mf_use.value | append: '' | strip
     endif
-  elsif section.settings.member_price_text != blank
+  endif
+  if member_price_source_text != blank
+    unless member_price_source_text contains '$'
+      assign _member_price_check = member_price_source_text | replace: ' ', '' | replace: ' ', '' | replace: "'", ''
+      assign _member_price_check_value = _member_price_check | plus: 0.0
+      if _member_price_check_value <= 0
+        assign member_price_source_text = ''
+      endif
+    endunless
+  endif
+  if member_price_source_text == blank and section.settings.member_price_text != blank
     assign member_price_source_text = section.settings.member_price_text | append: '' | strip
+  endif
+  if member_price_source_text == '0' or member_price_source_text == '0.0' or member_price_source_text == '0.00'
+    assign member_price_source_text = ''
   endif
   assign _member_price_product_id = product.id | append: ''
   if member_price_source_text == blank and product.handle == '25-lbs-adjustable-weight-dumbbell'
-    assign member_price_source_text = 'Member Price $165.99 + 2-Year Warranty'
+    assign member_price_source_text = '2-Year Warranty'
   elsif member_price_source_text == blank and _member_price_product_id == '6651178811475'
-    assign member_price_source_text = 'Member Price $165.99 + 2-Year Warranty'
+    assign member_price_source_text = '2-Year Warranty'
   endif
   assign _member_price_request_path = request.path | default: '' | strip
   if member_price_source_text == blank and _member_price_request_path contains '/products/25-lbs-adjustable-weight-dumbbell'
-    assign member_price_source_text = 'Member Price $165.99 + 2-Year Warranty'
+    assign member_price_source_text = '2-Year Warranty'
   endif
   if member_price_source_text == blank and product.title contains '25 Lb Adjustable Dumbbell'
-    assign member_price_source_text = 'Member Price $165.99 + 2-Year Warranty'
+    assign member_price_source_text = '2-Year Warranty'
   endif
   if member_price_source_text != blank
     assign ap_mf_fixed = true
@@ -101,6 +114,9 @@
       if ap_flex_price_token != ''
         assign _raw = ap_flex_price_token | replace: '$', ''
       endif
+    elsif _raw contains 'Warranty' or _raw contains 'warranty'
+      assign ap_flex_text = _raw
+      assign _raw = '0'
     endif
     assign _raw = _raw | replace: ' ', '' | replace: ' ', '' | replace: "'", ''
     if _raw contains ','
