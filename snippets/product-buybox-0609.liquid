@@ -74,6 +74,9 @@
   elsif section.settings.member_price_text != blank
     assign member_price_source_text = section.settings.member_price_text | append: '' | strip
   endif
+  if member_price_source_text == blank and product.handle == '25-lbs-adjustable-weight-dumbbell'
+    assign member_price_source_text = 'Member Price $165.99 + 2-Year Warranty'
+  endif
   if member_price_source_text != blank
     assign ap_mf_fixed = true
     assign _raw = member_price_source_text
