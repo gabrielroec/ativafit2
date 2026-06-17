@@ -155,30 +155,46 @@
     </div>
 
     <div class="awards-section__images">
-      <div class="awards-section__image">
-        <img
-          src="{{ 'logo-1.webp' | asset_url }}"
-          width="180"
-          height="auto"
-          alt="Muse Design Gold Award"
-          loading="lazy">
-      </div>
-      <div class="awards-section__image">
-        <img
-          src="{{ 'logo-2.webp' | asset_url }}"
-          width="180"
-          height="auto"
-          alt="Muse Design Award"
-          loading="lazy">
-      </div>
-      <div class="awards-section__image">
-        <img
-          src="{{ 'logo-3.webp' | asset_url }}"
-          width="180"
-          height="auto"
-          alt="French Design Award"
-          loading="lazy">
-      </div>
+      {%- if section.blocks.size > 0 -%}
+        {%- for block in section.blocks -%}
+          {%- assign award_image = block.settings.award_image -%}
+          {%- if award_image != blank -%}
+            <div class="awards-section__image" {{ block.shopify_attributes }}>
+              <img
+                src="{{ award_image | image_url: width: 360 }}"
+                width="{{ award_image.width }}"
+                height="{{ award_image.height }}"
+                alt="{{ block.settings.alt_text | default: award_image.alt | escape }}"
+                loading="lazy">
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      {%- else -%}
+        <div class="awards-section__image">
+          <img
+            src="{{ 'logo-1.webp' | asset_url }}"
+            width="180"
+            height="180"
+            alt="Muse Design Gold Award"
+            loading="lazy">
+        </div>
+        <div class="awards-section__image">
+          <img
+            src="{{ 'logo-2.webp' | asset_url }}"
+            width="180"
+            height="180"
+            alt="Muse Design Award"
+            loading="lazy">
+        </div>
+        <div class="awards-section__image">
+          <img
+            src="{{ 'logo-3.webp' | asset_url }}"
+            width="180"
+            height="180"
+            alt="French Design Award"
+            loading="lazy">
+        </div>
+      {%- endif -%}
     </div>
   </div>
 </section>
