@@ -6,6 +6,10 @@
 
 {%- liquid
   assign selected_variant = product.selected_or_first_available_variant
+  assign ativapeople_display_cents = 0
+  assign ap_mf_fixed = false
+  assign ap_flex_text = ''
+  assign ap_flex_price_token = ''
   assign product_form_id = 'product-form-' | append: section.id
   assign payment_options_block = section.blocks | where: 'type', 'payment_options' | first
   assign reviews_block = section.blocks | where: 'type', 'reviews' | first
@@ -45,6 +49,73 @@
   endif
 
   assign selected_option_value = selected_variant.options[variant_option_index] | default: selected_variant.title
+
+  assign mf_v_num = selected_variant.metafields.custom.price_discount_ativapeople
+  assign mf_p_num = product.metafields.custom.price_discount_ativapeople
+  assign mf_v_txt = selected_variant.metafields.custom.price_text_discount_ativapeople
+  assign mf_p_txt = product.metafields.custom.price_text_discount_ativapeople
+  assign mf_use = blank
+  if mf_v_num != blank and mf_v_num.value != blank
+    assign mf_use = mf_v_num
+  elsif mf_p_num != blank and mf_p_num.value != blank
+    assign mf_use = mf_p_num
+  elsif mf_v_txt != blank and mf_v_txt.value != blank
+    assign mf_use = mf_v_txt
+  elsif mf_p_txt != blank and mf_p_txt.value != blank
+    assign mf_use = mf_p_txt
+  endif
+  if mf_use != blank and mf_use.value != blank
+    assign ap_mf_fixed = true
+    assign _raw = ''
+    if mf_use.value.amount != blank
+      assign _raw = mf_use.value.amount | append: '' | strip
+    else
+      assign _raw = mf_use.value | append: '' | strip
+    endif
+    if _raw contains '$'
+      assign ap_flex_text = _raw
+      assign _words = _raw | split: ' '
+      for _w in _words
+        if _w contains '$' and ap_flex_price_token == ''
+          assign ap_flex_price_token = _w
+        endif
+      endfor
+      if ap_flex_price_token != ''
+        assign _raw = ap_flex_price_token | replace: '$', ''
+      endif
+    endif
+    assign _raw = _raw | replace: ' ', '' | replace: ' ', '' | replace: "'", ''
+    if _raw contains ','
+      assign _pa = _raw | split: ','
+      if _pa.size == 2
+        assign _L = _pa[0] | strip
+        assign _R = _pa[1] | strip
+        assign _rL = _R | size
+        if _rL == 1 or _rL == 2
+          assign _L = _L | replace: '.', ''
+          assign _raw = _L | append: '.' | append: _R
+        elsif _rL == 3
+          if _L contains '.'
+            assign _L = _L | replace: '.', ''
+            assign _raw = _L | append: '.' | append: _R
+          else
+            assign _raw = _L | append: _R
+          endif
+        else
+          assign _L = _L | replace: '.', ''
+          assign _raw = _L | append: '.' | append: _R
+        endif
+      else
+        assign _raw = _raw | replace: '.', '' | replace: ',', '.'
+      endif
+    endif
+    assign _u = _raw | plus: 0.0
+    assign ativapeople_display_cents = _u | times: 100 | round
+  endif
+  if ativapeople_display_cents < 0
+    assign ativapeople_display_cents = 0
+  endif
+
   assign discount_percent = 0
   if selected_variant.compare_at_price > selected_variant.price and selected_variant.compare_at_price > 0
     assign discount_cents = selected_variant.compare_at_price | minus: selected_variant.price
@@ -100,6 +171,20 @@
       <span class="product-save-badge-0609" style="display: none;"></span>
     {%- endif -%}
   </div>
+
+  {%- if ap_mf_fixed and ativapeople_display_cents > 0 -%}
+    <p class="product-info-member-line_new product-info-member-line-0609">
+      {%- if ap_flex_text != '' and ap_flex_price_token != '' -%}
+        {%- assign _flex_price_html = '<span class="product-info-member-line__price">' | append: ap_flex_price_token | append: '</span>' -%}
+        <span class="product-info-member-line__muted">{{ ap_flex_text | replace: ap_flex_price_token, _flex_price_html }}</span>
+      {%- else -%}
+        <span class="product-info-member-line__muted">Member price </span>
+        <span class="product-info-member-line__price">{{ ativapeople_display_cents | money }}</span>
+      {%- endif -%}
+      <span class="product-info-member-line__muted" aria-hidden="true"> · </span>
+      <a href="/pages/membership" class="product-info-member-line__link">Join AtivaPeople</a>
+    </p>
+  {%- endif -%}
 
   {%- form 'product', product, id: product_form_id, class: 'product-form_new product-form-0609' -%}
     <input
