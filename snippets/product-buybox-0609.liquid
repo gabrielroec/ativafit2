@@ -55,23 +55,28 @@
   assign mf_v_txt = selected_variant.metafields.custom.price_text_discount_ativapeople
   assign mf_p_txt = product.metafields.custom.price_text_discount_ativapeople
   assign mf_use = blank
-  if mf_v_num != blank and mf_v_num.value != blank
-    assign mf_use = mf_v_num
-  elsif mf_p_num != blank and mf_p_num.value != blank
-    assign mf_use = mf_p_num
-  elsif mf_v_txt != blank and mf_v_txt.value != blank
+  assign member_price_source_text = ''
+  if mf_v_txt != blank and mf_v_txt.value != blank
     assign mf_use = mf_v_txt
   elsif mf_p_txt != blank and mf_p_txt.value != blank
     assign mf_use = mf_p_txt
+  elsif mf_v_num != blank and mf_v_num.value != blank
+    assign mf_use = mf_v_num
+  elsif mf_p_num != blank and mf_p_num.value != blank
+    assign mf_use = mf_p_num
   endif
   if mf_use != blank and mf_use.value != blank
-    assign ap_mf_fixed = true
-    assign _raw = ''
     if mf_use.value.amount != blank
-      assign _raw = mf_use.value.amount | append: '' | strip
+      assign member_price_source_text = mf_use.value.amount | append: '' | strip
     else
-      assign _raw = mf_use.value | append: '' | strip
+      assign member_price_source_text = mf_use.value | append: '' | strip
     endif
+  elsif section.settings.member_price_text != blank
+    assign member_price_source_text = section.settings.member_price_text | append: '' | strip
+  endif
+  if member_price_source_text != blank
+    assign ap_mf_fixed = true
+    assign _raw = member_price_source_text
     if _raw contains '$'
       assign ap_flex_text = _raw
       assign _words = _raw | split: ' '
@@ -114,6 +119,12 @@
   endif
   if ativapeople_display_cents < 0
     assign ativapeople_display_cents = 0
+  endif
+  assign should_render_member_price_line = false
+  if ap_mf_fixed
+    if ativapeople_display_cents > 0 or ap_flex_text != ''
+      assign should_render_member_price_line = true
+    endif
   endif
 
   assign discount_percent = 0
@@ -172,11 +183,13 @@
     {%- endif -%}
   </div>
 
-  {%- if ap_mf_fixed and ativapeople_display_cents > 0 -%}
+  {%- if should_render_member_price_line -%}
     <p class="product-info-member-line_new product-info-member-line-0609">
       {%- if ap_flex_text != '' and ap_flex_price_token != '' -%}
         {%- assign _flex_price_html = '<span class="product-info-member-line__price">' | append: ap_flex_price_token | append: '</span>' -%}
         <span class="product-info-member-line__muted">{{ ap_flex_text | replace: ap_flex_price_token, _flex_price_html }}</span>
+      {%- elsif ap_flex_text != '' -%}
+        <span class="product-info-member-line__muted">{{ ap_flex_text }}</span>
       {%- else -%}
         <span class="product-info-member-line__muted">Member price </span>
         <span class="product-info-member-line__price">{{ ativapeople_display_cents | money }}</span>

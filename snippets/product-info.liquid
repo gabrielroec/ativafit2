@@ -22,34 +22,37 @@
   assign ap_flex_price_token = ''
   assign current_variant = product.selected_or_first_available_variant
   # Source of truth chain:
-  #   1. variant decimal (custom.price_discount_ativapeople)  ← legacy numeric
-  #   2. product decimal (custom.price_discount_ativapeople)  ← legacy numeric
-  #   3. variant text    (custom.price_text_discount_ativapeople) ← flexible copy
-  #   4. product text    (custom.price_text_discount_ativapeople) ← flexible copy
-  # Legacy decimal wins so existing products don't change behaviour when the
-  # new text metafield is left empty.
+  #   1. variant text    (custom.price_text_discount_ativapeople) ← flexible copy
+  #   2. product text    (custom.price_text_discount_ativapeople) ← flexible copy
+  #   3. variant decimal (custom.price_discount_ativapeople)      ← legacy numeric
+  #   4. product decimal (custom.price_discount_ativapeople)      ← legacy numeric
   assign mf_v_num = current_variant.metafields.custom.price_discount_ativapeople
   assign mf_p_num = product.metafields.custom.price_discount_ativapeople
   assign mf_v_txt = current_variant.metafields.custom.price_text_discount_ativapeople
   assign mf_p_txt = product.metafields.custom.price_text_discount_ativapeople
   assign mf_use = blank
-  if mf_v_num != blank and mf_v_num.value != blank
-    assign mf_use = mf_v_num
-  elsif mf_p_num != blank and mf_p_num.value != blank
-    assign mf_use = mf_p_num
-  elsif mf_v_txt != blank and mf_v_txt.value != blank
+  assign member_price_source_text = ''
+  if mf_v_txt != blank and mf_v_txt.value != blank
     assign mf_use = mf_v_txt
   elsif mf_p_txt != blank and mf_p_txt.value != blank
     assign mf_use = mf_p_txt
+  elsif mf_v_num != blank and mf_v_num.value != blank
+    assign mf_use = mf_v_num
+  elsif mf_p_num != blank and mf_p_num.value != blank
+    assign mf_use = mf_p_num
   endif
   if mf_use != blank and mf_use.value != blank
-    assign ap_mf_fixed = true
-    assign _raw = ''
     if mf_use.value.amount != blank
-      assign _raw = mf_use.value.amount | append: '' | strip
+      assign member_price_source_text = mf_use.value.amount | append: '' | strip
     else
-      assign _raw = mf_use.value | append: '' | strip
+      assign member_price_source_text = mf_use.value | append: '' | strip
     endif
+  elsif section.settings.member_price_text != blank
+    assign member_price_source_text = section.settings.member_price_text | append: '' | strip
+  endif
+  if member_price_source_text != blank
+    assign ap_mf_fixed = true
+    assign _raw = member_price_source_text
     # If the merchant typed free text with a "$NN.NN" token (e.g. "Member
     # price $289.99"), capture the full text and isolate the price token —
     # the rest of the parsing runs against the token alone so we still
@@ -107,6 +110,12 @@
   assign _member_line_handle = product.handle | default: '' | strip | downcase
   if _member_line_handle == 'pro-adjustable-weight-bench'
     assign show_member_price_line = false
+  endif
+  assign should_render_member_price_line = false
+  if ap_mf_fixed and show_member_price_line
+    if ativapeople_display_cents > 0 or ap_flex_text != ''
+      assign should_render_member_price_line = true
+    endif
   endif
 -%}
 
@@ -379,7 +388,7 @@
   </script>
 
   
-  {%- if ap_mf_fixed and ativapeople_display_cents > 0 and show_member_price_line -%}
+  {%- if should_render_member_price_line -%}
     <p class="product-info-member-line_new">
       {%- if ap_flex_text != '' and ap_flex_price_token != '' -%}
         {%- comment -%}
@@ -389,6 +398,8 @@
         {%- endcomment -%}
         {%- assign _flex_price_html = '<span class="product-info-member-line__price">' | append: ap_flex_price_token | append: '</span>' -%}
         <span class="product-info-member-line__muted">{{ ap_flex_text | replace: ap_flex_price_token, _flex_price_html }}</span>
+      {%- elsif ap_flex_text != '' -%}
+        <span class="product-info-member-line__muted">{{ ap_flex_text }}</span>
       {%- else -%}
         {%- comment -%} Legacy mode (metafield holds just the numeric value). {%- endcomment -%}
         <span class="product-info-member-line__muted">Member price </span>
