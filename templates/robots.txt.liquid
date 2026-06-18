@@ -17,7 +17,8 @@
 {{ group.user_agent }}
 
 {% for rule in group.rules %}
-{% unless rule contains 'Disallow: /policies/' or rule contains 'Disallow: /*/policies/' %}
+{% capture rule_text %}{{ rule }}{% endcapture %}
+{% unless rule_text contains 'Disallow: /policies/' or rule_text contains 'Disallow: /*/policies/' %}
 {{ rule }}
 {% endunless %}
 {% endfor %}
