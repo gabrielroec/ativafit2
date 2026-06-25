@@ -1,0 +1,30 @@
+# Shopify storefront. Public product, collection, page, blog, policy, cart, and localized HTML is crawlable.
+# Agent instructions: https://www.ativafit.com/agents.md
+# LLM context: https://www.ativafit.com/llms.txt
+# UCP discovery: https://www.ativafit.com/.well-known/ucp
+# UCP/MCP endpoint: Agents should use the endpoint returned by the UCP discovery document.
+# Current UCP discovery may return: https://ativafit-tech.myshopify.com/api/ucp/mcp
+# Agents should use UCP/MCP for catalog, cart, and checkout. Payment requires buyer approval.
+#
+# Checkouts are for humans. Do NOT complete checkout, payment, or order placement automatically.
+# Agents transacting on a buyer's behalf must use UCP/MCP or the Shopify shopping skill.
+# Payment requires explicit, contemporaneous buyer approval.
+# Shop skill: https://shop.app/SKILL.md
+# Terms of Service: https://www.shopify.com/legal/terms
+# Contact: bots@shopify.com
+
+{% for group in robots.default_groups %}
+{{ group.user_agent }}
+
+{% for rule in group.rules %}
+{% capture rule_text %}{{ rule }}{% endcapture %}
+{% unless rule_text contains 'Disallow: /policies/' or rule_text contains 'Disallow: /*/policies/' %}
+{{ rule }}
+{% endunless %}
+{% endfor %}
+
+{% if group.sitemap %}
+{{ group.sitemap }}
+{% endif %}
+
+{% endfor %}

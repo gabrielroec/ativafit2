@@ -36,12 +36,21 @@
 
         <!-- Accordions -->
       {% render 'product-accordions'
-        , section: section %}
+        , section: section
+        , default_open_title: 'Key Features' %}
       </div>
 
     </div>
 
   </div></section>
+
+<script type="application/json" data-ativapeople-variant-cents>
+{
+  {%- for v in product.variants -%}
+    "{{ v.id }}": {% render 'ativapeople-cents-for-variant', variant: v, product: product %}{% unless forloop.last %},{% endunless %}
+  {%- endfor -%}
+}
+</script>
 
 <script>
   // ====================================================================
@@ -619,6 +628,15 @@
     // ====================================================================
     // VARIANT & CART FUNCTIONS
     // ====================================================================
+
+    const sectionRoot = document.querySelector('[data-section-id="{{ section.id }}"]');
+    const querySection = (selector) => sectionRoot ? sectionRoot.querySelector(selector) : document.querySelector(selector);
+    const getProductForm = () => document.getElementById('product-form-{{ section.id }}') || querySection('.product-form_new');
+    const getVariantSelector = () => querySection('#variant-selector_new');
+    const getMobileVariantSelector = () => querySection('#variant-selector-mobile_new');
+    const getQuantityInput = () => querySection('#quantity_new');
+    const getAddToCartButton = () => querySection('button[name="add"].add-to-cart-btn_new:not(.waitlist-btn_new)');
+    const getBuyItNowButton = () => querySection('.buy-it-now-btn_new');
     
     const ProductVariants = {
       variants: {{ product.variants | json }},
@@ -627,8 +645,8 @@
       updateVariant(sourceSelector = null) {
         let selectedVariant = null;
         // Check both desktop and mobile selectors
-        const variantSelectorDesktop = document.getElementById('variant-selector_new');
-        const variantSelectorMobile = document.getElementById('variant-selector-mobile_new');
+        const variantSelectorDesktop = getVariantSelector();
+        const variantSelectorMobile = getMobileVariantSelector();
         
         // Determine which selector to use
         let variantSelector = sourceSelector;
@@ -695,9 +713,9 @@
         }
         
         // Get buttons - use more specific selectors
-        const addToCartBtn = document.querySelector('button[name="add"].add-to-cart-btn_new:not(.waitlist-btn_new)');
-        const waitlistBtn = document.querySelector('.waitlist-btn_new.klaviyo_waitlist_trigger');
-        const buyItNowBtn = document.querySelector('.buy-it-now-btn_new');
+        const addToCartBtn = getAddToCartButton();
+        const waitlistBtn = querySection('.waitlist-btn_new.klaviyo_waitlist_trigger');
+        const buyItNowBtn = getBuyItNowButton();
         
         console.log('Buttons found:', {
           addToCartBtn: !!addToCartBtn,
@@ -761,7 +779,7 @@
       
       updateProductForm(variant) {
         // Update hidden input in the main product form
-        const productForm = document.querySelector('.product-form_new');
+        const productForm = getProductForm();
         if (productForm && variant) {
           const variantInput = productForm.querySelector('input[name="id"]');
           if (variantInput) {
@@ -781,8 +799,8 @@
           }
           
           // Update variant selectors if they exist (both desktop and mobile)
-          const variantSelectorDesktop = document.getElementById('variant-selector_new');
-          const variantSelectorMobile = document.getElementById('variant-selector-mobile_new');
+          const variantSelectorDesktop = getVariantSelector();
+          const variantSelectorMobile = getMobileVariantSelector();
           if (variantSelectorDesktop) {
             variantSelectorDesktop.value = variant.id;
           }
@@ -804,7 +822,7 @@
         const dynamicCheckout = document.querySelector('[id^="dynamic-checkout"]');
         if (dynamicCheckout && variant) {
           // Shopify handles this automatically, but we ensure the form is updated
-          const productForm = document.querySelector('.product-form_new');
+          const productForm = getProductForm();
           if (productForm) {
             // Trigger form change event to update Shopify's dynamic checkout
             const event = new Event('change', { bubbles: true });
@@ -992,10 +1010,22 @@
     // ADD TO CART FUNCTION
     // ====================================================================
     
-    window.addToCart = async function() {
+    const readCartError = async (response) => {
+      const text = await response.text();
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        return {
+          message: text ? text.slice(0, 200) : response.statusText,
+          status: response.status
+        };
+      }
+    };
+
+    const addToCart0609 = async function() {
       // Get variant ID from form or selector
       const variantInput = document.getElementById('product-variant-id-{{ section.id }}');
-      const variantSelector = document.getElementById('variant-selector_new');
+      const variantSelector = getVariantSelector();
       let variantId = null;
       
       if (variantInput) {
@@ -1006,11 +1036,16 @@
         variantId = ProductVariants.variants[0]?.id || {{ product.selected_or_first_available_variant.id }};
       }
       
-      const quantity = parseInt(document.getElementById('quantity_new')?.value || 1);
-      const btn = document.querySelector('.add-to-cart-btn_new');
+      const quantity = parseInt(getQuantityInput()?.value || 1);
+      const btn = getAddToCartButton();
       
       if (!variantId) {
         alert('Please select a product variant');
+        return;
+      }
+
+      if (!btn) {
+        console.error('Add to cart button not found for section {{ section.id }}');
         return;
       }
       
@@ -1112,7 +1147,8 @@
         });
         
         if (!response.ok) {
-          const error = await response.json();
+          const error = await readCartError(response);
+          console.error('Shopify cart/add.js error:', error);
           throw new Error(error.message || 'Error adding to cart');
         }
         
@@ -1209,15 +1245,17 @@
         delete btn.dataset.processing;
       }
     };
+
+    window.addToCart = addToCart0609;
     
     // ====================================================================
     // BUY IT NOW FUNCTION - Goes directly to checkout
     // ====================================================================
     
-    window.buyItNow = async function() {
+    const buyItNow0609 = async function() {
       // Get variant ID from form or selector
       const variantInput = document.getElementById('product-variant-id-{{ section.id }}');
-      const variantSelector = document.getElementById('variant-selector_new');
+      const variantSelector = getVariantSelector();
       let variantId = null;
       
       if (variantInput) {
@@ -1228,11 +1266,20 @@
         variantId = ProductVariants.variants[0]?.id || {{ product.selected_or_first_available_variant.id }};
       }
       
-      const quantity = parseInt(document.getElementById('quantity_new')?.value || 1);
-      const btn = document.querySelector('.buy-it-now-btn_new');
+      const quantity = parseInt(getQuantityInput()?.value || 1);
+      const btn = getBuyItNowButton();
       
       if (!variantId) {
         alert('Please select a product variant');
+        return;
+      }
+
+      if (!btn) {
+        console.error('Buy it now button not found for section {{ section.id }}');
+        return;
+      }
+
+      if (btn.dataset.processing === 'true') {
         return;
       }
       
@@ -1240,6 +1287,7 @@
       btn.textContent = 'PROCESSING...';
       btn.disabled = true;
       btn.style.opacity = '0.7';
+      btn.dataset.processing = 'true';
       
       try {
         const response = await fetch('/cart/add.js', {
@@ -1250,7 +1298,11 @@
           })
         });
         
-        if (!response.ok) throw new Error('Error adding to cart');
+        if (!response.ok) {
+          const error = await readCartError(response);
+          console.error('Shopify buy it now cart/add.js error:', error);
+          throw new Error(error.message || 'Error adding to cart');
+        }
         
         // Redirect to checkout immediately
         window.location.href = '/checkout';
@@ -1261,8 +1313,11 @@
         btn.textContent = originalText;
         btn.disabled = false;
         btn.style.opacity = '1';
+        delete btn.dataset.processing;
       }
     };
+
+    window.buyItNow = buyItNow0609;
     
     // ====================================================================
     // ACCORDION FUNCTION
@@ -1294,8 +1349,8 @@
       ProductGallery.init();
       
       // Initialize variant selector event listeners (both desktop and mobile)
-      const variantSelectorDesktop = document.getElementById('variant-selector_new');
-      const variantSelectorMobile = document.getElementById('variant-selector-mobile_new');
+      const variantSelectorDesktop = getVariantSelector();
+      const variantSelectorMobile = getMobileVariantSelector();
       
       // Function to sync both selectors
       const syncVariantSelectors = (sourceSelector, targetSelector) => {
@@ -1396,16 +1451,18 @@
       }
       
       // Intercept form submission to prevent redirect to /cart
-      const productForm = document.querySelector('.product-form_new');
+      const productForm = getProductForm();
       if (productForm) {
         productForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+
           // Don't prevent if it's a waitlist button click
           const clickedButton = e.target.querySelector('.klaviyo_waitlist_trigger:active, .klaviyo_waitlist_trigger:focus');
           if (clickedButton) {
             return; // Let the waitlist handler deal with it
           }
-          
-          e.preventDefault();
           
           // Prevent multiple submissions
           if (productForm.dataset.processing === 'true') {
@@ -1415,7 +1472,7 @@
           productForm.dataset.processing = 'true';
           
           // Call addToCart function
-          await window.addToCart();
+          await addToCart0609();
           
           // Remove processing flag after a delay
           setTimeout(() => {
@@ -1426,7 +1483,7 @@
       
       // Ensure shopify-payment-terms component is displayed in product form
       const ensurePaymentTermsVisible = () => {
-        const paymentTerms = document.querySelector('.payment-options-form shopify-payment-terms, .product-form_new shopify-payment-terms');
+        const paymentTerms = querySection('.payment-options-form shopify-payment-terms, .product-form_new shopify-payment-terms');
         if (paymentTerms) {
           // Force component to be visible
           paymentTerms.style.display = 'block';
@@ -1439,14 +1496,23 @@
       // Also check after a delay in case Shopify scripts load later
       setTimeout(ensurePaymentTermsVisible, 1000);
 
-      const buybox0609 = document.querySelector('.product-buybox-0609');
+      const buybox0609 = querySection('.product-buybox-0609');
       if (buybox0609) {
-        const variantSelector0609 = document.getElementById('variant-selector_new');
+        const variantSelector0609 = getVariantSelector();
         const swatches0609 = buybox0609.querySelectorAll('[data-variant-id-0609]');
         const selectedOption0609 = buybox0609.querySelector('[data-selected-option-0609]');
-        const qtyInput0609 = document.getElementById('quantity_new');
+        const qtyInput0609 = getQuantityInput();
         const qtyMinus0609 = buybox0609.querySelector('[data-qty-minus-0609]');
         const qtyPlus0609 = buybox0609.querySelector('[data-qty-plus-0609]');
+        const buyItNowButton0609 = buybox0609.querySelector('[data-buy-it-now-0609]');
+
+        if (buyItNowButton0609) {
+          buyItNowButton0609.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            buyItNow0609();
+          });
+        }
 
         window.updateBuybox0609Variant = function(variant) {
           if (!variant) return;
@@ -1586,6 +1652,12 @@
       "info": "Displays as prefix + discount percentage, for example: Save 29%."
     },
     {
+      "type": "text",
+      "id": "member_price_text",
+      "label": "Member Price Text",
+      "info": "Fallback for the AtivaPeople member price line when the product metafield is blank. Example: Member Price $369.99 + 2-Year Warranty"
+    },
+    {
       "type": "header",
       "content": "Pairs Well With"
     },
@@ -1600,6 +1672,12 @@
       "id": "pairs_well_with_title",
       "label": "Section Title",
       "default": "PAIRS WELL WITH"
+    },
+    {
+      "type": "text",
+      "id": "pairs_well_with_tip_text",
+      "label": "Tip Text",
+      "info": "Leave blank to hide this tip."
     },
     {
       "type": "product_list",

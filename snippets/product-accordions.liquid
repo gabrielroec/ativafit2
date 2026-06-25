@@ -14,18 +14,29 @@
   <div class="product-accordion_new">
     {%- for block in section.blocks -%}
       {%- if block.type == 'accordion_item' -%}
-        {%- assign is_first = forloop.first -%}
-        <div class="accordion-item_new {% if is_first %}accordion-item-active_new{% endif %}" {{ block.shopify_attributes }}>
+        {%- liquid
+          assign is_open = false
+          assign normalized_default_open_title = default_open_title | default: '' | strip | downcase
+          assign normalized_block_title = block.settings.title | default: '' | strip | downcase
+          if normalized_default_open_title != blank
+            if normalized_block_title == normalized_default_open_title
+              assign is_open = true
+            endif
+          elsif forloop.first
+            assign is_open = true
+          endif
+        -%}
+        <div class="accordion-item_new {% if is_open %}accordion-item-active_new{% endif %}" {{ block.shopify_attributes }}>
           <button
-            class="accordion-header_new {% if is_first %}active_new{% endif %}"
+            class="accordion-header_new {% if is_open %}active_new{% endif %}"
             type="button"
             onclick="toggleAccordion(this)"
-            aria-expanded="{% if is_first %}true{% else %}false{% endif %}">
+            aria-expanded="{% if is_open %}true{% else %}false{% endif %}">
             <span class="accordion-title_new">{{ block.settings.title }}</span>
-            <span class="accordion-icon_new">{% if is_first %}-{% else %}+{% endif %}</span>
+            <span class="accordion-icon_new">{% if is_open %}-{% else %}+{% endif %}</span>
           </button>
 
-          <div class="accordion-content_new {% if is_first %}active_new{% endif %}">
+          <div class="accordion-content_new {% if is_open %}active_new{% endif %}">
             <div class="accordion-body_new">
               {%- case block.settings.content_type -%}
                 {%- when 'text' -%}

@@ -539,6 +539,12 @@ document.addEventListener("DOMContentLoaded", () => {
         e.stopPropagation();
         e.stopImmediatePropagation();
 
+        if (form.dataset.cartAddProcessing === "true") {
+          return false;
+        }
+
+        form.dataset.cartAddProcessing = "true";
+
         const variantIdInput = form.querySelector('input[name="id"]');
         const quantityInput = form.querySelector('input[name="quantity"]');
         const variantId = variantIdInput ? variantIdInput.value : null;
@@ -547,6 +553,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const originalText = button?.textContent;
 
         if (!variantId) {
+          delete form.dataset.cartAddProcessing;
           form.submit();
           return;
         }
@@ -670,6 +677,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           })
           .finally(() => {
+            delete form.dataset.cartAddProcessing;
             if (button) {
               button.classList.remove("loading");
               button.disabled = false;

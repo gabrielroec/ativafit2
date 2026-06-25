@@ -1,3 +1,4 @@
+{%- comment -%} goal-spark-read-more-20260616 {%- endcomment -%}
 {%- style -%}
   .grid-goal-spark {
     padding: 40px 0;
@@ -98,6 +99,37 @@
     margin: 0;
     width: 100%;
     max-width: 350px;
+  }
+
+  .grid-goal-spark__quote,
+  .mobile-card__quote {
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .grid-goal-spark__quote.is-expanded,
+  .mobile-card__quote.is-expanded {
+    display: block;
+    -webkit-line-clamp: unset;
+    overflow: visible;
+  }
+
+  .grid-goal-spark__read-more {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #EB701F;
+    font-family: 'Barlow', sans-serif !important;
+    font-size: 15px;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-decoration: underline;
+    cursor: pointer;
   }
 
   .grid-goal-spark__spark-text {
@@ -324,6 +356,7 @@
                     {%- endif -%}
                     {{ block.settings.card_quote_part2 }}"
                   </p>
+                  <button type="button" class="grid-goal-spark__read-more" data-goal-spark-read-more>Read more</button>
                 {%- endif -%}
               </div>
             </div>
@@ -364,6 +397,7 @@
                     {%- endif -%}
                     {{ block.settings.card_quote_part2 }}"
                   </p>
+                  <button type="button" class="grid-goal-spark__read-more" data-goal-spark-read-more>Read more</button>
                 {%- endif -%}
               </div>
             </div>
@@ -386,9 +420,34 @@
   (function() {
     const sectionId = '{{ section.id }}';
     
-    function initializeSection() {
-      const section = document.querySelector('[data-section-id="' + sectionId + '"]');
-      if (!section) return;
+      function initializeSection() {
+        const section = document.querySelector('[data-section-id="' + sectionId + '"]');
+        if (!section) return;
+
+        section.addEventListener('click', (event) => {
+          const button = event.target.closest('[data-goal-spark-read-more]');
+          if (!button || !section.contains(button)) return;
+
+          const quote = button.previousElementSibling;
+          if (!quote) return;
+
+          const isExpanded = quote.classList.toggle('is-expanded');
+          button.textContent = isExpanded ? 'Read less' : 'Read more';
+        });
+
+        function updateReadMoreButtons() {
+          section.querySelectorAll('[data-goal-spark-read-more]').forEach((button) => {
+            const quote = button.previousElementSibling;
+            if (!quote) return;
+
+            const wasExpanded = quote.classList.contains('is-expanded');
+            if (wasExpanded) quote.classList.remove('is-expanded');
+
+            button.hidden = quote.scrollHeight <= quote.clientHeight + 1;
+
+            if (wasExpanded) quote.classList.add('is-expanded');
+          });
+        }
       
       // Responsividade Desktop/Mobile - Remoção completa do DOM
       let desktopContainer = section.querySelector('.grid-goal-spark__desktop');
@@ -451,6 +510,7 @@
               mobileContainer = newMobile;
               // Re-inicializar o slider mobile após restaurar
               setTimeout(initializeMobileSlider, 100);
+              setTimeout(updateReadMoreButtons, 120);
             }
           } else if (mobileContainer) {
             // Se mobile já existe mas não está inicializado, inicializar
@@ -536,14 +596,18 @@
         showMobileSlide(0);
       }
       
-      // Set initial state
-      handleResize();
+        // Set initial state
+        handleResize();
+        setTimeout(updateReadMoreButtons, 100);
       
       // Listen for resize
       let resizeTimeout;
       window.addEventListener('resize', () => {
         clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(handleResize, 100);
+        resizeTimeout = setTimeout(() => {
+          handleResize();
+          updateReadMoreButtons();
+        }, 100);
       });
       
       // Inicializar slider mobile se estiver visível

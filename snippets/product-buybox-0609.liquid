@@ -6,6 +6,10 @@
 
 {%- liquid
   assign selected_variant = product.selected_or_first_available_variant
+  assign ativapeople_display_cents = 0
+  assign ap_mf_fixed = false
+  assign ap_flex_text = ''
+  assign ap_flex_price_token = ''
   assign product_form_id = 'product-form-' | append: section.id
   assign payment_options_block = section.blocks | where: 'type', 'payment_options' | first
   assign reviews_block = section.blocks | where: 'type', 'reviews' | first
@@ -45,6 +49,113 @@
   endif
 
   assign selected_option_value = selected_variant.options[variant_option_index] | default: selected_variant.title
+
+  assign mf_v_num = selected_variant.metafields.custom.price_discount_ativapeople
+  assign mf_p_num = product.metafields.custom.price_discount_ativapeople
+  assign mf_v_txt = selected_variant.metafields.custom.price_text_discount_ativapeople
+  assign mf_p_txt = product.metafields.custom.price_text_discount_ativapeople
+  assign mf_use = blank
+  assign member_price_source_text = ''
+  if mf_v_txt != blank and mf_v_txt.value != blank
+    assign mf_use = mf_v_txt
+  elsif mf_p_txt != blank and mf_p_txt.value != blank
+    assign mf_use = mf_p_txt
+  elsif mf_v_num != blank and mf_v_num.value != blank
+    assign mf_use = mf_v_num
+  elsif mf_p_num != blank and mf_p_num.value != blank
+    assign mf_use = mf_p_num
+  endif
+  if mf_use != blank and mf_use.value != blank
+    if mf_use.value.amount != blank
+      assign member_price_source_text = mf_use.value.amount | append: '' | strip
+    else
+      assign member_price_source_text = mf_use.value | append: '' | strip
+    endif
+  endif
+  if member_price_source_text != blank
+    unless member_price_source_text contains '$'
+      assign _member_price_check = member_price_source_text | replace: ' ', '' | replace: ' ', '' | replace: "'", ''
+      assign _member_price_check_value = _member_price_check | plus: 0.0
+      if _member_price_check_value <= 0
+        assign member_price_source_text = ''
+      endif
+    endunless
+  endif
+  if member_price_source_text == blank and section.settings.member_price_text != blank
+    assign member_price_source_text = section.settings.member_price_text | append: '' | strip
+  endif
+  if member_price_source_text == '0' or member_price_source_text == '0.0' or member_price_source_text == '0.00'
+    assign member_price_source_text = ''
+  endif
+  assign _member_price_product_id = product.id | append: ''
+  if member_price_source_text == blank and product.handle == '25-lbs-adjustable-weight-dumbbell'
+    assign member_price_source_text = '2-Year Warranty'
+  elsif member_price_source_text == blank and _member_price_product_id == '6651178811475'
+    assign member_price_source_text = '2-Year Warranty'
+  endif
+  assign _member_price_request_path = request.path | default: '' | strip
+  if member_price_source_text == blank and _member_price_request_path contains '/products/25-lbs-adjustable-weight-dumbbell'
+    assign member_price_source_text = '2-Year Warranty'
+  endif
+  if member_price_source_text == blank and product.title contains '25 Lb Adjustable Dumbbell'
+    assign member_price_source_text = '2-Year Warranty'
+  endif
+  if member_price_source_text != blank
+    assign ap_mf_fixed = true
+    assign _raw = member_price_source_text
+    if _raw contains '$'
+      assign ap_flex_text = _raw
+      assign _words = _raw | split: ' '
+      for _w in _words
+        if _w contains '$' and ap_flex_price_token == ''
+          assign ap_flex_price_token = _w
+        endif
+      endfor
+      if ap_flex_price_token != ''
+        assign _raw = ap_flex_price_token | replace: '$', ''
+      endif
+    elsif _raw contains 'Warranty' or _raw contains 'warranty'
+      assign ap_flex_text = _raw
+      assign _raw = '0'
+    endif
+    assign _raw = _raw | replace: ' ', '' | replace: ' ', '' | replace: "'", ''
+    if _raw contains ','
+      assign _pa = _raw | split: ','
+      if _pa.size == 2
+        assign _L = _pa[0] | strip
+        assign _R = _pa[1] | strip
+        assign _rL = _R | size
+        if _rL == 1 or _rL == 2
+          assign _L = _L | replace: '.', ''
+          assign _raw = _L | append: '.' | append: _R
+        elsif _rL == 3
+          if _L contains '.'
+            assign _L = _L | replace: '.', ''
+            assign _raw = _L | append: '.' | append: _R
+          else
+            assign _raw = _L | append: _R
+          endif
+        else
+          assign _L = _L | replace: '.', ''
+          assign _raw = _L | append: '.' | append: _R
+        endif
+      else
+        assign _raw = _raw | replace: '.', '' | replace: ',', '.'
+      endif
+    endif
+    assign _u = _raw | plus: 0.0
+    assign ativapeople_display_cents = _u | times: 100 | round
+  endif
+  if ativapeople_display_cents < 0
+    assign ativapeople_display_cents = 0
+  endif
+  assign should_render_member_price_line = false
+  if ap_mf_fixed
+    if ativapeople_display_cents > 0 or ap_flex_text != ''
+      assign should_render_member_price_line = true
+    endif
+  endif
+
   assign discount_percent = 0
   if selected_variant.compare_at_price > selected_variant.price and selected_variant.compare_at_price > 0
     assign discount_cents = selected_variant.compare_at_price | minus: selected_variant.price
@@ -100,6 +211,22 @@
       <span class="product-save-badge-0609" style="display: none;"></span>
     {%- endif -%}
   </div>
+
+  {%- if should_render_member_price_line -%}
+    <p class="product-info-member-line_new product-info-member-line-0609">
+      {%- if ap_flex_text != '' and ap_flex_price_token != '' -%}
+        {%- assign _flex_price_html = '<span class="product-info-member-line__price">' | append: ap_flex_price_token | append: '</span>' -%}
+        <span class="product-info-member-line__muted">{{ ap_flex_text | replace: ap_flex_price_token, _flex_price_html }}</span>
+      {%- elsif ap_flex_text != '' -%}
+        <span class="product-info-member-line__muted">{{ ap_flex_text }}</span>
+      {%- else -%}
+        <span class="product-info-member-line__muted">Member price </span>
+        <span class="product-info-member-line__price">{{ ativapeople_display_cents | money }}</span>
+      {%- endif -%}
+      <span class="product-info-member-line__muted" aria-hidden="true"> · </span>
+      <a href="/pages/membership" class="product-info-member-line__link">Join AtivaPeople</a>
+    </p>
+  {%- endif -%}
 
   {%- form 'product', product, id: product_form_id, class: 'product-form_new product-form-0609' -%}
     <input
@@ -203,7 +330,7 @@
         </button>
 
         {%- if section.settings.show_buy_it_now and should_show_waitlist == false and selected_variant.available -%}
-          <button type="button" class="buy-it-now-btn_new buy-it-now-btn-0609" onclick="buyItNow()">
+          <button type="button" class="buy-it-now-btn_new buy-it-now-btn-0609" data-buy-it-now-0609>
             <span>{{ section.settings.buy_it_now_text | default: 'Buy It Now' }}</span>
           </button>
         {%- endif -%}
