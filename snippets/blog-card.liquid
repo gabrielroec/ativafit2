@@ -8,6 +8,7 @@
   - show_date: mostrar data (default: true)
   - show_read_time: mostrar tempo de leitura (default: true)
   - image_aspect: proporção da imagem ('featured' ou 'card', default: 'card')
+  - fallback_blog_tag: tag exibida quando o artigo não tem tags (opcional)
   - classes: classes CSS adicionais (opcional)
 {%- endcomment -%}
 
@@ -17,6 +18,7 @@
   assign show_date = show_date | default: true
   assign show_read_time = show_read_time | default: true
   assign image_aspect = image_aspect | default: 'card'
+  assign fallback_blog_tag = fallback_blog_tag | default: ''
   assign classes = classes | default: ''
   
   if article == blank
@@ -63,6 +65,10 @@
         {%- if show_blog_tag and article.tags.size > 0 -%}
           <span class="blog-card__tag" itemprop="articleSection">
             {{ article.tags.first }}
+          </span>
+        {%- elsif show_blog_tag and fallback_blog_tag != blank -%}
+          <span class="blog-card__tag" itemprop="articleSection">
+            {{ fallback_blog_tag }}
           </span>
         {%- endif -%}
         
@@ -114,4 +120,3 @@
     </div>
   </div>
 {%- endif -%}
-

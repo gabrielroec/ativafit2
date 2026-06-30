@@ -1,0 +1,572 @@
+{%- liquid
+  assign section_id = 'ativamag-hub-' | append: section.id
+-%}
+
+<section
+  id="{{ section_id }}"
+  class="ativamag-hub"
+  style="
+    --amh-bg: {{ section.settings.background_color }};
+    --amh-text: {{ section.settings.text_color }};
+    --amh-muted: {{ section.settings.muted_color }};
+    --amh-accent: {{ section.settings.accent_color }};
+    --amh-border: {{ section.settings.border_color }};
+    --amh-card-bg: {{ section.settings.card_background }};
+    --amh-pad-top: {{ section.settings.padding_top }}px;
+    --amh-pad-bottom: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="ativamag-hub__inner">
+    <div class="ativamag-hub__intro">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="ativamag-hub__eyebrow">{{ section.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+
+      {%- if section.settings.heading != blank -%}
+        <h1 class="ativamag-hub__heading">{{ section.settings.heading | escape }}</h1>
+      {%- endif -%}
+
+      {%- if section.settings.description != blank -%}
+        <p class="ativamag-hub__description">{{ section.settings.description | escape }}</p>
+      {%- endif -%}
+
+      <div class="ativamag-hub__actions">
+        {%- if section.settings.primary_cta_label != blank and section.settings.primary_cta_link != blank -%}
+          <a class="ativamag-hub__button ativamag-hub__button--primary" href="{{ section.settings.primary_cta_link }}">
+            {{ section.settings.primary_cta_label | escape }}
+          </a>
+        {%- endif -%}
+        {%- if section.settings.secondary_cta_label != blank and section.settings.secondary_cta_link != blank -%}
+          <a class="ativamag-hub__button ativamag-hub__button--secondary" href="{{ section.settings.secondary_cta_link }}">
+            {{ section.settings.secondary_cta_label | escape }}
+          </a>
+        {%- endif -%}
+      </div>
+    </div>
+
+    {%- if section.blocks.size > 0 -%}
+      <div class="ativamag-hub__grid" aria-label="AtivaMag content hubs">
+        {%- for block in section.blocks -%}
+          <article class="ativamag-hub__card" {{ block.shopify_attributes }}>
+            {%- if block.settings.kicker != blank -%}
+              <p class="ativamag-hub__card-kicker">{{ block.settings.kicker | escape }}</p>
+            {%- endif -%}
+            {%- if block.settings.title != blank -%}
+              <h2 class="ativamag-hub__card-title">{{ block.settings.title | escape }}</h2>
+            {%- endif -%}
+            {%- if block.settings.description != blank -%}
+              <p class="ativamag-hub__card-description">{{ block.settings.description | escape }}</p>
+            {%- endif -%}
+
+            <ul class="ativamag-hub__link-list" role="list">
+              {%- if block.settings.link_1_label != blank and block.settings.link_1_url != blank -%}
+                <li><a href="{{ block.settings.link_1_url }}">{{ block.settings.link_1_label | escape }}</a></li>
+              {%- endif -%}
+              {%- if block.settings.link_2_label != blank and block.settings.link_2_url != blank -%}
+                <li><a href="{{ block.settings.link_2_url }}">{{ block.settings.link_2_label | escape }}</a></li>
+              {%- endif -%}
+              {%- if block.settings.link_3_label != blank and block.settings.link_3_url != blank -%}
+                <li><a href="{{ block.settings.link_3_url }}">{{ block.settings.link_3_label | escape }}</a></li>
+              {%- endif -%}
+            </ul>
+
+            {%- if block.settings.cta_label != blank and block.settings.cta_link != blank -%}
+              <a class="ativamag-hub__card-cta" href="{{ block.settings.cta_link }}">
+                {{ block.settings.cta_label | escape }}
+              </a>
+            {%- endif -%}
+          </article>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+    {%- if section.settings.callout_heading != blank -%}
+      <div class="ativamag-hub__callout">
+        <div>
+          <h2 class="ativamag-hub__callout-heading">{{ section.settings.callout_heading | escape }}</h2>
+          {%- if section.settings.callout_text != blank -%}
+            <p class="ativamag-hub__callout-text">{{ section.settings.callout_text | escape }}</p>
+          {%- endif -%}
+        </div>
+        {%- if section.settings.callout_cta_label != blank and section.settings.callout_cta_link != blank -%}
+          <a class="ativamag-hub__button ativamag-hub__button--primary" href="{{ section.settings.callout_cta_link }}">
+            {{ section.settings.callout_cta_label | escape }}
+          </a>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+<style>
+  .ativamag-hub {
+    background: var(--amh-bg);
+    color: var(--amh-text);
+    padding: var(--amh-pad-top) 20px var(--amh-pad-bottom);
+  }
+
+  .ativamag-hub__inner {
+    max-width: 1440px;
+    margin: 0 auto;
+  }
+
+  .ativamag-hub__intro {
+    max-width: 820px;
+    margin-bottom: 42px;
+  }
+
+  .ativamag-hub__eyebrow {
+    margin: 0 0 12px;
+    color: var(--amh-accent);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: 0;
+    text-transform: uppercase;
+  }
+
+  .ativamag-hub__heading {
+    max-width: 760px;
+    margin: 0;
+    color: var(--amh-text);
+    font-size: 48px;
+    line-height: 1.08;
+    letter-spacing: 0;
+  }
+
+  .ativamag-hub__description {
+    max-width: 700px;
+    margin: 18px 0 0;
+    color: var(--amh-muted);
+    font-size: 18px;
+    line-height: 1.65;
+    letter-spacing: 0;
+  }
+
+  .ativamag-hub__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 28px;
+  }
+
+  .ativamag-hub__button,
+  .ativamag-hub__card-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    padding: 13px 20px;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: 0;
+    text-decoration: none;
+    transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+  }
+
+  .ativamag-hub__button--primary {
+    border: 1px solid var(--amh-text);
+    background: var(--amh-text);
+    color: #ffffff;
+  }
+
+  .ativamag-hub__button--primary:hover {
+    background: var(--amh-accent);
+    border-color: var(--amh-accent);
+    color: #ffffff;
+  }
+
+  .ativamag-hub__button--secondary {
+    border: 1px solid var(--amh-border);
+    background: transparent;
+    color: var(--amh-text);
+  }
+
+  .ativamag-hub__button--secondary:hover {
+    border-color: var(--amh-text);
+    color: var(--amh-text);
+  }
+
+  .ativamag-hub__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .ativamag-hub__card {
+    display: flex;
+    min-height: 376px;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 24px;
+    border: 1px solid var(--amh-border);
+    border-radius: 8px;
+    background: var(--amh-card-bg);
+    box-shadow: 0 8px 24px rgba(32, 32, 32, 0.04);
+    transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+  }
+
+  .ativamag-hub__card:hover {
+    border-color: #e0d4ca;
+    box-shadow: 0 12px 30px rgba(32, 32, 32, 0.08);
+    transform: translateY(-2px);
+  }
+
+  .ativamag-hub__card-kicker {
+    display: inline-flex;
+    width: fit-content;
+    margin: 0 0 14px;
+    color: #eb701f;
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+  }
+
+  .ativamag-hub__card-title {
+    margin: 0;
+    color: var(--amh-text);
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.18;
+    letter-spacing: 0;
+  }
+
+  .ativamag-hub__card-description {
+    margin: 14px 0 0;
+    color: var(--amh-muted);
+    font-size: 16px;
+    line-height: 1.55;
+    letter-spacing: 0;
+  }
+
+  .ativamag-hub__link-list {
+    display: grid;
+    gap: 10px;
+    margin: 24px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .ativamag-hub__link-list a {
+    color: var(--amh-text);
+    font-size: 15px;
+    font-weight: 650;
+    line-height: 1.35;
+    letter-spacing: 0;
+    text-decoration: none;
+  }
+
+  .ativamag-hub__link-list a:hover {
+    color: var(--amh-accent);
+  }
+
+  .ativamag-hub__card-cta {
+    width: fit-content;
+    margin-top: auto;
+    padding-top: 24px;
+    border: 0;
+    color: var(--amh-accent);
+  }
+
+  .ativamag-hub__card-cta:hover {
+    color: var(--amh-text);
+  }
+
+  .ativamag-hub__callout {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-top: 24px;
+    padding: 26px 28px;
+    border: 1px solid var(--amh-border);
+    border-radius: 8px;
+    background: #f6f8f5;
+  }
+
+  .ativamag-hub__callout-heading {
+    margin: 0;
+    color: var(--amh-text);
+    font-size: 24px;
+    line-height: 1.25;
+    letter-spacing: 0;
+  }
+
+  .ativamag-hub__callout-text {
+    max-width: 760px;
+    margin: 8px 0 0;
+    color: var(--amh-muted);
+    font-size: 15px;
+    line-height: 1.55;
+    letter-spacing: 0;
+  }
+
+  @media screen and (max-width: 1020px) {
+    .ativamag-hub__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media screen and (max-width: 760px) {
+    .ativamag-hub {
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+
+    .ativamag-hub__heading {
+      font-size: 34px;
+    }
+
+    .ativamag-hub__description {
+      font-size: 16px;
+    }
+
+    .ativamag-hub__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .ativamag-hub__card {
+      min-height: 0;
+    }
+
+    .ativamag-hub__card-title {
+      font-size: 24px;
+    }
+
+    .ativamag-hub__callout {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "AtivaMag hub",
+  "tag": "section",
+  "class": "section-ativamag-hub",
+  "max_blocks": 6,
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "AtivaMag Learn Hub"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Build a compact home gym that fits your space, goals, and routine."
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Find workout ideas, buying guides, setup advice, and training programs designed around space-saving Ativafit equipment."
+    },
+    {
+      "type": "text",
+      "id": "primary_cta_label",
+      "label": "Primary CTA label",
+      "default": "Compare Adjustable Dumbbells"
+    },
+    {
+      "type": "url",
+      "id": "primary_cta_link",
+      "label": "Primary CTA link"
+    },
+    {
+      "type": "text",
+      "id": "secondary_cta_label",
+      "label": "Secondary CTA label",
+      "default": "Browse All Articles"
+    },
+    {
+      "type": "url",
+      "id": "secondary_cta_link",
+      "label": "Secondary CTA link"
+    },
+    {
+      "type": "text",
+      "id": "callout_heading",
+      "label": "Callout heading",
+      "default": "Not sure which weight range fits your workouts?"
+    },
+    {
+      "type": "textarea",
+      "id": "callout_text",
+      "label": "Callout text",
+      "default": "Use the buying guides and comparison content to match your training level with the right 25, 50, 66, or 88 lb adjustable dumbbell setup."
+    },
+    {
+      "type": "text",
+      "id": "callout_cta_label",
+      "label": "Callout CTA label",
+      "default": "Shop Dumbbells"
+    },
+    {
+      "type": "url",
+      "id": "callout_cta_link",
+      "label": "Callout CTA link"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#151515"
+    },
+    {
+      "type": "color",
+      "id": "muted_color",
+      "label": "Muted text",
+      "default": "#555f5b"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent",
+      "default": "#2f7d6d"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border",
+      "default": "#dce4df"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 32,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 32,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 48
+    }
+  ],
+  "blocks": [
+    {
+      "type": "hub",
+      "name": "Hub card",
+      "settings": [
+        {
+          "type": "text",
+          "id": "kicker",
+          "label": "Kicker",
+          "default": "Train"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Dumbbell Workouts"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description",
+          "default": "Build strength at home with chest, pull day, push day, arm, and full-body dumbbell routines."
+        },
+        {
+          "type": "text",
+          "id": "link_1_label",
+          "label": "Link 1 label",
+          "default": "Chest workouts"
+        },
+        {
+          "type": "url",
+          "id": "link_1_url",
+          "label": "Link 1 URL"
+        },
+        {
+          "type": "text",
+          "id": "link_2_label",
+          "label": "Link 2 label",
+          "default": "Pull day workouts"
+        },
+        {
+          "type": "url",
+          "id": "link_2_url",
+          "label": "Link 2 URL"
+        },
+        {
+          "type": "text",
+          "id": "link_3_label",
+          "label": "Link 3 label",
+          "default": "Push day workouts"
+        },
+        {
+          "type": "url",
+          "id": "link_3_url",
+          "label": "Link 3 URL"
+        },
+        {
+          "type": "text",
+          "id": "cta_label",
+          "label": "CTA label",
+          "default": "Explore workouts"
+        },
+        {
+          "type": "url",
+          "id": "cta_link",
+          "label": "CTA link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "AtivaMag hub",
+      "blocks": [
+        {
+          "type": "hub"
+        },
+        {
+          "type": "hub"
+        },
+        {
+          "type": "hub"
+        },
+        {
+          "type": "hub"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
