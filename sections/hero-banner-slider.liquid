@@ -185,7 +185,7 @@
   }
 .ai-hero-slide-title-{{ ai_gen_id }} {
   font-size: {{ section.settings.title_size }}px !important;
-  color: {{ section.settings.text_color }} !important;
+  color: var(--slide-text-color, {{ section.settings.text_color }}) !important;
   margin: 0 0 {{ section.settings.title_subtitle_gap }}px !important;
   max-width: {{ section.settings.title_max_width }}px !important;
   font-weight: 700 !important;
@@ -195,7 +195,7 @@
 
 .ai-hero-slide-subtitle-{{ ai_gen_id }} {
   font-size: {{ section.settings.subtitle_size }}px !important;
-  color: {{ section.settings.text_color }} !important;
+  color: var(--slide-text-color, {{ section.settings.text_color }}) !important;
   margin: 0 0 {{ section.settings.subtitle_button_gap }}px !important;
   max-width: {{ section.settings.subtitle_max_width }}px !important;
   line-height: 1.35 !important;
@@ -656,7 +656,7 @@
                 <div class="ai-hero-slide-overlay-{{ ai_gen_id }}"></div>
               </div>
               {% if has_content %}
-                <div class="ai-hero-slide-content-{{ ai_gen_id }} align-{{ text_alignment }}">
+                <div class="ai-hero-slide-content-{{ ai_gen_id }} align-{{ text_alignment }}" style="--slide-text-color: {% if i == 1 %}{{ section.settings.slide_1_text_color }}{% else %}{{ section.settings.text_color }}{% endif %};">
                   {% if title != blank %}
                     <h1 class="ai-hero-slide-title-{{ ai_gen_id }}">
                       {{ title | newline_to_br }}
@@ -1418,6 +1418,13 @@
       "id": "slide_1_subtitle",
       "label": "Subtitle",
       "default": "Introducing our new plant-based formula"
+    },
+    {
+      "type": "color",
+      "id": "slide_1_text_color",
+      "label": "Slide 1 text color",
+      "default": "#ffffff",
+      "info": "Controls the title and subtitle color for Slide 1 only."
     },
     {
       "type": "select",
