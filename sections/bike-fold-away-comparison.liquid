@@ -1,0 +1,448 @@
+{%- liquid
+  assign section_id = 'BikeFoldAwayComparison-' | append: section.id
+-%}
+
+<section id="{{ section_id }}" class="bike-fold-away-comparison">
+  <div class="bike-fold-away-comparison__inner">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="bike-fold-away-comparison__heading">{{ section.settings.heading | escape }}</h2>
+    {%- endif -%}
+
+    {%- if section.settings.subheading != blank -%}
+      <p class="bike-fold-away-comparison__subheading">{{ section.settings.subheading | escape }}</p>
+    {%- endif -%}
+
+    <div class="bike-fold-away-comparison__layout">
+      <article class="bike-fold-away-comparison__image-card">
+        <span class="bike-fold-away-comparison__badge">{{ section.settings.in_use_label | escape }}</span>
+        {%- if section.settings.in_use_image != blank -%}
+          {%- assign in_use_alt = section.settings.in_use_image.alt | default: section.settings.in_use_label | escape -%}
+          {{
+            section.settings.in_use_image
+            | image_url: width: 760, format: 'webp'
+            | image_tag:
+              loading: 'lazy',
+              widths: '360, 520, 640, 760',
+              sizes: '(min-width: 990px) 31vw, 100vw',
+              alt: in_use_alt,
+              class: 'bike-fold-away-comparison__image'
+          }}
+        {%- else -%}
+          {{ 'image' | placeholder_svg_tag: 'bike-fold-away-comparison__placeholder' }}
+        {%- endif -%}
+      </article>
+
+      <div class="bike-fold-away-comparison__arrow" aria-hidden="true">
+        <svg viewBox="0 0 44 24" focusable="false">
+          <path d="M2 12h34M25 3l11 9-11 9" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <article class="bike-fold-away-comparison__image-card">
+        <span class="bike-fold-away-comparison__badge">{{ section.settings.folded_label | escape }}</span>
+        {%- if section.settings.folded_image != blank -%}
+          {%- assign folded_alt = section.settings.folded_image.alt | default: section.settings.folded_label | escape -%}
+          {{
+            section.settings.folded_image
+            | image_url: width: 760, format: 'webp'
+            | image_tag:
+              loading: 'lazy',
+              widths: '360, 520, 640, 760',
+              sizes: '(min-width: 990px) 31vw, 100vw',
+              alt: folded_alt,
+              class: 'bike-fold-away-comparison__image'
+          }}
+        {%- else -%}
+          {{ 'image' | placeholder_svg_tag: 'bike-fold-away-comparison__placeholder' }}
+        {%- endif -%}
+      </article>
+
+      <div class="bike-fold-away-comparison__arrow bike-fold-away-comparison__arrow--second" aria-hidden="true">
+        <svg viewBox="0 0 44 24" focusable="false">
+          <path d="M2 12h34M25 3l11 9-11 9" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <div class="bike-fold-away-comparison__features">
+        {%- for block in section.blocks -%}
+          <div class="bike-fold-away-comparison__feature" {{ block.shopify_attributes }}>
+            <div class="bike-fold-away-comparison__feature-copy">
+              {%- if block.settings.title != blank -%}
+                <h3 class="bike-fold-away-comparison__feature-title">{{ block.settings.title | escape }}</h3>
+              {%- endif -%}
+
+              {%- if block.settings.text != blank -%}
+                <p class="bike-fold-away-comparison__feature-text">{{ block.settings.text | escape }}</p>
+              {%- endif -%}
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  #{{ section_id }} {
+    background: {{ section.settings.background_color }};
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+  }
+
+  #{{ section_id }} .bike-fold-away-comparison__inner {
+    max-width: {{ section.settings.max_width }}px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  #{{ section_id }} .bike-fold-away-comparison__heading {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+    color: #333333;
+    font-size: {{ section.settings.heading_size }}px !important;
+    line-height: 1.2 !important;
+    font-weight: 700 !important;
+    letter-spacing: 0;
+    text-align: center !important;
+  }
+
+  #{{ section_id }} p.bike-fold-away-comparison__subheading,
+  #{{ section_id }} .bike-fold-away-comparison__subheading {
+    display: block !important;
+    width: 100% !important;
+    max-width: 760px !important;
+    margin: 16px auto 38px !important;
+    color: #333333 !important;
+    font-size: 15px !important;
+    line-height: 1.45 !important;
+    font-weight: 400 !important;
+    text-align: center !important;
+  }
+
+  #{{ section_id }} .bike-fold-away-comparison__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 48px minmax(0, 1fr) 48px minmax(250px, 0.68fr);
+    align-items: center;
+    gap: 16px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  #{{ section_id }} .bike-fold-away-comparison__image-card {
+    position: relative;
+    min-height: 250px;
+    overflow: hidden;
+    border-radius: 10px;
+    background: #f7f3ee;
+  }
+
+  #{{ section_id }} .bike-fold-away-comparison__image,
+  #{{ section_id }} .bike-fold-away-comparison__placeholder {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 250px;
+    object-fit: cover;
+  }
+
+  #{{ section_id }} .bike-fold-away-comparison__badge {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 2;
+    display: inline-flex;
+    min-height: 34px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: #eb7122;
+    color: #ffffff;
+    font-size: 16px;
+    line-height: 1;
+    font-weight: 600;
+    padding: 0 18px;
+    box-shadow: 0 6px 14px rgba(235, 113, 34, 0.22);
+  }
+
+  #{{ section_id }} .bike-fold-away-comparison__arrow {
+    display: flex;
+    justify-content: center;
+    color: #eb7122;
+  }
+
+  #{{ section_id }} .bike-fold-away-comparison__arrow svg {
+    width: 44px;
+    height: 24px;
+  }
+
+  #{{ section_id }} .bike-fold-away-comparison__features {
+    display: grid;
+    gap: 24px;
+  }
+
+  #{{ section_id }} .bike-fold-away-comparison__feature {
+    display: block;
+  }
+
+  #{{ section_id }} .bike-fold-away-comparison__feature-title {
+    margin: 0 0 5px;
+    color: #333333;
+    font-size: 15px !important;
+    line-height: 1.45 !important;
+    font-weight: 700 !important;
+    letter-spacing: 0;
+  }
+
+  #{{ section_id }} .bike-fold-away-comparison__feature-text {
+    margin: 0;
+    color: #333333;
+    font-size: 15px !important;
+    line-height: 1.45 !important;
+    font-weight: 400 !important;
+  }
+
+  @media screen and (max-width: 1180px) {
+    #{{ section_id }} .bike-fold-away-comparison__layout {
+      grid-template-columns: minmax(0, 1fr) 42px minmax(0, 1fr);
+    }
+
+    #{{ section_id }} .bike-fold-away-comparison__arrow--second {
+      display: none;
+    }
+
+    #{{ section_id }} .bike-fold-away-comparison__features {
+      grid-column: 1 / -1;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      padding-top: 6px;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    #{{ section_id }} {
+      padding-top: {{ section.settings.padding_top_mobile }}px;
+      padding-bottom: {{ section.settings.padding_bottom_mobile }}px;
+    }
+
+    #{{ section_id }} .bike-fold-away-comparison__inner {
+      padding: 0 16px;
+    }
+
+    #{{ section_id }} .bike-fold-away-comparison__heading {
+      font-size: {{ section.settings.heading_size_mobile }}px !important;
+    }
+
+    #{{ section_id }} p.bike-fold-away-comparison__subheading,
+    #{{ section_id }} .bike-fold-away-comparison__subheading {
+      max-width: 92% !important;
+      margin: 12px auto 26px !important;
+      font-size: 14px !important;
+      text-align: center !important;
+    }
+
+    #{{ section_id }} .bike-fold-away-comparison__layout {
+      grid-template-columns: 1fr;
+      gap: 14px;
+      padding: 14px;
+    }
+
+    #{{ section_id }} .bike-fold-away-comparison__image-card,
+    #{{ section_id }} .bike-fold-away-comparison__image,
+    #{{ section_id }} .bike-fold-away-comparison__placeholder {
+      min-height: 210px;
+    }
+
+    #{{ section_id }} .bike-fold-away-comparison__arrow {
+      transform: rotate(90deg);
+    }
+
+    #{{ section_id }} .bike-fold-away-comparison__arrow--second {
+      display: flex;
+    }
+
+    #{{ section_id }} .bike-fold-away-comparison__features {
+      grid-column: auto;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      padding-top: 0;
+    }
+
+    #{{ section_id }} .bike-fold-away-comparison__feature-title {
+      font-size: 14px !important;
+    }
+
+    #{{ section_id }} .bike-fold-away-comparison__feature-text {
+      font-size: 14px !important;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Bike fold-away compare",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "An Exercise Bike That Folds Away After Your Workout"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Fold your bike after the ride, roll it away, and get your floor space back in seconds."
+    },
+    {
+      "type": "image_picker",
+      "id": "in_use_image",
+      "label": "In-use image"
+    },
+    {
+      "type": "text",
+      "id": "in_use_label",
+      "label": "In-use badge",
+      "default": "In Use"
+    },
+    {
+      "type": "image_picker",
+      "id": "folded_image",
+      "label": "Folded image"
+    },
+    {
+      "type": "text",
+      "id": "folded_label",
+      "label": "Folded badge",
+      "default": "Folded"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size",
+      "min": 22,
+      "max": 48,
+      "step": 1,
+      "unit": "px",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "Heading size mobile",
+      "min": 20,
+      "max": 36,
+      "step": 1,
+      "unit": "px",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max width",
+      "min": 1000,
+      "max": 1800,
+      "step": 20,
+      "unit": "px",
+      "default": 1700
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 44
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Padding top mobile",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Padding bottom mobile",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    }
+  ],
+  "blocks": [
+    {
+      "type": "feature",
+      "name": "Feature",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Folded Footprint"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "20\" L x 20\" W x 50\" H"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Bike fold-away compare",
+      "blocks": [
+        {
+          "type": "feature",
+          "settings": {
+            "title": "Folded Footprint",
+            "text": "20\" L x 20\" W x 50\" H"
+          }
+        },
+        {
+          "type": "feature",
+          "settings": {
+            "title": "Easy-Roll Wheels",
+            "text": "Move it anywhere"
+          }
+        },
+        {
+          "type": "feature",
+          "settings": {
+            "title": "Store in Closets, Corners, or Behind Doors",
+            "text": ""
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

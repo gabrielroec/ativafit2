@@ -1,0 +1,1493 @@
+{%- liquid
+  assign section_id = 'BikeFinderCards-' | append: section.id
+  assign heading_font = section.settings.heading_font
+  assign body_font = section.settings.body_font
+  assign bullet_font = section.settings.bullet_font
+  assign accent_font = section.settings.accent_font
+
+  assign heading_font_variant = heading_font | font_modify: 'weight', section.settings.heading_weight | default: heading_font
+  assign subheading_font_variant = body_font | font_modify: 'weight', section.settings.subheading_weight | default: body_font
+  assign body_font_variant = body_font | font_modify: 'weight', section.settings.body_text_weight | default: body_font
+  assign bullet_font_variant = bullet_font | font_modify: 'weight', section.settings.bullet_weight | default: bullet_font
+  assign badge_font_variant = accent_font | font_modify: 'weight', section.settings.badge_weight | default: accent_font
+  assign price_font_variant = accent_font | font_modify: 'weight', section.settings.price_weight | default: accent_font
+  assign card_title_font_variant = accent_font | font_modify: 'weight', section.settings.card_title_weight | default: accent_font
+  assign list_heading_font_variant = accent_font | font_modify: 'weight', section.settings.list_heading_weight | default: accent_font
+  assign button_font_variant = accent_font | font_modify: 'weight', section.settings.button_weight | default: accent_font
+-%}
+
+<section id="{{ section_id }}" class="bike-finder">
+  <div class="bike-finder__inner">
+    {%- if section.settings.heading != blank or section.settings.subheading != blank -%}
+      <div class="bike-finder__header">
+        {%- if section.settings.heading != blank -%}
+          <h2 class="bike-finder__heading">
+            {{ section.settings.heading | escape }}
+          </h2>
+        {%- endif -%}
+
+        {%- if section.settings.subheading != blank -%}
+          <div class="bike-finder__subheading">
+            {{ section.settings.subheading }}
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    <div class="bike-finder__grid">
+      {%- for block in section.blocks -%}
+        {%- assign product = block.settings.product -%}
+        {%- assign button_url = block.settings.button_link -%}
+
+        {%- if button_url == blank and product != blank -%}
+          {%- assign button_url = product.url -%}
+        {%- endif -%}
+
+        <article
+          class="bike-finder__card"
+          {{ block.shopify_attributes }}
+        >
+          {%- if block.settings.badge != blank -%}
+            <span class="bike-finder__badge">
+              {{ block.settings.badge | escape }}
+            </span>
+          {%- endif -%}
+
+          <a
+            class="bike-finder__image-link"
+            href="{{ button_url | default: '#' }}"
+            aria-label="{{ block.settings.title | default: product.title | escape }}"
+          >
+            <div class="bike-finder__image-wrap">
+              {%- if block.settings.image != blank -%}
+                {%- assign image_alt = block.settings.image.alt
+                  | default: block.settings.title
+                  | default: product.title
+                  | escape
+                -%}
+
+                {{
+                  block.settings.image
+                  | image_url: width: 760, format: 'webp'
+                  | image_tag:
+                    loading: 'lazy',
+                    widths: '360, 520, 640, 760',
+                    sizes: '(min-width: 990px) 30vw, 90vw',
+                    alt: image_alt,
+                    class: 'bike-finder__image'
+                }}
+
+              {%- elsif product.featured_image != blank -%}
+                {%- assign image_alt = product.featured_image.alt
+                  | default: product.title
+                  | escape
+                -%}
+
+                {{
+                  product.featured_image
+                  | image_url: width: 760, format: 'webp'
+                  | image_tag:
+                    loading: 'lazy',
+                    widths: '360, 520, 640, 760',
+                    sizes: '(min-width: 990px) 30vw, 90vw',
+                    alt: image_alt,
+                    class: 'bike-finder__image'
+                }}
+
+              {%- else -%}
+                {{
+                  'product-1'
+                  | placeholder_svg_tag: 'bike-finder__placeholder'
+                }}
+              {%- endif -%}
+            </div>
+          </a>
+
+          {%- if product != blank or block.settings.price_text != blank -%}
+            <div class="bike-finder__buy-meta">
+              {%- if product != blank and product.variants.size > 0 -%}
+                <div
+                  class="bike-finder__variant-list"
+                  aria-label="{{ product.title | escape }} variants"
+                >
+                  {%- for variant in product.variants limit: 3 -%}
+                    {%- assign variant_image = variant.featured_media.preview_image
+                      | default: variant.featured_image
+                      | default: product.featured_image
+                    -%}
+
+                    {%- capture variant_srcset -%}
+                      {%- if variant_image != blank -%}
+                        {{ variant_image | image_url: width: 360, format: 'webp' }} 360w,
+                        {{ variant_image | image_url: width: 520, format: 'webp' }} 520w,
+                        {{ variant_image | image_url: width: 640, format: 'webp' }} 640w,
+                        {{ variant_image | image_url: width: 760, format: 'webp' }} 760w
+                      {%- endif -%}
+                    {%- endcapture -%}
+
+                    <button
+                      class="bike-finder__variant-chip{% if forloop.first %} is-active{% endif %}"
+                      type="button"
+                      aria-label="{{ variant.title | escape }}"
+                      aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}"
+                      data-bike-variant-chip
+                      data-variant-price="{{ variant.price | money | escape }}"
+                      data-variant-compare-price="{% if variant.compare_at_price > variant.price %}{{ variant.compare_at_price | money | escape }}{% endif %}"
+                      data-variant-image-src="{% if variant_image != blank %}{{ variant_image | image_url: width: 760, format: 'webp' }}{% endif %}"
+                      data-variant-image-srcset="{{ variant_srcset | strip | escape }}"
+                      data-variant-image-alt="{{ variant_image.alt | default: variant.title | escape }}"
+                    >
+                      {%- if variant_image != blank -%}
+                        {%- assign variant_alt = variant_image.alt
+                          | default: variant.title
+                          | escape
+                        -%}
+
+                        {{
+                          variant_image
+                          | image_url: width: 120, format: 'webp'
+                          | image_tag:
+                            loading: 'lazy',
+                            widths: '60, 90, 120',
+                            sizes: '54px',
+                            alt: variant_alt,
+                            class: 'bike-finder__variant-image'
+                        }}
+
+                      {%- else -%}
+                        <span class="bike-finder__variant-fallback">
+                          {{ forloop.index }}
+                        </span>
+                      {%- endif -%}
+                    </button>
+                  {%- endfor -%}
+                </div>
+              {%- endif -%}
+
+              <div
+                class="bike-finder__price"
+                data-bike-card-price
+              >
+                {%- if block.settings.price_text != blank -%}
+                  {{ block.settings.price_text | escape }}
+
+                {%- elsif product != blank -%}
+                  {%- if product.compare_at_price_min > product.price_min -%}
+                    <span class="bike-finder__compare-price">
+                      {{ product.compare_at_price_min | money }}
+                    </span>
+                  {%- endif -%}
+
+                  {{ product.price_min | money }}
+                {%- endif -%}
+              </div>
+            </div>
+          {%- endif -%}
+
+          <div class="bike-finder__body">
+            {%- if block.settings.title != blank -%}
+              <h3 class="bike-finder__title">
+                {{ block.settings.title | escape }}
+              </h3>
+
+            {%- elsif product != blank -%}
+              <h3 class="bike-finder__title">
+                {{ product.title | escape }}
+              </h3>
+            {%- endif -%}
+
+            {%- if block.settings.description != blank -%}
+              <div class="bike-finder__description">
+                {{ block.settings.description }}
+              </div>
+            {%- endif -%}
+
+            <div class="bike-finder__divider"></div>
+
+            {%- if block.settings.list_heading != blank -%}
+              <div class="bike-finder__list-heading">
+                <span
+                  class="bike-finder__target-icon"
+                  aria-hidden="true"
+                >
+                  <span></span>
+                </span>
+
+                <strong>
+                  {{ block.settings.list_heading | escape }}
+                </strong>
+              </div>
+            {%- endif -%}
+
+            <ul class="bike-finder__list">
+              {%- if block.settings.bullet_1 != blank -%}
+                <li>
+                  {{ block.settings.bullet_1 | escape }}
+                </li>
+              {%- endif -%}
+
+              {%- if block.settings.bullet_2 != blank -%}
+                <li>
+                  {{ block.settings.bullet_2 | escape }}
+                </li>
+              {%- endif -%}
+
+              {%- if block.settings.bullet_3 != blank -%}
+                <li>
+                  {{ block.settings.bullet_3 | escape }}
+                </li>
+              {%- endif -%}
+            </ul>
+          </div>
+
+          {%- if block.settings.button_label != blank -%}
+            <a
+              class="bike-finder__button"
+              href="{{ button_url | default: '#' }}"
+            >
+              {{ block.settings.button_label | escape }}
+            </a>
+          {%- endif -%}
+        </article>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    var section = document.getElementById({{ section_id | json }});
+
+    if (!section) return;
+
+    section.addEventListener('click', function (event) {
+      var chip = event.target.closest('[data-bike-variant-chip]');
+
+      if (!chip || !section.contains(chip)) return;
+
+      var card = chip.closest('.bike-finder__card');
+
+      if (!card) return;
+
+      card
+        .querySelectorAll('[data-bike-variant-chip]')
+        .forEach(function (item) {
+          var active = item === chip;
+
+          item.classList.toggle('is-active', active);
+          item.setAttribute(
+            'aria-pressed',
+            active ? 'true' : 'false'
+          );
+        });
+
+      var image = card.querySelector('.bike-finder__image');
+      var imageSrc = chip.getAttribute('data-variant-image-src');
+      var imageSrcset = chip.getAttribute(
+        'data-variant-image-srcset'
+      );
+      var imageAlt = chip.getAttribute(
+        'data-variant-image-alt'
+      );
+
+      if (image && imageSrc) {
+        image.setAttribute('src', imageSrc);
+
+        if (imageSrcset) {
+          image.setAttribute('srcset', imageSrcset);
+        }
+
+        if (imageAlt) {
+          image.setAttribute('alt', imageAlt);
+        }
+      }
+
+      var price = card.querySelector(
+        '[data-bike-card-price]'
+      );
+      var variantPrice = chip.getAttribute(
+        'data-variant-price'
+      );
+      var comparePrice = chip.getAttribute(
+        'data-variant-compare-price'
+      );
+
+      if (price && variantPrice) {
+        price.innerHTML = comparePrice
+          ? '<span class="bike-finder__compare-price">' +
+            comparePrice +
+            '</span>' +
+            variantPrice
+          : variantPrice;
+      }
+    });
+  })();
+</script>
+
+<style>
+  {{ heading_font | font_face: font_display: 'swap' }}
+  {{ heading_font_variant | font_face: font_display: 'swap' }}
+  {{ body_font | font_face: font_display: 'swap' }}
+  {{ subheading_font_variant | font_face: font_display: 'swap' }}
+  {{ body_font_variant | font_face: font_display: 'swap' }}
+  {{ bullet_font | font_face: font_display: 'swap' }}
+  {{ bullet_font_variant | font_face: font_display: 'swap' }}
+  {{ accent_font | font_face: font_display: 'swap' }}
+  {{ badge_font_variant | font_face: font_display: 'swap' }}
+  {{ price_font_variant | font_face: font_display: 'swap' }}
+  {{ card_title_font_variant | font_face: font_display: 'swap' }}
+  {{ list_heading_font_variant | font_face: font_display: 'swap' }}
+  {{ button_font_variant | font_face: font_display: 'swap' }}
+
+  #{{ section_id }} {
+    --bike-heading-font:
+      {{ heading_font.family }},
+      {{ heading_font.fallback_families }};
+
+    --bike-body-font:
+      {{ body_font.family }},
+      {{ body_font.fallback_families }};
+
+    --bike-bullet-font:
+      {{ bullet_font.family }},
+      {{ bullet_font.fallback_families }};
+
+    --bike-accent-font:
+      {{ accent_font.family }},
+      {{ accent_font.fallback_families }};
+
+    background: {{ section.settings.background_color }};
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    font-family: var(--bike-body-font) !important;
+    font-synthesis: weight style;
+  }
+
+  #{{ section_id }} .bike-finder__inner {
+    max-width: {{ section.settings.max_width }}px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  #{{ section_id }} .bike-finder__header {
+    max-width: 1040px;
+    margin: 0 auto 34px;
+    text-align: center;
+  }
+
+  #{{ section_id }} .bike-finder__heading {
+    margin: 0;
+    color: {{ section.settings.heading_color }};
+    font-family: var(--bike-heading-font) !important;
+    font-size: {{ section.settings.heading_size }}px !important;
+    line-height: {{ section.settings.heading_line_height }}% !important;
+    font-style: {{ heading_font_variant.style }} !important;
+    font-weight: {{ section.settings.heading_weight }} !important;
+    letter-spacing: 0;
+  }
+
+  #{{ section_id }} .bike-finder__subheading {
+    max-width: 860px;
+    margin: 18px auto 0;
+    color: {{ section.settings.subheading_color }};
+    font-family: var(--bike-body-font) !important;
+    font-size: {{ section.settings.subheading_size }}px !important;
+    line-height: {{ section.settings.subheading_line_height }}% !important;
+    font-style: {{ subheading_font_variant.style }} !important;
+    font-weight: {{ section.settings.subheading_weight }} !important;
+  }
+
+  #{{ section_id }} .bike-finder__subheading p {
+    margin: 0;
+    color: inherit !important;
+    font: inherit !important;
+  }
+
+  #{{ section_id }} .bike-finder__heading,
+  #{{ section_id }} .bike-finder__subheading,
+  #{{ section_id }} .bike-finder__badge,
+  #{{ section_id }} .bike-finder__price,
+  #{{ section_id }} .bike-finder__title,
+  #{{ section_id }} .bike-finder__description,
+  #{{ section_id }} .bike-finder__list-heading,
+  #{{ section_id }} .bike-finder__list,
+  #{{ section_id }} .bike-finder__button {
+    text-transform: none;
+  }
+
+  #{{ section_id }} .bike-finder__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 28px;
+  }
+
+  #{{ section_id }} .bike-finder__card {
+    position: relative;
+    display: flex;
+    min-width: 0;
+    min-height: 100%;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid #e5e5e5;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.06);
+  }
+
+  #{{ section_id }} .bike-finder__badge {
+    position: absolute;
+    top: 28px;
+    left: 28px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 7px 20px;
+    border-radius: 10px;
+    background: #eb7122;
+    color: #ffffff;
+    font-family: var(--bike-accent-font) !important;
+    font-size: {{ section.settings.badge_size }}px !important;
+    line-height: 1 !important;
+    font-style: {{ badge_font_variant.style }} !important;
+    font-weight: {{ section.settings.badge_weight }} !important;
+    box-shadow: 0 6px 14px rgba(242, 76, 0, 0.22);
+  }
+
+  #{{ section_id }} .bike-finder__image-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  #{{ section_id }} .bike-finder__image-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1 / 0.7;
+    padding: 24px 22px 2px;
+    background: #ffffff;
+  }
+
+  #{{ section_id }} .bike-finder__image,
+  #{{ section_id }} .bike-finder__placeholder {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  #{{ section_id }} .bike-finder__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 0 24px 20px;
+  }
+
+  #{{ section_id }} .bike-finder__buy-meta {
+    display: grid;
+    gap: 8px;
+    padding: 0 24px 18px;
+  }
+
+  #{{ section_id }} .bike-finder__variant-list {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    min-height: 50px;
+  }
+
+  #{{ section_id }} .bike-finder__variant-chip {
+    display: inline-flex;
+    width: 46px;
+    height: 46px;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 2px solid #e4e4e4;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #222021;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: none;
+    transition:
+      border-color 0.18s ease,
+      transform 0.18s ease;
+    appearance: none;
+  }
+
+  #{{ section_id }} .bike-finder__variant-chip.is-active,
+  #{{ section_id }} .bike-finder__variant-chip:hover {
+    border-color: #222021;
+    transform: translateY(-1px);
+  }
+
+  #{{ section_id }} .bike-finder__variant-image {
+    display: block;
+    width: 88%;
+    height: 88%;
+    object-fit: contain;
+  }
+
+  #{{ section_id }} .bike-finder__variant-fallback {
+    font-family: var(--bike-accent-font) !important;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  #{{ section_id }} .bike-finder__price {
+    color: {{ section.settings.price_color }};
+    font-family: var(--bike-accent-font) !important;
+    font-size: {{ section.settings.price_size }}px !important;
+    line-height: 1.15 !important;
+    font-style: {{ price_font_variant.style }} !important;
+    font-weight: {{ section.settings.price_weight }} !important;
+    letter-spacing: 0;
+  }
+
+  #{{ section_id }} .bike-finder__compare-price {
+    margin-right: 8px;
+    color: #8a8a8a;
+    font-family: var(--bike-body-font) !important;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: line-through;
+  }
+
+  #{{ section_id }} .bike-finder__title {
+    margin: 0 0 14px;
+    color: {{ section.settings.card_title_color }};
+    font-family: var(--bike-accent-font) !important;
+    font-size: {{ section.settings.card_title_size }}px !important;
+    line-height: 1.3 !important;
+    font-style: {{ card_title_font_variant.style }} !important;
+    font-weight: {{ section.settings.card_title_weight }} !important;
+    letter-spacing: 0;
+  }
+
+  #{{ section_id }} .bike-finder__description {
+    color: {{ section.settings.body_text_color }};
+    font-family: var(--bike-body-font) !important;
+    font-size: {{ section.settings.body_text_size }}px !important;
+    line-height: {{ section.settings.body_line_height }}% !important;
+    font-style: {{ body_font_variant.style }} !important;
+    font-weight: {{ section.settings.body_text_weight }} !important;
+  }
+
+  #{{ section_id }} .bike-finder__description p {
+    margin: 0;
+    color: inherit !important;
+    font: inherit !important;
+  }
+
+  #{{ section_id }} .bike-finder__divider {
+    width: 100%;
+    height: 1px;
+    margin: 22px 0 18px;
+    background: #e4e4e4;
+  }
+
+  #{{ section_id }} .bike-finder__list-heading {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 14px;
+    color: {{ section.settings.list_heading_color }};
+    font-family: var(--bike-accent-font) !important;
+    font-size: {{ section.settings.list_heading_size }}px !important;
+    line-height: 1.3 !important;
+    font-style: {{ list_heading_font_variant.style }} !important;
+    font-weight: {{ section.settings.list_heading_weight }} !important;
+  }
+
+  #{{ section_id }} .bike-finder__list-heading strong {
+    font-weight: inherit;
+  }
+
+  #{{ section_id }} .bike-finder__target-icon {
+    display: none;
+  }
+
+  #{{ section_id }} .bike-finder__list {
+    display: grid;
+    gap: 9px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: {{ section.settings.bullet_color }} !important;
+    font-family: var(--bike-bullet-font) !important;
+    font-size: {{ section.settings.bullet_size }}px !important;
+    line-height: {{ section.settings.bullet_line_height }}% !important;
+    font-style: {{ bullet_font_variant.style }} !important;
+    font-weight: {{ section.settings.bullet_weight }} !important;
+  }
+
+  #{{ section_id }} .bike-finder__list li {
+    position: relative;
+    min-height: 0;
+    padding-left: 0;
+    color: inherit !important;
+    font-family: inherit !important;
+    font-size: inherit !important;
+    line-height: inherit !important;
+    font-style: inherit !important;
+    font-weight: inherit !important;
+    letter-spacing: inherit !important;
+  }
+
+  #{{ section_id }} .bike-finder__list li::before {
+    content: none;
+  }
+
+  #{{ section_id }} .bike-finder__button {
+    display: block;
+    margin: auto 24px 24px;
+    padding: 13px 18px;
+    border-radius: 8px;
+    background: #eb7122;
+    color: #ffffff;
+    font-family: var(--bike-accent-font) !important;
+    font-size: {{ section.settings.button_size }}px !important;
+    line-height: 1.1 !important;
+    font-style: {{ button_font_variant.style }} !important;
+    font-weight: {{ section.settings.button_weight }} !important;
+    text-align: center;
+    text-decoration: none;
+    transition:
+      transform 0.18s ease,
+      box-shadow 0.18s ease;
+  }
+
+  #{{ section_id }} .bike-finder__button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(242, 76, 0, 0.28);
+  }
+
+  @media (max-width: 1180px) {
+    #{{ section_id }} .bike-finder__grid {
+      gap: 18px;
+    }
+  }
+
+  @media (max-width: 899px) {
+    #{{ section_id }} .bike-finder__grid {
+      grid-template-columns: 1fr;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+  }
+
+  @media (max-width: 749px) {
+    #{{ section_id }} {
+      padding-top:
+        {{ section.settings.padding_top | times: 0.7 | round }}px;
+
+      padding-bottom:
+        {{ section.settings.padding_bottom | times: 0.7 | round }}px;
+    }
+
+    #{{ section_id }} .bike-finder__inner {
+      padding: 0 12px;
+    }
+
+    #{{ section_id }} .bike-finder__header {
+      margin-bottom: 20px;
+    }
+
+    #{{ section_id }} .bike-finder__heading {
+      font-size:
+        {{ section.settings.heading_size_mobile }}px !important;
+    }
+
+    #{{ section_id }} .bike-finder__subheading {
+      margin-top: 12px;
+      font-size:
+        {{ section.settings.subheading_size_mobile }}px !important;
+    }
+
+    #{{ section_id }} .bike-finder__card {
+      border-radius: 12px;
+    }
+
+    #{{ section_id }} .bike-finder__badge {
+      top: 14px;
+      left: 14px;
+      min-height: 32px;
+      padding: 6px 14px;
+      font-size:
+        {{ section.settings.badge_size_mobile }}px !important;
+    }
+
+    #{{ section_id }} .bike-finder__image-wrap {
+      aspect-ratio: 1 / 0.66;
+      padding: 18px 14px 0;
+    }
+
+    #{{ section_id }} .bike-finder__body {
+      padding: 0 16px 16px;
+    }
+
+    #{{ section_id }} .bike-finder__buy-meta {
+      padding: 0 16px 14px;
+    }
+
+    #{{ section_id }} .bike-finder__variant-chip {
+      width: 40px;
+      height: 40px;
+    }
+
+    #{{ section_id }} .bike-finder__price {
+      font-size:
+        {{ section.settings.price_size_mobile }}px !important;
+    }
+
+    #{{ section_id }} .bike-finder__title {
+      font-size:
+        {{ section.settings.card_title_size_mobile }}px !important;
+    }
+
+    #{{ section_id }} .bike-finder__button {
+      margin: auto 16px 16px;
+      padding: 11px 14px;
+      font-size:
+        {{ section.settings.button_size_mobile }}px !important;
+    }
+
+    #{{ section_id }} .bike-finder__description {
+      font-size:
+        {{ section.settings.body_text_size_mobile }}px !important;
+    }
+
+    #{{ section_id }} .bike-finder__list {
+      font-size:
+        {{ section.settings.bullet_size_mobile }}px !important;
+    }
+
+    #{{ section_id }} .bike-finder__list-heading {
+      font-size:
+        {{ section.settings.list_heading_size_mobile }}px !important;
+    }
+
+    #{{ section_id }} .bike-finder__divider {
+      margin: 18px 0 14px;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Bike finder cards",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Which Ativafit Folding Exercise Bike Fits You Best?"
+    },
+    {
+      "type": "richtext",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "<p>Not every exercise bike that folds is built for the same routine. Use this quick guide to choose the right Ativafit bike for your space, comfort needs, and training style.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Font families"
+    },
+    {
+      "type": "font_picker",
+      "id": "heading_font",
+      "label": "Main heading font",
+      "default": "assistant_n4"
+    },
+    {
+      "type": "font_picker",
+      "id": "body_font",
+      "label": "Body content font",
+      "default": "assistant_n4"
+    },
+    {
+      "type": "font_picker",
+      "id": "bullet_font",
+      "label": "Bullet list font",
+      "default": "assistant_n4"
+    },
+    {
+      "type": "font_picker",
+      "id": "accent_font",
+      "label": "Card accent font",
+      "info": "Used for card titles, prices, badges, list headings and buttons.",
+      "default": "assistant_n4"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size desktop",
+      "min": 28,
+      "max": 72,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "Heading size mobile",
+      "min": 20,
+      "max": 42,
+      "step": 1,
+      "unit": "px",
+      "default": 22
+    },
+    {
+      "type": "select",
+      "id": "heading_weight",
+      "label": "Heading weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        },
+        {
+          "value": "800",
+          "label": "Extra bold"
+        },
+        {
+          "value": "900",
+          "label": "Black"
+        }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "range",
+      "id": "heading_line_height",
+      "label": "Heading line height",
+      "min": 90,
+      "max": 160,
+      "step": 5,
+      "unit": "%",
+      "default": 110
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#333333"
+    },
+    {
+      "type": "range",
+      "id": "subheading_size",
+      "label": "Subheading size desktop",
+      "min": 14,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "subheading_size_mobile",
+      "label": "Subheading size mobile",
+      "min": 13,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "subheading_weight",
+      "label": "Subheading weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        },
+        {
+          "value": "800",
+          "label": "Extra bold"
+        },
+        {
+          "value": "900",
+          "label": "Black"
+        }
+      ],
+      "default": "400"
+    },
+    {
+      "type": "range",
+      "id": "subheading_line_height",
+      "label": "Subheading line height",
+      "min": 100,
+      "max": 200,
+      "step": 5,
+      "unit": "%",
+      "default": 145
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "label": "Subheading color",
+      "default": "#333333"
+    },
+    {
+      "type": "header",
+      "content": "Card typography"
+    },
+    {
+      "type": "range",
+      "id": "card_title_size",
+      "label": "Card title size desktop",
+      "min": 12,
+      "max": 36,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "card_title_size_mobile",
+      "label": "Card title size mobile",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "select",
+      "id": "card_title_weight",
+      "label": "Card title weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        },
+        {
+          "value": "800",
+          "label": "Extra bold"
+        },
+        {
+          "value": "900",
+          "label": "Black"
+        }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "color",
+      "id": "card_title_color",
+      "label": "Card title color",
+      "default": "#333333"
+    },
+    {
+      "type": "range",
+      "id": "body_text_size",
+      "label": "Body text size desktop",
+      "min": 11,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "body_text_size_mobile",
+      "label": "Body text size mobile",
+      "min": 11,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "body_text_weight",
+      "label": "Body text weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        },
+        {
+          "value": "800",
+          "label": "Extra bold"
+        },
+        {
+          "value": "900",
+          "label": "Black"
+        }
+      ],
+      "default": "400"
+    },
+    {
+      "type": "range",
+      "id": "body_line_height",
+      "label": "Body line height",
+      "min": 110,
+      "max": 200,
+      "step": 5,
+      "unit": "%",
+      "default": 145
+    },
+    {
+      "type": "color",
+      "id": "body_text_color",
+      "label": "Body text color",
+      "default": "#333333"
+    },
+    {
+      "type": "range",
+      "id": "bullet_size",
+      "label": "Bullet text size desktop",
+      "min": 11,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "bullet_size_mobile",
+      "label": "Bullet text size mobile",
+      "min": 11,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "default": 13
+    },
+    {
+      "type": "select",
+      "id": "bullet_weight",
+      "label": "Bullet text weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        },
+        {
+          "value": "800",
+          "label": "Extra bold"
+        },
+        {
+          "value": "900",
+          "label": "Black"
+        }
+      ],
+      "default": "400"
+    },
+    {
+      "type": "range",
+      "id": "bullet_line_height",
+      "label": "Bullet text line height",
+      "min": 110,
+      "max": 200,
+      "step": 5,
+      "unit": "%",
+      "default": 135
+    },
+    {
+      "type": "color",
+      "id": "bullet_color",
+      "label": "Bullet text color",
+      "default": "#333333"
+    },
+    {
+      "type": "range",
+      "id": "list_heading_size",
+      "label": "List heading size desktop",
+      "min": 11,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "list_heading_size_mobile",
+      "label": "List heading size mobile",
+      "min": 11,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "list_heading_weight",
+      "label": "List heading weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        },
+        {
+          "value": "800",
+          "label": "Extra bold"
+        },
+        {
+          "value": "900",
+          "label": "Black"
+        }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "color",
+      "id": "list_heading_color",
+      "label": "List heading color",
+      "default": "#333333"
+    },
+    {
+      "type": "range",
+      "id": "price_size",
+      "label": "Price size desktop",
+      "min": 12,
+      "max": 36,
+      "step": 1,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "price_size_mobile",
+      "label": "Price size mobile",
+      "min": 12,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "select",
+      "id": "price_weight",
+      "label": "Price weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        },
+        {
+          "value": "800",
+          "label": "Extra bold"
+        },
+        {
+          "value": "900",
+          "label": "Black"
+        }
+      ],
+      "default": "600"
+    },
+    {
+      "type": "color",
+      "id": "price_color",
+      "label": "Price color",
+      "default": "#eb7122"
+    },
+    {
+      "type": "range",
+      "id": "badge_size",
+      "label": "Badge size desktop",
+      "min": 10,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "badge_size_mobile",
+      "label": "Badge size mobile",
+      "min": 10,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 17
+    },
+    {
+      "type": "select",
+      "id": "badge_weight",
+      "label": "Badge weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        },
+        {
+          "value": "800",
+          "label": "Extra bold"
+        },
+        {
+          "value": "900",
+          "label": "Black"
+        }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "range",
+      "id": "button_size",
+      "label": "Button size desktop",
+      "min": 11,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "button_size_mobile",
+      "label": "Button size mobile",
+      "min": 11,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "button_weight",
+      "label": "Button weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        },
+        {
+          "value": "800",
+          "label": "Extra bold"
+        },
+        {
+          "value": "900",
+          "label": "Black"
+        }
+      ],
+      "default": "600"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max width",
+      "min": 1000,
+      "max": 1800,
+      "step": 20,
+      "unit": "px",
+      "default": 1700
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    }
+  ],
+  "blocks": [
+    {
+      "type": "bike",
+      "name": "Bike card",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Override image"
+        },
+        {
+          "type": "text",
+          "id": "badge",
+          "label": "Badge",
+          "default": "F8"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Best for Small Apartments"
+        },
+        {
+          "type": "richtext",
+          "id": "description",
+          "label": "Description",
+          "default": "<p>Choose this bike if you want compact home cardio.</p>"
+        },
+        {
+          "type": "text",
+          "id": "price_text",
+          "label": "Price override"
+        },
+        {
+          "type": "text",
+          "id": "list_heading",
+          "label": "List heading",
+          "default": "Best for:"
+        },
+        {
+          "type": "text",
+          "id": "bullet_1",
+          "label": "Bullet 1"
+        },
+        {
+          "type": "text",
+          "id": "bullet_2",
+          "label": "Bullet 2"
+        },
+        {
+          "type": "text",
+          "id": "bullet_3",
+          "label": "Bullet 3"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "default": "Choose Bike"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Bike finder cards"
+    }
+  ]
+}
+{% endschema %}

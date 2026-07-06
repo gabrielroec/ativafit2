@@ -37,8 +37,6 @@
 
     if slide_enabled and slide_has_content
       assign active_slides = active_slides | plus: 1
-    elsif request.design_mode and slide_enabled
-      assign active_slides = active_slides | plus: 1
     endif
   endfor
 
@@ -185,7 +183,7 @@
   }
 .ai-hero-slide-title-{{ ai_gen_id }} {
   font-size: {{ section.settings.title_size }}px !important;
-  color: var(--slide-text-color, {{ section.settings.text_color }}) !important;
+  color: {{ section.settings.text_color }} !important;
   margin: 0 0 {{ section.settings.title_subtitle_gap }}px !important;
   max-width: {{ section.settings.title_max_width }}px !important;
   font-weight: 700 !important;
@@ -195,7 +193,7 @@
 
 .ai-hero-slide-subtitle-{{ ai_gen_id }} {
   font-size: {{ section.settings.subtitle_size }}px !important;
-  color: var(--slide-text-color, {{ section.settings.text_color }}) !important;
+  color: {{ section.settings.text_color }} !important;
   margin: 0 0 {{ section.settings.subtitle_button_gap }}px !important;
   max-width: {{ section.settings.subtitle_max_width }}px !important;
   line-height: 1.35 !important;
@@ -465,8 +463,6 @@
   data-autoplay-speed="{{ section.settings.autoplay_speed }}"
   data-slider-id="{{ ai_gen_id }}"
   data-adaptive="{{ section.settings.enable_image_adaptive }}"
-  data-design-mode="{% if request.design_mode %}true{% else %}false{% endif %}"
-  data-editor-slide="{{ section.settings.editor_preview_slide | default: '1' }}"
   {{ section.shopify_attributes }}
 >
   <div class="ai-hero-slider-wrapper-{{ ai_gen_id }}">
@@ -517,19 +513,12 @@
           endif
           assign slide_has_content = false
 
-          if desktop_image != blank or desktop_video != blank or mobile_image != blank or mobile_video != blank or title != blank or subtitle != blank or button_label != blank
-            assign slide_has_content = true
-          endif
-
-          assign should_render_slide = false
-          if slide_enabled and slide_has_content
-            assign should_render_slide = true
-          elsif request.design_mode and slide_enabled
-            assign should_render_slide = true
-          endif
+if desktop_image != blank or desktop_video != blank or mobile_image != blank or mobile_video != blank or title != blank or subtitle != blank or button_label != blank
+  assign slide_has_content = true
+endif
         %}
-{% if should_render_slide %}
-            <div class="ai-hero-slide-{{ ai_gen_id }}" data-slide-index="{{ forloop.index0 }}" data-slide-number="{{ i }}">
+{% if slide_enabled and slide_has_content %}
+            <div class="ai-hero-slide-{{ ai_gen_id }}" data-slide-index="{{ forloop.index0 }}">
             {% if slide_link != blank %}
               <a href="{{ slide_link }}" class="ai-hero-slide-link-{{ ai_gen_id }}">
             {% else %}
@@ -656,7 +645,7 @@
                 <div class="ai-hero-slide-overlay-{{ ai_gen_id }}"></div>
               </div>
               {% if has_content %}
-                <div class="ai-hero-slide-content-{{ ai_gen_id }} align-{{ text_alignment }}" style="--slide-text-color: {% if i == 1 %}{{ section.settings.slide_1_text_color }}{% else %}{{ section.settings.text_color }}{% endif %};">
+                <div class="ai-hero-slide-content-{{ ai_gen_id }} align-{{ text_alignment }}">
                   {% if title != blank %}
                     <h1 class="ai-hero-slide-title-{{ ai_gen_id }}">
                       {{ title | newline_to_br }}
@@ -702,29 +691,9 @@
           {% for i in (1..5) %}
             {% liquid
               assign slide_enabled_key = 'slide_' | append: i | append: '_enabled'
-              assign desktop_image_key = 'slide_' | append: i | append: '_desktop_image'
-              assign desktop_video_key = 'slide_' | append: i | append: '_desktop_video'
-              assign mobile_image_key = 'slide_' | append: i | append: '_mobile_image'
-              assign mobile_video_key = 'slide_' | append: i | append: '_mobile_video'
-              assign title_key = 'slide_' | append: i | append: '_title'
-              assign subtitle_key = 'slide_' | append: i | append: '_subtitle'
-              assign button_label_key = 'slide_' | append: i | append: '_button_label'
-
               assign slide_enabled = section.settings[slide_enabled_key]
-              assign dot_has_content = false
-
-              if section.settings[desktop_image_key] != blank or section.settings[desktop_video_key] != blank or section.settings[mobile_image_key] != blank or section.settings[mobile_video_key] != blank or section.settings[title_key] != blank or section.settings[subtitle_key] != blank or section.settings[button_label_key] != blank
-                assign dot_has_content = true
-              endif
-
-              assign should_render_dot = false
-              if slide_enabled and dot_has_content
-                assign should_render_dot = true
-              elsif request.design_mode and slide_enabled
-                assign should_render_dot = true
-              endif
             %}
-            {% if should_render_dot %}
+            {% if slide_enabled %}
               <button
                 class="ai-hero-slider-dot-{{ ai_gen_id }} {% if dot_index == 0 %}active{% endif %}"
                 data-slide="{{ dot_index }}"
@@ -758,10 +727,7 @@
         prevBtn: null,
         nextBtn: null,
         dots: null,
-        isAdaptive: container.dataset.adaptive === 'true',
-        isDesignMode: container.dataset.designMode === 'true',
-        editorSlideNumber: parseInt(container.dataset.editorSlide || '1', 10),
-        initialSlide: 0
+        isAdaptive: container.dataset.adaptive === 'true'
       };
       
       slider.track = container.querySelector('.ai-hero-slider-track-' + slider.sliderId);
@@ -771,15 +737,8 @@
       slider.nextBtn = container.querySelector('.ai-hero-slider-nav-' + slider.sliderId + '.next');
       slider.dots = container.querySelectorAll('.ai-hero-slider-dot-' + slider.sliderId);
       slider.totalSlides = slider.slides.length;
-
-      if (slider.isDesignMode && slider.totalSlides > 0) {
-        const requestedEditorIndex = Array.from(slider.slides).findIndex((slide) => {
-          return parseInt(slide.dataset.slideNumber || '0', 10) === slider.editorSlideNumber;
-        });
-        slider.initialSlide = requestedEditorIndex >= 0 ? requestedEditorIndex : 0;
-      }
       
-      if (!slider.track || slider.totalSlides === 0) {
+      if (!slider.track || slider.totalSlides <= 1) {
         return;
       }
       
@@ -880,8 +839,6 @@
       };
       
       slider.setupAutoplay = function() {
-        if (this.isDesignMode) return;
-
         const autoplay = this.container.dataset.autoplay === 'true';
         const speed = parseInt(this.container.dataset.autoplaySpeed) || 5000;
         if (autoplay && this.totalSlides > 1) {
@@ -960,7 +917,7 @@
       slider.setupEventListeners();
       slider.setupResponsiveMedia();
       slider.setupAutoplay();
-      slider.goToSlide(slider.initialSlide, false);
+      slider.goToSlide(0, false);
 
       setTimeout(() => {
         slider.updateAdaptiveHeight();
@@ -1015,7 +972,7 @@
       "type": "checkbox",
       "id": "enable_image_adaptive",
       "label": "Enable image adaptive mode",
-      "default": false
+      "default": false,
     },
     {
       "type": "checkbox",
@@ -1044,20 +1001,6 @@
       "id": "show_dots",
       "label": "Show navigation dots",
       "default": true
-    },
-    {
-      "type": "select",
-      "id": "editor_preview_slide",
-      "label": "Theme editor preview slide",
-      "info": "Choose the slide you want to keep visible while editing. This setting only affects the Shopify theme editor.",
-      "options": [
-        { "value": "1", "label": "Slide 1" },
-        { "value": "2", "label": "Slide 2" },
-        { "value": "3", "label": "Slide 3" },
-        { "value": "4", "label": "Slide 4" },
-        { "value": "5", "label": "Slide 5" }
-      ],
-      "default": "1"
     },
     {
       "type": "header",
@@ -1420,13 +1363,6 @@
       "default": "Introducing our new plant-based formula"
     },
     {
-      "type": "color",
-      "id": "slide_1_text_color",
-      "label": "Slide 1 text color",
-      "default": "#ffffff",
-      "info": "Controls the title and subtitle color for Slide 1 only."
-    },
-    {
       "type": "select",
       "id": "slide_1_text_alignment",
       "label": "Text alignment",
@@ -1493,10 +1429,9 @@
       "label": "Mobile video URL"
     },
     {
-      "type": "textarea",
+      "type": "text",
       "id": "slide_2_title",
-      "label": "Title",
-      "info": "Supports line breaks, the same as Slide 1."
+      "label": "Title"
     },
     {
       "type": "textarea",
