@@ -242,8 +242,9 @@
 
           {%- if block.settings.button_label != blank -%}
             <a
-              class="bike-finder__button"
+              class="bike-finder__button{% if block.settings.button_label == 'Coming soon' %} is-disabled{% endif %}"
               href="{{ button_url | default: '#' }}"
+              {% if block.settings.button_label == 'Coming soon' %}aria-disabled="true"{% endif %}
             >
               {{ block.settings.button_label | escape }}
             </a>
@@ -436,22 +437,22 @@
 
   #{{ section_id }} .bike-finder__badge {
     position: absolute;
-    top: 28px;
+    top: 20px;
     left: 28px;
     z-index: 2;
     display: inline-flex;
     align-items: center;
-    min-height: 40px;
-    padding: 7px 20px;
-    border-radius: 10px;
-    background: #eb7122;
-    color: #ffffff;
+    min-height: 0;
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+    color: #eb7122;
     font-family: var(--bike-accent-font) !important;
-    font-size: {{ section.settings.badge_size }}px !important;
-    line-height: 1 !important;
+    font-size: 32px !important;
+    line-height: 1.05 !important;
     font-style: {{ badge_font_variant.style }} !important;
-    font-weight: {{ section.settings.badge_weight }} !important;
-    box-shadow: 0 6px 14px rgba(242, 76, 0, 0.22);
+    font-weight: 600 !important;
+    box-shadow: none;
   }
 
   #{{ section_id }} .bike-finder__image-link {
@@ -664,6 +665,19 @@
     box-shadow: 0 8px 18px rgba(242, 76, 0, 0.28);
   }
 
+  #{{ section_id }} .bike-finder__button.is-disabled {
+    background: #9b9b9b;
+    color: #ffffff;
+    cursor: not-allowed;
+    pointer-events: none;
+    box-shadow: none;
+  }
+
+  #{{ section_id }} .bike-finder__button.is-disabled:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
   @media (max-width: 1180px) {
     #{{ section_id }} .bike-finder__grid {
       gap: 18px;
@@ -713,10 +727,9 @@
     #{{ section_id }} .bike-finder__badge {
       top: 14px;
       left: 14px;
-      min-height: 32px;
-      padding: 6px 14px;
-      font-size:
-        {{ section.settings.badge_size_mobile }}px !important;
+      min-height: 0;
+      padding: 0;
+      font-size: 24px !important;
     }
 
     #{{ section_id }} .bike-finder__image-wrap {
