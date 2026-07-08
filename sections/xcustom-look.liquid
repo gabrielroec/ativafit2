@@ -25,22 +25,11 @@
 
   assign scene_image_size_mode = section.settings.scene_image_size_mode | default: 'adapt'
   assign product_image_size_mode = section.settings.product_image_size_mode | default: 'adapt'
-  assign balanced_scene_fit = section.settings.balanced_scene_fit | default: 'cover'
-
-  assign balance_desktop_columns = true
-  if section.settings.balance_desktop_columns == false
-    assign balance_desktop_columns = false
-  endif
-
-  assign compact_desktop_panel = true
-  if section.settings.compact_desktop_panel == false
-    assign compact_desktop_panel = false
-  endif
 %}
 
 <section
   id="{{ look_id }}"
-  class="xcustom-look {{ width_class }} xcustom-look--scene-{{ scene_image_size_mode }} xcustom-look--product-image-{{ product_image_size_mode }}{% if balance_desktop_columns %} xcustom-look--balanced-desktop{% endif %}{% if compact_desktop_panel %} xcustom-look--compact-desktop{% endif %}{% if section.settings.mobile_image != blank %} xcustom-look--has-mobile-image{% endif %}"
+  class="xcustom-look {{ width_class }} xcustom-look--scene-{{ scene_image_size_mode }} xcustom-look--product-image-{{ product_image_size_mode }}{% if section.settings.mobile_image != blank %} xcustom-look--has-mobile-image{% endif %}"
 >
   <div class="xcustom-look__container">
     {% if section.settings.heading != blank or section.settings.description != blank %}
@@ -483,56 +472,6 @@
     height: 100%;
     min-height: inherit;
     object-fit: cover;
-  }
-
-  @media screen and (min-width: 750px) {
-    #{{ look_id }}.xcustom-look--balanced-desktop .xcustom-look__layout {
-      align-items: stretch;
-    }
-
-    #{{ look_id }}.xcustom-look--balanced-desktop .xcustom-look__scene {
-      display: flex;
-      height: 100%;
-      min-height: 0;
-    }
-
-    #{{ look_id }}.xcustom-look--balanced-desktop .xcustom-look__scene-media {
-      height: 100%;
-      min-height: {{ section.settings.balanced_scene_min_height }}px;
-    }
-
-    #{{ look_id }}.xcustom-look--balanced-desktop .xcustom-look__scene-image,
-    #{{ look_id }}.xcustom-look--balanced-desktop .xcustom-look__scene-placeholder {
-      height: 100%;
-      min-height: inherit;
-      object-fit: {{ balanced_scene_fit }};
-    }
-
-    #{{ look_id }}.xcustom-look--balanced-desktop .xcustom-look__panel {
-      height: 100%;
-    }
-
-    #{{ look_id }}.xcustom-look--balanced-desktop .xcustom-look__product-card {
-      height: 100%;
-      min-height: 100%;
-    }
-
-    #{{ look_id }}.xcustom-look--compact-desktop .xcustom-look__product-media {
-      margin-top: clamp(16px, 1.8vw, 22px);
-    }
-
-    #{{ look_id }}.xcustom-look--compact-desktop .xcustom-look__product-content {
-      margin-top: clamp(16px, 1.8vw, 22px);
-    }
-
-    #{{ look_id }}.xcustom-look--compact-desktop .xcustom-look__product-pricing {
-      margin-top: clamp(18px, 2vw, 22px);
-      padding-top: clamp(16px, 1.8vw, 20px);
-    }
-
-    #{{ look_id }}.xcustom-look--compact-desktop .xcustom-look__product-footer {
-      padding-top: clamp(20px, 2vw, 26px);
-    }
   }
 
   #{{ look_id }} .xcustom-look__scene-placeholder {
@@ -1916,40 +1855,6 @@
       "default": "adapt"
     },
     {
-      "type": "checkbox",
-      "id": "balance_desktop_columns",
-      "label": "Balance desktop scene and product panel height",
-      "info": "Recommended when the product panel is much taller than the scene image. Desktop only; mobile still adapts to image ratio.",
-      "default": true
-    },
-    {
-      "type": "range",
-      "id": "balanced_scene_min_height",
-      "min": 320,
-      "max": 1100,
-      "step": 20,
-      "unit": "px",
-      "label": "Balanced desktop scene minimum height",
-      "info": "Used when desktop height balancing is enabled.",
-      "default": 560
-    },
-    {
-      "type": "select",
-      "id": "balanced_scene_fit",
-      "label": "Balanced desktop scene image fit",
-      "options": [
-        {
-          "value": "cover",
-          "label": "Cover / fill balanced height"
-        },
-        {
-          "value": "contain",
-          "label": "Contain / no crop"
-        }
-      ],
-      "default": "cover"
-    },
-    {
       "type": "range",
       "id": "scene_min_height",
       "min": 0,
@@ -2116,13 +2021,6 @@
       "unit": "px",
       "label": "Panel corner radius",
       "default": 24
-    },
-    {
-      "type": "checkbox",
-      "id": "compact_desktop_panel",
-      "label": "Compact product panel on desktop",
-      "info": "Reduces vertical gaps inside the product panel to keep both columns visually balanced.",
-      "default": true
     },
     {
       "type": "range",
