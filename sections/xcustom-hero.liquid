@@ -50,7 +50,28 @@
   class="xcustom-gym {{ width_class }} xcustom-gym--image-{{ section.settings.image_position }}{% if section.settings.mobile_image_first %} xcustom-gym--mobile-image-first{% endif %}"
 >
   <div class="xcustom-gym__shell">
-    <div class="xcustom-gym__grid">
+    <div class="xcustom-gym__hero">
+      <div class="xcustom-gym__media">
+        {% if section.settings.image != blank %}
+          {{
+            section.settings.image
+            | image_url: width: 3000
+            | image_tag:
+              widths: '375, 550, 750, 960, 1200, 1500, 1800, 2200, 2600, 3000',
+              sizes: '100vw',
+              class: 'xcustom-gym__image',
+              loading: image_loading,
+              fetchpriority: image_fetchpriority,
+              style: image_style,
+              alt: image_alt
+          }}
+        {% else %}
+          {{ 'lifestyle-2' | placeholder_svg_tag: 'xcustom-gym__placeholder' }}
+        {% endif %}
+      </div>
+
+      <div class="xcustom-gym__overlay" aria-hidden="true"></div>
+
       <div class="xcustom-gym__content">
         <div class="xcustom-gym__copy">
           {% if section.settings.heading != blank %}
@@ -114,28 +135,7 @@
               {{ section.settings.button_note | escape }}
             </div>
           {% endif %}
-
-
         </div>
-      </div>
-
-      <div class="xcustom-gym__media">
-        {% if section.settings.image != blank %}
-          {{
-            section.settings.image
-            | image_url: width: 2800
-            | image_tag:
-              widths: '375, 550, 750, 960, 1200, 1500, 1800, 2200, 2600, 2800',
-              sizes: '(min-width: 1200px) 58vw, (min-width: 768px) 55vw, 100vw',
-              class: 'xcustom-gym__image',
-              loading: image_loading,
-              fetchpriority: image_fetchpriority,
-              style: image_style,
-              alt: image_alt
-          }}
-        {% else %}
-          {{ 'lifestyle-2' | placeholder_svg_tag: 'xcustom-gym__placeholder' }}
-        {% endif %}
       </div>
     </div>
   </div>
@@ -150,14 +150,23 @@
     {{ section.settings.body_font | font_face: font_display: 'swap' }}
   {% endunless %}
 
-
-
   #XCustomGym-{{ section.id }} {
     display: block;
     width: 100%;
+    max-width: 100%;
     margin: 0;
-    padding: 0;
-    background: transparent;
+    padding:
+      {{ section.settings.padding_top }}px
+      0
+      {{ section.settings.padding_bottom }}px;
+    background: {{ section.settings.background_color }};
+  }
+
+  #XCustomGym-{{ section.id }}.xcustom-gym--full {
+    width: 100vw;
+    max-width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
   }
 
   #XCustomGym-{{ section.id }},
@@ -170,84 +179,80 @@
   #XCustomGym-{{ section.id }} .xcustom-gym__shell {
     width: 100%;
     margin: 0 auto;
-    overflow: hidden;
-    background-color: {{ section.settings.background_color }};
-    background-image: none;
-    box-shadow: none;
-  }
-
-  #XCustomGym-{{ section.id }}.xcustom-gym--full .xcustom-gym__shell {
-    max-width: none;
+    overflow: visible;
   }
 
   #XCustomGym-{{ section.id }}.xcustom-gym--contained .xcustom-gym__shell {
     max-width: 1750px;
+    padding-left: {{ section.settings.desktop_side_padding }}px;
+    padding-right: {{ section.settings.desktop_side_padding }}px;
   }
 
-    #XCustomGym-{{ section.id }} .xcustom-gym__grid {
-    display: grid;
-    grid-template-areas: "content media";
-    grid-template-columns:
-      minmax(0, {{ section.settings.content_width }}%)
-      minmax(0, 1fr);
-    align-items: center;
-    gap: {{ section.settings.desktop_gap }}px;
+  #XCustomGym-{{ section.id }}.xcustom-gym--full .xcustom-gym__shell {
+    max-width: none;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  #XCustomGym-{{ section.id }} .xcustom-gym__hero {
+    position: relative;
     width: 100%;
-    padding:
-      {{ section.settings.padding_top }}px
-      {{ section.settings.desktop_side_padding }}px
-      {{ section.settings.padding_bottom }}px;
+    min-height: {{ section.settings.hero_height }}px;
+    overflow: hidden;
+    border-radius: {{ section.settings.image_radius }}px;
+    background: #eeeeee;
+    isolation: isolate;
   }
 
-  #XCustomGym-{{ section.id }} .xcustom-gym__content {
-    grid-area: content;
-    display: flex;
-    flex-direction: column;
-    justify-content: {{ section.settings.content_vertical_position }};
-    align-self: stretch;
-    min-width: 0;
+  #XCustomGym-{{ section.id }}.xcustom-gym--full .xcustom-gym__hero {
+    border-radius: 0;
+  }
+
+  #XCustomGym-{{ section.id }} .xcustom-gym__media,
+  #XCustomGym-{{ section.id }} .xcustom-gym__overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
   }
 
   #XCustomGym-{{ section.id }} .xcustom-gym__media {
-    grid-area: media;
-    position: relative;
-    align-self: center;
-    width: 100%;
-    min-width: 0;
-    height: auto;
-    min-height: 0;
-    overflow: hidden;
-    border-radius: {{ section.settings.image_radius }}px;
-    background-color: #eeeeee;
+    z-index: 0;
     line-height: 0;
   }
 
-  #XCustomGym-{{ section.id }}.xcustom-gym--image-left .xcustom-gym__grid {
-    grid-template-areas: "media content";
-    grid-template-columns:
-      minmax(0, 1fr)
-      minmax(0, {{ section.settings.content_width }}%);
+  #XCustomGym-{{ section.id }} .xcustom-gym__image,
+  #XCustomGym-{{ section.id }} .xcustom-gym__placeholder {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    min-height: 100%;
+    margin: 0;
+    border-radius: inherit;
+    object-fit: cover;
   }
 
-  #XCustomGym-{{ section.id }}.xcustom-gym--image-right .xcustom-gym__grid {
-    grid-template-areas: "content media";
-    grid-template-columns:
-      minmax(0, {{ section.settings.content_width }}%)
-      minmax(0, 1fr);
+  #XCustomGym-{{ section.id }} .xcustom-gym__placeholder {
+    background-color: #eeeeee;
   }
 
-  #XCustomGym-{{ section.id }}.xcustom-gym--image-left .xcustom-gym__grid {
-    grid-template-areas: "media content";
-    grid-template-columns:
-      minmax(0, 1fr)
-      minmax(0, {{ section.settings.content_width }}%);
+  #XCustomGym-{{ section.id }} .xcustom-gym__overlay {
+    z-index: 1;
+    background: {{ section.settings.overlay_color }};
+    opacity: {{ section.settings.overlay_opacity | divided_by: 100.0 }};
+    pointer-events: none;
   }
 
-  #XCustomGym-{{ section.id }}.xcustom-gym--image-right .xcustom-gym__grid {
-    grid-template-areas: "content media";
-    grid-template-columns:
-      minmax(0, {{ section.settings.content_width }}%)
-      minmax(0, 1fr);
+  #XCustomGym-{{ section.id }} .xcustom-gym__content {
+    position: absolute;
+    z-index: 2;
+    top: {{ section.settings.text_top }}%;
+    left: {{ section.settings.text_left }}%;
+    width: {{ section.settings.content_width }}%;
+    min-width: 0;
   }
 
   #XCustomGym-{{ section.id }} .xcustom-gym__copy {
@@ -316,7 +321,8 @@
     #XCustomGym-{{ section.id }} .xcustom-gym__description em,
     #XCustomGym-{{ section.id }} .xcustom-gym__description a,
     #XCustomGym-{{ section.id }} .xcustom-gym__description li,
-    #XCustomGym-{{ section.id }} .xcustom-gym__button {
+    #XCustomGym-{{ section.id }} .xcustom-gym__button,
+    #XCustomGym-{{ section.id }} .xcustom-gym__button-note {
       font-family:
         {{ section.settings.body_font.family }},
         {{ section.settings.body_font.fallback_families }};
@@ -403,24 +409,15 @@
     border-color: {{ section.settings.secondary_button_hover_border }};
   }
 
-    #XCustomGym-{{ section.id }} .xcustom-gym__button-note {
-      width: 100%;
-      margin-top: {{ section.settings.button_note_gap }}px;
-      color: {{ section.settings.button_note_color }};
-      font-size: {{ section.settings.button_note_size }}px;
-      font-weight: 400;
-      line-height: 1.4;
-      text-align: {{ section.settings.text_alignment }};
-    }
-
-    {% unless section.settings.body_use_theme_font %}
-      #XCustomGym-{{ section.id }} .xcustom-gym__button-note {
-        font-family:
-          {{ section.settings.body_font.family }},
-          {{ section.settings.body_font.fallback_families }};
-        font-style: {{ section.settings.body_font.style }};
-      }
-    {% endunless %}
+  #XCustomGym-{{ section.id }} .xcustom-gym__button-note {
+    width: 100%;
+    margin-top: {{ section.settings.button_note_gap }}px;
+    color: {{ section.settings.button_note_color }};
+    font-size: {{ section.settings.button_note_size }}px;
+    font-weight: 400;
+    line-height: 1.4;
+    text-align: {{ section.settings.text_alignment }};
+  }
 
   #XCustomGym-{{ section.id }} .xcustom-gym__button--disabled {
     opacity: 0.55;
@@ -432,79 +429,23 @@
     outline-offset: 3px;
   }
 
-    #XCustomGym-{{ section.id }} .xcustom-gym__image,
-    #XCustomGym-{{ section.id }} .xcustom-gym__image {
-    position: static;
-    display: block;
-    width: 100%;
-    max-width: none;
-    height: auto;
-    margin: 0;
-    border-radius: inherit;
-  }
-
-  #XCustomGym-{{ section.id }} .xcustom-gym__placeholder {
-    position: static;
-    display: block;
-    width: 100%;
-    height: auto;
-    min-height: 0;
-    margin: 0;
-    border-radius: inherit;
-    aspect-ratio: 4 / 3;
-    background-color: #eeeeee;
-  }
-
   @media screen and (max-width: 767px) {
-        #XCustomGym-{{ section.id }} .xcustom-gym__button-note {
-      margin-top: {{ section.settings.button_note_gap_mobile }}px;
-      font-size: {{ section.settings.button_note_size_mobile }}px;
-      line-height: 1.4;
+    #XCustomGym-{{ section.id }} {
+      padding:
+        {{ section.settings.padding_top_mobile }}px
+        0
+        {{ section.settings.padding_bottom_mobile }}px;
     }
 
-      #XCustomGym-{{ section.id }} .xcustom-gym__grid {
-        display: flex;
-        flex-direction: column;
-        align-items: stretch;
-        gap: {{ section.settings.mobile_gap }}px;
-        width: 100%;
-        min-height: 0;
-        padding:
-          {{ section.settings.padding_top_mobile }}px
-          0
-          {{ section.settings.padding_bottom_mobile }}px;
-      }
-
-    #XCustomGym-{{ section.id }} .xcustom-gym__content,
-    #XCustomGym-{{ section.id }}.xcustom-gym--image-left .xcustom-gym__content,
-    #XCustomGym-{{ section.id }}.xcustom-gym--image-right .xcustom-gym__content {
-      width: 100%;
-      min-width: 0;
-      padding-right: {{ section.settings.mobile_side_padding }}px;
-      padding-left: {{ section.settings.mobile_side_padding }}px;
-      order: 1;
+    #XCustomGym-{{ section.id }} .xcustom-gym__hero {
+      min-height: {{ section.settings.hero_height_mobile }}px;
     }
 
-    #XCustomGym-{{ section.id }} .xcustom-gym__media,
-    #XCustomGym-{{ section.id }}.xcustom-gym--image-left .xcustom-gym__media,
-    #XCustomGym-{{ section.id }}.xcustom-gym--image-right .xcustom-gym__media {
-      position: relative;
-      width: 100%;
-      max-width: none;
-      height: auto;
-      min-height: 0;
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      order: 2;
-    }
-
-    #XCustomGym-{{ section.id }}.xcustom-gym--mobile-image-first .xcustom-gym__content {
-      order: 2;
-    }
-
-    #XCustomGym-{{ section.id }}.xcustom-gym--mobile-image-first .xcustom-gym__media {
-      order: 1;
+    #XCustomGym-{{ section.id }} .xcustom-gym__content {
+      top: {{ section.settings.text_top_mobile }}%;
+      left: {{ section.settings.text_left_mobile }}%;
+      width: {{ section.settings.content_width_mobile }}%;
+      max-width: calc(100% - {{ section.settings.mobile_side_padding | times: 2 }}px);
     }
 
     #XCustomGym-{{ section.id }} .xcustom-gym__copy {
@@ -552,6 +493,11 @@
       line-height: 1.15;
     }
 
+    #XCustomGym-{{ section.id }} .xcustom-gym__button-note {
+      margin-top: {{ section.settings.button_note_gap_mobile }}px;
+      font-size: {{ section.settings.button_note_size_mobile }}px;
+      line-height: 1.4;
+    }
   }
 
   {% if primary_button_target != blank %}
@@ -565,7 +511,6 @@
       scroll-margin-top: {{ section.settings.scroll_offset | default: 204 }}px;
     }
   {% endif %}
-
 {% endstyle %}
 
 <script>
@@ -682,13 +627,83 @@
     },
     {
       "type": "range",
-      "id": "content_width",
-      "min": 30,
-      "max": 60,
+      "id": "hero_height",
+      "min": 320,
+      "max": 1000,
+      "step": 20,
+      "unit": "px",
+      "label": "Desktop image/banner height",
+      "default": 640
+    },
+    {
+      "type": "range",
+      "id": "hero_height_mobile",
+      "min": 300,
+      "max": 900,
+      "step": 20,
+      "unit": "px",
+      "label": "Mobile image/banner height",
+      "default": 520
+    },
+    {
+      "type": "range",
+      "id": "text_left",
+      "min": 0,
+      "max": 80,
       "step": 1,
       "unit": "%",
-      "label": "Desktop text width",
-      "default": 43
+      "label": "Desktop text position from left",
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "text_top",
+      "min": 0,
+      "max": 80,
+      "step": 1,
+      "unit": "%",
+      "label": "Desktop text position from top",
+      "default": 34
+    },
+    {
+      "type": "range",
+      "id": "text_left_mobile",
+      "min": 0,
+      "max": 80,
+      "step": 1,
+      "unit": "%",
+      "label": "Mobile text position from left",
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "text_top_mobile",
+      "min": 0,
+      "max": 80,
+      "step": 1,
+      "unit": "%",
+      "label": "Mobile text position from top",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "content_width",
+      "min": 20,
+      "max": 80,
+      "step": 1,
+      "unit": "%",
+      "label": "Desktop overlay text width",
+      "default": 42
+    },
+    {
+      "type": "range",
+      "id": "content_width_mobile",
+      "min": 50,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Mobile overlay text width",
+      "default": 90
     },
     {
       "type": "select",
@@ -1148,7 +1163,7 @@
       "step": 2,
       "unit": "px",
       "label": "Image corner radius",
-      "default": 28
+      "default": 0
     },
     {
       "type": "header",
@@ -1159,6 +1174,22 @@
       "id": "background_color",
       "label": "Background",
       "default": "#F7F7F5"
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Image overlay color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "label": "Image overlay opacity",
+      "default": 15
     },
     {
       "type": "color",
@@ -1244,7 +1275,7 @@
       "step": 4,
       "unit": "px",
       "label": "Desktop top padding",
-      "default": 32
+      "default": 0
     },
     {
       "type": "range",
@@ -1254,7 +1285,7 @@
       "step": 4,
       "unit": "px",
       "label": "Desktop bottom padding",
-      "default": 32
+      "default": 0
     },
     {
       "type": "range",
@@ -1274,7 +1305,7 @@
       "step": 4,
       "unit": "px",
       "label": "Mobile top padding",
-      "default": 24
+      "default": 0
     },
     {
       "type": "range",
@@ -1284,7 +1315,7 @@
       "step": 4,
       "unit": "px",
       "label": "Mobile bottom padding",
-      "default": 24
+      "default": 0
     },
     {
       "type": "range",
