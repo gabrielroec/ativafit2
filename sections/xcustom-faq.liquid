@@ -1,0 +1,407 @@
+{% comment %}
+  Section: xcustom-bundle-faq
+  Usage: Add this file to Shopify theme /sections/xcustom-bundle-faq.liquid
+{% endcomment %}
+
+{%- liquid
+  assign faq_id = 'xcustom-bundle-faq-' | append: section.id
+-%}
+
+<section
+  id="{{ faq_id }}"
+  class="xcustom-bundle-faq"
+  data-xcustom-bundle-faq
+  {{ section.shopify_attributes }}
+>
+  <div class="xcustom-bundle-faq__inner">
+    <div class="xcustom-bundle-faq__header">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="xcustom-bundle-faq__eyebrow">{{ section.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+
+      {%- if section.settings.heading != blank -%}
+        <h2 class="xcustom-bundle-faq__heading">{{ section.settings.heading | escape }}</h2>
+      {%- endif -%}
+    </div>
+
+    {%- if section.blocks.size > 0 -%}
+      <div class="xcustom-bundle-faq__list">
+        {%- for block in section.blocks -%}
+          {%- assign is_open = false -%}
+          {%- if section.settings.open_first_item and forloop.first -%}
+            {%- assign is_open = true -%}
+          {%- endif -%}
+
+          <div
+            class="xcustom-bundle-faq__item{% if is_open %} is-open{% endif %}"
+            data-xcustom-bundle-faq-item
+            {{ block.shopify_attributes }}
+          >
+            <button
+              type="button"
+              class="xcustom-bundle-faq__question"
+              aria-expanded="{% if is_open %}true{% else %}false{% endif %}"
+              data-xcustom-bundle-faq-question
+            >
+              <span class="xcustom-bundle-faq__question-text">{{ block.settings.question | escape }}</span>
+              <span class="xcustom-bundle-faq__icon" aria-hidden="true"></span>
+            </button>
+
+            <div class="xcustom-bundle-faq__answer" data-xcustom-bundle-faq-answer>
+              <div class="xcustom-bundle-faq__answer-inner rte">
+                {{ block.settings.answer }}
+              </div>
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+<style>
+  #{{ faq_id }} {
+    width: 100%;
+    background: #fff;
+    padding: 92px 24px 112px;
+  }
+
+  #{{ faq_id }} *,
+  #{{ faq_id }} *::before,
+  #{{ faq_id }} *::after {
+    box-sizing: border-box;
+  }
+
+  #{{ faq_id }} .xcustom-bundle-faq__inner {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding:0 24px;
+  }
+
+  #{{ faq_id }} .xcustom-bundle-faq__header {
+    max-width: 980px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  #{{ faq_id }} .xcustom-bundle-faq__eyebrow {
+    font-family: var(--heading-font-family, inherit) !important;
+    text-transform: uppercase !important;
+
+        margin: 0 0 5px!important;
+    color: #eb701f;
+    font-size: 13px!important;
+    font-weight: 700!important;
+    line-height: 1.2!important;
+    letter-spacing: 0.16em!important;
+    text-transform: uppercase;
+  }
+
+  #{{ faq_id }} .xcustom-bundle-faq__heading {
+    margin: 0 !important;
+    color: #050505 !important;
+    font-family: var(--heading-font-family, inherit) !important;
+    font-size: 44px!important;
+    font-weight: 900 !important;
+    line-height: 1.04 !important;
+    text-transform: none !important;
+    letter-spacing: -0.035em!important;
+  }
+
+  #{{ faq_id }} .xcustom-bundle-faq__list {
+    width: 100%;
+    margin-top: 82px;
+  }
+
+  #{{ faq_id }} .xcustom-bundle-faq__item {
+    border-bottom: 1px solid #d9d9d9;
+  }
+
+  #{{ faq_id }} .xcustom-bundle-faq__question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    width: 100%;
+    min-height: 86px;
+    margin: 0;
+    padding: 26px 0;
+    color: #050505;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  #{{ faq_id }} .xcustom-bundle-faq__question-text {
+    display: block;
+    color: #050505 !important;
+    font-family: var(--heading-font-family, inherit) !important;
+    font-size: 24px !important;
+    font-weight: 700 !important;
+    line-height: 1.25 !important;
+    letter-spacing: -0.035em !important;
+  }
+
+  #{{ faq_id }} .xcustom-bundle-faq__icon {
+    position: relative;
+    flex: 0 0 18px;
+    width: 18px;
+    height: 18px;
+    color: #050505;
+  }
+
+  #{{ faq_id }} .xcustom-bundle-faq__icon::before,
+  #{{ faq_id }} .xcustom-bundle-faq__icon::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: block;
+    background: currentColor;
+    border-radius: 999px;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.22s ease, transform 0.22s ease;
+  }
+
+  #{{ faq_id }} .xcustom-bundle-faq__icon::before {
+    width: 3px;
+    height: 15px;
+  }
+
+  #{{ faq_id }} .xcustom-bundle-faq__icon::after {
+    width: 15px;
+    height: 3px;
+  }
+
+  #{{ faq_id }} .xcustom-bundle-faq__item.is-open .xcustom-bundle-faq__icon::before {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(90deg);
+  }
+
+  #{{ faq_id }} .xcustom-bundle-faq__answer {
+    display: grid;
+    grid-template-rows: 0fr;
+    overflow: hidden;
+    transition: grid-template-rows 0.28s ease;
+  }
+
+  #{{ faq_id }} .xcustom-bundle-faq__item.is-open .xcustom-bundle-faq__answer {
+    grid-template-rows: 1fr;
+  }
+
+  #{{ faq_id }} .xcustom-bundle-faq__answer-inner {
+    min-height: 0;
+    overflow: hidden;
+    padding: 0 56px 0 0;
+    color: #666 !important;
+    font-family: var(--text-font-family, inherit) !important;
+    font-size: 22px !important;
+    font-weight: 500 !important;
+    line-height: 1.55 !important;
+    letter-spacing: -0.018em !important;
+    transition: padding 0.28s ease;
+  }
+
+  #{{ faq_id }} .xcustom-bundle-faq__item.is-open .xcustom-bundle-faq__answer-inner {
+    padding-bottom: 32px;
+  }
+
+  #{{ faq_id }} .xcustom-bundle-faq__answer-inner > *:first-child {
+    margin-top: 0;
+  }
+
+  #{{ faq_id }} .xcustom-bundle-faq__answer-inner > *:last-child {
+    margin-bottom: 0;
+  }
+
+  @media screen and (max-width: 989px) {
+    #{{ faq_id }} {
+      padding: 72px 22px 88px;
+    }
+
+    #{{ faq_id }} .xcustom-bundle-faq__list {
+      margin-top: 56px;
+    }
+
+    #{{ faq_id }} .xcustom-bundle-faq__question {
+      min-height: 76px;
+      padding: 22px 0;
+    }
+
+    #{{ faq_id }} .xcustom-bundle-faq__question-text {
+      font-size: 21px !important;
+    }
+
+    #{{ faq_id }} .xcustom-bundle-faq__answer-inner {
+      padding-right: 36px;
+      font-size: 18px !important;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    #{{ faq_id }} {
+      padding: 56px 18px 68px;
+    }
+
+    #{{ faq_id }} .xcustom-bundle-faq__eyebrow {
+      font-size: 12px !important;
+      letter-spacing: 0.22em !important;
+    }
+
+    #{{ faq_id }} .xcustom-bundle-faq__heading {
+      font-size: 38px !important;
+      line-height: 1.02 !important;
+      letter-spacing: -0.055em !important;
+    }
+
+    #{{ faq_id }} .xcustom-bundle-faq__list {
+      margin-top: 42px;
+    }
+
+    #{{ faq_id }} .xcustom-bundle-faq__question {
+      min-height: 68px;
+      gap: 18px;
+      padding: 18px 0;
+    }
+
+    #{{ faq_id }} .xcustom-bundle-faq__question-text {
+      font-size: 18px !important;
+      line-height: 1.32 !important;
+    }
+
+    #{{ faq_id }} .xcustom-bundle-faq__answer-inner {
+      padding-right: 24px;
+      font-size: 15px !important;
+      line-height: 1.55 !important;
+    }
+
+    #{{ faq_id }} .xcustom-bundle-faq__item.is-open .xcustom-bundle-faq__answer-inner {
+      padding-bottom: 24px;
+    }
+  }
+</style>
+
+<script>
+  (() => {
+    const section = document.getElementById({{ faq_id | json }});
+    if (!section || section.dataset.xcustomBundleFaqReady === 'true') return;
+
+    section.dataset.xcustomBundleFaqReady = 'true';
+
+    const items = Array.from(section.querySelectorAll('[data-xcustom-bundle-faq-item]'));
+
+    items.forEach((item) => {
+      const button = item.querySelector('[data-xcustom-bundle-faq-question]');
+      if (!button) return;
+
+      button.addEventListener('click', () => {
+        const shouldOpen = !item.classList.contains('is-open');
+
+        items.forEach((otherItem) => {
+          const otherButton = otherItem.querySelector('[data-xcustom-bundle-faq-question]');
+          otherItem.classList.remove('is-open');
+          if (otherButton) otherButton.setAttribute('aria-expanded', 'false');
+        });
+
+        if (shouldOpen) {
+          item.classList.add('is-open');
+          button.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "XCustom Bundle FAQ",
+  "tag": "section",
+  "class": "section-xcustom-bundle-faq",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Bundle Questions"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Frequently Asked Questions"
+    },
+    {
+      "type": "checkbox",
+      "id": "open_first_item",
+      "label": "Open first item by default",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "faq_item",
+      "name": "FAQ item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question",
+          "default": "Do all bundle items ship together?"
+        },
+        {
+          "type": "richtext",
+          "id": "answer",
+          "label": "Answer",
+          "default": "<p>Explain that multi-item orders may arrive in separate packages and show tracking for each shipment.</p>"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "XCustom Bundle FAQ",
+      "blocks": [
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "Do all bundle items ship together?",
+            "answer": "<p>Explain that multi-item orders may arrive in separate packages and show tracking for each shipment.</p>"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "Can I change one item in a recommended setup?",
+            "answer": "<p>Yes. You can use a recommended setup as a starting point and swap items based on your space, training goal, or preferred weight range.</p>"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "How are bundle savings applied?",
+            "answer": "<p>Bundle savings are applied automatically when eligible items are added to your cart. No discount code is required.</p>"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "How much space do I need?",
+            "answer": "<p>Most setups are designed for compact home training spaces. Check each product page for exact dimensions before ordering.</p>"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "Can I return one item from a bundle?",
+            "answer": "<p>Return eligibility may depend on the item and order status. Review the store return policy or contact support before starting a return.</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

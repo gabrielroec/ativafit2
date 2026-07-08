@@ -1,0 +1,661 @@
+
+{% liquid
+  assign container_class = 'xcustom-trust--contained'
+
+  if section.settings.full_width
+    assign container_class = 'xcustom-trust--full'
+  endif
+%}
+
+<section
+  id="XCustomTrust-{{ section.id }}"
+  class="xcustom-trust {{ container_class }}"
+>
+
+    <div class="xcustom-trust__inner">
+    <div class="xcustom-trust__container">
+        <div class="xcustom-trust__list">
+        {% for block in section.blocks %}
+        <div
+          class="xcustom-trust__item"
+          {{ block.shopify_attributes }}
+        >
+          <div class="xcustom-trust__icon" aria-hidden="true">
+            {% case block.settings.icon %}
+              {% when 'shipping' %}
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M3 6h11v10H3V6Z" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M14 9h3.5L21 12.5V16h-7V9Z" stroke="currentColor" stroke-width="1.8"/>
+                  <circle cx="7" cy="18" r="2" stroke="currentColor" stroke-width="1.8"/>
+                  <circle cx="18" cy="18" r="2" stroke="currentColor" stroke-width="1.8"/>
+                </svg>
+
+              {% when 'saving' %}
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M12 3v18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  <path d="M16 7.5c0-1.66-1.79-3-4-3s-4 1.34-4 3 1.79 3 4 3 4 1.34 4 3-1.79 3-4 3-4-1.34-4-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+
+              {% when 'return' %}
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M8 7H4V3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M4.5 7A8 8 0 1 1 4 16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+
+              {% when 'check' %}
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+
+              {% when 'arrow' %}
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M6 18 18 6M9 6h9v9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            {% endcase %}
+          </div>
+
+          <div class="xcustom-trust__content">
+            {% if block.settings.heading != blank %}
+              <div class="xcustom-trust__heading">
+                {{ block.settings.heading | escape }}
+              </div>
+            {% endif %}
+
+            {% if block.settings.description != blank %}
+              <div class="xcustom-trust__description">
+                {{ block.settings.description | escape }}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% style %}
+  #shopify-section-{{ section.id }} {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  #XCustomTrust-{{ section.id }} {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+  }
+
+  #XCustomTrust-{{ section.id }},
+  #XCustomTrust-{{ section.id }} *,
+  #XCustomTrust-{{ section.id }} *::before,
+  #XCustomTrust-{{ section.id }} *::after {
+    box-sizing: border-box;
+  }
+
+  #XCustomTrust-{{ section.id }} .xcustom-trust__inner {
+    width: 100%;
+    margin: 0 auto;
+    background-color: {{ section.settings.background_color }};
+  }
+
+
+    #XCustomTrust-{{ section.id }} .xcustom-trust__inner {
+        width: 100%;
+        margin: 0;
+        background-color: {{ section.settings.background_color }};
+    }
+
+    #XCustomTrust-{{ section.id }} .xcustom-trust__container {
+        width: 100%;
+        max-width: 1400px;
+        margin-right: auto;
+        margin-left: auto;
+    }
+
+    #XCustomTrust-{{ section.id }}.xcustom-trust--contained {
+        padding-right: 16px;
+        padding-left: 16px;
+    }
+
+    #XCustomTrust-{{ section.id }}.xcustom-trust--contained .xcustom-trust__inner {
+        max-width: 1200px;
+        margin-right: auto;
+        margin-left: auto;
+    }
+
+
+  #XCustomTrust-{{ section.id }} .xcustom-trust__list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+    padding:
+      {{ section.settings.padding_top }}px
+      {{ section.settings.side_padding }}px
+      {{ section.settings.padding_bottom }}px;
+  }
+
+  #XCustomTrust-{{ section.id }} .xcustom-trust__item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: {{ section.settings.content_alignment }};
+    gap: {{ section.settings.content_gap }}px;
+    min-width: 0;
+    padding:
+      {{ section.settings.item_padding_vertical }}px
+      {{ section.settings.item_padding_horizontal }}px;
+  }
+
+  #XCustomTrust-{{ section.id }} .xcustom-trust__item:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 1px;
+    height: 100%;
+    background-color: {{ section.settings.divider_color }};
+  }
+
+  #XCustomTrust-{{ section.id }} .xcustom-trust__icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: {{ section.settings.icon_circle_size }}px;
+    height: {{ section.settings.icon_circle_size }}px;
+    border-radius: 50%;
+    color: {{ section.settings.icon_color }};
+    background-color: {{ section.settings.icon_background }};
+  }
+
+  #XCustomTrust-{{ section.id }} .xcustom-trust__icon svg {
+    display: block;
+    width: {{ section.settings.icon_size }}px;
+    height: {{ section.settings.icon_size }}px;
+  }
+
+  #XCustomTrust-{{ section.id }} .xcustom-trust__content {
+    min-width: 0;
+  }
+
+  #XCustomTrust-{{ section.id }} .xcustom-trust__heading {
+    margin: 0;
+    color: {{ section.settings.heading_color }};
+    font-family: inherit;
+    font-size: {{ section.settings.heading_size }}px;
+    font-weight: 700;
+    line-height: 1.25;
+    overflow-wrap: break-word;
+  }
+
+  #XCustomTrust-{{ section.id }} .xcustom-trust__description {
+    margin-top: 4px;
+    color: {{ section.settings.description_color }};
+    font-family: inherit;
+    font-size: {{ section.settings.description_size }}px;
+    font-weight: 400;
+    line-height: 1.35;
+    overflow-wrap: break-word;
+  }
+
+  @media screen and (max-width: 989px) {
+    #XCustomTrust-{{ section.id }} .xcustom-trust__item {
+      padding-right: 16px;
+      padding-left: 16px;
+    }
+
+    #XCustomTrust-{{ section.id }} .xcustom-trust__heading {
+      font-size: {{ section.settings.heading_size_tablet }}px;
+    }
+
+    #XCustomTrust-{{ section.id }} .xcustom-trust__description {
+      font-size: {{ section.settings.description_size_tablet }}px;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    #XCustomTrust-{{ section.id }} .xcustom-trust__list {
+      grid-template-columns: 1fr;
+      padding:
+        {{ section.settings.padding_top_mobile }}px
+        {{ section.settings.side_padding_mobile }}px
+        {{ section.settings.padding_bottom_mobile }}px;
+    }
+
+    #XCustomTrust-{{ section.id }} .xcustom-trust__item {
+      justify-content: flex-start;
+      gap: {{ section.settings.content_gap_mobile }}px;
+      width: 100%;
+      padding:
+        {{ section.settings.item_padding_vertical_mobile }}px
+        {{ section.settings.item_padding_horizontal_mobile }}px;
+    }
+
+    #XCustomTrust-{{ section.id }} .xcustom-trust__item:not(:last-child)::after {
+      top: auto;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 1px;
+    }
+
+    #XCustomTrust-{{ section.id }} .xcustom-trust__icon {
+      width: {{ section.settings.icon_circle_size_mobile }}px;
+      height: {{ section.settings.icon_circle_size_mobile }}px;
+    }
+
+    #XCustomTrust-{{ section.id }} .xcustom-trust__icon svg {
+      width: {{ section.settings.icon_size_mobile }}px;
+      height: {{ section.settings.icon_size_mobile }}px;
+    }
+
+    #XCustomTrust-{{ section.id }} .xcustom-trust__heading {
+      font-size: {{ section.settings.heading_size_mobile }}px;
+    }
+
+    #XCustomTrust-{{ section.id }} .xcustom-trust__description {
+      font-size: {{ section.settings.description_size_mobile }}px;
+    }
+  }
+{% endstyle %}
+
+{% schema %}
+{
+  "name": "XCustom Trust",
+  "tag": "section",
+  "class": "section-xcustom-trust",
+  "max_blocks": 3,
+  "disabled_on": {
+    "groups": ["header", "footer", "aside"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Full width",
+      "info": "Turn off to limit the trust bar to 1200px.",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "content_alignment",
+      "label": "Desktop item alignment",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "content_gap",
+      "min": 4,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop icon/text gap",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "content_gap_mobile",
+      "min": 4,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile icon/text gap",
+      "default": 14
+    },
+    {
+      "type": "header",
+      "content": "Icons"
+    },
+    {
+      "type": "range",
+      "id": "icon_circle_size",
+      "min": 32,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop icon circle size",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "min": 14,
+      "max": 34,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop icon size",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "icon_circle_size_mobile",
+      "min": 30,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile icon circle size",
+      "default": 44
+    },
+    {
+      "type": "range",
+      "id": "icon_size_mobile",
+      "min": 12,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile icon size",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop heading size",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "heading_size_tablet",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Tablet heading size",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "min": 12,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile heading size",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "description_size",
+      "min": 10,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop description size",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "description_size_tablet",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Tablet description size",
+      "default": 13
+    },
+    {
+      "type": "range",
+      "id": "description_size_mobile",
+      "min": 10,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile description size",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "description_color",
+      "label": "Description",
+      "default": "#AFAFAF"
+    },
+    {
+      "type": "color",
+      "id": "icon_background",
+      "label": "Icon circle",
+      "default": "#292929"
+    },
+    {
+      "type": "color",
+      "id": "icon_color",
+      "label": "Icon",
+      "default": "#EB7122"
+    },
+    {
+      "type": "color",
+      "id": "divider_color",
+      "label": "Dividers",
+      "default": "#353535"
+    },
+    {
+      "type": "header",
+      "content": "Desktop spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "side_padding",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "label": "Side padding",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "item_padding_vertical",
+      "min": 12,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Item vertical padding",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "item_padding_horizontal",
+      "min": 8,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Item horizontal padding",
+      "default": 24
+    },
+    {
+      "type": "header",
+      "content": "Mobile spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile top padding",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile bottom padding",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "side_padding_mobile",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile side padding",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "item_padding_vertical_mobile",
+      "min": 10,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile item vertical padding",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "item_padding_horizontal_mobile",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile item horizontal padding",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "trust_item",
+      "name": "Trust item",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "options": [
+            {
+              "value": "shipping",
+              "label": "Shipping"
+            },
+            {
+              "value": "saving",
+              "label": "Savings"
+            },
+            {
+              "value": "return",
+              "label": "Returns"
+            },
+            {
+              "value": "check",
+              "label": "Check"
+            },
+            {
+              "value": "arrow",
+              "label": "Arrow"
+            }
+          ],
+          "default": "check"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Trust item"
+        },
+        {
+          "type": "text",
+          "id": "description",
+          "label": "Description"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "XCustom Trust",
+      "blocks": [
+        {
+          "type": "trust_item",
+          "settings": {
+            "icon": "shipping",
+            "heading": "Free U.S. shipping",
+            "description": ""
+          }
+        },
+        {
+          "type": "trust_item",
+          "settings": {
+            "icon": "saving",
+            "heading": "Buy any 2 items — each drops $10",
+            "description": ""
+          }
+        },
+        {
+          "type": "trust_item",
+          "settings": {
+            "icon": "return",
+            "heading": "30-day returns",
+            "description": ""
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

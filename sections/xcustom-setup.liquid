@@ -1,0 +1,2933 @@
+{% liquid
+  assign width_class = 'xcustom-setup--contained'
+
+  if section.settings.full_width
+    assign width_class = 'xcustom-setup--full'
+  endif
+
+  assign prompt_target = section.settings.prompt_link | strip | remove: '#'
+%}
+
+<section
+  id="XCustomSetup-{{ section.id }}"
+  class="xcustom-setup {{ width_class }}"
+>
+  <div class="xcustom-setup__inner">
+    <div class="xcustom-setup__container">
+      {% if section.settings.eyebrow != blank or section.settings.heading != blank or section.settings.description != blank or section.settings.prompt_text != blank %}
+        <div class="xcustom-setup__header">
+          {% if section.settings.eyebrow != blank %}
+            <div class="xcustom-setup__eyebrow">
+              {{ section.settings.eyebrow | escape }}
+            </div>
+          {% endif %}
+
+          {% if section.settings.heading != blank %}
+            <{{ section.settings.heading_tag }} class="xcustom-setup__heading">
+              {{ section.settings.heading }}
+            </{{ section.settings.heading_tag }}>
+          {% endif %}
+
+          {% if section.settings.description != blank %}
+            <div class="xcustom-setup__description rte">
+              {{ section.settings.description }}
+            </div>
+          {% endif %}
+
+          {% if section.settings.prompt_text != blank %}
+            <div class="xcustom-setup__prompt">
+              {% if prompt_target != blank %}
+                <a
+                  class="xcustom-setup__prompt-link"
+                  href="#{{ prompt_target | escape }}"
+                  data-xcustom-prompt-scroll-target="{{ prompt_target | escape }}"
+                >
+                  <span class="xcustom-setup__prompt-text">{{ section.settings.prompt_text | escape }}</span>
+                  <span class="xcustom-setup__prompt-arrow" aria-hidden="true">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 14 14"
+                      fill="none"
+                      focusable="false"
+                    >
+                      <path
+                        d="M7 2.25v8.5M3.75 7.5 7 10.75 10.25 7.5"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      ></path>
+                    </svg>
+                  </span>
+                </a>
+              {% else %}
+                <span class="xcustom-setup__prompt-link xcustom-setup__prompt-link--disabled" aria-disabled="true">
+                  <span class="xcustom-setup__prompt-text">{{ section.settings.prompt_text | escape }}</span>
+                  <span class="xcustom-setup__prompt-arrow" aria-hidden="true">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 14 14"
+                      fill="none"
+                      focusable="false"
+                    >
+                      <path
+                        d="M7 2.25v8.5M3.75 7.5 7 10.75 10.25 7.5"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      ></path>
+                    </svg>
+                  </span>
+                </span>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      {% if section.blocks.size > 0 %}
+        <div class="xcustom-setup__grid">
+          {% for block in section.blocks %}
+            {% liquid
+              assign card_alt = block.settings.image.alt
+
+              if card_alt == blank
+                assign card_alt = block.settings.title
+              endif
+
+              assign card_number = block.settings.number
+
+              if card_number == blank
+                if forloop.index < 10
+                  assign card_number = forloop.index | prepend: '0'
+                else
+                  assign card_number = forloop.index
+                endif
+              endif
+
+              assign setup_variant_ids = ''
+              assign setup_product_count = 0
+              assign setup_available_count = 0
+              assign setup_discount_amount = block.settings.discount_amount | default: 0
+              assign setup_discount_cents = setup_discount_amount | times: 100 | round
+              assign setup_discount_display = setup_discount_cents | money
+              assign setup_discount_code = block.settings.discount_code | strip
+
+              for setup_product in block.settings.products
+                assign setup_product_count = setup_product_count | plus: 1
+                assign setup_variant = setup_product.selected_or_first_available_variant
+
+                if setup_variant != blank and setup_variant.available
+                  if setup_variant_ids != blank
+                    assign setup_variant_ids = setup_variant_ids | append: ','
+                  endif
+
+                  assign setup_variant_ids = setup_variant_ids | append: setup_variant.id
+                  assign setup_available_count = setup_available_count | plus: 1
+                endif
+              endfor
+
+              assign setup_can_add = false
+
+              if setup_product_count > 0 and setup_available_count == setup_product_count
+                assign setup_can_add = true
+              endif
+            %}
+
+            <article
+              class="xcustom-setup__card{% if block.settings.featured %} xcustom-setup__card--featured{% endif %}"
+              {{ block.shopify_attributes }}
+            >
+              <div class="xcustom-setup__media">
+                {% if block.settings.image != blank %}
+                  <button
+                    type="button"
+                    class="xcustom-setup__image-button"
+                    data-setup-zoom
+                    data-zoom-src="{{ block.settings.image | image_url: width: 2400 }}"
+                    data-zoom-alt="{{ card_alt | escape }}"
+                    aria-label="Enlarge image for {{ card_alt | escape }}"
+                  >
+                    <img
+                      class="xcustom-setup__image"
+                      src="{{ block.settings.image | image_url: width: 1200 }}"
+                      srcset="
+                        {{ block.settings.image | image_url: width: 400 }} 400w,
+                        {{ block.settings.image | image_url: width: 600 }} 600w,
+                        {{ block.settings.image | image_url: width: 800 }} 800w,
+                        {{ block.settings.image | image_url: width: 1000 }} 1000w,
+                        {{ block.settings.image | image_url: width: 1200 }} 1200w
+                      "
+                      sizes="(min-width: 990px) 33vw, (min-width: 750px) 50vw, 100vw"
+                      width="{{ block.settings.image.width }}"
+                      height="{{ block.settings.image.height }}"
+                      loading="lazy"
+                      alt="{{ card_alt | escape }}"
+                      style="object-position: {{ block.settings.image.presentation.focal_point }};"
+                    >
+
+                    <span class="xcustom-setup__zoom-icon" aria-hidden="true">
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <circle
+                          cx="11"
+                          cy="11"
+                          r="7"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        ></circle>
+
+                        <path
+                          d="m16 16 5 5"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                        ></path>
+
+                        <path
+                          d="M11 8v6M8 11h6"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                        ></path>
+                      </svg>
+                    </span>
+                  </button>
+                {% else %}
+                  {{ 'lifestyle-2' | placeholder_svg_tag: 'xcustom-setup__placeholder' }}
+                {% endif %}
+
+                {% if section.settings.show_numbers %}
+                  <span class="xcustom-setup__number" aria-hidden="true">
+                    {{ card_number | escape }}
+                  </span>
+                {% endif %}
+              </div>
+
+              <div class="xcustom-setup__card-body">
+                <div class="xcustom-setup__card-content">
+                  {% if block.settings.badge != blank %}
+                    <div class="xcustom-setup__badge">
+                      {{ block.settings.badge | escape }}
+                    </div>
+                  {% endif %}
+
+                  {% if block.settings.title != blank %}
+                    <h3 class="xcustom-setup__card-title">
+                      {{ block.settings.title | escape }}
+                    </h3>
+                  {% endif %}
+
+                  {% if block.settings.items != blank %}
+                    <div class="xcustom-setup__items rte">
+                      {{ block.settings.items }}
+                    </div>
+                  {% endif %}
+                </div>
+
+                <div class="xcustom-setup__card-footer">
+                  <div class="xcustom-setup__pricing">
+                    <div class="xcustom-setup__price-group">
+                      {% if block.settings.compare_price != blank %}
+                        <div class="xcustom-setup__compare-price">
+                          {{ block.settings.compare_price | escape }}
+                        </div>
+                      {% endif %}
+
+                      {% if block.settings.price != blank %}
+                        <div class="xcustom-setup__price">
+                          {{ block.settings.price | escape }}
+                        </div>
+                      {% endif %}
+                    </div>
+
+                    {% if block.settings.saving != blank %}
+                      <div class="xcustom-setup__saving">
+                        {{ block.settings.saving | escape }}
+                      </div>
+                    {% elsif setup_discount_cents > 0 %}
+                      <div class="xcustom-setup__saving">
+                        Save {{ setup_discount_display }}
+                      </div>
+                    {% endif %}
+                  </div>
+
+                  {% if block.settings.button_label != blank %}
+                    <button
+                      type="button"
+                      class="xcustom-setup__button{% unless setup_can_add %} xcustom-setup__button--disabled{% endunless %}"
+                      data-setup-add
+                      data-variant-ids="{{ setup_variant_ids }}"
+                      data-default-label="{{ block.settings.button_label | escape }}"
+                      data-loading-label="{{ section.settings.adding_label | escape }}"
+                      data-success-label="{{ section.settings.added_label | escape }}"
+                      data-error-label="{{ section.settings.error_label | escape }}"
+                      data-success-message="{{ section.settings.success_message | escape }}"
+                      data-setup-discount-cents="{{ setup_discount_cents }}"
+                      data-setup-discount-label="{{ setup_discount_display | escape }}"
+                      data-setup-discount-code="{{ setup_discount_code | escape }}"
+                      {% unless setup_can_add %}
+                        disabled
+                        aria-disabled="true"
+                      {% endunless %}
+                    >
+                      <span data-setup-button-text>
+                        {% if setup_product_count == 0 %}
+                          {{ section.settings.select_products_label | escape }}
+                        {% elsif setup_can_add %}
+                          {{ block.settings.button_label | escape }}
+                        {% else %}
+                          {{ section.settings.unavailable_label | escape }}
+                        {% endif %}
+                      </span>
+
+                      <span
+                        class="xcustom-setup__button-spinner"
+                        data-setup-spinner
+                        hidden
+                        aria-hidden="true"
+                      ></span>
+                    </button>
+
+                    <div
+                      class="xcustom-setup__button-message"
+                      data-setup-message
+                      role="status"
+                      aria-live="polite"
+                    ></div>
+                  {% endif %}
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<div
+  id="XCustomSetupLightbox-{{ section.id }}"
+  class="xcustom-setup__lightbox"
+  data-setup-lightbox
+  hidden
+>
+  <button
+    type="button"
+    class="xcustom-setup__lightbox-backdrop"
+    data-setup-lightbox-close
+    aria-label="Close enlarged image"
+  ></button>
+
+  <div
+    class="xcustom-setup__lightbox-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Enlarged setup image"
+  >
+    <button
+      type="button"
+      class="xcustom-setup__lightbox-close"
+      data-setup-lightbox-close
+      aria-label="Close enlarged image"
+    >
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        aria-hidden="true"
+      >
+        <path
+          d="M5 5l14 14M19 5 5 19"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+        ></path>
+      </svg>
+    </button>
+
+    <img
+      class="xcustom-setup__lightbox-image"
+      data-setup-lightbox-image
+      src=""
+      alt=""
+    >
+  </div>
+</div>
+
+{% style %}
+
+  #shopify-section-{{ section.id }} {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  #XCustomSetup-{{ section.id }} {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+  }
+
+  #XCustomSetup-{{ section.id }},
+  #XCustomSetup-{{ section.id }} *,
+  #XCustomSetup-{{ section.id }} *::before,
+  #XCustomSetup-{{ section.id }} *::after,
+  #XCustomSetupLightbox-{{ section.id }},
+  #XCustomSetupLightbox-{{ section.id }} *,
+  #XCustomSetupLightbox-{{ section.id }} *::before,
+  #XCustomSetupLightbox-{{ section.id }} *::after {
+    box-sizing: border-box;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__inner {
+    width: 100%;
+    margin: 0 auto;
+    background-color: {{ section.settings.background_color }};
+  }
+
+  #XCustomSetup-{{ section.id }}.xcustom-setup--full .xcustom-setup__inner {
+    max-width: none;
+  }
+
+  #XCustomSetup-{{ section.id }}.xcustom-setup--contained .xcustom-setup__inner {
+    max-width: {{ section.settings.content_max_width }}px;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__container {
+    width: 100%;
+    max-width: {{ section.settings.content_max_width }}px;
+    margin-right: auto;
+    margin-left: auto;
+    padding:
+      {{ section.settings.padding_top }}px
+      {{ section.settings.side_padding }}px
+      {{ section.settings.padding_bottom }}px;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__header {
+    width: 100%;
+    max-width: {{ section.settings.header_max_width }}px;
+    margin-right: auto;
+    margin-left: auto;
+    text-align: {{ section.settings.header_alignment }};
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__eyebrow {
+    margin: 0 0 {{ section.settings.eyebrow_gap }}px;
+    color: {{ section.settings.accent_color }};
+    font-size: {{ section.settings.eyebrow_size }}px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: {{ section.settings.eyebrow_letter_spacing | divided_by: 100.0 }}em;
+    text-transform: uppercase;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__heading {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    color: {{ section.settings.heading_color }};
+    font-size: {{ section.settings.heading_size }}px !important;
+    font-weight: 700;
+    line-height: {{ section.settings.heading_line_height | divided_by: 100.0 }} !important;
+    letter-spacing: -0.035em;
+    overflow-wrap: break-word;
+  }
+
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__description {
+    width: 100%;
+    margin-top: {{ section.settings.description_gap }}px;
+    color: {{ section.settings.text_color }};
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__description,
+  #XCustomSetup-{{ section.id }} .xcustom-setup__description p,
+  #XCustomSetup-{{ section.id }} .xcustom-setup__description span,
+  #XCustomSetup-{{ section.id }} .xcustom-setup__description a {
+    color: inherit;
+    font-size: {{ section.settings.description_size }}px;
+    line-height: {{ section.settings.description_line_height | divided_by: 100.0 }};
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__description > *:first-child {
+    margin-top: 0;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__description > *:last-child {
+    margin-bottom: 0;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__prompt {
+    width: 100%;
+    margin-top: {{ section.settings.prompt_gap }}px;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__prompt-link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: {{ section.settings.accent_color }};
+    font-size: {{ section.settings.prompt_size }}px;
+    font-weight: 700;
+    line-height: 1.35;
+    text-decoration: none;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__prompt-link::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: -5px;
+    left: 0;
+    height: 2px;
+    border-radius: 999px;
+    background-color: currentColor;
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.22s ease;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__prompt-link:hover::after,
+  #XCustomSetup-{{ section.id }} .xcustom-setup__prompt-link:focus-visible::after {
+    transform: scaleX(1);
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__prompt-link:focus-visible {
+    outline: 2px solid {{ section.settings.accent_color }};
+    outline-offset: 7px;
+    border-radius: 999px;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__prompt-link--disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__prompt-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 24px;
+    height: 24px;
+    border: 1.5px solid currentColor;
+    border-radius: 999px;
+    transform: translateY(1px);
+    transition:
+      color 0.2s ease,
+      background-color 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__prompt-arrow svg {
+    display: block;
+    width: 14px;
+    height: 14px;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__prompt-link:hover .xcustom-setup__prompt-arrow,
+  #XCustomSetup-{{ section.id }} .xcustom-setup__prompt-link:focus-visible .xcustom-setup__prompt-arrow {
+    color: #ffffff;
+    background-color: {{ section.settings.accent_color }};
+    transform: translateY(1px);
+  }
+
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+    gap: {{ section.settings.card_gap }}px;
+    width: 100%;
+    margin-top: {{ section.settings.cards_top_gap }}px;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+    border: {{ section.settings.card_border_width }}px solid {{ section.settings.card_border_color }};
+    border-radius: {{ section.settings.card_radius }}px;
+    background-color: {{ section.settings.card_background }};
+  }
+
+  {% if section.settings.enable_card_shadow %}
+    #XCustomSetup-{{ section.id }} .xcustom-setup__card {
+      box-shadow: 0 14px 35px rgba(0, 0, 0, 0.06);
+    }
+  {% endif %}
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__media {
+    position: relative;
+    width: 100%;
+    aspect-ratio: {{ section.settings.image_ratio }};
+    overflow: hidden;
+    background-color: #eeeeee;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__image-button {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    color: #111111;
+    background: transparent;
+    cursor: zoom-in;
+    appearance: none;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__image-button:focus-visible {
+    outline: 3px solid {{ section.settings.accent_color }};
+    outline-offset: -3px;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__zoom-icon {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    color: #111111;
+    background-color: rgba(255, 255, 255, 0.94);
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.18);
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__image-button:hover .xcustom-setup__zoom-icon,
+  #XCustomSetup-{{ section.id }} .xcustom-setup__image-button:focus-visible .xcustom-setup__zoom-icon {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__image,
+  #XCustomSetup-{{ section.id }} .xcustom-setup__placeholder {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__image {
+    object-fit: cover;
+    transition: transform 0.35s ease;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__card:hover .xcustom-setup__image {
+    transform: scale(1.015);
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__number {
+    position: absolute;
+    top: {{ section.settings.number_offset }}px;
+    right: {{ section.settings.number_offset }}px;
+    z-index: 1;
+    color: {{ section.settings.number_color }};
+    font-size: {{ section.settings.number_size }}px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.05em;
+    pointer-events: none;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__card-body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-width: 0;
+    padding:
+      {{ section.settings.card_padding_top }}px
+      {{ section.settings.card_padding_horizontal }}px
+      {{ section.settings.card_padding_bottom }}px;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__badge {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    min-height: 26px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    color: {{ section.settings.badge_text_color }};
+    background-color: {{ section.settings.badge_background }};
+    font-size: {{ section.settings.badge_size }}px;
+    font-weight: 700;
+    line-height: 1.1;
+    text-transform: uppercase;
+    margin-bottom:10px;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__card-title {
+    width: 100%;
+    margin: {{ section.settings.title_top_gap }}px 0 0;
+    color: {{ section.settings.card_heading_color }};
+    font-size: {{ section.settings.card_title_size }}px !important;
+    font-weight: 700;
+    line-height: 1.2 !important;
+    letter-spacing: -0.025em;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__items {
+    width: 100%;
+    margin-top: {{ section.settings.items_top_gap }}px;
+    color: {{ section.settings.card_text_color }};
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__items,
+  #XCustomSetup-{{ section.id }} .xcustom-setup__items p,
+  #XCustomSetup-{{ section.id }} .xcustom-setup__items li {
+    color: inherit;
+    font-size: {{ section.settings.card_text_size }}px;
+    line-height: 1.45;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__items ul {
+    margin: 0;
+    padding-left: 1.25em;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__items > *:first-child {
+    margin-top: 0;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__items > *:last-child {
+    margin-bottom: 0;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__card-footer {
+    width: 100%;
+    margin-top: auto;
+    padding-top: {{ section.settings.price_top_gap }}px;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__pricing {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__compare-price {
+    color: {{ section.settings.compare_price_color }};
+    font-size: {{ section.settings.compare_price_size }}px;
+    line-height: 1.2;
+    text-decoration: line-through;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__price {
+    margin-top: 4px;
+    color: {{ section.settings.price_color }};
+    font-size: {{ section.settings.price_size }}px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__saving {
+    flex: 0 0 auto;
+    padding-bottom: 2px;
+    color: {{ section.settings.accent_color }};
+    font-size: {{ section.settings.saving_size }}px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: right;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    min-height: {{ section.settings.button_height }}px;
+    margin-top: {{ section.settings.button_top_gap }}px;
+    padding: 10px 18px;
+    border: 1px solid {{ section.settings.button_background }};
+    border-radius: {{ section.settings.button_radius }}px;
+    color: {{ section.settings.button_text_color }};
+    background-color: {{ section.settings.button_background }};
+    font-size: {{ section.settings.button_size }}px;
+    font-weight: 700;
+    line-height: 1.15;
+    text-align: center;
+    cursor: pointer;
+    appearance: none;
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      color 0.2s ease,
+      opacity 0.2s ease;
+  }
+
+
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__button:hover:not(:disabled) {
+    color: {{ section.settings.button_hover_text_color }};
+    background-color: {{ section.settings.button_hover_background }};
+    border-color: {{ section.settings.button_hover_background }};
+  }
+
+
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__button--disabled,
+  #XCustomSetup-{{ section.id }} .xcustom-setup__button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__button-spinner {
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: xcustom-setup-spin 0.7s linear infinite;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__button-spinner[hidden] {
+    display: none;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__button-message {
+    min-height: 18px;
+    margin-top: 8px;
+    color: {{ section.settings.card_text_color }};
+    font-size: 12px;
+    line-height: 1.4;
+    text-align: center;
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__button-message.is-error {
+    color: #b42318;
+  }
+
+  @keyframes xcustom-setup-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  #XCustomSetupLightbox-{{ section.id }}[hidden] {
+    display: none;
+  }
+
+  #XCustomSetupLightbox-{{ section.id }} {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 32px;
+  }
+
+  #XCustomSetupLightbox-{{ section.id }} .xcustom-setup__lightbox-backdrop {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background-color: rgba(0, 0, 0, 0.82);
+    cursor: zoom-out;
+  }
+
+  #XCustomSetupLightbox-{{ section.id }} .xcustom-setup__lightbox-dialog {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: min(1200px, calc(100vw - 64px));
+    height: min(850px, calc(100vh - 64px));
+  }
+
+  #XCustomSetupLightbox-{{ section.id }} .xcustom-setup__lightbox-image {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: 100%;
+    border-radius: 12px;
+    object-fit: contain;
+  }
+
+  #XCustomSetupLightbox-{{ section.id }} .xcustom-setup__lightbox-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    color: #111111;
+    background-color: #ffffff;
+    cursor: pointer;
+  }
+
+  @media screen and (max-width: 989px) {
+    #XCustomSetup-{{ section.id }} .xcustom-setup__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    #XCustomSetup-{{ section.id }} .xcustom-setup__container {
+      padding:
+        {{ section.settings.padding_top_mobile }}px
+        {{ section.settings.side_padding_mobile }}px
+        {{ section.settings.padding_bottom_mobile }}px;
+    }
+
+    #XCustomSetup-{{ section.id }} .xcustom-setup__heading {
+      font-size: {{ section.settings.heading_size_mobile }}px !important;
+      line-height: {{ section.settings.heading_line_height_mobile | divided_by: 100.0 }} !important;
+    }
+
+    #XCustomSetup-{{ section.id }} .xcustom-setup__description,
+    #XCustomSetup-{{ section.id }} .xcustom-setup__description p {
+      font-size: {{ section.settings.description_size_mobile }}px;
+    }
+
+    #XCustomSetup-{{ section.id }} .xcustom-setup__prompt-link {
+      font-size: {{ section.settings.prompt_size_mobile }}px;
+    }
+
+    #XCustomSetup-{{ section.id }} .xcustom-setup__grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: {{ section.settings.card_gap_mobile }}px;
+      margin-top: {{ section.settings.cards_top_gap_mobile }}px;
+    }
+
+    #XCustomSetup-{{ section.id }} .xcustom-setup__number {
+      top: {{ section.settings.number_offset_mobile }}px;
+      right: {{ section.settings.number_offset_mobile }}px;
+      font-size: {{ section.settings.number_size_mobile }}px;
+    }
+
+    #XCustomSetup-{{ section.id }} .xcustom-setup__card-body {
+      padding:
+        {{ section.settings.card_padding_top_mobile }}px
+        {{ section.settings.card_padding_horizontal_mobile }}px
+        {{ section.settings.card_padding_bottom_mobile }}px;
+    }
+
+    #XCustomSetup-{{ section.id }} .xcustom-setup__card-title {
+      font-size: {{ section.settings.card_title_size_mobile }}px !important;
+    }
+
+    #XCustomSetup-{{ section.id }} .xcustom-setup__items,
+    #XCustomSetup-{{ section.id }} .xcustom-setup__items p,
+    #XCustomSetup-{{ section.id }} .xcustom-setup__items li {
+      font-size: {{ section.settings.card_text_size_mobile }}px;
+    }
+
+    #XCustomSetup-{{ section.id }} .xcustom-setup__price {
+      font-size: {{ section.settings.price_size_mobile }}px;
+    }
+
+    #XCustomSetup-{{ section.id }} .xcustom-setup__saving {
+      font-size: {{ section.settings.saving_size_mobile }}px;
+    }
+
+    #XCustomSetup-{{ section.id }} .xcustom-setup__button {
+      min-height: {{ section.settings.button_height_mobile }}px;
+      font-size: {{ section.settings.button_size_mobile }}px;
+    }
+
+    #XCustomSetup-{{ section.id }} .xcustom-setup__zoom-icon {
+      right: 12px;
+      bottom: 12px;
+      width: 38px;
+      height: 38px;
+      opacity: 1;
+      transform: none;
+    }
+
+    #XCustomSetupLightbox-{{ section.id }} {
+      padding: 16px;
+    }
+
+    #XCustomSetupLightbox-{{ section.id }} .xcustom-setup__lightbox-dialog {
+      width: calc(100vw - 32px);
+      height: calc(100vh - 32px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #XCustomSetup-{{ section.id }} .xcustom-setup__image,
+    #XCustomSetup-{{ section.id }} .xcustom-setup__zoom-icon,
+    #XCustomSetup-{{ section.id }} .xcustom-setup__button,
+    #XCustomSetup-{{ section.id }} .xcustom-setup__prompt-link::after,
+    #XCustomSetup-{{ section.id }} .xcustom-setup__prompt-arrow {
+      transition: none;
+    }
+  }
+
+    #XCustomSetup-{{ section.id }} .xcustom-setup__button,
+  #XCustomSetup-{{ section.id }} .xcustom-setup__card--featured .xcustom-setup__button,
+  #XCustomSetup-{{ section.id }} .xcustom-setup__button:disabled,
+  #XCustomSetup-{{ section.id }} .xcustom-setup__button--disabled {
+    color: {{ section.settings.button_text_color }};
+    background-color: {{ section.settings.button_background }};
+    border-color: {{ section.settings.button_background }};
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__button:hover:not(:disabled),
+  #XCustomSetup-{{ section.id }} .xcustom-setup__card--featured .xcustom-setup__button:hover:not(:disabled) {
+    color: {{ section.settings.button_hover_text_color }};
+    background-color: {{ section.settings.button_hover_background }};
+    border-color: {{ section.settings.button_hover_background }};
+  }
+
+  #XCustomSetup-{{ section.id }} .xcustom-setup__button:disabled,
+  #XCustomSetup-{{ section.id }} .xcustom-setup__button--disabled {
+    opacity: 1;
+    cursor: not-allowed;
+  }
+{% endstyle %}
+
+<script>
+  (() => {
+    const sectionId = {{ section.id | json }};
+    const rootId = `XCustomSetup-${sectionId}`;
+    const lightboxId = `XCustomSetupLightbox-${sectionId}`;
+    const afterAddAction = {{ section.settings.after_add_action | json }};
+    const promptScrollOffset = {{ section.settings.prompt_scroll_offset | default: 204 | json }};
+
+    let previousFocus = null;
+    let previousBodyOverflow = '';
+    let setupAddInProgress = false;
+
+    function getPromptTargetId(value) {
+      return String(value || '').trim().replace(/^#/, '');
+    }
+
+    function scrollToPromptTarget(trigger) {
+      const targetId = getPromptTargetId(trigger?.dataset?.xcustomPromptScrollTarget);
+
+      if (!targetId) {
+        return false;
+      }
+
+      const target = document.getElementById(targetId);
+
+      if (!target) {
+        return false;
+      }
+
+      const offset = Number(promptScrollOffset) || 0;
+      const targetTop = target.getBoundingClientRect().top + window.pageYOffset - offset;
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      target.style.scrollMarginTop = `${offset}px`;
+
+      window.scrollTo({
+        top: Math.max(0, targetTop),
+        behavior: prefersReducedMotion ? 'auto' : 'smooth'
+      });
+
+      if (window.history && window.history.pushState) {
+        window.history.pushState(null, '', `#${targetId}`);
+      } else {
+        window.location.hash = targetId;
+      }
+
+      return true;
+    }
+
+    function handlePromptScrollClick(event) {
+      const root = document.getElementById(rootId);
+      const trigger = event.target.closest('[data-xcustom-prompt-scroll-target]');
+
+      if (!root || !trigger || !root.contains(trigger)) {
+        return;
+      }
+
+      const handled = scrollToPromptTarget(trigger);
+
+      if (handled) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+      }
+    }
+
+    function getRootPath() {
+      return window.Shopify?.routes?.root || '/';
+    }
+
+    function sleep(milliseconds) {
+      return new Promise((resolve) => {
+        window.setTimeout(resolve, milliseconds);
+      });
+    }
+
+    function getDrawerSectionId() {
+      const drawerItems = document.getElementById('CartDrawer-Items');
+
+      if (drawerItems?.dataset?.id) {
+        return drawerItems.dataset.id;
+      }
+
+      return 'cart-drawer';
+    }
+
+    function getThemeCartDrawer() {
+      if (window.cartDrawer) {
+        return window.cartDrawer;
+      }
+
+      return document.querySelector('cart-drawer');
+    }
+
+    async function waitForThemeCartDrawer(timeout = 2500) {
+      const startTime = Date.now();
+
+      while (Date.now() - startTime < timeout) {
+        const drawer = getThemeCartDrawer();
+
+        if (drawer && typeof drawer.open === 'function') {
+          return drawer;
+        }
+
+        await sleep(50);
+      }
+
+      return getThemeCartDrawer();
+    }
+
+    async function fetchCurrentCart() {
+      if (window.AfitCartApi?.invalidate) {
+        window.AfitCartApi.invalidate();
+      }
+
+      if (window.AfitCartApi?.fetchCart) {
+        return window.AfitCartApi.fetchCart({ force: true });
+      }
+
+      const response = await fetch(`${getRootPath()}cart.js`, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json'
+        },
+        credentials: 'same-origin',
+        cache: 'no-store'
+      });
+
+      if (!response.ok) {
+        throw new Error('Unable to refresh the cart.');
+      }
+
+      return response.json();
+    }
+
+    function updateVisibleCartCount(itemCount) {
+      const count = Number(itemCount) || 0;
+      const countElements = document.querySelectorAll(
+        '.cart-count, [data-cart-count], .header__cart-count, .cart-count-bubble span[aria-hidden="true"], .cart-count-bubble span:not(.visually-hidden)'
+      );
+
+      countElements.forEach((element) => {
+        element.textContent = count;
+        element.hidden = false;
+        element.removeAttribute('hidden');
+        element.classList.toggle('hidden', count === 0);
+      });
+
+      const drawer = document.querySelector('cart-drawer');
+
+      if (drawer) {
+        drawer.classList.toggle('is-empty', count === 0);
+      }
+    }
+
+    function refreshDrawerFromHtml(html) {
+      if (!html) {
+        return false;
+      }
+
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      let didUpdate = false;
+
+      const currentItems = document.getElementById('CartDrawer-Items');
+      const newItems = doc.querySelector('#CartDrawer-Items');
+
+      if (currentItems && newItems) {
+        currentItems.innerHTML = newItems.innerHTML;
+        didUpdate = true;
+      }
+
+      const currentRecommendations = document.getElementById('CartDrawer-Recommendations');
+      const newRecommendations = doc.querySelector('#CartDrawer-Recommendations');
+
+      if (currentRecommendations && newRecommendations) {
+        currentRecommendations.innerHTML = newRecommendations.innerHTML;
+        didUpdate = true;
+      } else if (currentRecommendations && !newRecommendations) {
+        currentRecommendations.remove();
+        didUpdate = true;
+      }
+
+      const currentFooter = document.querySelector('.cart-drawer__footer');
+      const newFooter = doc.querySelector('.cart-drawer__footer');
+
+      if (currentFooter && newFooter) {
+        currentFooter.innerHTML = newFooter.innerHTML;
+        didUpdate = true;
+      }
+
+      return didUpdate;
+    }
+
+    async function fetchDrawerSectionHtml() {
+      const sectionId = getDrawerSectionId();
+      const response = await fetch(
+        `${getRootPath()}cart?sections=${encodeURIComponent(sectionId)}`,
+        {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          credentials: 'same-origin',
+          cache: 'no-store'
+        }
+      );
+
+      if (!response.ok) {
+        return false;
+      }
+
+      const sections = await response.json();
+      return refreshDrawerFromHtml(sections?.[sectionId]);
+    }
+
+    function showProductAddedNotice() {
+      if (!window.CartNotification || typeof window.CartNotification.success !== 'function') {
+        return;
+      }
+
+      window.CartNotification.success({
+        title: 'Product Added!',
+        message: 'Join <a href="https://www.ativafit.com/pages/ativapeople-rewards-program" target="_blank" style="color: #eb701f; text-decoration: underline; font-weight: bold;">AtivaPeople</a> & get extra discount.',
+        type: 'success'
+      });
+    }
+
+    function openThemeCart(drawer) {
+      const cartDrawer = drawer || getThemeCartDrawer();
+
+      if (cartDrawer && typeof cartDrawer.open === 'function') {
+        cartDrawer.classList.remove('is-empty');
+        cartDrawer.open();
+        return true;
+      }
+
+      if (
+        window.theme?.miniCart &&
+        typeof window.theme.miniCart.open === 'function'
+      ) {
+        window.theme.miniCart.open();
+        return true;
+      }
+
+      return false;
+    }
+
+    async function syncThemeCart(addData, shouldOpenDrawer) {
+      const sectionId = getDrawerSectionId();
+      let renderedFromAddResponse = false;
+
+      if (addData?.sections?.[sectionId]) {
+        renderedFromAddResponse = refreshDrawerFromHtml(addData.sections[sectionId]);
+      }
+
+      /*
+       * 加购成功后先弹提示和打开购物车。
+       * 后续 drawer 刷新、cart.js、第三方购物车组件即使慢或失败，也不应该把成功加购显示成失败。
+       */
+      showProductAddedNotice();
+
+      const drawer = await waitForThemeCartDrawer();
+
+      if (shouldOpenDrawer) {
+        const opened = openThemeCart(drawer);
+
+        if (!opened) {
+          window.location.href = `${getRootPath()}cart`;
+          return null;
+        }
+      }
+
+      let cart = null;
+
+      try {
+        cart = await fetchCurrentCart();
+        updateVisibleCartCount(cart.item_count);
+      } catch (error) {
+        console.warn('[XCustom Setup] Cart count refresh failed:', error);
+      }
+
+      if (!renderedFromAddResponse) {
+        fetchDrawerSectionHtml().catch((error) => {
+          console.warn('[XCustom Setup] Drawer section refresh failed:', error);
+        });
+      }
+
+      /*
+       * 多产品批量加入购物车时，主题抽屉和第三方购物车组件有时会慢一拍。
+       * 保留延迟刷新，确保抽屉里不是旧内容。
+       */
+      window.setTimeout(() => {
+        fetchDrawerSectionHtml().catch((error) => {
+          console.warn('[XCustom Setup] First delayed drawer refresh failed:', error);
+        });
+
+        fetchCurrentCart()
+          .then((freshCart) => {
+            updateVisibleCartCount(freshCart.item_count);
+          })
+          .catch(() => {});
+      }, 350);
+
+      window.setTimeout(() => {
+        fetchDrawerSectionHtml().catch((error) => {
+          console.warn('[XCustom Setup] Second delayed drawer refresh failed:', error);
+        });
+
+        fetchCurrentCart()
+          .then((freshCart) => {
+            updateVisibleCartCount(freshCart.item_count);
+          })
+          .catch(() => {});
+      }, 900);
+
+      if (cart) {
+        document.dispatchEvent(new CustomEvent('cart:updated', { bubbles: true, detail: { cart } }));
+        document.dispatchEvent(new CustomEvent('cart:change', { bubbles: true, detail: { cart } }));
+        document.dispatchEvent(new CustomEvent('cart:refresh', { bubbles: true, detail: { cart } }));
+      }
+
+      return cart;
+    }
+
+    function setButtonLoading(button) {
+      const textElement = button.querySelector('[data-setup-button-text]');
+      const spinner = button.querySelector('[data-setup-spinner]');
+
+      button.classList.add('is-loading');
+      button.setAttribute('aria-busy', 'true');
+      button.disabled = true;
+
+      if (textElement) {
+        textElement.textContent =
+          button.dataset.loadingLabel || 'ADDING SETUP...';
+      }
+
+      if (spinner) {
+        spinner.hidden = false;
+      }
+    }
+
+    function showButtonSuccess(button) {
+      const textElement = button.querySelector('[data-setup-button-text]');
+      const spinner = button.querySelector('[data-setup-spinner]');
+
+      button.classList.remove('is-loading');
+      button.removeAttribute('aria-busy');
+      button.disabled = true;
+
+      if (textElement) {
+        textElement.textContent =
+          button.dataset.successLabel || 'ADDED TO CART';
+      }
+
+      if (spinner) {
+        spinner.hidden = true;
+      }
+    }
+
+    function restoreButton(button) {
+      const textElement = button.querySelector('[data-setup-button-text]');
+      const spinner = button.querySelector('[data-setup-spinner]');
+
+      button.classList.remove('is-loading');
+      button.removeAttribute('aria-busy');
+      button.disabled = false;
+
+      if (textElement) {
+        textElement.textContent =
+          button.dataset.defaultLabel ||
+          'ADD COMPLETE SETUP';
+      }
+
+      if (spinner) {
+        spinner.hidden = true;
+      }
+    }
+
+    function getSuccessMessage(button, itemCount) {
+      const template =
+        button.dataset.successMessage ||
+        '[count] [item_word] added to cart.';
+
+      return template
+        .replace('[count]', String(itemCount))
+        .replace(
+          '[item_word]',
+          itemCount === 1 ? 'item' : 'items'
+        );
+    }
+
+    function getSetupDiscountData(button) {
+      const discountCents = Number(button.dataset.setupDiscountCents) || 0;
+      const discountLabel = button.dataset.setupDiscountLabel || '';
+      const discountCode = (button.dataset.setupDiscountCode || '').trim();
+      const card = button.closest('.xcustom-setup__card');
+      const setupTitle = card?.querySelector('.xcustom-setup__card-title')?.textContent?.trim() || '';
+
+      return {
+        discountCents,
+        discountLabel,
+        discountCode,
+        setupTitle
+      };
+    }
+
+    async function applySetupDiscountCode(button) {
+      const { discountCents, discountCode } = getSetupDiscountData(button);
+
+      if (!discountCode) {
+        if (discountCents > 0) {
+          console.warn(
+            '[XCustom Setup] A setup discount amount is configured, but no Shopify discount code is set on this setup card. The discount amount will be stored as a line-item property only.'
+          );
+        }
+
+        return false;
+      }
+
+      try {
+        const response = await fetch(
+          `${getRootPath()}discount/${encodeURIComponent(discountCode)}`,
+          {
+            method: 'GET',
+            credentials: 'same-origin',
+            cache: 'no-store'
+          }
+        );
+
+        if (!response.ok) {
+          console.warn('[XCustom Setup] Discount code could not be applied:', discountCode);
+          return false;
+        }
+
+        return true;
+      } catch (error) {
+        console.warn('[XCustom Setup] Discount code request failed:', error);
+        return false;
+      }
+    }
+
+    function buildSetupLineProperties(button) {
+      const { discountCents, discountLabel, discountCode, setupTitle } = getSetupDiscountData(button);
+      const properties = {
+        '_Setup Section': String(sectionId)
+      };
+
+      if (setupTitle) {
+        properties['_Setup Card'] = setupTitle;
+      }
+
+      if (discountCents > 0) {
+        properties['_Setup Discount'] = discountLabel || String(discountCents / 100);
+      }
+
+      if (discountCode) {
+        properties['_Setup Discount Code'] = discountCode;
+      }
+
+      return properties;
+    }
+
+    function setOtherSetupButtonsDisabled(activeButton, disabled) {
+      const root = document.getElementById(rootId);
+
+      if (!root) {
+        return;
+      }
+
+      root.querySelectorAll('[data-setup-add]').forEach((button) => {
+        if (button === activeButton) {
+          return;
+        }
+
+        if (disabled) {
+          button.dataset.xcustomPreviousDisabled = button.disabled ? 'true' : 'false';
+          button.disabled = true;
+          button.setAttribute('aria-disabled', 'true');
+          button.classList.add('is-temporarily-disabled');
+          return;
+        }
+
+        if (button.dataset.xcustomPreviousDisabled !== 'true') {
+          button.disabled = false;
+          button.removeAttribute('aria-disabled');
+        }
+
+        delete button.dataset.xcustomPreviousDisabled;
+        button.classList.remove('is-temporarily-disabled');
+      });
+    }
+
+    async function addSetupToCart(button) {
+      if (
+        button.disabled ||
+        button.classList.contains('is-loading')
+      ) {
+        return;
+      }
+
+      const footer = button.closest('.xcustom-setup__card-footer');
+      const message = footer?.querySelector('[data-setup-message]');
+
+      if (setupAddInProgress) {
+        if (message) {
+          message.textContent = 'Please wait for the current setup to finish adding.';
+          message.classList.remove('is-error');
+        }
+        return;
+      }
+
+      const variantIds = (button.dataset.variantIds || '')
+        .split(',')
+        .map((value) => Number(value.trim()))
+        .filter((value) => {
+          return Number.isInteger(value) && value > 0;
+        });
+
+      if (!variantIds.length) {
+        return;
+      }
+
+      if (message) {
+        message.textContent = '';
+        message.classList.remove('is-error');
+      }
+
+      setupAddInProgress = true;
+      setOtherSetupButtonsDisabled(button, true);
+      setButtonLoading(button);
+
+      const setupLineProperties = buildSetupLineProperties(button);
+
+      try {
+        const drawerSectionId = getDrawerSectionId();
+        const response = await fetch(`${getRootPath()}cart/add.js`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          credentials: 'same-origin',
+          cache: 'no-store',
+          body: JSON.stringify({
+            items: variantIds.map((variantId) => ({
+              id: variantId,
+              quantity: 1,
+              properties: { ...setupLineProperties }
+            })),
+            sections: drawerSectionId,
+            sections_url: window.location.pathname
+          })
+        });
+
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(
+            result.description ||
+            result.message ||
+            button.dataset.errorLabel ||
+            'Unable to add this setup.'
+          );
+        }
+
+        await applySetupDiscountCode(button);
+
+        showButtonSuccess(button);
+
+        if (message) {
+          message.textContent = getSuccessMessage(
+            button,
+            variantIds.length
+          );
+        }
+
+        if (afterAddAction === 'cart') {
+          setupAddInProgress = false;
+          setOtherSetupButtonsDisabled(button, false);
+          window.location.href = `${getRootPath()}cart`;
+          return;
+        }
+
+        /*
+         * 这里不再依赖 after_add_action = drawer 才打开购物车。
+         * 该模块是批量加购场景，用户当前需要与 Shop Look 一样弹提示并打开购物车。
+         */
+        try {
+          await syncThemeCart(result, true);
+        } catch (syncError) {
+          console.warn('[XCustom Setup] Cart drawer sync failed after successful add:', syncError);
+          showProductAddedNotice();
+          openThemeCart(await waitForThemeCartDrawer());
+        }
+
+        setupAddInProgress = false;
+        setOtherSetupButtonsDisabled(button, false);
+
+        window.setTimeout(() => {
+          restoreButton(button);
+
+          if (message) {
+            message.textContent = '';
+          }
+        }, 2200);
+      } catch (error) {
+        setupAddInProgress = false;
+        setOtherSetupButtonsDisabled(button, false);
+        restoreButton(button);
+
+        const errorMessage =
+          error.message ||
+          button.dataset.errorLabel ||
+          'Unable to add this setup.';
+
+        if (message) {
+          message.textContent = errorMessage;
+          message.classList.add('is-error');
+        }
+
+        console.error(
+          '[XCustom Setup] Add to cart failed:',
+          error
+        );
+      }
+    }
+
+    function openLightbox(trigger) {
+      const lightbox = document.getElementById(lightboxId);
+      const image = lightbox?.querySelector('[data-setup-lightbox-image]');
+
+      if (!lightbox || !image) {
+        return;
+      }
+
+      previousFocus = trigger;
+      previousBodyOverflow = document.body.style.overflow;
+
+      image.src = trigger.dataset.zoomSrc || '';
+      image.alt = trigger.dataset.zoomAlt || '';
+
+      lightbox.hidden = false;
+      document.body.style.overflow = 'hidden';
+
+      lightbox
+        .querySelector('.xcustom-setup__lightbox-close')
+        ?.focus();
+    }
+
+    function closeLightbox() {
+      const lightbox = document.getElementById(lightboxId);
+      const image = lightbox?.querySelector('[data-setup-lightbox-image]');
+
+      if (!lightbox || lightbox.hidden) {
+        return;
+      }
+
+      lightbox.hidden = true;
+      document.body.style.overflow = previousBodyOverflow;
+
+      if (image) {
+        image.src = '';
+        image.alt = '';
+      }
+
+      previousFocus?.focus();
+      previousFocus = null;
+    }
+
+    function trapLightboxFocus(event) {
+      const lightbox = document.getElementById(lightboxId);
+
+      if (
+        !lightbox ||
+        lightbox.hidden ||
+        event.key !== 'Tab'
+      ) {
+        return;
+      }
+
+      const focusableElements = Array.from(
+        lightbox.querySelectorAll(
+          'button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])'
+        )
+      );
+
+      if (!focusableElements.length) {
+        return;
+      }
+
+      const firstElement = focusableElements[0];
+      const lastElement =
+        focusableElements[focusableElements.length - 1];
+
+      if (
+        event.shiftKey &&
+        document.activeElement === firstElement
+      ) {
+        event.preventDefault();
+        lastElement.focus();
+      } else if (
+        !event.shiftKey &&
+        document.activeElement === lastElement
+      ) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    }
+
+    function initXCustomSetup() {
+      const root = document.getElementById(rootId);
+      const lightbox = document.getElementById(lightboxId);
+
+      if (
+        !root ||
+        root.dataset.xcustomSetupInitialized === 'true'
+      ) {
+        return;
+      }
+
+      root.dataset.xcustomSetupInitialized = 'true';
+
+      document.addEventListener('click', handlePromptScrollClick, true);
+
+      root.addEventListener('click', (event) => {
+        const addButton = event.target.closest('[data-setup-add]');
+
+        if (addButton) {
+          event.preventDefault();
+          addSetupToCart(addButton);
+          return;
+        }
+
+        const zoomButton = event.target.closest('[data-setup-zoom]');
+
+        if (zoomButton) {
+          openLightbox(zoomButton);
+        }
+      });
+
+      lightbox?.addEventListener('click', (event) => {
+        if (event.target.closest('[data-setup-lightbox-close]')) {
+          closeLightbox();
+        }
+      });
+
+      lightbox?.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          closeLightbox();
+          return;
+        }
+
+        trapLightboxFocus(event);
+      });
+    }
+
+    initXCustomSetup();
+
+    if (window.Shopify && Shopify.designMode) {
+      document.addEventListener(
+        'shopify:section:load',
+        (event) => {
+          if (
+            event.detail.sectionId === String(sectionId)
+          ) {
+            initXCustomSetup();
+          }
+        }
+      );
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "XCustom Setup",
+  "tag": "section",
+  "class": "section-xcustom-setup",
+  "max_blocks": 3,
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer",
+      "aside"
+    ]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Full width background",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "content_max_width",
+      "min": 1000,
+      "max": 1600,
+      "step": 20,
+      "unit": "px",
+      "label": "Content maximum width",
+      "default": 1400
+    },
+    {
+      "type": "range",
+      "id": "header_max_width",
+      "min": 500,
+      "max": 1200,
+      "step": 20,
+      "unit": "px",
+      "label": "Header maximum width",
+      "default": 900
+    },
+    {
+      "type": "select",
+      "id": "header_alignment",
+      "label": "Header alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "Section heading"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "CURATED STARTING POINTS"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Choose Your Training Setup"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "Heading HTML tag",
+      "options": [
+        {
+          "value": "h1",
+          "label": "H1"
+        },
+        {
+          "value": "h2",
+          "label": "H2"
+        },
+        {
+          "value": "h3",
+          "label": "H3"
+        },
+        {
+          "value": "p",
+          "label": "Paragraph"
+        }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description",
+      "default": "<p>Each bundle answers a clear buying question: how much space do I have, how heavy do I need to train, and what support equipment completes the workout?</p>"
+    },
+    {
+      "type": "text",
+      "id": "prompt_text",
+      "label": "Prompt text below description",
+      "default": "Need help choosing? Jump to the weight range guide"
+    },
+    {
+      "type": "text",
+      "id": "prompt_link",
+      "label": "Prompt target module ID",
+      "info": "Enter the existing target module ID only, without #. Example: choose-your-weight-range. Existing #anchor values are also supported.",
+      "default": "choose-your-weight-range"
+    },
+    {
+      "type": "range",
+      "id": "prompt_scroll_offset",
+      "min": 0,
+      "max": 400,
+      "step": 4,
+      "unit": "px",
+      "label": "Prompt anchor scroll offset",
+      "info": "Set this to the height of your sticky header/promo area. Use 204px if the target module is covered by the top bars.",
+      "default": 204
+    },
+    {
+      "type": "range",
+      "id": "prompt_gap",
+      "min": 4,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Prompt top gap",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "prompt_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop prompt size",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "prompt_size_mobile",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile prompt size",
+      "default": 14
+    },
+    {
+      "type": "header",
+      "content": "Heading style"
+    },
+    {
+      "type": "range",
+      "id": "eyebrow_size",
+      "min": 10,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop eyebrow size",
+      "default": 13
+    },
+    {
+      "type": "range",
+      "id": "eyebrow_size_mobile",
+      "min": 9,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile eyebrow size",
+      "default": 11
+    },
+    {
+      "type": "range",
+      "id": "eyebrow_letter_spacing",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "unit": "%",
+      "label": "Eyebrow letter spacing",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "eyebrow_gap",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop eyebrow/heading gap",
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "eyebrow_gap_mobile",
+      "min": 0,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile eyebrow/heading gap",
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 26,
+      "max": 80,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop heading size",
+      "default": 44
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "min": 22,
+      "max": 52,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile heading size",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "heading_line_height",
+      "min": 90,
+      "max": 150,
+      "step": 2,
+      "unit": "%",
+      "label": "Desktop heading line height",
+      "default": 104
+    },
+    {
+      "type": "range",
+      "id": "heading_line_height_mobile",
+      "min": 90,
+      "max": 150,
+      "step": 2,
+      "unit": "%",
+      "label": "Mobile heading line height",
+      "default": 108
+    },
+    {
+      "type": "header",
+      "content": "Description style"
+    },
+    {
+      "type": "range",
+      "id": "description_size",
+      "min": 12,
+      "max": 26,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop description size",
+      "default": 17
+    },
+    {
+      "type": "range",
+      "id": "description_size_mobile",
+      "min": 12,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile description size",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "description_line_height",
+      "min": 110,
+      "max": 200,
+      "step": 5,
+      "unit": "%",
+      "label": "Description line height",
+      "default": 145
+    },
+    {
+      "type": "range",
+      "id": "description_gap",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop heading/description gap",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "description_gap_mobile",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile heading/description gap",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Cards"
+    },
+    {
+      "type": "range",
+      "id": "cards_top_gap",
+      "min": 20,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Desktop header/cards gap",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "cards_top_gap_mobile",
+      "min": 16,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Mobile header/cards gap",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "card_gap",
+      "min": 8,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop card gap",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "card_gap_mobile",
+      "min": 8,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile card gap",
+      "default": 20
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image ratio",
+      "options": [
+        {
+          "value": "16 / 10",
+          "label": "Wide 16:10"
+        },
+        {
+          "value": "3 / 2",
+          "label": "Landscape 3:2"
+        },
+        {
+          "value": "4 / 3",
+          "label": "Landscape 4:3"
+        },
+        {
+          "value": "1 / 1",
+          "label": "Square"
+        }
+      ],
+      "default": "3 / 2"
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Card corner radius",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "card_border_width",
+      "min": 0,
+      "max": 4,
+      "step": 1,
+      "unit": "px",
+      "label": "Card border width",
+      "default": 1
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_card_shadow",
+      "label": "Enable card shadow",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_numbers",
+      "label": "Show image numbers",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "number_size",
+      "min": 34,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop number size",
+      "default": 68
+    },
+    {
+      "type": "range",
+      "id": "number_size_mobile",
+      "min": 30,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile number size",
+      "default": 54
+    },
+    {
+      "type": "range",
+      "id": "number_offset",
+      "min": 8,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop number offset",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "number_offset_mobile",
+      "min": 8,
+      "max": 36,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile number offset",
+      "default": 18
+    },
+    {
+      "type": "header",
+      "content": "Card typography"
+    },
+    {
+      "type": "range",
+      "id": "badge_size",
+      "min": 9,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Badge size",
+      "default": 11
+    },
+    {
+      "type": "range",
+      "id": "card_title_size",
+      "min": 18,
+      "max": 38,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop card title size",
+      "default": 23
+    },
+    {
+      "type": "range",
+      "id": "card_title_size_mobile",
+      "min": 17,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile card title size",
+      "default": 21
+    },
+    {
+      "type": "range",
+      "id": "card_text_size",
+      "min": 12,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop card text size",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "card_text_size_mobile",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile card text size",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "title_top_gap",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Badge/title gap",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "items_top_gap",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Title/items gap",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Prices and button"
+    },
+    {
+      "type": "range",
+      "id": "price_top_gap",
+      "min": 12,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "label": "Items/price gap",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "compare_price_size",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Compare price size",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "price_size",
+      "min": 18,
+      "max": 38,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop price size",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "price_size_mobile",
+      "min": 18,
+      "max": 34,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile price size",
+      "default": 23
+    },
+    {
+      "type": "range",
+      "id": "saving_size",
+      "min": 11,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop saving size",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "saving_size_mobile",
+      "min": 11,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile saving size",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "button_top_gap",
+      "min": 8,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Price/button gap",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "button_height",
+      "min": 38,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop button height",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "button_height_mobile",
+      "min": 38,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile button height",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "button_size",
+      "min": 11,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop button text size",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "button_size_mobile",
+      "min": 11,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile button text size",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "button_radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Button corner radius",
+      "default": 28
+    },
+    {
+      "type": "header",
+      "content": "Add to cart behavior"
+    },
+    {
+      "type": "select",
+      "id": "after_add_action",
+      "label": "After adding the setup",
+      "options": [
+        {
+          "value": "drawer",
+          "label": "Open theme cart drawer"
+        },
+        {
+          "value": "stay",
+          "label": "Stay on page"
+        },
+        {
+          "value": "cart",
+          "label": "Go to cart page"
+        }
+      ],
+      "default": "drawer"
+    },
+    {
+      "type": "text",
+      "id": "adding_label",
+      "label": "Loading button text",
+      "default": "ADDING SETUP..."
+    },
+    {
+      "type": "text",
+      "id": "added_label",
+      "label": "Success button text",
+      "default": "ADDED TO CART"
+    },
+    {
+      "type": "text",
+      "id": "success_message",
+      "label": "Success message below button",
+      "info": "Use [count] and [item_word].",
+      "default": "[count] [item_word] added to cart."
+    },
+    {
+      "type": "text",
+      "id": "error_label",
+      "label": "Error message",
+      "default": "Unable to add this setup."
+    },
+    {
+      "type": "text",
+      "id": "select_products_label",
+      "label": "No products selected label",
+      "default": "SELECT PRODUCTS"
+    },
+    {
+      "type": "text",
+      "id": "unavailable_label",
+      "label": "Unavailable setup label",
+      "default": "SETUP UNAVAILABLE"
+    },
+    {
+      "type": "text",
+      "id": "notification_title",
+      "label": "Theme notification title",
+      "default": "Setup Added!"
+    },
+    {
+      "type": "text",
+      "id": "notification_message",
+      "label": "Theme notification message",
+      "info": "Use [count] for the number of products.",
+      "default": "[count] products were added to your cart."
+    },
+    {
+      "type": "text",
+      "id": "notification_error_title",
+      "label": "Theme error notification title",
+      "default": "Error adding setup"
+    },
+    {
+      "type": "header",
+      "content": "Card spacing"
+    },
+    {
+      "type": "range",
+      "id": "card_padding_top",
+      "min": 12,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop card top padding",
+      "default": 26
+    },
+    {
+      "type": "range",
+      "id": "card_padding_horizontal",
+      "min": 12,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop card side padding",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "card_padding_bottom",
+      "min": 12,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop card bottom padding",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "card_padding_top_mobile",
+      "min": 12,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile card top padding",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "card_padding_horizontal_mobile",
+      "min": 12,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile card side padding",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "card_padding_bottom_mobile",
+      "min": 12,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile card bottom padding",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section background",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Section heading",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Section description",
+      "default": "#626262"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent",
+      "default": "#FF5A1F"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "card_border_color",
+      "label": "Card border",
+      "default": "#DDDDDD"
+    },
+    {
+      "type": "color",
+      "id": "card_heading_color",
+      "label": "Card heading",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "card_text_color",
+      "label": "Card text",
+      "default": "#626262"
+    },
+    {
+      "type": "color",
+      "id": "badge_background",
+      "label": "Badge background",
+      "default": "#FFF0E9"
+    },
+    {
+      "type": "color",
+      "id": "badge_text_color",
+      "label": "Badge text",
+      "default": "#C84718"
+    },
+    {
+      "type": "color",
+      "id": "number_color",
+      "label": "Image number",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "compare_price_color",
+      "label": "Compare price",
+      "default": "#969696"
+    },
+    {
+      "type": "color",
+      "id": "price_color",
+      "label": "Price",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "button_background",
+      "label": "Button background",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_background",
+      "label": "Button hover background",
+      "default": "#242424"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_text_color",
+      "label": "Button hover text",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "featured_button_text_color",
+      "label": "Featured button text",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "featured_button_hover_background",
+      "label": "Featured button hover",
+      "default": "#E94B14"
+    },
+    {
+      "type": "color",
+      "id": "featured_button_hover_text",
+      "label": "Featured hover text",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "label": "Desktop top padding",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "label": "Desktop bottom padding",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "side_padding",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Desktop side padding",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Mobile top padding",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Mobile bottom padding",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "side_padding_mobile",
+      "min": 0,
+      "max": 48,
+      "step": 4,
+      "unit": "px",
+      "label": "Mobile side padding",
+      "default": 16
+    }
+  ],
+  "blocks": [
+    {
+      "type": "setup",
+      "name": "Setup card",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "product_list",
+          "id": "products",
+          "label": "Products in this setup",
+          "limit": 6,
+          "info": "The button adds one unit of the first available variant from every selected product."
+        },
+        {
+          "type": "text",
+          "id": "number",
+          "label": "Image number",
+          "info": "Leave blank to generate automatically."
+        },
+        {
+          "type": "text",
+          "id": "badge",
+          "label": "Badge",
+          "default": "BEST FOR BEGINNERS"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Start Strong Set"
+        },
+        {
+          "type": "richtext",
+          "id": "items",
+          "label": "Included items",
+          "default": "<ul><li>Spark 25 lb Dumbbell Set</li><li>Adjustable Weight Bench</li><li>Dumbbell Stand</li></ul>"
+        },
+        {
+          "type": "text",
+          "id": "compare_price",
+          "label": "Compare price",
+          "default": "$358.99"
+        },
+        {
+          "type": "text",
+          "id": "price",
+          "label": "Current price",
+          "default": "$348.99"
+        },
+        {
+          "type": "text",
+          "id": "saving",
+          "label": "Saving",
+          "default": "Save $10"
+        },
+        {
+          "type": "number",
+          "id": "discount_amount",
+          "label": "Checkout discount amount",
+          "info": "Enter a number only, such as 10 for $10. To make this discount real at checkout, create a matching Shopify discount code below.",
+          "default": 10
+        },
+        {
+          "type": "text",
+          "id": "discount_code",
+          "label": "Shopify discount code",
+          "info": "Create this code in Shopify Admin. The code should match the discount amount for this setup card."
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "default": "ADD COMPLETE SETUP"
+        },
+        {
+          "type": "checkbox",
+          "id": "featured",
+          "label": "Use accent button",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "XCustom Setup",
+      "blocks": [
+        {
+          "type": "setup",
+          "settings": {
+            "number": "01",
+            "badge": "BEST FOR BEGINNERS",
+            "title": "Start Strong Set",
+            "items": "<ul><li>Spark 25 lb Dumbbell Set</li><li>Adjustable Weight Bench</li><li>Dumbbell Stand</li></ul>",
+            "compare_price": "$358.99",
+            "price": "$348.99",
+            "saving": "Save $10",
+            "discount_amount": 10,
+            "discount_code": "",
+            "button_label": "ADD COMPLETE SETUP",
+            "featured": false
+          }
+        },
+        {
+          "type": "setup",
+          "settings": {
+            "number": "02",
+            "badge": "MOST POPULAR",
+            "title": "Progressive Strength Set",
+            "items": "<ul><li>Martian 50 lb Dumbbell Set</li><li>Adjustable Weight Bench</li><li>Dumbbell Stand</li></ul>",
+            "compare_price": "$603.57",
+            "price": "$583.57",
+            "saving": "Save $20",
+            "discount_amount": 20,
+            "discount_code": "",
+            "button_label": "ADD COMPLETE SETUP",
+            "featured": true
+          }
+        },
+        {
+          "type": "setup",
+          "settings": {
+            "number": "03",
+            "badge": "FOR EXPERIENCED LIFTERS",
+            "title": "Heavy Strength Studio",
+            "items": "<ul><li>Flare 88 lb Dumbbell Set</li><li>Adjustable Weight Bench</li><li>Dumbbell Stand</li></ul>",
+            "compare_price": "$923.57",
+            "price": "$893.57",
+            "saving": "Save $30",
+            "discount_amount": 30,
+            "discount_code": "",
+            "button_label": "ADD COMPLETE SETUP",
+            "featured": false
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

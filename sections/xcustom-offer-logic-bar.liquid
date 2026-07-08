@@ -1,0 +1,615 @@
+{% comment %}
+  Section: xcustom-offer-logic-bar
+  Usage: Add this file to Shopify theme /sections/xcustom-offer-logic-bar.liquid
+  Notes: Compact JS fixed sticky version. Layout details are hardcoded in CSS, not exposed in Shopify settings.
+{% endcomment %}
+
+{%- liquid
+  assign section_id = 'xcustom-offer-logic-bar-' | append: section.id
+-%}
+
+<section
+  id="{{ section_id }}"
+  class="xcustom-offer-logic-bar"
+  {{ section.shopify_attributes }}
+>
+  <div class="xcustom-offer-logic-bar__inner">
+    <div class="xcustom-offer-logic-bar__grid">
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign is_highlighted = false
+          if forloop.last
+            assign is_highlighted = true
+          endif
+        -%}
+
+        <div
+          class="xcustom-offer-logic-bar__item{% if forloop.first %} xcustom-offer-logic-bar__item--base{% endif %}{% if is_highlighted %} xcustom-offer-logic-bar__item--highlight{% endif %}"
+          {{ block.shopify_attributes }}
+        >
+          {%- if is_highlighted and section.settings.best_value_label != blank -%}
+            <span class="xcustom-offer-logic-bar__badge">{{ section.settings.best_value_label | escape }}</span>
+          {%- endif -%}
+
+          {%- if block.settings.title != blank -%}
+            <strong class="xcustom-offer-logic-bar__title">{{ block.settings.title | escape }}</strong>
+          {%- endif -%}
+
+          {%- if block.settings.text != blank -%}
+            <span class="xcustom-offer-logic-bar__item-text">{{ block.settings.text | escape }}</span>
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    </div>
+
+    {%- if section.settings.offer_label != blank or section.settings.offer_strong != blank or section.settings.offer_text != blank -%}
+      <div class="xcustom-offer-logic-bar__copy">
+        <p>
+          {%- if section.settings.offer_label != blank -%}
+            <span class="xcustom-offer-logic-bar__copy-label">{{ section.settings.offer_label | escape }}</span>
+          {%- endif -%}
+
+          {%- if section.settings.offer_strong != blank -%}
+            <strong>{{ section.settings.offer_strong | escape }}</strong>
+          {%- endif -%}
+
+          {%- if section.settings.offer_text != blank -%}
+            <span>{{ section.settings.offer_text | escape }}</span>
+          {%- endif -%}
+        </p>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+<style>
+  #{{ section_id }} {
+    --xcustom-offer-accent: #EB701F;
+    --xcustom-offer-accent-soft: #fff3e8;
+    --xcustom-offer-card-bg: #fbefe8;
+    --xcustom-offer-base-bg: #f8f8f5;
+    --xcustom-offer-border: #e6e2dd;
+    --xcustom-offer-text: #111111;
+    --xcustom-offer-muted: #6c6c6c;
+    --xcustom-offer-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    background: #ffffff;
+    padding: 48px 0 0 0;
+  }
+
+  {% if section.settings.enable_sticky %}
+    #shopify-section-{{ section.id }} {
+      width: 100%;
+      background: #ffffff;
+    }
+
+    #shopify-section-{{ section.id }}.xcustom-offer-logic-bar-is-fixed {
+      position: fixed !important;
+      top: {{ section.settings.sticky_offset }}px !important;
+      left: 0 !important;
+      right: 0 !important;
+      width: 100% !important;
+      z-index: {{ section.settings.sticky_z_index }} !important;
+      background: #ffffff !important;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
+    }
+
+    #shopify-section-{{ section.id }}.xcustom-offer-logic-bar-is-fixed #{{ section_id }} {
+      padding: 8px 0;
+    }
+
+    .xcustom-offer-logic-bar-placeholder[data-section-id="{{ section.id }}"] {
+      display: none;
+      width: 100%;
+      height: 0;
+      pointer-events: none;
+    }
+
+    .xcustom-offer-logic-bar-placeholder[data-section-id="{{ section.id }}"].is-active {
+      display: block;
+    }
+  {% endif %}
+
+  #{{ section_id }} *,
+  #{{ section_id }} *::before,
+  #{{ section_id }} *::after {
+    box-sizing: border-box;
+  }
+
+  #{{ section_id }} .xcustom-offer-logic-bar__inner {
+    width: min(100% - 48px, 1400px);
+    margin: 0 auto;
+  }
+
+  #{{ section_id }} .xcustom-offer-logic-bar__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 24px;
+    align-items: stretch;
+  }
+
+  #{{ section_id }} .xcustom-offer-logic-bar__item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 72px;
+    padding: 24px;
+    text-align: center;
+    background: var(--xcustom-offer-card-bg);
+    border: 1px solid transparent;
+    border-radius: 15px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  #{{ section_id }} .xcustom-offer-logic-bar__item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--xcustom-offer-shadow);
+  }
+
+  #{{ section_id }} .xcustom-offer-logic-bar__item--base {
+    background: var(--xcustom-offer-base-bg);
+    border-color: var(--xcustom-offer-border);
+  }
+
+  #{{ section_id }} .xcustom-offer-logic-bar__item--highlight {
+    border: 2px solid var(--xcustom-offer-accent);
+  }
+
+  #{{ section_id }} .xcustom-offer-logic-bar__badge {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateX(-50%);
+    padding: 4px 11px;
+    color: #ffffff !important;
+    white-space: nowrap;
+    background: var(--xcustom-offer-accent);
+    border-radius: 999px;
+    font-family: var(--heading-font-family, inherit) !important;
+    font-size: 9px !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.08em !important;
+    line-height: 1 !important;
+    text-transform: uppercase !important;
+  }
+
+  #{{ section_id }} .xcustom-offer-logic-bar__title {
+    display: block;
+    margin: 0;
+    color: var(--xcustom-offer-accent) !important;
+    font-family: var(--heading-font-family, inherit) !important;
+    font-size: 30px !important;
+    font-weight: 900 !important;
+    line-height: 1.05 !important;
+    letter-spacing: -0.055em !important;
+  }
+
+  #{{ section_id }} .xcustom-offer-logic-bar__item--base .xcustom-offer-logic-bar__title {
+    color: var(--xcustom-offer-text) !important;
+  }
+
+  #{{ section_id }} .xcustom-offer-logic-bar__item-text {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    max-width: 100%;
+    margin-top: 7px;
+    padding: 4px 10px;
+    color: var(--xcustom-offer-accent) !important;
+    background: var(--xcustom-offer-accent-soft);
+    border-radius: 999px;
+    font-family: var(--heading-font-family, inherit) !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    line-height: 1.15 !important;
+    letter-spacing: -0.01em !important;
+  }
+
+  #{{ section_id }} .xcustom-offer-logic-bar__item--base .xcustom-offer-logic-bar__item-text {
+    padding: 0;
+    color: var(--xcustom-offer-muted) !important;
+    background: transparent;
+    border-radius: 0;
+    font-weight: 600 !important;
+  }
+
+  #{{ section_id }} .xcustom-offer-logic-bar__copy {
+    max-width: 980px;
+    margin: 16px auto 0;
+    text-align: center;
+  }
+
+  #{{ section_id }} .xcustom-offer-logic-bar__copy p {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin: 0;
+    color: var(--xcustom-offer-muted) !important;
+    font-family: var(--text-font-family, inherit) !important;
+    font-size: 16px !important;
+    font-weight: 500 !important;
+    line-height: 1.4 !important;
+  }
+
+  #{{ section_id }} .xcustom-offer-logic-bar__copy-label,
+  #{{ section_id }} .xcustom-offer-logic-bar__copy strong {
+    color: var(--xcustom-offer-text) !important;
+    font-family: var(--heading-font-family, inherit) !important;
+    font-weight: 900 !important;
+  }
+
+  #shopify-section-{{ section.id }}.xcustom-offer-logic-bar-is-fixed #{{ section_id }} .xcustom-offer-logic-bar__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 430px);
+    gap: 16px;
+    align-items: center;
+    padding:12px 24px;
+  }
+
+  #shopify-section-{{ section.id }}.xcustom-offer-logic-bar-is-fixed #{{ section_id }} .xcustom-offer-logic-bar__grid {
+    gap: 10px;
+  }
+
+  #shopify-section-{{ section.id }}.xcustom-offer-logic-bar-is-fixed #{{ section_id }} .xcustom-offer-logic-bar__item {
+    min-height: 44px;
+    padding: 8px 12px;
+    border-radius: 12px;
+  }
+
+  #shopify-section-{{ section.id }}.xcustom-offer-logic-bar-is-fixed #{{ section_id }} .xcustom-offer-logic-bar__title {
+    font-size: 18px !important;
+    letter-spacing: -0.045em !important;
+  }
+
+  #shopify-section-{{ section.id }}.xcustom-offer-logic-bar-is-fixed #{{ section_id }} .xcustom-offer-logic-bar__item-text {
+    margin-top: 4px;
+    padding: 3px 8px;
+    font-size: 12px !important;
+    line-height: 1.1 !important;
+  }
+
+  #shopify-section-{{ section.id }}.xcustom-offer-logic-bar-is-fixed #{{ section_id }} .xcustom-offer-logic-bar__badge {
+    top: -8px;
+    padding: 3px 8px;
+    font-size: 8px !important;
+  }
+
+  #shopify-section-{{ section.id }}.xcustom-offer-logic-bar-is-fixed #{{ section_id }} .xcustom-offer-logic-bar__copy {
+    max-width: none;
+    margin: 0;
+    text-align: left;
+  }
+
+  #shopify-section-{{ section.id }}.xcustom-offer-logic-bar-is-fixed #{{ section_id }} .xcustom-offer-logic-bar__copy p {
+    justify-content: flex-start;
+    gap: 4px;
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+    margin: 0 !important;
+  }
+
+  @media screen and (max-width: 1180px) {
+    #shopify-section-{{ section.id }}.xcustom-offer-logic-bar-is-fixed #{{ section_id }} .xcustom-offer-logic-bar__inner {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    #shopify-section-{{ section.id }}.xcustom-offer-logic-bar-is-fixed #{{ section_id }} .xcustom-offer-logic-bar__copy {
+      text-align: center;
+    }
+
+    #shopify-section-{{ section.id }}.xcustom-offer-logic-bar-is-fixed #{{ section_id }} .xcustom-offer-logic-bar__copy p {
+      justify-content: center;
+    }
+  }
+
+  @media screen and (max-width: 989px) {
+    #{{ section_id }} .xcustom-offer-logic-bar__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #{{ section_id }} .xcustom-offer-logic-bar__inner {
+      width: min(100% - 32px, 1400px);
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    #{{ section_id }} {
+      padding: 10px 0;
+    }
+
+    #{{ section_id }} .xcustom-offer-logic-bar__item {
+      min-height: 58px;
+      padding: 10px 12px;
+      border-radius: 13px;
+    }
+
+    #{{ section_id }} .xcustom-offer-logic-bar__title {
+      font-size: 18px !important;
+    }
+
+    #{{ section_id }} .xcustom-offer-logic-bar__item-text {
+      margin-top: 5px;
+      padding: 3px 8px;
+      font-size: 10px !important;
+    }
+
+    #{{ section_id }} .xcustom-offer-logic-bar__copy p {
+      font-size: 12px !important;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    #{{ section_id }} .xcustom-offer-logic-bar__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    var section = document.getElementById({{ section_id | json }});
+    if (!section) return;
+
+    var wrapper = document.getElementById('shopify-section-{{ section.id }}') || section.closest('.shopify-section') || section.parentElement;
+    if (!wrapper || !wrapper.parentNode) return;
+
+    var enabled = {% if section.settings.enable_sticky %}true{% else %}false{% endif %};
+    var offset = Number({{ section.settings.sticky_offset | default: 102 | json }}) || 0;
+    var zIndex = Number({{ section.settings.sticky_z_index | default: 30 | json }}) || 30;
+    var placeholderId = 'xcustom-offer-sticky-placeholder-{{ section.id }}';
+    var fixedClass = 'xcustom-offer-logic-bar-is-fixed';
+    var placeholder = document.getElementById(placeholderId);
+    var stickyStart = 0;
+    var isFixed = false;
+    var ticking = false;
+
+    function getScrollY() {
+      return window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+    }
+
+    function createPlaceholder() {
+      if (placeholder) return;
+      placeholder = document.createElement('div');
+      placeholder.id = placeholderId;
+      placeholder.className = 'xcustom-offer-logic-bar-placeholder';
+      placeholder.setAttribute('data-section-id', '{{ section.id }}');
+      wrapper.parentNode.insertBefore(placeholder, wrapper);
+    }
+
+    function setPlaceholderHeight() {
+      if (!placeholder) return;
+      placeholder.style.height = wrapper.offsetHeight + 'px';
+    }
+
+    function resetInlineSticky() {
+      wrapper.style.position = '';
+      wrapper.style.top = '';
+      wrapper.style.left = '';
+      wrapper.style.right = '';
+      wrapper.style.width = '';
+      wrapper.style.zIndex = '';
+      wrapper.style.background = '';
+      wrapper.style.alignSelf = '';
+    }
+
+    function fixBar() {
+      if (isFixed) {
+        setPlaceholderHeight();
+        return;
+      }
+      setPlaceholderHeight();
+      placeholder.classList.add('is-active');
+      wrapper.classList.add(fixedClass);
+      wrapper.style.zIndex = String(zIndex);
+      wrapper.style.background = '#ffffff';
+      isFixed = true;
+    }
+
+    function unfixBar() {
+      if (!isFixed) return;
+      wrapper.classList.remove(fixedClass);
+      wrapper.style.zIndex = '';
+      wrapper.style.background = '';
+      placeholder.classList.remove('is-active');
+      placeholder.style.height = '0px';
+      isFixed = false;
+    }
+
+    function measure() {
+      var wasFixed = isFixed;
+      if (wasFixed) {
+        wrapper.classList.remove(fixedClass);
+        placeholder.classList.remove('is-active');
+        placeholder.style.height = '0px';
+        isFixed = false;
+      }
+
+      stickyStart = wrapper.getBoundingClientRect().top + getScrollY() - offset;
+
+      if (wasFixed) {
+        updateSticky();
+      }
+    }
+
+    function updateSticky() {
+      if (getScrollY() >= stickyStart) {
+        fixBar();
+      } else {
+        unfixBar();
+      }
+    }
+
+    function requestUpdate() {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(function () {
+        updateSticky();
+        ticking = false;
+      });
+    }
+
+    function refresh() {
+      if (!enabled) {
+        unfixBar();
+        resetInlineSticky();
+        return;
+      }
+
+      createPlaceholder();
+      resetInlineSticky();
+
+      window.requestAnimationFrame(function () {
+        measure();
+        updateSticky();
+      });
+    }
+
+    refresh();
+    window.addEventListener('load', refresh);
+    window.addEventListener('resize', refresh);
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+
+    document.addEventListener('shopify:section:load', function (event) {
+      if (!event.detail || event.detail.sectionId === '{{ section.id }}') {
+        refresh();
+      }
+    });
+
+    document.addEventListener('shopify:section:select', function (event) {
+      if (!event.detail || event.detail.sectionId === '{{ section.id }}') {
+        refresh();
+      }
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "XCustom Offer Logic Bar",
+  "tag": "section",
+  "class": "section-xcustom-offer-logic-bar",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Sticky"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sticky",
+      "label": "Enable sticky",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "sticky_offset",
+      "label": "Sticky top offset",
+      "min": 0,
+      "max": 200,
+      "step": 2,
+      "unit": "px",
+      "default": 102
+    },
+    {
+      "type": "range",
+      "id": "sticky_z_index",
+      "label": "Sticky z-index",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "default": 30
+    },
+    {
+      "type": "header",
+      "content": "Offer copy"
+    },
+    {
+      "type": "text",
+      "id": "offer_label",
+      "label": "Offer label",
+      "default": "Offer:"
+    },
+    {
+      "type": "text",
+      "id": "offer_strong",
+      "label": "Bold offer text",
+      "default": "Every eligible item in your cart drops $10 when you add a second."
+    },
+    {
+      "type": "text",
+      "id": "offer_text",
+      "label": "Regular offer text",
+      "default": "No code. No minimum spend. Just build your setup."
+    },
+    {
+      "type": "text",
+      "id": "best_value_label",
+      "label": "Best value badge text",
+      "default": "Best Value"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "tier",
+      "name": "Discount tier",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "1 item"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "Regular price"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 4,
+  "presets": [
+    {
+      "name": "XCustom Offer Logic Bar",
+      "blocks": [
+        {
+          "type": "tier",
+          "settings": {
+            "title": "1 item",
+            "text": "Regular price"
+          }
+        },
+        {
+          "type": "tier",
+          "settings": {
+            "title": "2 items",
+            "text": "Save $20 total"
+          }
+        },
+        {
+          "type": "tier",
+          "settings": {
+            "title": "3 items",
+            "text": "Save $30 total"
+          }
+        },
+        {
+          "type": "tier",
+          "settings": {
+            "title": "4+ items",
+            "text": "Save $10 each"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

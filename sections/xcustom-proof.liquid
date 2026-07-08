@@ -1,0 +1,1426 @@
+
+{% liquid
+  assign proof_id = 'XCustomProof-' | append: section.id
+  assign image_alt = section.settings.image.alt
+
+  if image_alt == blank
+    assign image_alt = section.settings.quote
+  endif
+%}
+
+<section id="{{ proof_id }}" class="xcustom-proof">
+  <div class="xcustom-proof__container">
+    <div class="xcustom-proof__layout">
+      <div class="xcustom-proof__feature">
+        <div class="xcustom-proof__media">
+          {% if section.settings.image != blank %}
+            {{
+              section.settings.image
+              | image_url: width: 1800
+              | image_tag:
+                widths: '550, 750, 960, 1200, 1500, 1800',
+                sizes: '(min-width: 990px) 62vw, 100vw',
+                class: 'xcustom-proof__image',
+                loading: 'lazy',
+                alt: image_alt
+            }}
+          {% else %}
+            {{ 'lifestyle-2' | placeholder_svg_tag: 'xcustom-proof__placeholder' }}
+          {% endif %}
+
+          <span class="xcustom-proof__overlay" aria-hidden="true"></span>
+
+          {% if section.settings.badge != blank %}
+            <div class="xcustom-proof__badge">
+              {{ section.settings.badge | escape }}
+            </div>
+          {% endif %}
+
+          <div class="xcustom-proof__feature-content">
+            {% if section.settings.quote != blank %}
+              <div class="xcustom-proof__quote">
+                “{{ section.settings.quote | escape }}”
+              </div>
+            {% endif %}
+
+            {% if section.settings.caption != blank %}
+              <div class="xcustom-proof__caption">
+                {{ section.settings.caption | escape }}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="xcustom-proof__reviews"
+        tabindex="0"
+        role="region"
+        aria-label="{{ section.settings.scroll_area_label | escape }}"
+      >
+        <div class="xcustom-proof__reviews-list">
+          {% for block in section.blocks %}
+            <article
+              class="xcustom-proof__review"
+              {{ block.shopify_attributes }}
+            >
+              {% if section.settings.show_stars %}
+                <div
+                  class="xcustom-proof__stars"
+                  aria-label="{{ block.settings.rating }} out of 5 stars"
+                >
+                  {% for star in (1..5) %}
+                    <span
+                      class="{% if star <= block.settings.rating %}is-filled{% else %}is-empty{% endif %}"
+                      aria-hidden="true"
+                    >
+                      ★
+                    </span>
+                  {% endfor %}
+                </div>
+              {% endif %}
+
+              {% if block.settings.title != blank %}
+                <h3 class="xcustom-proof__review-title">
+                  {{ block.settings.title | escape }}
+                </h3>
+              {% endif %}
+
+              {% if block.settings.text != blank %}
+                <div class="xcustom-proof__review-text">
+                  {{ block.settings.text }}
+                </div>
+              {% endif %}
+
+              {% if block.settings.meta != blank %}
+                <div class="xcustom-proof__review-meta">
+                  {{ block.settings.meta | escape }}
+                </div>
+              {% endif %}
+            </article>
+          {% else %}
+            <div class="xcustom-proof__empty">
+              Add review blocks to display customer feedback.
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% style %}
+  #shopify-section-{{ section.id }} {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  #{{ proof_id }} {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding:
+      {{ section.settings.padding_top }}px
+      0
+      {{ section.settings.padding_bottom }}px;
+    overflow: hidden;
+    background-color: {{ section.settings.background_color }};
+  }
+
+  #{{ proof_id }},
+  #{{ proof_id }} *,
+  #{{ proof_id }} *::before,
+  #{{ proof_id }} *::after {
+    box-sizing: border-box;
+  }
+
+  #{{ proof_id }} .xcustom-proof__container {
+    width: 100%;
+    max-width: {{ section.settings.content_max_width }}px;
+    margin-right: auto;
+    margin-left: auto;
+    padding-right: {{ section.settings.side_padding }}px;
+    padding-left: {{ section.settings.side_padding }}px;
+  }
+
+  #{{ proof_id }} .xcustom-proof__layout {
+    display: grid;
+    grid-template-columns:
+      minmax(0, {{ section.settings.feature_width }}fr)
+      minmax(320px, {{ section.settings.reviews_width }}fr);
+    align-items: stretch;
+    gap: {{ section.settings.column_gap }}px;
+    width: 100%;
+  }
+
+  #{{ proof_id }} .xcustom-proof__feature {
+    min-width: 0;
+  }
+
+  #{{ proof_id }} .xcustom-proof__media {
+    position: relative;
+    width: 100%;
+    height: {{ section.settings.desktop_height }}px;
+    overflow: hidden;
+    border-radius: {{ section.settings.feature_radius }}px;
+    background-color: #242424;
+  }
+
+  #{{ proof_id }} .xcustom-proof__image,
+  #{{ proof_id }} .xcustom-proof__placeholder {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  #{{ proof_id }} .xcustom-proof__image {
+    object-fit: cover;
+    object-position: {{ section.settings.image_position }};
+  }
+
+  #{{ proof_id }} .xcustom-proof__placeholder {
+    background-color: #242424;
+  }
+
+  #{{ proof_id }} .xcustom-proof__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background-color: {{ section.settings.overlay_color }};
+    opacity: {{ section.settings.overlay_opacity | divided_by: 100.0 }};
+    pointer-events: none;
+  }
+
+  #{{ proof_id }} .xcustom-proof__badge {
+    position: absolute;
+    top: {{ section.settings.feature_padding }}px;
+    left: {{ section.settings.feature_padding }}px;
+    z-index: 2;
+    max-width: calc(100% - 48px);
+    padding: 9px 16px;
+    border-radius: 999px;
+    color: {{ section.settings.badge_color }};
+    background-color: {{ section.settings.badge_background }};
+    font-family: inherit;
+    font-size: {{ section.settings.badge_size }}px;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  #{{ proof_id }} .xcustom-proof__feature-content {
+    position: absolute;
+    right: {{ section.settings.feature_padding }}px;
+    bottom: {{ section.settings.feature_padding }}px;
+    left: {{ section.settings.feature_padding }}px;
+    z-index: 2;
+    max-width: {{ section.settings.quote_max_width }}px;
+  }
+
+  #{{ proof_id }} .xcustom-proof__quote {
+    margin: 0;
+    color: {{ section.settings.quote_color }};
+    font-family: inherit;
+    font-size: {{ section.settings.quote_size }}px;
+    font-weight: 700;
+    line-height: {{ section.settings.quote_line_height | divided_by: 100.0 }};
+    letter-spacing: -0.025em;
+    overflow-wrap: break-word;
+  }
+
+  #{{ proof_id }} .xcustom-proof__caption {
+    margin-top: {{ section.settings.caption_gap }}px;
+    color: {{ section.settings.caption_color }};
+    font-family: inherit;
+    font-size: {{ section.settings.caption_size }}px;
+    font-weight: 400;
+    line-height: 1.4;
+  }
+
+  #{{ proof_id }} .xcustom-proof__reviews {
+    width: 100%;
+    height: {{ section.settings.desktop_height }}px;
+    min-width: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-right: {{ section.settings.scrollbar_gap }}px;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    scroll-behavior: smooth;
+  }
+
+  #{{ proof_id }} .xcustom-proof__reviews:focus-visible {
+    outline: 2px solid {{ section.settings.accent_color }};
+    outline-offset: 4px;
+    border-radius: {{ section.settings.review_radius }}px;
+  }
+
+  #{{ proof_id }} .xcustom-proof__reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: {{ section.settings.review_gap }}px;
+    width: 100%;
+  }
+
+  #{{ proof_id }} .xcustom-proof__review {
+    width: 100%;
+    padding:
+      {{ section.settings.review_padding_vertical }}px
+      {{ section.settings.review_padding_horizontal }}px;
+    border: {{ section.settings.review_border_width }}px solid {{ section.settings.review_border_color }};
+    border-radius: {{ section.settings.review_radius }}px;
+    background-color: {{ section.settings.review_background }};
+  }
+
+  #{{ proof_id }} .xcustom-proof__stars {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+    margin: 0 0 {{ section.settings.stars_gap }}px;
+    font-size: {{ section.settings.star_size }}px;
+    line-height: 1;
+    letter-spacing: 0;
+  }
+
+  #{{ proof_id }} .xcustom-proof__stars .is-filled {
+    color: {{ section.settings.accent_color }};
+  }
+
+  #{{ proof_id }} .xcustom-proof__stars .is-empty {
+    color: {{ section.settings.empty_star_color }};
+  }
+
+  #{{ proof_id }} .xcustom-proof__review-title {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    color: {{ section.settings.review_heading_color }};
+    font-family: inherit;
+    font-size: {{ section.settings.review_title_size }}px;
+    font-weight: 700;
+    line-height: 1.18;
+    letter-spacing: -0.02em;
+    overflow-wrap: break-word;
+  }
+
+  #{{ proof_id }} .xcustom-proof__review-text {
+    width: 100%;
+    margin-top: {{ section.settings.review_text_gap }}px;
+    color: {{ section.settings.review_text_color }};
+    font-family: inherit;
+    font-size: {{ section.settings.review_text_size }}px;
+    font-weight: 400;
+    line-height: {{ section.settings.review_text_line_height | divided_by: 100.0 }};
+  }
+
+  #{{ proof_id }} .xcustom-proof__review-text p {
+    margin: 0;
+    color: inherit;
+    font: inherit;
+  }
+
+  #{{ proof_id }} .xcustom-proof__review-text p + p {
+    margin-top: 0.75em;
+  }
+
+  #{{ proof_id }} .xcustom-proof__review-meta {
+    margin-top: {{ section.settings.meta_gap }}px;
+    color: {{ section.settings.meta_color }};
+    font-family: inherit;
+    font-size: {{ section.settings.meta_size }}px;
+    font-weight: 400;
+    line-height: 1.4;
+  }
+
+  #{{ proof_id }} .xcustom-proof__empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 220px;
+    padding: 30px;
+    border-radius: {{ section.settings.review_radius }}px;
+    color: {{ section.settings.review_text_color }};
+    background-color: {{ section.settings.review_background }};
+    text-align: center;
+  }
+
+  #{{ proof_id }} .xcustom-proof__reviews {
+    scrollbar-width: thin;
+    scrollbar-color:
+      {{ section.settings.scrollbar_thumb }}
+      {{ section.settings.scrollbar_track }};
+  }
+
+  #{{ proof_id }} .xcustom-proof__reviews::-webkit-scrollbar {
+    width: {{ section.settings.scrollbar_width }}px;
+  }
+
+  #{{ proof_id }} .xcustom-proof__reviews::-webkit-scrollbar-track {
+    border-radius: 999px;
+    background-color: {{ section.settings.scrollbar_track }};
+  }
+
+  #{{ proof_id }} .xcustom-proof__reviews::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background-color: {{ section.settings.scrollbar_thumb }};
+  }
+
+  #{{ proof_id }} .xcustom-proof__reviews::-webkit-scrollbar-thumb:hover {
+    background-color: {{ section.settings.scrollbar_thumb_hover }};
+  }
+
+  @media screen and (max-width: 989px) {
+    #{{ proof_id }} .xcustom-proof__layout {
+      grid-template-columns: minmax(0, 1.4fr) minmax(280px, 1fr);
+      gap: 20px;
+    }
+
+    #{{ proof_id }} .xcustom-proof__feature-content {
+      right: 24px;
+      bottom: 24px;
+      left: 24px;
+    }
+
+    #{{ proof_id }} .xcustom-proof__badge {
+      top: 24px;
+      left: 24px;
+    }
+
+    #{{ proof_id }} .xcustom-proof__quote {
+      font-size: {{ section.settings.quote_size_tablet }}px;
+    }
+
+    #{{ proof_id }} .xcustom-proof__review {
+      padding: 22px 20px;
+    }
+
+    #{{ proof_id }} .xcustom-proof__review-title {
+      font-size: {{ section.settings.review_title_size_tablet }}px;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    #{{ proof_id }} {
+      padding:
+        {{ section.settings.padding_top_mobile }}px
+        0
+        {{ section.settings.padding_bottom_mobile }}px;
+    }
+
+    #{{ proof_id }} .xcustom-proof__container {
+      padding-right: {{ section.settings.side_padding_mobile }}px;
+      padding-left: {{ section.settings.side_padding_mobile }}px;
+    }
+
+    #{{ proof_id }} .xcustom-proof__layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: {{ section.settings.column_gap_mobile }}px;
+    }
+
+    #{{ proof_id }} .xcustom-proof__media {
+      height: {{ section.settings.mobile_feature_height }}px;
+      border-radius: {{ section.settings.feature_radius_mobile }}px;
+    }
+
+    #{{ proof_id }} .xcustom-proof__badge {
+      top: {{ section.settings.feature_padding_mobile }}px;
+      left: {{ section.settings.feature_padding_mobile }}px;
+      padding: 8px 12px;
+      font-size: {{ section.settings.badge_size_mobile }}px;
+    }
+
+    #{{ proof_id }} .xcustom-proof__feature-content {
+      right: {{ section.settings.feature_padding_mobile }}px;
+      bottom: {{ section.settings.feature_padding_mobile }}px;
+      left: {{ section.settings.feature_padding_mobile }}px;
+    }
+
+    #{{ proof_id }} .xcustom-proof__quote {
+      font-size: {{ section.settings.quote_size_mobile }}px;
+      line-height: {{ section.settings.quote_line_height_mobile | divided_by: 100.0 }};
+    }
+
+    #{{ proof_id }} .xcustom-proof__caption {
+      margin-top: {{ section.settings.caption_gap_mobile }}px;
+      font-size: {{ section.settings.caption_size_mobile }}px;
+    }
+
+    #{{ proof_id }} .xcustom-proof__reviews {
+      width: calc(100% + {{ section.settings.side_padding_mobile }}px);
+      height: auto;
+      min-width: 0;
+      margin-right: calc({{ section.settings.side_padding_mobile }}px * -1);
+      padding-right: {{ section.settings.side_padding_mobile }}px;
+      padding-bottom: 4px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      overscroll-behavior-x: contain;
+      scroll-behavior: smooth;
+      scroll-snap-type: x mandatory;
+      scrollbar-gutter: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    #{{ proof_id }} .xcustom-proof__reviews::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+
+    #{{ proof_id }} .xcustom-proof__reviews-list {
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      gap: {{ section.settings.review_gap_mobile }}px;
+      width: max-content;
+      min-width: 100%;
+    }
+
+    #{{ proof_id }} .xcustom-proof__review {
+      display: flex;
+      flex: 0 0 calc(
+        {{ section.settings.mobile_card_width }}vw -
+        {{ section.settings.side_padding_mobile }}px
+      );
+      flex-direction: column;
+      width: calc(
+        {{ section.settings.mobile_card_width }}vw -
+        {{ section.settings.side_padding_mobile }}px
+      );
+      max-width: {{ section.settings.mobile_card_max_width }}px;
+      min-width: 0;
+      padding:
+        {{ section.settings.review_padding_vertical_mobile }}px
+        {{ section.settings.review_padding_horizontal_mobile }}px;
+      border-radius: {{ section.settings.review_radius_mobile }}px;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+    }
+
+    #{{ proof_id }} .xcustom-proof__review-meta {
+      margin-top: auto;
+      padding-top: {{ section.settings.meta_gap_mobile }}px;
+    }
+
+    #{{ proof_id }} .xcustom-proof__stars {
+      margin-bottom: {{ section.settings.stars_gap_mobile }}px;
+      font-size: {{ section.settings.star_size_mobile }}px;
+    }
+
+    #{{ proof_id }} .xcustom-proof__review-title {
+      font-size: {{ section.settings.review_title_size_mobile }}px;
+    }
+
+    #{{ proof_id }} .xcustom-proof__review-text {
+      margin-top: {{ section.settings.review_text_gap_mobile }}px;
+      font-size: {{ section.settings.review_text_size_mobile }}px;
+    }
+
+    #{{ proof_id }} .xcustom-proof__review-meta {
+      font-size: {{ section.settings.meta_size_mobile }}px;
+    }
+
+    #{{ proof_id }} .xcustom-proof__empty {
+      flex: 0 0 calc(
+        100vw -
+        {{ section.settings.side_padding_mobile | times: 2 }}px
+      );
+      width: calc(
+        100vw -
+        {{ section.settings.side_padding_mobile | times: 2 }}px
+      );
+      min-height: 220px;
+      scroll-snap-align: start;
+    }
+  }
+
+  @media screen and (max-width: 374px) {
+    #{{ proof_id }} .xcustom-proof__review {
+      flex-basis: calc(92vw - {{ section.settings.side_padding_mobile }}px);
+      width: calc(92vw - {{ section.settings.side_padding_mobile }}px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #{{ proof_id }} .xcustom-proof__reviews {
+      scroll-behavior: auto;
+    }
+  }
+{% endstyle %}
+
+{% schema %}
+{
+  "name": "XCustom Proof",
+  "tag": "section",
+  "class": "section-xcustom-proof",
+  "max_blocks": 12,
+  "disabled_on": {
+    "groups": ["header", "footer", "aside"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "content_max_width",
+      "min": 1000,
+      "max": 1600,
+      "step": 20,
+      "unit": "px",
+      "label": "Content maximum width",
+      "default": 1200
+    },
+    {
+      "type": "range",
+      "id": "feature_width",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "label": "Image column width ratio",
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "reviews_width",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "label": "Review column width ratio",
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "column_gap",
+      "min": 8,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop column gap",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "column_gap_mobile",
+      "min": 8,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile image/review gap",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "desktop_height",
+      "min": 360,
+      "max": 760,
+      "step": 20,
+      "unit": "px",
+      "label": "Desktop module height",
+      "default": 520
+    },
+    {
+      "type": "range",
+      "id": "mobile_feature_height",
+      "min": 280,
+      "max": 620,
+      "step": 20,
+      "unit": "px",
+      "label": "Mobile image height",
+      "default": 420
+    },
+    {
+      "type": "header",
+      "content": "Feature image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image position",
+      "options": [
+        {
+          "value": "center center",
+          "label": "Center"
+        },
+        {
+          "value": "center top",
+          "label": "Top"
+        },
+        {
+          "value": "center bottom",
+          "label": "Bottom"
+        },
+        {
+          "value": "left center",
+          "label": "Left"
+        },
+        {
+          "value": "right center",
+          "label": "Right"
+        }
+      ],
+      "default": "center center"
+    },
+    {
+      "type": "text",
+      "id": "badge",
+      "label": "Image badge",
+      "default": "REAL HOME GYMS. REAL RESULTS."
+    },
+    {
+      "type": "textarea",
+      "id": "quote",
+      "label": "Featured quote",
+      "default": "The biggest difference was having a complete setup from day one. I stopped modifying workouts around missing equipment."
+    },
+    {
+      "type": "text",
+      "id": "caption",
+      "label": "Featured quote caption",
+      "default": "Verified purchaser · Progressive Strength Set"
+    },
+    {
+      "type": "range",
+      "id": "quote_max_width",
+      "min": 300,
+      "max": 700,
+      "step": 20,
+      "unit": "px",
+      "label": "Quote maximum width",
+      "default": 580
+    },
+    {
+      "type": "range",
+      "id": "feature_padding",
+      "min": 16,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop image content padding",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "feature_padding_mobile",
+      "min": 14,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile image content padding",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "feature_radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop image corner radius",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "feature_radius_mobile",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile image corner radius",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Feature typography"
+    },
+    {
+      "type": "range",
+      "id": "badge_size",
+      "min": 9,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop badge size",
+      "default": 11
+    },
+    {
+      "type": "range",
+      "id": "badge_size_mobile",
+      "min": 8,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile badge size",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "quote_size",
+      "min": 20,
+      "max": 44,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop quote size",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "quote_size_tablet",
+      "min": 18,
+      "max": 36,
+      "step": 1,
+      "unit": "px",
+      "label": "Tablet quote size",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "quote_size_mobile",
+      "min": 18,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile quote size",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "quote_line_height",
+      "min": 100,
+      "max": 160,
+      "step": 5,
+      "unit": "%",
+      "label": "Desktop quote line height",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "quote_line_height_mobile",
+      "min": 100,
+      "max": 160,
+      "step": 5,
+      "unit": "%",
+      "label": "Mobile quote line height",
+      "default": 125
+    },
+    {
+      "type": "range",
+      "id": "caption_size",
+      "min": 10,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop caption size",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "caption_size_mobile",
+      "min": 9,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile caption size",
+      "default": 11
+    },
+    {
+      "type": "range",
+      "id": "caption_gap",
+      "min": 4,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop quote/caption gap",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "caption_gap_mobile",
+      "min": 4,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile quote/caption gap",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Review cards"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_stars",
+      "label": "Show star ratings",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "scroll_area_label",
+      "label": "Scrollable area accessibility label",
+      "default": "Customer reviews"
+    },
+    {
+      "type": "range",
+      "id": "review_gap",
+      "min": 8,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop card gap",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "review_gap_mobile",
+      "min": 8,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile card gap",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "mobile_card_width",
+      "min": 72,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Mobile card width",
+      "info": "Set below 100% to show part of the next review card.",
+      "default": 88
+    },
+    {
+      "type": "range",
+      "id": "mobile_card_max_width",
+      "min": 260,
+      "max": 500,
+      "step": 10,
+      "unit": "px",
+      "label": "Mobile card maximum width",
+      "default": 380
+    },
+    {
+      "type": "range",
+      "id": "review_padding_vertical",
+      "min": 16,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop card vertical padding",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "review_padding_horizontal",
+      "min": 16,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop card horizontal padding",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "review_padding_vertical_mobile",
+      "min": 14,
+      "max": 36,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile card vertical padding",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "review_padding_horizontal_mobile",
+      "min": 14,
+      "max": 36,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile card horizontal padding",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "review_radius",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop card corner radius",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "review_radius_mobile",
+      "min": 0,
+      "max": 28,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile card corner radius",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "review_border_width",
+      "min": 0,
+      "max": 3,
+      "step": 1,
+      "unit": "px",
+      "label": "Card border width",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Review typography"
+    },
+    {
+      "type": "range",
+      "id": "star_size",
+      "min": 12,
+      "max": 26,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop star size",
+      "default": 17
+    },
+    {
+      "type": "range",
+      "id": "star_size_mobile",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile star size",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "stars_gap",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop stars/title gap",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "stars_gap_mobile",
+      "min": 0,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile stars/title gap",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "review_title_size",
+      "min": 16,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop review title size",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "review_title_size_tablet",
+      "min": 15,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "label": "Tablet review title size",
+      "default": 19
+    },
+    {
+      "type": "range",
+      "id": "review_title_size_mobile",
+      "min": 15,
+      "max": 26,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile review title size",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "review_text_size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop review text size",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "review_text_size_mobile",
+      "min": 12,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile review text size",
+      "default": 13
+    },
+    {
+      "type": "range",
+      "id": "review_text_line_height",
+      "min": 120,
+      "max": 200,
+      "step": 5,
+      "unit": "%",
+      "label": "Review text line height",
+      "default": 150
+    },
+    {
+      "type": "range",
+      "id": "review_text_gap",
+      "min": 4,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop title/text gap",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "review_text_gap_mobile",
+      "min": 4,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile title/text gap",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "meta_size",
+      "min": 10,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop meta size",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "meta_size_mobile",
+      "min": 10,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile meta size",
+      "default": 11
+    },
+    {
+      "type": "range",
+      "id": "meta_gap",
+      "min": 6,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop text/meta gap",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "meta_gap_mobile",
+      "min": 6,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile text/meta gap",
+      "default": 14
+    },
+    {
+      "type": "header",
+      "content": "Desktop scrollbar"
+    },
+    {
+      "type": "range",
+      "id": "scrollbar_width",
+      "min": 4,
+      "max": 12,
+      "step": 1,
+      "unit": "px",
+      "label": "Scrollbar width",
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "scrollbar_gap",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop scrollbar gap",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section background",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Image overlay",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "label": "Image overlay opacity",
+      "default": 35
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent",
+      "default": "#FF5A1F"
+    },
+    {
+      "type": "color",
+      "id": "badge_background",
+      "label": "Badge background",
+      "default": "#5A554D"
+    },
+    {
+      "type": "color",
+      "id": "badge_color",
+      "label": "Badge text",
+      "default": "#FF5A1F"
+    },
+    {
+      "type": "color",
+      "id": "quote_color",
+      "label": "Featured quote",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "caption_color",
+      "label": "Featured caption",
+      "default": "#D0D0D0"
+    },
+    {
+      "type": "color",
+      "id": "review_background",
+      "label": "Review card background",
+      "default": "#202020"
+    },
+    {
+      "type": "color",
+      "id": "review_border_color",
+      "label": "Review card border",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "review_heading_color",
+      "label": "Review heading",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "review_text_color",
+      "label": "Review text",
+      "default": "#E0E0E0"
+    },
+    {
+      "type": "color",
+      "id": "meta_color",
+      "label": "Review meta",
+      "default": "#999999"
+    },
+    {
+      "type": "color",
+      "id": "empty_star_color",
+      "label": "Empty stars",
+      "default": "#555555"
+    },
+    {
+      "type": "color",
+      "id": "scrollbar_track",
+      "label": "Scrollbar track",
+      "default": "#181818"
+    },
+    {
+      "type": "color",
+      "id": "scrollbar_thumb",
+      "label": "Scrollbar thumb",
+      "default": "#444444"
+    },
+    {
+      "type": "color",
+      "id": "scrollbar_thumb_hover",
+      "label": "Scrollbar thumb hover",
+      "default": "#666666"
+    },
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "label": "Desktop top padding",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "label": "Desktop bottom padding",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "side_padding",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Desktop side padding",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Mobile top padding",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Mobile bottom padding",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "side_padding_mobile",
+      "min": 0,
+      "max": 48,
+      "step": 4,
+      "unit": "px",
+      "label": "Mobile side padding",
+      "default": 16
+    }
+  ],
+  "blocks": [
+    {
+      "type": "review",
+      "name": "Review card",
+      "settings": [
+        {
+          "type": "range",
+          "id": "rating",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "label": "Star rating",
+          "default": 5
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Review by setup, not only product"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Review text",
+          "default": "<p>Surface reviews that mention the dumbbell, bench, and storage experience together.</p>"
+        },
+        {
+          "type": "text",
+          "id": "meta",
+          "label": "Review meta",
+          "default": "Verified purchaser · Progressive Strength Set"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "XCustom Proof",
+      "blocks": [
+        {
+          "type": "review",
+          "settings": {
+            "rating": 5,
+            "title": "Review by setup, not only product",
+            "text": "<p>Surface reviews that mention the dumbbell, bench, and storage experience together.</p>",
+            "meta": "Verified purchaser · Progressive Strength Set"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "rating": 5,
+            "title": "Add customer room photos",
+            "text": "<p>Show footprint, storage, and how the setup looks in real apartments and garages.</p>",
+            "meta": "Community content module"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "rating": 5,
+            "title": "Answer the final objection",
+            "text": "<p>Include comments about assembly, package delivery, stability, and long-term use.</p>",
+            "meta": "Most helpful review themes"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "rating": 5,
+            "title": "A complete setup from day one",
+            "text": "<p>The equipment works together well and keeps the training area organized without taking over the room.</p>",
+            "meta": "Verified purchaser"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
