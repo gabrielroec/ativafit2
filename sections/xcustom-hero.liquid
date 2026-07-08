@@ -1,6 +1,14 @@
 
 {% liquid
-  assign image_alt = section.settings.image.alt
+  assign desktop_image = section.settings.image
+  assign mobile_image = section.settings.mobile_image
+  assign active_mobile_image = mobile_image | default: desktop_image
+
+  assign image_alt = desktop_image.alt
+
+  if image_alt == blank and active_mobile_image != blank
+    assign image_alt = active_mobile_image.alt
+  endif
 
   if image_alt == blank
     assign image_alt = section.settings.heading | strip_html
@@ -8,10 +16,27 @@
 
   assign image_focal_point = 'center center'
   assign image_style = ''
+  assign mobile_image_focal_point = image_focal_point
 
-  if section.settings.image != blank
-    assign image_focal_point = section.settings.image.presentation.focal_point | default: 'center center'
+  assign image_aspect_ratio = 1.77777778
+  assign mobile_image_aspect_ratio = image_aspect_ratio
+
+  if desktop_image != blank
+    assign image_focal_point = desktop_image.presentation.focal_point | default: 'center center'
     assign image_style = 'object-position: ' | append: image_focal_point | append: ';'
+
+    if desktop_image.aspect_ratio != blank
+      assign image_aspect_ratio = desktop_image.aspect_ratio
+      assign mobile_image_aspect_ratio = desktop_image.aspect_ratio
+    endif
+  endif
+
+  if active_mobile_image != blank
+    assign mobile_image_focal_point = active_mobile_image.presentation.focal_point | default: image_focal_point
+
+    if active_mobile_image.aspect_ratio != blank
+      assign mobile_image_aspect_ratio = active_mobile_image.aspect_ratio
+    endif
   endif
 
   assign width_class = 'xcustom-gym--contained'
@@ -47,24 +72,56 @@
 
 <section
   id="XCustomGym-{{ section.id }}"
-  class="xcustom-gym {{ width_class }} xcustom-gym--image-{{ section.settings.image_position }}{% if section.settings.mobile_image_first %} xcustom-gym--mobile-image-first{% endif %}"
+  class="xcustom-gym {{ width_class }} xcustom-gym--height-{{ section.settings.image_height_mode }} xcustom-gym--image-{{ section.settings.image_position }}{% if section.settings.mobile_image_first %} xcustom-gym--mobile-image-first{% endif %}"
 >
   <div class="xcustom-gym__shell">
     <div class="xcustom-gym__hero">
       <div class="xcustom-gym__media">
-        {% if section.settings.image != blank %}
-          {{
-            section.settings.image
-            | image_url: width: 3000
-            | image_tag:
-              widths: '375, 550, 750, 960, 1200, 1500, 1800, 2200, 2600, 3000',
-              sizes: '100vw',
-              class: 'xcustom-gym__image',
-              loading: image_loading,
-              fetchpriority: image_fetchpriority,
-              style: image_style,
-              alt: image_alt
-          }}
+        {% if desktop_image != blank or mobile_image != blank %}
+          <picture class="xcustom-gym__picture">
+            {% if mobile_image != blank %}
+              <source
+                media="(max-width: 767px)"
+                srcset="
+                  {{ mobile_image | image_url: width: 375 }} 375w,
+                  {{ mobile_image | image_url: width: 550 }} 550w,
+                  {{ mobile_image | image_url: width: 750 }} 750w,
+                  {{ mobile_image | image_url: width: 960 }} 960w,
+                  {{ mobile_image | image_url: width: 1200 }} 1200w,
+                  {{ mobile_image | image_url: width: 1500 }} 1500w
+                "
+                sizes="100vw"
+              >
+            {% endif %}
+
+            {% if desktop_image != blank %}
+              {{
+                desktop_image
+                | image_url: width: 3000
+                | image_tag:
+                  widths: '375, 550, 750, 960, 1200, 1500, 1800, 2200, 2600, 3000',
+                  sizes: '100vw',
+                  class: 'xcustom-gym__image',
+                  loading: image_loading,
+                  fetchpriority: image_fetchpriority,
+                  style: image_style,
+                  alt: image_alt
+              }}
+            {% else %}
+              {{
+                mobile_image
+                | image_url: width: 1500
+                | image_tag:
+                  widths: '375, 550, 750, 960, 1200, 1500',
+                  sizes: '100vw',
+                  class: 'xcustom-gym__image',
+                  loading: image_loading,
+                  fetchpriority: image_fetchpriority,
+                  style: image_style,
+                  alt: image_alt
+              }}
+            {% endif %}
+          </picture>
         {% else %}
           {{ 'lifestyle-2' | placeholder_svg_tag: 'xcustom-gym__placeholder' }}
         {% endif %}
@@ -197,11 +254,18 @@
   #XCustomGym-{{ section.id }} .xcustom-gym__hero {
     position: relative;
     width: 100%;
-    min-height: {{ section.settings.hero_height }}px;
+    min-height: {{ section.settings.hero_min_height }}px;
+    aspect-ratio: {{ image_aspect_ratio }};
     overflow: hidden;
     border-radius: {{ section.settings.image_radius }}px;
     background: #eeeeee;
     isolation: isolate;
+  }
+
+  #XCustomGym-{{ section.id }}.xcustom-gym--height-custom .xcustom-gym__hero {
+    aspect-ratio: auto;
+    height: {{ section.settings.hero_height }}px;
+    min-height: {{ section.settings.hero_height }}px;
   }
 
   #XCustomGym-{{ section.id }}.xcustom-gym--full .xcustom-gym__hero {
@@ -209,6 +273,7 @@
   }
 
   #XCustomGym-{{ section.id }} .xcustom-gym__media,
+  #XCustomGym-{{ section.id }} .xcustom-gym__picture,
   #XCustomGym-{{ section.id }} .xcustom-gym__overlay {
     position: absolute;
     inset: 0;
@@ -219,6 +284,11 @@
   #XCustomGym-{{ section.id }} .xcustom-gym__media {
     z-index: 0;
     line-height: 0;
+  }
+
+  #XCustomGym-{{ section.id }} .xcustom-gym__picture {
+    display: block;
+    border-radius: inherit;
   }
 
   #XCustomGym-{{ section.id }} .xcustom-gym__image,
@@ -438,7 +508,18 @@
     }
 
     #XCustomGym-{{ section.id }} .xcustom-gym__hero {
+      min-height: {{ section.settings.hero_min_height_mobile }}px;
+      aspect-ratio: {{ mobile_image_aspect_ratio }};
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__image {
+      object-position: {{ mobile_image_focal_point }};
+    }
+
+    #XCustomGym-{{ section.id }}.xcustom-gym--height-custom .xcustom-gym__hero {
+      height: {{ section.settings.hero_height_mobile }}px;
       min-height: {{ section.settings.hero_height_mobile }}px;
+      aspect-ratio: auto;
     }
 
     #XCustomGym-{{ section.id }} .xcustom-gym__content {
@@ -626,23 +707,63 @@
       "default": false
     },
     {
+      "type": "select",
+      "id": "image_height_mode",
+      "label": "Image height mode",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "Adapt to image ratio"
+        },
+        {
+          "value": "custom",
+          "label": "Custom fixed height"
+        }
+      ],
+      "default": "adapt"
+    },
+    {
+      "type": "range",
+      "id": "hero_min_height",
+      "min": 0,
+      "max": 800,
+      "step": 20,
+      "unit": "px",
+      "label": "Desktop minimum image height",
+      "info": "Used in adaptive mode. Set to 0 to follow the uploaded image ratio exactly.",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "hero_min_height_mobile",
+      "min": 0,
+      "max": 800,
+      "step": 20,
+      "unit": "px",
+      "label": "Mobile minimum image height",
+      "info": "Used in adaptive mode. Increase only if the banner becomes too short on mobile.",
+      "default": 0
+    },
+    {
       "type": "range",
       "id": "hero_height",
-      "min": 320,
+      "min": 240,
       "max": 1000,
       "step": 20,
       "unit": "px",
-      "label": "Desktop image/banner height",
+      "label": "Desktop custom fixed height",
+      "info": "Only used when Image height mode is set to Custom fixed height.",
       "default": 640
     },
     {
       "type": "range",
       "id": "hero_height_mobile",
-      "min": 300,
+      "min": 240,
       "max": 900,
       "step": 20,
       "unit": "px",
-      "label": "Mobile image/banner height",
+      "label": "Mobile custom fixed height",
+      "info": "Only used when Image height mode is set to Custom fixed height.",
       "default": 520
     },
     {
@@ -1146,7 +1267,13 @@
     {
       "type": "image_picker",
       "id": "image",
-      "label": "Image"
+      "label": "Desktop image"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image",
+      "label": "Mobile image",
+      "info": "Optional. On screens under 768px, this image will be used and its own ratio will control the banner height in adaptive mode."
     },
     {
       "type": "checkbox",
