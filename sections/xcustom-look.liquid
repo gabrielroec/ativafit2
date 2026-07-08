@@ -1,35 +1,26 @@
+
 {% liquid
   assign look_id = 'XCustomLook-' | append: section.id
+  assign room_image = section.settings.image
 
-  assign desktop_room_image = section.settings.image
-  if desktop_room_image == blank and section.settings.mobile_image != blank
-    assign desktop_room_image = section.settings.mobile_image
+  if room_image == blank and section.settings.mobile_image != blank
+    assign room_image = section.settings.mobile_image
   endif
-
-  assign room_image = desktop_room_image
 
   assign room_alt = room_image.alt
   if room_alt == blank
     assign room_alt = section.settings.heading | strip_html
   endif
 
-  assign mobile_room_alt = section.settings.mobile_image.alt
-  if mobile_room_alt == blank
-    assign mobile_room_alt = room_alt
-  endif
-
   assign width_class = 'xcustom-look--contained'
   if section.settings.full_width
     assign width_class = 'xcustom-look--full'
   endif
-
-  assign scene_image_size_mode = section.settings.scene_image_size_mode | default: 'adapt'
-  assign product_image_size_mode = section.settings.product_image_size_mode | default: 'adapt'
 %}
 
 <section
   id="{{ look_id }}"
-  class="xcustom-look {{ width_class }} xcustom-look--scene-{{ scene_image_size_mode }} xcustom-look--product-image-{{ product_image_size_mode }}{% if section.settings.mobile_image != blank %} xcustom-look--has-mobile-image{% endif %}"
+  class="xcustom-look {{ width_class }}"
 >
   <div class="xcustom-look__container">
     {% if section.settings.heading != blank or section.settings.description != blank %}
@@ -53,29 +44,31 @@
       <div class="xcustom-look__scene">
         <div class="xcustom-look__scene-media">
           {% if room_image != blank %}
-            {{
-              room_image
-              | image_url: width: 2200
-              | image_tag:
-                widths: '550, 750, 960, 1200, 1500, 1800, 2200',
-                sizes: '(min-width: 990px) 68vw, 100vw',
-                class: 'xcustom-look__scene-image xcustom-look__scene-image--desktop',
-                loading: 'lazy',
-                alt: room_alt
-            }}
+            <picture>
+              {% if section.settings.mobile_image != blank %}
+                <source
+                  media="(max-width: 749px)"
+                  srcset="
+                    {{ section.settings.mobile_image | image_url: width: 375 }} 375w,
+                    {{ section.settings.mobile_image | image_url: width: 550 }} 550w,
+                    {{ section.settings.mobile_image | image_url: width: 750 }} 750w,
+                    {{ section.settings.mobile_image | image_url: width: 900 }} 900w
+                  "
+                  sizes="100vw"
+                >
+              {% endif %}
 
-            {% if section.settings.mobile_image != blank %}
               {{
-                section.settings.mobile_image
-                | image_url: width: 1200
+                room_image
+                | image_url: width: 2200
                 | image_tag:
-                  widths: '375, 550, 750, 900, 1200',
-                  sizes: '100vw',
-                  class: 'xcustom-look__scene-image xcustom-look__scene-image--mobile',
+                  widths: '550, 750, 960, 1200, 1500, 1800, 2200',
+                  sizes: '(min-width: 990px) 68vw, 100vw',
+                  class: 'xcustom-look__scene-image',
                   loading: 'lazy',
-                  alt: mobile_room_alt
+                  alt: room_alt
               }}
-            {% endif %}
+            </picture>
           {% else %}
             {{ 'lifestyle-2' | placeholder_svg_tag: 'xcustom-look__scene-placeholder' }}
           {% endif %}
@@ -415,7 +408,7 @@
     grid-template-columns:
       minmax(0, {{ section.settings.scene_width }}fr)
       minmax(320px, {{ section.settings.panel_width }}fr);
-    align-items: start;
+    align-items: stretch;
     gap: {{ section.settings.column_gap }}px;
     width: 100%;
     margin-top: {{ section.settings.content_top_gap }}px;
@@ -423,54 +416,35 @@
 
   #{{ look_id }} .xcustom-look__scene {
     min-width: 0;
-    height: auto;
+    height: 100%;
   }
 
   #{{ look_id }} .xcustom-look__scene-media {
     position: relative;
     width: 100%;
-    height: auto;
-    min-height: 0;
+    height: 100%;
+    min-height: {{ section.settings.scene_min_height }}px;
     overflow: hidden;
     border-radius: {{ section.settings.scene_radius }}px;
     background-color: #eeeeee;
     line-height: 0;
   }
 
+  #{{ look_id }} .xcustom-look__scene-media picture {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
   #{{ look_id }} .xcustom-look__scene-image,
   #{{ look_id }} .xcustom-look__scene-placeholder {
     display: block;
     width: 100%;
-    max-width: 100%;
-    height: auto;
-    min-height: 0;
+    height: 100%;
+    min-height: inherit;
   }
 
   #{{ look_id }} .xcustom-look__scene-image {
-    object-fit: contain;
-  }
-
-  #{{ look_id }} .xcustom-look__scene-image--mobile {
-    display: none;
-  }
-
-  #{{ look_id }}.xcustom-look--scene-cover .xcustom-look__layout {
-    align-items: stretch;
-  }
-
-  #{{ look_id }}.xcustom-look--scene-cover .xcustom-look__scene {
-    height: 100%;
-  }
-
-  #{{ look_id }}.xcustom-look--scene-cover .xcustom-look__scene-media {
-    height: 100%;
-    min-height: {{ section.settings.scene_min_height }}px;
-  }
-
-  #{{ look_id }}.xcustom-look--scene-cover .xcustom-look__scene-image,
-  #{{ look_id }}.xcustom-look--scene-cover .xcustom-look__scene-placeholder {
-    height: 100%;
-    min-height: inherit;
     object-fit: cover;
   }
 
@@ -594,7 +568,7 @@
   #{{ look_id }} .xcustom-look__panel {
     display: flex;
     min-width: 0;
-    height: auto;
+    height: 100%;
     overflow: hidden;
     border-radius: {{ section.settings.panel_radius }}px;
     color: {{ section.settings.panel_text_color }};
@@ -607,21 +581,12 @@
     flex-direction: column;
     min-width: 0;
     width: 100%;
-    height: auto;
-    min-height: 0;
+    height: 100%;
+    min-height: 100%;
     padding:
       {{ section.settings.panel_padding_top }}px
       {{ section.settings.panel_padding_horizontal }}px
       {{ section.settings.panel_padding_bottom }}px;
-  }
-
-  #{{ look_id }}.xcustom-look--scene-cover .xcustom-look__panel {
-    height: 100%;
-  }
-
-  #{{ look_id }}.xcustom-look--scene-cover .xcustom-look__product-card {
-    height: 100%;
-    min-height: 100%;
   }
 
   #{{ look_id }} .xcustom-look__product-card[hidden] {
@@ -662,22 +627,14 @@
     overflow: hidden;
     border-radius: {{ section.settings.product_image_radius }}px;
     background-color: {{ section.settings.product_image_background }};
+    aspect-ratio: {{ section.settings.product_image_ratio }};
   }
 
   #{{ look_id }} .xcustom-look__product-image {
     display: block;
     width: 100%;
-    max-width: 100%;
-    height: auto;
-    object-fit: contain;
-  }
-
-  #{{ look_id }}.xcustom-look--product-image-ratio .xcustom-look__product-media {
-    aspect-ratio: {{ section.settings.product_image_ratio }};
-  }
-
-  #{{ look_id }}.xcustom-look--product-image-ratio .xcustom-look__product-image {
     height: 100%;
+    object-fit: contain;
   }
 
   #{{ look_id }} .xcustom-look__product-content {
@@ -907,29 +864,14 @@
       min-height: 0;
     }
 
-    #{{ look_id }}.xcustom-look--has-mobile-image .xcustom-look__scene-image--desktop {
-      display: none;
-    }
-
-    #{{ look_id }}.xcustom-look--has-mobile-image .xcustom-look__scene-image--mobile {
-      display: block;
+    #{{ look_id }} .xcustom-look__scene-media picture {
+      height: auto;
     }
 
     #{{ look_id }} .xcustom-look__scene-image,
     #{{ look_id }} .xcustom-look__scene-placeholder {
       height: auto;
-      min-height: 0;
-    }
-
-    #{{ look_id }}.xcustom-look--scene-cover .xcustom-look__scene-media {
-      height: auto;
       min-height: {{ section.settings.scene_min_height_mobile }}px;
-    }
-
-    #{{ look_id }}.xcustom-look--scene-cover .xcustom-look__scene-image,
-    #{{ look_id }}.xcustom-look--scene-cover .xcustom-look__scene-placeholder {
-      height: 100%;
-      min-height: inherit;
     }
 
     #{{ look_id }} .xcustom-look__product-actions {
@@ -1839,42 +1781,24 @@
       "default": 24
     },
     {
-      "type": "select",
-      "id": "scene_image_size_mode",
-      "label": "Scene image size mode",
-      "options": [
-        {
-          "value": "adapt",
-          "label": "Adapt to image ratio"
-        },
-        {
-          "value": "cover",
-          "label": "Cover fixed area"
-        }
-      ],
-      "default": "adapt"
-    },
-    {
       "type": "range",
       "id": "scene_min_height",
-      "min": 0,
+      "min": 300,
       "max": 900,
       "step": 20,
       "unit": "px",
       "label": "Desktop scene minimum height",
-      "info": "Used only when Scene image size mode is set to Cover fixed area.",
-      "default": 0
+      "default": 560
     },
     {
       "type": "range",
       "id": "scene_min_height_mobile",
-      "min": 0,
+      "min": 220,
       "max": 700,
       "step": 20,
       "unit": "px",
       "label": "Mobile scene minimum height",
-      "info": "Used only when Scene image size mode is set to Cover fixed area.",
-      "default": 0
+      "default": 340
     },
     {
       "type": "range",
@@ -2091,22 +2015,6 @@
       "unit": "px",
       "label": "Panel eyebrow size",
       "default": 11
-    },
-    {
-      "type": "select",
-      "id": "product_image_size_mode",
-      "label": "Product image size mode",
-      "options": [
-        {
-          "value": "adapt",
-          "label": "Adapt to image ratio"
-        },
-        {
-          "value": "ratio",
-          "label": "Use selected product image ratio"
-        }
-      ],
-      "default": "adapt"
     },
     {
       "type": "select",
