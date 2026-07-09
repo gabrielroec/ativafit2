@@ -531,6 +531,103 @@
     outline-offset: 3px;
   }
 
+
+
+  /* Narrow desktop / tablet protection only.
+     This keeps the original full-width desktop layout unchanged,
+     and only adjusts typography + inner spacing when the viewport gets narrow. */
+  @media screen and (min-width: 1200px) and (max-width: 1499px) {
+    #XCustomGym-{{ section.id }} .xcustom-gym__content {
+      width: max({{ section.settings.content_width }}%, 46%);
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__copy {
+      padding-left: min({{ section.settings.copy_padding_left_percent }}%, 120px);
+      padding-right: min({{ section.settings.copy_padding_right_percent }}%, 72px);
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__heading {
+      font-size: clamp(50px, 4.2vw, {{ section.settings.heading_font_size }}px) !important;
+      line-height: {{ section.settings.heading_line_height | divided_by: 100.0 }} !important;
+      overflow-wrap: normal;
+      word-break: normal;
+      hyphens: manual;
+      text-wrap: balance;
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__description,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description p,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description span,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description strong,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description em,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description a,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description li {
+      font-size: clamp(15px, 1.2vw, {{ section.settings.body_font_size }}px) !important;
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__button {
+      min-height: clamp(42px, 3.4vw, {{ section.settings.button_height }}px);
+      padding-left: clamp(18px, 2.1vw, {{ section.settings.button_horizontal_padding }}px);
+      padding-right: clamp(18px, 2.1vw, {{ section.settings.button_horizontal_padding }}px);
+      font-size: clamp(14px, 1.1vw, {{ section.settings.button_font_size }}px);
+    }
+  }
+
+  @media screen and (min-width: 768px) and (max-width: 1199px) {
+    #XCustomGym-{{ section.id }} .xcustom-gym__content {
+      width: max({{ section.settings.content_width }}%, 56%);
+      max-width: calc(100% - 24px);
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__copy {
+      max-width: min({{ section.settings.copy_max_width }}px, 620px);
+      padding-left: clamp(28px, 7vw, 92px);
+      padding-right: clamp(16px, 4vw, 48px);
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__heading {
+      font-size: clamp(38px, 5.1vw, 56px) !important;
+      line-height: 1.04 !important;
+      overflow-wrap: normal;
+      word-break: normal;
+      hyphens: manual;
+      text-wrap: balance;
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__description {
+      margin-top: clamp(12px, 1.6vw, {{ section.settings.text_gap }}px);
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__description,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description p,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description span,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description strong,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description em,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description a,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description li {
+      font-size: clamp(14px, 1.6vw, {{ section.settings.body_font_size }}px) !important;
+      line-height: 1.48 !important;
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__buttons {
+      gap: clamp(8px, 1.2vw, {{ section.settings.button_gap }}px);
+      margin-top: clamp(18px, 2.4vw, {{ section.settings.button_top_gap }}px);
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__button {
+      min-height: clamp(40px, 4vw, {{ section.settings.button_height }}px);
+      padding-left: clamp(16px, 2.4vw, {{ section.settings.button_horizontal_padding }}px);
+      padding-right: clamp(16px, 2.4vw, {{ section.settings.button_horizontal_padding }}px);
+      font-size: clamp(13px, 1.45vw, {{ section.settings.button_font_size }}px);
+      white-space: nowrap;
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__button-note {
+      margin-top: clamp(8px, 1.1vw, {{ section.settings.button_note_gap }}px);
+      font-size: clamp(11px, 1.25vw, {{ section.settings.button_note_size }}px);
+    }
+  }
+
   @media screen and (max-width: 767px) {
     #XCustomGym-{{ section.id }} {
       padding:
