@@ -187,20 +187,6 @@
               data-look-card="{{ block.id }}"
               {% unless forloop.first %}hidden{% endunless %}
             >
-              <div class="xcustom-look__product-top">
-                {% if section.settings.panel_eyebrow != blank %}
-                  <div class="xcustom-look__panel-eyebrow">
-                    {{ section.settings.panel_eyebrow | escape }}
-                  </div>
-                {% endif %}
-
-                {% if block.settings.badge != blank %}
-                  <div class="xcustom-look__product-badge">
-                    {{ block.settings.badge | escape }}
-                  </div>
-                {% endif %}
-              </div>
-
               {% if card_image != blank %}
                 <div class="xcustom-look__product-media">
                   {{
@@ -220,36 +206,6 @@
                 <h3 class="xcustom-look__product-title">
                   {{ card_title | escape }}
                 </h3>
-
-                {% if card_variant != blank %}
-                  <div class="xcustom-look__product-pricing">
-                    <div class="xcustom-look__product-price-group">
-                      {% if card_variant.compare_at_price > card_variant.price %}
-                        <span class="xcustom-look__product-compare">
-                          {{ card_variant.compare_at_price | money }}
-                        </span>
-                      {% endif %}
-
-                      <span class="xcustom-look__product-price">
-                        {{ card_variant.price | money }}
-                      </span>
-                    </div>
-
-                    {% if card_variant.compare_at_price > card_variant.price %}
-                      {% assign saving_amount = card_variant.compare_at_price | minus: card_variant.price %}
-
-                      <span class="xcustom-look__product-saving">
-                        Save {{ saving_amount | money }}
-                      </span>
-                    {% endif %}
-                  </div>
-                {% endif %}
-
-                {% if block.settings.note != blank %}
-                  <div class="xcustom-look__product-note">
-                    {{ block.settings.note | escape }}
-                  </div>
-                {% endif %}
               </div>
 
               <div class="xcustom-look__product-footer">
@@ -303,13 +259,6 @@
                     </span>
                   {% endif %}
                 </div>
-
-                <div
-                  class="xcustom-look__product-message"
-                  data-look-add-message
-                  role="status"
-                  aria-live="polite"
-                ></div>
               </div>
             </div>
           {% endfor %}
@@ -924,6 +873,58 @@
     text-align: center;
   }
 
+  /* Simplified compact product card: only image, title and two buttons are visible. */
+  #{{ look_id }} .xcustom-look__product-card {
+    justify-content: center;
+    padding: clamp(16px, 1.5vw, 22px) !important;
+  }
+
+  #{{ look_id }} .xcustom-look__product-media {
+    width: min(100%, 300px);
+    max-height: clamp(150px, 17vw, 240px);
+    margin: 0 auto;
+    border-radius: 12px;
+  }
+
+  #{{ look_id }}.xcustom-look--compact-desktop .xcustom-look__product-media {
+    width: min(100%, 300px);
+    max-height: clamp(150px, 17vw, 240px);
+    margin: 0 auto;
+  }
+
+  #{{ look_id }} .xcustom-look__product-image {
+    max-height: inherit;
+    object-fit: contain;
+  }
+
+  #{{ look_id }} .xcustom-look__product-content {
+    margin-top: 14px;
+    text-align: center;
+  }
+
+  #{{ look_id }} .xcustom-look__product-title {
+    font-size: clamp(18px, 1.45vw, 22px) !important;
+    line-height: 1.12 !important;
+    letter-spacing: -0.02em;
+  }
+
+  #{{ look_id }} .xcustom-look__product-footer {
+    margin-top: 0;
+    padding-top: 16px;
+  }
+
+  #{{ look_id }} .xcustom-look__product-actions {
+    gap: 8px;
+  }
+
+  #{{ look_id }} .xcustom-look__product-button {
+    min-height: 38px;
+    padding: 8px 10px;
+    border-radius: 22px;
+    font-size: 12px;
+    line-height: 1.15;
+  }
+
   @media screen and (max-width: 989px) {
     #{{ look_id }} .xcustom-look__layout {
       grid-template-columns: minmax(0, 3fr) minmax(280px, 2fr);
@@ -1048,9 +1049,36 @@
       font-size: {{ section.settings.product_price_size_mobile }}px;
     }
 
+    #{{ look_id }} .xcustom-look__product-card {
+      padding: 16px !important;
+    }
+
+    #{{ look_id }} .xcustom-look__product-media,
+    #{{ look_id }}.xcustom-look--compact-desktop .xcustom-look__product-media {
+      width: min(100%, 260px);
+      max-height: 210px;
+      margin: 0 auto;
+    }
+
+    #{{ look_id }} .xcustom-look__product-content {
+      margin-top: 12px;
+      text-align: center;
+    }
+
+    #{{ look_id }} .xcustom-look__product-title {
+      font-size: 19px !important;
+      line-height: 1.15 !important;
+    }
+
+    #{{ look_id }} .xcustom-look__product-footer {
+      padding-top: 14px;
+    }
+
     #{{ look_id }} .xcustom-look__product-button {
-      min-height: {{ section.settings.button_height_mobile }}px;
-      font-size: {{ section.settings.button_text_size_mobile }}px;
+      min-height: 38px;
+      padding: 8px 10px;
+      font-size: 12px;
+      border-radius: 22px;
     }
   }
 
