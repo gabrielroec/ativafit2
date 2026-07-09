@@ -1,4 +1,10 @@
- {%- liquid
+{% comment %}
+  XCustom Bundle Builder
+  Updated: summary line prices show each product's own compare-at price and current sale price.
+  Bundle Savings is calculated from the selected sale-price subtotal, rounded once, then distributed by line.
+{% endcomment %}
+
+{%- liquid
   assign bb_id = 'xcustom-bundle-' | append: section.id
   assign step1_name = 'bundle-step-1-' | append: section.id
   assign step2_name = 'bundle-step-2-' | append: section.id
@@ -1110,6 +1116,24 @@
     gap: 3px;
   }
 
+  #{{ bb_id }} .xcustom-bundle-summary__line-price-stack {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 4px;
+    text-align: right;
+  }
+
+  #{{ bb_id }} .xcustom-bundle-summary__line-compare {
+    color: #777 !important;
+    font-family: var(--heading-font-family) !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+    text-decoration: line-through !important;
+  }
+
   #{{ bb_id }} .xcustom-bundle-summary__line-saving {
     color: var(--bundle-accent) !important;
     font-family: var(--text-font-family) !important;
@@ -1619,6 +1643,7 @@
             title: input.dataset.bundleLineTitle || '',
             category: input.dataset.bundleLineCategory || '',
             priceCents: toInteger(input.dataset.bundlePriceCents),
+            comparePriceCents: toInteger(input.dataset.bundleComparePriceCents),
             discountCents: 0,
             discountPercent: 0
           });
@@ -1634,6 +1659,7 @@
             title: card.dataset.bundleLineTitle || '',
             category: card.dataset.bundleLineCategory || '',
             priceCents: toInteger(card.dataset.bundlePriceCents),
+            comparePriceCents: toInteger(card.dataset.bundleComparePriceCents),
             discountCents: 0,
             discountPercent: 0
           });
@@ -1652,11 +1678,49 @@
 
       function applyBundleTierDiscounts(lines) {
         var percent = getBundleDiscountPercent(lines.length);
+        var subtotal = 0;
 
-        return lines.map(function (line) {
-          var discountCents = percent > 0
-            ? Math.round(line.priceCents * percent / 100)
-            : 0;
+        var normalizedLines = lines.map(function (line) {
+          var salePriceCents = Math.max(0, toInteger(line.priceCents));
+          var comparePriceCents = Math.max(0, toInteger(line.comparePriceCents));
+
+          if (comparePriceCents <= salePriceCents) {
+            comparePriceCents = 0;
+          }
+
+          subtotal += salePriceCents;
+
+          return {
+            variantId: line.variantId,
+            step: line.step,
+            title: line.title,
+            category: line.category,
+            priceCents: salePriceCents,
+            comparePriceCents: comparePriceCents,
+            productDiscountCents: comparePriceCents > salePriceCents ? comparePriceCents - salePriceCents : 0,
+            discountCents: 0,
+            discountPercent: percent
+          };
+        });
+
+        var bundleSavings = percent > 0 && subtotal > 0
+          ? Math.min(subtotal, Math.max(0, Math.round(subtotal * percent / 100)))
+          : 0;
+        var remainingSavings = bundleSavings;
+
+        return normalizedLines.map(function (line, index) {
+          var discountCents = 0;
+
+          if (remainingSavings > 0 && subtotal > 0) {
+            if (index === normalizedLines.length - 1) {
+              discountCents = remainingSavings;
+            } else {
+              discountCents = Math.round(bundleSavings * line.priceCents / subtotal);
+            }
+
+            discountCents = Math.min(line.priceCents, Math.max(0, discountCents));
+            remainingSavings = Math.max(0, remainingSavings - discountCents);
+          }
 
           return {
             variantId: line.variantId,
@@ -1664,7 +1728,9 @@
             title: line.title,
             category: line.category,
             priceCents: line.priceCents,
-            discountCents: Math.min(line.priceCents, Math.max(0, discountCents)),
+            comparePriceCents: line.comparePriceCents,
+            productDiscountCents: line.productDiscountCents,
+            discountCents: discountCents,
             discountPercent: percent
           };
         });
@@ -1697,11 +1763,6 @@
         }
 
         lines.forEach(function (line) {
-          var appliedDiscount = discountMode === 'display_only'
-            ? 0
-            : Math.min(line.priceCents, Math.max(0, line.discountCents));
-          var displayPrice = Math.max(0, line.priceCents - appliedDiscount);
-
           var listItem = document.createElement('li');
           listItem.className = 'xcustom-bundle-summary__line';
 
@@ -1719,21 +1780,24 @@
           var right = document.createElement('div');
           right.className = 'xcustom-bundle-summary__line-right';
 
+          var priceStack = document.createElement('span');
+          priceStack.className = 'xcustom-bundle-summary__line-price-stack';
+
+          if (line.comparePriceCents > line.priceCents) {
+            var comparePrice = document.createElement('span');
+            comparePrice.className = 'xcustom-bundle-summary__line-compare';
+            comparePrice.textContent = formatMoney(line.comparePriceCents);
+            priceStack.appendChild(comparePrice);
+          }
+
           var price = document.createElement('span');
           price.className = 'xcustom-bundle-summary__line-price';
-          price.textContent = formatMoney(displayPrice);
+          price.textContent = formatMoney(line.priceCents);
 
           body.appendChild(title);
           if (line.category) body.appendChild(category);
-          right.appendChild(price);
-
-          if (line.discountCents > 0) {
-            var saving = document.createElement('span');
-            saving.className = 'xcustom-bundle-summary__line-saving';
-            var percentText = line.discountPercent > 0 ? line.discountPercent + '% off · ' : '';
-            saving.textContent = percentText + 'save ' + formatMoney(Math.min(line.priceCents, line.discountCents));
-            right.appendChild(saving);
-          }
+          priceStack.appendChild(price);
+          right.appendChild(priceStack);
 
           listItem.appendChild(body);
           listItem.appendChild(right);
@@ -1752,8 +1816,7 @@
           configuredSavings += Math.min(line.priceCents, Math.max(0, line.discountCents));
         });
 
-        var appliedSavings = discountMode === 'display_only' ? 0 : configuredSavings;
-        var total = Math.max(0, subtotal - appliedSavings);
+        var total = Math.max(0, subtotal - configuredSavings);
 
         renderLines(lines);
         if (savingsEl) savingsEl.textContent = '-' + formatMoney(configuredSavings);
@@ -2502,7 +2565,7 @@
       "id": "discount_mode",
       "label": "Discount behavior",
       "default": "automatic",
-      "info": "Tier savings are calculated from the number of selected eligible items: exactly 2 items get 10% off; 3 or more items get 12% off. Checkout pricing still requires a matching Shopify automatic discount, Shopify Function, app, or discount code.",
+      "info": "Tier savings are calculated from the selected products' current sale prices and rounded once at the bundle subtotal level: exactly 2 items get 10% off; 3 or more items get 12% off. Checkout pricing still requires a matching Shopify automatic discount, Shopify Function, app, or discount code.",
       "options": [
         {
           "value": "display_only",
