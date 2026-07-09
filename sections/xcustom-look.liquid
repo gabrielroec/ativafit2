@@ -36,6 +36,12 @@
   if section.settings.compact_desktop_panel == false
     assign compact_desktop_panel = false
   endif
+
+  assign scene_width_percent = section.settings.scene_width_percent | default: 67
+  assign panel_width_percent = section.settings.panel_width_percent | default: 33
+  assign column_gap_desktop = section.settings.column_gap | default: 24
+  assign scene_gap_offset = column_gap_desktop | times: panel_width_percent | divided_by: 100
+  assign panel_gap_offset = column_gap_desktop | times: scene_width_percent | divided_by: 100
 %}
 
 <section
@@ -413,8 +419,8 @@
   #{{ look_id }} .xcustom-look__layout {
     display: grid;
     grid-template-columns:
-      minmax(0, {{ section.settings.scene_width }}fr)
-      minmax(320px, {{ section.settings.panel_width }}fr);
+      minmax(0, calc({{ scene_width_percent }}% - {{ scene_gap_offset }}px))
+      minmax(0, calc({{ panel_width_percent }}% - {{ panel_gap_offset }}px));
     align-items: start;
     gap: {{ section.settings.column_gap }}px;
     width: 100%;
@@ -926,7 +932,9 @@
 
   @media screen and (max-width: 989px) {
     #{{ look_id }} .xcustom-look__layout {
-      grid-template-columns: minmax(0, 3fr) minmax(280px, 2fr);
+      grid-template-columns:
+        minmax(0, calc({{ scene_width_percent }}% - {{ scene_gap_offset }}px))
+        minmax(0, calc({{ panel_width_percent }}% - {{ panel_gap_offset }}px));
     }
 
     #{{ look_id }} .xcustom-look__product-card {
@@ -1737,21 +1745,25 @@
     },
     {
       "type": "range",
-      "id": "scene_width",
-      "min": 1,
-      "max": 5,
+      "id": "scene_width_percent",
+      "min": 45,
+      "max": 85,
       "step": 1,
-      "label": "Scene width ratio",
-      "default": 3
+      "unit": "%",
+      "label": "Scene width percentage",
+      "info": "Recommended: keep Scene + Product panel close to 100%. Example: 67% scene and 33% product panel.",
+      "default": 67
     },
     {
       "type": "range",
-      "id": "panel_width",
-      "min": 1,
-      "max": 4,
+      "id": "panel_width_percent",
+      "min": 15,
+      "max": 55,
       "step": 1,
-      "label": "Product panel width ratio",
-      "default": 2
+      "unit": "%",
+      "label": "Product panel width percentage",
+      "info": "Recommended: keep Scene + Product panel close to 100%. Example: 67% scene and 33% product panel.",
+      "default": 33
     },
     {
       "type": "range",
