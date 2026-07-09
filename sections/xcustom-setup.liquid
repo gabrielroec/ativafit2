@@ -1,7 +1,85 @@
 {% liquid
+  assign xcs_added_label = 'ADDED TO CART'
+  assign xcs_adding_label = 'ADDING SETUP...'
+  assign xcs_after_add_action = 'stay'
+  assign xcs_badge_background = '#fff0e9'
+  assign xcs_badge_size = 11
+  assign xcs_badge_text_color = '#eb701f'
+  assign xcs_button_height = 50
+  assign xcs_button_height_mobile = 48
+  assign xcs_button_radius = 28
+  assign xcs_button_size = 14
+  assign xcs_button_size_mobile = 14
+  assign xcs_button_top_gap = 22
+  assign xcs_card_background = '#ffffff'
+  assign xcs_card_border_color = '#dddddd'
+  assign xcs_card_border_width = 1
+  assign xcs_card_gap = 24
+  assign xcs_card_gap_mobile = 20
+  assign xcs_card_heading_color = '#111111'
+  assign xcs_card_padding_bottom = 24
+  assign xcs_card_padding_bottom_mobile = 20
+  assign xcs_card_padding_horizontal = 24
+  assign xcs_card_padding_horizontal_mobile = 20
+  assign xcs_card_padding_top = 26
+  assign xcs_card_padding_top_mobile = 22
+  assign xcs_card_radius = 20
+  assign xcs_card_text_color = '#626262'
+  assign xcs_card_text_size = 14
+  assign xcs_card_text_size_mobile = 14
+  assign xcs_card_title_size = 23
+  assign xcs_card_title_size_mobile = 21
+  assign xcs_cards_top_gap = 56
+  assign xcs_cards_top_gap_mobile = 36
+  assign xcs_compare_price_color = '#969696'
+  assign xcs_compare_price_size = 12
+  assign xcs_content_max_width = 1400
+  assign xcs_description_gap = 16
+  assign xcs_description_line_height = 145
+  assign xcs_description_size = 17
+  assign xcs_description_size_mobile = 15
+  assign xcs_enable_card_shadow = false
+  assign xcs_error_label = 'Unable to add this setup.'
+  assign xcs_eyebrow_gap = 5
+  assign xcs_eyebrow_letter_spacing = 16
+  assign xcs_eyebrow_size = 13
+  assign xcs_full_width = true
+  assign xcs_header_alignment = 'center'
+  assign xcs_header_max_width = 900
+  assign xcs_heading_line_height = 104
+  assign xcs_heading_line_height_mobile = 108
+  assign xcs_heading_size = 44
+  assign xcs_heading_size_mobile = 32
+  assign xcs_image_ratio = '4 / 3'
+  assign xcs_items_top_gap = 20
+  assign xcs_number_color = '#ffffff'
+  assign xcs_number_offset = 24
+  assign xcs_number_offset_mobile = 18
+  assign xcs_number_size = 68
+  assign xcs_number_size_mobile = 54
+  assign xcs_padding_bottom = 72
+  assign xcs_padding_bottom_mobile = 48
+  assign xcs_padding_top = 72
+  assign xcs_padding_top_mobile = 48
+  assign xcs_price_color = '#000000'
+  assign xcs_price_size = 24
+  assign xcs_price_size_mobile = 23
+  assign xcs_price_top_gap = 32
+  assign xcs_prompt_gap = 12
+  assign xcs_prompt_size = 15
+  assign xcs_prompt_size_mobile = 14
+  assign xcs_saving_size = 15
+  assign xcs_saving_size_mobile = 14
+  assign xcs_select_products_label = 'SELECT PRODUCTS'
+  assign xcs_show_numbers = true
+  assign xcs_side_padding = 24
+  assign xcs_side_padding_mobile = 16
+  assign xcs_success_message = '[count] [item_word] added to cart.'
+  assign xcs_title_top_gap = 12
+  assign xcs_unavailable_label = 'SETUP UNAVAILABLE'
   assign width_class = 'xcustom-setup--contained'
 
-  if section.settings.full_width
+  if xcs_full_width
     assign width_class = 'xcustom-setup--full'
   endif
 
@@ -204,7 +282,7 @@
                   {{ 'lifestyle-2' | placeholder_svg_tag: 'xcustom-setup__placeholder' }}
                 {% endif %}
 
-                {% if section.settings.show_numbers %}
+                {% if xcs_show_numbers %}
                   <span class="xcustom-setup__number" aria-hidden="true">
                     {{ card_number | escape }}
                   </span>
@@ -266,10 +344,10 @@
                       data-setup-add
                       data-variant-ids="{{ setup_variant_ids }}"
                       data-default-label="{{ block.settings.button_label | escape }}"
-                      data-loading-label="{{ section.settings.adding_label | escape }}"
-                      data-success-label="{{ section.settings.added_label | escape }}"
-                      data-error-label="{{ section.settings.error_label | escape }}"
-                      data-success-message="{{ section.settings.success_message | escape }}"
+                      data-loading-label="{{ xcs_adding_label | escape }}"
+                      data-success-label="{{ xcs_added_label | escape }}"
+                      data-error-label="{{ xcs_error_label | escape }}"
+                      data-success-message="{{ xcs_success_message | escape }}"
                       data-setup-discount-cents="{{ setup_discount_cents }}"
                       data-setup-discount-label="{{ setup_discount_display | escape }}"
                       data-setup-discount-code="{{ setup_discount_code | escape }}"
@@ -280,11 +358,11 @@
                     >
                       <span data-setup-button-text>
                         {% if setup_product_count == 0 %}
-                          {{ section.settings.select_products_label | escape }}
+                          {{ xcs_select_products_label | escape }}
                         {% elsif setup_can_add %}
                           {{ block.settings.button_label | escape }}
                         {% else %}
-                          {{ section.settings.unavailable_label | escape }}
+                          {{ xcs_unavailable_label | escape }}
                         {% endif %}
                       </span>
 
@@ -402,35 +480,35 @@
   }
 
   #XCustomSetup-{{ section.id }}.xcustom-setup--contained .xcustom-setup__inner {
-    max-width: {{ section.settings.content_max_width }}px;
+    max-width: {{ xcs_content_max_width }}px;
   }
 
   #XCustomSetup-{{ section.id }} .xcustom-setup__container {
     width: 100%;
-    max-width: {{ section.settings.content_max_width }}px;
+    max-width: {{ xcs_content_max_width }}px;
     margin-right: auto;
     margin-left: auto;
     padding:
-      {{ section.settings.padding_top }}px
-      {{ section.settings.side_padding }}px
-      {{ section.settings.padding_bottom }}px;
+      {{ xcs_padding_top }}px
+      {{ xcs_side_padding }}px
+      {{ xcs_padding_bottom }}px;
   }
 
   #XCustomSetup-{{ section.id }} .xcustom-setup__header {
     width: 100%;
-    max-width: {{ section.settings.header_max_width }}px;
+    max-width: {{ xcs_header_max_width }}px;
     margin-right: auto;
     margin-left: auto;
-    text-align: {{ section.settings.header_alignment }};
+    text-align: {{ xcs_header_alignment }};
   }
 
   #XCustomSetup-{{ section.id }} .xcustom-setup__eyebrow {
-    margin: 0 0 {{ section.settings.eyebrow_gap }}px;
+    margin: 0 0 {{ xcs_eyebrow_gap }}px;
     color: {{ section.settings.accent_color }};
-    font-size: {{ section.settings.eyebrow_size }}px;
+    font-size: {{ xcs_eyebrow_size }}px;
     font-weight: 700;
     line-height: 1.2;
-    letter-spacing: {{ section.settings.eyebrow_letter_spacing | divided_by: 100.0 }}em;
+    letter-spacing: {{ xcs_eyebrow_letter_spacing | divided_by: 100.0 }}em;
     text-transform: uppercase;
   }
 
@@ -439,9 +517,9 @@
     margin: 0;
     padding: 0;
     color: {{ section.settings.heading_color }};
-    font-size: {{ section.settings.heading_size }}px !important;
+    font-size: {{ xcs_heading_size }}px !important;
     font-weight: 700;
-    line-height: {{ section.settings.heading_line_height | divided_by: 100.0 }} !important;
+    line-height: {{ xcs_heading_line_height | divided_by: 100.0 }} !important;
     letter-spacing: -0.035em;
     overflow-wrap: break-word;
   }
@@ -449,7 +527,7 @@
 
   #XCustomSetup-{{ section.id }} .xcustom-setup__description {
     width: 100%;
-    margin-top: {{ section.settings.description_gap }}px;
+    margin-top: {{ xcs_description_gap }}px;
     color: {{ section.settings.text_color }};
   }
 
@@ -458,8 +536,8 @@
   #XCustomSetup-{{ section.id }} .xcustom-setup__description span,
   #XCustomSetup-{{ section.id }} .xcustom-setup__description a {
     color: inherit;
-    font-size: {{ section.settings.description_size }}px;
-    line-height: {{ section.settings.description_line_height | divided_by: 100.0 }};
+    font-size: {{ xcs_description_size }}px;
+    line-height: {{ xcs_description_line_height | divided_by: 100.0 }};
   }
 
   #XCustomSetup-{{ section.id }} .xcustom-setup__description > *:first-child {
@@ -472,7 +550,7 @@
 
   #XCustomSetup-{{ section.id }} .xcustom-setup__prompt {
     width: 100%;
-    margin-top: {{ section.settings.prompt_gap }}px;
+    margin-top: {{ xcs_prompt_gap }}px;
   }
 
   #XCustomSetup-{{ section.id }} .xcustom-setup__prompt-link {
@@ -482,7 +560,7 @@
     justify-content: center;
     gap: 10px;
     color: {{ section.settings.accent_color }};
-    font-size: {{ section.settings.prompt_size }}px;
+    font-size: {{ xcs_prompt_size }}px;
     font-weight: 700;
     line-height: 1.35;
     text-decoration: none;
@@ -553,9 +631,9 @@
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     align-items: stretch;
-    gap: {{ section.settings.card_gap }}px;
+    gap: {{ xcs_card_gap }}px;
     width: 100%;
-    margin-top: {{ section.settings.cards_top_gap }}px;
+    margin-top: {{ xcs_cards_top_gap }}px;
   }
 
   #XCustomSetup-{{ section.id }} .xcustom-setup__card {
@@ -563,12 +641,12 @@
     flex-direction: column;
     min-width: 0;
     overflow: hidden;
-    border: {{ section.settings.card_border_width }}px solid {{ section.settings.card_border_color }};
-    border-radius: {{ section.settings.card_radius }}px;
-    background-color: {{ section.settings.card_background }};
+    border: {{ xcs_card_border_width }}px solid {{ xcs_card_border_color }};
+    border-radius: {{ xcs_card_radius }}px;
+    background-color: {{ xcs_card_background }};
   }
 
-  {% if section.settings.enable_card_shadow %}
+  {% if xcs_enable_card_shadow %}
     #XCustomSetup-{{ section.id }} .xcustom-setup__card {
       box-shadow: 0 14px 35px rgba(0, 0, 0, 0.06);
     }
@@ -577,7 +655,7 @@
   #XCustomSetup-{{ section.id }} .xcustom-setup__media {
     position: relative;
     width: 100%;
-    aspect-ratio: {{ section.settings.image_ratio }};
+    aspect-ratio: {{ xcs_image_ratio }};
     overflow: hidden;
     background-color: #eeeeee;
   }
@@ -650,11 +728,11 @@
 
   #XCustomSetup-{{ section.id }} .xcustom-setup__number {
     position: absolute;
-    top: {{ section.settings.number_offset }}px;
-    right: {{ section.settings.number_offset }}px;
+    top: {{ xcs_number_offset }}px;
+    right: {{ xcs_number_offset }}px;
     z-index: 1;
-    color: {{ section.settings.number_color }};
-    font-size: {{ section.settings.number_size }}px;
+    color: {{ xcs_number_color }};
+    font-size: {{ xcs_number_size }}px;
     font-weight: 700;
     line-height: 1;
     letter-spacing: -0.05em;
@@ -667,9 +745,9 @@
     flex-direction: column;
     min-width: 0;
     padding:
-      {{ section.settings.card_padding_top }}px
-      {{ section.settings.card_padding_horizontal }}px
-      {{ section.settings.card_padding_bottom }}px;
+      {{ xcs_card_padding_top }}px
+      {{ xcs_card_padding_horizontal }}px
+      {{ xcs_card_padding_bottom }}px;
   }
 
   #XCustomSetup-{{ section.id }} .xcustom-setup__badge {
@@ -679,9 +757,9 @@
     min-height: 26px;
     padding: 5px 12px;
     border-radius: 999px;
-    color: {{ section.settings.badge_text_color }};
-    background-color: {{ section.settings.badge_background }};
-    font-size: {{ section.settings.badge_size }}px;
+    color: {{ xcs_badge_text_color }};
+    background-color: {{ xcs_badge_background }};
+    font-size: {{ xcs_badge_size }}px;
     font-weight: 700;
     line-height: 1.1;
     text-transform: uppercase;
@@ -690,9 +768,9 @@
 
   #XCustomSetup-{{ section.id }} .xcustom-setup__card-title {
     width: 100%;
-    margin: {{ section.settings.title_top_gap }}px 0 0;
-    color: {{ section.settings.card_heading_color }};
-    font-size: {{ section.settings.card_title_size }}px !important;
+    margin: {{ xcs_title_top_gap }}px 0 0;
+    color: {{ xcs_card_heading_color }};
+    font-size: {{ xcs_card_title_size }}px !important;
     font-weight: 700;
     line-height: 1.2 !important;
     letter-spacing: -0.025em;
@@ -700,15 +778,15 @@
 
   #XCustomSetup-{{ section.id }} .xcustom-setup__items {
     width: 100%;
-    margin-top: {{ section.settings.items_top_gap }}px;
-    color: {{ section.settings.card_text_color }};
+    margin-top: {{ xcs_items_top_gap }}px;
+    color: {{ xcs_card_text_color }};
   }
 
   #XCustomSetup-{{ section.id }} .xcustom-setup__items,
   #XCustomSetup-{{ section.id }} .xcustom-setup__items p,
   #XCustomSetup-{{ section.id }} .xcustom-setup__items li {
     color: inherit;
-    font-size: {{ section.settings.card_text_size }}px;
+    font-size: {{ xcs_card_text_size }}px;
     line-height: 1.45;
   }
 
@@ -728,7 +806,7 @@
   #XCustomSetup-{{ section.id }} .xcustom-setup__card-footer {
     width: 100%;
     margin-top: auto;
-    padding-top: {{ section.settings.price_top_gap }}px;
+    padding-top: {{ xcs_price_top_gap }}px;
   }
 
   #XCustomSetup-{{ section.id }} .xcustom-setup__pricing {
@@ -740,16 +818,16 @@
   }
 
   #XCustomSetup-{{ section.id }} .xcustom-setup__compare-price {
-    color: {{ section.settings.compare_price_color }};
-    font-size: {{ section.settings.compare_price_size }}px;
+    color: {{ xcs_compare_price_color }};
+    font-size: {{ xcs_compare_price_size }}px;
     line-height: 1.2;
     text-decoration: line-through;
   }
 
   #XCustomSetup-{{ section.id }} .xcustom-setup__price {
     margin-top: 4px;
-    color: {{ section.settings.price_color }};
-    font-size: {{ section.settings.price_size }}px;
+    color: {{ xcs_price_color }};
+    font-size: {{ xcs_price_size }}px;
     font-weight: 700;
     line-height: 1.1;
   }
@@ -758,7 +836,7 @@
     flex: 0 0 auto;
     padding-bottom: 2px;
     color: {{ section.settings.accent_color }};
-    font-size: {{ section.settings.saving_size }}px;
+    font-size: {{ xcs_saving_size }}px;
     font-weight: 700;
     line-height: 1.2;
     text-align: right;
@@ -771,14 +849,14 @@
     justify-content: center;
     gap: 10px;
     width: 100%;
-    min-height: {{ section.settings.button_height }}px;
-    margin-top: {{ section.settings.button_top_gap }}px;
+    min-height: {{ xcs_button_height }}px;
+    margin-top: {{ xcs_button_top_gap }}px;
     padding: 10px 18px;
     border: 1px solid {{ section.settings.button_background }};
-    border-radius: {{ section.settings.button_radius }}px;
+    border-radius: {{ xcs_button_radius }}px;
     color: {{ section.settings.button_text_color }};
     background-color: {{ section.settings.button_background }};
-    font-size: {{ section.settings.button_size }}px;
+    font-size: {{ xcs_button_size }}px;
     font-weight: 700;
     line-height: 1.15;
     text-align: center;
@@ -824,7 +902,7 @@
   #XCustomSetup-{{ section.id }} .xcustom-setup__button-message {
     min-height: 18px;
     margin-top: 8px;
-    color: {{ section.settings.card_text_color }};
+    color: {{ xcs_card_text_color }};
     font-size: 12px;
     line-height: 1.4;
     text-align: center;
@@ -914,65 +992,65 @@
   @media screen and (max-width: 749px) {
     #XCustomSetup-{{ section.id }} .xcustom-setup__container {
       padding:
-        {{ section.settings.padding_top_mobile }}px
-        {{ section.settings.side_padding_mobile }}px
-        {{ section.settings.padding_bottom_mobile }}px;
+        {{ xcs_padding_top_mobile }}px
+        {{ xcs_side_padding_mobile }}px
+        {{ xcs_padding_bottom_mobile }}px;
     }
 
     #XCustomSetup-{{ section.id }} .xcustom-setup__heading {
-      font-size: {{ section.settings.heading_size_mobile }}px !important;
-      line-height: {{ section.settings.heading_line_height_mobile | divided_by: 100.0 }} !important;
+      font-size: {{ xcs_heading_size_mobile }}px !important;
+      line-height: {{ xcs_heading_line_height_mobile | divided_by: 100.0 }} !important;
     }
 
     #XCustomSetup-{{ section.id }} .xcustom-setup__description,
     #XCustomSetup-{{ section.id }} .xcustom-setup__description p {
-      font-size: {{ section.settings.description_size_mobile }}px;
+      font-size: {{ xcs_description_size_mobile }}px;
     }
 
     #XCustomSetup-{{ section.id }} .xcustom-setup__prompt-link {
-      font-size: {{ section.settings.prompt_size_mobile }}px;
+      font-size: {{ xcs_prompt_size_mobile }}px;
     }
 
     #XCustomSetup-{{ section.id }} .xcustom-setup__grid {
       grid-template-columns: minmax(0, 1fr);
-      gap: {{ section.settings.card_gap_mobile }}px;
-      margin-top: {{ section.settings.cards_top_gap_mobile }}px;
+      gap: {{ xcs_card_gap_mobile }}px;
+      margin-top: {{ xcs_cards_top_gap_mobile }}px;
     }
 
     #XCustomSetup-{{ section.id }} .xcustom-setup__number {
-      top: {{ section.settings.number_offset_mobile }}px;
-      right: {{ section.settings.number_offset_mobile }}px;
-      font-size: {{ section.settings.number_size_mobile }}px;
+      top: {{ xcs_number_offset_mobile }}px;
+      right: {{ xcs_number_offset_mobile }}px;
+      font-size: {{ xcs_number_size_mobile }}px;
     }
 
     #XCustomSetup-{{ section.id }} .xcustom-setup__card-body {
       padding:
-        {{ section.settings.card_padding_top_mobile }}px
-        {{ section.settings.card_padding_horizontal_mobile }}px
-        {{ section.settings.card_padding_bottom_mobile }}px;
+        {{ xcs_card_padding_top_mobile }}px
+        {{ xcs_card_padding_horizontal_mobile }}px
+        {{ xcs_card_padding_bottom_mobile }}px;
     }
 
     #XCustomSetup-{{ section.id }} .xcustom-setup__card-title {
-      font-size: {{ section.settings.card_title_size_mobile }}px !important;
+      font-size: {{ xcs_card_title_size_mobile }}px !important;
     }
 
     #XCustomSetup-{{ section.id }} .xcustom-setup__items,
     #XCustomSetup-{{ section.id }} .xcustom-setup__items p,
     #XCustomSetup-{{ section.id }} .xcustom-setup__items li {
-      font-size: {{ section.settings.card_text_size_mobile }}px;
+      font-size: {{ xcs_card_text_size_mobile }}px;
     }
 
     #XCustomSetup-{{ section.id }} .xcustom-setup__price {
-      font-size: {{ section.settings.price_size_mobile }}px;
+      font-size: {{ xcs_price_size_mobile }}px;
     }
 
     #XCustomSetup-{{ section.id }} .xcustom-setup__saving {
-      font-size: {{ section.settings.saving_size_mobile }}px;
+      font-size: {{ xcs_saving_size_mobile }}px;
     }
 
     #XCustomSetup-{{ section.id }} .xcustom-setup__button {
-      min-height: {{ section.settings.button_height_mobile }}px;
-      font-size: {{ section.settings.button_size_mobile }}px;
+      min-height: {{ xcs_button_height_mobile }}px;
+      font-size: {{ xcs_button_size_mobile }}px;
     }
 
     #XCustomSetup-{{ section.id }} .xcustom-setup__zoom-icon {
@@ -1032,7 +1110,7 @@
     const sectionId = {{ section.id | json }};
     const rootId = `XCustomSetup-${sectionId}`;
     const lightboxId = `XCustomSetupLightbox-${sectionId}`;
-    const afterAddAction = {{ section.settings.after_add_action | json }};
+    const afterAddAction = {{ xcs_after_add_action | json }};
     const promptScrollOffset = {{ section.settings.prompt_scroll_offset | default: 204 | json }};
 
     let previousFocus = null;
@@ -1820,57 +1898,7 @@
   "settings": [
     {
       "type": "header",
-      "content": "Layout"
-    },
-    {
-      "type": "checkbox",
-      "id": "full_width",
-      "label": "Full width background",
-      "default": true
-    },
-    {
-      "type": "range",
-      "id": "content_max_width",
-      "min": 1000,
-      "max": 1600,
-      "step": 20,
-      "unit": "px",
-      "label": "Content maximum width",
-      "default": 1400
-    },
-    {
-      "type": "range",
-      "id": "header_max_width",
-      "min": 500,
-      "max": 1200,
-      "step": 20,
-      "unit": "px",
-      "label": "Header maximum width",
-      "default": 900
-    },
-    {
-      "type": "select",
-      "id": "header_alignment",
-      "label": "Header alignment",
-      "options": [
-        {
-          "value": "left",
-          "label": "Left"
-        },
-        {
-          "value": "center",
-          "label": "Center"
-        },
-        {
-          "value": "right",
-          "label": "Right"
-        }
-      ],
-      "default": "center"
-    },
-    {
-      "type": "header",
-      "content": "Section heading"
+      "content": "Content"
     },
     {
       "type": "text",
@@ -1882,7 +1910,7 @@
       "type": "inline_richtext",
       "id": "heading",
       "label": "Heading",
-      "default": "Choose Your Training Setup"
+      "default": "Three setups. One decision."
     },
     {
       "type": "select",
@@ -1912,20 +1940,20 @@
       "type": "richtext",
       "id": "description",
       "label": "Description",
-      "default": "<p>Each bundle answers a clear buying question: how much space do I have, how heavy do I need to train, and what support equipment completes the workout?</p>"
+      "default": "<p>Each setup is sized for a real space and a real training goal. Pick the one that fits or use it as your starting point.</p>"
     },
     {
       "type": "text",
       "id": "prompt_text",
       "label": "Prompt text below description",
-      "default": "Need help choosing? Jump to the weight range guide"
+      "default": "On sale this week — see clearance deals"
     },
     {
       "type": "text",
       "id": "prompt_link",
       "label": "Prompt target module ID",
-      "info": "Enter the existing target module ID only, without #. Example: choose-your-weight-range. Existing #anchor values are also supported.",
-      "default": "choose-your-weight-range"
+      "info": "Enter the target module ID only, without #.",
+      "default": "xcustom-bundle-template--20302745894995__xcustom_bundle_GirL46"
     },
     {
       "type": "range",
@@ -1934,669 +1962,9 @@
       "max": 400,
       "step": 4,
       "unit": "px",
-      "label": "Prompt anchor scroll offset",
-      "info": "Set this to the height of your sticky header/promo area. Use 204px if the target module is covered by the top bars.",
-      "default": 204
-    },
-    {
-      "type": "range",
-      "id": "prompt_gap",
-      "min": 4,
-      "max": 40,
-      "step": 2,
-      "unit": "px",
-      "label": "Prompt top gap",
-      "default": 12
-    },
-    {
-      "type": "range",
-      "id": "prompt_size",
-      "min": 12,
-      "max": 24,
-      "step": 1,
-      "unit": "px",
-      "label": "Desktop prompt size",
-      "default": 15
-    },
-    {
-      "type": "range",
-      "id": "prompt_size_mobile",
-      "min": 12,
-      "max": 20,
-      "step": 1,
-      "unit": "px",
-      "label": "Mobile prompt size",
-      "default": 14
-    },
-    {
-      "type": "header",
-      "content": "Heading style"
-    },
-    {
-      "type": "range",
-      "id": "eyebrow_size",
-      "min": 10,
-      "max": 22,
-      "step": 1,
-      "unit": "px",
-      "label": "Desktop eyebrow size",
-      "default": 13
-    },
-    {
-      "type": "range",
-      "id": "eyebrow_size_mobile",
-      "min": 9,
-      "max": 18,
-      "step": 1,
-      "unit": "px",
-      "label": "Mobile eyebrow size",
-      "default": 11
-    },
-    {
-      "type": "range",
-      "id": "eyebrow_letter_spacing",
-      "min": 0,
-      "max": 30,
-      "step": 1,
-      "unit": "%",
-      "label": "Eyebrow letter spacing",
-      "default": 16
-    },
-    {
-      "type": "range",
-      "id": "eyebrow_gap",
-      "min": 0,
-      "max": 30,
-      "step": 1,
-      "unit": "px",
-      "label": "Desktop eyebrow/heading gap",
-      "default": 5
-    },
-    {
-      "type": "range",
-      "id": "eyebrow_gap_mobile",
-      "min": 0,
-      "max": 24,
-      "step": 1,
-      "unit": "px",
-      "label": "Mobile eyebrow/heading gap",
-      "default": 5
-    },
-    {
-      "type": "range",
-      "id": "heading_size",
-      "min": 26,
-      "max": 80,
-      "step": 1,
-      "unit": "px",
-      "label": "Desktop heading size",
-      "default": 44
-    },
-    {
-      "type": "range",
-      "id": "heading_size_mobile",
-      "min": 22,
-      "max": 52,
-      "step": 1,
-      "unit": "px",
-      "label": "Mobile heading size",
-      "default": 32
-    },
-    {
-      "type": "range",
-      "id": "heading_line_height",
-      "min": 90,
-      "max": 150,
-      "step": 2,
-      "unit": "%",
-      "label": "Desktop heading line height",
-      "default": 104
-    },
-    {
-      "type": "range",
-      "id": "heading_line_height_mobile",
-      "min": 90,
-      "max": 150,
-      "step": 2,
-      "unit": "%",
-      "label": "Mobile heading line height",
-      "default": 108
-    },
-    {
-      "type": "header",
-      "content": "Description style"
-    },
-    {
-      "type": "range",
-      "id": "description_size",
-      "min": 12,
-      "max": 26,
-      "step": 1,
-      "unit": "px",
-      "label": "Desktop description size",
-      "default": 17
-    },
-    {
-      "type": "range",
-      "id": "description_size_mobile",
-      "min": 12,
-      "max": 22,
-      "step": 1,
-      "unit": "px",
-      "label": "Mobile description size",
-      "default": 15
-    },
-    {
-      "type": "range",
-      "id": "description_line_height",
-      "min": 110,
-      "max": 200,
-      "step": 5,
-      "unit": "%",
-      "label": "Description line height",
-      "default": 145
-    },
-    {
-      "type": "range",
-      "id": "description_gap",
-      "min": 0,
-      "max": 40,
-      "step": 2,
-      "unit": "px",
-      "label": "Desktop heading/description gap",
-      "default": 16
-    },
-    {
-      "type": "range",
-      "id": "description_gap_mobile",
-      "min": 0,
-      "max": 32,
-      "step": 2,
-      "unit": "px",
-      "label": "Mobile heading/description gap",
-      "default": 12
-    },
-    {
-      "type": "header",
-      "content": "Cards"
-    },
-    {
-      "type": "range",
-      "id": "cards_top_gap",
-      "min": 20,
-      "max": 120,
-      "step": 4,
-      "unit": "px",
-      "label": "Desktop header/cards gap",
-      "default": 56
-    },
-    {
-      "type": "range",
-      "id": "cards_top_gap_mobile",
-      "min": 16,
-      "max": 80,
-      "step": 4,
-      "unit": "px",
-      "label": "Mobile header/cards gap",
-      "default": 36
-    },
-    {
-      "type": "range",
-      "id": "card_gap",
-      "min": 8,
-      "max": 48,
-      "step": 2,
-      "unit": "px",
-      "label": "Desktop card gap",
-      "default": 24
-    },
-    {
-      "type": "range",
-      "id": "card_gap_mobile",
-      "min": 8,
-      "max": 40,
-      "step": 2,
-      "unit": "px",
-      "label": "Mobile card gap",
-      "default": 20
-    },
-    {
-      "type": "select",
-      "id": "image_ratio",
-      "label": "Image ratio",
-      "options": [
-        {
-          "value": "16 / 10",
-          "label": "Wide 16:10"
-        },
-        {
-          "value": "3 / 2",
-          "label": "Landscape 3:2"
-        },
-        {
-          "value": "4 / 3",
-          "label": "Landscape 4:3"
-        },
-        {
-          "value": "1 / 1",
-          "label": "Square"
-        }
-      ],
-      "default": "3 / 2"
-    },
-    {
-      "type": "range",
-      "id": "card_radius",
-      "min": 0,
-      "max": 40,
-      "step": 2,
-      "unit": "px",
-      "label": "Card corner radius",
-      "default": 20
-    },
-    {
-      "type": "range",
-      "id": "card_border_width",
-      "min": 0,
-      "max": 4,
-      "step": 1,
-      "unit": "px",
-      "label": "Card border width",
-      "default": 1
-    },
-    {
-      "type": "checkbox",
-      "id": "enable_card_shadow",
-      "label": "Enable card shadow",
-      "default": false
-    },
-    {
-      "type": "checkbox",
-      "id": "show_numbers",
-      "label": "Show image numbers",
-      "default": true
-    },
-    {
-      "type": "range",
-      "id": "number_size",
-      "min": 34,
-      "max": 100,
-      "step": 2,
-      "unit": "px",
-      "label": "Desktop number size",
-      "default": 68
-    },
-    {
-      "type": "range",
-      "id": "number_size_mobile",
-      "min": 30,
-      "max": 80,
-      "step": 2,
-      "unit": "px",
-      "label": "Mobile number size",
-      "default": 54
-    },
-    {
-      "type": "range",
-      "id": "number_offset",
-      "min": 8,
-      "max": 48,
-      "step": 2,
-      "unit": "px",
-      "label": "Desktop number offset",
-      "default": 24
-    },
-    {
-      "type": "range",
-      "id": "number_offset_mobile",
-      "min": 8,
-      "max": 36,
-      "step": 2,
-      "unit": "px",
-      "label": "Mobile number offset",
-      "default": 18
-    },
-    {
-      "type": "header",
-      "content": "Card typography"
-    },
-    {
-      "type": "range",
-      "id": "badge_size",
-      "min": 9,
-      "max": 18,
-      "step": 1,
-      "unit": "px",
-      "label": "Badge size",
-      "default": 11
-    },
-    {
-      "type": "range",
-      "id": "card_title_size",
-      "min": 18,
-      "max": 38,
-      "step": 1,
-      "unit": "px",
-      "label": "Desktop card title size",
-      "default": 23
-    },
-    {
-      "type": "range",
-      "id": "card_title_size_mobile",
-      "min": 17,
-      "max": 32,
-      "step": 1,
-      "unit": "px",
-      "label": "Mobile card title size",
-      "default": 21
-    },
-    {
-      "type": "range",
-      "id": "card_text_size",
-      "min": 12,
-      "max": 22,
-      "step": 1,
-      "unit": "px",
-      "label": "Desktop card text size",
-      "default": 14
-    },
-    {
-      "type": "range",
-      "id": "card_text_size_mobile",
-      "min": 12,
-      "max": 20,
-      "step": 1,
-      "unit": "px",
-      "label": "Mobile card text size",
-      "default": 14
-    },
-    {
-      "type": "range",
-      "id": "title_top_gap",
-      "min": 0,
-      "max": 30,
-      "step": 1,
-      "unit": "px",
-      "label": "Badge/title gap",
-      "default": 12
-    },
-    {
-      "type": "range",
-      "id": "items_top_gap",
-      "min": 0,
-      "max": 40,
-      "step": 2,
-      "unit": "px",
-      "label": "Title/items gap",
-      "default": 20
-    },
-    {
-      "type": "header",
-      "content": "Prices and button"
-    },
-    {
-      "type": "range",
-      "id": "price_top_gap",
-      "min": 12,
-      "max": 80,
-      "step": 2,
-      "unit": "px",
-      "label": "Items/price gap",
-      "default": 32
-    },
-    {
-      "type": "range",
-      "id": "compare_price_size",
-      "min": 10,
-      "max": 20,
-      "step": 1,
-      "unit": "px",
-      "label": "Compare price size",
-      "default": 12
-    },
-    {
-      "type": "range",
-      "id": "price_size",
-      "min": 18,
-      "max": 38,
-      "step": 1,
-      "unit": "px",
-      "label": "Desktop price size",
-      "default": 24
-    },
-    {
-      "type": "range",
-      "id": "price_size_mobile",
-      "min": 18,
-      "max": 34,
-      "step": 1,
-      "unit": "px",
-      "label": "Mobile price size",
-      "default": 23
-    },
-    {
-      "type": "range",
-      "id": "saving_size",
-      "min": 11,
-      "max": 24,
-      "step": 1,
-      "unit": "px",
-      "label": "Desktop saving size",
-      "default": 15
-    },
-    {
-      "type": "range",
-      "id": "saving_size_mobile",
-      "min": 11,
-      "max": 22,
-      "step": 1,
-      "unit": "px",
-      "label": "Mobile saving size",
-      "default": 14
-    },
-    {
-      "type": "range",
-      "id": "button_top_gap",
-      "min": 8,
-      "max": 50,
-      "step": 2,
-      "unit": "px",
-      "label": "Price/button gap",
-      "default": 22
-    },
-    {
-      "type": "range",
-      "id": "button_height",
-      "min": 38,
-      "max": 72,
-      "step": 2,
-      "unit": "px",
-      "label": "Desktop button height",
-      "default": 50
-    },
-    {
-      "type": "range",
-      "id": "button_height_mobile",
-      "min": 38,
-      "max": 64,
-      "step": 2,
-      "unit": "px",
-      "label": "Mobile button height",
-      "default": 48
-    },
-    {
-      "type": "range",
-      "id": "button_size",
-      "min": 11,
-      "max": 22,
-      "step": 1,
-      "unit": "px",
-      "label": "Desktop button text size",
-      "default": 14
-    },
-    {
-      "type": "range",
-      "id": "button_size_mobile",
-      "min": 11,
-      "max": 20,
-      "step": 1,
-      "unit": "px",
-      "label": "Mobile button text size",
-      "default": 14
-    },
-    {
-      "type": "range",
-      "id": "button_radius",
-      "min": 0,
-      "max": 40,
-      "step": 2,
-      "unit": "px",
-      "label": "Button corner radius",
-      "default": 28
-    },
-    {
-      "type": "header",
-      "content": "Add to cart behavior"
-    },
-    {
-      "type": "select",
-      "id": "after_add_action",
-      "label": "After adding the setup",
-      "options": [
-        {
-          "value": "drawer",
-          "label": "Open theme cart drawer"
-        },
-        {
-          "value": "stay",
-          "label": "Stay on page"
-        },
-        {
-          "value": "cart",
-          "label": "Go to cart page"
-        }
-      ],
-      "default": "drawer"
-    },
-    {
-      "type": "text",
-      "id": "adding_label",
-      "label": "Loading button text",
-      "default": "ADDING SETUP..."
-    },
-    {
-      "type": "text",
-      "id": "added_label",
-      "label": "Success button text",
-      "default": "ADDED TO CART"
-    },
-    {
-      "type": "text",
-      "id": "success_message",
-      "label": "Success message below button",
-      "info": "Use [count] and [item_word].",
-      "default": "[count] [item_word] added to cart."
-    },
-    {
-      "type": "text",
-      "id": "error_label",
-      "label": "Error message",
-      "default": "Unable to add this setup."
-    },
-    {
-      "type": "text",
-      "id": "select_products_label",
-      "label": "No products selected label",
-      "default": "SELECT PRODUCTS"
-    },
-    {
-      "type": "text",
-      "id": "unavailable_label",
-      "label": "Unavailable setup label",
-      "default": "SETUP UNAVAILABLE"
-    },
-    {
-      "type": "text",
-      "id": "notification_title",
-      "label": "Theme notification title",
-      "default": "Setup Added!"
-    },
-    {
-      "type": "text",
-      "id": "notification_message",
-      "label": "Theme notification message",
-      "info": "Use [count] for the number of products.",
-      "default": "[count] products were added to your cart."
-    },
-    {
-      "type": "text",
-      "id": "notification_error_title",
-      "label": "Theme error notification title",
-      "default": "Error adding setup"
-    },
-    {
-      "type": "header",
-      "content": "Card spacing"
-    },
-    {
-      "type": "range",
-      "id": "card_padding_top",
-      "min": 12,
-      "max": 60,
-      "step": 2,
-      "unit": "px",
-      "label": "Desktop card top padding",
-      "default": 26
-    },
-    {
-      "type": "range",
-      "id": "card_padding_horizontal",
-      "min": 12,
-      "max": 60,
-      "step": 2,
-      "unit": "px",
-      "label": "Desktop card side padding",
-      "default": 24
-    },
-    {
-      "type": "range",
-      "id": "card_padding_bottom",
-      "min": 12,
-      "max": 60,
-      "step": 2,
-      "unit": "px",
-      "label": "Desktop card bottom padding",
-      "default": 24
-    },
-    {
-      "type": "range",
-      "id": "card_padding_top_mobile",
-      "min": 12,
-      "max": 48,
-      "step": 2,
-      "unit": "px",
-      "label": "Mobile card top padding",
-      "default": 22
-    },
-    {
-      "type": "range",
-      "id": "card_padding_horizontal_mobile",
-      "min": 12,
-      "max": 40,
-      "step": 2,
-      "unit": "px",
-      "label": "Mobile card side padding",
-      "default": 20
-    },
-    {
-      "type": "range",
-      "id": "card_padding_bottom_mobile",
-      "min": 12,
-      "max": 48,
-      "step": 2,
-      "unit": "px",
-      "label": "Mobile card bottom padding",
-      "default": 20
+      "label": "Scroll offset",
+      "info": "Use this when a sticky header covers the target module.",
+      "default": 300
     },
     {
       "type": "header",
@@ -2606,79 +1974,25 @@
       "type": "color",
       "id": "background_color",
       "label": "Section background",
-      "default": "#FFFFFF"
+      "default": "#ffffff"
     },
     {
       "type": "color",
       "id": "heading_color",
-      "label": "Section heading",
+      "label": "Heading",
       "default": "#000000"
     },
     {
       "type": "color",
       "id": "text_color",
-      "label": "Section description",
+      "label": "Description",
       "default": "#626262"
     },
     {
       "type": "color",
       "id": "accent_color",
       "label": "Accent",
-      "default": "#FF5A1F"
-    },
-    {
-      "type": "color",
-      "id": "card_background",
-      "label": "Card background",
-      "default": "#FFFFFF"
-    },
-    {
-      "type": "color",
-      "id": "card_border_color",
-      "label": "Card border",
-      "default": "#DDDDDD"
-    },
-    {
-      "type": "color",
-      "id": "card_heading_color",
-      "label": "Card heading",
-      "default": "#111111"
-    },
-    {
-      "type": "color",
-      "id": "card_text_color",
-      "label": "Card text",
-      "default": "#626262"
-    },
-    {
-      "type": "color",
-      "id": "badge_background",
-      "label": "Badge background",
-      "default": "#FFF0E9"
-    },
-    {
-      "type": "color",
-      "id": "badge_text_color",
-      "label": "Badge text",
-      "default": "#C84718"
-    },
-    {
-      "type": "color",
-      "id": "number_color",
-      "label": "Image number",
-      "default": "#FFFFFF"
-    },
-    {
-      "type": "color",
-      "id": "compare_price_color",
-      "label": "Compare price",
-      "default": "#969696"
-    },
-    {
-      "type": "color",
-      "id": "price_color",
-      "label": "Price",
-      "default": "#000000"
+      "default": "#eb701f"
     },
     {
       "type": "color",
@@ -2690,7 +2004,7 @@
       "type": "color",
       "id": "button_text_color",
       "label": "Button text",
-      "default": "#FFFFFF"
+      "default": "#ffffff"
     },
     {
       "type": "color",
@@ -2702,89 +2016,7 @@
       "type": "color",
       "id": "button_hover_text_color",
       "label": "Button hover text",
-      "default": "#FFFFFF"
-    },
-    {
-      "type": "color",
-      "id": "featured_button_text_color",
-      "label": "Featured button text",
-      "default": "#FFFFFF"
-    },
-    {
-      "type": "color",
-      "id": "featured_button_hover_background",
-      "label": "Featured button hover",
-      "default": "#E94B14"
-    },
-    {
-      "type": "color",
-      "id": "featured_button_hover_text",
-      "label": "Featured hover text",
-      "default": "#FFFFFF"
-    },
-    {
-      "type": "header",
-      "content": "Section spacing"
-    },
-    {
-      "type": "range",
-      "id": "padding_top",
-      "min": 0,
-      "max": 160,
-      "step": 4,
-      "unit": "px",
-      "label": "Desktop top padding",
-      "default": 72
-    },
-    {
-      "type": "range",
-      "id": "padding_bottom",
-      "min": 0,
-      "max": 160,
-      "step": 4,
-      "unit": "px",
-      "label": "Desktop bottom padding",
-      "default": 72
-    },
-    {
-      "type": "range",
-      "id": "side_padding",
-      "min": 0,
-      "max": 80,
-      "step": 4,
-      "unit": "px",
-      "label": "Desktop side padding",
-      "default": 24
-    },
-    {
-      "type": "range",
-      "id": "padding_top_mobile",
-      "min": 0,
-      "max": 120,
-      "step": 4,
-      "unit": "px",
-      "label": "Mobile top padding",
-      "default": 48
-    },
-    {
-      "type": "range",
-      "id": "padding_bottom_mobile",
-      "min": 0,
-      "max": 120,
-      "step": 4,
-      "unit": "px",
-      "label": "Mobile bottom padding",
-      "default": 48
-    },
-    {
-      "type": "range",
-      "id": "side_padding_mobile",
-      "min": 0,
-      "max": 48,
-      "step": 4,
-      "unit": "px",
-      "label": "Mobile side padding",
-      "default": 16
+      "default": "#ffffff"
     }
   ],
   "blocks": [
