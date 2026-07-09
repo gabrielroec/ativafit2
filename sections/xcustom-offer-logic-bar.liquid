@@ -1,7 +1,7 @@
 {% comment %}
   Section: xcustom-offer-logic-bar
   Usage: Add this file to Shopify theme /sections/xcustom-offer-logic-bar.liquid
-  Notes: Compact JS fixed sticky version. Layout details are hardcoded in CSS, not exposed in Shopify settings.
+  Notes: Percent discount display version. Shows 1 item / 2 items / 3+ items tiers and supports fixed sticky layout.
 {% endcomment %}
 
 {%- liquid
@@ -15,10 +15,12 @@
 >
   <div class="xcustom-offer-logic-bar__inner">
     <div class="xcustom-offer-logic-bar__grid">
-      {%- for block in section.blocks -%}
+      {%- for block in section.blocks limit: 3 -%}
         {%- liquid
           assign is_highlighted = false
-          if forloop.last
+          if block.settings.highlight
+            assign is_highlighted = true
+          elsif forloop.last
             assign is_highlighted = true
           endif
         -%}
@@ -73,7 +75,7 @@
     --xcustom-offer-muted: #6c6c6c;
     --xcustom-offer-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
     background: #ffffff;
-    padding: 48px 0 0 0;
+    padding: 46px 0 24px;
   }
 
   {% if section.settings.enable_sticky %}
@@ -122,9 +124,11 @@
 
   #{{ section_id }} .xcustom-offer-logic-bar__grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 24px;
     align-items: stretch;
+    width: min(100%, 1120px);
+    margin: 0 auto;
   }
 
   #{{ section_id }} .xcustom-offer-logic-bar__item {
@@ -133,8 +137,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 72px;
-    padding: 24px;
+    min-height: 118px;
+    padding: 24px 28px;
     text-align: center;
     background: var(--xcustom-offer-card-bg);
     border: 1px solid transparent;
@@ -154,6 +158,7 @@
 
   #{{ section_id }} .xcustom-offer-logic-bar__item--highlight {
     border: 2px solid var(--xcustom-offer-accent);
+    background: #fff5ec;
   }
 
   #{{ section_id }} .xcustom-offer-logic-bar__badge {
@@ -182,7 +187,7 @@
     margin: 0;
     color: var(--xcustom-offer-accent) !important;
     font-family: var(--heading-font-family, inherit) !important;
-    font-size: 30px !important;
+    font-size: 32px !important;
     font-weight: 900 !important;
     line-height: 1.05 !important;
     letter-spacing: -0.055em !important;
@@ -198,14 +203,14 @@
     justify-content: center;
     width: fit-content;
     max-width: 100%;
-    margin-top: 7px;
-    padding: 4px 10px;
+    margin-top: 8px;
+    padding: 4px 11px;
     color: var(--xcustom-offer-accent) !important;
     background: var(--xcustom-offer-accent-soft);
     border-radius: 999px;
     font-family: var(--heading-font-family, inherit) !important;
     font-size: 14px !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
     line-height: 1.15 !important;
     letter-spacing: -0.01em !important;
   }
@@ -220,7 +225,7 @@
 
   #{{ section_id }} .xcustom-offer-logic-bar__copy {
     max-width: 980px;
-    margin: 16px auto 0;
+    margin: 18px auto 0;
     text-align: center;
   }
 
@@ -247,18 +252,21 @@
 
   #shopify-section-{{ section.id }}.xcustom-offer-logic-bar-is-fixed #{{ section_id }} .xcustom-offer-logic-bar__inner {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(320px, 430px);
-    gap: 16px;
+    grid-template-columns: minmax(0, 760px) minmax(360px, 1fr);
+    gap: 18px;
     align-items: center;
-    padding:12px 24px;
+    padding: 8px 24px;
   }
 
   #shopify-section-{{ section.id }}.xcustom-offer-logic-bar-is-fixed #{{ section_id }} .xcustom-offer-logic-bar__grid {
+    width: 100%;
+    max-width: none;
     gap: 10px;
+    margin: 0;
   }
 
   #shopify-section-{{ section.id }}.xcustom-offer-logic-bar-is-fixed #{{ section_id }} .xcustom-offer-logic-bar__item {
-    min-height: 44px;
+    min-height: 48px;
     padding: 8px 12px;
     border-radius: 12px;
   }
@@ -271,7 +279,7 @@
   #shopify-section-{{ section.id }}.xcustom-offer-logic-bar-is-fixed #{{ section_id }} .xcustom-offer-logic-bar__item-text {
     margin-top: 4px;
     padding: 3px 8px;
-    font-size: 12px !important;
+    font-size: 11px !important;
     line-height: 1.1 !important;
   }
 
@@ -311,44 +319,95 @@
   }
 
   @media screen and (max-width: 989px) {
-    #{{ section_id }} .xcustom-offer-logic-bar__grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
     #{{ section_id }} .xcustom-offer-logic-bar__inner {
       width: min(100% - 32px, 1400px);
+    }
+
+    #{{ section_id }} .xcustom-offer-logic-bar__grid {
+      gap: 12px;
+    }
+
+    #{{ section_id }} .xcustom-offer-logic-bar__item {
+      min-height: 86px;
+      padding: 18px 16px;
+    }
+
+    #{{ section_id }} .xcustom-offer-logic-bar__title {
+      font-size: 24px !important;
     }
   }
 
   @media screen and (max-width: 749px) {
     #{{ section_id }} {
-      padding: 10px 0;
+      padding: 14px 0;
+    }
+
+    #{{ section_id }} .xcustom-offer-logic-bar__inner {
+      width: min(100% - 24px, 1400px);
+    }
+
+    #{{ section_id }} .xcustom-offer-logic-bar__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
     }
 
     #{{ section_id }} .xcustom-offer-logic-bar__item {
       min-height: 58px;
-      padding: 10px 12px;
-      border-radius: 13px;
+      padding: 8px 6px;
+      border-radius: 12px;
     }
 
     #{{ section_id }} .xcustom-offer-logic-bar__title {
-      font-size: 18px !important;
+      font-size: 16px !important;
+      letter-spacing: -0.04em !important;
     }
 
     #{{ section_id }} .xcustom-offer-logic-bar__item-text {
-      margin-top: 5px;
-      padding: 3px 8px;
-      font-size: 10px !important;
+      margin-top: 4px;
+      padding: 3px 6px;
+      font-size: 9px !important;
+      line-height: 1.1 !important;
+    }
+
+    #{{ section_id }} .xcustom-offer-logic-bar__badge {
+      top: -8px;
+      padding: 3px 7px;
+      font-size: 7px !important;
+    }
+
+    #{{ section_id }} .xcustom-offer-logic-bar__copy {
+      margin-top: 10px;
     }
 
     #{{ section_id }} .xcustom-offer-logic-bar__copy p {
-      font-size: 12px !important;
+      font-size: 11px !important;
+      line-height: 1.35 !important;
     }
-  }
 
-  @media screen and (max-width: 480px) {
-    #{{ section_id }} .xcustom-offer-logic-bar__grid {
-      grid-template-columns: 1fr;
+    #shopify-section-{{ section.id }}.xcustom-offer-logic-bar-is-fixed #{{ section_id }} .xcustom-offer-logic-bar__inner {
+      width: min(100% - 20px, 1400px);
+      padding: 4px 0;
+    }
+
+    #shopify-section-{{ section.id }}.xcustom-offer-logic-bar-is-fixed #{{ section_id }} .xcustom-offer-logic-bar__grid {
+      gap: 6px;
+    }
+
+    #shopify-section-{{ section.id }}.xcustom-offer-logic-bar-is-fixed #{{ section_id }} .xcustom-offer-logic-bar__item {
+      min-height: 44px;
+      padding: 6px 4px;
+    }
+
+    #shopify-section-{{ section.id }}.xcustom-offer-logic-bar-is-fixed #{{ section_id }} .xcustom-offer-logic-bar__title {
+      font-size: 14px !important;
+    }
+
+    #shopify-section-{{ section.id }}.xcustom-offer-logic-bar-is-fixed #{{ section_id }} .xcustom-offer-logic-bar__item-text {
+      font-size: 8px !important;
+    }
+
+    #shopify-section-{{ section.id }}.xcustom-offer-logic-bar-is-fixed #{{ section_id }} .xcustom-offer-logic-bar__copy p {
+      font-size: 10px !important;
     }
   }
 </style>
@@ -540,13 +599,13 @@
       "type": "text",
       "id": "offer_strong",
       "label": "Bold offer text",
-      "default": "Every eligible item in your cart drops $10 when you add a second."
+      "default": "Buy 2, get 10% off. Buy 3 or more, get 12% off."
     },
     {
       "type": "text",
       "id": "offer_text",
       "label": "Regular offer text",
-      "default": "No code. No minimum spend. Just build your setup."
+      "default": "Auto-applied at checkout. No code needed."
     },
     {
       "type": "text",
@@ -571,11 +630,17 @@
           "id": "text",
           "label": "Text",
           "default": "Regular price"
+        },
+        {
+          "type": "checkbox",
+          "id": "highlight",
+          "label": "Highlight this tier",
+          "default": false
         }
       ]
     }
   ],
-  "max_blocks": 4,
+  "max_blocks": 3,
   "presets": [
     {
       "name": "XCustom Offer Logic Bar",
@@ -584,28 +649,24 @@
           "type": "tier",
           "settings": {
             "title": "1 item",
-            "text": "Regular price"
+            "text": "Regular price",
+            "highlight": false
           }
         },
         {
           "type": "tier",
           "settings": {
             "title": "2 items",
-            "text": "Save $20 total"
+            "text": "10% Off",
+            "highlight": false
           }
         },
         {
           "type": "tier",
           "settings": {
-            "title": "3 items",
-            "text": "Save $30 total"
-          }
-        },
-        {
-          "type": "tier",
-          "settings": {
-            "title": "4+ items",
-            "text": "Save $10 each"
+            "title": "3+ items",
+            "text": "12% Off",
+            "highlight": true
           }
         }
       ]
