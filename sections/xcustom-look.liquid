@@ -158,7 +158,6 @@
               assign card_product = block.settings.product
               assign card_variant = blank
               assign card_title = block.settings.custom_title | strip
-              assign card_description = block.settings.description
               assign card_image = block.settings.custom_image
 
               if card_product != blank
@@ -166,10 +165,6 @@
 
                 if card_title == blank
                   assign card_title = card_product.title
-                endif
-
-                if card_description == blank
-                  assign card_description = card_product.description | strip_html | truncate: 180
                 endif
 
                 if card_image == blank
@@ -225,12 +220,6 @@
                 <h3 class="xcustom-look__product-title">
                   {{ card_title | escape }}
                 </h3>
-
-                {% if card_description != blank %}
-                  <div class="xcustom-look__product-description">
-                    {{ card_description }}
-                  </div>
-                {% endif %}
 
                 {% if card_variant != blank %}
                   <div class="xcustom-look__product-pricing">
@@ -487,51 +476,65 @@
 
   @media screen and (min-width: 750px) {
     #{{ look_id }}.xcustom-look--balanced-desktop .xcustom-look__layout {
-      align-items: stretch;
+      align-items: start;
     }
 
-    #{{ look_id }}.xcustom-look--balanced-desktop .xcustom-look__scene {
-      display: flex;
-      height: 100%;
-      min-height: 0;
-    }
-
+    #{{ look_id }}.xcustom-look--balanced-desktop .xcustom-look__scene,
     #{{ look_id }}.xcustom-look--balanced-desktop .xcustom-look__scene-media {
-      height: 100%;
-      min-height: {{ section.settings.balanced_scene_min_height }}px;
+      height: auto;
+      min-height: 0;
     }
 
     #{{ look_id }}.xcustom-look--balanced-desktop .xcustom-look__scene-image,
     #{{ look_id }}.xcustom-look--balanced-desktop .xcustom-look__scene-placeholder {
-      height: 100%;
-      min-height: inherit;
-      object-fit: {{ balanced_scene_fit }};
+      height: auto;
+      min-height: 0;
+      object-fit: contain;
     }
 
-    #{{ look_id }}.xcustom-look--balanced-desktop .xcustom-look__panel {
-      height: 100%;
-    }
-
+    #{{ look_id }}.xcustom-look--balanced-desktop .xcustom-look__panel,
     #{{ look_id }}.xcustom-look--balanced-desktop .xcustom-look__product-card {
-      height: 100%;
-      min-height: 100%;
+      height: var(--xcustom-look-scene-height, auto);
+      min-height: 0;
+    }
+
+    #{{ look_id }}.xcustom-look--compact-desktop .xcustom-look__product-card {
+      padding:
+        clamp(18px, 2vw, 28px)
+        clamp(18px, 2vw, 28px);
     }
 
     #{{ look_id }}.xcustom-look--compact-desktop .xcustom-look__product-media {
-      margin-top: clamp(16px, 1.8vw, 22px);
+      width: min(100%, 390px);
+      max-height: clamp(210px, 25vw, 360px);
+      margin: clamp(12px, 1.3vw, 18px) auto 0;
+    }
+
+    #{{ look_id }}.xcustom-look--compact-desktop .xcustom-look__product-image {
+      max-height: inherit;
+      object-fit: contain;
     }
 
     #{{ look_id }}.xcustom-look--compact-desktop .xcustom-look__product-content {
-      margin-top: clamp(16px, 1.8vw, 22px);
+      margin-top: clamp(12px, 1.2vw, 16px);
+    }
+
+    #{{ look_id }}.xcustom-look--compact-desktop .xcustom-look__product-title {
+      line-height: 1.08;
     }
 
     #{{ look_id }}.xcustom-look--compact-desktop .xcustom-look__product-pricing {
-      margin-top: clamp(18px, 2vw, 22px);
-      padding-top: clamp(16px, 1.8vw, 20px);
+      margin-top: clamp(12px, 1.4vw, 16px);
+      padding-top: clamp(12px, 1.3vw, 16px);
     }
 
     #{{ look_id }}.xcustom-look--compact-desktop .xcustom-look__product-footer {
-      padding-top: clamp(20px, 2vw, 26px);
+      padding-top: clamp(14px, 1.6vw, 20px);
+    }
+
+    #{{ look_id }}.xcustom-look--compact-desktop .xcustom-look__product-button {
+      min-height: clamp(42px, 3.2vw, {{ section.settings.button_height }}px);
+      padding: 8px 14px;
     }
   }
 
@@ -683,6 +686,14 @@
   #{{ look_id }}.xcustom-look--scene-cover .xcustom-look__product-card {
     height: 100%;
     min-height: 100%;
+  }
+
+  @media screen and (min-width: 750px) {
+    #{{ look_id }}.xcustom-look--balanced-desktop.xcustom-look--scene-cover .xcustom-look__panel,
+    #{{ look_id }}.xcustom-look--balanced-desktop.xcustom-look--scene-cover .xcustom-look__product-card {
+      height: var(--xcustom-look-scene-height, auto);
+      min-height: 0;
+    }
   }
 
   #{{ look_id }} .xcustom-look__product-card[hidden] {
@@ -1535,6 +1546,28 @@
 
       const markers = Array.from(root.querySelectorAll('[data-look-marker]'));
       const cards = Array.from(root.querySelectorAll('[data-look-card]'));
+      const sceneMedia = root.querySelector('.xcustom-look__scene-media');
+      const desktopQuery = window.matchMedia('(min-width: 750px)');
+
+      function syncPanelHeight() {
+        if (!sceneMedia || !root.classList.contains('xcustom-look--balanced-desktop')) {
+          root.style.removeProperty('--xcustom-look-scene-height');
+          return;
+        }
+
+        if (!desktopQuery.matches) {
+          root.style.removeProperty('--xcustom-look-scene-height');
+          return;
+        }
+
+        window.requestAnimationFrame(() => {
+          const sceneHeight = Math.round(sceneMedia.getBoundingClientRect().height);
+
+          if (sceneHeight > 0) {
+            root.style.setProperty('--xcustom-look-scene-height', sceneHeight + 'px');
+          }
+        });
+      }
 
       function activateProduct(blockId) {
         markers.forEach((marker) => {
@@ -1550,6 +1583,8 @@
           card.classList.toggle('is-active', isActive);
           card.hidden = !isActive;
         });
+
+        syncPanelHeight();
       }
 
       root.addEventListener('click', (event) => {
@@ -1577,6 +1612,25 @@
         if (initialMarker) {
           activateProduct(initialMarker.dataset.lookTarget);
         }
+      }
+
+      syncPanelHeight();
+
+      root.querySelectorAll('.xcustom-look__scene-image').forEach((image) => {
+        if (image.complete) {
+          syncPanelHeight();
+          return;
+        }
+
+        image.addEventListener('load', syncPanelHeight, { once: true });
+      });
+
+      window.addEventListener('resize', syncPanelHeight);
+
+      if (typeof desktopQuery.addEventListener === 'function') {
+        desktopQuery.addEventListener('change', syncPanelHeight);
+      } else if (typeof desktopQuery.addListener === 'function') {
+        desktopQuery.addListener(syncPanelHeight);
       }
     }
 
