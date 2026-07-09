@@ -533,53 +533,209 @@
 
 
 
-  /* Proportional narrow-window scaling only.
-     Full desktop rules above remain untouched. When the viewport becomes narrower,
-     the whole text group scales down as one unit instead of changing each font,
-     spacing, and button separately. This keeps the original desktop composition while
-     preventing headline/body/button compression. */
+  /* Strong narrow-window protection only.
+     Base desktop rules above are untouched, so the full-width layout stays the same.
+     These overrides start only when the viewport is no longer wide enough for the original text scale. */
   @media screen and (min-width: 1500px) and (max-width: 1799px) {
     #XCustomGym-{{ section.id }} .xcustom-gym__content {
-      --xcustom-hero-scale: 0.86;
-      width: min(92%, calc({{ section.settings.content_width }}% / var(--xcustom-hero-scale)));
-      transform: scale(var(--xcustom-hero-scale));
-      transform-origin: left top;
+      width: max({{ section.settings.content_width }}%, 44%);
+      max-width: calc(100% - 24px);
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__copy {
+      padding-left: clamp(64px, 10vw, 180px);
+      padding-right: clamp(24px, 5vw, 96px);
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__heading {
+      font-size: clamp(46px, 3.45vw, 60px) !important;
+      line-height: 1.02 !important;
+      overflow-wrap: normal;
+      word-break: normal;
+      hyphens: manual;
+      text-wrap: balance;
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__description,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description p,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description span,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description strong,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description em,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description a,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description li {
+      font-size: clamp(14px, 1vw, 16px) !important;
+      line-height: 1.42 !important;
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__buttons {
+      margin-top: clamp(18px, 1.8vw, 24px);
     }
   }
 
   @media screen and (min-width: 1200px) and (max-width: 1499px) {
     #XCustomGym-{{ section.id }} .xcustom-gym__content {
-      --xcustom-hero-scale: 0.72;
-      width: min(94%, calc({{ section.settings.content_width }}% / var(--xcustom-hero-scale)));
-      transform: scale(var(--xcustom-hero-scale));
-      transform-origin: left top;
+      width: max({{ section.settings.content_width }}%, 52%);
+      max-width: calc(100% - 24px);
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__copy {
+      max-width: min({{ section.settings.copy_max_width }}px, 640px);
+      padding-left: clamp(44px, 8vw, 120px);
+      padding-right: clamp(16px, 4vw, 56px);
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__heading {
+      font-size: clamp(38px, 3.9vw, 52px) !important;
+      line-height: 1.02 !important;
+      overflow-wrap: normal;
+      word-break: normal;
+      hyphens: manual;
+      text-wrap: balance;
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__description {
+      margin-top: clamp(10px, 1.1vw, 16px);
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__description,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description p,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description span,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description strong,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description em,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description a,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description li {
+      font-size: clamp(13px, 1.08vw, 15px) !important;
+      line-height: 1.4 !important;
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__buttons {
+      gap: clamp(8px, 1vw, 12px);
+      margin-top: clamp(14px, 1.8vw, 22px);
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__button {
+      min-height: clamp(36px, 3.1vw, 44px);
+      padding: 8px clamp(14px, 1.8vw, 22px);
+      font-size: clamp(13px, 1vw, 15px);
+      white-space: nowrap;
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__button-note {
+      margin-top: clamp(6px, 0.9vw, 10px);
+      font-size: clamp(10px, 0.9vw, 12px);
     }
   }
 
   @media screen and (min-width: 990px) and (max-width: 1199px) {
     #XCustomGym-{{ section.id }} .xcustom-gym__content {
-      --xcustom-hero-scale: 0.62;
-      width: min(96%, calc({{ section.settings.content_width }}% / var(--xcustom-hero-scale)));
-      transform: scale(var(--xcustom-hero-scale));
-      transform-origin: left top;
+      width: 64%;
+      max-width: calc(100% - 18px);
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__copy {
+      max-width: 560px;
+      padding-left: clamp(24px, 6vw, 68px);
+      padding-right: clamp(12px, 3vw, 32px);
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__heading {
+      font-size: clamp(32px, 4.1vw, 44px) !important;
+      line-height: 1.01 !important;
+      overflow-wrap: normal;
+      word-break: normal;
+      hyphens: manual;
+      text-wrap: balance;
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__description {
+      margin-top: clamp(8px, 1vw, 12px);
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__description,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description p,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description span,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description strong,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description em,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description a,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description li {
+      font-size: clamp(12px, 1.15vw, 14px) !important;
+      line-height: 1.36 !important;
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__buttons {
+      gap: 8px;
+      margin-top: clamp(12px, 1.5vw, 16px);
+      flex-wrap: nowrap;
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__button {
+      min-height: clamp(34px, 3vw, 40px);
+      padding: 7px clamp(12px, 1.7vw, 18px);
+      font-size: clamp(12px, 1.1vw, 14px);
+      white-space: nowrap;
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__button-note {
+      margin-top: 6px;
+      font-size: clamp(9px, 1vw, 11px);
+      line-height: 1.3;
     }
   }
 
   @media screen and (min-width: 768px) and (max-width: 989px) {
     #XCustomGym-{{ section.id }} .xcustom-gym__content {
-      --xcustom-hero-scale: 0.54;
-      width: min(98%, calc({{ section.settings.content_width }}% / var(--xcustom-hero-scale)));
-      transform: scale(var(--xcustom-hero-scale));
-      transform-origin: left top;
+      width: 72%;
+      max-width: calc(100% - 16px);
     }
-  }
 
-  #XCustomGym-{{ section.id }}.xcustom-gym--scale-origin-center .xcustom-gym__content {
-    transform-origin: center top;
-  }
+    #XCustomGym-{{ section.id }} .xcustom-gym__copy {
+      max-width: 500px;
+      padding-left: clamp(18px, 5vw, 44px);
+      padding-right: clamp(10px, 2.5vw, 24px);
+    }
 
-  #XCustomGym-{{ section.id }}.xcustom-gym--scale-origin-right .xcustom-gym__content {
-    transform-origin: right top;
+    #XCustomGym-{{ section.id }} .xcustom-gym__heading {
+      font-size: clamp(26px, 4vw, 36px) !important;
+      line-height: 1 !important;
+      overflow-wrap: normal;
+      word-break: normal;
+      hyphens: manual;
+      text-wrap: balance;
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__description {
+      margin-top: 8px;
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__description,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description p,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description span,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description strong,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description em,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description a,
+    #XCustomGym-{{ section.id }} .xcustom-gym__description li {
+      font-size: clamp(11px, 1.45vw, 13px) !important;
+      line-height: 1.32 !important;
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__buttons {
+      gap: 7px;
+      margin-top: 10px;
+      flex-wrap: nowrap;
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__button {
+      min-height: 34px;
+      padding: 6px clamp(10px, 1.6vw, 16px);
+      font-size: clamp(11px, 1.4vw, 13px);
+      white-space: nowrap;
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__button-note {
+      margin-top: 6px;
+      font-size: clamp(9px, 1.2vw, 10px);
+      line-height: 1.25;
+    }
   }
 
   @media screen and (max-width: 767px) {
