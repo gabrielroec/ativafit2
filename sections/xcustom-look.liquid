@@ -23,23 +23,23 @@
     assign width_class = 'xcustom-look--full'
   endif
 
-  assign scene_image_size_mode = section.settings.scene_image_size_mode | default: 'adapt'
-  assign product_image_size_mode = section.settings.product_image_size_mode | default: 'adapt'
-  assign balanced_scene_fit = section.settings.balanced_scene_fit | default: 'cover'
+  assign scene_image_size_mode = 'adapt' | default: 'adapt'
+  assign product_image_size_mode = 'adapt' | default: 'adapt'
+  assign balanced_scene_fit = 'cover' | default: 'cover'
 
   assign balance_desktop_columns = true
-  if section.settings.balance_desktop_columns == false
+  if false == false
     assign balance_desktop_columns = false
   endif
 
   assign compact_desktop_panel = true
-  if section.settings.compact_desktop_panel == false
+  if true == false
     assign compact_desktop_panel = false
   endif
 
   assign scene_width_percent = section.settings.scene_width_percent | default: 67
   assign panel_width_percent = section.settings.panel_width_percent | default: 33
-  assign column_gap_desktop = section.settings.column_gap | default: 24
+  assign column_gap_desktop = 24 | default: 24
   assign scene_gap_offset = column_gap_desktop | times: panel_width_percent | divided_by: 100
   assign panel_gap_offset = column_gap_desktop | times: scene_width_percent | divided_by: 100
 %}
@@ -194,9 +194,9 @@
               {% unless forloop.first %}hidden{% endunless %}
             >
               <div class="xcustom-look__product-top">
-                {% if section.settings.panel_eyebrow != blank %}
+                {% if 'SELECTED EQUIPMENT' != blank %}
                   <div class="xcustom-look__panel-eyebrow">
-                    {{ section.settings.panel_eyebrow | escape }}
+                    {{ 'SELECTED EQUIPMENT' | escape }}
                   </div>
                 {% endif %}
 
@@ -265,7 +265,7 @@
                       class="xcustom-look__product-button xcustom-look__product-button--view"
                       href="{{ card_product.url }}"
                     >
-                      {{ block.settings.button_label | default: section.settings.default_button_label | escape }}
+                      {{ block.settings.button_label | default: 'VIEW PRODUCT' | escape }}
                     </a>
 
                     {% if card_variant != blank and card_variant.available %}
@@ -274,13 +274,13 @@
                         class="xcustom-look__product-button xcustom-look__product-button--add"
                         data-look-add-to-cart
                         data-variant-id="{{ card_variant.id }}"
-                        data-default-label="{{ block.settings.add_button_label | default: section.settings.default_add_button_label | escape }}"
-                        data-loading-label="{{ section.settings.adding_button_label | escape }}"
-                        data-success-label="{{ section.settings.added_button_label | escape }}"
-                        data-error-label="{{ section.settings.add_error_label | escape }}"
+                        data-default-label="{{ block.settings.add_button_label | default: 'ADD TO CART' | escape }}"
+                        data-loading-label="{{ 'ADDING...' | escape }}"
+                        data-success-label="{{ 'ADDED' | escape }}"
+                        data-error-label="{{ 'Unable to add. Please try again.' | escape }}"
                       >
                         <span data-look-add-text>
-                          {{ block.settings.add_button_label | default: section.settings.default_add_button_label | escape }}
+                          {{ block.settings.add_button_label | default: 'ADD TO CART' | escape }}
                         </span>
                       </button>
                     {% else %}
@@ -290,7 +290,7 @@
                         disabled
                         aria-disabled="true"
                       >
-                        {{ section.settings.sold_out_button_label | escape }}
+                        {{ 'SOLD OUT' | escape }}
                       </button>
                     {% endif %}
                   {% else %}
@@ -298,14 +298,14 @@
                       class="xcustom-look__product-button xcustom-look__product-button--view xcustom-look__product-button--disabled"
                       aria-disabled="true"
                     >
-                      {{ block.settings.button_label | default: section.settings.default_button_label | escape }}
+                      {{ block.settings.button_label | default: 'VIEW PRODUCT' | escape }}
                     </span>
 
                     <span
                       class="xcustom-look__product-button xcustom-look__product-button--add xcustom-look__product-button--disabled"
                       aria-disabled="true"
                     >
-                      {{ section.settings.default_add_button_label | escape }}
+                      {{ 'ADD TO CART' | escape }}
                     </span>
                   {% endif %}
                 </div>
@@ -342,9 +342,9 @@
     width: 100%;
     margin: 0;
     padding:
-      {{ section.settings.padding_top }}px
+      {{ 72 }}px
       0
-      {{ section.settings.padding_bottom }}px;
+      {{ 72 }}px;
     background-color: {{ section.settings.background_color }};
   }
 
@@ -359,12 +359,12 @@
     width: 100%;
     margin-right: auto;
     margin-left: auto;
-    padding-right: {{ section.settings.side_padding }}px;
-    padding-left: {{ section.settings.side_padding }}px;
+    padding-right: {{ 24 }}px;
+    padding-left: {{ 24 }}px;
   }
 
   #{{ look_id }}.xcustom-look--contained .xcustom-look__container {
-    max-width: {{ section.settings.content_max_width }}px;
+    max-width: {{ 1400 }}px;
   }
 
   #{{ look_id }}.xcustom-look--full .xcustom-look__container {
@@ -373,10 +373,10 @@
 
   #{{ look_id }} .xcustom-look__header {
     width: 100%;
-    max-width: {{ section.settings.header_max_width }}px;
+    max-width: {{ 900 }}px;
     margin-right: auto;
     margin-left: auto;
-    text-align: {{ section.settings.header_alignment }};
+    text-align: {{ 'center' }};
   }
 
   #{{ look_id }} .xcustom-look__heading {
@@ -385,16 +385,16 @@
     padding: 0;
     color: {{ section.settings.heading_color }};
     font-family: inherit;
-    font-size: {{ section.settings.heading_size }}px!important;
+    font-size: {{ 44 }}px!important;
     font-weight: 900;
-    line-height: {{ section.settings.heading_line_height | divided_by: 100.0 }};
+    line-height: {{ 104 | divided_by: 100.0 }};
     letter-spacing: -0.035em;
     overflow-wrap: break-word;
   }
 
   #{{ look_id }} .xcustom-look__description {
     width: 100%;
-    margin-top: {{ section.settings.description_gap }}px;
+    margin-top: {{ 16 }}px;
     color: {{ section.settings.description_color }};
   }
 
@@ -404,8 +404,8 @@
   #{{ look_id }} .xcustom-look__description a {
     color: inherit;
     font-family: inherit;
-    font-size: {{ section.settings.description_size }}px;
-    line-height: {{ section.settings.description_line_height | divided_by: 100.0 }};
+    font-size: {{ 17 }}px;
+    line-height: {{ 145 | divided_by: 100.0 }};
   }
 
   #{{ look_id }} .xcustom-look__description > *:first-child {
@@ -422,9 +422,9 @@
       minmax(0, calc({{ scene_width_percent }}% - {{ scene_gap_offset }}px))
       minmax(0, calc({{ panel_width_percent }}% - {{ panel_gap_offset }}px));
     align-items: start;
-    gap: {{ section.settings.column_gap }}px;
+    gap: {{ 24 }}px;
     width: 100%;
-    margin-top: {{ section.settings.content_top_gap }}px;
+    margin-top: {{ 52 }}px;
   }
 
   #{{ look_id }} .xcustom-look__scene {
@@ -438,7 +438,7 @@
     height: auto;
     min-height: 0;
     overflow: hidden;
-    border-radius: {{ section.settings.scene_radius }}px;
+    border-radius: {{ 24 }}px;
     background-color: #eeeeee;
     line-height: 0;
   }
@@ -470,7 +470,7 @@
 
   #{{ look_id }}.xcustom-look--scene-cover .xcustom-look__scene-media {
     height: 100%;
-    min-height: {{ section.settings.scene_min_height }}px;
+    min-height: {{ 560 }}px;
   }
 
   #{{ look_id }}.xcustom-look--scene-cover .xcustom-look__scene-image,
@@ -539,7 +539,7 @@
     }
 
     #{{ look_id }}.xcustom-look--compact-desktop .xcustom-look__product-button {
-      min-height: clamp(42px, 3.2vw, {{ section.settings.button_height }}px);
+      min-height: clamp(42px, 3.2vw, {{ 52 }}px);
       padding: 8px 14px;
     }
   }
@@ -550,15 +550,15 @@
 
   #{{ look_id }} .xcustom-look__scene-label {
     position: absolute;
-    top: {{ section.settings.scene_label_offset }}px;
-    left: {{ section.settings.scene_label_offset }}px;
+    top: {{ 24 }}px;
+    left: {{ 24 }}px;
     z-index: 3;
     max-width: calc(100% - 40px);
     padding: 10px 16px;
     border-radius: 999px;
-    color: {{ section.settings.scene_label_text }};
-    background-color: {{ section.settings.scene_label_background }};
-    font-size: {{ section.settings.scene_label_size }}px;
+    color: {{ '#111111' }};
+    background-color: {{ '#ffffff' }};
+    font-size: {{ 12 }}px;
     font-weight: 700;
     line-height: 1.15;
     letter-spacing: 0.01em;
@@ -573,8 +573,8 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: {{ section.settings.marker_click_area }}px;
-    height: {{ section.settings.marker_click_area }}px;
+    width: {{ 52 }}px;
+    height: {{ 52 }}px;
     margin: 0;
     padding: 0;
     border: 0;
@@ -588,12 +588,12 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: {{ section.settings.marker_size }}px;
-    height: {{ section.settings.marker_size }}px;
-    border: {{ section.settings.marker_border_width }}px solid {{ section.settings.accent_color }};
+    width: {{ 38 }}px;
+    height: {{ 38 }}px;
+    border: {{ 5 }}px solid {{ section.settings.accent_color }};
     border-radius: 50%;
-    color: {{ section.settings.marker_plus_color }};
-    background-color: {{ section.settings.marker_background }};
+    color: {{ '#111111' }};
+    background-color: {{ '#ffffff' }};
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
     transition:
       color 0.2s ease,
@@ -611,7 +611,7 @@
   }
 
   #{{ look_id }} .xcustom-look__marker:focus-visible .xcustom-look__marker-ring {
-    outline: 3px solid {{ section.settings.marker_background }};
+    outline: 3px solid {{ '#ffffff' }};
     outline-offset: 3px;
   }
 
@@ -648,9 +648,9 @@
   }
 
   #{{ look_id }} .xcustom-look__marker.is-active .xcustom-look__marker-ring {
-    color: {{ section.settings.active_marker_icon }};
+    color: {{ '#ffffff' }};
     background-color: {{ section.settings.accent_color }};
-    border-color: {{ section.settings.marker_background }};
+    border-color: {{ '#ffffff' }};
   }
 
   #{{ look_id }} .xcustom-look__marker.is-active .xcustom-look__marker-plus {
@@ -666,8 +666,8 @@
     min-width: 0;
     height: auto;
     overflow: hidden;
-    border-radius: {{ section.settings.panel_radius }}px;
-    color: {{ section.settings.panel_text_color }};
+    border-radius: {{ 24 }}px;
+    color: {{ '#c6c6c6' }};
     background-color: {{ section.settings.panel_background }};
   }
 
@@ -680,9 +680,9 @@
     height: auto;
     min-height: 0;
     padding:
-      {{ section.settings.panel_padding_top }}px
-      {{ section.settings.panel_padding_horizontal }}px
-      {{ section.settings.panel_padding_bottom }}px;
+      {{ 34 }}px
+      {{ 32 }}px
+      {{ 32 }}px;
   }
 
   #{{ look_id }}.xcustom-look--scene-cover .xcustom-look__panel {
@@ -716,7 +716,7 @@
 
   #{{ look_id }} .xcustom-look__panel-eyebrow {
     color: {{ section.settings.accent_color }};
-    font-size: {{ section.settings.panel_eyebrow_size }}px;
+    font-size: {{ 11 }}px;
     font-weight: 700;
     line-height: 1.2;
     letter-spacing: 0.12em;
@@ -726,8 +726,8 @@
   #{{ look_id }} .xcustom-look__product-badge {
     padding: 5px 10px;
     border-radius: 999px;
-    color: {{ section.settings.badge_text_color }};
-    background-color: {{ section.settings.badge_background }};
+    color: {{ '#ffffff' }};
+    background-color: {{ '#2b2b2b' }};
     font-size: 10px;
     font-weight: 700;
     line-height: 1.1;
@@ -738,8 +738,8 @@
     width: 100%;
     margin-top: 24px;
     overflow: hidden;
-    border-radius: {{ section.settings.product_image_radius }}px;
-    background-color: {{ section.settings.product_image_background }};
+    border-radius: {{ 14 }}px;
+    background-color: {{ '#f2f2f2' }};
   }
 
   #{{ look_id }} .xcustom-look__product-image {
@@ -751,7 +751,7 @@
   }
 
   #{{ look_id }}.xcustom-look--product-image-ratio .xcustom-look__product-media {
-    aspect-ratio: {{ section.settings.product_image_ratio }};
+    aspect-ratio: {{ '4 / 3' }};
   }
 
   #{{ look_id }}.xcustom-look--product-image-ratio .xcustom-look__product-image {
@@ -766,9 +766,9 @@
   #{{ look_id }} .xcustom-look__product-title {
     width: 100%;
     margin: 0;
-    color: {{ section.settings.panel_heading_color }};
+    color: {{ '#ffffff' }};
     font-family: inherit;
-    font-size: {{ section.settings.product_title_size }}px;
+    font-size: {{ 29 }}px;
     font-weight: 700;
     line-height: 1.12;
     letter-spacing: -0.025em;
@@ -777,9 +777,9 @@
 
   #{{ look_id }} .xcustom-look__product-description {
     margin-top: 14px;
-    color: {{ section.settings.panel_text_color }};
+    color: {{ '#c6c6c6' }};
     font-family: inherit;
-    font-size: {{ section.settings.product_description_size }}px;
+    font-size: {{ 14 }}px;
     line-height: 1.5;
   }
 
@@ -798,7 +798,7 @@
     width: 100%;
     margin-top: 24px;
     padding-top: 22px;
-    border-top: 1px solid {{ section.settings.panel_divider_color }};
+    border-top: 1px solid {{ '#333333' }};
   }
 
   #{{ look_id }} .xcustom-look__product-price-group {
@@ -809,15 +809,15 @@
   }
 
   #{{ look_id }} .xcustom-look__product-compare {
-    color: {{ section.settings.panel_muted_color }};
+    color: {{ '#909090' }};
     font-size: 13px;
     line-height: 1.2;
     text-decoration: line-through;
   }
 
   #{{ look_id }} .xcustom-look__product-price {
-    color: {{ section.settings.panel_heading_color }};
-    font-size: {{ section.settings.product_price_size }}px;
+    color: {{ '#ffffff' }};
+    font-size: {{ 24 }}px;
     font-weight: 700;
     line-height: 1;
   }
@@ -831,7 +831,7 @@
 
   #{{ look_id }} .xcustom-look__product-note {
     margin-top: 12px;
-    color: {{ section.settings.panel_muted_color }};
+    color: {{ '#909090' }};
     font-size: 12px;
     line-height: 1.4;
   }
@@ -854,12 +854,12 @@
     align-items: center;
     justify-content: center;
     width: 100%;
-    min-height: {{ section.settings.button_height }}px;
+    min-height: {{ 52 }}px;
     padding: 10px 16px;
     border: 1px solid {{ section.settings.accent_color }};
-    border-radius: {{ section.settings.button_radius }}px;
+    border-radius: {{ 28 }}px;
     font-family: inherit;
-    font-size: {{ section.settings.button_text_size }}px!important;
+    font-size: {{ 14 }}px!important;
     font-weight: 700;
     line-height: 1.2;
     text-align: center;
@@ -879,20 +879,20 @@
   }
 
   #{{ look_id }} .xcustom-look__product-button--add {
-    color: {{ section.settings.button_text_color }};
+    color: {{ '#ffffff' }};
     background-color: {{ section.settings.accent_color }};
   }
 
   #{{ look_id }} .xcustom-look__product-button--view:hover {
-    color: {{ section.settings.button_text_color }};
+    color: {{ '#ffffff' }};
     background-color: {{ section.settings.accent_color }};
     border-color: {{ section.settings.accent_color }};
   }
 
   #{{ look_id }} .xcustom-look__product-button--add:hover {
-    color: {{ section.settings.button_hover_text }};
-    background-color: {{ section.settings.button_hover_background }};
-    border-color: {{ section.settings.button_hover_background }};
+    color: {{ '#ffffff' }};
+    background-color: {{ '#e94b14' }};
+    border-color: {{ '#e94b14' }};
   }
 
   #{{ look_id }} .xcustom-look__product-button.is-loading {
@@ -909,7 +909,7 @@
   #{{ look_id }} .xcustom-look__product-message {
     min-height: 18px;
     margin-top: 8px;
-    color: {{ section.settings.panel_muted_color }};
+    color: {{ '#909090' }};
     font-size: 12px;
     line-height: 1.4;
     text-align: center;
@@ -926,7 +926,7 @@
     width: 100%;
     min-height: 400px;
     padding: 30px;
-    color: {{ section.settings.panel_text_color }};
+    color: {{ '#c6c6c6' }};
     text-align: center;
   }
 
@@ -943,43 +943,43 @@
     }
 
     #{{ look_id }} .xcustom-look__product-title {
-      font-size: {{ section.settings.product_title_size_tablet }}px;
+      font-size: {{ 24 }}px;
     }
   }
 
   @media screen and (max-width: 749px) {
     #{{ look_id }} {
       padding:
-        {{ section.settings.padding_top_mobile }}px
+        {{ 16 }}px
         0
-        {{ section.settings.padding_bottom_mobile }}px;
+        {{ 48 }}px;
     }
 
     #{{ look_id }} .xcustom-look__container {
-      padding-right: {{ section.settings.side_padding_mobile }}px;
-      padding-left: {{ section.settings.side_padding_mobile }}px;
+      padding-right: {{ 16 }}px;
+      padding-left: {{ 16 }}px;
     }
 
     #{{ look_id }} .xcustom-look__heading {
-      font-size: {{ section.settings.heading_size_mobile }}px;
-      line-height: {{ section.settings.heading_line_height_mobile | divided_by: 100.0 }};
+      font-size: {{ 32 }}px;
+      line-height: {{ 108 | divided_by: 100.0 }};
     }
 
     #{{ look_id }} .xcustom-look__description {
-      margin-top: {{ section.settings.description_gap_mobile }}px;
+      margin-top: {{ 12 }}px;
     }
 
     #{{ look_id }} .xcustom-look__description,
     #{{ look_id }} .xcustom-look__description p,
     #{{ look_id }} .xcustom-look__description span,
     #{{ look_id }} .xcustom-look__description a {
-      font-size: {{ section.settings.description_size_mobile }}px;
+      font-size: {{ 15 }}px;
     }
 
     #{{ look_id }} .xcustom-look__layout {
       grid-template-columns: minmax(0, 1fr);
-      gap: {{ section.settings.column_gap_mobile }}px;
-      margin-top: {{ section.settings.content_top_gap_mobile }}px;
+      gap: {{ 20 }}px;
+      margin-top: {{ 32 }}px;
     }
 
     #{{ look_id }} .xcustom-look__scene-media {
@@ -1003,7 +1003,7 @@
 
     #{{ look_id }}.xcustom-look--scene-cover .xcustom-look__scene-media {
       height: auto;
-      min-height: {{ section.settings.scene_min_height_mobile }}px;
+      min-height: {{ 340 }}px;
     }
 
     #{{ look_id }}.xcustom-look--scene-cover .xcustom-look__scene-image,
@@ -1017,10 +1017,10 @@
     }
 
     #{{ look_id }} .xcustom-look__scene-label {
-      top: {{ section.settings.scene_label_offset_mobile }}px;
-      left: {{ section.settings.scene_label_offset_mobile }}px;
+      top: {{ 14 }}px;
+      left: {{ 14 }}px;
       padding: 8px 12px;
-      font-size: {{ section.settings.scene_label_size_mobile }}px;
+      font-size: {{ 10 }}px;
     }
 
     #{{ look_id }} .xcustom-look__marker {
@@ -1029,8 +1029,8 @@
     }
 
     #{{ look_id }} .xcustom-look__marker-ring {
-      width: {{ section.settings.marker_size_mobile }}px;
-      height: {{ section.settings.marker_size_mobile }}px;
+      width: {{ 34 }}px;
+      height: {{ 34 }}px;
     }
 
     #{{ look_id }} .xcustom-look__panel {
@@ -1039,26 +1039,26 @@
 
     #{{ look_id }} .xcustom-look__product-card {
       padding:
-        {{ section.settings.panel_padding_top_mobile }}px
-        {{ section.settings.panel_padding_horizontal_mobile }}px
-        {{ section.settings.panel_padding_bottom_mobile }}px;
+        {{ 24 }}px
+        {{ 20 }}px
+        {{ 22 }}px;
     }
 
     #{{ look_id }} .xcustom-look__product-title {
-      font-size: {{ section.settings.product_title_size_mobile }}px;
+      font-size: {{ 23 }}px;
     }
 
     #{{ look_id }} .xcustom-look__product-description {
-      font-size: {{ section.settings.product_description_size_mobile }}px;
+      font-size: {{ 13 }}px;
     }
 
     #{{ look_id }} .xcustom-look__product-price {
-      font-size: {{ section.settings.product_price_size_mobile }}px;
+      font-size: {{ 22 }}px;
     }
 
     #{{ look_id }} .xcustom-look__product-button {
-      min-height: {{ section.settings.button_height_mobile }}px;
-      font-size: {{ section.settings.button_text_size_mobile }}px;
+      min-height: {{ 48 }}px;
+      font-size: {{ 13 }}px;
     }
   }
 
@@ -1418,22 +1418,22 @@
 
       const defaultLabel =
         button.dataset.defaultLabel ||
-        {{ section.settings.default_add_button_label | json }} ||
+        {{ 'ADD TO CART' | json }} ||
         'ADD TO CART';
 
       const loadingLabel =
         button.dataset.loadingLabel ||
-        {{ section.settings.adding_button_label | json }} ||
+        {{ 'ADDING...' | json }} ||
         'ADDING...';
 
       const successLabel =
         button.dataset.successLabel ||
-        {{ section.settings.added_button_label | json }} ||
+        {{ 'ADDED' | json }} ||
         'ADDED';
 
       const errorLabel =
         button.dataset.errorLabel ||
-        {{ section.settings.add_error_label | json }} ||
+        {{ 'Unable to add. Please try again.' | json }} ||
         'Unable to add. Please try again.';
 
       const drawerSectionId = getCartDrawerSectionId();
@@ -1517,7 +1517,7 @@
         button.classList.remove('is-loading');
         button.removeAttribute('aria-busy');
         setAddButtonLabel(button, successLabel);
-        setAddMessage(button, {{ section.settings.add_success_message | json }} || 'Added to cart.');
+        setAddMessage(button, {{ 'Added to cart.' | json }} || 'Added to cart.');
 
         window.setTimeout(() => {
           button.disabled = false;
@@ -1694,54 +1694,14 @@
   "settings": [
     {
       "type": "header",
-      "content": "Layout"
+      "content": "Core layout"
     },
     {
       "type": "checkbox",
       "id": "full_width",
       "label": "Full width",
-      "info": "Turn off to limit the module to the selected maximum width.",
+      "info": "Turn off to keep the module inside the page width.",
       "default": false
-    },
-    {
-      "type": "range",
-      "id": "content_max_width",
-      "min": 1000,
-      "max": 1800,
-      "step": 20,
-      "unit": "px",
-      "label": "Content maximum width",
-      "default": 1400
-    },
-    {
-      "type": "range",
-      "id": "header_max_width",
-      "min": 500,
-      "max": 1200,
-      "step": 20,
-      "unit": "px",
-      "label": "Header maximum width",
-      "default": 900
-    },
-    {
-      "type": "select",
-      "id": "header_alignment",
-      "label": "Header alignment",
-      "options": [
-        {
-          "value": "left",
-          "label": "Left"
-        },
-        {
-          "value": "center",
-          "label": "Center"
-        },
-        {
-          "value": "right",
-          "label": "Right"
-        }
-      ],
-      "default": "center"
     },
     {
       "type": "range",
@@ -1750,9 +1710,9 @@
       "max": 85,
       "step": 1,
       "unit": "%",
-      "label": "Scene width percentage",
-      "info": "Recommended: keep Scene + Product panel close to 100%. Example: 67% scene and 33% product panel.",
-      "default": 67
+      "label": "Desktop scene width",
+      "info": "Desktop left image area. Recommended: 65–72.",
+      "default": 70
     },
     {
       "type": "range",
@@ -1761,39 +1721,19 @@
       "max": 55,
       "step": 1,
       "unit": "%",
-      "label": "Product panel width percentage",
-      "info": "Recommended: keep Scene + Product panel close to 100%. Example: 67% scene and 33% product panel.",
-      "default": 33
-    },
-    {
-      "type": "range",
-      "id": "column_gap",
-      "min": 8,
-      "max": 60,
-      "step": 2,
-      "unit": "px",
-      "label": "Desktop column gap",
-      "default": 24
-    },
-    {
-      "type": "range",
-      "id": "column_gap_mobile",
-      "min": 8,
-      "max": 40,
-      "step": 2,
-      "unit": "px",
-      "label": "Mobile column gap",
-      "default": 20
+      "label": "Desktop product panel width",
+      "info": "Desktop right product panel. Keep scene + panel close to 100.",
+      "default": 28
     },
     {
       "type": "header",
-      "content": "Section heading"
+      "content": "Content"
     },
     {
       "type": "inline_richtext",
       "id": "heading",
       "label": "Heading",
-      "default": "Immersive Experience Of Home Gym"
+      "default": "See it in a real space"
     },
     {
       "type": "select",
@@ -1823,121 +1763,7 @@
       "type": "richtext",
       "id": "description",
       "label": "Description",
-      "default": "<p>Tap the markers to explore the equipment included in this home gym setup.</p>"
-    },
-    {
-      "type": "range",
-      "id": "heading_size",
-      "min": 26,
-      "max": 80,
-      "step": 1,
-      "unit": "px",
-      "label": "Desktop heading size",
-      "default": 44
-    },
-    {
-      "type": "range",
-      "id": "heading_size_mobile",
-      "min": 22,
-      "max": 52,
-      "step": 1,
-      "unit": "px",
-      "label": "Mobile heading size",
-      "default": 32
-    },
-    {
-      "type": "range",
-      "id": "heading_line_height",
-      "min": 90,
-      "max": 150,
-      "step": 2,
-      "unit": "%",
-      "label": "Desktop heading line height",
-      "default": 104
-    },
-    {
-      "type": "range",
-      "id": "heading_line_height_mobile",
-      "min": 90,
-      "max": 150,
-      "step": 2,
-      "unit": "%",
-      "label": "Mobile heading line height",
-      "default": 108
-    },
-    {
-      "type": "range",
-      "id": "description_size",
-      "min": 12,
-      "max": 26,
-      "step": 1,
-      "unit": "px",
-      "label": "Desktop description size",
-      "default": 17
-    },
-    {
-      "type": "range",
-      "id": "description_size_mobile",
-      "min": 12,
-      "max": 22,
-      "step": 1,
-      "unit": "px",
-      "label": "Mobile description size",
-      "default": 15
-    },
-    {
-      "type": "range",
-      "id": "description_line_height",
-      "min": 110,
-      "max": 200,
-      "step": 5,
-      "unit": "%",
-      "label": "Description line height",
-      "default": 145
-    },
-    {
-      "type": "range",
-      "id": "description_gap",
-      "min": 0,
-      "max": 40,
-      "step": 2,
-      "unit": "px",
-      "label": "Desktop heading/description gap",
-      "default": 16
-    },
-    {
-      "type": "range",
-      "id": "description_gap_mobile",
-      "min": 0,
-      "max": 32,
-      "step": 2,
-      "unit": "px",
-      "label": "Mobile heading/description gap",
-      "default": 12
-    },
-    {
-      "type": "range",
-      "id": "content_top_gap",
-      "min": 20,
-      "max": 120,
-      "step": 4,
-      "unit": "px",
-      "label": "Desktop heading/content gap",
-      "default": 52
-    },
-    {
-      "type": "range",
-      "id": "content_top_gap_mobile",
-      "min": 16,
-      "max": 80,
-      "step": 4,
-      "unit": "px",
-      "label": "Mobile heading/content gap",
-      "default": 32
-    },
-    {
-      "type": "header",
-      "content": "Scene"
+      "default": "<p>Tap any item in the room to see what it is, how it fits your bundle, and how much you'd save adding it.</p>"
     },
     {
       "type": "image_picker",
@@ -1947,7 +1773,8 @@
     {
       "type": "image_picker",
       "id": "mobile_image",
-      "label": "Mobile scene image"
+      "label": "Mobile scene image",
+      "info": "Optional. Used below 750px."
     },
     {
       "type": "text",
@@ -1956,663 +1783,38 @@
       "default": "FULL-BODY STRENGTH · 45–80 SQ. FT."
     },
     {
-      "type": "range",
-      "id": "scene_radius",
-      "min": 0,
-      "max": 40,
-      "step": 2,
-      "unit": "px",
-      "label": "Scene corner radius",
-      "default": 24
-    },
-    {
-      "type": "select",
-      "id": "scene_image_size_mode",
-      "label": "Scene image size mode",
-      "options": [
-        {
-          "value": "adapt",
-          "label": "Adapt to image ratio"
-        },
-        {
-          "value": "cover",
-          "label": "Cover fixed area"
-        }
-      ],
-      "default": "adapt"
-    },
-    {
-      "type": "checkbox",
-      "id": "balance_desktop_columns",
-      "label": "Balance desktop scene and product panel height",
-      "info": "Recommended when the product panel is much taller than the scene image. Desktop only; mobile still adapts to image ratio.",
-      "default": true
-    },
-    {
-      "type": "range",
-      "id": "balanced_scene_min_height",
-      "min": 320,
-      "max": 1100,
-      "step": 20,
-      "unit": "px",
-      "label": "Balanced desktop scene minimum height",
-      "info": "Used when desktop height balancing is enabled.",
-      "default": 560
-    },
-    {
-      "type": "select",
-      "id": "balanced_scene_fit",
-      "label": "Balanced desktop scene image fit",
-      "options": [
-        {
-          "value": "cover",
-          "label": "Cover / fill balanced height"
-        },
-        {
-          "value": "contain",
-          "label": "Contain / no crop"
-        }
-      ],
-      "default": "cover"
-    },
-    {
-      "type": "range",
-      "id": "scene_min_height",
-      "min": 0,
-      "max": 900,
-      "step": 20,
-      "unit": "px",
-      "label": "Desktop scene minimum height",
-      "info": "Used only when Scene image size mode is set to Cover fixed area.",
-      "default": 0
-    },
-    {
-      "type": "range",
-      "id": "scene_min_height_mobile",
-      "min": 0,
-      "max": 700,
-      "step": 20,
-      "unit": "px",
-      "label": "Mobile scene minimum height",
-      "info": "Used only when Scene image size mode is set to Cover fixed area.",
-      "default": 0
-    },
-    {
-      "type": "range",
-      "id": "scene_label_size",
-      "min": 10,
-      "max": 18,
-      "step": 1,
-      "unit": "px",
-      "label": "Desktop scene label size",
-      "default": 12
-    },
-    {
-      "type": "range",
-      "id": "scene_label_size_mobile",
-      "min": 9,
-      "max": 16,
-      "step": 1,
-      "unit": "px",
-      "label": "Mobile scene label size",
-      "default": 10
-    },
-    {
-      "type": "range",
-      "id": "scene_label_offset",
-      "min": 8,
-      "max": 48,
-      "step": 2,
-      "unit": "px",
-      "label": "Desktop scene label offset",
-      "default": 24
-    },
-    {
-      "type": "range",
-      "id": "scene_label_offset_mobile",
-      "min": 8,
-      "max": 32,
-      "step": 2,
-      "unit": "px",
-      "label": "Mobile scene label offset",
-      "default": 14
-    },
-    {
       "type": "header",
-      "content": "Markers"
-    },
-    {
-      "type": "range",
-      "id": "marker_size",
-      "min": 28,
-      "max": 64,
-      "step": 2,
-      "unit": "px",
-      "label": "Desktop marker size",
-      "default": 38
-    },
-    {
-      "type": "range",
-      "id": "marker_size_mobile",
-      "min": 26,
-      "max": 54,
-      "step": 2,
-      "unit": "px",
-      "label": "Mobile marker size",
-      "default": 34
-    },
-    {
-      "type": "range",
-      "id": "marker_click_area",
-      "min": 36,
-      "max": 80,
-      "step": 2,
-      "unit": "px",
-      "label": "Marker clickable area",
-      "default": 52
-    },
-    {
-      "type": "range",
-      "id": "marker_border_width",
-      "min": 2,
-      "max": 8,
-      "step": 1,
-      "unit": "px",
-      "label": "Marker border width",
-      "default": 5
-    },
-    {
-      "type": "header",
-      "content": "Product panel"
-    },
-    {
-      "type": "text",
-      "id": "panel_eyebrow",
-      "label": "Panel eyebrow",
-      "default": "SELECTED EQUIPMENT"
-    },
-    {
-      "type": "text",
-      "id": "default_button_label",
-      "label": "Default view product label",
-      "default": "VIEW PRODUCT"
-    },
-    {
-      "type": "text",
-      "id": "default_add_button_label",
-      "label": "Default add to cart label",
-      "default": "ADD TO CART"
-    },
-    {
-      "type": "text",
-      "id": "adding_button_label",
-      "label": "Adding label",
-      "default": "ADDING..."
-    },
-    {
-      "type": "text",
-      "id": "added_button_label",
-      "label": "Added label",
-      "default": "ADDED"
-    },
-    {
-      "type": "text",
-      "id": "sold_out_button_label",
-      "label": "Sold out label",
-      "default": "SOLD OUT"
-    },
-    {
-      "type": "text",
-      "id": "add_success_message",
-      "label": "Add success message",
-      "default": "Added to cart."
-    },
-    {
-      "type": "text",
-      "id": "add_error_label",
-      "label": "Add error message",
-      "default": "Unable to add. Please try again."
-    },
-    {
-      "type": "range",
-      "id": "panel_radius",
-      "min": 0,
-      "max": 40,
-      "step": 2,
-      "unit": "px",
-      "label": "Panel corner radius",
-      "default": 24
-    },
-    {
-      "type": "checkbox",
-      "id": "compact_desktop_panel",
-      "label": "Compact product panel on desktop",
-      "info": "Reduces vertical gaps inside the product panel to keep both columns visually balanced.",
-      "default": true
-    },
-    {
-      "type": "range",
-      "id": "panel_padding_top",
-      "min": 16,
-      "max": 64,
-      "step": 2,
-      "unit": "px",
-      "label": "Desktop panel top padding",
-      "default": 34
-    },
-    {
-      "type": "range",
-      "id": "panel_padding_horizontal",
-      "min": 16,
-      "max": 64,
-      "step": 2,
-      "unit": "px",
-      "label": "Desktop panel side padding",
-      "default": 32
-    },
-    {
-      "type": "range",
-      "id": "panel_padding_bottom",
-      "min": 16,
-      "max": 64,
-      "step": 2,
-      "unit": "px",
-      "label": "Desktop panel bottom padding",
-      "default": 32
-    },
-    {
-      "type": "range",
-      "id": "panel_padding_top_mobile",
-      "min": 16,
-      "max": 48,
-      "step": 2,
-      "unit": "px",
-      "label": "Mobile panel top padding",
-      "default": 24
-    },
-    {
-      "type": "range",
-      "id": "panel_padding_horizontal_mobile",
-      "min": 16,
-      "max": 40,
-      "step": 2,
-      "unit": "px",
-      "label": "Mobile panel side padding",
-      "default": 20
-    },
-    {
-      "type": "range",
-      "id": "panel_padding_bottom_mobile",
-      "min": 16,
-      "max": 48,
-      "step": 2,
-      "unit": "px",
-      "label": "Mobile panel bottom padding",
-      "default": 22
-    },
-    {
-      "type": "range",
-      "id": "panel_eyebrow_size",
-      "min": 9,
-      "max": 18,
-      "step": 1,
-      "unit": "px",
-      "label": "Panel eyebrow size",
-      "default": 11
-    },
-    {
-      "type": "select",
-      "id": "product_image_size_mode",
-      "label": "Product image size mode",
-      "options": [
-        {
-          "value": "adapt",
-          "label": "Adapt to image ratio"
-        },
-        {
-          "value": "ratio",
-          "label": "Use selected product image ratio"
-        }
-      ],
-      "default": "adapt"
-    },
-    {
-      "type": "select",
-      "id": "product_image_ratio",
-      "label": "Product image ratio",
-      "options": [
-        {
-          "value": "1 / 1",
-          "label": "Square"
-        },
-        {
-          "value": "4 / 3",
-          "label": "Landscape"
-        },
-        {
-          "value": "3 / 2",
-          "label": "Wide"
-        }
-      ],
-      "default": "4 / 3"
-    },
-    {
-      "type": "range",
-      "id": "product_image_radius",
-      "min": 0,
-      "max": 30,
-      "step": 2,
-      "unit": "px",
-      "label": "Product image radius",
-      "default": 14
-    },
-    {
-      "type": "range",
-      "id": "product_title_size",
-      "min": 20,
-      "max": 42,
-      "step": 1,
-      "unit": "px",
-      "label": "Desktop product title size",
-      "default": 29
-    },
-    {
-      "type": "range",
-      "id": "product_title_size_tablet",
-      "min": 18,
-      "max": 34,
-      "step": 1,
-      "unit": "px",
-      "label": "Tablet product title size",
-      "default": 24
-    },
-    {
-      "type": "range",
-      "id": "product_title_size_mobile",
-      "min": 18,
-      "max": 32,
-      "step": 1,
-      "unit": "px",
-      "label": "Mobile product title size",
-      "default": 23
-    },
-    {
-      "type": "range",
-      "id": "product_description_size",
-      "min": 12,
-      "max": 20,
-      "step": 1,
-      "unit": "px",
-      "label": "Desktop product description size",
-      "default": 14
-    },
-    {
-      "type": "range",
-      "id": "product_description_size_mobile",
-      "min": 12,
-      "max": 18,
-      "step": 1,
-      "unit": "px",
-      "label": "Mobile product description size",
-      "default": 13
-    },
-    {
-      "type": "range",
-      "id": "product_price_size",
-      "min": 18,
-      "max": 36,
-      "step": 1,
-      "unit": "px",
-      "label": "Desktop product price size",
-      "default": 24
-    },
-    {
-      "type": "range",
-      "id": "product_price_size_mobile",
-      "min": 18,
-      "max": 32,
-      "step": 1,
-      "unit": "px",
-      "label": "Mobile product price size",
-      "default": 22
-    },
-    {
-      "type": "range",
-      "id": "button_height",
-      "min": 40,
-      "max": 68,
-      "step": 2,
-      "unit": "px",
-      "label": "Desktop button height",
-      "default": 52
-    },
-    {
-      "type": "range",
-      "id": "button_height_mobile",
-      "min": 40,
-      "max": 60,
-      "step": 2,
-      "unit": "px",
-      "label": "Mobile button height",
-      "default": 48
-    },
-    {
-      "type": "range",
-      "id": "button_text_size",
-      "min": 11,
-      "max": 20,
-      "step": 1,
-      "unit": "px",
-      "label": "Desktop button text size",
-      "default": 14
-    },
-    {
-      "type": "range",
-      "id": "button_text_size_mobile",
-      "min": 11,
-      "max": 18,
-      "step": 1,
-      "unit": "px",
-      "label": "Mobile button text size",
-      "default": 13
-    },
-    {
-      "type": "range",
-      "id": "button_radius",
-      "min": 0,
-      "max": 40,
-      "step": 2,
-      "unit": "px",
-      "label": "Button corner radius",
-      "default": 28
-    },
-    {
-      "type": "header",
-      "content": "Colors"
+      "content": "Core colors"
     },
     {
       "type": "color",
       "id": "background_color",
       "label": "Section background",
-      "default": "#FFFFFF"
+      "default": "#ffffff"
     },
     {
       "type": "color",
       "id": "heading_color",
-      "label": "Section heading",
+      "label": "Heading",
       "default": "#000000"
     },
     {
       "type": "color",
       "id": "description_color",
-      "label": "Section description",
+      "label": "Description",
       "default": "#606060"
     },
     {
       "type": "color",
       "id": "accent_color",
-      "label": "Accent",
-      "default": "#FF5A1F"
-    },
-    {
-      "type": "color",
-      "id": "scene_label_background",
-      "label": "Scene label background",
-      "default": "#FFFFFF"
-    },
-    {
-      "type": "color",
-      "id": "scene_label_text",
-      "label": "Scene label text",
-      "default": "#111111"
-    },
-    {
-      "type": "color",
-      "id": "marker_background",
-      "label": "Marker background",
-      "default": "#FFFFFF"
-    },
-    {
-      "type": "color",
-      "id": "marker_plus_color",
-      "label": "Marker plus",
-      "default": "#111111"
-    },
-    {
-      "type": "color",
-      "id": "active_marker_icon",
-      "label": "Active marker icon",
-      "default": "#FFFFFF"
+      "label": "Accent / buttons / hotspots",
+      "default": "#eb701f"
     },
     {
       "type": "color",
       "id": "panel_background",
-      "label": "Panel background",
+      "label": "Product panel background",
       "default": "#111111"
-    },
-    {
-      "type": "color",
-      "id": "panel_heading_color",
-      "label": "Panel heading",
-      "default": "#FFFFFF"
-    },
-    {
-      "type": "color",
-      "id": "panel_text_color",
-      "label": "Panel text",
-      "default": "#C6C6C6"
-    },
-    {
-      "type": "color",
-      "id": "panel_muted_color",
-      "label": "Panel muted text",
-      "default": "#909090"
-    },
-    {
-      "type": "color",
-      "id": "panel_divider_color",
-      "label": "Panel divider",
-      "default": "#333333"
-    },
-    {
-      "type": "color",
-      "id": "product_image_background",
-      "label": "Product image background",
-      "default": "#F2F2F2"
-    },
-    {
-      "type": "color",
-      "id": "badge_background",
-      "label": "Badge background",
-      "default": "#2B2B2B"
-    },
-    {
-      "type": "color",
-      "id": "badge_text_color",
-      "label": "Badge text",
-      "default": "#FFFFFF"
-    },
-    {
-      "type": "color",
-      "id": "button_text_color",
-      "label": "Button text",
-      "default": "#FFFFFF"
-    },
-    {
-      "type": "color",
-      "id": "button_hover_background",
-      "label": "Button hover background",
-      "default": "#E94B14"
-    },
-    {
-      "type": "color",
-      "id": "button_hover_text",
-      "label": "Button hover text",
-      "default": "#FFFFFF"
-    },
-    {
-      "type": "header",
-      "content": "Section spacing"
-    },
-    {
-      "type": "range",
-      "id": "padding_top",
-      "min": 0,
-      "max": 160,
-      "step": 4,
-      "unit": "px",
-      "label": "Desktop top padding",
-      "default": 72
-    },
-    {
-      "type": "range",
-      "id": "padding_bottom",
-      "min": 0,
-      "max": 160,
-      "step": 4,
-      "unit": "px",
-      "label": "Desktop bottom padding",
-      "default": 72
-    },
-    {
-      "type": "range",
-      "id": "side_padding",
-      "min": 0,
-      "max": 80,
-      "step": 4,
-      "unit": "px",
-      "label": "Desktop side padding",
-      "default": 24
-    },
-    {
-      "type": "range",
-      "id": "padding_top_mobile",
-      "min": 0,
-      "max": 120,
-      "step": 4,
-      "unit": "px",
-      "label": "Mobile top padding",
-      "default": 48
-    },
-    {
-      "type": "range",
-      "id": "padding_bottom_mobile",
-      "min": 0,
-      "max": 120,
-      "step": 4,
-      "unit": "px",
-      "label": "Mobile bottom padding",
-      "default": 48
-    },
-    {
-      "type": "range",
-      "id": "side_padding_mobile",
-      "min": 0,
-      "max": 48,
-      "step": 4,
-      "unit": "px",
-      "label": "Mobile side padding",
-      "default": 16
     }
   ],
   "blocks": [
@@ -2620,6 +1822,10 @@
       "type": "hotspot",
       "name": "Product hotspot",
       "settings": [
+        {
+          "type": "header",
+          "content": "Product"
+        },
         {
           "type": "product",
           "id": "product",
@@ -2635,12 +1841,6 @@
           "id": "custom_title",
           "label": "Custom title",
           "info": "Leave blank to use the product title."
-        },
-        {
-          "type": "richtext",
-          "id": "description",
-          "label": "Custom description",
-          "info": "Leave blank to use the product description."
         },
         {
           "type": "text",
