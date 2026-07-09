@@ -68,15 +68,6 @@
     assign image_loading = 'eager'
     assign image_fetchpriority = 'high'
   endif
-
-  assign copy_min_width = section.settings.copy_min_width | default: 460
-  assign heading_fluid_min = section.settings.heading_font_size | times: 0.68 | round
-  assign heading_fluid_mid = section.settings.heading_font_size | times: 0.84 | round
-  assign body_fluid_min = section.settings.body_font_size | times: 0.82 | round
-  assign button_fluid_min = section.settings.button_font_size | times: 0.82 | round
-  assign button_height_fluid_min = section.settings.button_height | times: 0.86 | round
-  assign text_gap_fluid_min = section.settings.text_gap | times: 0.75 | round
-  assign button_gap_fluid_min = section.settings.button_top_gap | times: 0.72 | round
 %}
 
 <section
@@ -350,27 +341,19 @@
     z-index: 2;
     top: {{ section.settings.text_top }}%;
     left: {{ section.settings.text_left }}%;
-    width: clamp({{ copy_min_width }}px, {{ section.settings.content_width }}vw, {{ section.settings.copy_max_width }}px);
-    max-width: calc(100% - {{ section.settings.text_left }}% - 24px);
+    width: {{ section.settings.content_width }}%;
     min-width: 0;
   }
 
   #XCustomGym-{{ section.id }} .xcustom-gym__copy {
     width: 100%;
-    max-width: none;
+    max-width: {{ section.settings.copy_max_width }}px;
     min-width: 0;
-    padding-top: {{ section.settings.copy_padding_top }}px;
-    padding-bottom: {{ section.settings.copy_padding_bottom }}px;
-    {% if section.settings.copy_padding_right_percent > 0 %}
-      padding-right: clamp(18px, {{ section.settings.copy_padding_right_percent | times: 0.22 }}vw, 150px);
-    {% else %}
-      padding-right: 0;
-    {% endif %}
-    {% if section.settings.copy_padding_left_percent > 0 %}
-      padding-left: clamp(24px, {{ section.settings.copy_padding_left_percent | times: 0.22 }}vw, 180px);
-    {% else %}
-      padding-left: 0;
-    {% endif %}
+    padding:
+      {{ section.settings.copy_padding_top }}px
+      {{ section.settings.copy_padding_right_percent }}%
+      {{ section.settings.copy_padding_bottom }}px
+      {{ section.settings.copy_padding_left_percent }}%;
     text-align: {{ section.settings.text_alignment }};
   }
 
@@ -381,14 +364,11 @@
     margin: 0;
     padding: 0;
     color: {{ section.settings.heading_color }};
-    font-size: clamp({{ heading_fluid_min }}px, 3.15vw, {{ section.settings.heading_font_size }}px) !important;
+    font-size: {{ section.settings.heading_font_size }}px !important;
     line-height: {{ section.settings.heading_line_height | divided_by: 100.0 }} !important;
     letter-spacing: normal;
     text-transform: none;
-    overflow-wrap: normal;
-    word-break: normal;
-    hyphens: none;
-    text-wrap: balance;
+    overflow-wrap: break-word;
     text-shadow: 0 2px 20px rgba(0, 0, 0, {{ section.settings.text_shadow_opacity | divided_by: 100.0 }});
   }
 
@@ -421,11 +401,8 @@
   #XCustomGym-{{ section.id }} .xcustom-gym__description a,
   #XCustomGym-{{ section.id }} .xcustom-gym__description li {
     color: {{ section.settings.text_color }} !important;
-    font-size: clamp({{ body_fluid_min }}px, 0.92vw, {{ section.settings.body_font_size }}px) !important;
+    font-size: {{ section.settings.body_font_size }}px !important;
     line-height: {{ section.settings.body_line_height | divided_by: 100.0 }} !important;
-    overflow-wrap: normal;
-    word-break: normal;
-    hyphens: none;
     text-shadow: 0 1px 12px rgba(0, 0, 0, {{ section.settings.text_shadow_opacity | divided_by: 100.0 }});
   }
 
@@ -461,7 +438,7 @@
     justify-content: {{ button_alignment }};
     gap: {{ section.settings.button_gap }}px;
     width: 100%;
-    margin-top: clamp({{ button_gap_fluid_min }}px, 1.35vw, {{ section.settings.button_top_gap }}px);
+    margin-top: {{ section.settings.button_top_gap }}px;
   }
 
   #XCustomGym-{{ section.id }} .xcustom-gym__button {
@@ -469,12 +446,12 @@
     align-items: center;
     justify-content: center;
     min-width: 0;
-    min-height: clamp({{ button_height_fluid_min }}px, 2.35vw, {{ section.settings.button_height }}px);
+    min-height: {{ section.settings.button_height }}px;
     max-width: 100%;
-    padding: 10px clamp(18px, 1.45vw, {{ section.settings.button_horizontal_padding }}px);
+    padding: 10px {{ section.settings.button_horizontal_padding }}px;
     border: 1px solid transparent;
     border-radius: {{ section.settings.button_radius }}px;
-    font-size: clamp({{ button_fluid_min }}px, 0.82vw, {{ section.settings.button_font_size }}px);
+    font-size: {{ section.settings.button_font_size }}px;
     font-weight: 700;
     line-height: 1.2;
     text-align: center;
@@ -505,7 +482,7 @@
     font: inherit;
     line-height: inherit;
     white-space: normal;
-    overflow-wrap: normal;
+    overflow-wrap: anywhere;
     word-break: normal;
   }
 
@@ -554,41 +531,6 @@
     outline-offset: 3px;
   }
 
-  @media screen and (min-width: 768px) and (max-width: 1199px) {
-    #XCustomGym-{{ section.id }} .xcustom-gym__content {
-      width: clamp({{ copy_min_width | times: 0.9 | round }}px, 52vw, min({{ section.settings.copy_max_width }}px, 680px));
-      max-width: calc(100% - {{ section.settings.text_left }}% - 20px);
-    }
-
-    #XCustomGym-{{ section.id }} .xcustom-gym__copy {
-      {% if section.settings.copy_padding_right_percent > 0 %}
-        padding-right: clamp(12px, {{ section.settings.copy_padding_right_percent | times: 0.14 }}vw, 72px);
-      {% endif %}
-      {% if section.settings.copy_padding_left_percent > 0 %}
-        padding-left: clamp(18px, {{ section.settings.copy_padding_left_percent | times: 0.14 }}vw, 92px);
-      {% endif %}
-    }
-
-    #XCustomGym-{{ section.id }} .xcustom-gym__heading {
-      font-size: clamp({{ heading_fluid_min | times: 0.86 | round }}px, 4.25vw, {{ heading_fluid_mid }}px) !important;
-      line-height: {{ section.settings.heading_line_height | divided_by: 100.0 }} !important;
-    }
-
-    #XCustomGym-{{ section.id }} .xcustom-gym__description,
-    #XCustomGym-{{ section.id }} .xcustom-gym__description p,
-    #XCustomGym-{{ section.id }} .xcustom-gym__description span,
-    #XCustomGym-{{ section.id }} .xcustom-gym__description strong,
-    #XCustomGym-{{ section.id }} .xcustom-gym__description em,
-    #XCustomGym-{{ section.id }} .xcustom-gym__description a,
-    #XCustomGym-{{ section.id }} .xcustom-gym__description li {
-      font-size: clamp({{ body_fluid_min | times: 0.94 | round }}px, 1.25vw, {{ section.settings.body_font_size | times: 0.92 | round }}px) !important;
-    }
-
-    #XCustomGym-{{ section.id }} .xcustom-gym__buttons {
-      margin-top: clamp({{ button_gap_fluid_min | times: 0.85 | round }}px, 1.6vw, {{ section.settings.button_top_gap | times: 0.86 | round }}px);
-    }
-  }
-
   @media screen and (max-width: 767px) {
     #XCustomGym-{{ section.id }} {
       padding:
@@ -621,10 +563,11 @@
 
     #XCustomGym-{{ section.id }} .xcustom-gym__copy {
       max-width: {{ section.settings.copy_max_width_mobile }}px;
-      padding-top: {{ section.settings.copy_mobile_padding_top }}px;
-      padding-bottom: {{ section.settings.copy_mobile_padding_bottom }}px;
-      padding-right: {{ section.settings.copy_mobile_padding_right_percent }}%;
-      padding-left: {{ section.settings.copy_mobile_padding_left_percent }}%;
+      padding:
+        {{ section.settings.copy_mobile_padding_top }}px
+        {{ section.settings.copy_mobile_padding_right_percent }}%
+        {{ section.settings.copy_mobile_padding_bottom }}px
+        {{ section.settings.copy_mobile_padding_left_percent }}%;
     }
 
     #XCustomGym-{{ section.id }} .xcustom-gym__left-gradient {
@@ -640,9 +583,8 @@
     }
 
     #XCustomGym-{{ section.id }} .xcustom-gym__heading {
-      font-size: clamp({{ section.settings.heading_font_size_mobile | times: 0.84 | round }}px, 9.5vw, {{ section.settings.heading_font_size_mobile }}px) !important;
+      font-size: {{ section.settings.heading_font_size_mobile }}px !important;
       line-height: {{ section.settings.heading_line_height_mobile | divided_by: 100.0 }} !important;
-      text-wrap: balance;
     }
 
     #XCustomGym-{{ section.id }} .xcustom-gym__description {
@@ -656,7 +598,7 @@
     #XCustomGym-{{ section.id }} .xcustom-gym__description em,
     #XCustomGym-{{ section.id }} .xcustom-gym__description a,
     #XCustomGym-{{ section.id }} .xcustom-gym__description li {
-      font-size: clamp({{ section.settings.body_font_size_mobile | times: 0.88 | round }}px, 3.75vw, {{ section.settings.body_font_size_mobile }}px) !important;
+      font-size: {{ section.settings.body_font_size_mobile }}px !important;
       line-height: {{ section.settings.body_line_height_mobile | divided_by: 100.0 }} !important;
     }
 
@@ -928,17 +870,6 @@
       "unit": "%",
       "label": "Mobile overlay text width",
       "default": 90
-    },
-    {
-      "type": "range",
-      "id": "copy_min_width",
-      "min": 320,
-      "max": 700,
-      "step": 10,
-      "unit": "px",
-      "label": "Desktop text minimum width",
-      "info": "Prevents the text block from becoming too narrow when the browser window is resized.",
-      "default": 460
     },
     {
       "type": "range",
