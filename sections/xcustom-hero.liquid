@@ -1,15 +1,12 @@
-
 {% liquid
   assign desktop_image = section.settings.image
   assign mobile_image = section.settings.mobile_image
   assign active_mobile_image = mobile_image | default: desktop_image
 
   assign image_alt = desktop_image.alt
-
   if image_alt == blank and active_mobile_image != blank
     assign image_alt = active_mobile_image.alt
   endif
-
   if image_alt == blank
     assign image_alt = section.settings.heading | strip_html
   endif
@@ -33,7 +30,6 @@
 
   if active_mobile_image != blank
     assign mobile_image_focal_point = active_mobile_image.presentation.focal_point | default: image_focal_point
-
     if active_mobile_image.aspect_ratio != blank
       assign mobile_image_aspect_ratio = active_mobile_image.aspect_ratio
     endif
@@ -72,11 +68,11 @@
 
 <section
   id="XCustomGym-{{ section.id }}"
-  class="xcustom-gym {{ width_class }} xcustom-gym--height-{{ section.settings.image_height_mode }} xcustom-gym--image-{{ section.settings.image_position }}{% if section.settings.mobile_image_first %} xcustom-gym--mobile-image-first{% endif %}"
+  class="xcustom-gym {{ width_class }} xcustom-gym--static xcustom-gym--height-{{ section.settings.image_height_mode }} xcustom-gym--image-{{ section.settings.image_position }}{% if section.settings.mobile_image_first %} xcustom-gym--mobile-image-first{% endif %}"
 >
   <div class="xcustom-gym__shell">
     <div class="xcustom-gym__hero">
-      <div class="xcustom-gym__media">
+      <div class="xcustom-gym__media" aria-hidden="{% if desktop_image == blank and mobile_image == blank %}true{% else %}false{% endif %}">
         {% if desktop_image != blank or mobile_image != blank %}
           <picture class="xcustom-gym__picture">
             {% if mobile_image != blank %}
@@ -207,16 +203,41 @@
     {{ section.settings.body_font | font_face: font_display: 'swap' }}
   {% endunless %}
 
+  #shopify-section-{{ section.id }} {
+    margin: 0 !important;
+    padding-top: {{ section.settings.padding_top_mobile }}px;
+    padding-bottom: {{ section.settings.padding_bottom_mobile }}px;
+  }
+
+  @media screen and (min-width: 768px) {
+    #shopify-section-{{ section.id }} {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+
   #XCustomGym-{{ section.id }} {
+    --xcustom-gym-background: {{ section.settings.background_color }};
+    --xcustom-gym-heading: {{ section.settings.heading_color }};
+    --xcustom-gym-body: {{ section.settings.text_color }};
+    --xcustom-gym-note: {{ section.settings.button_note_color }};
+    --xcustom-gym-overlay: {{ section.settings.overlay_color }};
+    --xcustom-gym-overlay-opacity: {{ section.settings.overlay_opacity | divided_by: 100.0 }};
+    --xcustom-gym-primary-bg: {{ section.settings.primary_button_background }};
+    --xcustom-gym-primary-text: {{ section.settings.primary_button_text }};
+    --xcustom-gym-primary-hover-bg: {{ section.settings.primary_button_hover_background }};
+    --xcustom-gym-primary-hover-text: {{ section.settings.primary_button_hover_text }};
+    --xcustom-gym-secondary-bg: {{ section.settings.secondary_button_background }};
+    --xcustom-gym-secondary-text: {{ section.settings.secondary_button_text }};
+    --xcustom-gym-secondary-border: {{ section.settings.secondary_button_border }};
+    --xcustom-gym-secondary-hover-bg: {{ section.settings.secondary_button_hover_background }};
+    --xcustom-gym-secondary-hover-text: {{ section.settings.secondary_button_hover_text }};
+    --xcustom-gym-secondary-hover-border: {{ section.settings.secondary_button_hover_border }};
     display: block;
     width: 100%;
     max-width: 100%;
     margin: 0;
-    padding:
-      {{ section.settings.padding_top }}px
-      0
-      {{ section.settings.padding_bottom }}px;
-    background: {{ section.settings.background_color }};
+    background: var(--xcustom-gym-background);
   }
 
   #XCustomGym-{{ section.id }}.xcustom-gym--full {
@@ -235,20 +256,21 @@
 
   #XCustomGym-{{ section.id }} .xcustom-gym__shell {
     width: 100%;
-    margin: 0 auto;
+    margin-right: auto;
+    margin-left: auto;
     overflow: visible;
   }
 
   #XCustomGym-{{ section.id }}.xcustom-gym--contained .xcustom-gym__shell {
     max-width: 1750px;
-    padding-left: {{ section.settings.desktop_side_padding }}px;
     padding-right: {{ section.settings.desktop_side_padding }}px;
+    padding-left: {{ section.settings.desktop_side_padding }}px;
   }
 
   #XCustomGym-{{ section.id }}.xcustom-gym--full .xcustom-gym__shell {
     max-width: none;
-    padding-left: 0;
     padding-right: 0;
+    padding-left: 0;
   }
 
   #XCustomGym-{{ section.id }} .xcustom-gym__hero {
@@ -263,9 +285,9 @@
   }
 
   #XCustomGym-{{ section.id }}.xcustom-gym--height-custom .xcustom-gym__hero {
-    aspect-ratio: auto;
     height: {{ section.settings.hero_height }}px;
     min-height: {{ section.settings.hero_height }}px;
+    aspect-ratio: auto;
   }
 
   #XCustomGym-{{ section.id }}.xcustom-gym--full .xcustom-gym__hero {
@@ -311,8 +333,8 @@
 
   #XCustomGym-{{ section.id }} .xcustom-gym__overlay {
     z-index: 1;
-    background: {{ section.settings.overlay_color }};
-    opacity: {{ section.settings.overlay_opacity | divided_by: 100.0 }};
+    background: var(--xcustom-gym-overlay);
+    opacity: var(--xcustom-gym-overlay-opacity);
     pointer-events: none;
   }
 
@@ -323,6 +345,8 @@
     left: {{ section.settings.text_left }}%;
     width: {{ section.settings.content_width }}%;
     min-width: 0;
+    max-width: calc(100% - {{ section.settings.desktop_side_padding | times: 2 }}px);
+    pointer-events: none;
   }
 
   #XCustomGym-{{ section.id }} .xcustom-gym__copy {
@@ -340,9 +364,9 @@
     display: block;
     width: 100%;
     max-width: 100%;
-    margin: 0;
+    margin: 0 !important;
     padding: 0;
-    color: {{ section.settings.heading_color }};
+    color: var(--xcustom-gym-heading) !important;
     font-size: {{ section.settings.heading_font_size }}px !important;
     line-height: {{ section.settings.heading_line_height | divided_by: 100.0 }} !important;
     letter-spacing: normal;
@@ -368,7 +392,7 @@
     width: 100%;
     max-width: 100%;
     margin-top: {{ section.settings.text_gap }}px;
-    color: {{ section.settings.text_color }};
+    color: var(--xcustom-gym-body) !important;
   }
 
   #XCustomGym-{{ section.id }} .xcustom-gym__description,
@@ -378,7 +402,7 @@
   #XCustomGym-{{ section.id }} .xcustom-gym__description em,
   #XCustomGym-{{ section.id }} .xcustom-gym__description a,
   #XCustomGym-{{ section.id }} .xcustom-gym__description li {
-    color: inherit;
+    color: var(--xcustom-gym-body) !important;
     font-size: {{ section.settings.body_font_size }}px !important;
     line-height: {{ section.settings.body_line_height | divided_by: 100.0 }} !important;
   }
@@ -401,11 +425,11 @@
   {% endunless %}
 
   #XCustomGym-{{ section.id }} .xcustom-gym__description > *:first-child {
-    margin-top: 0;
+    margin-top: 0 !important;
   }
 
   #XCustomGym-{{ section.id }} .xcustom-gym__description > *:last-child {
-    margin-bottom: 0;
+    margin-bottom: 0 !important;
   }
 
   #XCustomGym-{{ section.id }} .xcustom-gym__buttons {
@@ -416,6 +440,7 @@
     gap: {{ section.settings.button_gap }}px;
     width: 100%;
     margin-top: {{ section.settings.button_top_gap }}px;
+    pointer-events: auto;
   }
 
   #XCustomGym-{{ section.id }} .xcustom-gym__button {
@@ -447,7 +472,7 @@
     display: block;
     min-width: 0;
     max-width: 100%;
-    color: inherit;
+    color: inherit !important;
     font: inherit;
     line-height: inherit;
     white-space: normal;
@@ -456,37 +481,38 @@
   }
 
   #XCustomGym-{{ section.id }} .xcustom-gym__button--primary {
-    color: {{ section.settings.primary_button_text }};
-    background-color: {{ section.settings.primary_button_background }};
-    border-color: {{ section.settings.primary_button_background }};
+    color: var(--xcustom-gym-primary-text) !important;
+    background-color: var(--xcustom-gym-primary-bg);
+    border-color: var(--xcustom-gym-primary-bg);
   }
 
   #XCustomGym-{{ section.id }} .xcustom-gym__button--primary:hover {
-    color: {{ section.settings.primary_button_hover_text }};
-    background-color: {{ section.settings.primary_button_hover_background }};
-    border-color: {{ section.settings.primary_button_hover_background }};
+    color: var(--xcustom-gym-primary-hover-text) !important;
+    background-color: var(--xcustom-gym-primary-hover-bg);
+    border-color: var(--xcustom-gym-primary-hover-bg);
   }
 
   #XCustomGym-{{ section.id }} .xcustom-gym__button--secondary {
-    color: {{ section.settings.secondary_button_text }};
-    background-color: {{ section.settings.secondary_button_background }};
-    border-color: {{ section.settings.secondary_button_border }};
+    color: var(--xcustom-gym-secondary-text) !important;
+    background-color: var(--xcustom-gym-secondary-bg);
+    border-color: var(--xcustom-gym-secondary-border);
   }
 
   #XCustomGym-{{ section.id }} .xcustom-gym__button--secondary:hover {
-    color: {{ section.settings.secondary_button_hover_text }};
-    background-color: {{ section.settings.secondary_button_hover_background }};
-    border-color: {{ section.settings.secondary_button_hover_border }};
+    color: var(--xcustom-gym-secondary-hover-text) !important;
+    background-color: var(--xcustom-gym-secondary-hover-bg);
+    border-color: var(--xcustom-gym-secondary-hover-border);
   }
 
   #XCustomGym-{{ section.id }} .xcustom-gym__button-note {
     width: 100%;
     margin-top: {{ section.settings.button_note_gap }}px;
-    color: {{ section.settings.button_note_color }};
+    color: var(--xcustom-gym-note) !important;
     font-size: {{ section.settings.button_note_size }}px;
     font-weight: 400;
     line-height: 1.4;
     text-align: {{ section.settings.text_alignment }};
+    pointer-events: none;
   }
 
   #XCustomGym-{{ section.id }} .xcustom-gym__button--disabled {
@@ -500,11 +526,9 @@
   }
 
   @media screen and (max-width: 767px) {
-    #XCustomGym-{{ section.id }} {
-      padding:
-        {{ section.settings.padding_top_mobile }}px
-        0
-        {{ section.settings.padding_bottom_mobile }}px;
+    #XCustomGym-{{ section.id }}.xcustom-gym--contained .xcustom-gym__shell {
+      padding-right: {{ section.settings.mobile_side_padding }}px;
+      padding-left: {{ section.settings.mobile_side_padding }}px;
     }
 
     #XCustomGym-{{ section.id }} .xcustom-gym__hero {
@@ -512,14 +536,14 @@
       aspect-ratio: {{ mobile_image_aspect_ratio }};
     }
 
-    #XCustomGym-{{ section.id }} .xcustom-gym__image {
-      object-position: {{ mobile_image_focal_point }};
-    }
-
     #XCustomGym-{{ section.id }}.xcustom-gym--height-custom .xcustom-gym__hero {
       height: {{ section.settings.hero_height_mobile }}px;
       min-height: {{ section.settings.hero_height_mobile }}px;
       aspect-ratio: auto;
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__image {
+      object-position: {{ mobile_image_focal_point }};
     }
 
     #XCustomGym-{{ section.id }} .xcustom-gym__content {
@@ -609,15 +633,12 @@
     function findTarget(targetId) {
       targetId = normalizeTargetId(targetId);
       if (!targetId) return null;
-
       return document.getElementById(targetId);
     }
 
     function scrollWithOffset(target, offset, behavior) {
       if (!target) return;
-
       var targetTop = target.getBoundingClientRect().top + getScrollTop() - offset;
-
       window.scrollTo({
         top: Math.max(targetTop, 0),
         behavior: behavior || 'smooth'
@@ -639,17 +660,16 @@
       var section = document.getElementById(sectionId);
       if (!section || !section.contains(trigger)) return;
 
+      var targetId = normalizeTargetId(trigger.getAttribute('data-xcustom-scroll-target') || trigger.getAttribute('href'));
+      var target = findTarget(targetId);
+      if (!target) return;
+
       event.preventDefault();
       event.stopPropagation();
 
       if (event.stopImmediatePropagation) {
         event.stopImmediatePropagation();
       }
-
-      var targetId = normalizeTargetId(trigger.getAttribute('data-xcustom-scroll-target') || trigger.getAttribute('href'));
-      var target = findTarget(targetId);
-
-      if (!target) return;
 
       var offset = parseInt(trigger.getAttribute('data-xcustom-scroll-offset'), 10);
       if (isNaN(offset)) {
