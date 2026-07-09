@@ -128,6 +128,7 @@
       </div>
 
       <div class="xcustom-gym__overlay" aria-hidden="true"></div>
+      <div class="xcustom-gym__left-gradient" aria-hidden="true"></div>
 
       <div class="xcustom-gym__content">
         <div class="xcustom-gym__copy">
@@ -274,7 +275,8 @@
 
   #XCustomGym-{{ section.id }} .xcustom-gym__media,
   #XCustomGym-{{ section.id }} .xcustom-gym__picture,
-  #XCustomGym-{{ section.id }} .xcustom-gym__overlay {
+  #XCustomGym-{{ section.id }} .xcustom-gym__overlay,
+  #XCustomGym-{{ section.id }} .xcustom-gym__left-gradient {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -303,6 +305,7 @@
     margin: 0;
     border-radius: inherit;
     object-fit: cover;
+    filter: brightness({{ section.settings.image_brightness | divided_by: 100.0 }}) contrast({{ section.settings.image_contrast | divided_by: 100.0 }});
   }
 
   #XCustomGym-{{ section.id }} .xcustom-gym__placeholder {
@@ -316,6 +319,23 @@
     pointer-events: none;
   }
 
+  #XCustomGym-{{ section.id }} .xcustom-gym__left-gradient {
+    z-index: 1;
+    pointer-events: none;
+    {% if section.settings.enable_left_gradient %}
+      background:
+        linear-gradient(
+          90deg,
+          rgba(0, 0, 0, {{ section.settings.left_gradient_opacity | divided_by: 100.0 }}) 0%,
+          rgba(0, 0, 0, {{ section.settings.left_gradient_opacity | times: 0.72 | divided_by: 100.0 }}) 26%,
+          rgba(0, 0, 0, 0.16) {{ section.settings.left_gradient_width | minus: 10 }}%,
+          rgba(0, 0, 0, 0) {{ section.settings.left_gradient_width }}%
+        );
+    {% else %}
+      display: none;
+    {% endif %}
+  }
+
   #XCustomGym-{{ section.id }} .xcustom-gym__content {
     position: absolute;
     z-index: 2;
@@ -327,6 +347,7 @@
 
   #XCustomGym-{{ section.id }} .xcustom-gym__copy {
     width: 100%;
+    max-width: {{ section.settings.copy_max_width }}px;
     min-width: 0;
     padding:
       {{ section.settings.copy_padding_top }}px
@@ -348,6 +369,7 @@
     letter-spacing: normal;
     text-transform: none;
     overflow-wrap: break-word;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, {{ section.settings.text_shadow_opacity | divided_by: 100.0 }});
   }
 
   #XCustomGym-{{ section.id }} .xcustom-gym__heading br {
@@ -378,9 +400,10 @@
   #XCustomGym-{{ section.id }} .xcustom-gym__description em,
   #XCustomGym-{{ section.id }} .xcustom-gym__description a,
   #XCustomGym-{{ section.id }} .xcustom-gym__description li {
-    color: inherit;
+    color: {{ section.settings.text_color }} !important;
     font-size: {{ section.settings.body_font_size }}px !important;
     line-height: {{ section.settings.body_line_height | divided_by: 100.0 }} !important;
+    text-shadow: 0 1px 12px rgba(0, 0, 0, {{ section.settings.text_shadow_opacity | divided_by: 100.0 }});
   }
 
   {% unless section.settings.body_use_theme_font %}
@@ -429,18 +452,26 @@
     border: 1px solid transparent;
     border-radius: {{ section.settings.button_radius }}px;
     font-size: {{ section.settings.button_font_size }}px;
-    font-weight: 600;
+    font-weight: 700;
     line-height: 1.2;
     text-align: center;
     text-decoration: none;
     white-space: normal;
     overflow: hidden;
     cursor: pointer;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.16);
     transition:
       background-color 0.2s ease,
       color 0.2s ease,
       border-color 0.2s ease,
-      opacity 0.2s ease;
+      opacity 0.2s ease,
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  #XCustomGym-{{ section.id }} .xcustom-gym__button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.2);
   }
 
   #XCustomGym-{{ section.id }} .xcustom-gym__button span {
@@ -484,9 +515,10 @@
     margin-top: {{ section.settings.button_note_gap }}px;
     color: {{ section.settings.button_note_color }};
     font-size: {{ section.settings.button_note_size }}px;
-    font-weight: 400;
+    font-weight: 500;
     line-height: 1.4;
     text-align: {{ section.settings.text_alignment }};
+    text-shadow: 0 1px 10px rgba(0, 0, 0, {{ section.settings.text_shadow_opacity | divided_by: 100.0 }});
   }
 
   #XCustomGym-{{ section.id }} .xcustom-gym__button--disabled {
@@ -530,11 +562,24 @@
     }
 
     #XCustomGym-{{ section.id }} .xcustom-gym__copy {
+      max-width: {{ section.settings.copy_max_width_mobile }}px;
       padding:
         {{ section.settings.copy_mobile_padding_top }}px
         {{ section.settings.copy_mobile_padding_right_percent }}%
         {{ section.settings.copy_mobile_padding_bottom }}px
         {{ section.settings.copy_mobile_padding_left_percent }}%;
+    }
+
+    #XCustomGym-{{ section.id }} .xcustom-gym__left-gradient {
+      {% if section.settings.enable_left_gradient %}
+        background:
+          linear-gradient(
+            90deg,
+            rgba(0, 0, 0, {{ section.settings.left_gradient_opacity_mobile | divided_by: 100.0 }}) 0%,
+            rgba(0, 0, 0, {{ section.settings.left_gradient_opacity_mobile | times: 0.64 | divided_by: 100.0 }}) 62%,
+            rgba(0, 0, 0, 0.05) 100%
+          );
+      {% endif %}
     }
 
     #XCustomGym-{{ section.id }} .xcustom-gym__heading {
@@ -825,6 +870,26 @@
       "unit": "%",
       "label": "Mobile overlay text width",
       "default": 90
+    },
+    {
+      "type": "range",
+      "id": "copy_max_width",
+      "min": 320,
+      "max": 900,
+      "step": 10,
+      "unit": "px",
+      "label": "Desktop text max width",
+      "default": 620
+    },
+    {
+      "type": "range",
+      "id": "copy_max_width_mobile",
+      "min": 260,
+      "max": 720,
+      "step": 10,
+      "unit": "px",
+      "label": "Mobile text max width",
+      "default": 520
     },
     {
       "type": "select",
@@ -1258,7 +1323,7 @@
       "type": "color",
       "id": "button_note_color",
       "label": "Button note color",
-      "default": "#6B6B6B"
+      "default": "#FFFFFF"
     },
     {
       "type": "header",
@@ -1316,19 +1381,85 @@
       "step": 5,
       "unit": "%",
       "label": "Image overlay opacity",
-      "default": 15
+      "default": 10
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_left_gradient",
+      "label": "Enable left readability gradient",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "left_gradient_opacity",
+      "min": 0,
+      "max": 90,
+      "step": 5,
+      "unit": "%",
+      "label": "Desktop left gradient strength",
+      "default": 70
+    },
+    {
+      "type": "range",
+      "id": "left_gradient_opacity_mobile",
+      "min": 0,
+      "max": 90,
+      "step": 5,
+      "unit": "%",
+      "label": "Mobile left gradient strength",
+      "default": 65
+    },
+    {
+      "type": "range",
+      "id": "left_gradient_width",
+      "min": 20,
+      "max": 90,
+      "step": 5,
+      "unit": "%",
+      "label": "Desktop gradient fade width",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "image_brightness",
+      "min": 70,
+      "max": 120,
+      "step": 5,
+      "unit": "%",
+      "label": "Image brightness",
+      "default": 95
+    },
+    {
+      "type": "range",
+      "id": "image_contrast",
+      "min": 80,
+      "max": 130,
+      "step": 5,
+      "unit": "%",
+      "label": "Image contrast",
+      "default": 105
+    },
+    {
+      "type": "range",
+      "id": "text_shadow_opacity",
+      "min": 0,
+      "max": 70,
+      "step": 5,
+      "unit": "%",
+      "label": "Text shadow strength",
+      "default": 30
     },
     {
       "type": "color",
       "id": "heading_color",
       "label": "Heading",
-      "default": "#000000"
+      "default": "#FFFFFF"
     },
     {
       "type": "color",
       "id": "text_color",
       "label": "Body text",
-      "default": "#5F5F5F"
+      "default": "#FFFFFF"
     },
     {
       "type": "color",
