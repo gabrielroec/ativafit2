@@ -1,4 +1,4 @@
-{%- liquid
+ {%- liquid
   assign bb_id = 'xcustom-bundle-' | append: section.id
   assign step1_name = 'bundle-step-1-' | append: section.id
   assign step2_name = 'bundle-step-2-' | append: section.id
@@ -7,9 +7,8 @@
     assign checkout_href = '/checkout'
   endif
 
-  assign step1_discount_cents = section.settings.step1_item_discount | times: 100
-  assign step2_discount_cents = section.settings.step2_item_discount | times: 100
-  assign step3_discount_cents = section.settings.step3_item_discount | times: 100
+  assign discount_two_items_percent = section.settings.discount_two_items_percent | default: 10
+  assign discount_three_plus_items_percent = section.settings.discount_three_plus_items_percent | default: 12
 
   assign step3_count = 0
   for block in section.blocks
@@ -29,6 +28,8 @@
   data-checkout-requirement="{{ section.settings.checkout_requirement }}"
   data-discount-mode="{{ section.settings.discount_mode }}"
   data-discount-code="{{ section.settings.discount_code | strip | escape }}"
+  data-discount-two-items-percent="{{ discount_two_items_percent }}"
+  data-discount-three-plus-percent="{{ discount_three_plus_items_percent }}"
   data-alert-incomplete="{{ section.settings.checkout_alert | escape }}"
   data-alert-discount-error="{{ section.settings.discount_error_alert | escape }}"
   data-alert-cart-error="{{ section.settings.cart_error_alert | escape }}"
@@ -92,7 +93,6 @@
                         data-bundle-step="1"
                         data-bundle-price-cents="{{ variant_item.price }}"
                         data-bundle-compare-price-cents="{{ variant_item.compare_at_price | default: 0 }}"
-                        data-bundle-discount-cents="{{ step1_discount_cents }}"
                         data-bundle-line-title="{{ display_title | escape }}"
                         data-bundle-line-category="{{ block.settings.sidebar_category | escape }}"
                         {% unless variant_item.available %}disabled{% endunless %}
@@ -190,7 +190,6 @@
                         data-bundle-step="2"
                         data-bundle-price-cents="{{ variant_item.price }}"
                         data-bundle-compare-price-cents="{{ variant_item.compare_at_price | default: 0 }}"
-                        data-bundle-discount-cents="{{ step2_discount_cents }}"
                         data-bundle-line-title="{{ display_title | escape }}"
                         data-bundle-line-category="{{ block.settings.sidebar_category | escape }}"
                         {% unless variant_item.available %}disabled{% endunless %}
@@ -293,7 +292,6 @@
                         data-bundle-variant-id="{{ variant_item.id }}"
                         data-bundle-price-cents="{{ variant_item.price }}"
                         data-bundle-compare-price-cents="{{ variant_item.compare_at_price | default: 0 }}"
-                        data-bundle-discount-cents="{{ step3_discount_cents }}"
                         data-bundle-line-title="{{ display_title | escape }}"
                         data-bundle-line-category="{{ block.settings.sidebar_category | escape }}"
                         data-bundle-available="{% if variant_item.available %}true{% else %}false{% endif %}"
@@ -1517,6 +1515,8 @@
       var checkoutRequirement = root.dataset.checkoutRequirement || 'step1';
       var discountMode = root.dataset.discountMode || 'display_only';
       var discountCode = (root.dataset.discountCode || '').trim();
+      var discountTwoItemsPercent = Math.max(0, Math.min(100, toInteger(root.dataset.discountTwoItemsPercent || '10')));
+      var discountThreePlusPercent = Math.max(0, Math.min(100, toInteger(root.dataset.discountThreePlusPercent || '12')));
       var mobileBaseLabel = root.dataset.mobileLabel || 'MY BUNDLE';
 
       var linesRoot = root.querySelector('[data-bundle-summary-lines]');
@@ -1619,7 +1619,8 @@
             title: input.dataset.bundleLineTitle || '',
             category: input.dataset.bundleLineCategory || '',
             priceCents: toInteger(input.dataset.bundlePriceCents),
-            discountCents: toInteger(input.dataset.bundleDiscountCents)
+            discountCents: 0,
+            discountPercent: 0
           });
         });
 
@@ -1633,12 +1634,39 @@
             title: card.dataset.bundleLineTitle || '',
             category: card.dataset.bundleLineCategory || '',
             priceCents: toInteger(card.dataset.bundlePriceCents),
-            discountCents: toInteger(card.dataset.bundleDiscountCents)
+            discountCents: 0,
+            discountPercent: 0
           });
         });
 
         return lines.filter(function (line) {
           return line.variantId > 0;
+        });
+      }
+
+      function getBundleDiscountPercent(itemCount) {
+        if (itemCount > 2) return discountThreePlusPercent;
+        if (itemCount === 2) return discountTwoItemsPercent;
+        return 0;
+      }
+
+      function applyBundleTierDiscounts(lines) {
+        var percent = getBundleDiscountPercent(lines.length);
+
+        return lines.map(function (line) {
+          var discountCents = percent > 0
+            ? Math.round(line.priceCents * percent / 100)
+            : 0;
+
+          return {
+            variantId: line.variantId,
+            step: line.step,
+            title: line.title,
+            category: line.category,
+            priceCents: line.priceCents,
+            discountCents: Math.min(line.priceCents, Math.max(0, discountCents)),
+            discountPercent: percent
+          };
         });
       }
 
@@ -1702,7 +1730,8 @@
           if (line.discountCents > 0) {
             var saving = document.createElement('span');
             saving.className = 'xcustom-bundle-summary__line-saving';
-            saving.textContent = 'saving ' + formatMoney(Math.min(line.priceCents, line.discountCents));
+            var percentText = line.discountPercent > 0 ? line.discountPercent + '% off · ' : '';
+            saving.textContent = percentText + 'save ' + formatMoney(Math.min(line.priceCents, line.discountCents));
             right.appendChild(saving);
           }
 
@@ -1714,7 +1743,7 @@
 
       function updateSummary() {
         var lockState = updateLocks();
-        var lines = collectLines();
+        var lines = applyBundleTierDiscounts(collectLines());
         var subtotal = 0;
         var configuredSavings = 0;
 
@@ -1769,6 +1798,7 @@
             properties: {
               '_Bundle ID': instanceId,
               '_Bundle Step': String(line.step),
+              '_Bundle Discount Rule': line.discountPercent > 0 ? line.discountPercent + '% off' : 'No tier discount',
               '_Bundle Discount': formatMoney(Math.min(line.priceCents, line.discountCents))
             }
           };
@@ -1982,7 +2012,7 @@
           return;
         }
 
-        var lines = collectLines();
+        var lines = applyBundleTierDiscounts(collectLines());
         var items = createCartItems(lines);
         if (!items.length) return;
 
@@ -2449,52 +2479,42 @@
     },
     {
       "type": "range",
-      "id": "step1_item_discount",
+      "id": "discount_two_items_percent",
       "min": 0,
-      "max": 100,
+      "max": 50,
       "step": 1,
-      "unit": "$",
-      "label": "Discount per Step 1 item",
+      "unit": "%",
+      "label": "Discount for exactly 2 items",
       "default": 10
     },
     {
       "type": "range",
-      "id": "step2_item_discount",
+      "id": "discount_three_plus_items_percent",
       "min": 0,
-      "max": 100,
+      "max": 50,
       "step": 1,
-      "unit": "$",
-      "label": "Discount per Step 2 item",
-      "default": 10
-    },
-    {
-      "type": "range",
-      "id": "step3_item_discount",
-      "min": 0,
-      "max": 200,
-      "step": 5,
-      "unit": "$",
-      "label": "Discount per Step 3 item",
-      "default": 30
+      "unit": "%",
+      "label": "Discount for 3+ items",
+      "default": 12
     },
     {
       "type": "select",
       "id": "discount_mode",
       "label": "Discount behavior",
-      "default": "display_only",
-      "info": "Configured discounts only change checkout pricing when an automatic discount, Shopify Function, app, or discount code enforces the same offer.",
+      "default": "automatic",
+      "info": "Tier savings are calculated from the number of selected eligible items: exactly 2 items get 10% off; 3 or more items get 12% off. Checkout pricing still requires a matching Shopify automatic discount, Shopify Function, app, or discount code.",
       "options": [
         {
           "value": "display_only",
-          "label": "Display savings only; do not subtract from total"
+          "label": "Show tier savings only; do not subtract from total"
         },
         {
           "value": "automatic",
-          "label": "Subtract estimate; automatic discount enabled"
+          "label": "Subtract tier estimate; automatic discount enabled"
         },
         {
           "value": "code",
-          "label": "Subtract from estimate and apply discount code"
+          "label": "Subtract tier estimate and apply discount code"
         }
       ]
     },
@@ -2548,7 +2568,7 @@
       "type": "textarea",
       "id": "discount_footer",
       "label": "Discount note",
-      "default": "FINAL DISCOUNT IS CONFIRMED IN CART OR CHECKOUT"
+      "default": "BUY 2 SAVE 10%; BUY 3+ SAVE 12%. FINAL DISCOUNT IS CONFIRMED IN CART OR CHECKOUT."
     },
     {
       "type": "text",
