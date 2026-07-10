@@ -417,7 +417,10 @@
 
         <div class="xcustom-bundle-summary__total">
           <span class="xcustom-bundle-summary__total-label">{{ section.settings.total_label | escape }}</span>
-          <span class="xcustom-bundle-summary__total-value" data-bundle-total>{{ 0 | money }}</span>
+          <span class="xcustom-bundle-summary__total-prices">
+            <span class="xcustom-bundle-summary__total-compare" data-bundle-total-compare hidden>{{ 0 | money }}</span>
+            <span class="xcustom-bundle-summary__total-value" data-bundle-total>{{ 0 | money }}</span>
+          </span>
         </div>
 
         <button
@@ -1098,14 +1101,7 @@
   }
 
   #{{ bb_id }} .xcustom-bundle-summary__line-category {
-    display: block;
-    margin-top: 4px;
-    color: #888 !important;
-    font-family: var(--text-font-family) !important;
-    font-size: 11px !important;
-    letter-spacing: 0.06em !important;
-    line-height: 1.3 !important;
-    text-transform: uppercase !important;
+    display: none !important;
   }
 
   #{{ bb_id }} .xcustom-bundle-summary__line-right {
@@ -1201,6 +1197,30 @@
     font-weight: 800 !important;
     letter-spacing: 0.08em !important;
     text-transform: uppercase !important;
+  }
+
+  #{{ bb_id }} .xcustom-bundle-summary__total-prices {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 4px;
+    min-width: 0;
+    text-align: right;
+  }
+
+  #{{ bb_id }} .xcustom-bundle-summary__total-compare {
+    color: #777 !important;
+    text-align: right;
+    font-family: var(--heading-font-family) !important;
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    text-decoration: line-through !important;
+  }
+
+  #{{ bb_id }} .xcustom-bundle-summary__total-compare[hidden] {
+    display: none !important;
   }
 
   #{{ bb_id }} .xcustom-bundle-summary__total-value {
@@ -1550,6 +1570,7 @@
       var linesRoot = root.querySelector('[data-bundle-summary-lines]');
       var savingsEl = root.querySelector('[data-bundle-savings]');
       var totalEl = root.querySelector('[data-bundle-total]');
+      var totalCompareEl = root.querySelector('[data-bundle-total-compare]');
       var checkoutButton = root.querySelector('[data-bundle-checkout]');
       var checkoutLabel = root.querySelector('[data-bundle-checkout-label]');
       var mobileToggle = root.querySelector('[data-bundle-mobile-toggle]');
@@ -1777,10 +1798,6 @@
           title.className = 'xcustom-bundle-summary__line-title';
           title.textContent = line.title;
 
-          var category = document.createElement('span');
-          category.className = 'xcustom-bundle-summary__line-category';
-          category.textContent = line.category;
-
           var right = document.createElement('div');
           right.className = 'xcustom-bundle-summary__line-right';
 
@@ -1799,7 +1816,6 @@
           price.textContent = formatMoney(line.priceCents);
 
           body.appendChild(title);
-          if (line.category) body.appendChild(category);
           priceStack.appendChild(price);
           right.appendChild(priceStack);
 
@@ -1825,6 +1841,17 @@
         renderLines(lines);
         if (savingsEl) savingsEl.textContent = '-' + formatMoney(configuredSavings);
         if (totalEl) totalEl.textContent = formatMoney(total);
+
+        if (totalCompareEl) {
+          if (configuredSavings > 0 && subtotal > total) {
+            totalCompareEl.textContent = formatMoney(subtotal);
+            totalCompareEl.hidden = false;
+          } else {
+            totalCompareEl.textContent = '';
+            totalCompareEl.hidden = true;
+          }
+        }
+
         if (mobileLabel) {
           mobileLabel.textContent = lines.length
             ? mobileBaseLabel + ' · ' + formatMoney(total)
