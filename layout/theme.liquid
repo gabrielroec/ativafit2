@@ -168,29 +168,12 @@
       carrega.
     {%- endcomment -%}
     {%- capture ativafit_fonts_url -%}https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&family=Barlow+Condensed:wght@700&display=swap{%- endcapture -%}
-    {%- capture ativafit_fonts_deferred_url -%}https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Lexend:wght@400;700&display=swap{%- endcapture -%}
+
     <link rel="preload" as="style" href="{{ ativafit_fonts_url }}" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="{{ ativafit_fonts_url }}"></noscript>
-    <script>
-      window.addEventListener('load', function () {
-        var l = document.createElement('link');
-        l.rel = 'stylesheet';
-        l.href = {{ ativafit_fonts_deferred_url | json }};
-        l.media = 'print';
-        l.onload = function () { this.media = 'all'; };
-        document.head.appendChild(l);
-      });
-    </script>
-    <noscript><link rel="stylesheet" href="{{ ativafit_fonts_deferred_url }}"></noscript>
 
-    {%- comment -%}
-      Inter font — só usado por split-banner e workout-blog-posts. Mantido
-      condicional pra nunca carregar na homepage/cart.
-    {%- endcomment -%}
-    {%- if request.page_type != 'index' and request.page_type != 'cart' -%}
-      <link rel="preload" as="style" href="https://fonts.cdnfonts.com/css/inter" onload="this.onload=null;this.rel='stylesheet'">
-      <noscript><link rel="stylesheet" href="https://fonts.cdnfonts.com/css/inter"></noscript>
-    {%- endif -%}
+
+
 
     {%- comment -%}
       global.css + theme.min.css em preload→onload manual (NÃO usar
@@ -365,16 +348,7 @@
       don't reference those sections (notably the homepage). Saves ~90KB CSS +
       font request on home/cart/account.
     {%- endcomment -%}
-    {%- if request.page_type != 'index' and request.page_type != 'cart' and request.page_type != 'customers/account' and request.page_type != 'customers/login' and request.page_type != 'customers/register' and request.page_type != 'customers/order' and request.page_type != 'customers/addresses' and request.page_type != 'customers/reset_password' -%}
-      <link
-        rel="preload"
-        as="style"
-        href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
-        onload="this.onload=null;this.rel='stylesheet'">
-      <noscript>
-        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-      </noscript>
-    {%- endif -%}
+
     {%- comment -%}
       Swiper CSS/JS — só pré-carregamos no theme nas páginas que usam o
       carrossel imediatamente (product, collection). Na homepage o
@@ -436,7 +410,7 @@
         style="display:none;visibility:hidden"></iframe>
   </noscript>
     <!-- End Google Tag Manager (noscript) -->
-    {% section 'tom-custom-fonts' %}
+
     {%- comment -%}Common SVG definitions that we are re-using in several places{%- endcomment -%}
     <svg class="visually-hidden">
       <linearGradient id="rating-star-gradient-half">
