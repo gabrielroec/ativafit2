@@ -1,0 +1,194 @@
+{% if template.name == 'index' %}
+
+<div 
+  class="xcustom-top-countdown-bar"
+  data-end-date="{{ section.settings.end_date }}"
+  data-end-time="{{ section.settings.end_time }}"
+>
+  <div class="xcustom-top-countdown-bar__inner">
+    <div class="xcustom-top-countdown-bar__text">
+      Last Chance – 30%off 25 LB Adjustable Dumbbell
+    </div>
+
+    <div class="xcustom-top-countdown-bar__timer">
+      <span><strong data-days>00</strong>D</span>
+      <span>:</span>
+      <span><strong data-hours>00</strong>H</span>
+      <span>:</span>
+      <span><strong data-minutes>00</strong>M</span>
+      <span>:</span>
+      <span><strong data-seconds>00</strong>S</span>
+    </div>
+
+    <div class="xcustom-top-countdown-bar__expired">
+      Sale Ended
+    </div>
+  </div>
+</div>
+
+<style>
+  .xcustom-top-countdown-bar {
+    display: block;
+    width: 100%;
+    background: #EB701F;
+    color: #ffffff;
+    padding: 7px 16px;
+    margin: 0;
+    box-sizing: border-box;
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .xcustom-top-countdown-bar__inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    max-width: 1200px;
+    margin: 0 auto;
+    min-height: 26px;
+  }
+
+  .xcustom-top-countdown-bar__text {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+  }
+
+  .xcustom-top-countdown-bar__timer {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .xcustom-top-countdown-bar__timer strong {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 800;
+    margin-right: 2px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .xcustom-top-countdown-bar__expired {
+    display: none;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .xcustom-top-countdown-bar.is-expired .xcustom-top-countdown-bar__timer {
+    display: none;
+  }
+
+  .xcustom-top-countdown-bar.is-expired .xcustom-top-countdown-bar__expired {
+    display: block;
+  }
+
+  @media screen and (max-width: 749px) {
+    .xcustom-top-countdown-bar {
+      padding: 6px 10px;
+    }
+
+    .xcustom-top-countdown-bar__inner {
+      flex-direction: column;
+      gap: 3px;
+      min-height: auto;
+    }
+
+    .xcustom-top-countdown-bar__text {
+      font-size: 12px;
+      white-space: normal;
+    }
+
+    .xcustom-top-countdown-bar__timer {
+      font-size: 12px;
+    }
+
+    .xcustom-top-countdown-bar__timer strong {
+      font-size: 13px;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var bars = document.querySelectorAll('.xcustom-top-countdown-bar');
+
+    bars.forEach(function(bar) {
+      var endDate = bar.getAttribute('data-end-date');
+      var endTime = bar.getAttribute('data-end-time') || '23:59';
+
+      if (!endDate) return;
+
+      var targetDate = new Date(endDate + 'T' + endTime + ':00');
+
+      if (isNaN(targetDate.getTime())) return;
+
+      var daysEl = bar.querySelector('[data-days]');
+      var hoursEl = bar.querySelector('[data-hours]');
+      var minutesEl = bar.querySelector('[data-minutes]');
+      var secondsEl = bar.querySelector('[data-seconds]');
+
+      function updateCountdown() {
+        var now = new Date().getTime();
+        var distance = targetDate.getTime() - now;
+
+        if (distance <= 0) {
+          bar.classList.add('is-expired');
+          clearInterval(timer);
+          return;
+        }
+
+        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        daysEl.textContent = String(days).padStart(2, '0');
+        hoursEl.textContent = String(hours).padStart(2, '0');
+        minutesEl.textContent = String(minutes).padStart(2, '0');
+        secondsEl.textContent = String(seconds).padStart(2, '0');
+      }
+
+      updateCountdown();
+      var timer = setInterval(updateCountdown, 1000);
+    });
+  });
+</script>
+
+{% endif %}
+
+{% schema %}
+{
+  "name": "XCustom Top Countdown Bar",
+  "tag": "section",
+  "class": "xcustom-top-countdown-section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "end_date",
+      "label": "End date",
+      "info": "Format: YYYY-MM-DD",
+      "default": "2026-07-14"
+    },
+    {
+      "type": "text",
+      "id": "end_time",
+      "label": "End time",
+      "info": "Format: HH:MM",
+      "default": "23:59"
+    }
+  ],
+  "presets": [
+    {
+      "name": "XCustom Top Countdown Bar"
+    }
+  ]
+}
+{% endschema %}
