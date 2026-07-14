@@ -1040,14 +1040,22 @@
     }
 
     #{{ look_id }} .xcustom-look__product-card {
-      padding:
-        {{ 18 }}px
-        {{ 14 }}px
-        {{ 16 }}px;
+      display: grid;
+      grid-template-columns: minmax(108px, 40%) minmax(0, 1fr);
+      grid-template-areas:
+        "top top"
+        "media content"
+        "media footer";
+      column-gap: {{ 14 }}px;
+      row-gap: 0;
+      align-items: start;
+      padding: {{ 16 }}px;
     }
 
     #{{ look_id }} .xcustom-look__product-top {
+      grid-area: top;
       gap: 8px;
+      margin-bottom: {{ 14 }}px;
     }
 
     #{{ look_id }} .xcustom-look__panel-eyebrow {
@@ -1061,9 +1069,12 @@
     }
 
     #{{ look_id }} .xcustom-look__product-media {
-      width: min(100%, 330px);
-      height: min(72vw, 280px);
-      margin: {{ 14 }}px auto 0;
+      grid-area: media;
+      align-self: start;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1 / 1;
+      margin: 0;
       border-radius: {{ 12 }}px;
     }
 
@@ -1074,73 +1085,102 @@
     }
 
     #{{ look_id }} .xcustom-look__product-content {
-      margin-top: {{ 16 }}px;
+      grid-area: content;
+      min-width: 0;
+      margin-top: 0;
     }
 
     #{{ look_id }} .xcustom-look__product-title {
-      font-size: {{ 20 }}px;
-      line-height: 1.18;
+      font-size: {{ 18 }}px;
+      line-height: 1.16;
       letter-spacing: -0.018em;
     }
 
     #{{ look_id }} .xcustom-look__product-description {
-      margin-top: {{ 10 }}px;
-      font-size: {{ 12 }}px;
-    }
-
-    #{{ look_id }} .xcustom-look__product-pricing {
-      gap: 8px;
-      margin-top: {{ 16 }}px;
-      padding-top: {{ 14 }}px;
-    }
-
-    #{{ look_id }} .xcustom-look__product-price-group {
-      gap: 7px;
-    }
-
-    #{{ look_id }} .xcustom-look__product-compare {
-      font-size: {{ 12 }}px;
-    }
-
-    #{{ look_id }} .xcustom-look__product-price {
-      font-size: {{ 21 }}px;
-    }
-
-    #{{ look_id }} .xcustom-look__product-saving {
-      margin-left: auto;
-      font-size: {{ 12 }}px;
-    }
-
-    #{{ look_id }} .xcustom-look__product-note {
-      margin-top: {{ 9 }}px;
+      margin-top: {{ 8 }}px;
       font-size: {{ 11 }}px;
     }
 
+    #{{ look_id }} .xcustom-look__product-pricing {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: {{ 7 }}px;
+      margin-top: {{ 12 }}px;
+      padding-top: {{ 11 }}px;
+    }
+
+    #{{ look_id }} .xcustom-look__product-price-group {
+      gap: 6px;
+    }
+
+    #{{ look_id }} .xcustom-look__product-compare {
+      font-size: {{ 11 }}px;
+    }
+
+    #{{ look_id }} .xcustom-look__product-price {
+      font-size: {{ 20 }}px;
+    }
+
+    #{{ look_id }} .xcustom-look__product-saving {
+      margin-left: 0;
+      font-size: {{ 11 }}px;
+    }
+
+    #{{ look_id }} .xcustom-look__product-note {
+      margin-top: {{ 8 }}px;
+      font-size: {{ 10 }}px;
+    }
+
     #{{ look_id }} .xcustom-look__product-footer {
-      padding-top: {{ 18 }}px;
+      grid-area: footer;
+      align-self: end;
+      width: 100%;
+      margin-top: {{ 12 }}px;
+      padding-top: 0;
     }
 
     #{{ look_id }} .xcustom-look__product-actions {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: {{ 8 }}px;
+      grid-template-columns: minmax(0, 1fr);
+      gap: {{ 7 }}px;
     }
 
     #{{ look_id }} .xcustom-look__product-button {
-      min-height: {{ 44 }}px;
-      padding: 8px 10px;
-      border-radius: {{ 24 }}px;
-      font-size: {{ 11 }}px!important;
+      min-height: {{ 40 }}px;
+      padding: 7px 8px;
+      border-radius: {{ 22 }}px;
+      font-size: {{ 10 }}px!important;
       line-height: 1.15;
     }
 
     #{{ look_id }} .xcustom-look__product-message {
       min-height: 0;
-      margin-top: {{ 6 }}px;
-      font-size: {{ 11 }}px;
+      margin-top: {{ 5 }}px;
+      font-size: {{ 10 }}px;
     }
 
     #{{ look_id }} .xcustom-look__product-message:empty {
       display: none;
+    }
+  }
+
+  @media screen and (max-width: 374px) {
+    #{{ look_id }} .xcustom-look__product-card {
+      grid-template-columns: minmax(96px, 38%) minmax(0, 1fr);
+      column-gap: {{ 12 }}px;
+      padding: {{ 14 }}px;
+    }
+
+    #{{ look_id }} .xcustom-look__product-title {
+      font-size: {{ 17 }}px;
+    }
+
+    #{{ look_id }} .xcustom-look__product-price {
+      font-size: {{ 18 }}px;
+    }
+
+    #{{ look_id }} .xcustom-look__product-button {
+      min-height: {{ 38 }}px;
+      font-size: {{ 9 }}px!important;
     }
   }
 
