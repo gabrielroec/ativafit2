@@ -1,6 +1,6 @@
 {% comment %}
   XCustom Bundle Builder
-  Updated: summary line prices show each product's own compare-at price and current sale price.
+  Updated: summary line prices show the current sale price plus the bundle-adjusted final price.
   Bundle Savings is calculated from the selected sale-price subtotal, rounded once, then distributed by line.
 {% endcomment %}
 
@@ -1804,16 +1804,27 @@
           var priceStack = document.createElement('span');
           priceStack.className = 'xcustom-bundle-summary__line-price-stack';
 
-          if (line.comparePriceCents > line.priceCents) {
-            var comparePrice = document.createElement('span');
-            comparePrice.className = 'xcustom-bundle-summary__line-compare';
-            comparePrice.textContent = formatMoney(line.comparePriceCents);
-            priceStack.appendChild(comparePrice);
+          var bundleFinalPriceCents = Math.max(
+            0,
+            line.priceCents - Math.min(line.priceCents, Math.max(0, line.discountCents))
+          );
+
+          /*
+            Sidebar line pricing:
+            - crossed-out price = the product's current sale price
+            - active price = sale price after the allocated bundle discount
+            When no bundle discount applies, show the sale price only.
+          */
+          if (line.discountCents > 0 && bundleFinalPriceCents < line.priceCents) {
+            var salePrice = document.createElement('span');
+            salePrice.className = 'xcustom-bundle-summary__line-compare';
+            salePrice.textContent = formatMoney(line.priceCents);
+            priceStack.appendChild(salePrice);
           }
 
           var price = document.createElement('span');
           price.className = 'xcustom-bundle-summary__line-price';
-          price.textContent = formatMoney(line.priceCents);
+          price.textContent = formatMoney(bundleFinalPriceCents);
 
           body.appendChild(title);
           priceStack.appendChild(price);
