@@ -1,165 +1,376 @@
 {% if template.name == 'index' %}
 
-<div 
+<div
   class="xcustom-top-countdown-bar"
-  data-end-date="{{ section.settings.end_date }}"
-  data-end-time="{{ section.settings.end_time }}"
+  data-end-date="{{ section.settings.end_date | escape }}"
+  data-end-time="{{ section.settings.end_time | escape }}"
 >
   <div class="xcustom-top-countdown-bar__inner">
+
+    <!-- 左侧单行活动文案 -->
     <div class="xcustom-top-countdown-bar__text">
-      Last Chance – 30%off 25 LB Adjustable Dumbbell
+      {{ section.settings.promotion_text }}
     </div>
 
-    <div class="xcustom-top-countdown-bar__timer">
-      <span><strong data-days>00</strong>D</span>
-      <span>:</span>
-      <span><strong data-hours>00</strong>H</span>
-      <span>:</span>
-      <span><strong data-minutes>00</strong>M</span>
-      <span>:</span>
-      <span><strong data-seconds>00</strong>S</span>
+    <!-- 右侧倒计时 -->
+    <div
+      class="xcustom-top-countdown-bar__timer"
+      aria-label="Sale countdown"
+      aria-live="polite"
+    >
+      <div class="xcustom-countdown-unit">
+        <strong data-days>00</strong>
+        <span>DAYS</span>
+      </div>
+
+      <div class="xcustom-countdown-separator">:</div>
+
+      <div class="xcustom-countdown-unit">
+        <strong data-hours>00</strong>
+        <span>HOURS</span>
+      </div>
+
+      <div class="xcustom-countdown-separator">:</div>
+
+      <div class="xcustom-countdown-unit">
+        <strong data-minutes>00</strong>
+        <span>MINS</span>
+      </div>
+
+      <div class="xcustom-countdown-separator">:</div>
+
+      <div class="xcustom-countdown-unit">
+        <strong data-seconds>00</strong>
+        <span>SECS</span>
+      </div>
     </div>
 
+    <!-- 活动结束文案 -->
     <div class="xcustom-top-countdown-bar__expired">
-      Sale Ended
+      {{ section.settings.expired_text }}
     </div>
+
   </div>
 </div>
 
 <style>
+  .xcustom-top-countdown-section {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
   .xcustom-top-countdown-bar {
     display: block;
     width: 100%;
+    margin: 0;
+    padding: 7px 16px;
+    box-sizing: border-box;
     background: #EB701F;
     color: #ffffff;
-    padding: 7px 16px;
-    margin: 0;
-    box-sizing: border-box;
-    text-align: center;
-    line-height: 1.2;
   }
 
   .xcustom-top-countdown-bar__inner {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 14px;
-    max-width: 1200px;
+    gap: 28px;
+    width: 100%;
+    max-width: 1400px;
+    min-height: 44px;
     margin: 0 auto;
-    min-height: 26px;
   }
 
+  /* 左侧文案 */
   .xcustom-top-countdown-bar__text {
+    flex: 0 1 auto;
     color: #ffffff;
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 0.2px;
+    font-size: 18px;
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    text-align: center;
     white-space: nowrap;
   }
 
+  /* 右侧倒计时整体 */
   .xcustom-top-countdown-bar__timer {
     display: flex;
-    align-items: center;
-    gap: 5px;
+    flex: 0 0 auto;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 7px;
     color: #ffffff;
-    font-size: 13px;
-    font-weight: 600;
     white-space: nowrap;
   }
 
-  .xcustom-top-countdown-bar__timer strong {
+  /* 每一个数字模块 */
+  .xcustom-countdown-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-width: 44px;
+  }
+
+  /* 倒计时数字 */
+  .xcustom-countdown-unit strong {
+    display: block;
+    margin: 0;
     color: #ffffff;
-    font-size: 14px;
-    font-weight: 800;
-    margin-right: 2px;
+    font-size: 24px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: 0;
     font-variant-numeric: tabular-nums;
   }
 
+  /* DAYS / HOURS / MINS / SECS */
+  .xcustom-countdown-unit span {
+    display: block;
+    margin-top: 4px;
+    color: #ffffff;
+    font-size: 8px;
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+  }
+
+  /* 冒号 */
+  .xcustom-countdown-separator {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 1px;
+    color: #ffffff;
+    font-size: 23px;
+    line-height: 1;
+    font-weight: 800;
+  }
+
+  /* 活动结束 */
   .xcustom-top-countdown-bar__expired {
     display: none;
     color: #ffffff;
-    font-size: 14px;
-    font-weight: 700;
+    font-size: 16px;
+    line-height: 1.2;
+    font-weight: 800;
+    white-space: nowrap;
   }
 
-  .xcustom-top-countdown-bar.is-expired .xcustom-top-countdown-bar__timer {
+  .xcustom-top-countdown-bar.is-expired
+  .xcustom-top-countdown-bar__timer {
     display: none;
   }
 
-  .xcustom-top-countdown-bar.is-expired .xcustom-top-countdown-bar__expired {
+  .xcustom-top-countdown-bar.is-expired
+  .xcustom-top-countdown-bar__expired {
     display: block;
   }
 
-  @media screen and (max-width: 749px) {
-    .xcustom-top-countdown-bar {
-      padding: 6px 10px;
-    }
-
+  /* 平板端 */
+  @media screen and (max-width: 989px) {
     .xcustom-top-countdown-bar__inner {
-      flex-direction: column;
-      gap: 3px;
-      min-height: auto;
+      gap: 18px;
     }
 
     .xcustom-top-countdown-bar__text {
-      font-size: 12px;
-      white-space: normal;
+      font-size: 15px;
+    }
+
+    .xcustom-countdown-unit {
+      min-width: 38px;
+    }
+
+    .xcustom-countdown-unit strong {
+      font-size: 21px;
+    }
+
+    .xcustom-countdown-separator {
+      font-size: 20px;
+    }
+  }
+
+  /* 移动端 */
+  @media screen and (max-width: 749px) {
+    .xcustom-top-countdown-bar {
+      padding: 7px 8px;
+    }
+
+    .xcustom-top-countdown-bar__inner {
+      justify-content: center;
+      gap: 9px;
+      min-height: 38px;
+    }
+
+    .xcustom-top-countdown-bar__text {
+      min-width: 0;
+      font-size: clamp(9px, 2.7vw, 12px);
+      line-height: 1.15;
+      letter-spacing: 0;
+      white-space: nowrap;
     }
 
     .xcustom-top-countdown-bar__timer {
-      font-size: 12px;
+      gap: 3px;
     }
 
-    .xcustom-top-countdown-bar__timer strong {
+    .xcustom-countdown-unit {
+      min-width: 27px;
+    }
+
+    .xcustom-countdown-unit strong {
+      font-size: 16px;
+    }
+
+    .xcustom-countdown-unit span {
+      margin-top: 3px;
+      font-size: 6px;
+      letter-spacing: 0.2px;
+    }
+
+    .xcustom-countdown-separator {
+      padding-top: 1px;
+      font-size: 15px;
+    }
+
+    .xcustom-top-countdown-bar__expired {
+      font-size: 12px;
+    }
+  }
+
+  /* 小屏手机进一步压缩 */
+  @media screen and (max-width: 374px) {
+    .xcustom-top-countdown-bar {
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+
+    .xcustom-top-countdown-bar__inner {
+      gap: 6px;
+    }
+
+    .xcustom-top-countdown-bar__text {
+      font-size: 8.5px;
+    }
+
+    .xcustom-countdown-unit {
+      min-width: 24px;
+    }
+
+    .xcustom-countdown-unit strong {
+      font-size: 14px;
+    }
+
+    .xcustom-countdown-unit span {
+      font-size: 5.5px;
+    }
+
+    .xcustom-countdown-separator {
       font-size: 13px;
     }
   }
 </style>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    var bars = document.querySelectorAll('.xcustom-top-countdown-bar');
+  (function() {
+    function initializeCountdownBars(container) {
+      var scope = container || document;
+      var bars = scope.querySelectorAll('.xcustom-top-countdown-bar');
 
-    bars.forEach(function(bar) {
-      var endDate = bar.getAttribute('data-end-date');
-      var endTime = bar.getAttribute('data-end-time') || '23:59';
-
-      if (!endDate) return;
-
-      var targetDate = new Date(endDate + 'T' + endTime + ':00');
-
-      if (isNaN(targetDate.getTime())) return;
-
-      var daysEl = bar.querySelector('[data-days]');
-      var hoursEl = bar.querySelector('[data-hours]');
-      var minutesEl = bar.querySelector('[data-minutes]');
-      var secondsEl = bar.querySelector('[data-seconds]');
-
-      function updateCountdown() {
-        var now = new Date().getTime();
-        var distance = targetDate.getTime() - now;
-
-        if (distance <= 0) {
-          bar.classList.add('is-expired');
-          clearInterval(timer);
+      bars.forEach(function(bar) {
+        if (bar.dataset.countdownInitialized === 'true') {
           return;
         }
 
-        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        bar.dataset.countdownInitialized = 'true';
 
-        daysEl.textContent = String(days).padStart(2, '0');
-        hoursEl.textContent = String(hours).padStart(2, '0');
-        minutesEl.textContent = String(minutes).padStart(2, '0');
-        secondsEl.textContent = String(seconds).padStart(2, '0');
-      }
+        var endDate = bar.getAttribute('data-end-date');
+        var endTime = bar.getAttribute('data-end-time') || '23:59';
 
-      updateCountdown();
-      var timer = setInterval(updateCountdown, 1000);
+        if (!endDate) {
+          return;
+        }
+
+        var targetDate = new Date(endDate + 'T' + endTime + ':00');
+
+        if (isNaN(targetDate.getTime())) {
+          return;
+        }
+
+        var daysEl = bar.querySelector('[data-days]');
+        var hoursEl = bar.querySelector('[data-hours]');
+        var minutesEl = bar.querySelector('[data-minutes]');
+        var secondsEl = bar.querySelector('[data-seconds]');
+
+        var timer = null;
+
+        function formatNumber(number) {
+          return String(number).padStart(2, '0');
+        }
+
+        function updateCountdown() {
+          var currentTime = new Date().getTime();
+          var remainingTime = targetDate.getTime() - currentTime;
+
+          if (remainingTime <= 0) {
+            daysEl.textContent = '00';
+            hoursEl.textContent = '00';
+            minutesEl.textContent = '00';
+            secondsEl.textContent = '00';
+
+            bar.classList.add('is-expired');
+
+            if (timer) {
+              clearInterval(timer);
+            }
+
+            return;
+          }
+
+          var days = Math.floor(
+            remainingTime / (1000 * 60 * 60 * 24)
+          );
+
+          var hours = Math.floor(
+            (remainingTime % (1000 * 60 * 60 * 24)) /
+            (1000 * 60 * 60)
+          );
+
+          var minutes = Math.floor(
+            (remainingTime % (1000 * 60 * 60)) /
+            (1000 * 60)
+          );
+
+          var seconds = Math.floor(
+            (remainingTime % (1000 * 60)) / 1000
+          );
+
+          daysEl.textContent = formatNumber(days);
+          hoursEl.textContent = formatNumber(hours);
+          minutesEl.textContent = formatNumber(minutes);
+          secondsEl.textContent = formatNumber(seconds);
+        }
+
+        updateCountdown();
+        timer = setInterval(updateCountdown, 1000);
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        initializeCountdownBars(document);
+      });
+    } else {
+      initializeCountdownBars(document);
+    }
+
+    /* 支持 Shopify 主题编辑器动态加载 */
+    document.addEventListener('shopify:section:load', function(event) {
+      initializeCountdownBars(event.target);
     });
-  });
+  })();
 </script>
 
 {% endif %}
@@ -172,6 +383,12 @@
   "settings": [
     {
       "type": "text",
+      "id": "promotion_text",
+      "label": "Promotion text",
+      "default": "Last Chance – 30% Off 25 LB Adjustable Dumbbell"
+    },
+    {
+      "type": "text",
       "id": "end_date",
       "label": "End date",
       "info": "Format: YYYY-MM-DD",
@@ -181,8 +398,14 @@
       "type": "text",
       "id": "end_time",
       "label": "End time",
-      "info": "Format: HH:MM",
+      "info": "24-hour format: HH:MM",
       "default": "23:59"
+    },
+    {
+      "type": "text",
+      "id": "expired_text",
+      "label": "Expired text",
+      "default": "Sale Ended"
     }
   ],
   "presets": [
