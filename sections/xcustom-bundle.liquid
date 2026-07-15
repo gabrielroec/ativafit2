@@ -1,7 +1,8 @@
 {% comment %}
   XCustom Bundle Builder
   Updated: summary line prices show the current sale price plus the bundle-adjusted final price.
-  Bundle Savings is calculated from the selected sale-price subtotal, rounded once, then distributed by line.
+  Products can be excluded from the 10% / 12% bundle discount from each product block in the Theme Editor.
+  The tier is based on the total selected item count, while savings are calculated only from eligible sale prices.
 {% endcomment %}
 
 {%- liquid
@@ -101,6 +102,7 @@
                         data-bundle-compare-price-cents="{{ variant_item.compare_at_price | default: 0 }}"
                         data-bundle-line-title="{{ display_title | escape }}"
                         data-bundle-line-category="{{ block.settings.sidebar_category | escape }}"
+                        data-bundle-discount-excluded="{% if block.settings.exclude_bundle_discount %}true{% else %}false{% endif %}"
                         {% unless variant_item.available %}disabled{% endunless %}
                       >
 
@@ -198,6 +200,7 @@
                         data-bundle-compare-price-cents="{{ variant_item.compare_at_price | default: 0 }}"
                         data-bundle-line-title="{{ display_title | escape }}"
                         data-bundle-line-category="{{ block.settings.sidebar_category | escape }}"
+                        data-bundle-discount-excluded="{% if block.settings.exclude_bundle_discount %}true{% else %}false{% endif %}"
                         {% unless variant_item.available %}disabled{% endunless %}
                       >
 
@@ -300,6 +303,7 @@
                         data-bundle-compare-price-cents="{{ variant_item.compare_at_price | default: 0 }}"
                         data-bundle-line-title="{{ display_title | escape }}"
                         data-bundle-line-category="{{ block.settings.sidebar_category | escape }}"
+                        data-bundle-discount-excluded="{% if block.settings.exclude_bundle_discount %}true{% else %}false{% endif %}"
                         data-bundle-available="{% if variant_item.available %}true{% else %}false{% endif %}"
                         aria-pressed="{% if block.settings.included_default and variant_item.available %}true{% else %}false{% endif %}"
                         {% unless variant_item.available %}disabled{% endunless %}
@@ -1104,6 +1108,18 @@
     display: none !important;
   }
 
+  #{{ bb_id }} .xcustom-bundle-summary__line-note {
+    display: block;
+    margin-top: 4px;
+    color: #777 !important;
+    font-family: var(--text-font-family) !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.04em !important;
+    line-height: 1.3 !important;
+    text-transform: uppercase !important;
+  }
+
   #{{ bb_id }} .xcustom-bundle-summary__line-right {
     display: flex;
     flex: 0 0 auto;
@@ -1669,8 +1685,10 @@
             category: input.dataset.bundleLineCategory || '',
             priceCents: toInteger(input.dataset.bundlePriceCents),
             comparePriceCents: toInteger(input.dataset.bundleComparePriceCents),
+            discountExcluded: input.dataset.bundleDiscountExcluded === 'true',
             discountCents: 0,
-            discountPercent: 0
+            discountPercent: 0,
+            tierDiscountPercent: 0
           });
         });
 
@@ -1685,8 +1703,10 @@
             category: card.dataset.bundleLineCategory || '',
             priceCents: toInteger(card.dataset.bundlePriceCents),
             comparePriceCents: toInteger(card.dataset.bundleComparePriceCents),
+            discountExcluded: card.dataset.bundleDiscountExcluded === 'true',
             discountCents: 0,
-            discountPercent: 0
+            discountPercent: 0,
+            tierDiscountPercent: 0
           });
         });
 
@@ -1702,18 +1722,28 @@
       }
 
       function applyBundleTierDiscounts(lines) {
-        var percent = getBundleDiscountPercent(lines.length);
-        var subtotal = 0;
+        /*
+          Tier eligibility and discount eligibility are intentionally separate:
+          - all selected products count toward the 2-item / 3+-item tier;
+          - only products not marked as excluded receive the tier discount.
+        */
+        var tierPercent = getBundleDiscountPercent(lines.length);
+        var eligibleSubtotal = 0;
+        var eligibleLineCount = 0;
 
         var normalizedLines = lines.map(function (line) {
           var salePriceCents = Math.max(0, toInteger(line.priceCents));
           var comparePriceCents = Math.max(0, toInteger(line.comparePriceCents));
+          var discountExcluded = line.discountExcluded === true;
 
           if (comparePriceCents <= salePriceCents) {
             comparePriceCents = 0;
           }
 
-          subtotal += salePriceCents;
+          if (!discountExcluded && salePriceCents > 0) {
+            eligibleSubtotal += salePriceCents;
+            eligibleLineCount += 1;
+          }
 
           return {
             variantId: line.variantId,
@@ -1723,28 +1753,39 @@
             priceCents: salePriceCents,
             comparePriceCents: comparePriceCents,
             productDiscountCents: comparePriceCents > salePriceCents ? comparePriceCents - salePriceCents : 0,
+            discountExcluded: discountExcluded,
             discountCents: 0,
-            discountPercent: percent
+            discountPercent: discountExcluded ? 0 : tierPercent,
+            tierDiscountPercent: tierPercent
           };
         });
 
-        var bundleSavings = percent > 0 && subtotal > 0
-          ? Math.min(subtotal, Math.max(0, Math.round(subtotal * percent / 100)))
+        var bundleSavings = tierPercent > 0 && eligibleSubtotal > 0
+          ? Math.min(eligibleSubtotal, Math.max(0, Math.round(eligibleSubtotal * tierPercent / 100)))
           : 0;
         var remainingSavings = bundleSavings;
+        var processedEligibleLines = 0;
 
-        return normalizedLines.map(function (line, index) {
+        return normalizedLines.map(function (line) {
           var discountCents = 0;
 
-          if (remainingSavings > 0 && subtotal > 0) {
-            if (index === normalizedLines.length - 1) {
-              discountCents = remainingSavings;
-            } else {
-              discountCents = Math.round(bundleSavings * line.priceCents / subtotal);
-            }
+          if (!line.discountExcluded && line.priceCents > 0) {
+            processedEligibleLines += 1;
 
-            discountCents = Math.min(line.priceCents, Math.max(0, discountCents));
-            remainingSavings = Math.max(0, remainingSavings - discountCents);
+            if (remainingSavings > 0 && eligibleSubtotal > 0) {
+              if (processedEligibleLines === eligibleLineCount) {
+                discountCents = remainingSavings;
+              } else {
+                discountCents = Math.round(bundleSavings * line.priceCents / eligibleSubtotal);
+              }
+
+              discountCents = Math.min(
+                line.priceCents,
+                remainingSavings,
+                Math.max(0, discountCents)
+              );
+              remainingSavings = Math.max(0, remainingSavings - discountCents);
+            }
           }
 
           return {
@@ -1755,8 +1796,10 @@
             priceCents: line.priceCents,
             comparePriceCents: line.comparePriceCents,
             productDiscountCents: line.productDiscountCents,
+            discountExcluded: line.discountExcluded,
             discountCents: discountCents,
-            discountPercent: percent
+            discountPercent: line.discountPercent,
+            tierDiscountPercent: line.tierDiscountPercent
           };
         });
       }
@@ -1827,6 +1870,14 @@
           price.textContent = formatMoney(bundleFinalPriceCents);
 
           body.appendChild(title);
+
+          if (line.discountExcluded) {
+            var excludedNote = document.createElement('span');
+            excludedNote.className = 'xcustom-bundle-summary__line-note';
+            excludedNote.textContent = {{ section.settings.excluded_discount_label | json }};
+            body.appendChild(excludedNote);
+          }
+
           priceStack.appendChild(price);
           right.appendChild(priceStack);
 
@@ -1903,7 +1954,11 @@
             properties: {
               '_Bundle ID': instanceId,
               '_Bundle Step': String(line.step),
-              '_Bundle Discount Rule': line.discountPercent > 0 ? line.discountPercent + '% off' : 'No tier discount',
+              '_Bundle Tier': line.tierDiscountPercent > 0 ? line.tierDiscountPercent + '% tier' : 'No tier discount',
+              '_Bundle Discount Eligibility': line.discountExcluded ? 'Excluded' : 'Eligible',
+              '_Bundle Discount Rule': line.discountExcluded
+                ? 'Excluded from bundle discount'
+                : (line.discountPercent > 0 ? line.discountPercent + '% off' : 'No tier discount'),
               '_Bundle Discount': formatMoney(Math.min(line.priceCents, line.discountCents))
             }
           };
@@ -2440,7 +2495,7 @@
       "id": "discount_mode",
       "label": "Discount behavior",
       "default": "display_only",
-      "info": "Tier savings are calculated from the selected products' current sale prices and rounded once at the bundle subtotal level: exactly 2 items get 10% off; 3 or more items get 12% off. Checkout pricing still requires a matching Shopify automatic discount, Shopify Function, app, or discount code.",
+      "info": "Exactly 2 selected items trigger 10% off and 3 or more trigger 12% off. Products marked as excluded still count toward the tier, but savings are calculated only from eligible products' current sale prices. Checkout pricing still requires a matching Shopify automatic discount, Shopify Function, app, or discount code.",
       "options": [
         {
           "value": "display_only",
@@ -2495,6 +2550,12 @@
       "id": "empty_line_label",
       "label": "Empty summary text",
       "default": "No items selected yet"
+    },
+    {
+      "type": "text",
+      "id": "excluded_discount_label",
+      "label": "Excluded product note",
+      "default": "Bundle discount excluded"
     },
     {
       "type": "text",
@@ -2657,6 +2718,13 @@
           "label": "Product"
         },
         {
+          "type": "checkbox",
+          "id": "exclude_bundle_discount",
+          "label": "Exclude from 10% / 12% bundle discount",
+          "info": "This product still counts toward the bundle item tier, but its current sale price will not receive the tier discount.",
+          "default": false
+        },
+        {
           "type": "text",
           "id": "card_title",
           "label": "Card title"
@@ -2696,6 +2764,13 @@
           "label": "Product"
         },
         {
+          "type": "checkbox",
+          "id": "exclude_bundle_discount",
+          "label": "Exclude from 10% / 12% bundle discount",
+          "info": "This product still counts toward the bundle item tier, but its current sale price will not receive the tier discount.",
+          "default": false
+        },
+        {
           "type": "text",
           "id": "card_title",
           "label": "Card title"
@@ -2733,6 +2808,13 @@
           "type": "product",
           "id": "product",
           "label": "Product"
+        },
+        {
+          "type": "checkbox",
+          "id": "exclude_bundle_discount",
+          "label": "Exclude from 10% / 12% bundle discount",
+          "info": "This product still counts toward the bundle item tier, but its current sale price will not receive the tier discount.",
+          "default": false
         },
         {
           "type": "text",
