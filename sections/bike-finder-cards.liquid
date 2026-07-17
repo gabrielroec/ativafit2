@@ -37,11 +37,8 @@
     <div class="bike-finder__grid">
       {%- for block in section.blocks -%}
         {%- assign product = block.settings.product -%}
-        {%- assign button_url = block.settings.button_link -%}
-
-        {%- if button_url == blank and product != blank -%}
-          {%- assign button_url = product.url -%}
-        {%- endif -%}
+        {%- assign card_variant = product.selected_or_first_available_variant -%}
+        {%- assign button_url = product.url -%}
 
         <article
           class="bike-finder__card"
@@ -103,7 +100,7 @@
             </div>
           </a>
 
-          {%- if product != blank or block.settings.price_text != blank -%}
+          {%- if product != blank -%}
             <div class="bike-finder__buy-meta">
               {%- if product != blank and product.variants.size > 0 -%}
                 <div
@@ -126,10 +123,10 @@
                     {%- endcapture -%}
 
                     <button
-                      class="bike-finder__variant-chip{% if forloop.first %} is-active{% endif %}"
+                      class="bike-finder__variant-chip{% if variant.id == card_variant.id %} is-active{% endif %}"
                       type="button"
                       aria-label="{{ variant.title | escape }}"
-                      aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}"
+                      aria-pressed="{% if variant.id == card_variant.id %}true{% else %}false{% endif %}"
                       data-bike-variant-chip
                       data-variant-price="{{ variant.price | money | escape }}"
                       data-variant-compare-price="{% if variant.compare_at_price > variant.price %}{{ variant.compare_at_price | money | escape }}{% endif %}"
@@ -168,17 +165,14 @@
                 class="bike-finder__price"
                 data-bike-card-price
               >
-                {%- if block.settings.price_text != blank -%}
-                  {{ block.settings.price_text | escape }}
-
-                {%- elsif product != blank -%}
-                  {%- if product.compare_at_price_min > product.price_min -%}
+                {%- if card_variant != blank -%}
+                  {%- if card_variant.compare_at_price > card_variant.price -%}
                     <span class="bike-finder__compare-price">
-                      {{ product.compare_at_price_min | money }}
+                      {{ card_variant.compare_at_price | money }}
                     </span>
                   {%- endif -%}
 
-                  {{ product.price_min | money }}
+                  {{ card_variant.price | money }}
                 {%- endif -%}
               </div>
             </div>
@@ -1460,11 +1454,6 @@
         },
         {
           "type": "text",
-          "id": "price_text",
-          "label": "Price override"
-        },
-        {
-          "type": "text",
           "id": "list_heading",
           "label": "List heading",
           "default": "Best for:"
@@ -1489,11 +1478,6 @@
           "id": "button_label",
           "label": "Button label",
           "default": "Choose Bike"
-        },
-        {
-          "type": "url",
-          "id": "button_link",
-          "label": "Button link"
         }
       ]
     }
