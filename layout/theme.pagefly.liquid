@@ -10,12 +10,14 @@ If you plan to remove PageFly, please see the guide in our help center first: ht
     <meta name="viewport" content="width=device-width, initial-scale=1.0, height=device-height, minimum-scale=1.0, maximum-scale=1.0">
     <meta name="theme-color" content="{{ settings.accent_color }}">
 
+    {%- assign seo_resource_handle = canonical_url | split: '?' | first | split: '/' | last -%}
+    {%- assign seo_override_key = request.page_type | append: ':' | append: seo_resource_handle -%}
     {%- capture seo_override_title -%}
-      {%- render 'seo-p0-p1-overrides', field: 'title' -%}
+      {%- render 'seo-p0-p1-overrides', field: 'title', seo_override_key: seo_override_key -%}
     {%- endcapture -%}
     {%- assign seo_override_title = seo_override_title | strip -%}
     {%- capture seo_override_description -%}
-      {%- render 'seo-p0-p1-overrides', field: 'description' -%}
+      {%- render 'seo-p0-p1-overrides', field: 'description', seo_override_key: seo_override_key -%}
     {%- endcapture -%}
     {%- assign seo_override_description = seo_override_description | strip -%}
 

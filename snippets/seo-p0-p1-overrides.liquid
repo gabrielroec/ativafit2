@@ -3,8 +3,10 @@
   Structural-action URLs (301, merge, unpublish, delete) are intentionally excluded.
 {%- endcomment -%}
 {%- liquid
-  assign seo_resource_handle = canonical_url | split: '?' | first | split: '/' | last
-  assign seo_override_key = request.page_type | append: ':' | append: seo_resource_handle
+  unless seo_override_key
+    assign seo_resource_handle = canonical_url | split: '?' | first | split: '/' | last
+    assign seo_override_key = request.page_type | append: ':' | append: seo_resource_handle
+  endunless
 -%}
 {%- case seo_override_key -%}
   {%- when 'article:how-many-pull-ups-can-the-average-person-do' -%}
