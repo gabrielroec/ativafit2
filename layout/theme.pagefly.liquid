@@ -10,18 +10,38 @@ If you plan to remove PageFly, please see the guide in our help center first: ht
     <meta name="viewport" content="width=device-width, initial-scale=1.0, height=device-height, minimum-scale=1.0, maximum-scale=1.0">
     <meta name="theme-color" content="{{ settings.accent_color }}">
 
-    {%- capture seo_page_title -%}
-      {%- if request.page_type == 'search' and search.terms != blank -%}
-        {{ search.terms | split: ' AND ' | last | split: 'product_type:' | last }} - {{ shop.name }}
-      {%- else -%}
-        {{ page_title }}{% if current_tags %}{% assign meta_tags = current_tags | join: ', ' %} &ndash; {{ 'general.meta.tags' | t: tags: meta_tags }}{% endif %}{% if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif %}
-      {%- endif -%}
+    {%- capture seo_override_title -%}
+      {%- render 'seo-p0-p1-overrides', field: 'title' -%}
     {%- endcapture -%}
+    {%- assign seo_override_title = seo_override_title | strip -%}
+    {%- capture seo_override_description -%}
+      {%- render 'seo-p0-p1-overrides', field: 'description' -%}
+    {%- endcapture -%}
+    {%- assign seo_override_description = seo_override_description | strip -%}
 
-    <title>{{- seo_page_title -}}</title>
+    <title>
+      {%- if seo_override_title != blank -%}
+        {{- seo_override_title -}}
+      {%- elsif request.page_type == 'search' and search.terms != blank -%}
+        {{- search.terms | split: ' AND ' | last | split: 'product_type:' | last }} - {{ shop.name -}}
+      {%- else -%}
+        {{- page_title -}}
+        {%- if current_tags -%}
+          {%- assign meta_tags = current_tags | join: ', ' -%}
+          &ndash; {{ 'general.meta.tags' | t: tags: meta_tags }}
+        {%- endif -%}
+        {%- if current_page != 1 -%}
+          &ndash; {{ 'general.meta.page' | t: page: current_page }}
+        {%- endif -%}
+      {%- endif -%}
+    </title>
 
-    {%- if page_description -%}
-      <meta name="description" content="{{ page_description | escape }}">
+    {%- assign seo_meta_description = page_description -%}
+    {%- if seo_override_description != blank -%}
+      {%- assign seo_meta_description = seo_override_description -%}
+    {%- endif -%}
+    {%- if seo_meta_description -%}
+      <meta name="description" content="{{ seo_meta_description | escape }}">
     {%- endif -%}
 
     <link rel="canonical" href="{{ canonical_url }}">
@@ -40,7 +60,7 @@ If you plan to remove PageFly, please see the guide in our help center first: ht
     <link rel="dns-prefetch" href="https://maps.googleapis.com">
     <link rel="dns-prefetch" href="https://maps.gstatic.com">
 
-    {% render 'social-meta-tags' %}
+    {% render 'social-meta-tags', page_description: seo_meta_description %}
     {% render 'css-variables' %}
 
     {{ content_for_header }}

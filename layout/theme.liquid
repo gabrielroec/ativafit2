@@ -36,19 +36,40 @@
       type="image/png">
     <link rel="apple-touch-icon" href="https://cdn.shopify.com/s/files/1/2623/4904/files/favicon_23160412-809a-4224-a424-c0dc14ced21d.png?v=1754166228">
 
-    {%- capture seo_page_title -%}
-      {%- if request.page_type == 'search' and search.terms != blank -%}
-        {{ search.terms | split: ' AND ' | last | split: 'product_type:' | last }} - {{ shop.name }}
-      {%- else -%}
-        {{ page_title }}{% if current_tags %}{% assign meta_tags = current_tags | join: ', ' %} &ndash; {{ 'general.meta.tags' | t: tags: meta_tags }}{% endif %}{% if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif %}
-      {%- endif -%}
+    {%- capture seo_override_title -%}
+      {%- render 'seo-p0-p1-overrides', field: 'title' -%}
     {%- endcapture -%}
-    <title>{{- seo_page_title -}}</title>
+    {%- assign seo_override_title = seo_override_title | strip -%}
+    {%- capture seo_override_description -%}
+      {%- render 'seo-p0-p1-overrides', field: 'description' -%}
+    {%- endcapture -%}
+    {%- assign seo_override_description = seo_override_description | strip -%}
 
-    {%- if page_description -%}
-      <meta name="description" content="{{ page_description | escape }}">
+    <title>
+      {%- if seo_override_title != blank -%}
+        {{- seo_override_title -}}
+      {%- elsif request.page_type == 'search' and search.terms != blank -%}
+        {{- search.terms | split: ' AND ' | last | split: 'product_type:' | last }} - {{ shop.name -}}
+      {%- else -%}
+        {{- page_title -}}
+        {%- if current_tags -%}
+          {%- assign meta_tags = current_tags | join: ', ' -%}
+          &ndash; {{ 'general.meta.tags' | t: tags: meta_tags }}
+        {%- endif -%}
+        {%- if current_page != 1 -%}
+          &ndash; {{ 'general.meta.page' | t: page: current_page }}
+        {%- endif -%}
+      {%- endif -%}
+    </title>
+
+    {%- assign seo_meta_description = page_description -%}
+    {%- if seo_override_description != blank -%}
+      {%- assign seo_meta_description = seo_override_description -%}
     {%- endif -%}
-    {% render 'social-meta-tags' %}
+    {%- if seo_meta_description -%}
+      <meta name="description" content="{{ seo_meta_description | escape }}">
+    {%- endif -%}
+    {% render 'social-meta-tags', page_description: seo_meta_description %}
     <link rel="canonical" href="{{ canonical_url }}">
 
 
